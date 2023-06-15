@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - next-v*
       - release-v*
   pull_request: {}
   workflow_dispatch: {}
@@ -12,9 +13,11 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_OPTIONS: --max_old_space_size=5120
+
 jobs:
   lint:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
-      NODE_OPTIONS: --max_old_space_size=4096
       GAS: true
     steps:
       - uses: actions/checkout@v3
@@ -37,19 +39,34 @@ jobs:
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check proceduraly generated contracts are up-to-date
-        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
+
+  tests-upgradeable:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile.sh
+      - name: Run tests
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         with:
           token: ${{ github.token }}
 
-  foundry-tests:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+  tests-foundry:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,19 +80,17 @@ jobs:
         run: forge test -vv
 
   coverage:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run coverage
-        env:
-          NODE_OPTIONS: --max_old_space_size=4096
       - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   slither:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -83,14 +98,16 @@ jobs:
         uses: ./.github/actions/setup
       - run: rm foundry.toml
       - uses: crytic/slither-action@v0.3.0
+        with:
+          node-version: 18.15
 
   codespell:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v1.0
+        uses: codespell-project/actions-codespell@v2.0
         with:
+          check_hidden: true
           check_filenames: true
           skip: package-lock.json,*.pdf

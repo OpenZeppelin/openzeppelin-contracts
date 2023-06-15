@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { fromRpcSig } = require('ethereumjs-util');
+
 const Enums = require('../../helpers/enums');
 const { getDomain, domainType } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
@@ -26,6 +27,7 @@ contract('GovernorWithParams', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -37,7 +39,7 @@ contract('GovernorWithParams', function (accounts) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         this.chainId = await web3.eth.getChainId();
-        this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+        this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
         this.mock = await Governor.new(name, this.token.address);
         this.receiver = await CallReceiver.new();
 

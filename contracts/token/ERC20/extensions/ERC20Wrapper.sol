@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/extensions/ERC20Wrapper.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Wrapper.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC20.sol";
 import "../utils/SafeERC20.sol";
@@ -18,8 +18,15 @@ import "../utils/SafeERC20.sol";
 abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;
 
+    /**
+     * @dev The underlying token couldn't be wrapped.
+     */
+    error ERC20InvalidUnderlying(address token);
+
     constructor(IERC20 underlyingToken) {
-        require(underlyingToken != this, "ERC20Wrapper: cannot self wrap");
+        if (underlyingToken == this) {
+            revert ERC20InvalidUnderlying(address(this));
+        }
         _underlying = underlyingToken;
     }
 
@@ -46,7 +53,9 @@ abstract contract ERC20Wrapper is ERC20 {
      */
     function depositFor(address account, uint256 amount) public virtual returns (bool) {
         address sender = _msgSender();
-        require(sender != address(this), "ERC20Wrapper: wrapper can't deposit");
+        if (sender == address(this)) {
+            revert ERC20InvalidSender(address(this));
+        }
         SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
         _mint(account, amount);
         return true;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC721.sol";
 
@@ -15,6 +16,11 @@ import "../ERC721.sol";
  */
 abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;
+
+    /**
+     * @dev The received ERC721 token couldn't be wrapped.
+     */
+    error ERC721UnsupportedToken(address token);
 
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
@@ -45,7 +51,9 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
-            require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Wrapper: caller is not token owner or approved");
+            if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
+                revert ERC721InsufficientApproval(_msgSender(), tokenId);
+            }
             _burn(tokenId);
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
@@ -66,13 +74,10 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
      * for recovering in that scenario.
      */
-    function onERC721Received(
-        address,
-        address from,
-        uint256 tokenId,
-        bytes memory
-    ) public virtual override returns (bytes4) {
-        require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
+    function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual returns (bytes4) {
+        if (address(underlying()) != _msgSender()) {
+            revert ERC721UnsupportedToken(_msgSender());
+        }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
@@ -82,7 +87,10 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * function that can be exposed with access control if desired.
      */
     function _recover(address account, uint256 tokenId) internal virtual returns (uint256) {
-        require(underlying().ownerOf(tokenId) == address(this), "ERC721Wrapper: wrapper is not token owner");
+        address owner = underlying().ownerOf(tokenId);
+        if (owner != address(this)) {
+            revert ERC721IncorrectOwner(address(this), tokenId, owner);
+        }
         _safeMint(account, tokenId);
         return tokenId;
     }

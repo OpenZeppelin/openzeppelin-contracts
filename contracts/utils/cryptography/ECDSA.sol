@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/ECDSA.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/ECDSA.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../Strings.sol";
 
@@ -16,19 +16,33 @@ library ECDSA {
         NoError,
         InvalidSignature,
         InvalidSignatureLength,
-        InvalidSignatureS,
-        InvalidSignatureV // Deprecated in v4.8
+        InvalidSignatureS
     }
 
-    function _throwError(RecoverError error) private pure {
+    /**
+     * @dev The signature derives the `address(0)`.
+     */
+    error ECDSAInvalidSignature();
+
+    /**
+     * @dev The signature has an invalid length.
+     */
+    error ECDSAInvalidSignatureLength(uint256 length);
+
+    /**
+     * @dev The signature has an S value that is in the upper half order.
+     */
+    error ECDSAInvalidSignatureS(bytes32 s);
+
+    function _throwError(RecoverError error, bytes32 errorArg) private pure {
         if (error == RecoverError.NoError) {
             return; // no error: do nothing
         } else if (error == RecoverError.InvalidSignature) {
-            revert("ECDSA: invalid signature");
+            revert ECDSAInvalidSignature();
         } else if (error == RecoverError.InvalidSignatureLength) {
-            revert("ECDSA: invalid signature length");
+            revert ECDSAInvalidSignatureLength(uint256(errorArg));
         } else if (error == RecoverError.InvalidSignatureS) {
-            revert("ECDSA: invalid signature 's' value");
+            revert ECDSAInvalidSignatureS(errorArg);
         }
     }
 
@@ -36,7 +50,7 @@ library ECDSA {
      * @dev Returns the address that signed a hashed message (`hash`) with
      * `signature` or error string. This address can then be used for verification purposes.
      *
-     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
@@ -52,7 +66,7 @@ library ECDSA {
      *
      * _Available since v4.3._
      */
-    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
+    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError, bytes32) {
         if (signature.length == 65) {
             bytes32 r;
             bytes32 s;
@@ -67,7 +81,7 @@ library ECDSA {
             }
             return tryRecover(hash, v, r, s);
         } else {
-            return (address(0), RecoverError.InvalidSignatureLength);
+            return (address(0), RecoverError.InvalidSignatureLength, bytes32(signature.length));
         }
     }
 
@@ -75,7 +89,7 @@ library ECDSA {
      * @dev Returns the address that signed a hashed message (`hash`) with
      * `signature`. This address can then be used for verification purposes.
      *
-     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
@@ -86,8 +100,8 @@ library ECDSA {
      * be too long), and then calling {toEthSignedMessageHash} on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
-        (address recovered, RecoverError error) = tryRecover(hash, signature);
-        _throwError(error);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
+        _throwError(error, errorArg);
         return recovered;
     }
 
@@ -98,10 +112,13 @@ library ECDSA {
      *
      * _Available since v4.3._
      */
-    function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError) {
-        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-        uint8 v = uint8((uint256(vs) >> 255) + 27);
-        return tryRecover(hash, v, r, s);
+    function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError, bytes32) {
+        unchecked {
+            bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+            // We do not check for an overflow here since the shift operation results in 0 or 1.
+            uint8 v = uint8((uint256(vs) >> 255) + 27);
+            return tryRecover(hash, v, r, s);
+        }
     }
 
     /**
@@ -110,8 +127,8 @@ library ECDSA {
      * _Available since v4.2._
      */
     function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
-        (address recovered, RecoverError error) = tryRecover(hash, r, vs);
-        _throwError(error);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, r, vs);
+        _throwError(error, errorArg);
         return recovered;
     }
 
@@ -121,7 +138,12 @@ library ECDSA {
      *
      * _Available since v4.3._
      */
-    function tryRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address, RecoverError) {
+    function tryRecover(
+        bytes32 hash,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (address, RecoverError, bytes32) {
         // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
         // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
         // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
@@ -132,16 +154,16 @@ library ECDSA {
         // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
         // these malleable signatures as well.
         if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
-            return (address(0), RecoverError.InvalidSignatureS);
+            return (address(0), RecoverError.InvalidSignatureS, s);
         }
 
         // If the signature is valid (and not malleable), return the signer address
         address signer = ecrecover(hash, v, r, s);
         if (signer == address(0)) {
-            return (address(0), RecoverError.InvalidSignature);
+            return (address(0), RecoverError.InvalidSignature, bytes32(0));
         }
 
-        return (signer, RecoverError.NoError);
+        return (signer, RecoverError.NoError, bytes32(0));
     }
 
     /**
@@ -149,8 +171,8 @@ library ECDSA {
      * `r` and `s` signature fields separately.
      */
     function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
-        (address recovered, RecoverError error) = tryRecover(hash, v, r, s);
-        _throwError(error);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, v, r, s);
+        _throwError(error, errorArg);
         return recovered;
     }
 
@@ -198,7 +220,7 @@ library ECDSA {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
-            mstore(ptr, "\x19\x01")
+            mstore(ptr, hex"19_01")
             mstore(add(ptr, 0x02), domainSeparator)
             mstore(add(ptr, 0x22), structHash)
             data := keccak256(ptr, 0x42)
@@ -212,6 +234,6 @@ library ECDSA {
      * See {recover}.
      */
     function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+        return keccak256(abi.encodePacked(hex"19_00", validator, data));
     }
 }

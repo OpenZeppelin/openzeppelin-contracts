@@ -22,8 +22,6 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotes}: Extracts voting weight from an {ERC20Votes}, or since v4.5 an {ERC721Votes} token.
 
-* {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
-
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
 
 Counting modules determine valid voting options.
@@ -66,8 +64,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorVotesQuorumFraction}}
 
-{{GovernorVotesComp}}
-
 === Extensions
 
 {{GovernorTimelockControl}}
@@ -79,10 +75,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 {{GovernorPreventLateQuorum}}
 
 {{GovernorCompatibilityBravo}}
-
-=== Deprecated
-
-{{GovernorProposalThreshold}}
 
 == Utils
 
@@ -154,8 +146,6 @@ Operations status can be queried using the functions:
 ===== Admin
 
 The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, the admin role can be granted to any address (in addition to the timelock itself). After further configuration and testing, this optional admin should renounce its role such that all further maintenance operations have to go through the timelock process.
-
-This role is identified by the *TIMELOCK_ADMIN_ROLE* value: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
 
 [[timelock-proposer]]
 ===== Proposer

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
 import "./ECDSA.sol";
 import "../ShortStrings.sol";
@@ -44,13 +44,13 @@ abstract contract EIP712 is IERC5267 {
     uint256 private immutable _cachedChainId;
     address private immutable _cachedThis;
 
+    bytes32 private immutable _hashedName;
+    bytes32 private immutable _hashedVersion;
+
     ShortString private immutable _name;
     ShortString private immutable _version;
     string private _nameFallback;
     string private _versionFallback;
-
-    bytes32 private immutable _hashedName;
-    bytes32 private immutable _hashedVersion;
 
     /**
      * @dev Initializes the domain separator and parameter caches.
@@ -111,12 +111,13 @@ abstract contract EIP712 is IERC5267 {
 
     /**
      * @dev See {EIP-5267}.
+     *
+     * _Available since v4.9._
      */
     function eip712Domain()
         public
         view
         virtual
-        override
         returns (
             bytes1 fields,
             string memory name,
@@ -129,12 +130,38 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _name.toStringWithFallback(_nameFallback),
-            _version.toStringWithFallback(_versionFallback),
+            _EIP712Name(),
+            _EIP712Version(),
             block.chainid,
             address(this),
             bytes32(0),
             new uint256[](0)
         );
+    }
+
+    /**
+     * @dev The name parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _name which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Name() internal view returns (string memory) {
+        return _name.toStringWithFallback(_nameFallback);
+    }
+
+    /**
+     * @dev The version parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _version which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Version() internal view returns (string memory) {
+        return _version.toStringWithFallback(_versionFallback);
     }
 }

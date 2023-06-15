@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./IGovernorTimelock.sol";
 import "../Governor.sol";
@@ -47,19 +47,21 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` state.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
-        ProposalState status = super.state(proposalId);
+        ProposalState currentState = super.state(proposalId);
 
-        if (status != ProposalState.Succeeded) {
-            return status;
+        if (currentState != ProposalState.Succeeded) {
+            return currentState;
         }
 
         // core tracks execution, so we just have to check if successful proposal have been queued.
         bytes32 queueid = _timelockIds[proposalId];
         if (queueid == bytes32(0)) {
-            return status;
+            return currentState;
+        } else if (_timelock.isOperationDone(queueid)) {
+            return ProposalState.Executed;
         } else if (_timelock.isOperationPending(queueid)) {
             return ProposalState.Queued;
         } else if (_timelock.isOperationDone(queueid)) {
@@ -97,7 +99,14 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
+        ProposalState currentState = state(proposalId);
+        if (currentState != ProposalState.Succeeded) {
+            revert GovernorUnexpectedProposalState(
+                proposalId,
+                currentState,
+                _encodeStateBitmap(ProposalState.Succeeded)
+            );
+        }
 
         uint256 delay = _timelock.getMinDelay();
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
@@ -138,12 +147,13 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        bytes32 timelockId = _timelockIds[proposalId];
 
-        if (_timelockIds[proposalId] != 0) {
-            // cancel
-            _timelock.cancel(_timelockIds[proposalId]);
+        if (timelockId != 0) {
             // cleanup
             delete _timelockIds[proposalId];
+            // cancel
+            _timelock.cancel(timelockId);
         }
 
         return proposalId;
