@@ -1,7 +1,8 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC721URIStorageMock = artifacts.require('$ERC721URIStorageMock');
 
@@ -33,7 +34,9 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('reverts when queried for non existent token id', async function () {
-      await expectRevert(this.token.tokenURI(nonExistentTokenId), 'ERC721: invalid token ID');
+      await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721NonexistentToken', [
+        nonExistentTokenId,
+      ]);
     });
 
     it('can be set for a token id', async function () {
@@ -48,10 +51,9 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('reverts when setting for non existent token id', async function () {
-      await expectRevert(
-        this.token.$_setTokenURI(nonExistentTokenId, sampleUri),
-        'ERC721URIStorage: URI set of nonexistent token',
-      );
+      await expectRevertCustomError(this.token.$_setTokenURI(nonExistentTokenId, sampleUri), 'ERC721NonexistentToken', [
+        nonExistentTokenId,
+      ]);
     });
 
     it('base URI can be set', async function () {
@@ -85,7 +87,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.$_burn(firstTokenId, { from: owner });
 
       expect(await this.token.$_exists(firstTokenId)).to.equal(false);
-      await expectRevert(this.token.tokenURI(firstTokenId), 'ERC721: invalid token ID');
+      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
 
     it('tokens with URI can be burnt ', async function () {
@@ -94,7 +96,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.$_burn(firstTokenId, { from: owner });
 
       expect(await this.token.$_exists(firstTokenId)).to.equal(false);
-      await expectRevert(this.token.tokenURI(firstTokenId), 'ERC721: invalid token ID');
+      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
   });
 });

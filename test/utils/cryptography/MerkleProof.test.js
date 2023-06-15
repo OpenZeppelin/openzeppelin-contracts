@@ -1,10 +1,10 @@
-require('@openzeppelin/test-helpers');
-
 const { expectRevert } = require('@openzeppelin/test-helpers');
+
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const MerkleProof = artifacts.require('$MerkleProof');
 
@@ -106,23 +106,25 @@ contract('MerkleProof', function () {
 
       const root = merkleTree.getRoot();
 
-      await expectRevert(
+      await expectRevertCustomError(
         this.merkleProof.$multiProofVerify(
           [leaves[1], fill, merkleTree.layers[1][1]],
           [false, false, false],
           root,
           [leaves[0], badLeaf], // A, E
         ),
-        'MerkleProof: invalid multiproof',
+        'MerkleProofInvalidMultiproof',
+        [],
       );
-      await expectRevert(
+      await expectRevertCustomError(
         this.merkleProof.$multiProofVerifyCalldata(
           [leaves[1], fill, merkleTree.layers[1][1]],
           [false, false, false],
           root,
           [leaves[0], badLeaf], // A, E
         ),
-        'MerkleProof: invalid multiproof',
+        'MerkleProofInvalidMultiproof',
+        [],
       );
     });
 

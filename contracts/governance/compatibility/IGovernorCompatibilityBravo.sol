@@ -12,6 +12,11 @@ import "../IGovernor.sol";
  */
 abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**
+     * @dev Mismatch between the parameters length for a proposal call.
+     */
+    error GovernorInvalidSignaturesLength(uint256 signatures, uint256 calldatas);
+
+    /**
      * @dev Proposal structure from Compound Governor Bravo. Not actually used by the compatibility layer, as
      * {{proposal}} returns a very different structure.
      */

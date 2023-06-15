@@ -12,6 +12,28 @@ import "./IAccessControl.sol";
  */
 interface IAccessControlDefaultAdminRules is IAccessControl {
     /**
+     * @dev The new default admin is not a valid default admin.
+     */
+    error AccessControlInvalidDefaultAdmin(address defaultAdmin);
+
+    /**
+     * @dev At least one of the following rules was violated:
+     *
+     * - The `DEFAULT_ADMIN_ROLE` must only be managed by itself.
+     * - The `DEFAULT_ADMIN_ROLE` must only be held by one account at the time.
+     * - Any `DEFAULT_ADMIN_ROLE` transfer must be in two delayed steps.
+     */
+    error AccessControlEnforcedDefaultAdminRules();
+
+    /**
+     * @dev The delay for transferring the default admin delay is enforced and
+     * the operation must wait until `schedule`.
+     *
+     * NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
+     */
+    error AccessControlEnforcedDefaultAdminDelay(uint48 schedule);
+
+    /**
      * @dev Emitted when a {defaultAdmin} transfer is started, setting `newAdmin` as the next
      * address to become the {defaultAdmin} by calling {acceptDefaultAdminTransfer} only after `acceptSchedule`
      * passes.

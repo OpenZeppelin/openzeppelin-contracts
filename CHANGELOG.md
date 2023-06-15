@@ -59,6 +59,10 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 }
 ```
 
+## 4.9.1 (2023-06-07)
+
+- `Governor`: Add a mechanism to restrict the address of the proposer using a suffix in the description.
+
 ## 4.9.0 (2023-05-23)
 
 - `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))

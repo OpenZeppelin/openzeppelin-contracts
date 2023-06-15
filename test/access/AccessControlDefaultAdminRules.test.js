@@ -16,10 +16,11 @@ contract('AccessControlDefaultAdminRules', function (accounts) {
   it('initial admin not zero', async function () {
     await expectRevert(
       AccessControlDefaultAdminRules.new(delay, constants.ZERO_ADDRESS),
-      'AccessControl: 0 default admin',
+      'AccessControlInvalidDefaultAdmin',
+      [constants.ZERO_ADDRESS],
     );
   });
 
-  shouldBehaveLikeAccessControl('AccessControl', ...accounts);
-  shouldBehaveLikeAccessControlDefaultAdminRules('AccessControl', delay, ...accounts);
+  shouldBehaveLikeAccessControl(...accounts);
+  shouldBehaveLikeAccessControlDefaultAdminRules(delay, ...accounts);
 });
