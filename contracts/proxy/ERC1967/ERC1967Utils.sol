@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (proxy/ERC1967/ERC1967Upgrade.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/ERC1967/ERC1967Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -15,8 +15,9 @@ import "../../utils/StorageSlot.sol";
  *
  * _Available since v4.1._
  */
-library ERC1967Upgrade {
-    // =================== BEGIN --- COPIED FROM IERC1967.sol --- REMOVAL REQUIRES SOLIDITY 0.8.21 ====================
+library ERC1967Utils {
+    // We re-declare ERC-1967 events here because they can't be used directly from IERC1967.
+    // This will be fixed in Solidity 0.8.21. At that point we should remove these events.
     /**
      * @dev Emitted when the implementation is upgraded.
      */
@@ -31,7 +32,6 @@ library ERC1967Upgrade {
      * @dev Emitted when the beacon is changed.
      */
     event BeaconUpgraded(address indexed beacon);
-    // ==================== END --- COPIED FROM IERC1967.sol --- REMOVAL REQUIRES SOLIDITY 0.8.21 =====================
 
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
     bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
@@ -84,17 +84,17 @@ library ERC1967Upgrade {
     /**
      * @dev Perform implementation upgrade
      *
-     * Emits an {Upgraded} event.
+     * Emits an {IERC1967-Upgraded} event.
      */
     function upgradeTo(address newImplementation) internal {
         _setImplementation(newImplementation);
-        emit /*IERC1967.*/ Upgraded(newImplementation);
+        emit Upgraded(newImplementation);
     }
 
     /**
      * @dev Perform implementation upgrade with additional setup call.
      *
-     * Emits an {Upgraded} event.
+     * Emits an {IERC1967-Upgraded} event.
      */
     function upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
         upgradeTo(newImplementation);
@@ -106,7 +106,7 @@ library ERC1967Upgrade {
     /**
      * @dev Perform implementation upgrade with security checks for UUPS proxies, and additional setup call.
      *
-     * Emits an {Upgraded} event.
+     * Emits an {IERC1967-Upgraded} event.
      */
     function upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) internal {
         // Upgrades from old implementations will perform a rollback test. This test requires the new
@@ -159,16 +159,16 @@ library ERC1967Upgrade {
     /**
      * @dev Changes the admin of the proxy.
      *
-     * Emits an {AdminChanged} event.
+     * Emits an {IERC1967-AdminChanged} event.
      */
     function changeAdmin(address newAdmin) internal {
-        emit /*IERC1967.*/ AdminChanged(getAdmin(), newAdmin);
+        emit AdminChanged(getAdmin(), newAdmin);
         _setAdmin(newAdmin);
     }
 
     /**
      * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
-     * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
+     * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1) and is validated in the constructor.
      */
     // solhint-disable-next-line private-vars-leading-underscore
     bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
@@ -200,11 +200,11 @@ library ERC1967Upgrade {
      * @dev Perform beacon upgrade with additional setup call. Note: This upgrades the address of the beacon, it does
      * not upgrade the implementation contained in the beacon (see {UpgradeableBeacon-_setImplementation} for that).
      *
-     * Emits a {BeaconUpgraded} event.
+     * Emits an {IERC1967-BeaconUpgraded} event.
      */
     function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
-        emit /*IERC1967.*/ BeaconUpgraded(newBeacon);
+        emit BeaconUpgraded(newBeacon);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }

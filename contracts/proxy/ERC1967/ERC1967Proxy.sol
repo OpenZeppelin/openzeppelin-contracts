@@ -4,7 +4,7 @@
 pragma solidity ^0.8.19;
 
 import "../Proxy.sol";
-import "./ERC1967Upgrade.sol";
+import "./ERC1967Utils.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -20,7 +20,7 @@ contract ERC1967Proxy is Proxy {
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
      */
     constructor(address _logic, bytes memory _data) payable {
-        ERC1967Upgrade.upgradeToAndCall(_logic, _data, false);
+        ERC1967Utils.upgradeToAndCall(_logic, _data, false);
     }
 
     /**
@@ -31,6 +31,6 @@ contract ERC1967Proxy is Proxy {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function _implementation() internal view virtual override returns (address impl) {
-        return ERC1967Upgrade.getImplementation();
+        return ERC1967Utils.getImplementation();
     }
 }
