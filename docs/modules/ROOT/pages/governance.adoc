@@ -44,7 +44,7 @@ The voting power of each account in our governance setup will be determined by a
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -82,7 +82,7 @@ If your project already has a live token that does not include ERC20Votes and is
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -147,7 +147,7 @@ We can optionally set a proposal threshold as well. This restricts proposal crea
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
@@ -339,7 +339,7 @@ Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -389,7 +389,7 @@ The Governor will automatically detect the clock mode used by the token and adap
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
