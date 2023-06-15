@@ -3,7 +3,6 @@
 pragma solidity ^0.8.19;
 
 import "../../token/ERC721/extensions/ERC721Consecutive.sol";
-import "../../token/ERC721/extensions/ERC721Enumerable.sol";
 import "../../token/ERC721/extensions/ERC721Pausable.sol";
 import "../../token/ERC721/extensions/ERC721Votes.sol";
 

@@ -2,14 +2,29 @@
 
 ### Removals
 
-The following contracts and libraries were removed:
+The following contracts, libraries and functions were removed:
 
+- `Address.isContract` (because of its ambiguous nature and potential for misuse)
+- `Checkpoints.History`
 - `Counters`
 - `ERC20Snapshot`
 - `ERC20VotesComp`
+- `ERC165Storage` (in favor of inheritance based approach)
+- `ERC777`
+- `ERC1820Implementer`
 - `GovernorVotesComp`
+- `GovernorProposalThreshold` (deprecated since 4.4)
 - `PaymentSplitter`
-- `TokenTimelock` (removed in favor of `VestingWallet`)
+- `PullPayment`
+- `SafeMath`
+- `SignedSafeMath`
+- `Timers`
+- `TokenTimelock` (in favor of `VestingWallet`)
+- All escrow contracts (`Escrow`, `ConditionalEscrow` and `RefundEscrow`)
+- All cross-chain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
+- All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
+
+These removals were implemented in the following PRs: [#3637](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3637), [#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880), [#3945](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3945), [#4258](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4258), [#4276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4276), [#4289](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4289)
 
 ### How to upgrade from 4.x
 
@@ -43,6 +58,10 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
 }
 ```
+
+## 4.9.1 (2023-06-07)
+
+- `Governor`: Add a mechanism to restrict the address of the proposer using a suffix in the description.
 
 ## 4.9.0 (2023-05-23)
 

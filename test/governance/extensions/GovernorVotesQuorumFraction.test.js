@@ -1,9 +1,10 @@
-const { expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { clock } = require('../../helpers/time');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -84,12 +85,20 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
         await this.helper.waitForDeadline();
-        await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+        await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+          this.proposal.id,
+          Enums.ProposalState.Defeated,
+          proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+        ]);
       });
 
       describe('onlyGovernance updates', function () {
         it('updateQuorumNumerator is protected', async function () {
-          await expectRevert(this.mock.updateQuorumNumerator(newRatio), 'Governor: onlyGovernance');
+          await expectRevertCustomError(
+            this.mock.updateQuorumNumerator(newRatio, { from: owner }),
+            'GovernorOnlyExecutor',
+            [owner],
+          );
         });
 
         it('can updateQuorumNumerator through governance', async function () {
@@ -129,11 +138,12 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
         });
 
         it('cannot updateQuorumNumerator over the maximum', async function () {
+          const quorumNumerator = 101;
           this.helper.setProposal(
             [
               {
                 target: this.mock.address,
-                data: this.mock.contract.methods.updateQuorumNumerator('101').encodeABI(),
+                data: this.mock.contract.methods.updateQuorumNumerator(quorumNumerator).encodeABI(),
               },
             ],
             '<proposal description>',
@@ -144,10 +154,12 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
 
-          await expectRevert(
-            this.helper.execute(),
-            'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator',
-          );
+          const quorumDenominator = await this.mock.quorumDenominator();
+
+          await expectRevertCustomError(this.helper.execute(), 'GovernorInvalidQuorumFraction', [
+            quorumNumerator,
+            quorumDenominator,
+          ]);
         });
       });
     });

@@ -1,6 +1,7 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC721Pausable = artifacts.require('$ERC721Pausable');
 
@@ -26,34 +27,37 @@ contract('ERC721Pausable', function (accounts) {
     });
 
     it('reverts when trying to transferFrom', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused',
+        'EnforcedPause',
+        [],
       );
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused',
+        'EnforcedPause',
+        [],
       );
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](owner, receiver, firstTokenId, mockData, {
           from: owner,
         }),
-        'ERC721Pausable: token transfer while paused',
+        'EnforcedPause',
+        [],
       );
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevert(this.token.$_mint(receiver, secondTokenId), 'ERC721Pausable: token transfer while paused');
+      await expectRevertCustomError(this.token.$_mint(receiver, secondTokenId), 'EnforcedPause', []);
     });
 
     it('reverts when trying to burn', async function () {
-      await expectRevert(this.token.$_burn(firstTokenId), 'ERC721Pausable: token transfer while paused');
+      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'EnforcedPause', []);
     });
 
     describe('getApproved', function () {

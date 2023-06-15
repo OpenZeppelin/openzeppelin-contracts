@@ -14,6 +14,21 @@ pragma solidity ^0.8.19;
  */
 library Create2 {
     /**
+     * @dev Not enough balance for performing a CREATE2 deploy.
+     */
+    error Create2InsufficientBalance(uint256 balance, uint256 needed);
+
+    /**
+     * @dev There's no code to deploy.
+     */
+    error Create2EmptyBytecode();
+
+    /**
+     * @dev The deployment failed.
+     */
+    error Create2FailedDeployment();
+
+    /**
      * @dev Deploys a contract using `CREATE2`. The address where the contract
      * will be deployed can be known in advance via {computeAddress}.
      *
@@ -28,13 +43,19 @@ library Create2 {
      * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
     function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address addr) {
-        require(address(this).balance >= amount, "Create2: insufficient balance");
-        require(bytecode.length != 0, "Create2: bytecode length is zero");
+        if (address(this).balance < amount) {
+            revert Create2InsufficientBalance(address(this).balance, amount);
+        }
+        if (bytecode.length == 0) {
+            revert Create2EmptyBytecode();
+        }
         /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
-        require(addr != address(0), "Create2: Failed on deploy");
+        if (addr == address(0)) {
+            revert Create2FailedDeployment();
+        }
     }
 
     /**

@@ -5,6 +5,11 @@ pragma solidity ^0.8.19;
  * @dev Provides tracking nonces for addresses. Nonces will only increment.
  */
 abstract contract Nonces {
+    /**
+     * @dev The nonce used for an `account` is not the expected current nonce.
+     */
+    error InvalidAccountNonce(address account, uint256 currentNonce);
+
     mapping(address => uint256) private _nonces;
 
     /**
@@ -26,5 +31,16 @@ abstract contract Nonces {
             // It is important to do x++ and not ++x here.
             return _nonces[owner]++;
         }
+    }
+
+    /**
+     * @dev Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
+     */
+    function _useCheckedNonce(address owner, uint256 nonce) internal virtual returns (uint256) {
+        uint256 current = _useNonce(owner);
+        if (nonce != current) {
+            revert InvalidAccountNonce(owner, current);
+        }
+        return current;
     }
 }
