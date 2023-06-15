@@ -85,6 +85,14 @@ contract('ERC721Consecutive', function (accounts) {
             expect(await this.token.getVotes(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
           }
         });
+
+        it('reverts on consecutive minting to the zero address', async function () {
+          await expectRevertCustomError(
+            ERC721ConsecutiveMock.new(name, symbol, offset, delegates, [ZERO_ADDRESS], [10]),
+            'ERC721InvalidReceiver',
+            [ZERO_ADDRESS],
+          );
+        });
       });
 
       describe('minting after construction', function () {
@@ -171,6 +179,17 @@ contract('ERC721Consecutive', function (accounts) {
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user2);
+        });
+
+        it('reverts burning batches of size != 1', async function () {
+          const tokenId = batches[0].amount + offset;
+          const receiver = batches[0].receiver;
+
+          await expectRevertCustomError(
+            this.token.$_afterTokenTransfer(receiver, ZERO_ADDRESS, tokenId, 2),
+            'ERC721ForbiddenBatchBurn',
+            [],
+          );
         });
       });
     });

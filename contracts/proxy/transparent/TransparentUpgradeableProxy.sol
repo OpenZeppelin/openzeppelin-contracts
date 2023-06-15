@@ -75,14 +75,14 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _admin = admin_;
-        _changeAdmin(admin_);
+        ERC1967Utils.changeAdmin(admin_);
     }
 
     /**
      * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
      */
     function _fallback() internal virtual override {
-        if (msg.sender == _getAdmin()) {
+        if (msg.sender == _admin) {
             bytes memory ret;
             bytes4 selector = msg.sig;
             if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
@@ -101,22 +101,13 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Returns the current immutable admin.
-     *
-     * Overrides ERC1967's admin in favor of an immutable value to avoid unnecessary SLOADs on each proxy call.
-     */
-    function _getAdmin() internal view virtual override returns (address) {
-        return _admin;
-    }
-
-    /**
      * @dev Upgrade the implementation of the proxy.
      */
     function _dispatchUpgradeTo() private returns (bytes memory) {
         _requireZeroValue();
 
         address newImplementation = abi.decode(msg.data[4:], (address));
-        _upgradeToAndCall(newImplementation, bytes(""), false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
 
         return "";
     }
@@ -128,7 +119,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _dispatchUpgradeToAndCall() private returns (bytes memory) {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-        _upgradeToAndCall(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data, true);
 
         return "";
     }
