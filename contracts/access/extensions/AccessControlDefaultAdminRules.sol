@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "./AccessControl.sol";
 import "./IAccessControlDefaultAdminRules.sol";
-import "../utils/math/SafeCast.sol";
-import "../interfaces/IERC5313.sol";
+import "../AccessControl.sol";
+import "../../utils/math/SafeCast.sol";
+import "../../interfaces/IERC5313.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
