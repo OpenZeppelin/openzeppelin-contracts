@@ -181,15 +181,15 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Returns operation state.
      */
     function getOperationState(bytes32 id) public view virtual returns (OperationState) {
-        uint timestamp = getTimestamp(id);
+        uint256 timestamp = getTimestamp(id);
         if (timestamp == 0) {
             return OperationState.Unset;
-        } else if (getTimestamp(id) > _DONE_TIMESTAMP && timestamp > block.timestamp) {
-            return OperationState.Pending;
-        } else if (timestamp > _DONE_TIMESTAMP) {
-            return OperationState.Ready;
-        } else {
+        } else if (timestamp == _DONE_TIMESTAMP) {
             return OperationState.Done;
+        } else if (timestamp > block.timestamp) {
+            return OperationState.Pending;
+        } else {
+            return OperationState.Ready;
         }
     }
 
