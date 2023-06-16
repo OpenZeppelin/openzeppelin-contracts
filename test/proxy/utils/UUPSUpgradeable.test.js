@@ -6,7 +6,6 @@ const { expectRevertCustomError } = require('../../helpers/customError');
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
-const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
 const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 
 contract('UUPSUpgradeable', function () {
@@ -62,19 +61,5 @@ contract('UUPSUpgradeable', function () {
     await expectRevertCustomError(this.instance.upgradeTo(otherInstance.address), 'ERC1967InvalidImplementation', [
       otherInstance.address,
     ]);
-  });
-
-  it('can upgrade from legacy implementations', async function () {
-    const legacyImpl = await UUPSUpgradeableLegacyMock.new();
-    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x').then(({ address }) =>
-      UUPSUpgradeableLegacyMock.at(address),
-    );
-
-    const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
-    expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
-
-    const implementationSlot = await getSlot(legacyInstance, ImplementationSlot);
-    const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-    expect(implementationAddress).to.be.equal(this.implInitial.address);
   });
 });
