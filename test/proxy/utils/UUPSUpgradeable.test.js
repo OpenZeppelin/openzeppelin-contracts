@@ -7,6 +7,7 @@ const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 const UUPSUnsupportedProxiableUUID = artifacts.require('UUPSUnsupportedProxiableUUID');
+const Address = artifacts.require('$Address');
 
 contract('UUPSUpgradeable', function () {
   before(async function () {
@@ -15,6 +16,7 @@ contract('UUPSUpgradeable', function () {
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
     this.implUpgradeNonUUPS = await NonUpgradeableMock.new();
     this.implUnsupportedUUID = await UUPSUnsupportedProxiableUUID.new();
+    this.helper = await Address.new();
   });
 
   beforeEach(async function () {
@@ -43,7 +45,7 @@ contract('UUPSUpgradeable', function () {
     expect(await this.instance.current()).to.be.bignumber.equal('1');
   });
 
-  it('rejects upgrading directly from the implementation', async function () {
+  it('calling upgradeTo on the implementation reverts', async function () {
     await expectRevertCustomError(
       this.implInitial.upgradeTo(this.implUpgradeOk.address),
       'UUPSUnauthorizedCallContext',
@@ -51,7 +53,7 @@ contract('UUPSUpgradeable', function () {
     );
   });
 
-  it('rejects upgrading directly from the implementation with call', async function () {
+  it('calling upgradeToAndCall on the implementation reverts', async function () {
     await expectRevertCustomError(
       this.implInitial.upgradeToAndCall(
         this.implUpgradeOk.address,
@@ -62,9 +64,9 @@ contract('UUPSUpgradeable', function () {
     );
   });
 
-  it('rejects upgrading from an invalid proxy', async function () {
+  it('calling upgradeTo from a contract that is not a proxy reverts', async function () {
     await expectRevertCustomError(
-      this.implUpgradeUnsafe.functionDelegateCall(
+      this.helper.$functionDelegateCall(
         this.implUpgradeOk.address,
         this.implUpgradeOk.contract.methods.upgradeTo(this.implUpgradeUnsafe.address).encodeABI(),
       ),
@@ -73,9 +75,9 @@ contract('UUPSUpgradeable', function () {
     );
   });
 
-  it('rejects upgrading from an invalid proxy with call', async function () {
+  it('calling upgradeTo from a contract that is not a proxy reverts', async function () {
     await expectRevertCustomError(
-      this.implUpgradeUnsafe.functionDelegateCall(
+      this.helper.$functionDelegateCall(
         this.implUpgradeOk.address,
         this.implUpgradeOk.contract.methods.upgradeToAndCall(this.implUpgradeUnsafe.address, '0x').encodeABI(),
       ),

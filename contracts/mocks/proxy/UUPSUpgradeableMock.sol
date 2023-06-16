@@ -29,10 +29,6 @@ contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
         ERC1967Utils.upgradeToAndCall(newImplementation, data, false);
     }
-
-    function functionDelegateCall(address target, bytes memory data) public {
-        Address.functionDelegateCall(target, data);
-    }
 }
 
 contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
