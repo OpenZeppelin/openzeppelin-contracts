@@ -4,7 +4,6 @@ const { expectRevertCustomError } = require('../helpers/customError');
 const { expect } = require('chai');
 
 const Strings = artifacts.require('$Strings');
-const StringsMock = artifacts.require('$StringsMock');
 
 contract('Strings', function () {
   before(async function () {
