@@ -126,10 +126,11 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length - 1 != totalHashes) {
+        if (leavesLen + proofLen - 1 != totalHashes) {
             revert MerkleProofInvalidMultiproof();
         }
 
@@ -153,6 +154,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
+            if (proofPos != proofLen) {
+                revert MerkleProofInvalidMultiproof();
+            }
             unchecked {
                 return hashes[totalHashes - 1];
             }
@@ -180,10 +184,11 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length - 1 != totalHashes) {
+        if (leavesLen + proofLen - 1 != totalHashes) {
             revert MerkleProofInvalidMultiproof();
         }
 
@@ -207,6 +212,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
+            if (proofPos != proofLen) {
+                revert MerkleProofInvalidMultiproof();
+            }
             unchecked {
                 return hashes[totalHashes - 1];
             }
