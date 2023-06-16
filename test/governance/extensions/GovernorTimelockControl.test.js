@@ -10,6 +10,8 @@ const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsI
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -410,6 +412,70 @@ contract('GovernorTimelockControl', function (accounts) {
             });
 
             expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+          });
+        });
+
+        describe('on safe receive', function () {
+          describe('ERC721', function () {
+            const name = 'Non Fungible Token';
+            const symbol = 'NFT';
+            const tokenId = web3.utils.toBN(1);
+
+            beforeEach(async function () {
+              this.token = await ERC721.new(name, symbol);
+              await this.token.$_mint(owner, tokenId);
+            });
+
+            it("can't receive an ERC721 safeTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeTransferFrom(owner, this.mock.address, tokenId, { from: owner }),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
+          });
+
+          describe('ERC1155', function () {
+            const uri = 'https://token-cdn-domain/{id}.json';
+            const tokenIds = {
+              1: web3.utils.toBN(1000),
+              2: web3.utils.toBN(2000),
+              3: web3.utils.toBN(3000),
+            };
+
+            beforeEach(async function () {
+              this.token = await ERC1155.new(uri);
+              await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+            });
+
+            it("can't receive ERC1155 safeTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeTransferFrom(
+                  owner,
+                  this.mock.address,
+                  ...Object.entries(tokenIds)[0], // id + amount
+                  '0x',
+                  { from: owner },
+                ),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
+
+            it("can't receive ERC1155 safeBatchTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeBatchTransferFrom(
+                  owner,
+                  this.mock.address,
+                  Object.keys(tokenIds),
+                  Object.values(tokenIds),
+                  '0x',
+                  { from: owner },
+                ),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
           });
         });
       });

@@ -364,11 +364,16 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
                     // Tokens rejected
                     revert ERC1155InvalidReceiver(to);
                 }
-            } catch Error(string memory reason) {
-                revert(reason);
-            } catch {
-                // non-ERC1155Receiver implementer
-                revert ERC1155InvalidReceiver(to);
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    // non-ERC1155Receiver implementer
+                    revert ERC1155InvalidReceiver(to);
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
             }
         }
     }
@@ -389,11 +394,16 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
                     // Tokens rejected
                     revert ERC1155InvalidReceiver(to);
                 }
-            } catch Error(string memory reason) {
-                revert(reason);
-            } catch {
-                // non-ERC1155Receiver implementer
-                revert ERC1155InvalidReceiver(to);
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    // non-ERC1155Receiver implementer
+                    revert ERC1155InvalidReceiver(to);
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
             }
         }
     }
