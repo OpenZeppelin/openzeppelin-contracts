@@ -61,7 +61,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('can overwrite the admin by the implementation', async function () {
       const dummy = new DummyImplementation(this.proxyAddress);
-      await dummy._unsafeOverrideAdmin(anotherAccount);
+      await dummy.unsafeOverrideAdmin(anotherAccount);
       const ERC1967AdminSlotValue = await getAddressInSlot(this.proxy, AdminSlot);
       expect(ERC1967AdminSlotValue).to.be.equal(anotherAccount);
 
