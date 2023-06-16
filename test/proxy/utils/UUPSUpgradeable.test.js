@@ -1,4 +1,5 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
+const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
@@ -23,6 +24,7 @@ contract('UUPSUpgradeable', function () {
     const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
     expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.be.equal(this.implUpgradeOk.address);
   });
 
   it('upgrade to upgradeable implementation with call', async function () {
@@ -34,6 +36,7 @@ contract('UUPSUpgradeable', function () {
     );
     expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.be.equal(this.implUpgradeOk.address);
 
     expect(await this.instance.current()).to.be.bignumber.equal('1');
   });
@@ -41,6 +44,7 @@ contract('UUPSUpgradeable', function () {
   it('upgrade to and unsafe upgradeable implementation', async function () {
     const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.be.equal(this.implUpgradeUnsafe.address);
   });
 
   // delegate to a non existing upgradeTo function causes a low level revert
