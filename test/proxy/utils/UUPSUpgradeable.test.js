@@ -1,6 +1,4 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
-const { web3 } = require('@openzeppelin/test-helpers/src/setup');
-const { getSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
