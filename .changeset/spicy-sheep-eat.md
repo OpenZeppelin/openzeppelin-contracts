@@ -1,5 +1,5 @@
 ---
-'openzeppelin-solidity': patch
+'openzeppelin-solidity': major
 ---
 
 Change access folder structure
