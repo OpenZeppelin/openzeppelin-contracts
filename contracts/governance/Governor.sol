@@ -328,6 +328,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
+     * @dev See {IGovernorTimelock-queue}.
+     *
+     * Note: This is an empty declaration for timelock modules to hook into.
+     */
+    function queue(
+        address[] memory /*targets*/,
+        uint256[] memory /*values*/,
+        bytes[] memory /*calldatas*/,
+        bytes32 /*descriptionHash*/
+    ) public virtual returns (uint256) {
+        revert();
+    }
+
+    /**
      * @dev See {IGovernor-execute}.
      */
     function execute(

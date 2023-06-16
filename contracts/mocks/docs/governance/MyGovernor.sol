@@ -2,14 +2,14 @@
 pragma solidity ^0.8.19;
 
 import "../../../governance/Governor.sol";
-import "../../../governance/compatibility/GovernorCompatibilityBravo.sol";
+import "../../../governance/extensions/GovernorCountingSimple.sol";
 import "../../../governance/extensions/GovernorVotes.sol";
 import "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import "../../../governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is
     Governor,
-    GovernorCompatibilityBravo,
+    GovernorCountingSimple,
     GovernorVotes,
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
@@ -33,9 +33,7 @@ contract MyGovernor is
 
     // The functions below are overrides required by Solidity.
 
-    function state(
-        uint256 proposalId
-    ) public view override(Governor, IGovernor, GovernorTimelockControl) returns (ProposalState) {
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
@@ -44,8 +42,17 @@ contract MyGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public override(Governor, GovernorCompatibilityBravo, IGovernor) returns (uint256) {
+    ) public override(Governor, IGovernor) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
+    }
+
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public override(Governor, GovernorTimelockControl) returns (uint256) {
+        return super.queue(targets, values, calldatas, descriptionHash);
     }
 
     function cancel(
@@ -53,7 +60,7 @@ contract MyGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public override(Governor, GovernorCompatibilityBravo, IGovernor) returns (uint256) {
+    ) public override(Governor, IGovernor) returns (uint256) {
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -82,7 +89,7 @@ contract MyGovernor is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(Governor, IERC165, GovernorTimelockControl) returns (bool) {
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

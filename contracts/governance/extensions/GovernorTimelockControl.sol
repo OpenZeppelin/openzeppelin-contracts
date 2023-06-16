@@ -92,7 +92,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
+    ) public virtual override(Governor, IGovernorTimelock) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         ProposalState currentState = state(proposalId);
