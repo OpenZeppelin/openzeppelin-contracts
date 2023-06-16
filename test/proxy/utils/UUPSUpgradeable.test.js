@@ -14,7 +14,7 @@ contract('UUPSUpgradeable', function () {
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
     this.implUpgradeNonUUPS = await NonUpgradeableMock.new();
-    this.impUnsupportedUUID = await UUPSUnsupportedProxiableUUID.new();
+    this.implUnsupportedUUID = await UUPSUnsupportedProxiableUUID.new();
   });
 
   beforeEach(async function () {
@@ -86,7 +86,7 @@ contract('UUPSUpgradeable', function () {
 
   it('rejects upgrading to an unsupported UUID', async function () {
     await expectRevertCustomError(
-      this.instance.upgradeTo(this.impUnsupportedUUID.address),
+      this.instance.upgradeTo(this.implUnsupportedUUID.address),
       'UUPSUnsupportedProxiableUUID',
       [web3.utils.keccak256('invalid UUID')],
     );
