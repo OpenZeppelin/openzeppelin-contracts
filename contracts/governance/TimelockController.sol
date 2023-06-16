@@ -170,33 +170,27 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
-     */
-    function isOperationPending(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) > _DONE_TIMESTAMP;
-    }
-
-    /**
-     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
-     */
-    function isOperationReady(bytes32 id) public view virtual returns (bool) {
-        uint256 timestamp = getTimestamp(id);
-        return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
-    }
-
-    /**
-     * @dev Returns whether an operation is done or not.
-     */
-    function isOperationDone(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) == _DONE_TIMESTAMP;
-    }
-
-    /**
      * @dev Returns the timestamp at which an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
     function getTimestamp(bytes32 id) public view virtual returns (uint256) {
         return _timestamps[id];
+    }
+
+    /**
+     * @dev Returns operation state.
+     */
+    function getOperationState(bytes32 id) public view virtual returns (OperationState) {
+        uint timestamp = getTimestamp(id);
+        if (timestamp == 0) {
+            return OperationState.Unset;
+        } else if (getTimestamp(id) > _DONE_TIMESTAMP && timestamp > block.timestamp) {
+            return OperationState.Pending;
+        } else if (timestamp > _DONE_TIMESTAMP) {
+            return OperationState.Ready;
+        } else {
+            return OperationState.Done;
+        }
     }
 
     /**
@@ -314,7 +308,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * - the caller must have the 'canceller' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
-        if (!isOperationPending(id)) {
+        if (getOperationState(id) != OperationState.Pending) {
             revert TimelockUnexpectedOperationState(id, OperationState.Pending);
         }
         delete _timestamps[id];
@@ -397,10 +391,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
-        if (!isOperationReady(id)) {
+        if (getOperationState(id) != OperationState.Ready) {
             revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
-        if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
+        if (predecessor != bytes32(0) && getOperationState(predecessor) != OperationState.Done) {
             revert TimelockUnexecutedPredecessor(predecessor);
         }
     }
@@ -409,7 +403,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        if (!isOperationReady(id)) {
+        if (getOperationState(id) != OperationState.Ready) {
             revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
         _timestamps[id] = _DONE_TIMESTAMP;
