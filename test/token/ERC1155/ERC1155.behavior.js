@@ -5,8 +5,10 @@ const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 const { expectRevertCustomError } = require('../../helpers/customError');
+const { Enum } = require('../../helpers/enums');
 
 const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
+const RevertType = Enum('None', 'Empty', 'String', 'Custom');
 
 function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
@@ -296,9 +298,9 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         beforeEach(async function () {
           this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            false,
+            RevertType.None,
             RECEIVER_BATCH_MAGIC_VALUE,
-            false,
+            RevertType.None,
           );
         });
 
@@ -370,7 +372,12 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
 
       context('to a receiver contract returning unexpected value', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new('0x00c0ffee', false, RECEIVER_BATCH_MAGIC_VALUE, false);
+          this.receiver = await ERC1155ReceiverMock.new(
+            '0x00c0ffee',
+            RevertType.None,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.None,
+          );
         });
 
         it('reverts', async function () {
@@ -385,21 +392,53 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
 
       context('to a receiver contract that reverts', function () {
-        beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
+        it('with empty reason', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            true,
+            RevertType.Empty,
             RECEIVER_BATCH_MAGIC_VALUE,
-            false,
+            RevertType.None,
+          );
+
+          await expectRevertCustomError(
+            this.token.safeTransferFrom(multiTokenHolder, receiver.address, firstTokenId, firstAmount, '0x', {
+              from: multiTokenHolder,
+            }),
+            'ERC1155InvalidReceiver',
+            [receiver.address],
           );
         });
 
-        it('reverts', async function () {
+        it('with reason string', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
+            RECEIVER_SINGLE_MAGIC_VALUE,
+            RevertType.String,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.None,
+          );
+
           await expectRevert(
-            this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
+            this.token.safeTransferFrom(multiTokenHolder, receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
             'ERC1155ReceiverMock: reverting on receive',
+          );
+        });
+
+        it('with custom error', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
+            RECEIVER_SINGLE_MAGIC_VALUE,
+            RevertType.Custom,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.None,
+          );
+
+          await expectRevertCustomError(
+            this.token.safeTransferFrom(multiTokenHolder, receiver.address, firstTokenId, firstAmount, '0x', {
+              from: multiTokenHolder,
+            }),
+            'ERC1155ReceiverMockError',
+            [],
           );
         });
       });
@@ -590,9 +629,9 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         beforeEach(async function () {
           this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            false,
+            RevertType.None,
             RECEIVER_BATCH_MAGIC_VALUE,
-            false,
+            RevertType.None,
           );
         });
 
@@ -666,9 +705,9 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         beforeEach(async function () {
           this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            false,
+            RevertType.None,
             RECEIVER_SINGLE_MAGIC_VALUE,
-            false,
+            RevertType.None,
           );
         });
 
@@ -689,20 +728,40 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
 
       context('to a receiver contract that reverts', function () {
-        beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
+        it('with empty reason', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            false,
+            RevertType.None,
             RECEIVER_BATCH_MAGIC_VALUE,
-            true,
+            RevertType.Empty,
+          );
+
+          await expectRevertCustomError(
+            this.token.safeBatchTransferFrom(
+              multiTokenHolder,
+              receiver.address,
+              [firstTokenId, secondTokenId],
+              [firstAmount, secondAmount],
+              '0x',
+              { from: multiTokenHolder },
+            ),
+            'ERC1155InvalidReceiver',
+            [receiver.address],
           );
         });
 
-        it('reverts', async function () {
+        it('with reason string', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
+            RECEIVER_SINGLE_MAGIC_VALUE,
+            RevertType.None,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.String,
+          );
+
           await expectRevert(
             this.token.safeBatchTransferFrom(
               multiTokenHolder,
-              this.receiver.address,
+              receiver.address,
               [firstTokenId, secondTokenId],
               [firstAmount, secondAmount],
               '0x',
@@ -711,15 +770,37 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
             'ERC1155ReceiverMock: reverting on batch receive',
           );
         });
+
+        it('with custom error', async function () {
+          const receiver = await ERC1155ReceiverMock.new(
+            RECEIVER_SINGLE_MAGIC_VALUE,
+            RevertType.None,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.Custom,
+          );
+
+          await expectRevertCustomError(
+            this.token.safeBatchTransferFrom(
+              multiTokenHolder,
+              receiver.address,
+              [firstTokenId, secondTokenId],
+              [firstAmount, secondAmount],
+              '0x',
+              { from: multiTokenHolder },
+            ),
+            'ERC1155ReceiverMockError',
+            [],
+          );
+        });
       });
 
       context('to a receiver contract that reverts only on single transfers', function () {
         beforeEach(async function () {
           this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE,
-            true,
+            RevertType.String,
             RECEIVER_BATCH_MAGIC_VALUE,
-            false,
+            RevertType.None,
           );
 
           this.toWhom = this.receiver.address;
