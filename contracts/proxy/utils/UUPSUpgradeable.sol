@@ -126,10 +126,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
             if (slot != ERC1967Utils.IMPLEMENTATION_SLOT) {
                 revert UUPSUnsupportedProxiableUUID(slot);
             }
+            ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
         } catch {
             // The implementation is not UUPS
             revert ERC1967Utils.ERC1967InvalidImplementation(newImplementation);
         }
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
     }
 }
