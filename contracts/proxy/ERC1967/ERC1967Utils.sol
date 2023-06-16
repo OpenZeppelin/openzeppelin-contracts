@@ -4,7 +4,6 @@
 pragma solidity ^0.8.20;
 
 import "../beacon/IBeacon.sol";
-import "../../interfaces/IERC1967.sol";
 import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
