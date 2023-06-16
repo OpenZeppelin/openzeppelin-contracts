@@ -40,12 +40,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * fail.
      */
     modifier onlyProxy() {
-        if (address(this) == __self) {
-            // Must be called through delegatecall
-            revert UUPSUnauthorizedCallContext();
-        }
-        if (ERC1967Utils.getImplementation() != __self) {
-            // Must be called through an active proxy
+        if (
+            address(this) == __self || // Must be called through delegatecall
+            ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
+        ) {
             revert UUPSUnauthorizedCallContext();
         }
         _;
