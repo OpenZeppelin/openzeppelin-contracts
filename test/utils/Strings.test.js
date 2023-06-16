@@ -8,7 +8,6 @@ const Strings = artifacts.require('$Strings');
 contract('Strings', function () {
   before(async function () {
     this.strings = await Strings.new();
-    this.stringsMock = await StringsMock.new();
   });
 
   describe('toString', function () {
