@@ -75,7 +75,7 @@ contract('UUPSUpgradeable', function () {
     );
   });
 
-  it('calling upgradeTo from a contract that is not a proxy reverts', async function () {
+  it('calling upgradeToAndCall from a contract that is not a proxy reverts', async function () {
     await expectRevertCustomError(
       this.helper.$functionDelegateCall(
         this.implUpgradeOk.address,
