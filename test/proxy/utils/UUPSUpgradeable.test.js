@@ -75,7 +75,7 @@ contract('UUPSUpgradeable', function () {
     );
   });
 
-  it('calling upgradeToAndCall from a contract that is not n ERC1967 proxy (with the right implementation) reverts', async function () {
+  it('calling upgradeToAndCall from a contract that is not an ERC1967 proxy (with the right implementation) reverts', async function () {
     await expectRevertCustomError(
       this.helper.$functionDelegateCall(
         this.implUpgradeOk.address,
