@@ -20,10 +20,10 @@ This directory provides ways to restrict who can access the functions of a contr
 
 == Extensions
 
-{{AccessControlEnumerable}}
-
 {{IAccessControlEnumerable}}
 
-{{AccessControlDefaultAdminRules}}
+{{AccessControlEnumerable}}
 
 {{IAccessControlDefaultAdminRules}}
+
+{{AccessControlDefaultAdminRules}}
