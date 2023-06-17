@@ -186,8 +186,8 @@ contract('MerkleProof', function () {
 
       const root = merkleTree.getRoot();
 
-      // Now we can pass any  ** malicious ** fake leaves as valid!
-      const maliciousLeaves = ['some', 'malicious', 'leaves'].map(keccak256).sort(Buffer.compare);
+      // Now we can pass any **malicious** fake leaves as valid!
+      const maliciousLeaves = ['malicious', 'leaves'].map(keccak256).sort(Buffer.compare);
       const maliciousProof = [leaves[0], leaves[0]];
       const maliciousProofFlags = [true, true, false];
 
