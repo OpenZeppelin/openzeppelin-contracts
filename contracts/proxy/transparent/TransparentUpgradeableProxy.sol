@@ -4,6 +4,7 @@
 pragma solidity ^0.8.19;
 
 import "../ERC1967/ERC1967Proxy.sol";
+import "../../interfaces/IERC1967.sol";
 
 /**
  * @dev Interface for {TransparentUpgradeableProxy}. In order to implement transparency, {TransparentUpgradeableProxy}

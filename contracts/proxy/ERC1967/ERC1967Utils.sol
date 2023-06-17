@@ -4,8 +4,6 @@
 pragma solidity ^0.8.20;
 
 import "../beacon/IBeacon.sol";
-import "../../interfaces/IERC1967.sol";
-import "../../interfaces/draft-IERC1822.sol";
 import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
@@ -33,9 +31,6 @@ library ERC1967Utils {
      */
     event BeaconUpgraded(address indexed beacon);
 
-    // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
-    bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
-
     /**
      * @dev Storage slot with the address of the current implementation.
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
@@ -58,11 +53,6 @@ library ERC1967Utils {
      * @dev The `beacon` of the proxy is invalid.
      */
     error ERC1967InvalidBeacon(address beacon);
-
-    /**
-     * @dev The storage `slot` is unsupported as a UUID.
-     */
-    error ERC1967UnsupportedProxiableUUID(bytes32 slot);
 
     /**
      * @dev Returns the current implementation address.
@@ -100,30 +90,6 @@ library ERC1967Utils {
         upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
-        }
-    }
-
-    /**
-     * @dev Perform implementation upgrade with security checks for UUPS proxies, and additional setup call.
-     *
-     * Emits an {IERC1967-Upgraded} event.
-     */
-    function upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) internal {
-        // Upgrades from old implementations will perform a rollback test. This test requires the new
-        // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
-        // this special case will break upgrade paths from old UUPS implementation to new ones.
-        if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
-            _setImplementation(newImplementation);
-        } else {
-            try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                if (slot != IMPLEMENTATION_SLOT) {
-                    revert ERC1967UnsupportedProxiableUUID(slot);
-                }
-            } catch {
-                // The implementation is not UUPS
-                revert ERC1967InvalidImplementation(newImplementation);
-            }
-            upgradeToAndCall(newImplementation, data, forceCall);
         }
     }
 
