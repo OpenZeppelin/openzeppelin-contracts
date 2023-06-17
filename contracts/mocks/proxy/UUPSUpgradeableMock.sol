@@ -30,3 +30,9 @@ contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
         ERC1967Utils.upgradeToAndCall(newImplementation, data, false);
     }
 }
+
+contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
+    function proxiableUUID() external pure override returns (bytes32) {
+        return keccak256("invalid UUID");
+    }
+}
