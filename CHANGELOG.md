@@ -59,6 +59,10 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 }
 ```
 
+## 4.9.2 (2023-06-16)
+
+- `MerkleProof`: Fix a bug in `processMultiProof` and `processMultiProofCalldata` that allows proving arbitrary leaves if the tree contains a node with value 0 at depth 1.
+
 ## 4.9.1 (2023-06-07)
 
 - `Governor`: Add a mechanism to restrict the address of the proposer using a suffix in the description.
