@@ -189,6 +189,6 @@ contract('ERC20Wrapper', function (accounts) {
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
     });
 
-    shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount);
+    shouldBehaveLikeERC20(initialSupply, accounts);
   });
 });
