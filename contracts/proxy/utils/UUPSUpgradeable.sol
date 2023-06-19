@@ -74,20 +74,6 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy to `newImplementation`.
-     *
-     * Calls {_authorizeUpgrade}.
-     *
-     * Emits an {Upgraded} event.
-     *
-     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
-     */
-    function upgradeTo(address newImplementation) public virtual onlyProxy {
-        _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
-    }
-
-    /**
      * @dev Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call
      * encoded in `data`.
      *
@@ -99,7 +85,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, data, true);
+        _upgradeToAndCallUUPS(newImplementation, data);
     }
 
     /**
@@ -119,12 +105,12 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) private {
+    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data) private {
         try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
             if (slot != ERC1967Utils.IMPLEMENTATION_SLOT) {
                 revert UUPSUnsupportedProxiableUUID(slot);
             }
-            ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
+            ERC1967Utils.upgradeToAndCall(newImplementation, data);
         } catch {
             // The implementation is not UUPS
             revert ERC1967Utils.ERC1967InvalidImplementation(newImplementation);

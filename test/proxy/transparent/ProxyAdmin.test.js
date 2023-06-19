@@ -49,27 +49,6 @@ contract('ProxyAdmin', function (accounts) {
     });
   });
 
-  describe('#upgrade', function () {
-    context('with unauthorized account', function () {
-      it('fails to upgrade', async function () {
-        await expectRevertCustomError(
-          this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'OwnableUnauthorizedAccount',
-          [anotherAccount],
-        );
-      });
-    });
-
-    context('with authorized account', function () {
-      it('upgrades implementation', async function () {
-        await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-
-        const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-        expect(implementationAddress).to.be.equal(this.implementationV2.address);
-      });
-    });
-  });
-
   describe('#upgradeAndCall', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
@@ -85,6 +64,17 @@ contract('ProxyAdmin', function (accounts) {
     });
 
     context('with authorized account', function () {
+      context('with empty callData', function () {
+        it('upgrades implementation', async function () {
+          const callData = '0x';
+          await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
+            from: proxyAdminOwner,
+          });
+          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+          expect(implementationAddress).to.be.equal(this.implementationV2.address);
+        });
+      });
+
       context('with invalid callData', function () {
         it('fails to upgrade', async function () {
           const callData = '0x12345678';

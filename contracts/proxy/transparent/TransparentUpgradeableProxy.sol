@@ -15,8 +15,6 @@ import "../../interfaces/IERC1967.sol";
 interface ITransparentUpgradeableProxy is IERC1967 {
     function changeAdmin(address) external;
 
-    function upgradeTo(address) external;
-
     function upgradeToAndCall(address, bytes memory) external payable;
 }
 
@@ -78,9 +76,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         if (msg.sender == ERC1967Utils.getAdmin()) {
             bytes memory ret;
             bytes4 selector = msg.sig;
-            if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
-                ret = _dispatchUpgradeTo();
-            } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
+            if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 ret = _dispatchUpgradeToAndCall();
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
                 ret = _dispatchChangeAdmin();
@@ -110,25 +106,13 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy.
-     */
-    function _dispatchUpgradeTo() private returns (bytes memory) {
-        _requireZeroValue();
-
-        address newImplementation = abi.decode(msg.data[4:], (address));
-        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
-
-        return "";
-    }
-
-    /**
      * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      */
     function _dispatchUpgradeToAndCall() private returns (bytes memory) {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
 
         return "";
     }

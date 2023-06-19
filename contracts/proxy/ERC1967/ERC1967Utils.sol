@@ -86,9 +86,9 @@ library ERC1967Utils {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
+    function upgradeToAndCall(address newImplementation, bytes memory data) internal {
         upgradeTo(newImplementation);
-        if (data.length > 0 || forceCall) {
+        if (data.length > 0) {
             Address.functionDelegateCall(newImplementation, data);
         }
     }

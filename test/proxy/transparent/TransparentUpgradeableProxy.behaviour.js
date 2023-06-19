@@ -47,47 +47,58 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
   });
 
-  describe('upgradeTo', function () {
-    describe('when the sender is the admin', function () {
-      const from = proxyAdminAddress;
-
-      describe('when the given implementation is different from the current one', function () {
-        it('upgrades to the requested implementation', async function () {
-          await this.proxy.upgradeTo(this.implementationV1, { from });
-
-          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-          expect(implementationAddress).to.be.equal(this.implementationV1);
-        });
-
-        it('emits an event', async function () {
-          expectEvent(await this.proxy.upgradeTo(this.implementationV1, { from }), 'Upgraded', {
-            implementation: this.implementationV1,
-          });
-        });
-      });
-
-      describe('when the given implementation is the zero address', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(this.proxy.upgradeTo(ZERO_ADDRESS, { from }), 'ERC1967InvalidImplementation', [
-            ZERO_ADDRESS,
-          ]);
-        });
-      });
-    });
-
-    describe('when the sender is not the admin', function () {
-      const from = anotherAccount;
-
-      it('reverts', async function () {
-        await expectRevert.unspecified(this.proxy.upgradeTo(this.implementationV1, { from }));
-      });
-    });
-  });
-
   describe('upgradeToAndCall', function () {
     describe('without migrations', function () {
       beforeEach(async function () {
         this.behavior = await InitializableMock.new();
+      });
+
+      describe('with an empty call', function () {
+        const initializeData = '0x';
+
+        describe('when the sender is the admin', function () {
+          const from = proxyAdminAddress;
+          const value = 1e5;
+
+          beforeEach(async function () {
+            this.receipt = await this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from, value });
+          });
+
+          it('upgrades to the requested implementation', async function () {
+            const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+            expect(implementationAddress).to.be.equal(this.behavior.address);
+          });
+
+          it('emits an event', function () {
+            expectEvent(this.receipt, 'Upgraded', { implementation: this.behavior.address });
+          });
+
+          it('calls the initializer function', async function () {
+            const migratable = new InitializableMock(this.proxyAddress);
+            expect(await migratable.x()).to.be.bignumber.equal('0');
+          });
+
+          it('sends given value to the proxy', async function () {
+            const balance = await web3.eth.getBalance(this.proxyAddress);
+            expect(balance.toString()).to.be.bignumber.equal(value.toString());
+          });
+
+          it('uses the storage of the proxy', async function () {
+            // storage layout should look as follows:
+            //  - 0: Initializable storage ++ initializerRan ++ onlyInitializingRan
+            //  - 1: x
+            const storedValue = await web3.eth.getStorageAt(this.proxyAddress, 1);
+            expect(parseInt(storedValue)).to.eq(0);
+          });
+        });
+
+        describe('when the sender is not the admin', function () {
+          it('reverts', async function () {
+            await expectRevert.unspecified(
+              this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from: anotherAccount }),
+            );
+          });
+        });
       });
 
       describe('when the call does not fail', function () {
@@ -112,8 +123,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
           it('calls the initializer function', async function () {
             const migratable = new InitializableMock(this.proxyAddress);
-            const x = await migratable.x();
-            expect(x).to.be.bignumber.equal('42');
+            expect(await migratable.x()).to.be.bignumber.equal('42');
           });
 
           it('sends given value to the proxy', async function () {
@@ -173,8 +183,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           it("calls the 'initialize' function and sends given value to the proxy", async function () {
             const migratable = new MigratableMockV1(this.proxyAddress);
 
-            const x = await migratable.x();
-            expect(x).to.be.bignumber.equal('42');
+            expect(await migratable.x()).to.be.bignumber.equal('42');
 
             const balance = await web3.eth.getBalance(this.proxyAddress);
             expect(new BN(balance)).to.be.bignumber.equal(this.balancePreviousV1.addn(value));
@@ -201,11 +210,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             it("calls the 'migrate' function and sends given value to the proxy", async function () {
               const migratable = new MigratableMockV2(this.proxyAddress);
 
-              const x = await migratable.x();
-              expect(x).to.be.bignumber.equal('10');
-
-              const y = await migratable.y();
-              expect(y).to.be.bignumber.equal('42');
+              expect(await migratable.x()).to.be.bignumber.equal('10');
+              expect(await migratable.y()).to.be.bignumber.equal('42');
 
               const balance = new BN(await web3.eth.getBalance(this.proxyAddress));
               expect(balance).to.be.bignumber.equal(this.balancePreviousV2.addn(value));
@@ -232,11 +238,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
               it("calls the 'migrate' function and sends given value to the proxy", async function () {
                 const migratable = new MigratableMockV3(this.proxyAddress);
 
-                const x = await migratable.x();
-                expect(x).to.be.bignumber.equal('42');
-
-                const y = await migratable.y();
-                expect(y).to.be.bignumber.equal('10');
+                expect(await migratable.x()).to.be.bignumber.equal('42');
+                expect(await migratable.y()).to.be.bignumber.equal('10');
 
                 const balance = new BN(await web3.eth.getBalance(this.proxyAddress));
                 expect(balance).to.be.bignumber.equal(this.balancePreviousV3.addn(value));
@@ -349,7 +352,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       await proxyInstance1.setValue(42);
 
       const instance2 = await Implementation2.new();
-      await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });
+      await proxy.upgradeToAndCall(instance2.address, '0x', { from: proxyAdminAddress });
 
       const proxyInstance2 = new Implementation2(proxy.address);
       const res = await proxyInstance2.getValue();
@@ -366,7 +369,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       expect(res.toString()).to.eq('42');
 
       const instance1 = await Implementation1.new();
-      await proxy.upgradeTo(instance1.address, { from: proxyAdminAddress });
+      await proxy.upgradeToAndCall(instance1.address, '0x', { from: proxyAdminAddress });
 
       const proxyInstance1 = new Implementation2(proxy.address);
       await expectRevert.unspecified(proxyInstance1.getValue());
@@ -380,7 +383,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       await proxyInstance1.setValue(42);
 
       const instance3 = await Implementation3.new();
-      await proxy.upgradeTo(instance3.address, { from: proxyAdminAddress });
+      await proxy.upgradeToAndCall(instance3.address, '0x', { from: proxyAdminAddress });
       const proxyInstance3 = new Implementation3(proxy.address);
 
       const res = await proxyInstance3.getValue(8);
@@ -393,7 +396,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const instance4 = await Implementation4.new();
-      await proxy.upgradeTo(instance4.address, { from: proxyAdminAddress });
+      await proxy.upgradeToAndCall(instance4.address, '0x', { from: proxyAdminAddress });
       const proxyInstance4 = new Implementation4(proxy.address);
 
       const data = '0x';
@@ -408,7 +411,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const proxy = await createProxy(instance4.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const instance2 = await Implementation2.new();
-      await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });
+      await proxy.upgradeToAndCall(instance2.address, '0x', { from: proxyAdminAddress });
 
       const data = '0x';
       await expectRevert.unspecified(web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }));
