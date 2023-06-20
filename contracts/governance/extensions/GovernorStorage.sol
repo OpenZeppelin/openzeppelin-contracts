@@ -8,8 +8,8 @@ import "../Governor.sol";
  * @dev Extension of {Governor} that implements storage of proposal details. This modules also provides primitives for
  * the enumerability of proposals.
  *
- * Usecases for this module include:
- * - UIs that expore the proposal state without relying on event indexing.
+ * Use cases for this module include:
+ * - UIs that explore the proposal state without relying on event indexing.
  * - For some L2 chains where storage is compared to calldata, using a the proposalId version of queue and execute
  *   might me cheaper.
  *
@@ -48,7 +48,7 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev ProposalId version of {IGovernorTimelock-queue}.
+     * @dev Version of {IGovernorTimelock-queue} with only `proposalId` as an argument.
      */
     function queue(uint256 proposalId) public virtual {
         ProposalDetails storage proposalDetails = _proposalDetails[proposalId];
@@ -61,7 +61,7 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev ProposalId version of {IGovernor-execute}.
+     * @dev Version of {IGovernor-execute} with only `proposalId` as an argument.
      */
     function execute(uint256 proposalId) public payable virtual {
         ProposalDetails storage proposalDetails = _proposalDetails[proposalId];
@@ -87,14 +87,14 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev Return the number of stored proposals.
+     * @dev Returns the number of stored proposals.
      */
     function getProposalCount() public view virtual returns (uint256) {
         return _proposalIds.length;
     }
 
     /**
-     * @dev Return the details of a proposalId.
+     * @dev Returns the details of a proposalId.
      */
     function getProposalDetails(
         uint256 proposalId
@@ -104,7 +104,7 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev Return the details (including the proposalId) of a proposal given its sequential index.
+     * @dev Returns the details (including the proposalId) of a proposal given its sequential index.
      */
     function getProposalDetailsAt(
         uint256 index

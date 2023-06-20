@@ -36,7 +36,7 @@ Timelock extensions add a delay for governance decisions to be executed. The wor
 
 Other extensions can customize the behavior or interface in multiple ways.
 
-* {GovernorStorage}: Stores the proposal detail onchain and provide enumerability of the proposals. This can be useful for some L2 chains where storage is cheap compared to calldata.
+* {GovernorStorage}: Stores the proposal details onchain and provides enumerability of the proposals. This can be useful for some L2 chains where storage is cheap compared to calldata.
 
 * {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiring an upgrade.
 
