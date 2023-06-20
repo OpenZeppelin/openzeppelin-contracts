@@ -11,7 +11,7 @@ const CallReceiverMock = artifacts.require('CallReceiverMock');
 
 contract('MinimalForwarder', function (accounts) {
   beforeEach(async function () {
-    this.forwarder = await MinimalForwarder.new('MinimalForwarder', '0.0.1');
+    this.forwarder = await MinimalForwarder.new('MinimalForwarder');
 
     this.domain = await getDomain(this.forwarder);
     this.types = {

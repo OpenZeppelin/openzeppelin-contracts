@@ -61,7 +61,7 @@ contract MinimalForwarder is EIP712, Nonces {
     /**
      * @dev See {EIP712-constructor}.
      */
-    constructor(string memory name, string memory version) EIP712(name, "1") {}
+    constructor(string memory name) EIP712(name, "1") {}
 
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block.
