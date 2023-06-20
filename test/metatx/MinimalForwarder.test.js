@@ -188,7 +188,10 @@ contract('MinimalForwarder', function (accounts) {
             value,
           };
           const sig = this.sign(req);
-          await expectRevertCustomError(this.forwarder.execute(req, sig), 'MinimalForwarderMismatchedValue', [0, value]);
+          await expectRevertCustomError(this.forwarder.execute(req, sig), 'MinimalForwarderMismatchedValue', [
+            0,
+            value,
+          ]);
         });
       });
 
