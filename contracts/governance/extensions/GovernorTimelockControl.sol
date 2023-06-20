@@ -125,10 +125,10 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override {
-        // cleanup for refund
-        delete _timelockIds[proposalId];
         // execute
         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+        // cleanup for refund
+        delete _timelockIds[proposalId];
     }
 
     /**
@@ -148,10 +148,10 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 timelockId = _timelockIds[proposalId];
 
         if (timelockId != 0) {
-            // cleanup
-            delete _timelockIds[proposalId];
             // cancel
             _timelock.cancel(timelockId);
+            // cleanup
+            delete _timelockIds[proposalId];
         }
 
         return proposalId;
