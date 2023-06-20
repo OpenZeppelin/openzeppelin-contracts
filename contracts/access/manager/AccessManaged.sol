@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import "./IManaged.sol";
+import "./IAuthority.sol";
 
-contract AccessManagedImmutable is IManaged {
+contract AccessManagedImmutable {
     IAuthority public immutable authority;
 
     constructor(IAuthority _authority) {

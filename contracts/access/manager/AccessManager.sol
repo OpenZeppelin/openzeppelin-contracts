@@ -2,172 +2,212 @@
 
 pragma solidity ^0.8.20;
 
-import "./AccessManagerUtils.sol";
 import "./IAuthority.sol";
-import "./ICondition.sol";
-import "./AccessManaged.sol";
+import "../../utils/Address.sol";
+import "../../utils/Context.sol";
+
+
+
+
+
 
 interface IAccessManager is IAuthority {
-    enum AccessMode { Custom, Closed, Open }
+//     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
+//     event AccessModeUpdated(address indexed target, AccessMode previousMode, AccessMode indexed mode);
 
-    event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
-    event AccessModeUpdated(address indexed target, AccessMode previousMode, AccessMode indexed mode);
-
-    function grantGroup(uint8 group, address user, address[] calldata conditions) external;
-    function revokeGroup(uint8 group, address user, address[] calldata conditions) external;
-    function renounceGroup(uint8 group, address[] calldata conditions) external;
-    function setFunctionAllowedGroup(address target, bytes4[] calldata selectors, uint8 group, bool allowed) external;
-    function setContractModeCustom(address target) external;
-    function setContractModeOpen(address target) external;
-    function setContractModeClosed(address target) external;
-    function getContractMode(address target) external view returns (AccessMode);
-    function getFunctionAllowedGroups(address target, bytes4 selector) external view returns (bytes32);
-    function getUserGroups(address user) external view returns (bytes32);
-    function getUserGroups(address user, address[] calldata conditions) external view returns (bytes32);
+//     function grantGroup(address user, bytes32 group, address[] calldata conditions) external;
+//     function revokeGroup(uint8 group, address user, address[] calldata conditions) external;
+//     function renounceGroup(uint8 group, address[] calldata conditions) external;
+//     function setFunctionAllowedGroup(address target, bytes4[] calldata selectors, uint8 group, bool allowed) external;
+//     function setContractModeCustom(address target) external;
+//     function setContractModeOpen(address target) external;
+//     function setContractModeClosed(address target) external;
+//     function getContractMode(address target) external view returns (AccessMode);
+//     function getFunctionAllowedGroups(address target, bytes4 selector) external view returns (bytes32);
+//     function getUserGroups(address user) external view returns (bytes32);
+//     function getUserGroups(address user, address[] calldata conditions) external view returns (bytes32);
 }
 
-contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
-    using AccessManagerUtils for *;
 
-    uint8 public constant MAX_CONDITION_DEPTH = 8; // Do we realistically need more ?
-    uint8 public constant ADMIN_GROUP         = type(uint8).min;
-    uint8 public constant PUBLIC_GROUP        = type(uint8).max;
 
-    mapping(address user   => mapping(bytes32 conditions => bytes32    groups)) private _userGroups;
-    mapping(address target => mapping(bytes4  selector   => bytes32    groups)) private _allowedGroups;
-    mapping(address target =>                               AccessMode mode   ) private _contractMode;
+contract DelayedActions is Context {
+    mapping(bytes32 id => uint48 timepoint) private _schedules; // todo: add accessor
+
+    event Scheduled(bytes32, address, address, bytes);
+    event Executed(bytes32);
+
+    modifier withDelay(uint48 delay) {
+        _executeCheck(_msgSender(), address(this), _msgData(), delay);
+        _;
+    }
+
+    function schedule(address target, bytes calldata data) public {
+        _schedule(_msgSender(), target, data);
+    }
+
+    function _schedule(address caller, address target, bytes calldata data) internal virtual {
+        bytes32 id = keccak256(abi.encode(caller, target, data));
+        require(_schedules[id] == 0, "Already scheduled");
+        _schedules[id] = uint48(block.timestamp);
+        emit Scheduled(id, caller, target, data);
+    }
+
+    function _executeCheck(address caller, address target, bytes calldata data, uint48 delay) internal virtual {
+        bytes32 id = keccak256(abi.encode(caller, target, data));
+        uint48 timepoint = _schedules[id];
+        require(timepoint > 0 || delay == 0, "missing schedule");
+        require(timepoint + delay <= block.timestamp, "schedule pending");
+        delete _schedules[id];
+        emit Executed(id);
+    }
+}
+
+
+
+
+
+contract AccessManager is IAuthority, DelayedActions {
+    enum AccessMode { Custom, Closed, Open }
+
+    struct Group {
+        mapping(address user => uint48 timepoint) members;
+        bytes32 admin;
+        uint48 grantDelay;
+    }
+
+    bytes32 public constant ADMIN_GROUP  = bytes32(type(uint256).min); // 0
+    bytes32 public constant PUBLIC_GROUP = bytes32(type(uint256).max); // 2**256-1
+
+    address private _currentCaller = address(0xdead);
+    mapping(address target => AccessMode mode) private _contractMode;
+    mapping(address target => mapping(bytes4 selector => bytes32 group)) private _allowedGroups;
+    mapping(bytes32 group => Group) private _groups;
 
     constructor(address initialAdmin) {
-        _grantGroup(ADMIN_GROUP, initialAdmin, new address[](0));
-        _setFunctionAllowedGroup(address(this), IAccessManager.grantGroup.selector,                 ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.revokeGroup.selector,                ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.renounceGroup.selector,              PUBLIC_GROUP, true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.setFunctionAllowedGroup.selector,    ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.setContractModeCustom.selector,      ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.setContractModeOpen.selector,        ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.setContractModeClosed.selector,      ADMIN_GROUP,  true);
+        _grantRole(ADMIN_GROUP, initialAdmin, uint48(block.timestamp));
     }
 
-    // =============================================== GROUP MANAGEMENT ===============================================
-    // Restricted to ADMIN_GROUP by default
-    function grantGroup(uint8 group, address user, address[] calldata conditions) public virtual restricted() {
-        _grantGroup(group, user, conditions);
-    }
+    function relay(address target, bytes calldata data) public payable virtual {
+        address caller = _msgSender();
 
-    // Restricted to ADMIN_GROUP by default
-    function revokeGroup(uint8 group, address user, address[] calldata conditions) public virtual restricted() {
-        _revokeGroup(group, user, conditions);
-    }
+        // check operation was scheduled (or is authorized with no delay)
+        _executeCheck(caller, target, data, 1 minutes); // todo: delay ???
 
-    // Open to PUBLIC_GROUP by default
-    function renounceGroup(uint8 group, address[] calldata conditions) public virtual restricted() {
-        _revokeGroup(group, msg.sender, conditions);
-    }
-
-    function _grantGroup(uint8 group, address user, address[] memory conditions) internal virtual {
-        bytes32 conditionsHash = _hashConditions(conditions);
-        bytes32 before = _userGroups[user][conditionsHash];
-        require(before & group.toMask() == 0, "Grant error: user already in group");
-        _userGroups[user][conditionsHash] = before.applyMask(group.toMask(), true);
-        // emit Event
-    }
-
-    function _revokeGroup(uint8 group, address user, address[] memory conditions) internal virtual {
-        bytes32 conditionsHash = _hashConditions(conditions);
-        bytes32 before = _userGroups[user][conditionsHash];
-        require(before & group.toMask() != 0, "Revoke error: user not in group");
-        _userGroups[user][conditionsHash] = before.applyMask(group.toMask(), false);
-        // emit Event
-    }
-
-    // ============================================= FUNCTION MANAGEMENT ==============================================
-    function setFunctionAllowedGroup(
-        address target,
-        bytes4[] calldata selectors,
-        uint8 group,
-        bool allowed
-    ) public virtual restricted() {
-        for (uint256 i = 0; i < selectors.length; ++i) {
-            _setFunctionAllowedGroup(target, selectors[i], group, allowed);
-        }
-    }
-
-    function _setFunctionAllowedGroup(address target, bytes4 selector, uint8 group, bool allowed) internal {
-        _allowedGroups[target][selector] = _allowedGroups[target][selector].applyMask(group.toMask(), allowed);
-        emit GroupAllowed(target, selector, group, allowed);
-    }
-
-    // =============================================== MODE MANAGEMENT ================================================
-    function setContractModeCustom(address target) public virtual restricted() {
-        _setContractMode(target, AccessMode.Custom);
-    }
-
-    function setContractModeOpen(address target) public virtual restricted() {
-        _setContractMode(target, AccessMode.Open);
-    }
-
-    function setContractModeClosed(address target) public virtual restricted() {
-        _setContractMode(target, AccessMode.Closed);
-    }
-
-    function _setContractMode(address target, AccessMode mode) internal virtual {
-        AccessMode previousMode = _contractMode[target];
-        _contractMode[target] = mode;
-        emit AccessModeUpdated(target, previousMode, mode);
+        // todo: restrict to external target? target using address(this) as an authority?
+        address previousCurrentCaller = _currentCaller;
+        _currentCaller = caller;
+        Address.functionCallWithValue(target, data, msg.value);
+        _currentCaller = previousCurrentCaller;
     }
 
     // =================================================== GETTERS ====================================================
-    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool) {
-        bytes32 allowedGroups = getFunctionAllowedGroups(target, selector);
+    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool allowed) {
+        AccessMode mode = getContractMode(target);
+        if (mode == AccessMode.Open) {
+            return true;
+        } else if (mode == AccessMode.Closed) {
+            return false;
+        } else { // mode == AccessMode.Custom
 
-        // reserve the space for 32 iterations
-        address[] memory conditionChain = new address[](MAX_CONDITION_DEPTH);
-        assembly { mstore(conditionChain, 0) }
+            // TODO: delay forced ?
+            // If yes, caller must be address(this): relayed call
+            // If no, accept direct access (caller is user)
 
-        for (uint256 i = 0; i < MAX_CONDITION_DEPTH; ++i) {
-            // try getting the permission with the current permission array
-            if (getUserGroups(caller, conditionChain) & allowedGroups > 0) return true;
-
-            // assume "caller" is a condition
-            address currentCaller = caller.callerFromCondition();
-
-            // exit condition
-            if (currentCaller == address(0)) break;
-
-            // update the condition array
-            assembly { mstore(conditionChain, add(i, 1)) }
-            conditionChain[i] = caller;
-            caller = currentCaller;
+            bytes32 group = getFunctionAllowedGroup(target, selector);
+            return
+                group == PUBLIC_GROUP ||
+                hasGroup(group, caller == address(this) ? currentCaller() : caller);
         }
+    }
 
-        return false;
+    function currentCaller() public view virtual returns (address) {
+        return _currentCaller;
     }
 
     function getContractMode(address target) public view virtual returns (AccessMode) {
         return _contractMode[target];
     }
 
-    function getFunctionAllowedGroups(address target, bytes4 selector) public view virtual returns (bytes32) {
-        AccessMode mode = getContractMode(target);
-        if (mode == AccessMode.Open) {
-            return PUBLIC_GROUP.toMask();
-        } else if (mode == AccessMode.Closed) {
-            return bytes32(0);
-        } else {
-            return _allowedGroups[target][selector];
+    function getFunctionAllowedGroup(address target, bytes4 selector) public view virtual returns (bytes32) {
+        return _allowedGroups[target][selector];
+    }
+
+    // =============================================== GROUP MANAGEMENT ===============================================
+    modifier onlyGroup(bytes32 group) {
+        require(hasGroup(group, _msgSender()));
+        _;
+    }
+
+    function hasGroup(bytes32 group, address account) public view returns (bool) {
+        uint48 timepoint = _groups[group].members[account];
+        return timepoint > 0 && timepoint <= uint48(block.timestamp);
+    }
+
+    function grantRole(bytes32 group, address account) public onlyGroup(_groups[group].admin) {
+        _grantRole(group, account, _groups[group].grantDelay);
+    }
+
+    function revokeRole(bytes32 group, address account) public onlyGroup(_groups[group].admin) {
+        _revokeRole(group, account);
+    }
+
+    function renounceRole(bytes32 group, address account) public {
+        require(account == _msgSender(), "AccessManager: can only renounce roles for self");
+        _revokeRole(group, _msgSender());
+    }
+
+    function setGrantDelay(bytes32 group, uint48 newDelay) public onlyGroup(ADMIN_GROUP) withDelay(_groups[group].grantDelay) {
+        _setGrantDelay(group, newDelay);
+    }
+
+    function _grantRole(bytes32 group, address account, uint48 when) internal {
+        require(_groups[group].members[account] == 0, "AccessManager: account is already in group");
+        _groups[group].members[account] = uint48(block.timestamp) + when;
+        // todo emit event
+    }
+
+    function _revokeRole(bytes32 group, address account) internal {
+        require(_groups[group].members[account] != 0, "AccessManager: account is not in group");
+        delete _groups[group].members[account];
+        // todo emit event
+    }
+
+    function _setGrantDelay(bytes32 group, uint48 newDelay) internal {
+        _groups[group].grantDelay = newDelay;
+        // todo emit event
+    }
+
+    // ============================================= FUNCTION MANAGEMENT ==============================================
+    function setFunctionAllowedGroup(
+        address target,
+        bytes4[] calldata selectors,
+        bytes32 group
+    ) public virtual onlyGroup(ADMIN_GROUP) {
+        for (uint256 i = 0; i < selectors.length; ++i) {
+            _setFunctionAllowedGroup(target, selectors[i], group);
         }
     }
 
-    function getUserGroups(address user) public view virtual returns (bytes32) {
-        return getUserGroups(user, new address[](0));
+    function _setFunctionAllowedGroup(address target, bytes4 selector, bytes32 group) internal {
+        _allowedGroups[target][selector] = group;
+        // todo emit event
     }
 
-    function getUserGroups(address user, address[] memory conditions) public view virtual returns (bytes32) {
-        return _userGroups[user][_hashConditions(conditions)] | PUBLIC_GROUP.toMask();
+    // =============================================== MODE MANAGEMENT ================================================
+    function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) {
+        _setContractMode(target, AccessMode.Custom);
     }
 
-    function _hashConditions(address[] memory conditions) private pure returns (bytes32) {
-        require(conditions.length < MAX_CONDITION_DEPTH, "Condition chain too deep");
-        return keccak256(abi.encode(conditions));
+    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) {
+        _setContractMode(target, AccessMode.Open);
+    }
+
+    function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) {
+        _setContractMode(target, AccessMode.Closed);
+    }
+
+    function _setContractMode(address target, AccessMode mode) internal virtual {
+        _contractMode[target] = mode;
+        // todo emit event
     }
 }
