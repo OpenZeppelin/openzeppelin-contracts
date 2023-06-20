@@ -55,7 +55,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       });
     });
 
-    it('sets the admin in the storage and emits AdminChanged', async function () {
+    it('sets the admin in the storage', async function () {
       expect(await getAddressInSlot(this.proxy, AdminSlot)).to.be.equal(proxyAdminAddress);
     });
 
