@@ -73,7 +73,7 @@ function shouldBehaveLikeERC20(initialSupply, accounts, opts = {}) {
               });
             });
 
-            it('emits an approval event', async function () {
+            it(`${forcedApproval ? "emits" : "does not emit"} an approval event`, async function () {
               (forcedApproval ? expectEvent : expectEvent.notEmitted)(
                 await this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
                 'Approval',
