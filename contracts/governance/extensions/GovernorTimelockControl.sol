@@ -60,11 +60,13 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 queueid = _timelockIds[proposalId];
         if (queueid == bytes32(0)) {
             return currentState;
-        } else if (_timelock.isOperationDone(queueid)) {
-            return ProposalState.Executed;
         } else if (_timelock.isOperationPending(queueid)) {
             return ProposalState.Queued;
+        } else if (_timelock.isOperationDone(queueid)) {
+            // This can happen if the proposal is executed directly on the timelock.
+            return ProposalState.Executed;
         } else {
+            // This can happen if the proposal is canceled directly on the timelock.
             return ProposalState.Canceled;
         }
     }
@@ -117,13 +119,16 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
      * @dev Overridden execute function that run the already queued proposal through the timelock.
      */
     function _execute(
-        uint256 /* proposalId */,
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override {
+        // execute
         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+        // cleanup for refund
+        delete _timelockIds[proposalId];
     }
 
     /**
@@ -140,9 +145,12 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        bytes32 timelockId = _timelockIds[proposalId];
 
-        if (_timelockIds[proposalId] != 0) {
-            _timelock.cancel(_timelockIds[proposalId]);
+        if (timelockId != 0) {
+            // cancel
+            _timelock.cancel(timelockId);
+            // cleanup
             delete _timelockIds[proposalId];
         }
 
