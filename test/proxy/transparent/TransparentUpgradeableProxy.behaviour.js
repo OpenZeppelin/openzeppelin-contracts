@@ -47,6 +47,32 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
   });
 
+  describe('proxy admin', function () {
+    it('emits AdminChanged event during construction', async function () {
+      expectEvent.inConstruction(this.proxy, 'AdminChanged', {
+        previousAdmin: ZERO_ADDRESS,
+        newAdmin: proxyAdminAddress,
+      });
+    });
+
+    it('sets the admin in the storage', async function () {
+      expect(await getAddressInSlot(this.proxy, AdminSlot)).to.be.equal(proxyAdminAddress);
+    });
+
+    it('can overwrite the admin by the implementation', async function () {
+      const dummy = new DummyImplementation(this.proxyAddress);
+      await dummy.unsafeOverrideAdmin(anotherAccount);
+      const ERC1967AdminSlotValue = await getAddressInSlot(this.proxy, AdminSlot);
+      expect(ERC1967AdminSlotValue).to.be.equal(anotherAccount);
+
+      // Still allows previous admin to execute admin operations
+      expect(ERC1967AdminSlotValue).to.not.equal(proxyAdminAddress);
+      expectEvent(await this.proxy.upgradeTo(this.implementationV1, { from: proxyAdminAddress }), 'Upgraded', {
+        implementation: this.implementationV1,
+      });
+    });
+  });
+
   describe('upgradeTo', function () {
     describe('when the sender is the admin', function () {
       const from = proxyAdminAddress;
@@ -258,51 +284,14 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
   });
 
-  describe('changeAdmin', function () {
-    describe('when the new proposed admin is not the zero address', function () {
-      const newAdmin = anotherAccount;
-
-      describe('when the sender is the admin', function () {
-        beforeEach('transferring', async function () {
-          this.receipt = await this.proxy.changeAdmin(newAdmin, { from: proxyAdminAddress });
-        });
-
-        it('assigns new proxy admin', async function () {
-          const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
-          expect(newProxyAdmin).to.be.equal(anotherAccount);
-        });
-
-        it('emits an event', function () {
-          expectEvent(this.receipt, 'AdminChanged', {
-            previousAdmin: proxyAdminAddress,
-            newAdmin: newAdmin,
-          });
-        });
-      });
-
-      describe('when the sender is not the admin', function () {
-        it('reverts', async function () {
-          await expectRevert.unspecified(this.proxy.changeAdmin(newAdmin, { from: anotherAccount }));
-        });
-      });
-    });
-
-    describe('when the new proposed admin is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevertCustomError(
-          this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'ERC1967InvalidAdmin',
-          [ZERO_ADDRESS],
-        );
-      });
-    });
-  });
-
   describe('transparent proxy', function () {
     beforeEach('creating proxy', async function () {
       const initializeData = Buffer.from('');
-      this.impl = await ClashingImplementation.new();
-      this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
+      this.clashingImplV0 = (await ClashingImplementation.new()).address;
+      this.clashingImplV1 = (await ClashingImplementation.new()).address;
+      this.proxy = await createProxy(this.clashingImplV0, proxyAdminAddress, initializeData, {
+        from: proxyAdminOwner,
+      });
       this.clashing = new ClashingImplementation(this.proxy.address);
     });
 
@@ -315,24 +304,28 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
 
     describe('when function names clash', function () {
-      it('when sender is proxy admin should run the proxy function', async function () {
-        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: proxyAdminAddress, value: 0 });
-        expectEvent(receipt, 'AdminChanged');
+      it('executes the proxy function if the sender is the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: proxyAdminAddress, value: 0 });
+        expectEvent(receipt, 'Upgraded', { implementation: this.clashingImplV1 });
       });
 
-      it('when sender is other should delegate to implementation', async function () {
-        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: anotherAccount, value: 0 });
-        expectEvent.notEmitted(receipt, 'AdminChanged');
+      it('delegates the call to implementation when sender is not the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: anotherAccount, value: 0 });
+        expectEvent.notEmitted(receipt, 'Upgraded');
         expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
       });
 
-      it('when sender is proxy admin value should not be accepted', async function () {
-        await expectRevert.unspecified(this.proxy.changeAdmin(anotherAccount, { from: proxyAdminAddress, value: 1 }));
+      it('requires 0 value calling upgradeTo by proxy admin', async function () {
+        await expectRevertCustomError(
+          this.proxy.upgradeTo(this.clashingImplV1, { from: proxyAdminAddress, value: 1 }),
+          'ProxyNonPayableFunction',
+          [],
+        );
       });
 
-      it('when sender is other value should be accepted', async function () {
-        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: anotherAccount, value: 1 });
-        expectEvent.notEmitted(receipt, 'AdminChanged');
+      it('allows calling with value if sender is not the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: anotherAccount, value: 1 });
+        expectEvent.notEmitted(receipt, 'Upgraded');
         expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
       });
     });
