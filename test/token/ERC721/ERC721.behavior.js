@@ -315,7 +315,7 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
           });
         });
 
-        describe('to a receiver contract that reverts without custom error', function () {
+        describe('to a receiver contract that reverts with custom error', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(
               RECEIVER_MAGIC_VALUE,
@@ -413,7 +413,7 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
           });
         });
 
-        context('to a receiver contract that reverts without custom error', function () {
+        context('to a receiver contract that reverts with custom error', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(
               RECEIVER_MAGIC_VALUE,
