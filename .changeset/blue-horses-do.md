@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-`MinimalForwarder`: Added `deadline` for expiring transactions and add `msg.value` mismatch check
+`MinimalForwarder`: Added `deadline` for expiring transactions and added `msg.value` mismatch check.

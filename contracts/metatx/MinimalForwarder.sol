@@ -12,13 +12,13 @@ import "../utils/Nonces.sol";
  *
  * This forwarder operates on forward requests that include:
  *
- * * `from`: An address to operate on behalf of. It is required to be equal to `msg.sender`.
- * * `to`: An address destination to call within the request.
- * * `value`: The amount of ETH to attach within the requested call.
- * * `gas`: The amount of gas limit that will be forwarded within the requested call.
+ * * `from`: An address to operate on behalf of. It is required to be equal to the request signer.
+ * * `to`: The address that should be called.
+ * * `value`: The amount of ETH to attach with the requested call.
+ * * `gas`: The amount of gas limit that will be forwarded with the requested call.
  * * `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
  * * `deadline`: A timestamp after which the request is not executable anymore.
- * * `data`: Encoded calldata to send within the requested call.'
+ * * `data`: Encoded `msg.data` to send with the requested call.
  */
 contract MinimalForwarder is EIP712, Nonces {
     using ECDSA for bytes32;
@@ -61,7 +61,7 @@ contract MinimalForwarder is EIP712, Nonces {
     /**
      * @dev See {EIP712-constructor}.
      */
-    constructor(string memory name, string memory version) EIP712(name, version) {}
+    constructor(string memory name, string memory version) EIP712(name, "1") {}
 
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block.
