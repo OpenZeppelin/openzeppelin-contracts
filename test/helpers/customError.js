@@ -2,18 +2,19 @@ const { expect } = require('chai');
 
 /** Revert handler that supports custom errors. */
 async function expectRevertCustomError(promise, expectedErrorName, args) {
+  if (!Array.isArray(args)) {
+    expect.fail('Expected 3rd array parameter for error arguments');
+  }
+
   await promise.then(
     () => expect.fail("Expected promise to throw but it didn't"),
-    (revert) => {
-      if (!Array.isArray(args)) {
-        expect.fail('Expected 3rd array parameter for error arguments');
-      }
+    ({ message }) => {
       // The revert message for custom errors looks like:
       // VM Exception while processing transaction:
       // reverted with custom error 'InvalidAccountNonce("0x70997970C51812dc3A010C7d01b50e0d17dc79C8", 0)'
 
       // We trim out anything inside the single quotes as comma-separated values
-      const [, error] = revert.message.match(/'(.*)'/);
+      const [, error] = message.match(/'(.*)'/);
 
       // Attempt to parse as an error
       const match = error.match(/(?<name>\w+)\((?<args>.*)\)/);
