@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const { expect, AssertionError } = require('chai');
 
 /** Revert handler that supports custom errors. */
 async function expectRevertCustomError(promise, expectedErrorName, args) {
@@ -6,6 +6,10 @@ async function expectRevertCustomError(promise, expectedErrorName, args) {
     await promise;
     expect.fail("Expected promise to throw but it didn't");
   } catch (revert) {
+    if (revert instanceof AssertionError) {
+      expect.fail(revert.message);
+    }
+
     if (!Array.isArray(args)) {
       expect.fail('Expected 3rd array parameter for error arguments');
     }
