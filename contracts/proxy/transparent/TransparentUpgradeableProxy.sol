@@ -59,6 +59,8 @@ interface ITransparentUpgradeableProxy is IERC1967 {
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     // An immutable address for the admin avoid unnecessary SLOADs before each call
     // at the expense of removing the ability to change the admin once it's set.
+    // This is acceptable if the admin is always a ProxyAdmin instance or similar contract
+    // with its own ability to transfer the permissions to another account.
     address private immutable _admin;
 
     /**
