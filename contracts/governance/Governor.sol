@@ -209,16 +209,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        ProposalCore memory proposal = _proposals[proposalId];
-        return proposal.voteStart;
+        return _proposals[proposalId].voteStart;
     }
 
     /**
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        ProposalCore memory proposal = _proposals[proposalId];
-        return proposal.voteStart + proposal.voteDuration;
+        return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
     /**
