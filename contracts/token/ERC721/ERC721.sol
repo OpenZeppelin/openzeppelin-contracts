@@ -387,7 +387,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Contraint: revert if token is already minted
+     * @dev Constraint: revert if token is already minted
      */
     function _constraintNotMinted(address from, address, uint256) internal pure {
         if (from != address(0)) {
@@ -396,7 +396,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Contraint: revert if token is not yet minted
+     * @dev Constraint: revert if token is not yet minted
      */
     function _constraintMinted(address from, address, uint256 tokenId) internal pure {
         if (from == address(0)) {
@@ -405,7 +405,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Contraint: check that the caller is the current owner, or approved by the current owner
+     * @dev Constraint: check that the caller is the current owner, or approved by the current owner
      */
     function _constraintApprovedOrOwner(address owner, address, uint256 tokenId) internal view {
         address spender = _msgSender();
