@@ -164,4 +164,15 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         delete _allTokensIndex[tokenId];
         _allTokens.pop();
     }
+
+    /**
+     * See {ERC721-__unsafe_increaseBalance}. We need that to account tokens that were minted in batch
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override {
+        if (amount > 0) {
+            revert ERC721EnumerableForbiddenBatchMint();
+        }
+        super.__unsafe_increaseBalance(account, amount);
+    }
 }

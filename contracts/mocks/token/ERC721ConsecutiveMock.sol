@@ -46,6 +46,10 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
     ) internal virtual override(ERC721Consecutive, ERC721Pausable, ERC721Votes) returns (address) {
         return super._update(to, tokenId, constraints);
     }
+
+    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Votes) {
+        super.__unsafe_increaseBalance(account, amount);
+    }
 }
 
 contract ERC721ConsecutiveNoConstructorMintMock is ERC721Consecutive {

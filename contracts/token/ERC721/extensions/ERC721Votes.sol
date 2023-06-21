@@ -40,4 +40,13 @@ abstract contract ERC721Votes is ERC721, Votes {
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);
     }
+
+    /**
+     * See {ERC721-__unsafe_increaseBalance}. We need that to account tokens that were minted in batch
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override {
+        super.__unsafe_increaseBalance(account, amount);
+        _transferVotingUnits(address(0), account, amount);
+    }
 }

@@ -180,17 +180,6 @@ contract('ERC721Consecutive', function (accounts) {
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user2);
         });
-
-        it('reverts burning batches of size != 1', async function () {
-          const tokenId = batches[0].amount + offset;
-          const receiver = batches[0].receiver;
-
-          await expectRevertCustomError(
-            this.token.$_afterTokenTransfer(receiver, ZERO_ADDRESS, tokenId, 2),
-            'ERC721ForbiddenBatchBurn',
-            [],
-          );
-        });
       });
     });
   }
