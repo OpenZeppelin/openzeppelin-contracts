@@ -35,7 +35,10 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         return super._update(to, tokenId, constraints);
     }
 
-    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Enumerable) {
+    function __unsafe_increaseBalance(
+        address account,
+        uint256 amount
+    ) internal virtual override(ERC721, ERC721Enumerable) {
         super.__unsafe_increaseBalance(account, amount);
     }
 }
