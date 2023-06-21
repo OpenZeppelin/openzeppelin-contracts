@@ -39,6 +39,11 @@ contract MinimalForwarder is EIP712, Nonces {
         );
 
     /**
+     * @dev Emitted when a `ForwardRequest` is executed.
+     */
+    event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success, bytes returndata);
+
+    /**
      * @dev The request `from` doesn't match with the recovered `signer`.
      */
     error MinimalForwarderInvalidSigner(address signer, address from);
@@ -81,8 +86,6 @@ contract MinimalForwarder is EIP712, Nonces {
     ) public payable virtual returns (bool, bytes memory) {
         (bool success, bytes memory returndata) = _execute(request, signature);
 
-        _checkForwardedGas(gasleft(), request);
-
         if (msg.value != request.value) {
             revert MinimalForwarderMismatchedValue(request.value, msg.value);
         }
@@ -93,34 +96,21 @@ contract MinimalForwarder is EIP712, Nonces {
     /**
      * @dev Batch version of {execute}.
      */
-    function executeBatch(
-        ForwardRequest[] calldata requests,
-        bytes[] calldata signatures
-    ) public payable virtual returns (bool[] memory, bytes[] memory) {
+    function executeBatch(ForwardRequest[] calldata requests, bytes[] calldata signatures) public payable virtual {
         if (requests.length != signatures.length) {
             revert MinimalForwarderInvalidBatchLength(requests.length, signatures.length);
         }
 
-        uint256 requestsValue = 0;
-        bool[] memory successes = new bool[](requests.length);
-        bytes[] memory returndatas = new bytes[](requests.length);
+        uint256 requestsValue;
 
         for (uint256 i; i < requests.length; ++i) {
-            (bool success, bytes memory returndata) = _execute(requests[i], signatures[i]);
             requestsValue += requests[i].value;
-            successes[i] = success;
-            returndatas[i] = returndata;
+            _execute(requests[i], signatures[i]);
         }
-
-        // Only check the last request because if the batch didn't go out-of-gas at this point,
-        // only the last call can be provided with less gas than requested.
-        _checkForwardedGas(gasleft(), requests[requests.length - 1]);
 
         if (msg.value != requestsValue) {
             revert MinimalForwarderMismatchedValue(requestsValue, msg.value);
         }
-
-        return (successes, returndatas);
     }
 
     /**
@@ -141,7 +131,7 @@ contract MinimalForwarder is EIP712, Nonces {
     function _recoverForwardRequestSigner(
         ForwardRequest calldata request,
         bytes calldata signature
-    ) internal view returns (address) {
+    ) internal view virtual returns (address) {
         return
             _hashTypedDataV4(
                 keccak256(
@@ -167,11 +157,17 @@ contract MinimalForwarder is EIP712, Nonces {
      * - The request's deadline must have not passed.
      * - The request's from must be the request's signer.
      * - The request's nonce must match the sender's nonce.
+     * - The caller must have provided enough gas to forward with the call.
      *
-     * IMPORTANT: Using this function does not guarantee the forwarded call will receive enough gas to complete.
-     * Similarly, it doesn't check that all the `msg.value` was sent, potentially leaving ETH stuck in the contract.
+     * Emits an {ExecutedForwardRequest} event.
+     *
+     * IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially leaving
+     * ETH stuck in the contract.
      */
-    function _execute(ForwardRequest calldata request, bytes calldata signature) private returns (bool, bytes memory) {
+    function _execute(
+        ForwardRequest calldata request,
+        bytes calldata signature
+    ) internal virtual returns (bool success, bytes memory returndata) {
         // The _validate function is intentionally avoided to keep the signer argument and the nonce check
 
         if (request.deadline < block.number) {
@@ -185,7 +181,13 @@ contract MinimalForwarder is EIP712, Nonces {
 
         _useCheckedNonce(request.from, request.nonce);
 
-        return request.to.call{gas: request.gas, value: request.value}(abi.encodePacked(request.data, request.from));
+        (success, returndata) = request.to.call{gas: request.gas, value: request.value}(
+            abi.encodePacked(request.data, request.from)
+        );
+
+        _checkForwardedGas(request);
+
+        emit ExecutedForwardRequest(signer, request.nonce, success, returndata);
     }
 
     /**
@@ -196,8 +198,11 @@ contract MinimalForwarder is EIP712, Nonces {
      * - At least `floor(gasleft() / 64)` is kept in the caller.
      *
      * It reverts consuming all the available gas if the forwarded gas is not the requested gas.
+     *
+     * IMPORTANT: This function should be called exactly the end of the forwarded call. Any gas consumed
+     * in between will make room for bypassing this check.
      */
-    function _checkForwardedGas(uint256 gasLeft, ForwardRequest calldata request) private pure {
+    function _checkForwardedGas(ForwardRequest calldata request) private view {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas
         // and the top-level call still passes, so in order to make sure that the subcall received the requested gas,
@@ -209,10 +214,10 @@ contract MinimalForwarder is EIP712, Nonces {
         // - (X - req.gas) >= req.gas/63
         //
         // Although we can't access X, we let Y be the actual gas used in the subcall so that `gasleft() == X - Y`, then
-        // we know that `X - req.gas <= X - Y`, thus `req.gas <= Y` and `X - req.gas <= gasleft()`.
+        // we know that `X - req.gas <= X - Y`, thus `Y <= req.gas` and finally `X - req.gas <= gasleft()`.
         // Therefore, any attempt to manipulate X to reduce the gas provided to the callee will result in the following
         // invariant violated:
-        if (gasLeft < request.gas / 63) {
+        if (gasleft() < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
             // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
