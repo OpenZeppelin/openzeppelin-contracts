@@ -339,5 +339,23 @@ contract('MinimalForwarder', function (accounts) {
         );
       });
     });
+
+    it('bubbles out of gas', async function () {
+      const receiver = await CallReceiverMock.new();
+      const gasAvailable = 100000;
+      const idx = 0;
+      this.requests[idx].to = receiver.address;
+      this.requests[idx].data = receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
+      this.requests[idx].gas = 1000000;
+
+      this.signatures[idx] = this.sign(this.signers[idx].getPrivateKey(), this.requests[idx]);
+
+      await expectRevert.assertion(this.forwarder.executeBatch(this.requests, this.signatures, { gas: gasAvailable }));
+
+      const { transactions } = await web3.eth.getBlock('latest');
+      const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
+
+      expect(gasUsed).to.be.equal(gasAvailable);
+    });
   });
 });
