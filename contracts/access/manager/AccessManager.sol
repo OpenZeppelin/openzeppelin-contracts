@@ -250,7 +250,7 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     // ==================================================== OTHERS ====================================================
-    function adminCancel(address caller, address target, bytes calldata data) public virtual
+    function guardianCancel(address caller, address target, bytes calldata data) public virtual
         onlyGroup(getGroupGuardian(getFunctionAllowedGroup(target, bytes4(data[0:4]))))
     {
         _cancel(_hashOperation(caller, target, data));
