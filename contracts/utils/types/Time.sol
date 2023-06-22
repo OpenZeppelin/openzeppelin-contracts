@@ -7,8 +7,9 @@ library Time {
 
     // Timepoint
     type Timepoint is uint48;
+
+    Timepoint internal constant MAX_TIMEPOINT = Timepoint.wrap(type(uint48).max);
     function toTimepoint(uint48 t) internal pure returns (Timepoint) { return Timepoint.wrap(t);}
-    function maxTimepoint() internal pure returns (Timepoint) { return type(uint48).max.toTimepoint(); }
     function get(Timepoint t) internal pure returns (uint48) { return Timepoint.unwrap(t);}
 
     // Timepoint <> Clock
@@ -19,8 +20,9 @@ library Time {
 
     // Duration
     type Duration is uint40;
+
+    Duration internal constant MAX_DURATION = Duration.wrap(type(uint40).max);
     function toDuration(uint40 d) internal pure returns (Duration) { return Duration.wrap(d);}
-    function maxDuration() internal pure returns (Duration) { return type(uint40).max.toDuration(); }
     function get(Duration d) internal pure returns (uint40) { return Duration.unwrap(d);}
 
     // Operators for Timepoints and Durations
@@ -28,6 +30,8 @@ library Time {
     function sub(Timepoint t, Duration d) internal pure returns (Timepoint) { return (t.get() - d.get()).toTimepoint(); }
     function add(Duration d1, Duration d2) internal pure returns (Duration) { return (d1.get() + d2.get()).toDuration(); }
     function sub(Duration d1, Duration d2) internal pure returns (Duration) { return (d1.get() - d2.get()).toDuration(); }
+    function eq(Timepoint t1, Timepoint t2) internal pure returns (bool) { return t1.get() == t2.get(); }
+    function eq(Duration d1, Duration d2) internal pure returns (bool) { return d1.get() == d2.get(); }
 
     // Delay is 128 bits long, and packs the following:
     // [000:039] uint40 for the current value (duration)

@@ -56,6 +56,7 @@ contract AccessManager is IAuthority, DelayedActions {
 
     enum AccessMode { Custom, Closed, Open }
 
+    // Structure fit into 1 slot: timepoint is uint48 and delay is uint128
     struct Access {
         Time.Timepoint since;
         Time.Delay delay; // delay for execution
@@ -96,7 +97,7 @@ contract AccessManager is IAuthority, DelayedActions {
         if (mode == AccessMode.Open) {
             return 0.toDuration(); // no delay = can call immediatly
         } else if (mode == AccessMode.Closed) {
-            return Time.maxDuration(); // "infinite" delay
+            return Time.MAX_DURATION; // "infinite" delay
         } else if (caller == address(this)) {
             return 0.toDuration();
         } else {
@@ -105,7 +106,7 @@ contract AccessManager is IAuthority, DelayedActions {
 
             return (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
-                : Time.maxDuration();
+                : Time.MAX_DURATION;
         }
     }
 
@@ -140,11 +141,11 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     function setExecuteDelay(bytes32 group, address account, uint40 newDelay) public onlyGroup(ADMIN_GROUP){
-        _setExecuteDelay(group, account, newDelay, false); // by default the update is not immediate and follows the delay rules
+        _setExecuteDelay(group, account, newDelay.toDuration(), false); // by default the update is not immediate and follows the delay rules
     }
 
     function setGrantDelay(bytes32 group, uint40 newDelay) public onlyGroup(ADMIN_GROUP) {
-        _setGrantDelay(group, newDelay, false); // by default the update is not immediate and follows the delay rules
+        _setGrantDelay(group, newDelay.toDuration(), false); // by default the update is not immediate and follows the delay rules
     }
 
     function _grantRole(bytes32 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal {
@@ -162,17 +163,17 @@ contract AccessManager is IAuthority, DelayedActions {
         // todo emit event
     }
 
-    function _setExecuteDelay(bytes32 group, address account, uint40 newDelay, bool immediate) internal {
+    function _setExecuteDelay(bytes32 group, address account, Time.Duration newDelay, bool immediate) internal {
         _groups[group].members[account].delay = immediate
-            ? newDelay.toDuration().toDelay()
-            : _groups[group].members[account].delay.update(newDelay.toDuration());
+            ? newDelay.toDelay()
+            : _groups[group].members[account].delay.update(newDelay);
         // todo emit event
     }
 
-    function _setGrantDelay(bytes32 group, uint40 newDelay, bool immediate) internal {
+    function _setGrantDelay(bytes32 group, Time.Duration newDelay, bool immediate) internal {
         _groups[group].delay = immediate
-            ? newDelay.toDuration().toDelay()
-            : _groups[group].delay.update(newDelay.toDuration());
+            ? newDelay.toDelay()
+            : _groups[group].delay.update(newDelay);
         // todo emit event
     }
 
@@ -215,7 +216,7 @@ contract AccessManager is IAuthority, DelayedActions {
         address caller = _msgSender();
         Time.Duration setback = callDelay(caller, target, bytes4(data[0:4]));
 
-        require(setback.get() != Time.maxDuration().get()); // unauthorized
+        require(!Time.MAX_DURATION.eq(setback)); // unauthorized
         _executeCheck(caller, target, data, setback);
 
         Address.functionCallWithValue(target, data, msg.value);
