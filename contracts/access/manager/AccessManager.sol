@@ -6,60 +6,23 @@ import "./IAuthority.sol";
 import "./IManaged.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
+import "../../utils/types/Time.sol";
 
-
-
-
-library Delays {
-    // Delay is 128 bits long, and packs the following:
-    // [000:039] uint40 for the current value (duration)
-    // [040:079] uint40 for the pending value (duration)
-    // [080:127] uint48 for the effect date (timepoint)
-    type Delay is uint128;
-
-    function getAt(Delay self, uint48 clock) public pure returns (uint40 valueAt) {
-        (uint40 pendingValue, uint48 timepoint) = getPending(self);
-        return (timepoint > 0 && timepoint < clock)
-            ? pendingValue
-            : uint40(Delay.unwrap(self));
-    }
-
-    function get(Delay self) public view returns (uint40 value) {
-        return getAt(self, uint48(block.timestamp));
-    }
-
-    function getPending(Delay self) public pure returns (uint40 pendingValue, uint48 timepoint) {
-        uint128 pack = Delay.unwrap(self);
-        return (uint40(pack >> 40), uint48(pack >> 80));
-    }
-
-    function set(uint40 delay) public pure returns (Delay) {
-        return Delay.wrap(delay);
-    }
-
-    function updateAt(Delay self, uint40 newValue, uint48 clock) public view returns (Delay) {
-        return Delay.wrap((uint128(clock) << 80) | (uint128(newValue) << 40) | get(self));
-    }
-
-    function update(Delay self, uint40 newValue) public view returns (Delay) {
-        uint48 value = get(self);
-        uint48 delay = value > newValue ? value - newValue : 0; // todo: 0 means immediate update. ACDAR does something more opinionated
-        return updateAt(self, newValue, uint48(block.timestamp) + delay);
-    }
-}
 
 
 
 
 
 contract DelayedActions is Context {
-    mapping(bytes32 id => uint48 timepoint) private _schedules; // todo: add accessor
+    using Time for *;
+
+    mapping(bytes32 => Time.Timepoint) private _schedules; // todo: add accessor
 
     event Scheduled(bytes32, address, address, bytes);
     event Executed(bytes32);
 
-    modifier withDelay(uint48 delay) {
-        _executeCheck(_msgSender(), address(this), _msgData(), delay);
+    modifier withDelay(Time.Duration setback) {
+        _executeCheck(_msgSender(), address(this), _msgData(), setback);
         _;
     }
 
@@ -69,17 +32,17 @@ contract DelayedActions is Context {
 
     function _schedule(address caller, address target, bytes calldata data) internal virtual {
         bytes32 id = keccak256(abi.encode(caller, target, data));
-        require(_schedules[id] == 0, "Already scheduled");
-        _schedules[id] = uint48(block.timestamp);
+        require(!_schedules[id].isSet(), "Already scheduled");
+        _schedules[id] = Time.clock();
         emit Scheduled(id, caller, target, data);
     }
 
-    function _executeCheck(address caller, address target, bytes calldata data, uint48 delay) internal virtual {
+    function _executeCheck(address caller, address target, bytes calldata data, Time.Duration setback) internal virtual {
         bytes32 id = keccak256(abi.encode(caller, target, data));
-        uint48 timepoint = _schedules[id];
-        require(timepoint > 0 || delay == 0, "missing schedule");
-        require(timepoint + delay <= block.timestamp, "schedule pending");
-        delete _schedules[id];
+        Time.Timepoint timepoint = _schedules[id];
+        require(timepoint.isSet() || setback.get() == 0, "missing schedule");
+        require(timepoint.add(setback).isPast(), "schedule pending");
+        _schedules[id] = 0.toTimepoint(); // delete
         emit Executed(id);
     }
 }
@@ -89,19 +52,19 @@ contract DelayedActions is Context {
 
 
 contract AccessManager is IAuthority, DelayedActions {
-    using Delays for Delays.Delay;
+    using Time for *;
 
     enum AccessMode { Custom, Closed, Open }
 
     struct Access {
-        uint48       since;
-        Delays.Delay delay; // delay for execution
+        Time.Timepoint since;
+        Time.Delay delay; // delay for execution
     }
 
     struct Group {
         mapping(address user => Access access) members;
-        bytes32      admin;
-        Delays.Delay delay; // delay for granting
+        bytes32 admin;
+        Time.Delay delay; // delay for granting
     }
 
     bytes32 public constant ADMIN_GROUP  = bytes32(type(uint256).min); // 0
@@ -118,31 +81,31 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     constructor(address initialAdmin) {
-        _grantRole(ADMIN_GROUP, initialAdmin, 0, 0);
+        _grantRole(ADMIN_GROUP, initialAdmin, 0.toDuration(), 0.toDuration());
     }
 
     // =================================================== GETTERS ====================================================
     // can call without a delay
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool allowed) {
-        return callDelay(caller, target, selector) == 0;
+        return callDelay(caller, target, selector).get() == 0;
     }
 
     // delay to call a function
-    function callDelay(address caller, address target, bytes4 selector) public view virtual returns (uint40 delay) {
+    function callDelay(address caller, address target, bytes4 selector) public view virtual returns (Time.Duration) {
         AccessMode mode = getContractMode(target);
         if (mode == AccessMode.Open) {
-            return 0; // no delay = can call immediatly
+            return 0.toDuration(); // no delay = can call immediatly
         } else if (mode == AccessMode.Closed) {
-            return type(uint40).max; // "infinite" delay
+            return Time.maxDuration(); // "infinite" delay
         } else if (caller == address(this)) {
-            return 0;
+            return 0.toDuration();
         } else {
             bytes32 group = getFunctionAllowedGroup(target, selector);
             Access storage access = _groups[group].members[caller]; // todo: memory ?
 
-            return (group == PUBLIC_GROUP || access.since < block.timestamp)
+            return (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
-                : type(uint40).max;
+                : Time.maxDuration();
         }
     }
 
@@ -159,13 +122,12 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     function hasGroup(bytes32 group, address account) public view returns (bool) {
-        uint48 timepoint = getAccess(group, account).since;
-        return timepoint > 0 && timepoint <= uint48(block.timestamp);
+        return getAccess(group, account).since.isSetAndPast();
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
     function grantRole(bytes32 group, address account, uint40 executionDelay) public onlyGroup(_groups[group].admin) {
-        _grantRole(group, account, _groups[group].delay.get(), executionDelay);
+        _grantRole(group, account, _groups[group].delay.get(), executionDelay.toDuration());
     }
 
     function revokeRole(bytes32 group, address account) public onlyGroup(_groups[group].admin) {
@@ -185,32 +147,32 @@ contract AccessManager is IAuthority, DelayedActions {
         _setGrantDelay(group, newDelay, false); // by default the update is not immediate and follows the delay rules
     }
 
-    function _grantRole(bytes32 group, address account, uint40 grantDelay, uint40 executionDelay) internal {
-        require(_groups[group].members[account].since == 0, "AccessManager: account is already in group");
+    function _grantRole(bytes32 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal {
+        require(!_groups[group].members[account].since.isSet(), "AccessManager: account is already in group");
         _groups[group].members[account] = Access({
-            since: uint48(block.timestamp + grantDelay),
-            delay: Delays.set(executionDelay)
+            since: Time.clock().add(grantDelay),
+            delay: executionDelay.toDelay()
         });
         // todo emit event
     }
 
     function _revokeRole(bytes32 group, address account) internal {
-        require(_groups[group].members[account].since != 0, "AccessManager: account is not in group");
+        require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
         delete _groups[group].members[account];
         // todo emit event
     }
 
     function _setExecuteDelay(bytes32 group, address account, uint40 newDelay, bool immediate) internal {
         _groups[group].members[account].delay = immediate
-            ? Delays.set(newDelay)
-            : _groups[group].members[account].delay.update(newDelay);
+            ? newDelay.toDuration().toDelay()
+            : _groups[group].members[account].delay.update(newDelay.toDuration());
         // todo emit event
     }
 
     function _setGrantDelay(bytes32 group, uint40 newDelay, bool immediate) internal {
         _groups[group].delay = immediate
-            ? Delays.set(newDelay)
-            : _groups[group].delay.update(newDelay);
+            ? newDelay.toDuration().toDelay()
+            : _groups[group].delay.update(newDelay.toDuration());
         // todo emit event
     }
 
@@ -251,10 +213,10 @@ contract AccessManager is IAuthority, DelayedActions {
     // ==================================================== OTHERS ====================================================
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
-        uint40  delay  = callDelay(caller, target, bytes4(data[0:4]));
+        Time.Duration setback = callDelay(caller, target, bytes4(data[0:4]));
 
-        require(delay < type(uint40).max); // unauthorized
-        _executeCheck(caller, target, data, delay);
+        require(setback.get() != Time.maxDuration().get()); // unauthorized
+        _executeCheck(caller, target, data, setback);
 
         Address.functionCallWithValue(target, data, msg.value);
     }
