@@ -46,8 +46,12 @@ contract('AccessManager', function (accounts) {
     expect(await this.manager.methods['getUserGroups(address)'](admin)).to.be.equal(mask(ADMIN_GROUP, PUBLIC_GROUP));
     expect(await this.manager.methods['getUserGroups(address)'](other)).to.be.equal(mask(PUBLIC_GROUP));
     expect(await this.manager.methods['getUserGroups(address)'](condition)).to.be.equal(mask(PUBLIC_GROUP));
-    expect(await this.manager.methods['getUserGroups(address,address[])'](admin, [ condition ])).to.be.equal(mask(PUBLIC_GROUP));
-    expect(await this.manager.methods['getUserGroups(address,address[])'](other, [ condition ])).to.be.equal(mask(PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address,address[])'](admin, [condition])).to.be.equal(
+      mask(PUBLIC_GROUP),
+    );
+    expect(await this.manager.methods['getUserGroups(address,address[])'](other, [condition])).to.be.equal(
+      mask(PUBLIC_GROUP),
+    );
   });
 
   describe('restricted functions', function () {
@@ -120,7 +124,10 @@ contract('AccessManager', function (accounts) {
       });
 
       it('revert if user already has the role', async function () {
-        await expectRevert(this.manager.renounceGroup(SOME_GROUP, [], { from: admin }), 'Revoke error: user not in group');
+        await expectRevert(
+          this.manager.renounceGroup(SOME_GROUP, [], { from: admin }),
+          'Revoke error: user not in group',
+        );
       });
     });
   });
@@ -132,49 +139,42 @@ contract('AccessManager', function (accounts) {
         this.condition = await Condition.new(this.duration); // 0 duration
 
         // Grant admin power through the condition and revoke "normal" admin power
-        await this.manager.grantGroup(ADMIN_GROUP, admin, [ this.condition.address ], { from: admin });
+        await this.manager.grantGroup(ADMIN_GROUP, admin, [this.condition.address], { from: admin });
         await this.manager.renounceGroup(ADMIN_GROUP, [], { from: admin });
 
         // data of the restricted call
         this.call = [
-          [ this.manager.address ], // targets
-          [ 0 ], // values
-          [ this.manager.contract.methods.grantGroup(SOME_GROUP, other, []).encodeABI() ], //payloads
+          [this.manager.address], // targets
+          [0], // values
+          [this.manager.contract.methods.grantGroup(SOME_GROUP, other, []).encodeABI()], //payloads
           constants.ZERO_BYTES32,
         ];
-        this.callid = web3.utils.keccak256(web3.eth.abi.encodeParameters(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], this.call));
+        this.callid = web3.utils.keccak256(
+          web3.eth.abi.encodeParameters(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], this.call),
+        );
       });
 
       it('cannot execute before schedule', async function () {
-        await expectRevert(
-          this.condition.execute(...this.call, { from: admin }),
-          `ProposalNotReady("${this.callid}")`,
-        );
+        await expectRevert(this.condition.execute(...this.call, { from: admin }), `ProposalNotReady("${this.callid}")`);
       });
 
       it('unauthorized schedule', async function () {
-        await expectRevert(
-          this.condition.schedule(...this.call, { from: other }),
-          'PrecheckFailed()',
-        );
+        await expectRevert(this.condition.schedule(...this.call, { from: other }), 'PrecheckFailed()');
       });
 
       it('schedule and execute', async function () {
         await this.condition.schedule(...this.call, { from: admin });
-        await expectRevert(
-          this.condition.execute(...this.call, { from: admin }),
-          `ProposalNotReady("${this.callid}")`,
-          );
-        });
+        await expectRevert(this.condition.execute(...this.call, { from: admin }), `ProposalNotReady("${this.callid}")`);
+      });
 
-        it('schedule, wait and execute', async function () {
-          await this.condition.schedule(...this.call, { from: admin });
-          await time.increase(this.duration);
+      it('schedule, wait and execute', async function () {
+        await this.condition.schedule(...this.call, { from: admin });
+        await time.increase(this.duration);
 
-          expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
-          await this.condition.execute(...this.call, { from: admin });
-          expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
-        });
+        expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
+        await this.condition.execute(...this.call, { from: admin });
+        expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
+      });
 
       it('unauthorized execute', async function () {
         await this.condition.schedule(...this.call, { from: admin });
