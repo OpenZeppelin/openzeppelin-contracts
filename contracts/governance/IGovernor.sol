@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/IGovernor.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../interfaces/IERC165.sol";
 import "../interfaces/IERC6372.sol";
@@ -22,6 +22,63 @@ abstract contract IGovernor is IERC165, IERC6372 {
         Expired,
         Executed
     }
+
+    /**
+     * @dev Empty proposal or a mismatch between the parameters length for a proposal call.
+     */
+    error GovernorInvalidProposalLength(uint256 targets, uint256 calldatas, uint256 values);
+
+    /**
+     * @dev The vote was already cast.
+     */
+    error GovernorAlreadyCastVote(address voter);
+
+    /**
+     * @dev Token deposits are disabled in this contract.
+     */
+    error GovernorDisabledDeposit();
+
+    /**
+     * @dev The `account` is not a proposer.
+     */
+    error GovernorOnlyProposer(address account);
+
+    /**
+     * @dev The `account` is not the governance executor.
+     */
+    error GovernorOnlyExecutor(address account);
+
+    /**
+     * @dev The `proposalId` doesn't exist.
+     */
+    error GovernorNonexistentProposal(uint256 proposalId);
+
+    /**
+     * @dev The current state of a proposal is not the required for performing an operation.
+     * The `expectedStates` is a bitmap with the bits enabled for each ProposalState enum position
+     * counting from right to left.
+     *
+     * NOTE: If `expectedState` is `bytes32(0)`, the proposal is expected to not be in any state (i.e. not exist).
+     * This is the case when a proposal that is expected to be unset is already initiated (the proposal is duplicated).
+     *
+     * See {Governor-_encodeStateBitmap}.
+     */
+    error GovernorUnexpectedProposalState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
+
+    /**
+     * @dev The voting period set is not a valid period.
+     */
+    error GovernorInvalidVotingPeriod(uint256 votingPeriod);
+
+    /**
+     * @dev The `proposer` does not have the required votes to operate on a proposal.
+     */
+    error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
+
+    /**
+     * @dev The vote type used is not valid for the corresponding counting module.
+     */
+    error GovernorInvalidVoteType();
 
     /**
      * @dev Emitted when a proposal is created.
@@ -86,14 +143,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @notice module:core
      * @dev See {IERC6372}
      */
-    function clock() public view virtual override returns (uint48);
+    function clock() public view virtual returns (uint48);
 
     /**
      * @notice module:core
      * @dev See EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual override returns (string memory);
+    function CLOCK_MODE() public view virtual returns (string memory);
 
     /**
      * @notice module:voting

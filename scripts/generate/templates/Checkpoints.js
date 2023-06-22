@@ -3,10 +3,10 @@ const { OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
-import "./math/Math.sol";
-import "./math/SafeCast.sol";
+import "../math/Math.sol";
+import "../math/SafeCast.sol";
 
 /**
  * @dev This library defines the \`History\` struct, for checkpointing values as they change at different points in
@@ -17,6 +17,13 @@ import "./math/SafeCast.sol";
  *
  * _Available since v4.5._
  */
+`;
+
+const errors = `\
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint. 
+     */
+    error CheckpointUnorderedInsertion();
 `;
 
 const template = opts => `\
@@ -145,7 +152,9 @@ function _insert(
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
         // Checkpoint keys must be non-decreasing.
-        require(last.${opts.keyFieldName} <= key, "Checkpoint: decreasing keys");
+        if(last.${opts.keyFieldName} > key) {
+            revert CheckpointUnorderedInsertion();
+        }
 
         // Update or push new checkpoint
         if (last.${opts.keyFieldName} == key) {
@@ -226,6 +235,7 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
+  errors,
   OPTS.flatMap(opts => template(opts)),
   '}',
 );

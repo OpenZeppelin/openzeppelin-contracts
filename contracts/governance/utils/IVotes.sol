@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/utils/IVotes.sol)
-pragma solidity ^0.8.0;
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/utils/IVotes.sol)
+pragma solidity ^0.8.19;
 
 /**
  * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
@@ -8,6 +8,11 @@ pragma solidity ^0.8.0;
  * _Available since v4.5._
  */
 interface IVotes {
+    /**
+     * @dev The signature used has expired.
+     */
+    error VotesExpiredSignature(uint256 expiry);
+
     /**
      * @dev Emitted when an account changes their delegate.
      */

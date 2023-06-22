@@ -1,7 +1,8 @@
-const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const { expect } = require('chai');
 const { BNmin } = require('../helpers/math');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const VestingWallet = artifacts.require('VestingWallet');
 const ERC20 = artifacts.require('$ERC20');
@@ -20,9 +21,10 @@ contract('VestingWallet', function (accounts) {
   });
 
   it('rejects zero address for beneficiary', async function () {
-    await expectRevert(
+    await expectRevertCustomError(
       VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'VestingWallet: beneficiary is zero address',
+      'VestingWalletInvalidBeneficiary',
+      [constants.ZERO_ADDRESS],
     );
   });
 
@@ -30,6 +32,7 @@ contract('VestingWallet', function (accounts) {
     expect(await this.mock.beneficiary()).to.be.equal(beneficiary);
     expect(await this.mock.start()).to.be.bignumber.equal(this.start);
     expect(await this.mock.duration()).to.be.bignumber.equal(duration);
+    expect(await this.mock.end()).to.be.bignumber.equal(this.start.add(duration));
   });
 
   describe('vesting schedule', function () {

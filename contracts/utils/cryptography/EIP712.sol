@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
 import "./ECDSA.sol";
 import "../ShortStrings.sol";
@@ -118,7 +118,6 @@ abstract contract EIP712 is IERC5267 {
         public
         view
         virtual
-        override
         returns (
             bytes1 fields,
             string memory name,
@@ -131,12 +130,38 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _name.toStringWithFallback(_nameFallback),
-            _version.toStringWithFallback(_versionFallback),
+            _EIP712Name(),
+            _EIP712Version(),
             block.chainid,
             address(this),
             bytes32(0),
             new uint256[](0)
         );
+    }
+
+    /**
+     * @dev The name parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _name which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Name() internal view returns (string memory) {
+        return _name.toStringWithFallback(_nameFallback);
+    }
+
+    /**
+     * @dev The version parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _version which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Version() internal view returns (string memory) {
+        return _version.toStringWithFallback(_versionFallback);
     }
 }

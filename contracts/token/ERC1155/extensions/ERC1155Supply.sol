@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/extensions/ERC1155Supply.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC1155.sol";
 
@@ -38,7 +38,7 @@ abstract contract ERC1155Supply is ERC1155 {
      * @dev Indicates whether any token exist with a given id, or not.
      */
     function exists(uint256 id) public view virtual returns (bool) {
-        return ERC1155Supply.totalSupply(id) > 0;
+        return totalSupply(id) > 0;
     }
 
     /**
@@ -66,11 +66,8 @@ abstract contract ERC1155Supply is ERC1155 {
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
                 uint256 amount = amounts[i];
-                uint256 supply = _totalSupply[id];
-                require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
+                _totalSupply[id] -= amount;
                 unchecked {
-                    // Overflow not possible: amounts[i] <= totalSupply(i)
-                    _totalSupply[id] = supply - amount;
                     // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
                     totalBurnAmount += amount;
                 }

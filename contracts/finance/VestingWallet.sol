@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (finance/VestingWallet.sol)
-pragma solidity ^0.8.0;
+// OpenZeppelin Contracts (last updated v4.9.0) (finance/VestingWallet.sol)
+pragma solidity ^0.8.19;
 
 import "../token/ERC20/utils/SafeERC20.sol";
 import "../utils/Address.sol";
@@ -15,10 +15,18 @@ import "../utils/Context.sol";
  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
+ *
+ * By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
+ * a beneficiary until a specified time.
  */
 contract VestingWallet is Context {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
+
+    /**
+     * @dev The `beneficiary` is not a valid account.
+     */
+    error VestingWalletInvalidBeneficiary(address beneficiary);
 
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;
@@ -30,7 +38,9 @@ contract VestingWallet is Context {
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
     constructor(address beneficiaryAddress, uint64 startTimestamp, uint64 durationSeconds) payable {
-        require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
+        if (beneficiaryAddress == address(0)) {
+            revert VestingWalletInvalidBeneficiary(address(0));
+        }
         _beneficiary = beneficiaryAddress;
         _start = startTimestamp;
         _duration = durationSeconds;
@@ -60,6 +70,13 @@ contract VestingWallet is Context {
      */
     function duration() public view virtual returns (uint256) {
         return _duration;
+    }
+
+    /**
+     * @dev Getter for the end timestamp.
+     */
+    function end() public view virtual returns (uint256) {
+        return start() + duration();
     }
 
     /**
@@ -136,7 +153,7 @@ contract VestingWallet is Context {
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
-        } else if (timestamp > start() + duration()) {
+        } else if (timestamp > end()) {
             return totalAllocation;
         } else {
             return (totalAllocation * (timestamp - start())) / duration();

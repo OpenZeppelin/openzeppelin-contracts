@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
+
+import "../proxy/ERC1967/ERC1967Utils.sol";
 
 abstract contract Impl {
     function version() public pure virtual returns (string memory);
@@ -43,6 +45,11 @@ contract DummyImplementation {
 
     function reverts() public pure {
         require(false, "DummyImplementation reverted");
+    }
+
+    // Use for forcing an unsafe TransparentUpgradeableProxy admin override
+    function unsafeOverrideAdmin(address newAdmin) public {
+        StorageSlot.getAddressSlot(ERC1967Utils.ADMIN_SLOT).value = newAdmin;
     }
 }
 
