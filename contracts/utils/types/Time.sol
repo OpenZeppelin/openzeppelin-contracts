@@ -1,26 +1,29 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 library Time {
     using Time for *;
 
+    // Timepoint
     type Timepoint is uint48;
-    type Duration is uint40;
+    function toTimepoint(uint48 t) internal pure returns (Timepoint) { return Timepoint.wrap(t);}
+    function maxTimepoint() internal pure returns (Timepoint) { return type(uint48).max.toTimepoint(); }
+    function get(Timepoint t) internal pure returns (uint48) { return Timepoint.unwrap(t);}
 
+    // Timepoint <> Clock
     function clock() internal view returns (Timepoint) { return uint48(block.timestamp).toTimepoint(); }
     function isSet(Timepoint t) internal pure returns (bool) { return t.get() != 0; }
     function isPast(Timepoint t) internal view returns (bool) { return t.get() < clock().get(); }
     function isSetAndPast(Timepoint t) internal view returns (bool) { return t.isSet() && t.isPast(); }
 
-    function toTimepoint(uint48 t) internal pure returns (Timepoint) { return Timepoint.wrap(t);}
+    // Duration
+    type Duration is uint40;
     function toDuration(uint40 d) internal pure returns (Duration) { return Duration.wrap(d);}
-    function get(Timepoint t) internal pure returns (uint48) { return Timepoint.unwrap(t);}
+    function maxDuration() internal pure returns (Duration) { return type(uint40).max.toDuration(); }
     function get(Duration d) internal pure returns (uint40) { return Duration.unwrap(d);}
 
-    function maxTimepoint() internal pure returns (Timepoint) { return type(uint48).max.toTimepoint(); }
-    function maxDuration() internal pure returns (Duration) { return type(uint40).max.toDuration(); }
-
+    // Operators for Timepoints and Durations
     function add(Timepoint t, Duration d) internal pure returns (Timepoint) { return (t.get() + d.get()).toTimepoint(); }
     function sub(Timepoint t, Duration d) internal pure returns (Timepoint) { return (t.get() - d.get()).toTimepoint(); }
     function add(Duration d1, Duration d2) internal pure returns (Duration) { return (d1.get() + d2.get()).toDuration(); }
