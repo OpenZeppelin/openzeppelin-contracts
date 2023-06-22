@@ -12,6 +12,7 @@ import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
+import "../utils/Nonces.sol";
 import "./IGovernor.sol";
 
 /**
@@ -25,12 +26,15 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
-    bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant BALLOT_TYPEHASH =
+        keccak256("Ballot(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
+        keccak256(
+            "ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)"
+        );
 
     // solhint-disable var-name-mixedcase
     struct ProposalCore {
@@ -519,17 +523,25 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
+        address voter,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
+        uint256 currentNonce = _useNonce(voter);
+
+        address signer = ECDSA.recover(
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, currentNonce))),
             v,
             r,
             s
         );
-        return _castVote(proposalId, voter, support, "");
+
+        if (voter != signer) {
+            revert GovernorInvalidSigner(signer, voter);
+        }
+
+        return _castVote(proposalId, signer, support, "");
     }
 
     /**
@@ -538,19 +550,24 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
         uint8 support,
+        address voter,
         string calldata reason,
         bytes memory params,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        address voter = ECDSA.recover(
+        uint256 currentNonce = _useNonce(voter);
+
+        address signer = ECDSA.recover(
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
                         EXTENDED_BALLOT_TYPEHASH,
                         proposalId,
                         support,
+                        voter,
+                        currentNonce,
                         keccak256(bytes(reason)),
                         keccak256(params)
                     )
@@ -561,7 +578,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             s
         );
 
-        return _castVote(proposalId, voter, support, reason, params);
+        if (voter != signer) {
+            revert GovernorInvalidSigner(signer, voter);
+        }
+
+        return _castVote(proposalId, signer, support, reason, params);
     }
 
     /**

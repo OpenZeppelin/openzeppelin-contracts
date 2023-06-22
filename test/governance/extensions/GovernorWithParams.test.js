@@ -7,6 +7,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const Enums = require('../../helpers/enums');
 const { getDomain, domainType } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Governor = artifacts.require('$GovernorWithParamsMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -119,56 +120,102 @@ contract('GovernorWithParams', function (accounts) {
         expect(votes.forVotes).to.be.bignumber.equal(weight);
       });
 
-      it('Voting with params by signature is properly supported', async function () {
-        const voterBySig = Wallet.generate();
-        const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
+      describe('voting by signature', function () {
+        beforeEach(async function () {
+          this.voterBySig = Wallet.generate();
+          this.voterBySig.address = web3.utils.toChecksumAddress(this.voterBySig.getAddressString());
 
-        const signature = (contract, message) =>
-          getDomain(contract)
-            .then(domain => ({
-              primaryType: 'ExtendedBallot',
-              types: {
-                EIP712Domain: domainType(domain),
-                ExtendedBallot: [
-                  { name: 'proposalId', type: 'uint256' },
-                  { name: 'support', type: 'uint8' },
-                  { name: 'reason', type: 'string' },
-                  { name: 'params', type: 'bytes' },
-                ],
+          this.signature = (contract, message) =>
+            getDomain(contract)
+              .then(domain => ({
+                primaryType: 'ExtendedBallot',
+                types: {
+                  EIP712Domain: domainType(domain),
+                  ExtendedBallot: [
+                    { name: 'proposalId', type: 'uint256' },
+                    { name: 'support', type: 'uint8' },
+                    { name: 'voter', type: 'address' },
+                    { name: 'nonce', type: 'uint256' },
+                    { name: 'reason', type: 'string' },
+                    { name: 'params', type: 'bytes' },
+                  ],
+                },
+                domain,
+                message,
+              }))
+              .then(data => ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }))
+              .then(fromRpcSig);
+
+          await this.token.delegate(this.voterBySig.address, { from: voter2 });
+
+          // Run proposal
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+        });
+
+        it('is properly supported', async function () {
+          const weight = web3.utils.toBN(web3.utils.toWei('7')).sub(rawParams.uintParam);
+
+          const nonce = await this.mock.nonces(this.voterBySig.address);
+
+          const tx = await this.helper.vote({
+            support: Enums.VoteType.For,
+            voter: this.voterBySig.address,
+            nonce: nonce,
+            reason: 'no particular reason',
+            params: encodedParams,
+            signature: this.signature,
+          });
+
+          expectEvent(tx, 'CountParams', { ...rawParams });
+          expectEvent(tx, 'VoteCastWithParams', {
+            voter: this.voterBySig.address,
+            proposalId: this.proposal.id,
+            support: Enums.VoteType.For,
+            weight,
+            reason: 'no particular reason',
+            params: encodedParams,
+          });
+
+          const votes = await this.mock.proposalVotes(this.proposal.id);
+          expect(votes.forVotes).to.be.bignumber.equal(weight);
+          expect(await this.mock.nonces(this.voterBySig.address)).to.be.bignumber.equal(nonce.addn(1));
+        });
+
+        it('reverts if signature does not match signer', async function () {
+          const nonce = await this.mock.nonces(this.voterBySig.address);
+
+          expectRevertCustomError(
+            this.helper.vote({
+              support: Enums.VoteType.For,
+              voter: this.voterBySig.address,
+              nonce,
+              signature: (...params) => {
+                const sig = this.signature(...params);
+                sig[69] ^= 0xff;
+                return sig;
               },
-              domain,
-              message,
-            }))
-            .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
-            .then(fromRpcSig);
-
-        await this.token.delegate(voterBySigAddress, { from: voter2 });
-
-        // Run proposal
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-
-        const weight = web3.utils.toBN(web3.utils.toWei('7')).sub(rawParams.uintParam);
-
-        const tx = await this.helper.vote({
-          support: Enums.VoteType.For,
-          reason: 'no particular reason',
-          params: encodedParams,
-          signature,
+            }),
+            'GovernorInvalidSigner',
+            [],
+          );
         });
 
-        expectEvent(tx, 'CountParams', { ...rawParams });
-        expectEvent(tx, 'VoteCastWithParams', {
-          voter: voterBySigAddress,
-          proposalId: this.proposal.id,
-          support: Enums.VoteType.For,
-          weight,
-          reason: 'no particular reason',
-          params: encodedParams,
-        });
+        it('reverts if vote nonce is incorrect', async function () {
+          const nonce = await this.mock.nonces(this.voterBySig.address);
 
-        const votes = await this.mock.proposalVotes(this.proposal.id);
-        expect(votes.forVotes).to.be.bignumber.equal(weight);
+          expectRevertCustomError(
+            this.helper.vote({
+              support: Enums.VoteType.For,
+              voter: this.voterBySig.address,
+              nonce: nonce.addn(1),
+              signature: this.signature,
+            }),
+            // The signature check implies the nonce can't be tampered without changing the signer
+            'GovernorInvalidSigner',
+            [],
+          );
+        });
       });
     });
   }

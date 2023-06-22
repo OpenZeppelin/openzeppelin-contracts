@@ -81,6 +81,11 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
+     * @dev The `voter` doesn't match with the recovered `signer`.
+     */
+    error GovernorInvalidSigner(address signer, address voter);
+
+    /**
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
@@ -348,6 +353,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
+        address voter,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -361,6 +367,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
         uint8 support,
+        address voter,
         string calldata reason,
         bytes memory params,
         uint8 v,

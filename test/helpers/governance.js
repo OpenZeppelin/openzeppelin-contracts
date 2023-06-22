@@ -95,21 +95,28 @@ class GovernorHelper {
             .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
+              voter: vote.voter,
+              nonce: vote.nonce,
               reason: vote.reason || '',
               params: vote.params || '',
             })
             .then(({ v, r, s }) =>
               this.governor.castVoteWithReasonAndParamsBySig(
-                ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params || '', v, r, s], opts),
+                ...concatOpts(
+                  [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', v, r, s],
+                  opts,
+                ),
               ),
             )
         : vote
             .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
+              voter: vote.voter,
+              nonce: vote.nonce,
             })
             .then(({ v, r, s }) =>
-              this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, v, r, s], opts)),
+              this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, v, r, s], opts)),
             )
       : vote.params
       ? // otherwise if params

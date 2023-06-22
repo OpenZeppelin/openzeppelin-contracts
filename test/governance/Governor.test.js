@@ -166,7 +166,7 @@ contract('Governor', function (accounts) {
         expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
       });
 
-      it('vote with signature', async function () {
+      it('votes with signature', async function () {
         const voterBySig = Wallet.generate();
         const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
@@ -179,6 +179,8 @@ contract('Governor', function (accounts) {
                 Ballot: [
                   { name: 'proposalId', type: 'uint256' },
                   { name: 'support', type: 'uint8' },
+                  { name: 'voter', type: 'address' },
+                  { name: 'nonce', type: 'uint256' },
                 ],
               },
               domain,
@@ -189,13 +191,19 @@ contract('Governor', function (accounts) {
 
         await this.token.delegate(voterBySigAddress, { from: voter1 });
 
+        const nonce = await this.mock.nonces(voterBySigAddress);
+
         // Run proposal
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        expectEvent(await this.helper.vote({ support: Enums.VoteType.For, signature }), 'VoteCast', {
-          voter: voterBySigAddress,
-          support: Enums.VoteType.For,
-        });
+        expectEvent(
+          await this.helper.vote({ support: Enums.VoteType.For, voter: voterBySigAddress, nonce: nonce, signature }),
+          'VoteCast',
+          {
+            voter: voterBySigAddress,
+            support: Enums.VoteType.For,
+          },
+        );
         await this.helper.waitForDeadline();
         await this.helper.execute();
 
@@ -204,6 +212,7 @@ contract('Governor', function (accounts) {
         expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.proposal.id, voterBySigAddress)).to.be.equal(true);
+        expect(await this.mock.nonces(voterBySigAddress)).to.be.bignumber.equal(nonce.addn(1));
       });
 
       it('send ethers', async function () {
@@ -293,6 +302,73 @@ contract('Governor', function (accounts) {
               this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
               'GovernorUnexpectedProposalState',
               [this.proposal.id, Enums.ProposalState.Defeated, proposalStatesToBitMap([Enums.ProposalState.Active])],
+            );
+          });
+        });
+
+        describe('on vote by signature', function () {
+          beforeEach(async function () {
+            this.voterBySig = Wallet.generate();
+            this.voterBySig.address = web3.utils.toChecksumAddress(this.voterBySig.getAddressString());
+
+            this.signature = (contract, message) =>
+              getDomain(contract)
+                .then(domain => ({
+                  primaryType: 'Ballot',
+                  types: {
+                    EIP712Domain: domainType(domain),
+                    Ballot: [
+                      { name: 'proposalId', type: 'uint256' },
+                      { name: 'support', type: 'uint8' },
+                      { name: 'voter', type: 'address' },
+                      { name: 'nonce', type: 'uint256' },
+                    ],
+                  },
+                  domain,
+                  message,
+                }))
+                .then(data => ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }))
+                .then(fromRpcSig);
+
+            await this.token.delegate(this.voterBySig.address, { from: voter1 });
+
+            // Run proposal
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+          });
+
+          it('if signature does not match signer', async function () {
+            const nonce = await this.mock.nonces(this.voterBySig.address);
+
+            expectRevertCustomError(
+              this.helper.vote({
+                support: Enums.VoteType.For,
+                voter: this.voterBySig.address,
+                nonce,
+                signature: (...params) => {
+                  const sig = this.signature(...params);
+                  sig[69] ^= 0xff;
+                  return sig;
+                },
+              }),
+              'GovernorInvalidSigner',
+              [],
+            );
+          });
+
+          it('if vote nonce is incorrect', async function () {
+            const nonce = await this.mock.nonces(this.voterBySig.address);
+
+            expectRevertCustomError(
+              this.helper.vote({
+                support: Enums.VoteType.For,
+                voter: this.voterBySig.address,
+                nonce: nonce.addn(1),
+                signature: this.signature,
+              }),
+              // The signature check implies the nonce can't be tampered without changing the signer
+              'GovernorInvalidSigner',
+              [],
             );
           });
         });
