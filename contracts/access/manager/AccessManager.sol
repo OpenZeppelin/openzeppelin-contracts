@@ -71,12 +71,21 @@ contract AccessManager is IAuthority, DelayedActions {
 
     enum AccessMode { Custom, Closed, Open }
 
-    // Structure fit into 1 slot: timepoint is uint48 and delay is uint128
+    // Structure that stores the details for a group/account pair. This structures fit into a single slot.
     struct Access {
+        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
+        // are not available. Should be checked using {Time-isSetAndPast}
         Time.Timepoint since;
-        Time.Delay delay; // delay for execution
+        // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
+        // functions that use the `onlyRole` modifier.
+        Time.Delay delay;
     }
 
+    // Structure that stores the details of a group, including:
+    // - the members of the group
+    // - the admin group (that can grant or revoke permissions)
+    // - the guardian group (that can cancel operations targeting functions that need this group
+    // - the grand delay
     struct Group {
         mapping(address user => Access access) members;
         bytes32 admin;
@@ -91,6 +100,10 @@ contract AccessManager is IAuthority, DelayedActions {
     mapping(address target => mapping(bytes4 selector => bytes32 group)) private _allowedGroups;
     mapping(bytes32 group => Group) private _groups;
 
+    /**
+     * @dev Check that the caller has a given permission level (`group`). Note that this does NOT consider execution
+     * delays that may be associated to that group.
+     */
     modifier onlyGroup(bytes32 group) {
         require(hasGroup(group, _msgSender()));
         _;
