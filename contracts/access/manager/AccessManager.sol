@@ -22,6 +22,11 @@ contract DelayedActions is Context {
     event Executed(bytes32);
     event Canceled(bytes32);
 
+    modifier withDelay(Time.Duration setback) {
+        _executeCheck(_hashOperation(_msgSender(), address(this), _msgData()), setback);
+        _;
+    }
+
     function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
         return _schedule(_msgSender(), target, data);
     }
@@ -40,8 +45,10 @@ contract DelayedActions is Context {
             require(timepoint.isSet(), "missing schedule");
             require(timepoint.add(setback).isPast(), "not ready");
         }
-        _schedules[id] = 0.toTimepoint(); // delete
-        emit Executed(id);
+        if (_schedules[id].get() != 0) {
+            _schedules[id] = 0.toTimepoint(); // delete
+            emit Executed(id);
+        }
     }
 
     function _cancel(bytes32 id) internal virtual {
@@ -317,7 +324,7 @@ contract AccessManager is IAuthority, DelayedActions {
     function _setExecuteDelay(bytes32 group, address account, Time.Duration newDuration, bool immediate) internal virtual {
         require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
 
-        // here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
+        // Here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
         // enforced when scheduling.
         //
         // For example if we used `update`, the following would be possible:
@@ -373,46 +380,112 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
+    /**
+     * @dev Set the level of permission (`group`) required to call functions indentified by the `selectors` in the
+     * `target` contract.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * todo: emit an event
+     */
     function setFunctionAllowedGroup(
         address target,
         bytes4[] calldata selectors,
         bytes32 group
-    ) public virtual onlyGroup(ADMIN_GROUP) {
+    ) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFunctionAllowedGroup(target, selectors[i], group);
         }
+        // todo emit event
     }
 
+    /**
+     * @dev Internal version of {setFunctionAllowedGroup} without access control.
+     *
+     * todo: emit an event
+     */
     function _setFunctionAllowedGroup(address target, bytes4 selector, bytes32 group) internal virtual {
         _allowedGroups[target][selector] = group;
         // todo emit event
     }
 
     // =============================================== MODE MANAGEMENT ================================================
-    function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) {
+    /**
+     * @dev Set the operating mode of a contract to Custom. This enables the group mechanism for per-function access
+     * restriction and delay enforcement.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * todo: emit an event
+     */
+    function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
         _setContractMode(target, AccessMode.Custom);
     }
 
-    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) {
+    /**
+     * @dev Set the operating mode of a contract to Open. This allows anyone to call any `restricted()` function with
+     * no delay.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * todo: emit an event
+     */
+    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
         _setContractMode(target, AccessMode.Open);
     }
 
-    function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) {
+    /**
+     * @dev Set the operating mode of a contract to Close. This prevents anyone from calling any `restricted()`
+     * function.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * todo: emit an event
+     */
+    function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
         _setContractMode(target, AccessMode.Closed);
     }
 
+    /**
+     * @dev Set the operating mode of a contract. This is an internal setter with no access restrictions.
+     *
+     * todo: emit an event
+     */
     function _setContractMode(address target, AccessMode mode) internal virtual {
         _contractMode[target] = mode;
         // todo emit event
     }
 
     // ==================================================== OTHERS ====================================================
+    /**
+     * @dev Cancel a scheduled (delayed) operation.
+     *
+     * Requirements:
+     *
+     * - the caller must be the proposer, or a guardian of the targeted function
+     *
+     * Emits a {Canceled} event.
+     */
     function cancel(address caller, address target, bytes calldata data) public virtual {
         address msgsender = _msgSender();
         require(caller == msgsender && hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, bytes4(data[0:4]))), msgsender), "unauthorised");
         _cancel(_hashOperation(caller, target, data));
     }
 
+    /**
+     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
+     * execution delay is 0.
+     *
+     * Emits an {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
+     */
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
         Time.Duration setback = callDelay(caller, target, bytes4(data[0:4]));
@@ -423,6 +496,13 @@ contract AccessManager is IAuthority, DelayedActions {
         Address.functionCallWithValue(target, data, msg.value);
     }
 
+    /**
+     * @dev Change the AccessManager instance used by a contract that correctly uses this instace.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     */
     function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) {
         target.updateAuthority(newAuthority);
     }
