@@ -504,7 +504,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * - the caller must be a global admin
      */
-    function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) {
+    function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
         target.updateAuthority(newAuthority);
     }
 }
