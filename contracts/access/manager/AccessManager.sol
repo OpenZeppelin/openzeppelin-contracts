@@ -490,7 +490,8 @@ contract AccessManager is IAuthority, DelayedActions {
         address caller = _msgSender();
         Time.Duration setback = callDelay(caller, target, bytes4(data[0:4]));
 
-        require(!Time.MAX_DURATION.eq(setback)); // unauthorized
+        // this is actually not needed for security, but if we remove it the error will be an overflow in `_executeCheck`
+        require(!Time.MAX_DURATION.eq(setback));
         _executeCheck(_hashOperation(caller, target, data), setback);
 
         Address.functionCallWithValue(target, data, msg.value);
