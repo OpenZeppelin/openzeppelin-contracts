@@ -27,7 +27,7 @@ contract DelayedActions is Context {
         _;
     }
 
-    function schedule(address target, bytes calldata data) public returns (bytes32) {
+    function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
         return _schedule(_msgSender(), target, data);
     }
 
@@ -41,8 +41,10 @@ contract DelayedActions is Context {
 
     function _executeCheck(bytes32 id, Time.Duration setback) internal virtual {
         Time.Timepoint timepoint = _schedules[id];
-        require(timepoint.isSet() || setback.get() == 0, "missing schedule");
-        require(timepoint.add(setback).isPast(), "schedule pending");
+        if (setback.get() != 0) {
+            require(timepoint.isSet(), "missing schedule");
+            require(timepoint.add(setback).isPast(), "schedule pending");
+        }
         _schedules[id] = 0.toTimepoint(); // delete
         emit Executed(id);
     }
@@ -53,7 +55,7 @@ contract DelayedActions is Context {
         emit Canceled(id);
     }
 
-    function _hashOperation(address caller, address target, bytes calldata data) internal pure returns (bytes32) {
+    function _hashOperation(address caller, address target, bytes calldata data) internal virtual pure returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 }
@@ -226,7 +228,7 @@ contract AccessManager is IAuthority, DelayedActions {
         }
     }
 
-    function _setFunctionAllowedGroup(address target, bytes4 selector, bytes32 group) internal {
+    function _setFunctionAllowedGroup(address target, bytes4 selector, bytes32 group) internal virtual {
         _allowedGroups[target][selector] = group;
         // todo emit event
     }
@@ -250,14 +252,10 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     // ==================================================== OTHERS ====================================================
-    function guardianCancel(address caller, address target, bytes calldata data) public virtual
-        onlyGroup(getGroupGuardian(getFunctionAllowedGroup(target, bytes4(data[0:4]))))
-    {
+    function cancel(address caller, address target, bytes calldata data) public virtual {
+        address msgsender = _msgSender();
+        require(caller == msgsender && hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, bytes4(data[0:4]))), msgsender), "unauthorised");
         _cancel(_hashOperation(caller, target, data));
-    }
-
-    function cancel(address target, bytes calldata data) public virtual {
-        _cancel(_hashOperation(_msgSender(), target, data));
     }
 
     function relay(address target, bytes calldata data) public payable virtual {
