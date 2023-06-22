@@ -40,12 +40,12 @@ contract DelayedActions is Context {
     }
 
     function _executeCheck(bytes32 id, Time.Duration setback) internal virtual {
+        Time.Timepoint timepoint = _schedules[id];
         if (setback.get() != 0) {
-            Time.Timepoint timepoint = _schedules[id];
             require(timepoint.isSet(), "missing schedule");
             require(timepoint.add(setback).isPast(), "not ready");
         }
-        if (_schedules[id].get() != 0) {
+        if (timepoint.isSet()) {
             _schedules[id] = 0.toTimepoint(); // delete
             emit Executed(id);
         }
