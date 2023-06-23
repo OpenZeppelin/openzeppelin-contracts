@@ -16,7 +16,7 @@ contract('ERC2771Forwarder', function (accounts) {
     value: web3.utils.toWei('1'),
     nonce: 1234,
     data: '0x1742',
-    deadline: 0xabcdef,
+    deadline: 0xdeadbeef,
   };
 
   beforeEach(async function () {
@@ -39,7 +39,7 @@ contract('ERC2771Forwarder', function (accounts) {
     this.alice = Wallet.generate();
     this.alice.address = web3.utils.toChecksumAddress(this.alice.getAddressString());
 
-    this.blockNumber = await time.latestBlock();
+    this.timestamp = await time.latest();
     this.request = {
       from: this.alice.address,
       to: constants.ZERO_ADDRESS,
@@ -47,7 +47,7 @@ contract('ERC2771Forwarder', function (accounts) {
       gas: '100000',
       nonce: (await this.forwarder.nonces(this.alice.address)).toString(),
       data: '0x',
-      deadline: this.blockNumber.toNumber() + 2, // Next + 1
+      deadline: this.timestamp.toNumber() + 60, // 1 minute
     };
 
     this.forgeData = request => ({
@@ -180,11 +180,11 @@ contract('ERC2771Forwarder', function (accounts) {
       it('reverts with valid signature for expired deadline', async function () {
         const req = {
           ...this.request,
-          deadline: this.blockNumber.toNumber() - 1,
+          deadline: this.timestamp.toNumber() - 1,
         };
         const sig = this.sign(this.alice.getPrivateKey(), req);
         await expectRevertCustomError(this.forwarder.execute(req, sig), 'ERC2771ForwarderExpiredRequest', [
-          this.blockNumber.toNumber() - 1,
+          this.timestamp.toNumber() - 1,
         ]);
       });
 
@@ -325,12 +325,12 @@ contract('ERC2771Forwarder', function (accounts) {
       });
 
       it('reverts with at least one valid signature for expired deadline', async function () {
-        this.requests[this.idx].deadline = this.blockNumber.toNumber() - 1;
+        this.requests[this.idx].deadline = this.timestamp.toNumber() - 1;
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
         await expectRevertCustomError(
           this.forwarder.executeBatch(this.requests, this.signatures),
           'ERC2771ForwarderExpiredRequest',
-          [this.blockNumber.toNumber() - 1],
+          [this.timestamp.toNumber() - 1],
         );
       });
 

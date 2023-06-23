@@ -61,7 +61,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev The request `deadline` has expired.
      */
-    error ERC2771ForwarderExpiredRequest(uint256 deadline);
+    error ERC2771ForwarderExpiredRequest(uint48 deadline);
 
     /**
      * @dev See {EIP712-constructor}.
@@ -125,7 +125,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     ) internal view virtual returns (bool alive, bool signerMatch, bool nonceMatch, address signer) {
         signer = _recoverForwardRequestSigner(request, signature);
         return (
-            request.deadline >= block.number,
+            request.deadline >= block.timestamp,
             signer == request.from,
             nonces(request.from) == request.nonce,
             signer
@@ -171,6 +171,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially leaving
      * ETH stuck in the contract.
+     *
+     * NOTE: Execution won't revert for invalid signed nonces.
      */
     function _execute(
         ForwardRequest calldata request,
