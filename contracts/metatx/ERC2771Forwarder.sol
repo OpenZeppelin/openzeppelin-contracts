@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (metatx/MinimalForwarder.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (metatx/ERC2771Forwarder.sol)
 
 pragma solidity ^0.8.19;
 
@@ -8,7 +8,7 @@ import "../utils/cryptography/EIP712.sol";
 import "../utils/Nonces.sol";
 
 /**
- * @dev A minimal implementation of a production-ready forwarder compatible with ERC2771 contracts.
+ * @dev An implementation of a production-ready forwarder compatible with ERC2771 contracts.
  *
  * This forwarder operates on forward requests that include:
  *
@@ -20,7 +20,7 @@ import "../utils/Nonces.sol";
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
  */
-contract MinimalForwarder is EIP712, Nonces {
+contract ERC2771Forwarder is EIP712, Nonces {
     using ECDSA for bytes32;
 
     struct ForwardRequest {
@@ -46,22 +46,22 @@ contract MinimalForwarder is EIP712, Nonces {
     /**
      * @dev The request `from` doesn't match with the recovered `signer`.
      */
-    error MinimalForwarderInvalidSigner(address signer, address from);
+    error ERC2771ForwarderInvalidSigner(address signer, address from);
 
     /**
      * @dev The requested `value` doesn't match with the available `msgValue`, leaving ETH stuck in the contract.
      */
-    error MinimalForwarderMismatchedValue(uint256 value, uint256 msgValue);
+    error ERC2771ForwarderMismatchedValue(uint256 value, uint256 msgValue);
 
     /**
      * @dev The list of requests length doesn't match with the list of signatures length.
      */
-    error MinimalForwarderInvalidBatchLength(uint256 requestsLength, uint256 signaturesLength);
+    error ERC2771ForwarderInvalidBatchLength(uint256 requestsLength, uint256 signaturesLength);
 
     /**
      * @dev The request `deadline` has expired.
      */
-    error MinimalForwarderExpiredRequest(uint256 deadline);
+    error ERC2771ForwarderExpiredRequest(uint256 deadline);
 
     /**
      * @dev See {EIP712-constructor}.
@@ -84,11 +84,11 @@ contract MinimalForwarder is EIP712, Nonces {
         ForwardRequest calldata request,
         bytes calldata signature
     ) public payable virtual returns (bool, bytes memory) {
-        (bool success, bytes memory returndata) = _execute(request, signature);
-
         if (msg.value != request.value) {
-            revert MinimalForwarderMismatchedValue(request.value, msg.value);
+            revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
+
+        (bool success, bytes memory returndata) = _execute(request, signature);
 
         return (success, returndata);
     }
@@ -98,7 +98,7 @@ contract MinimalForwarder is EIP712, Nonces {
      */
     function executeBatch(ForwardRequest[] calldata requests, bytes[] calldata signatures) public payable virtual {
         if (requests.length != signatures.length) {
-            revert MinimalForwarderInvalidBatchLength(requests.length, signatures.length);
+            revert ERC2771ForwarderInvalidBatchLength(requests.length, signatures.length);
         }
 
         uint256 requestsValue;
@@ -109,7 +109,7 @@ contract MinimalForwarder is EIP712, Nonces {
         }
 
         if (msg.value != requestsValue) {
-            revert MinimalForwarderMismatchedValue(requestsValue, msg.value);
+            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
         }
     }
 
@@ -171,12 +171,12 @@ contract MinimalForwarder is EIP712, Nonces {
         // The _validate function is intentionally avoided to keep the signer argument and the nonce check
 
         if (request.deadline < block.number) {
-            revert MinimalForwarderExpiredRequest(request.deadline);
+            revert ERC2771ForwarderExpiredRequest(request.deadline);
         }
 
         address signer = _recoverForwardRequestSigner(request, signature);
         if (signer != request.from) {
-            revert MinimalForwarderInvalidSigner(signer, request.from);
+            revert ERC2771ForwarderInvalidSigner(signer, request.from);
         }
 
         _useCheckedNonce(request.from, request.nonce);

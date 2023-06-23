@@ -2,20 +2,20 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { getDomain, domainType } = require('../helpers/eip712');
 
-const { expectEvent, BN } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const ERC2771ContextMock = artifacts.require('ERC2771ContextMock');
-const MinimalForwarder = artifacts.require('MinimalForwarder');
+const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 contract('ERC2771Context', function (accounts) {
-  const MAX_UINT48 = new BN('2').pow(new BN('48')).sub(new BN('1')).toString();
+  const MAX_UINT48 = web3.utils.toBN(1).shln(48).subn(1).toString();
 
   beforeEach(async function () {
-    this.forwarder = await MinimalForwarder.new('MinimalForwarder', '0.0.1');
+    this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
     this.recipient = await ERC2771ContextMock.new(this.forwarder.address);
 
     this.domain = await getDomain(this.forwarder);

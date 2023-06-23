@@ -6,10 +6,10 @@ const { expectRevertCustomError } = require('../helpers/customError');
 const { constants, expectRevert, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const MinimalForwarder = artifacts.require('MinimalForwarder');
+const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 
-contract('MinimalForwarder', function (accounts) {
+contract('ERC2771Forwarder', function (accounts) {
   const tamperedValues = {
     from: accounts[0],
     to: accounts[0],
@@ -20,7 +20,7 @@ contract('MinimalForwarder', function (accounts) {
   };
 
   beforeEach(async function () {
-    this.forwarder = await MinimalForwarder.new('MinimalForwarder');
+    this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
 
     this.domain = await getDomain(this.forwarder);
     this.types = {
@@ -45,7 +45,7 @@ contract('MinimalForwarder', function (accounts) {
       to: constants.ZERO_ADDRESS,
       value: '0',
       gas: '100000',
-      nonce: Number(await this.forwarder.nonces(this.alice.address)),
+      nonce: (await this.forwarder.nonces(this.alice.address)).toString(),
       data: '0x',
       deadline: this.blockNumber.toNumber() + 2, // Next + 1
     };
@@ -148,10 +148,13 @@ contract('MinimalForwarder', function (accounts) {
         it(`reverts with tampered ${key}`, async function () {
           const sig = this.sign(this.alice.getPrivateKey());
           const data = this.forgeData({ [key]: value });
-          await expectRevertCustomError(this.forwarder.execute(data.message, sig), 'MinimalForwarderInvalidSigner', [
-            ethSigUtil.recoverTypedSignature({ data, sig }),
-            data.message.from,
-          ]);
+          await expectRevertCustomError(
+            this.forwarder.execute(data.message, sig, {
+              value: key == 'value' ? value : 0, // To avoid MismatchedValue error
+            }),
+            'ERC2771ForwarderInvalidSigner',
+            [ethSigUtil.recoverTypedSignature({ data, sig }), data.message.from],
+          );
         });
       }
 
@@ -160,7 +163,7 @@ contract('MinimalForwarder', function (accounts) {
         tamperedSig[42] ^= 0xff;
         await expectRevertCustomError(
           this.forwarder.execute(this.request, web3.utils.bytesToHex(tamperedSig)),
-          'MinimalForwarderInvalidSigner',
+          'ERC2771ForwarderInvalidSigner',
           [ethSigUtil.recoverTypedSignature({ data: this.forgeData(), sig: tamperedSig }), this.request.from],
         );
       });
@@ -183,7 +186,7 @@ contract('MinimalForwarder', function (accounts) {
           deadline: this.blockNumber.toNumber() - 1,
         };
         const sig = this.sign(this.alice.getPrivateKey(), req);
-        await expectRevertCustomError(this.forwarder.execute(req, sig), 'MinimalForwarderExpiredRequest', [
+        await expectRevertCustomError(this.forwarder.execute(req, sig), 'ERC2771ForwarderExpiredRequest', [
           this.blockNumber.toNumber() - 1,
         ]);
       });
@@ -195,7 +198,7 @@ contract('MinimalForwarder', function (accounts) {
           value,
         };
         const sig = this.sign(this.alice.getPrivateKey(), req);
-        await expectRevertCustomError(this.forwarder.execute(req, sig), 'MinimalForwarderMismatchedValue', [0, value]);
+        await expectRevertCustomError(this.forwarder.execute(req, sig), 'ERC2771ForwarderMismatchedValue', [0, value]);
       });
     });
 
@@ -241,13 +244,13 @@ contract('MinimalForwarder', function (accounts) {
     it('reverts with mismatched lengths', async function () {
       await expectRevertCustomError(
         this.forwarder.executeBatch(this.requests, this.signatures.slice(0, -1)),
-        'MinimalForwarderInvalidBatchLength',
+        'ERC2771ForwarderInvalidBatchLength',
         [this.requests.length, this.signatures.length - 1],
       );
 
       await expectRevertCustomError(
         this.forwarder.executeBatch(this.requests.slice(0, -1), this.signatures),
-        'MinimalForwarderInvalidBatchLength',
+        'ERC2771ForwarderInvalidBatchLength',
         [this.requests.length - 1, this.signatures.length],
       );
     });
@@ -281,7 +284,7 @@ contract('MinimalForwarder', function (accounts) {
 
           await expectRevertCustomError(
             this.forwarder.executeBatch(this.requests, this.signatures),
-            'MinimalForwarderInvalidSigner',
+            'ERC2771ForwarderInvalidSigner',
             [ethSigUtil.recoverTypedSignature({ data, sig }), data.message.from],
           );
         });
@@ -295,7 +298,7 @@ contract('MinimalForwarder', function (accounts) {
 
         await expectRevertCustomError(
           this.forwarder.executeBatch(this.requests, this.signatures),
-          'MinimalForwarderInvalidSigner',
+          'ERC2771ForwarderInvalidSigner',
           [
             ethSigUtil.recoverTypedSignature({
               data: this.forgeData(this.requests[this.idx]),
@@ -323,7 +326,7 @@ contract('MinimalForwarder', function (accounts) {
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
         await expectRevertCustomError(
           this.forwarder.executeBatch(this.requests, this.signatures),
-          'MinimalForwarderExpiredRequest',
+          'ERC2771ForwarderExpiredRequest',
           [this.blockNumber.toNumber() - 1],
         );
       });
@@ -334,7 +337,7 @@ contract('MinimalForwarder', function (accounts) {
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
         await expectRevertCustomError(
           this.forwarder.executeBatch(this.requests, this.signatures),
-          'MinimalForwarderMismatchedValue',
+          'ERC2771ForwarderMismatchedValue',
           [0, value],
         );
       });
