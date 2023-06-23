@@ -238,7 +238,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      *
      * NOTE: This value is stored when the proposal is submitted so that possible changes to the value do not affect
      * proposals that have already been submitted. The type used to save it is a uint32. Consequently, while this
-     * interface returns a uint256, the value it returns should fit in a uint48.
+     * interface returns a uint256, the value it returns should fit in a uint32.
      */
     function votingPeriod() public view virtual returns (uint256);
 

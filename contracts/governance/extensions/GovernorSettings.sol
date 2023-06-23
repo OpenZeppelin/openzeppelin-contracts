@@ -13,7 +13,7 @@ import "../Governor.sol";
 abstract contract GovernorSettings is Governor {
     // amount of token
     uint256 private _proposalThreshold;
-    // duration: limited to uint48 in core (same as clock() type)
+    // timepoint: limited to uint48 in core (same as clock() type)
     uint48 private _votingDelay;
     // duration: limited to uint32 in core
     uint32 private _votingPeriod;
