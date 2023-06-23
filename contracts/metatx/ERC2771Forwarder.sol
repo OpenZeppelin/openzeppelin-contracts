@@ -70,6 +70,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block.
+     *
+     * NOTE: A request with an invalid nonce will return false here but won't revert to prevent revert
+     * when a batch includes a request already executed by another relay.
      */
     function verify(ForwardRequest calldata request, bytes calldata signature) public view virtual returns (bool) {
         (bool alive, bool signerMatch, bool nonceMatch) = _validate(request, signature);
@@ -179,15 +182,18 @@ contract ERC2771Forwarder is EIP712, Nonces {
             revert ERC2771ForwarderInvalidSigner(signer, request.from);
         }
 
-        _useCheckedNonce(request.from, request.nonce);
+        // Avoid execution instead of reverting in case a batch includes an already executed request
+        if (nonces(request.from) == request.nonce) {
+            _useNonce(request.from);
 
-        (success, returndata) = request.to.call{gas: request.gas, value: request.value}(
-            abi.encodePacked(request.data, request.from)
-        );
+            (success, returndata) = request.to.call{gas: request.gas, value: request.value}(
+                abi.encodePacked(request.data, request.from)
+            );
 
-        _checkForwardedGas(request);
+            _checkForwardedGas(request);
 
-        emit ExecutedForwardRequest(signer, request.nonce, success, returndata);
+            emit ExecutedForwardRequest(signer, request.nonce, success, returndata);
+        }
     }
 
     /**

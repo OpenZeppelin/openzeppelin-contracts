@@ -168,16 +168,13 @@ contract('ERC2771Forwarder', function (accounts) {
         );
       });
 
-      it('reverts with valid signature for non-current nonce', async function () {
+      it('succeeds without executing the request with valid signature for non-current nonce', async function () {
         const req = {
           ...this.request,
           nonce: this.request.nonce + 1,
         };
         const sig = this.sign(this.alice.getPrivateKey(), req);
-        await expectRevertCustomError(this.forwarder.execute(req, sig), 'InvalidAccountNonce', [
-          this.request.from,
-          this.request.nonce,
-        ]);
+        await expectEvent.notEmitted(await this.forwarder.execute(req, sig), 'ExecutedForwardRequest');
       });
 
       it('reverts with valid signature for expired deadline', async function () {
@@ -256,15 +253,24 @@ contract('ERC2771Forwarder', function (accounts) {
     });
 
     context('with valid signatures', function () {
-      it('succeeds', async function () {
-        const receipt = await this.forwarder.executeBatch(this.requests, this.signatures);
+      beforeEach(async function () {
+        this.receipt = await this.forwarder.executeBatch(this.requests, this.signatures);
+      });
+
+      it('emits events', async function () {
         for (const request of this.requests) {
-          expectEvent(receipt, 'ExecutedForwardRequest', {
+          expectEvent(this.receipt, 'ExecutedForwardRequest', {
             signer: request.from,
             nonce: web3.utils.toBN(request.nonce),
             success: true,
             returndata: null,
           });
+        }
+      });
+
+      it('increase nonces', async function () {
+        for (const request of this.requests) {
+          expect(await this.forwarder.nonces(request.from)).to.be.bignumber.eq(web3.utils.toBN(request.nonce + 1));
         }
       });
     });
@@ -309,16 +315,13 @@ contract('ERC2771Forwarder', function (accounts) {
         );
       });
 
-      it('reverts with at least one valid signature for non-current nonce', async function () {
-        const currentNonce = this.requests[this.idx].nonce;
+      it('succeeds with one valid signature for non-current nonce without executing the invalid request', async function () {
         this.requests[this.idx].nonce = this.requests[this.idx].nonce + 1;
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
 
-        await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requests, this.signatures),
-          'InvalidAccountNonce',
-          [this.requests[this.idx].from, currentNonce],
-        );
+        const receipt = await this.forwarder.executeBatch(this.requests, this.signatures);
+
+        expect(receipt.logs.filter(({ event }) => event === 'ExecutedForwardRequest').length).to.be.equal(2);
       });
 
       it('reverts with at least one valid signature for expired deadline', async function () {
