@@ -75,7 +75,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * when a batch includes a request already executed by another relay.
      */
     function verify(ForwardRequest calldata request, bytes calldata signature) public view virtual returns (bool) {
-        (bool alive, bool signerMatch, bool nonceMatch) = _validate(request, signature);
+        (bool alive, bool signerMatch, bool nonceMatch, ) = _validate(request, signature);
         return alive && signerMatch && nonceMatch;
     }
 
@@ -122,9 +122,14 @@ contract ERC2771Forwarder is EIP712, Nonces {
     function _validate(
         ForwardRequest calldata request,
         bytes calldata signature
-    ) internal view virtual returns (bool alive, bool signerMatch, bool nonceMatch) {
-        address signer = _recoverForwardRequestSigner(request, signature);
-        return (request.deadline >= block.number, signer == request.from, nonces(request.from) == request.nonce);
+    ) internal view virtual returns (bool alive, bool signerMatch, bool nonceMatch, address signer) {
+        signer = _recoverForwardRequestSigner(request, signature);
+        return (
+            request.deadline >= block.number,
+            signer == request.from,
+            nonces(request.from) == request.nonce,
+            signer
+        );
     }
 
     /**
@@ -171,19 +176,18 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequest calldata request,
         bytes calldata signature
     ) internal virtual returns (bool success, bytes memory returndata) {
-        // The _validate function is intentionally avoided to keep the signer argument and the nonce check
+        (bool alive, bool signerMatch, bool nonceMatch, address signer) = _validate(request, signature);
 
-        if (request.deadline < block.number) {
+        if (!alive) {
             revert ERC2771ForwarderExpiredRequest(request.deadline);
         }
 
-        address signer = _recoverForwardRequestSigner(request, signature);
-        if (signer != request.from) {
+        if (!signerMatch) {
             revert ERC2771ForwarderInvalidSigner(signer, request.from);
         }
 
         // Avoid execution instead of reverting in case a batch includes an already executed request
-        if (nonces(request.from) == request.nonce) {
+        if (nonceMatch) {
             _useNonce(request.from);
 
             (success, returndata) = request.to.call{gas: request.gas, value: request.value}(
