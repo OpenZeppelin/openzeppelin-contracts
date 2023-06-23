@@ -32,27 +32,6 @@ contract('ProxyAdmin', function (accounts) {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
   });
 
-  describe('#upgrade', function () {
-    context('with unauthorized account', function () {
-      it('fails to upgrade', async function () {
-        await expectRevertCustomError(
-          this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'OwnableUnauthorizedAccount',
-          [anotherAccount],
-        );
-      });
-    });
-
-    context('with authorized account', function () {
-      it('upgrades implementation', async function () {
-        await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-
-        const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-        expect(implementationAddress).to.be.equal(this.implementationV2.address);
-      });
-    });
-  });
-
   describe('#upgradeAndCall', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {

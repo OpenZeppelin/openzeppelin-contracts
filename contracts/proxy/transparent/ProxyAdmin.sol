@@ -17,19 +17,8 @@ contract ProxyAdmin is Ownable {
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
-        proxy.upgradeTo(implementation);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation. See
-     * {TransparentUpgradeableProxy-upgradeToAndCall}.
+     * @dev Upgrades `proxy` to `implementation` and optionally calls a function on the new implementation if
+     * the `data` provided is not empty. See {TransparentUpgradeableProxy-_dispatchUpgradeToAndCall}.
      *
      * Requirements:
      *
