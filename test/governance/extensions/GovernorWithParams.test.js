@@ -195,6 +195,8 @@ contract('GovernorWithParams', function (accounts) {
                 sig[69] ^= 0xff;
                 return sig;
               },
+              reason: 'no particular reason',
+              params: encodedParams,
             }),
             'GovernorInvalidSigner',
             [],
@@ -210,6 +212,8 @@ contract('GovernorWithParams', function (accounts) {
               voter: this.voterBySig.address,
               nonce: nonce.addn(1),
               signature: this.signature,
+              reason: 'no particular reason',
+              params: encodedParams,
             }),
             // The signature check implies the nonce can't be tampered without changing the signer
             'GovernorInvalidSigner',
