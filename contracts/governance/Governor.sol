@@ -528,10 +528,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        uint256 currentNonce = _useNonce(voter);
-
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, currentNonce))),
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
             v,
             r,
             s
@@ -557,8 +555,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        uint256 currentNonce = _useNonce(voter);
-
         address signer = ECDSA.recover(
             _hashTypedDataV4(
                 keccak256(
@@ -567,7 +563,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
                         proposalId,
                         support,
                         voter,
-                        currentNonce,
+                        _useNonce(voter),
                         keccak256(bytes(reason)),
                         keccak256(params)
                     )

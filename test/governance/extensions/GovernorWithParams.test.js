@@ -161,7 +161,7 @@ contract('GovernorWithParams', function (accounts) {
           const tx = await this.helper.vote({
             support: Enums.VoteType.For,
             voter: this.voterBySig.address,
-            nonce: nonce,
+            nonce,
             reason: 'no particular reason',
             params: encodedParams,
             signature: this.signature,

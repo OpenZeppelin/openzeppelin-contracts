@@ -197,7 +197,7 @@ contract('Governor', function (accounts) {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         expectEvent(
-          await this.helper.vote({ support: Enums.VoteType.For, voter: voterBySigAddress, nonce: nonce, signature }),
+          await this.helper.vote({ support: Enums.VoteType.For, voter: voterBySigAddress, nonce, signature }),
           'VoteCast',
           {
             voter: voterBySigAddress,
