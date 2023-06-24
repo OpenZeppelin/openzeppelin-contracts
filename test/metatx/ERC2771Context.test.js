@@ -71,10 +71,12 @@ contract('ERC2771Context', function (accounts) {
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
-        expect(await this.forwarder.verify(req, sign)).to.equal(true);
+        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
+        expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(req);
         await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: this.sender });
       });
     });
@@ -95,10 +97,12 @@ contract('ERC2771Context', function (accounts) {
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
-        expect(await this.forwarder.verify(req, sign)).to.equal(true);
+        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
+        expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(req);
         await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', { data, integerValue, stringValue });
       });
     });
