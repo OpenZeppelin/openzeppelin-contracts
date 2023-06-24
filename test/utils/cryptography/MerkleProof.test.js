@@ -178,5 +178,30 @@ contract('MerkleProof', function () {
       expect(await this.merkleProof.$multiProofVerify([root], [], root, [])).to.equal(true);
       expect(await this.merkleProof.$multiProofVerifyCalldata([root], [], root, [])).to.equal(true);
     });
+
+    it('reverts processing manipulated proofs with a zero-value node at depth 1', async function () {
+      // Create a merkle tree that contains a zero leaf at depth 1
+      const leaves = [keccak256('real leaf'), Buffer.alloc(32, 0)];
+      const merkleTree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+
+      const root = merkleTree.getRoot();
+
+      // Now we can pass any **malicious** fake leaves as valid!
+      const maliciousLeaves = ['malicious', 'leaves'].map(keccak256).sort(Buffer.compare);
+      const maliciousProof = [leaves[0], leaves[0]];
+      const maliciousProofFlags = [true, true, false];
+
+      await expectRevertCustomError(
+        this.merkleProof.$multiProofVerify(maliciousProof, maliciousProofFlags, root, maliciousLeaves),
+        'MerkleProofInvalidMultiproof',
+        [],
+      );
+
+      await expectRevertCustomError(
+        this.merkleProof.$multiProofVerifyCalldata(maliciousProof, maliciousProofFlags, root, maliciousLeaves),
+        'MerkleProofInvalidMultiproof',
+        [],
+      );
+    });
   });
 });

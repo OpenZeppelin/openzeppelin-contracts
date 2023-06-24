@@ -4,7 +4,7 @@
 pragma solidity ^0.8.19;
 
 import "../../interfaces/draft-IERC1822.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
@@ -18,7 +18,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
-abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
+abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
 
@@ -28,6 +28,11 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     error UUPSUnauthorizedCallContext();
 
     /**
+     * @dev The storage `slot` is unsupported as a UUID.
+     */
+    error UUPSUnsupportedProxiableUUID(bytes32 slot);
+
+    /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
      * a proxy contract with an implementation (as defined in ERC1967) pointing to self. This should only be the case
      * for UUPS and transparent proxies that are using the current contract as their implementation. Execution of a
@@ -35,12 +40,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * fail.
      */
     modifier onlyProxy() {
-        if (address(this) == __self) {
-            // Must be called through delegatecall
-            revert UUPSUnauthorizedCallContext();
-        }
-        if (_getImplementation() != __self) {
-            // Must be called through an active proxy
+        if (
+            address(this) == __self || // Must be called through delegatecall
+            ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
+        ) {
             revert UUPSUnauthorizedCallContext();
         }
         _;
@@ -67,7 +70,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
     function proxiableUUID() external view virtual notDelegated returns (bytes32) {
-        return _IMPLEMENTATION_SLOT;
+        return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
     /**
@@ -110,4 +113,21 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
+
+    /**
+     * @dev Perform implementation upgrade with security checks for UUPS proxies, and additional setup call.
+     *
+     * Emits an {IERC1967-Upgraded} event.
+     */
+    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) private {
+        try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
+            if (slot != ERC1967Utils.IMPLEMENTATION_SLOT) {
+                revert UUPSUnsupportedProxiableUUID(slot);
+            }
+            ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
+        } catch {
+            // The implementation is not UUPS
+            revert ERC1967Utils.ERC1967InvalidImplementation(newImplementation);
+        }
+    }
 }

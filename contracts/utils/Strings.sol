@@ -46,8 +46,8 @@ library Strings {
     /**
      * @dev Converts a `int256` to its ASCII `string` decimal representation.
      */
-    function toString(int256 value) internal pure returns (string memory) {
-        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
+    function toStringSigned(int256 value) internal pure returns (string memory) {
+        return string.concat(value < 0 ? "-" : "", toString(SignedMath.abs(value)));
     }
 
     /**

@@ -16,7 +16,7 @@ import "../../interfaces/draft-IERC6093.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
+abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
     using Strings for uint256;
 
     // Token name
@@ -97,7 +97,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
         _requireMinted(tokenId);
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
     }
 
     /**

@@ -130,12 +130,38 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _name.toStringWithFallback(_nameFallback),
-            _version.toStringWithFallback(_versionFallback),
+            _EIP712Name(),
+            _EIP712Version(),
             block.chainid,
             address(this),
             bytes32(0),
             new uint256[](0)
         );
+    }
+
+    /**
+     * @dev The name parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _name which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Name() internal view returns (string memory) {
+        return _name.toStringWithFallback(_nameFallback);
+    }
+
+    /**
+     * @dev The version parameter for the EIP712 domain.
+     *
+     * NOTE: By default this function reads _version which is an immutable value.
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712Version() internal view returns (string memory) {
+        return _version.toStringWithFallback(_versionFallback);
     }
 }
