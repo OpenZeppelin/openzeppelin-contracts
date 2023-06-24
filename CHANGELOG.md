@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+> **Warning** Version 5.0 is under active development and should not be used. Install the releases from npm or use the version tags in the repository.
+
 ### Removals
 
 The following contracts, libraries and functions were removed:
