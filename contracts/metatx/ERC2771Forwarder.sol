@@ -30,6 +30,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         uint256 gas;
         uint48 deadline;
         bytes data;
+        bytes signature;
     }
 
     bytes32 private constant _FORWARD_REQUEST_TYPEHASH =
@@ -74,8 +75,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * to prevent revert when a batch includes a request already executed by another relay. This behavior can be opt-out.
      * See {executeBatch}.
      */
-    function verify(ForwardRequestData calldata request, bytes calldata signature) public view virtual returns (bool) {
-        (bool alive, bool signerMatch, ) = _validate(request, signature, nonces(request.from));
+    function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
+        (bool alive, bool signerMatch, ) = _validate(request, nonces(request.from));
         return alive && signerMatch;
     }
 
@@ -83,15 +84,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev Executes a `request` on behalf of `signature`'s signer guaranteeing that the forwarded call
      * will receive the requested gas and no ETH is left stuck in the contract.
      */
-    function execute(
-        ForwardRequestData calldata request,
-        bytes calldata signature
-    ) public payable virtual returns (bool, bytes memory) {
+    function execute(ForwardRequestData calldata request) public payable virtual returns (bool, bytes memory) {
         if (msg.value != request.value) {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        (bool success, bytes memory returndata) = _execute(request, signature, _useNonce(request.from), true);
+        (bool success, bytes memory returndata) = _execute(request, _useNonce(request.from), true);
 
         return (success, returndata);
     }
@@ -100,20 +98,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev Batch version of {execute} that also includes an `atomic` parameter to indicate whether all requests are
      * executed or none of them.
      */
-    function executeBatch(
-        ForwardRequestData[] calldata requests,
-        bytes[] calldata signatures,
-        bool atomic
-    ) public payable virtual {
-        if (requests.length != signatures.length) {
-            revert ERC2771ForwarderInvalidBatchLength(requests.length, signatures.length);
-        }
-
+    function executeBatch(ForwardRequestData[] calldata requests, bool atomic) public payable virtual {
         uint256 requestsValue;
 
         for (uint256 i; i < requests.length; ++i) {
             requestsValue += requests[i].value;
-            _execute(requests[i], signatures[i], _useNonce(requests[i].from), atomic);
+            _execute(requests[i], _useNonce(requests[i].from), atomic);
         }
 
         if (msg.value != requestsValue) {
@@ -128,10 +118,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _validate(
         ForwardRequestData calldata request,
-        bytes calldata signature,
         uint256 nonce
     ) internal view virtual returns (bool alive, bool signerMatch, address signer) {
-        signer = _recoverForwardRequestSigner(request, signature, nonce);
+        signer = _recoverForwardRequestSigner(request, nonce);
         return (request.deadline >= block.timestamp, signer == request.from, signer);
     }
 
@@ -143,7 +132,6 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _recoverForwardRequestSigner(
         ForwardRequestData calldata request,
-        bytes calldata signature,
         uint256 nonce
     ) internal view virtual returns (address) {
         return
@@ -160,7 +148,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                         keccak256(request.data)
                     )
                 )
-            ).recover(signature);
+            ).recover(request.signature);
     }
 
     /**
@@ -181,11 +169,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _execute(
         ForwardRequestData calldata request,
-        bytes calldata signature,
         uint256 nonce,
         bool requireValidRequest
     ) internal virtual returns (bool success, bytes memory returndata) {
-        (bool alive, bool signerMatch, address signer) = _validate(request, signature, nonce);
+        (bool alive, bool signerMatch, address signer) = _validate(request, nonce);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
