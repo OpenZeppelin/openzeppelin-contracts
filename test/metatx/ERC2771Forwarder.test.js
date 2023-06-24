@@ -14,7 +14,6 @@ contract('ERC2771Forwarder', function (accounts) {
     from: accounts[0],
     to: accounts[0],
     value: web3.utils.toWei('1'),
-    nonce: 1234,
     data: '0x1742',
     deadline: 0xdeadbeef,
   };
@@ -146,14 +145,13 @@ contract('ERC2771Forwarder', function (accounts) {
     context('with tampered values', function () {
       for (const [key, value] of Object.entries(tamperedValues)) {
         it(`reverts with tampered ${key}`, async function () {
-          const sig = this.sign(this.alice.getPrivateKey());
           const data = this.forgeData({ [key]: value });
           await expectRevertCustomError(
-            this.forwarder.execute(data.message, sig, {
+            this.forwarder.execute(data.message, this.signature, {
               value: key == 'value' ? value : 0, // To avoid MismatchedValue error
             }),
             'ERC2771ForwarderInvalidSigner',
-            [ethSigUtil.recoverTypedSignature({ data, sig }), data.message.from],
+            [ethSigUtil.recoverTypedSignature({ data, sig: this.signature }), data.message.from],
           );
         });
       }
@@ -168,13 +166,20 @@ contract('ERC2771Forwarder', function (accounts) {
         );
       });
 
-      it('succeeds without executing the request with valid signature for non-current nonce', async function () {
-        const req = {
-          ...this.request,
-          nonce: this.request.nonce + 1,
-        };
-        const sig = this.sign(this.alice.getPrivateKey(), req);
-        await expectEvent.notEmitted(await this.forwarder.execute(req, sig), 'ExecutedForwardRequest');
+      it('reverts with valid signature for non-current nonce', async function () {
+        // Execute first a request
+        await this.forwarder.execute(this.request, this.signature);
+
+        // And then fail due to an already used nonce
+        this.request.nonce++;
+        await expectRevertCustomError(
+          this.forwarder.execute(this.request, this.signature),
+          'ERC2771ForwarderInvalidSigner',
+          [
+            ethSigUtil.recoverTypedSignature({ data: this.forgeData(this.request), sig: this.signature }),
+            this.request.from,
+          ],
+        );
       });
 
       it('reverts with valid signature for expired deadline', async function () {
@@ -240,13 +245,13 @@ contract('ERC2771Forwarder', function (accounts) {
 
     it('reverts with mismatched lengths', async function () {
       await expectRevertCustomError(
-        this.forwarder.executeBatch(this.requests, this.signatures.slice(0, -1)),
+        this.forwarder.executeBatch(this.requests, this.signatures.slice(0, -1), false),
         'ERC2771ForwarderInvalidBatchLength',
         [this.requests.length, this.signatures.length - 1],
       );
 
       await expectRevertCustomError(
-        this.forwarder.executeBatch(this.requests.slice(0, -1), this.signatures),
+        this.forwarder.executeBatch(this.requests.slice(0, -1), this.signatures, false),
         'ERC2771ForwarderInvalidBatchLength',
         [this.requests.length - 1, this.signatures.length],
       );
@@ -254,7 +259,7 @@ contract('ERC2771Forwarder', function (accounts) {
 
     context('with valid signatures', function () {
       beforeEach(async function () {
-        this.receipt = await this.forwarder.executeBatch(this.requests, this.signatures);
+        this.receipt = await this.forwarder.executeBatch(this.requests, this.signatures, false);
       });
 
       it('emits events', async function () {
@@ -282,16 +287,14 @@ contract('ERC2771Forwarder', function (accounts) {
 
       for (const [key, value] of Object.entries(tamperedValues)) {
         it(`reverts with at least one tampered request ${key}`, async function () {
-          const data = this.forgeData({ [key]: value });
-          const sig = this.sign(this.signers[this.idx].getPrivateKey());
+          const data = this.forgeData({ ...this.requests[this.idx], [key]: value });
 
           this.requests[this.idx] = data.message;
-          this.signatures[this.idx] = sig;
 
           await expectRevertCustomError(
-            this.forwarder.executeBatch(this.requests, this.signatures),
+            this.forwarder.executeBatch(this.requests, this.signatures, true),
             'ERC2771ForwarderInvalidSigner',
-            [ethSigUtil.recoverTypedSignature({ data, sig }), data.message.from],
+            [ethSigUtil.recoverTypedSignature({ data, sig: this.signatures[this.idx] }), data.message.from],
           );
         });
       }
@@ -303,7 +306,7 @@ contract('ERC2771Forwarder', function (accounts) {
         this.signatures[this.idx] = web3.utils.bytesToHex(tamperedSig);
 
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requests, this.signatures),
+          this.forwarder.executeBatch(this.requests, this.signatures, true),
           'ERC2771ForwarderInvalidSigner',
           [
             ethSigUtil.recoverTypedSignature({
@@ -315,11 +318,11 @@ contract('ERC2771Forwarder', function (accounts) {
         );
       });
 
-      it('succeeds with one valid signature for non-current nonce without executing the invalid request', async function () {
+      it('succeeds ignoring a request with an invalid nonceZZZ', async function () {
         this.requests[this.idx].nonce = this.requests[this.idx].nonce + 1;
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
 
-        const receipt = await this.forwarder.executeBatch(this.requests, this.signatures);
+        const receipt = await this.forwarder.executeBatch(this.requests, this.signatures, false);
 
         expect(receipt.logs.filter(({ event }) => event === 'ExecutedForwardRequest').length).to.be.equal(2);
       });
@@ -328,7 +331,7 @@ contract('ERC2771Forwarder', function (accounts) {
         this.requests[this.idx].deadline = this.timestamp.toNumber() - 1;
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requests, this.signatures),
+          this.forwarder.executeBatch(this.requests, this.signatures, true),
           'ERC2771ForwarderExpiredRequest',
           [this.timestamp.toNumber() - 1],
         );
@@ -339,7 +342,7 @@ contract('ERC2771Forwarder', function (accounts) {
         this.requests[this.idx].value = value;
         this.signatures[this.idx] = this.sign(this.signers[this.idx].getPrivateKey(), this.requests[this.idx]);
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requests, this.signatures),
+          this.forwarder.executeBatch(this.requests, this.signatures, true),
           'ERC2771ForwarderMismatchedValue',
           [0, value],
         );
@@ -356,7 +359,9 @@ contract('ERC2771Forwarder', function (accounts) {
 
       this.signatures[idx] = this.sign(this.signers[idx].getPrivateKey(), this.requests[idx]);
 
-      await expectRevert.assertion(this.forwarder.executeBatch(this.requests, this.signatures, { gas: gasAvailable }));
+      await expectRevert.assertion(
+        this.forwarder.executeBatch(this.requests, this.signatures, true, { gas: gasAvailable }),
+      );
 
       const { transactions } = await web3.eth.getBlock('latest');
       const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
