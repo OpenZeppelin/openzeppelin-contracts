@@ -11,9 +11,12 @@ import "../Governor.sol";
  * _Available since v4.4._
  */
 abstract contract GovernorSettings is Governor {
-    uint256 private _votingDelay;
-    uint256 private _votingPeriod;
+    // amount of token
     uint256 private _proposalThreshold;
+    // timepoint: limited to uint48 in core (same as clock() type)
+    uint48 private _votingDelay;
+    // duration: limited to uint32 in core
+    uint32 private _votingPeriod;
 
     event VotingDelaySet(uint256 oldVotingDelay, uint256 newVotingDelay);
     event VotingPeriodSet(uint256 oldVotingPeriod, uint256 newVotingPeriod);
@@ -22,7 +25,7 @@ abstract contract GovernorSettings is Governor {
     /**
      * @dev Initialize the governance parameters.
      */
-    constructor(uint256 initialVotingDelay, uint256 initialVotingPeriod, uint256 initialProposalThreshold) {
+    constructor(uint48 initialVotingDelay, uint32 initialVotingPeriod, uint256 initialProposalThreshold) {
         _setVotingDelay(initialVotingDelay);
         _setVotingPeriod(initialVotingPeriod);
         _setProposalThreshold(initialProposalThreshold);
@@ -54,7 +57,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function setVotingDelay(uint256 newVotingDelay) public virtual onlyGovernance {
+    function setVotingDelay(uint48 newVotingDelay) public virtual onlyGovernance {
         _setVotingDelay(newVotingDelay);
     }
 
@@ -63,7 +66,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function setVotingPeriod(uint256 newVotingPeriod) public virtual onlyGovernance {
+    function setVotingPeriod(uint32 newVotingPeriod) public virtual onlyGovernance {
         _setVotingPeriod(newVotingPeriod);
     }
 
@@ -81,7 +84,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function _setVotingDelay(uint256 newVotingDelay) internal virtual {
+    function _setVotingDelay(uint48 newVotingDelay) internal virtual {
         emit VotingDelaySet(_votingDelay, newVotingDelay);
         _votingDelay = newVotingDelay;
     }
@@ -91,7 +94,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function _setVotingPeriod(uint256 newVotingPeriod) internal virtual {
+    function _setVotingPeriod(uint32 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
         if (newVotingPeriod == 0) {
             revert GovernorInvalidVotingPeriod(0);
