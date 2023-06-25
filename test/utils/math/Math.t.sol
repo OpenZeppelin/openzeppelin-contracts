@@ -175,7 +175,8 @@ contract MathTest is Test {
         // First, let's assume m is not 0, as that will cause a division by zero error
         vm.assume(m != 0);
         vm.assume(e < 10);
-        vm.assume(b != 0 && e !=0);
+        vm.assume(b != 0);
+        vm.assume(e != 0);
 
         uint256 result = Math.modExp(b, e, m);
 
