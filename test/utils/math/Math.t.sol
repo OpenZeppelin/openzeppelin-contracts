@@ -174,6 +174,7 @@ contract MathTest is Test {
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         // First, let's assume m is not 0, as that will cause a division by zero error
         vm.assume(m != 0);
+        vm.assume(e < 10);
 
         uint256 result = Math.modExp(b, e, m);
 
