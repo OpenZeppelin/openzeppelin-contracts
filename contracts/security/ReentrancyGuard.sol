@@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
 
     uint256 private _status;
 
+    /**
+     * @dev Unauthorized reentrant call.
+     */
+    error ReentrancyGuardReentrantCall();
+
     constructor() {
         _status = _NOT_ENTERED;
     }
@@ -55,7 +60,9 @@ abstract contract ReentrancyGuard {
 
     function _nonReentrantBefore() private {
         // On the first call to nonReentrant, _status will be _NOT_ENTERED
-        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+        if (_status == _ENTERED) {
+            revert ReentrancyGuardReentrantCall();
+        }
 
         // Any calls to nonReentrant after this point will fail
         _status = _ENTERED;

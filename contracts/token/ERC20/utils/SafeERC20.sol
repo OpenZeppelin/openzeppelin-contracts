@@ -20,6 +20,16 @@ library SafeERC20 {
     using Address for address;
 
     /**
+     * @dev An operation with an ERC20 token failed.
+     */
+    error SafeERC20FailedOperation(address token);
+
+    /**
+     * @dev Indicates a failed `decreaseAllowance` request.
+     */
+    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
+
+    /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
      */
@@ -45,14 +55,16 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Decrease the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
+     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
      */
-    function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
+    function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
         unchecked {
-            uint256 oldAllowance = token.allowance(address(this), spender);
-            require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
-            forceApprove(token, spender, oldAllowance - value);
+            uint256 currentAllowance = token.allowance(address(this), spender);
+            if (currentAllowance < requestedDecrease) {
+                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
+            }
+            forceApprove(token, spender, currentAllowance - requestedDecrease);
         }
     }
 
@@ -87,7 +99,9 @@ library SafeERC20 {
         uint256 nonceBefore = token.nonces(owner);
         token.permit(owner, spender, value, deadline, v, r, s);
         uint256 nonceAfter = token.nonces(owner);
-        require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
+        if (nonceAfter != nonceBefore + 1) {
+            revert SafeERC20FailedOperation(address(token));
+        }
     }
 
     /**
@@ -101,8 +115,10 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
-        require(returndata.length == 0 || abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+        bytes memory returndata = address(token).functionCall(data);
+        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
+            revert SafeERC20FailedOperation(address(token));
+        }
     }
 
     /**

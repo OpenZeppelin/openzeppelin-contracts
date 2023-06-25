@@ -23,10 +23,16 @@ contract UUPSUpgradeableMock is NonUpgradeableMock, UUPSUpgradeable {
 
 contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
     function upgradeTo(address newImplementation) public override {
-        _upgradeToAndCall(newImplementation, bytes(""), false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
     }
 
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
-        _upgradeToAndCall(newImplementation, data, false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data, false);
+    }
+}
+
+contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
+    function proxiableUUID() external pure override returns (bytes32) {
+        return keccak256("invalid UUID");
     }
 }

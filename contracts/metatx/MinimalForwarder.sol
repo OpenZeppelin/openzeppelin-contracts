@@ -31,6 +31,16 @@ contract MinimalForwarder is EIP712 {
 
     mapping(address => uint256) private _nonces;
 
+    /**
+     * @dev The request `from` doesn't match with the recovered `signer`.
+     */
+    error MinimalForwarderInvalidSigner(address signer, address from);
+
+    /**
+     * @dev The request nonce doesn't match with the `current` nonce for the request signer.
+     */
+    error MinimalForwarderInvalidNonce(address signer, uint256 current);
+
     constructor() EIP712("MinimalForwarder", "0.0.1") {}
 
     function getNonce(address from) public view returns (uint256) {
@@ -38,17 +48,25 @@ contract MinimalForwarder is EIP712 {
     }
 
     function verify(ForwardRequest calldata req, bytes calldata signature) public view returns (bool) {
-        address signer = _hashTypedDataV4(
-            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
-        ).recover(signature);
-        return _nonces[req.from] == req.nonce && signer == req.from;
+        address signer = _recover(req, signature);
+        (bool correctFrom, bool correctNonce) = _validateReq(req, signer);
+        return correctFrom && correctNonce;
     }
 
     function execute(
         ForwardRequest calldata req,
         bytes calldata signature
     ) public payable returns (bool, bytes memory) {
-        require(verify(req, signature), "MinimalForwarder: signature does not match request");
+        address signer = _recover(req, signature);
+        (bool correctFrom, bool correctNonce) = _validateReq(req, signer);
+
+        if (!correctFrom) {
+            revert MinimalForwarderInvalidSigner(signer, req.from);
+        }
+        if (!correctNonce) {
+            revert MinimalForwarderInvalidNonce(signer, _nonces[req.from]);
+        }
+
         _nonces[req.from] = req.nonce + 1;
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
@@ -68,5 +86,19 @@ contract MinimalForwarder is EIP712 {
         }
 
         return (success, returndata);
+    }
+
+    function _recover(ForwardRequest calldata req, bytes calldata signature) internal view returns (address) {
+        return
+            _hashTypedDataV4(
+                keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
+            ).recover(signature);
+    }
+
+    function _validateReq(
+        ForwardRequest calldata req,
+        address signer
+    ) internal view returns (bool correctFrom, bool correctNonce) {
+        return (signer == req.from, _nonces[req.from] == req.nonce);
     }
 }

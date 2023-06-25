@@ -10,6 +10,6 @@ contract('ERC721', function (accounts) {
     this.token = await ERC721.new(name, symbol);
   });
 
-  shouldBehaveLikeERC721('ERC721', ...accounts);
-  shouldBehaveLikeERC721Metadata('ERC721', name, symbol, ...accounts);
+  shouldBehaveLikeERC721(...accounts);
+  shouldBehaveLikeERC721Metadata(name, symbol, ...accounts);
 });

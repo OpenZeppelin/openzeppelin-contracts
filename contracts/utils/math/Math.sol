@@ -7,6 +7,11 @@ pragma solidity ^0.8.19;
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflowedMulDiv();
+
     enum Rounding {
         Down, // Toward negative infinity
         Up, // Toward infinity
@@ -109,6 +114,11 @@ library Math {
      * of rounding down.
      */
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (b == 0) {
+            // Guarantee the same behavior as in a regular Solidity division.
+            return a / b;
+        }
+
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a == 0 ? 0 : (a - 1) / b + 1;
     }
@@ -140,7 +150,9 @@ library Math {
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1, "Math: mulDiv overflow");
+            if (denominator <= prod1) {
+                revert MathOverflowedMulDiv();
+            }
 
             ///////////////////////////////////////////////
             // 512 by 256 division.

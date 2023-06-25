@@ -1,6 +1,8 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { sum } = require('../../../helpers/math');
+const { expectRevertCustomError } = require('../../../helpers/customError');
+const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
 const ERC721ConsecutiveMock = artifacts.require('$ERC721ConsecutiveMock');
 const ERC721ConsecutiveEnumerableMock = artifacts.require('$ERC721ConsecutiveEnumerableMock');
@@ -83,14 +85,19 @@ contract('ERC721Consecutive', function (accounts) {
             expect(await this.token.getVotes(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
           }
         });
+
+        it('reverts on consecutive minting to the zero address', async function () {
+          await expectRevertCustomError(
+            ERC721ConsecutiveMock.new(name, symbol, offset, delegates, [ZERO_ADDRESS], [10]),
+            'ERC721InvalidReceiver',
+            [ZERO_ADDRESS],
+          );
+        });
       });
 
       describe('minting after construction', function () {
         it('consecutive minting is not possible after construction', async function () {
-          await expectRevert(
-            this.token.$_mintConsecutive(user1, 10),
-            'ERC721Consecutive: batch minting restricted to constructor',
-          );
+          await expectRevertCustomError(this.token.$_mintConsecutive(user1, 10), 'ERC721ForbiddenBatchMint', []);
         });
 
         it('simple minting is possible after construction', async function () {
@@ -110,7 +117,7 @@ contract('ERC721Consecutive', function (accounts) {
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
 
-          await expectRevert(this.token.$_mint(user1, tokenId), 'ERC721: token already minted');
+          await expectRevertCustomError(this.token.$_mint(user1, tokenId), 'ERC721InvalidSender', [ZERO_ADDRESS]);
         });
       });
 
@@ -130,7 +137,7 @@ contract('ERC721Consecutive', function (accounts) {
             tokenId,
           });
 
-          await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           expectEvent(await this.token.$_mint(user2, tokenId), 'Transfer', {
             from: constants.ZERO_ADDRESS,
@@ -145,7 +152,7 @@ contract('ERC721Consecutive', function (accounts) {
           const tokenId = web3.utils.toBN(sum(...batches.map(({ amount }) => amount)) + offset);
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(false);
-          await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // mint
           await this.token.$_mint(user1, tokenId);
@@ -161,7 +168,7 @@ contract('ERC721Consecutive', function (accounts) {
           });
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(false);
-          await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // re-mint
           expectEvent(await this.token.$_mint(user2, tokenId), 'Transfer', {
@@ -173,41 +180,56 @@ contract('ERC721Consecutive', function (accounts) {
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user2);
         });
+
+        it('reverts burning batches of size != 1', async function () {
+          const tokenId = batches[0].amount + offset;
+          const receiver = batches[0].receiver;
+
+          await expectRevertCustomError(
+            this.token.$_afterTokenTransfer(receiver, ZERO_ADDRESS, tokenId, 2),
+            'ERC721ForbiddenBatchBurn',
+            [],
+          );
+        });
       });
     });
   }
 
   describe('invalid use', function () {
     it('cannot mint a batch larger than 5000', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         ERC721ConsecutiveMock.new(name, symbol, 0, [], [user1], ['5001']),
-        'ERC721Consecutive: batch too large',
+        'ERC721ExceededMaxBatchMint',
+        [5000, 5001],
       );
     });
 
     it('cannot use single minting during construction', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
-        "ERC721Consecutive: can't mint during construction",
+        'ERC721ForbiddenMint',
+        [],
       );
     });
 
     it('cannot use single minting during construction', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
-        "ERC721Consecutive: can't mint during construction",
+        'ERC721ForbiddenMint',
+        [],
       );
     });
 
     it('consecutive mint not compatible with enumerability', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         ERC721ConsecutiveEnumerableMock.new(
           name,
           symbol,
           batches.map(({ receiver }) => receiver),
           batches.map(({ amount }) => amount),
         ),
-        'ERC721Enumerable: consecutive transfers not supported',
+        'ERC721EnumerableForbiddenBatchMint',
+        [],
       );
     });
   });

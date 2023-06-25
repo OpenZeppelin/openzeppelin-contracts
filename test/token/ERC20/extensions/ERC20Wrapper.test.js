@@ -1,15 +1,16 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const NotAnERC20 = artifacts.require('CallReceiverMock');
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
-contract('ERC20', function (accounts) {
-  const [initialHolder, recipient, anotherAccount] = accounts;
+contract('ERC20Wrapper', function (accounts) {
+  const [initialHolder, receiver] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -66,23 +67,25 @@ contract('ERC20', function (accounts) {
     });
 
     it('missing approval', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.depositFor(initialHolder, initialSupply, { from: initialHolder }),
-        'ERC20: insufficient allowance',
+        'ERC20InsufficientAllowance',
+        [this.token.address, 0, initialSupply],
       );
     });
 
     it('missing balance', async function () {
       await this.underlying.approve(this.token.address, MAX_UINT256, { from: initialHolder });
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.depositFor(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20InsufficientBalance',
+        [initialHolder, initialSupply, MAX_UINT256],
       );
     });
 
     it('to other account', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
-      const { tx } = await this.token.depositFor(anotherAccount, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.depositFor(receiver, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
@@ -90,7 +93,7 @@ contract('ERC20', function (accounts) {
       });
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
-        to: anotherAccount,
+        to: receiver,
         value: initialSupply,
       });
     });
@@ -103,9 +106,10 @@ contract('ERC20', function (accounts) {
     });
 
     it('missing balance', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20InsufficientBalance',
+        [initialHolder, initialSupply, MAX_UINT256],
       );
     });
 
@@ -140,10 +144,10 @@ contract('ERC20', function (accounts) {
     });
 
     it('to other account', async function () {
-      const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.withdrawTo(receiver, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
-        to: anotherAccount,
+        to: receiver,
         value: initialSupply,
       });
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
@@ -159,10 +163,10 @@ contract('ERC20', function (accounts) {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
 
-      const { tx } = await this.token.$_recover(anotherAccount);
+      const { tx } = await this.token.$_recover(receiver);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
-        to: anotherAccount,
+        to: receiver,
         value: '0',
       });
     });
@@ -170,10 +174,10 @@ contract('ERC20', function (accounts) {
     it('something to recover', async function () {
       await this.underlying.transfer(this.token.address, initialSupply, { from: initialHolder });
 
-      const { tx } = await this.token.$_recover(anotherAccount);
+      const { tx } = await this.token.$_recover(receiver);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
-        to: anotherAccount,
+        to: receiver,
         value: initialSupply,
       });
     });
@@ -185,6 +189,6 @@ contract('ERC20', function (accounts) {
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
     });
 
-    shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
+    shouldBehaveLikeERC20(initialSupply, accounts);
   });
 });

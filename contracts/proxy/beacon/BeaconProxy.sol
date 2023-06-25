@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 
 import "./IBeacon.sol";
 import "../Proxy.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev This contract implements a proxy that gets the implementation address for each call from an {UpgradeableBeacon}.
@@ -15,7 +15,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v3.4._
  */
-contract BeaconProxy is Proxy, ERC1967Upgrade {
+contract BeaconProxy is Proxy {
     /**
      * @dev Initializes the proxy with `beacon`.
      *
@@ -28,13 +28,13 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
      * - `beacon` must be a contract with the interface {IBeacon}.
      */
     constructor(address beacon, bytes memory data) payable {
-        _upgradeBeaconToAndCall(beacon, data, false);
+        ERC1967Utils.upgradeBeaconToAndCall(beacon, data, false);
     }
 
     /**
      * @dev Returns the current implementation address of the associated beacon.
      */
     function _implementation() internal view virtual override returns (address) {
-        return IBeacon(_getBeacon()).implementation();
+        return IBeacon(ERC1967Utils.getBeacon()).implementation();
     }
 }
