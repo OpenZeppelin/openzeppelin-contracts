@@ -40,8 +40,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
     /**
      * @dev Emitted when a `ForwardRequest` is executed.
+     *
+     * NOTE:
      */
-    event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success, bytes returndata);
+    event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
 
     /**
      * @dev The request `from` doesn't match with the recovered `signer`.
@@ -52,11 +54,6 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev The requested `value` doesn't match with the available `msgValue`, leaving ETH stuck in the contract.
      */
     error ERC2771ForwarderMismatchedValue(uint256 value, uint256 msgValue);
-
-    /**
-     * @dev The list of requests length doesn't match with the list of signatures length.
-     */
-    error ERC2771ForwarderInvalidBatchLength(uint256 requestsLength, uint256 signaturesLength);
 
     /**
      * @dev The request `deadline` has expired.
@@ -212,19 +209,27 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _checkForwardedGas(ForwardRequestData calldata request) private view {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
+        //
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas
         // and the top-level call still passes, so in order to make sure that the subcall received the requested gas,
-        // we let X be the available gas before the call and require that:
+        // the define this model and adding a check:
         //
-        // - 63/64 * X >= req.gas  // Gas before call is enough to forward req.gas to callee
-        // - 63X >= 64req.gas
-        // - 63(X - req.gas) >= req.gas
-        // - (X - req.gas) >= req.gas/63
+        // Let X be the gas available before the subcall, such that the subcall gets X * 63 / 64.
+        // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
+        // Let Y be the gas used in the subcall gasleft() measured immediately after the subcall will be gasleft() = X - Y.
+        // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
+        // Then we restrict the model by checking if req.gas / 63 > gasleft(), which is true is true if and only if 
+        // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
         //
-        // Although we can't access X, we let Y be the actual gas used in the subcall so that `gasleft() == X - Y`, then
-        // we know that `X - req.gas <= X - Y`, thus `Y <= req.gas` and finally `X - req.gas <= gasleft()`.
-        // Therefore, any attempt to manipulate X to reduce the gas provided to the callee will result in the following
-        // invariant violated:
+        // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
+        // We will now also see that req.gas / 63 > gasleft() implies that req.gas >= X * 63 / 64.
+        // The contract guarantees Y <= req.gas, thus gasleft() = X - Y >= X - req.gas.
+        // -    req.gas / 63 > gasleft()
+        // -    req.gas / 63 >= X - req.gas
+        // -    req.gas >= X * 63 / 64
+        //
+        // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly 
+        // the relay does not revert.
         if (gasleft() < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
