@@ -78,7 +78,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
-        (bool alive, bool signerMatch, ) = _validate(request, nonces(request.from));
+        (bool alive, bool signerMatch, ) = _validate(request);
         return alive && signerMatch;
     }
 
@@ -88,7 +88,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * Requirements:
      *
-     * - The request value should be equal to the provided `msg.value`
+     * - The request value should be equal to the provided `msg.value`.
+     * - The request should be valid according to {verify}.
      */
     function execute(ForwardRequestData calldata request) public payable virtual returns (bool) {
         // This check can be before the call because _execute reverts with an invalid request.
@@ -97,7 +98,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        return _execute(request, _useNonce(request.from), true);
+        return _execute(request, true);
     }
 
     /**
@@ -117,7 +118,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * Requirements:
      *
      * - The sum of the requests' values should be equal to the provided `msg.value`
-     * - All of the request should be valid (see {verify}) when `refundReceiver` is the zero address.
+     * - All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
      *
      * NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
      * the first-level forwarded calls. In case a forwarded request calls to a contract with another
@@ -134,7 +135,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         for (uint256 i; i < requests.length; ++i) {
             requestsValue += requests[i].value;
-            bool success = _execute(requests[i], _useNonce(requests[i].from), atomic);
+            bool success = _execute(requests[i], atomic);
             if (!success) {
                 refundValue += requests[i].value;
             }
@@ -149,7 +150,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // To avoid unexpected reverts because a request was frontrunned leaving ETH in the contract
         // the value is sent back instead of reverting.
         if (refundValue != 0) {
-            // We know `refundReceiver != address(0) && requestsValue == msg.value`
+            // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance
             // and refundReceiver is a known account.
             Address.sendValue(refundReceiver, refundValue);
@@ -157,29 +158,21 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Validates if the provided request can be executed at current block with `request.signature`
+     * @dev Validates if the provided request can be executed at current timestamp with `request.signature`
      * on behalf of `request.signer`.
-     *
-     * Internal function without nonce validation.
      */
     function _validate(
-        ForwardRequestData calldata request,
-        uint256 nonce
+        ForwardRequestData calldata request
     ) internal view virtual returns (bool alive, bool signerMatch, address signer) {
-        signer = _recoverForwardRequestSigner(request, nonce);
+        signer = _recoverForwardRequestSigner(request);
         return (request.deadline >= block.timestamp, signer == request.from, signer);
     }
 
     /**
      * @dev Recovers the signer of an EIP712 message hash for a forward `request` and its corresponding `signature`.
      * See {ECDSA-recover}.
-     *
-     * Internal function without nonce validation.
      */
-    function _recoverForwardRequestSigner(
-        ForwardRequestData calldata request,
-        uint256 nonce
-    ) internal view virtual returns (address) {
+    function _recoverForwardRequestSigner(ForwardRequestData calldata request) internal view virtual returns (address) {
         return
             _hashTypedDataV4(
                 keccak256(
@@ -189,7 +182,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                         request.to,
                         request.value,
                         request.gas,
-                        nonce,
+                        nonces(request.from),
                         request.deadline,
                         keccak256(request.data)
                     )
@@ -215,10 +208,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _execute(
         ForwardRequestData calldata request,
-        uint256 nonce,
         bool requireValidRequest
     ) internal virtual returns (bool success) {
-        (bool alive, bool signerMatch, address signer) = _validate(request, nonce);
+        (bool alive, bool signerMatch, address signer) = _validate(request);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
@@ -240,7 +232,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
             _checkForwardedGas(request);
 
-            emit ExecutedForwardRequest(signer, nonce, success);
+            emit ExecutedForwardRequest(signer, _useNonce(signer), success);
         }
     }
 

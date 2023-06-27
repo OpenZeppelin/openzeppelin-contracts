@@ -307,7 +307,8 @@ contract('ERC2771Forwarder', function (accounts) {
       });
 
       it('succeeds ignoring a request with an invalid nonce', async function () {
-        this.requestDatas[this.idx].nonce = this.requestDatas[this.idx].nonce + 1;
+        const correctNonce = await this.forwarder.nonces(this.requestDatas[this.idx].from);
+        this.requestDatas[this.idx].nonce = correctNonce + 1;
         this.requestDatas[this.idx].signature = this.sign(
           this.signers[this.idx].getPrivateKey(),
           this.requestDatas[this.idx],
@@ -316,6 +317,9 @@ contract('ERC2771Forwarder', function (accounts) {
         const receipt = await this.forwarder.executeBatch(this.requestDatas, accounts[0]);
 
         expect(receipt.logs.filter(({ event }) => event === 'ExecutedForwardRequest').length).to.be.equal(2);
+        expect(await this.forwarder.nonces(this.requestDatas[this.idx].from)).to.be.bignumber.eq(
+          web3.utils.toBN(correctNonce),
+        );
       });
 
       it('reverts with at least one valid signature for expired deadline', async function () {
