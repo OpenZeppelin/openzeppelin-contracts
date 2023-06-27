@@ -107,7 +107,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * the provided refund receiver is the `address(0)`, the contract will revert with an
      * {ERC2771ForwarderMismatchedValue} error.
      *
-     * NOTE: A refund receiver will get all contract balance back.
+     * NOTE: The `atomic` flag guarantees an all-or-nothing behavior only for the first level forwarded
+     * calls. In case a call is forwarded to another contract, it may revert without the top-level call
+     * reverting.
      */
     function executeBatch(
         ForwardRequestData[] calldata requests,
