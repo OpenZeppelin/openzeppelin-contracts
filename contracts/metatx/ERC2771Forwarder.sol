@@ -69,7 +69,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     constructor(string memory name) EIP712(name, "1") {}
 
     /**
-     * @dev Returns `true` if a request is valid for a provided `signature` at the current block.
+     * @dev Returns `true` if a request is valid for a provided `signature` at the current block timestamp.
      *
      * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
      * matches the `from` parameter of the signed request.
@@ -117,7 +117,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * Requirements:
      *
-     * - The sum of the requests' values should be equal to the provided `msg.value`
+     * - The sum of the requests' values should be equal to the provided `msg.value`.
      * - All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
      *
      * NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
@@ -158,8 +158,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Validates if the provided request can be executed at current timestamp with `request.signature`
-     * on behalf of `request.signer`.
+     * @dev Validates if the provided request can be executed at current block timestamp with
+     * the given `request.signature` on behalf of `request.signer`.
      */
     function _validate(
         ForwardRequestData calldata request
@@ -193,13 +193,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Validates and executes a signed request returning the request call `success` value.
      *
-     * Internal function without nonce and msg.value validation.
+     * Internal function without msg.value validation.
      *
      * Requirements:
      *
-     * - The request's deadline must have not passed.
-     * - The request's from must be the request's signer.
      * - The caller must have provided enough gas to forward with the call.
+     * - The request must be valid (see {verify}) if the `requireValidRequest` is true.
      *
      * Emits an {ExecutedForwardRequest} event.
      *
@@ -226,13 +225,16 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         // Avoid execution instead of reverting in case a batch includes an already executed request
         if (signerMatch && alive) {
+            // Nonce should be used before the call to prevent reusing by reentrancy
+            uint256 currentNonce = _useNonce(signer);
+
             (success, ) = request.to.call{gas: request.gas, value: request.value}(
                 abi.encodePacked(request.data, request.from)
             );
 
             _checkForwardedGas(request);
 
-            emit ExecutedForwardRequest(signer, _useNonce(signer), success);
+            emit ExecutedForwardRequest(signer, currentNonce, success);
         }
     }
 
