@@ -37,7 +37,8 @@ contract AccessManagedImmutable is IManaged {
     }
 
     function _checkCanCall(address caller, bytes4 selector) internal view virtual {
-        if (!IAuthority(_authority).canCall(caller, address(this), selector)) {
+        (bool allowed, uint32 delay) = IAuthority(_authority).canCall(caller, address(this), selector);
+        if (!allowed || delay > 0) {
             revert AccessManagedUnauthorized(caller);
         }
     }

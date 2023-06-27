@@ -2,11 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import "./IAuthority.sol";
-import "./IManaged.sol";
+import {IAccessManager} from "./IAccessManager.sol";
+import {IManaged} from "./IManaged.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
 import "../../utils/types/Time.sol";
+
 
 
 
@@ -65,33 +66,8 @@ contract DelayedActions is Context {
 
 
 
-
-contract AccessManager is IAuthority, DelayedActions {
+contract AccessManager is IAccessManager, DelayedActions {
     using Time for *;
-
-    enum AccessMode { Custom, Closed, Open }
-
-    // Structure that stores the details for a group/account pair. This structures fit into a single slot.
-    struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
-        // are not available. Should be checked using {Time-isSetAndPast}
-        Time.Timepoint since;
-        // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
-        // functions that use the `onlyRole` modifier.
-        Time.Delay delay;
-    }
-
-    // Structure that stores the details of a group, including:
-    // - the members of the group
-    // - the admin group (that can grant or revoke permissions)
-    // - the guardian group (that can cancel operations targeting functions that need this group
-    // - the grand delay
-    struct Group {
-        mapping(address user => Access access) members;
-        bytes32 admin;
-        bytes32 guardian;
-        Time.Delay delay; // delay for granting
-    }
 
     bytes32 public constant ADMIN_GROUP  = bytes32(type(uint256).min); // 0
     bytes32 public constant PUBLIC_GROUP = bytes32(type(uint256).max); // 2**256-1
@@ -116,7 +92,9 @@ contract AccessManager is IAuthority, DelayedActions {
 
     // =================================================== GETTERS ====================================================
     /**
-     * @dev Check if an address (`caller`) is authorised to call a given function on a given contract.
+     * @dev Check if an address (`caller`) is authorised to call a given function on a given contract. Additionally,
+     * returns the delay needed to perform the call. If there is a delay, the call must be scheduled (with {schedule})
+     * and executed (with {relay}).
      *
      * This function is usually called by the targeted contract to control immediate execution of restricted functions.
      * Therefore we only return true is the call can be performed without any delay. If the call is subject to a delay,
@@ -125,31 +103,22 @@ contract AccessManager is IAuthority, DelayedActions {
      * We may be able to hash the operation, and check if the call was scheduled, but we would not be able to cleanup
      * the schedule, leaving the possibility of multiple executions. Maybe this function should not be view?
      */
-    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool allowed) {
-        return callDelay(caller, target, selector).get() == 0;
-    }
-
-    /**
-     * @dev Get the delay applied to a given function call by a given user.
-     *
-     * This function returns 0 is there is no delay, and the function can be called immediatly. It also returns
-     * MAX_DURATION (~34842 years) if the call is forbidden.
-     */
-    function callDelay(address caller, address target, bytes4 selector) public view virtual returns (Time.Duration) {
+    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
         AccessMode mode = getContractMode(target);
         if (mode == AccessMode.Open) {
-            return 0.toDuration(); // no delay = can call immediatly
+            return (true, 0);
         } else if (mode == AccessMode.Closed) {
-            return Time.MAX_DURATION; // "infinite" delay
+            return (false, Time.MAX_DURATION.get()); // use 0 ?
         } else if (caller == address(this)) {
-            return 0.toDuration();
+            // Caller is AccessManager => call was relayed. In that case the relay already checked permissions.
+            return (true, 0);
         } else {
             bytes32 group = getFunctionAllowedGroup(target, selector);
             Access storage access = _groups[group].members[caller]; // todo: memory ?
-
-            return (group == PUBLIC_GROUP || access.since.isSetAndPast())
+            Time.Duration delay = (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
                 : Time.MAX_DURATION;
+            return (true, delay.get());
         }
     }
 
@@ -215,7 +184,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function grantRole(bytes32 group, address account, uint40 executionDelay) public virtual onlyGroup(getGroupAdmin(group)) {
+    function grantRole(bytes32 group, address account, uint32 executionDelay) public virtual onlyGroup(getGroupAdmin(group)) {
         _grantRole(group, account, _groups[group].delay.get(), executionDelay.toDuration());
     }
 
@@ -258,7 +227,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function setExecuteDelay(bytes32 group, address account, uint40 newDelay) public virtual onlyGroup(getGroupAdmin(group)){
+    function setExecuteDelay(bytes32 group, address account, uint32 newDelay) public virtual onlyGroup(getGroupAdmin(group)){
         _setExecuteDelay(group, account, newDelay.toDuration(), false);
     }
 
@@ -297,7 +266,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function setGrantDelay(bytes32 group, uint40 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGrantDelay(bytes32 group, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
         _setGrantDelay(group, newDelay.toDuration(), false);
     }
 
@@ -407,7 +376,7 @@ contract AccessManager is IAuthority, DelayedActions {
         address target,
         bytes4[] calldata selectors,
         bytes32 group
-    ) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
+    ) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFunctionAllowedGroup(target, selectors[i], group);
         }
@@ -435,7 +404,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
+    function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         _setContractMode(target, AccessMode.Custom);
     }
 
@@ -449,7 +418,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
+    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         _setContractMode(target, AccessMode.Open);
     }
 
@@ -463,7 +432,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * todo: emit an event
      */
-    function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
+    function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         _setContractMode(target, AccessMode.Closed);
     }
 
@@ -478,6 +447,13 @@ contract AccessManager is IAuthority, DelayedActions {
     }
 
     // ==================================================== OTHERS ====================================================
+    /**
+     * @dev See {DelayedActions-schedule}
+     */
+    function schedule(address target, bytes calldata data) public virtual override(IAccessManager, DelayedActions) returns (bytes32) {
+        return super.schedule(target, data);
+    }
+
     /**
      * @dev Cancel a scheduled (delayed) operation.
      *
@@ -501,11 +477,10 @@ contract AccessManager is IAuthority, DelayedActions {
      */
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
-        Time.Duration setback = callDelay(caller, target, bytes4(data[0:4]));
+        (bool allowed, uint32 setback) = canCall(caller, target, bytes4(data[0:4]));
 
-        // this is actually not needed for security, but if we remove it the error will be an overflow in `_executeCheck`
-        require(!Time.MAX_DURATION.eq(setback));
-        _executeCheck(_hashOperation(caller, target, data), setback);
+        require(allowed, "unauthorized");
+        _executeCheck(_hashOperation(caller, target, data), setback.toDuration());
 
         Address.functionCallWithValue(target, data, msg.value);
     }
@@ -517,7 +492,7 @@ contract AccessManager is IAuthority, DelayedActions {
      *
      * - the caller must be a global admin
      */
-    function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) withDelay(0) { // todo set delay
+    function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         target.updateAuthority(newAuthority);
     }
 }

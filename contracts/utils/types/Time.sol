@@ -42,19 +42,19 @@ library Time {
     function isSetAndPast(Timepoint self) internal view returns (bool) { return self.isSet() && self.isPast(); }
 
     // =================================================== Duration ===================================================
-    type Duration is uint40;
+    type Duration is uint32;
 
-    Duration internal constant MAX_DURATION = Duration.wrap(type(uint40).max);
-
-    /**
-     * @dev Wrap a uint40 into a Duration for type safety
-     */
-    function toDuration(uint40 duration) internal pure returns (Duration) { return Duration.wrap(duration);}
+    Duration internal constant MAX_DURATION = Duration.wrap(type(uint32).max);
 
     /**
-     * @dev Unwrap a Duration into an uint40 for easy arithmetics and comparison
+     * @dev Wrap a uint32 into a Duration for type safety
      */
-    function get(Duration self) internal pure returns (uint40) { return Duration.unwrap(self);}
+    function toDuration(uint32 duration) internal pure returns (Duration) { return Duration.wrap(duration);}
+
+    /**
+     * @dev Unwrap a Duration into an uint32 for easy arithmetics and comparison
+     */
+    function get(Duration self) internal pure returns (uint32) { return Duration.unwrap(self);}
 
     // ==================================== Operators for Timepoints and Durations ====================================
     /// @dev Typed arithmetics: Timepoint + Duration → Timepoint
@@ -88,11 +88,11 @@ library Time {
      *
      *
      * The `Delay` type is 128 bits long, and packs the following:
-     * [000:039] uint40 for the current value (duration)
-     * [040:079] uint40 for the pending value (duration)
-     * [080:127] uint48 for the effect date (timepoint)
+     * [000:031] uint32 for the current value (duration)
+     * [032:063] uint32 for the pending value (duration)
+     * [064:111] uint48 for the effect date (timepoint)
      */
-    type Delay is uint128;
+    type Delay is uint112;
 
     /**
      * @dev Wrap a Duration into a Delay to add the one-step "update in the future" feature
@@ -157,9 +157,9 @@ library Time {
     function split(Delay self) internal pure returns (Duration, Duration, Timepoint) {
         uint128 raw = Delay.unwrap(self);
         return (
-            uint40(raw      ).toDuration(), // oldValue
-            uint40(raw >> 40).toDuration(), // newValue
-            uint48(raw >> 80).toTimepoint() // effect
+            uint32(raw      ).toDuration(), // oldValue
+            uint32(raw >> 32).toDuration(), // newValue
+            uint48(raw >> 64).toTimepoint() // effect
         );
     }
 
@@ -168,9 +168,9 @@ library Time {
      */
     function pack(Duration oldValue, Duration newValue, Timepoint effect) internal pure returns (Delay) {
         return Delay.wrap(
-            (uint128(oldValue.get())      ) |
-            (uint128(newValue.get()) << 40) |
-            (uint128(effect.get())   << 80)
+            (uint112(oldValue.get())      ) |
+            (uint112(newValue.get()) << 32) |
+            (uint112(effect.get())   << 64)
         );
     }
 }
