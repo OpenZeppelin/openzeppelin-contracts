@@ -5,7 +5,6 @@ const { expectRevertCustomError } = require('../helpers/customError');
 
 const { constants, expectRevert, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
 const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
@@ -249,7 +248,7 @@ contract('ERC2771Forwarder', function (accounts) {
 
     context('with valid signatures', function () {
       beforeEach(async function () {
-        this.receipt = await this.forwarder.executeBatch(this.requestDatas, false, ZERO_ADDRESS);
+        this.receipt = await this.forwarder.executeBatch(this.requestDatas, accounts[0]);
       });
 
       it('emits events', async function () {
@@ -281,7 +280,7 @@ contract('ERC2771Forwarder', function (accounts) {
           this.requestDatas[this.idx] = data.message;
 
           await expectRevertCustomError(
-            this.forwarder.executeBatch(this.requestDatas, true, ZERO_ADDRESS),
+            this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS),
             'ERC2771ForwarderInvalidSigner',
             [ethSigUtil.recoverTypedSignature({ data, sig: this.requestDatas[this.idx].signature }), data.message.from],
           );
@@ -295,7 +294,7 @@ contract('ERC2771Forwarder', function (accounts) {
         this.requestDatas[this.idx].signature = web3.utils.bytesToHex(tamperedSig);
 
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requestDatas, true, ZERO_ADDRESS),
+          this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS),
           'ERC2771ForwarderInvalidSigner',
           [
             ethSigUtil.recoverTypedSignature({
@@ -314,7 +313,7 @@ contract('ERC2771Forwarder', function (accounts) {
           this.requestDatas[this.idx],
         );
 
-        const receipt = await this.forwarder.executeBatch(this.requestDatas, false, ZERO_ADDRESS);
+        const receipt = await this.forwarder.executeBatch(this.requestDatas, accounts[0]);
 
         expect(receipt.logs.filter(({ event }) => event === 'ExecutedForwardRequest').length).to.be.equal(2);
       });
@@ -326,7 +325,7 @@ contract('ERC2771Forwarder', function (accounts) {
           this.requestDatas[this.idx],
         );
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requestDatas, true, ZERO_ADDRESS),
+          this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS),
           'ERC2771ForwarderExpiredRequest',
           [this.timestamp.toNumber() - 1],
         );
@@ -340,7 +339,7 @@ contract('ERC2771Forwarder', function (accounts) {
           this.requestDatas[this.idx],
         );
         await expectRevertCustomError(
-          this.forwarder.executeBatch(this.requestDatas, true, ZERO_ADDRESS),
+          this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS),
           'ERC2771ForwarderMismatchedValue',
           [0, value],
         );
@@ -358,7 +357,7 @@ contract('ERC2771Forwarder', function (accounts) {
       this.requestDatas[idx].signature = this.sign(this.signers[idx].getPrivateKey(), this.requestDatas[idx]);
 
       await expectRevert.assertion(
-        this.forwarder.executeBatch(this.requestDatas, true, ZERO_ADDRESS, { gas: gasAvailable }),
+        this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS, { gas: gasAvailable }),
       );
 
       const { transactions } = await web3.eth.getBlock('latest');

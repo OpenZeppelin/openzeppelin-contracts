@@ -74,9 +74,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
      * matches the `from` parameter of the signed request.
      *
-     * NOTE: A request may return false here but it optionally reverts in {batchExecute} to prevent
-     * reverts when a batch includes a request that was already frontrunned by another relay. This
-     * behavior is opt-in by using a flag in {executeBatch}.
+     * NOTE: A request may return false here but it won't revert in {batchExecute} if a refund receiver
+     * is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
         (bool alive, bool signerMatch, ) = _validate(request, nonces(request.from));
@@ -86,9 +85,14 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Executes a `request` on behalf of `signature`'s signer guaranteeing that the forwarded call
      * will receive the requested gas and no ETH is left stuck in the contract.
+     *
+     * Requirements:
+     *
+     * - The request value should be equal to the provided `msg.value`
      */
     function execute(ForwardRequestData calldata request) public payable virtual returns (bool) {
         // This check can be before the call because _execute reverts with an invalid request.
+        // Otherwise, `msg.value` will be left in the contract's balance.
         if (msg.value != request.value) {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
@@ -97,48 +101,58 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Batch version of {execute} with optional atomic behavior and refunding.
+     * @dev Batch version of {execute} with optional refunding and atomic execution.
      *
-     * The `atomic` parameter indicates whether all requests are executed or the whole
-     * batch reverts if a single one of them is not a valid request as defined by {verify}.
+     * In case a batch contains at least one invalid request (see {verify}), the
+     * request will be skipped and the `refundReceiver` parameter will receive back the
+     * unused requested value at the end of the execution. This is done to prevent unexpected
+     * reverts when a batch includes a request that was already frontrunned by another relayer.
      *
-     * The `refundReceiver` is used for optionally send the funds back to a selected address in
-     * case there's ETH left in the contract at the end of the execution instead of reverting. If
-     * the provided refund receiver is the `address(0)`, the contract will revert with an
-     * {ERC2771ForwarderMismatchedValue} error.
+     * If the `refundReceiver` is the `address(0)`, this function will revert when at least
+     * one of the requests was not valid instead of skipping it. This could be useful if
+     * a batch is required to get executed atomically (at least at the top-level). For example,
+     * refunding (and thus atomicity) can be opt-out if the relayer is using a service that avoids
+     * including reverted transactions.
      *
-     * NOTE: The `atomic` flag guarantees an all-or-nothing behavior only for the first level forwarded
-     * calls. In case a call is forwarded to another contract, it may revert without the top-level call
-     * reverting.
+     * Requirements:
+     *
+     * - The sum of the requests' values should be equal to the provided `msg.value`
+     * - All of the request should be valid (see {verify}) when `refundReceiver` is the zero address.
+     *
+     * NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
+     * the first-level forwarded calls. In case a forwarded request calls to a contract with another
+     * subcall, the second-level call may revert without the top-level call reverting.
      */
     function executeBatch(
         ForwardRequestData[] calldata requests,
-        bool atomic,
         address payable refundReceiver
     ) public payable virtual {
+        bool atomic = refundReceiver == address(0);
+
         uint256 requestsValue;
-        uint256 spentValue;
+        uint256 refundValue;
 
         for (uint256 i; i < requests.length; ++i) {
             requestsValue += requests[i].value;
             bool success = _execute(requests[i], _useNonce(requests[i].from), atomic);
-            if (success) {
-                // Will never reallistically overflow given _execute will natively revert at
-                // some point due to insufficient balance.
-                unchecked {
-                    spentValue += requests[i].value;
-                }
+            if (!success) {
+                refundValue += requests[i].value;
             }
         }
 
-        if (requestsValue != spentValue) {
-            if (refundReceiver == address(0)) {
-                revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
-            }
+        // The batch should still revert if there's a mismatched msg.value provided
+        // to avoid request value tampering
+        if (requestsValue != msg.value) {
+            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
+        }
 
-            // To avoid unexpected reverts because a request was frontrunned leaving ETH in the contract
-            // the value is sent back instead of reverting.
-            Address.sendValue(refundReceiver, requestsValue - spentValue);
+        // To avoid unexpected reverts because a request was frontrunned leaving ETH in the contract
+        // the value is sent back instead of reverting.
+        if (refundValue != 0) {
+            // We know `refundReceiver != address(0) && requestsValue == msg.value`
+            // meaning we can ensure refundValue is not taken from the original contract's balance
+            // and refundReceiver is a known account.
+            Address.sendValue(refundReceiver, refundValue);
         }
     }
 
@@ -196,8 +210,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * Emits an {ExecutedForwardRequest} event.
      *
-     * IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially leaving
-     * ETH stuck in the contract.
+     * IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially
+     * leaving ETH stuck in the contract.
      */
     function _execute(
         ForwardRequestData calldata request,
