@@ -42,7 +42,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Emitted when a `ForwardRequest` is executed.
      *
-     * NOTE: A non sucessful forwarded request should not be assumed as non out of gas exception because of
+     * NOTE: A non successful forwarded request should not be assumed as non out of gas exception because of
      * {_checkForwardedGas}. Such function doesn't guarantee an out of gas exception won't be thrown, but instead
      * it guarantees a relayer provided enough gas to cover the signer requested gas.
      */
