@@ -92,8 +92,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * - The request should be valid according to {verify}.
      */
     function execute(ForwardRequestData calldata request) public payable virtual returns (bool) {
-        // This check can be before the call because _execute reverts with an invalid request.
-        // Otherwise, `msg.value` will be left in the contract's balance.
+        // We make sure that msg.value and request.value match exactly.
+        // If the request is invalid or the call reverts, requireValidRequest ensures this value won't be lost.
         if (msg.value != request.value) {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
