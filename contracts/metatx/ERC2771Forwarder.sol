@@ -6,6 +6,7 @@ pragma solidity ^0.8.19;
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/EIP712.sol";
 import "../utils/Nonces.sol";
+import "../utils/Address.sol";
 
 /**
  * @dev An implementation of a production-ready forwarder compatible with ERC2771 contracts.
@@ -53,7 +54,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771ForwarderInvalidSigner(address signer, address from);
 
     /**
-     * @dev The requested `value` doesn't match with the available `msgValue`, leaving ETH stuck in the contract.
+     * @dev The requested `value` doesn't match with the available `msgValue`.
      */
     error ERC2771ForwarderMismatchedValue(uint256 value, uint256 msgValue);
 
@@ -92,31 +93,50 @@ contract ERC2771Forwarder is EIP712, Nonces {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        (bool success, ) = _execute(request, _useNonce(request.from), true);
-
-        return success;
+        return _execute(request, _useNonce(request.from), true);
     }
 
     /**
-     * @dev Batch version of {execute} that also includes an `atomic` parameter to indicate whether all requests are
-     * executed or the whole batch reverts if a single one of them is not a valid request as defined by {verify}.
+     * @dev Batch version of {execute} with optional atomic behavior and refunding.
+     *
+     * The `atomic` parameter indicates whether all requests are executed or the whole
+     * batch reverts if a single one of them is not a valid request as defined by {verify}.
+     *
+     * The `refundReceiver` is used for optionally send the funds back to a selected address in
+     * case there's ETH left in the contract at the end of the execution instead of reverting. If
+     * the provided refund receiver is the `address(0)`, the contract will revert with an
+     * {ERC2771ForwarderMismatchedValue} error.
+     *
+     * NOTE: A refund receiver will get all contract balance back.
      */
-    function executeBatch(ForwardRequestData[] calldata requests, bool atomic) public payable virtual {
+    function executeBatch(
+        ForwardRequestData[] calldata requests,
+        bool atomic,
+        address payable refundReceiver
+    ) public payable virtual {
         uint256 requestsValue;
+        uint256 spentValue;
 
         for (uint256 i; i < requests.length; ++i) {
-            (, bool executed) = _execute(requests[i], _useNonce(requests[i].from), atomic);
-            if (executed) {
+            requestsValue += requests[i].value;
+            bool success = _execute(requests[i], _useNonce(requests[i].from), atomic);
+            if (success) {
                 // Will never reallistically overflow given _execute will natively revert at
                 // some point due to insufficient balance.
                 unchecked {
-                    requestsValue += requests[i].value;
+                    spentValue += requests[i].value;
                 }
             }
         }
 
-        if (msg.value != requestsValue) {
-            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
+        if (requestsValue != spentValue) {
+            if (refundReceiver == address(0)) {
+                revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
+            }
+
+            // To avoid unexpected reverts because a request was frontrunned leaving ETH in the contract
+            // the value is sent back instead of reverting.
+            Address.sendValue(refundReceiver, requestsValue - spentValue);
         }
     }
 
@@ -162,11 +182,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Validates and executes a signed request returning a tuple with the request call `success`
-     * value and an boolean indicating if the request was `executed`.
-     *
-     * The `executed` boolean can be assumed as always true if the call doesn't revert and
-     * `requireValidRequest` is also true (valid as defined in {verify}).
+     * @dev Validates and executes a signed request returning the request call `success` value.
      *
      * Internal function without nonce and msg.value validation.
      *
@@ -185,7 +201,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         uint256 nonce,
         bool requireValidRequest
-    ) internal virtual returns (bool success, bool executed) {
+    ) internal virtual returns (bool success) {
         (bool alive, bool signerMatch, address signer) = _validate(request, nonce);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
@@ -202,7 +218,6 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         // Avoid execution instead of reverting in case a batch includes an already executed request
         if (signerMatch && alive) {
-            executed = true;
             (success, ) = request.to.call{gas: request.gas, value: request.value}(
                 abi.encodePacked(request.data, request.from)
             );
