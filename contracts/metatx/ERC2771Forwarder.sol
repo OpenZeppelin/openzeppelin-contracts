@@ -54,9 +54,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771ForwarderInvalidSigner(address signer, address from);
 
     /**
-     * @dev The requested `value` doesn't match with the available `msgValue`.
+     * @dev The `requestedValue` doesn't match with the available `msgValue`.
      */
-    error ERC2771ForwarderMismatchedValue(uint256 value, uint256 msgValue);
+    error ERC2771ForwarderMismatchedValue(uint256 requestedValue, uint256 msgValue);
 
     /**
      * @dev The request `deadline` has expired.
