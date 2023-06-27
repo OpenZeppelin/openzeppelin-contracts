@@ -41,7 +41,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Emitted when a `ForwardRequest` is executed.
      *
-     * NOTE:
+     * NOTE: A non sucessful forwarded request should not be assumed as non out of gas exception because of
+     * {_checkForwardedGas}. Such function doesn't guarantee an out of gas exception won't be thrown, but instead
+     * it guarantees a relayer provided enough gas to cover the signer requested gas.
      */
     event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
 
@@ -68,9 +70,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block.
      *
-     * NOTE: A request signed with an invalid nonce will return false here but won't revert by default
-     * to prevent revert when a batch includes a request already executed by another relay. This behavior can be opt-out.
-     * See {executeBatch}.
+     * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
+     * matches the `from` parameter of the signed request.
+     *
+     * NOTE: A request may return false here but it optionally reverts in {batchExecute} to prevent
+     * reverts when a batch includes a request that was already frontrunned by another relay. This
+     * behavior is opt-in by using a flag in {executeBatch}.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
         (bool alive, bool signerMatch, ) = _validate(request, nonces(request.from));
@@ -81,26 +86,33 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev Executes a `request` on behalf of `signature`'s signer guaranteeing that the forwarded call
      * will receive the requested gas and no ETH is left stuck in the contract.
      */
-    function execute(ForwardRequestData calldata request) public payable virtual returns (bool, bytes memory) {
+    function execute(ForwardRequestData calldata request) public payable virtual returns (bool) {
+        // This check can be before the call because _execute reverts with an invalid request.
         if (msg.value != request.value) {
             revert ERC2771ForwarderMismatchedValue(request.value, msg.value);
         }
 
-        (bool success, bytes memory returndata) = _execute(request, _useNonce(request.from), true);
+        (bool success, ) = _execute(request, _useNonce(request.from), true);
 
-        return (success, returndata);
+        return success;
     }
 
     /**
      * @dev Batch version of {execute} that also includes an `atomic` parameter to indicate whether all requests are
-     * executed or none of them.
+     * executed or the whole batch reverts if a single one of them is not a valid request as defined by {verify}.
      */
     function executeBatch(ForwardRequestData[] calldata requests, bool atomic) public payable virtual {
         uint256 requestsValue;
 
         for (uint256 i; i < requests.length; ++i) {
-            requestsValue += requests[i].value;
-            _execute(requests[i], _useNonce(requests[i].from), atomic);
+            (, bool executed) = _execute(requests[i], _useNonce(requests[i].from), atomic);
+            if (executed) {
+                // Will never reallistically overflow given _execute will natively revert at
+                // some point due to insufficient balance.
+                unchecked {
+                    requestsValue += requests[i].value;
+                }
+            }
         }
 
         if (msg.value != requestsValue) {
@@ -109,7 +121,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Validates if the provided request can be executed at current block with `signature` on behalf of `signer`.
+     * @dev Validates if the provided request can be executed at current block with `request.signature`
+     * on behalf of `request.signer`.
      *
      * Internal function without nonce validation.
      */
@@ -149,7 +162,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Validates and executes a signed request.
+     * @dev Validates and executes a signed request returning a tuple with the request call `success`
+     * value and an boolean indicating if the request was `executed`.
+     *
+     * The `executed` boolean can be assumed as always true if the call doesn't revert and
+     * `requireValidRequest` is also true (valid as defined in {verify}).
      *
      * Internal function without nonce and msg.value validation.
      *
@@ -168,7 +185,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         uint256 nonce,
         bool requireValidRequest
-    ) internal virtual returns (bool success, bytes memory returndata) {
+    ) internal virtual returns (bool success, bool executed) {
         (bool alive, bool signerMatch, address signer) = _validate(request, nonce);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
@@ -185,13 +202,14 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         // Avoid execution instead of reverting in case a batch includes an already executed request
         if (signerMatch && alive) {
-            (success, returndata) = request.to.call{gas: request.gas, value: request.value}(
+            executed = true;
+            (success, ) = request.to.call{gas: request.gas, value: request.value}(
                 abi.encodePacked(request.data, request.from)
             );
 
             _checkForwardedGas(request);
 
-            emit ExecutedForwardRequest(signer, nonce, success, returndata);
+            emit ExecutedForwardRequest(signer, nonce, success);
         }
     }
 
@@ -218,7 +236,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
         // Let Y be the gas used in the subcall gasleft() measured immediately after the subcall will be gasleft() = X - Y.
         // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
-        // Then we restrict the model by checking if req.gas / 63 > gasleft(), which is true is true if and only if 
+        // Then we restrict the model by checking if req.gas / 63 > gasleft(), which is true is true if and only if
         // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
         //
         // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
@@ -228,7 +246,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // -    req.gas / 63 >= X - req.gas
         // -    req.gas >= X * 63 / 64
         //
-        // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly 
+        // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly
         // the relay does not revert.
         if (gasleft() < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since

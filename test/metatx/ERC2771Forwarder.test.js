@@ -133,7 +133,6 @@ contract('ERC2771Forwarder', function (accounts) {
           signer: this.requestData.from,
           nonce: web3.utils.toBN(this.requestData.nonce),
           success: true,
-          returndata: null,
         });
       });
 
@@ -258,7 +257,6 @@ contract('ERC2771Forwarder', function (accounts) {
             signer: request.from,
             nonce: web3.utils.toBN(request.nonce),
             success: true,
-            returndata: null,
           });
         }
       });
