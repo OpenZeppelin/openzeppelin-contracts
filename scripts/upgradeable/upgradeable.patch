@@ -59,10 +59,10 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index aba99171..6656267b 100644
+index 9d1c405b..c264e29c 100644
 --- a/README.md
 +++ b/README.md
-@@ -19,17 +19,20 @@
+@@ -19,6 +19,9 @@
  
  :building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a secure platform for automating and monitoring your operations.
  
@@ -72,6 +72,8 @@ index aba99171..6656267b 100644
  ## Overview
  
  ### Installation
+@@ -26,7 +29,7 @@
+ #### Hardhat, Truffle (npm)
  
  ```
 -$ npm install @openzeppelin/contracts
@@ -79,13 +81,16 @@ index aba99171..6656267b 100644
  ```
  
  OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
+@@ -38,7 +41,7 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
+ > **Warning** Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
--An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
-+An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts-upgradeable`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
+ ```
+-$ forge install OpenZeppelin/openzeppelin-contracts
++$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
+ ```
  
  ### Usage
- 
-@@ -38,10 +41,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -48,10 +51,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.19;
  
@@ -101,7 +106,7 @@ index aba99171..6656267b 100644
  }
  ```
 diff --git a/contracts/finance/VestingWallet.sol b/contracts/finance/VestingWallet.sol
-index 5b7e1b15..1ca745d6 100644
+index ebdf0a33..8888803e 100644
 --- a/contracts/finance/VestingWallet.sol
 +++ b/contracts/finance/VestingWallet.sol
 @@ -18,6 +18,8 @@ import "../utils/Context.sol";
@@ -127,7 +132,7 @@ index 5d8318f4..ef3cde55 100644
  abstract contract GovernorVotes is Governor {
      IERC5805 public immutable token;
 diff --git a/contracts/package.json b/contracts/package.json
-index 4d0f576b..822fd471 100644
+index df141192..1cf90ad1 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -135,7 +140,7 @@ index 4d0f576b..822fd471 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "4.9.0",
+   "version": "4.9.2",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -147,7 +152,7 @@ index 4d0f576b..822fd471 100644
    "keywords": [
      "solidity",
 diff --git a/contracts/token/ERC20/extensions/ERC20Capped.sol b/contracts/token/ERC20/extensions/ERC20Capped.sol
-index cda07265..d314148c 100644
+index 41e9ce5c..1d910dfa 100644
 --- a/contracts/token/ERC20/extensions/ERC20Capped.sol
 +++ b/contracts/token/ERC20/extensions/ERC20Capped.sol
 @@ -7,6 +7,8 @@ import "../ERC20.sol";
@@ -160,7 +165,7 @@ index cda07265..d314148c 100644
  abstract contract ERC20Capped is ERC20 {
      uint256 private immutable _cap;
 diff --git a/contracts/token/ERC20/extensions/ERC20Permit.sol b/contracts/token/ERC20/extensions/ERC20Permit.sol
-index 9379e445..e02f0644 100644
+index 4378eb7c..1da9e731 100644
 --- a/contracts/token/ERC20/extensions/ERC20Permit.sol
 +++ b/contracts/token/ERC20/extensions/ERC20Permit.sol
 @@ -18,6 +18,8 @@ import "../../../utils/Nonces.sol";
@@ -173,7 +178,7 @@ index 9379e445..e02f0644 100644
  abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      // solhint-disable-next-line var-name-mixedcase
 diff --git a/contracts/token/ERC20/extensions/ERC20Wrapper.sol b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
-index bf2b225c..0e5b3628 100644
+index 389965e9..66436b14 100644
 --- a/contracts/token/ERC20/extensions/ERC20Wrapper.sol
 +++ b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
 @@ -14,6 +14,8 @@ import "../utils/SafeERC20.sol";
@@ -356,7 +361,7 @@ index 2628014f..7d5193c8 100644
      }
  }
 diff --git a/package.json b/package.json
-index c070915f..9a513cac 100644
+index 37e8f871..d098669f 100644
 --- a/package.json
 +++ b/package.json
 @@ -33,7 +33,7 @@

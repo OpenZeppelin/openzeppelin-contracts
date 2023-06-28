@@ -311,6 +311,27 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 amount) internal virtual {
+        _approve(owner, spender, amount, true);
+    }
+
+    /**
+     * @dev Alternative version of {_approve} with an optional flag that can enable or disable the Approval event.
+     *
+     * By default (when calling {_approve}) the flag is set to true. On the other hand, approval changes made by
+     * `_spendAllowance` during the `transferFrom` operation set the flag to false. This saves gas by not emitting any
+     * `Approval` event during `transferFrom` operations.
+     *
+     * Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to true
+     * using the following override:
+     * ```
+     * function _approve(address owner, address spender, uint256 amount, bool) internal virtual override {
+     *     super._approve(owner, spender, amount, true);
+     * }
+     * ```
+     *
+     * Requirements are the same as {_approve}.
+     */
+    function _approve(address owner, address spender, uint256 amount, bool emitEvent) internal virtual {
         if (owner == address(0)) {
             revert ERC20InvalidApprover(address(0));
         }
@@ -318,7 +339,9 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
             revert ERC20InvalidSpender(address(0));
         }
         _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
+        if (emitEvent) {
+            emit Approval(owner, spender, amount);
+        }
     }
 
     /**
@@ -336,7 +359,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
                 revert ERC20InsufficientAllowance(spender, currentAllowance, amount);
             }
             unchecked {
-                _approve(owner, spender, currentAllowance - amount);
+                _approve(owner, spender, currentAllowance - amount, false);
             }
         }
     }

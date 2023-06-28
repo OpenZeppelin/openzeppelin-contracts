@@ -8,26 +8,24 @@ import "../../utils/introspection/ERC165.sol";
 contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
     enum RevertType {
         None,
-        Empty,
-        String,
-        Custom
+        RevertWithoutMessage,
+        RevertWithMessage,
+        RevertWithCustomError,
+        Panic
     }
 
-    bytes4 private _recRetval;
-    RevertType private _recReverts;
-    bytes4 private _batRetval;
-    RevertType private _batReverts;
+    bytes4 private immutable _recRetval;
+    bytes4 private immutable _batRetval;
+    RevertType private immutable _error;
 
     event Received(address operator, address from, uint256 id, uint256 value, bytes data, uint256 gas);
     event BatchReceived(address operator, address from, uint256[] ids, uint256[] values, bytes data, uint256 gas);
+    error CustomError(bytes4);
 
-    error ERC1155ReceiverMockError();
-
-    constructor(bytes4 recRetval, RevertType recReverts, bytes4 batRetval, RevertType batReverts) {
+    constructor(bytes4 recRetval, bytes4 batRetval, RevertType error) {
         _recRetval = recRetval;
-        _recReverts = recReverts;
         _batRetval = batRetval;
-        _batReverts = batReverts;
+        _error = error;
     }
 
     function onERC1155Received(
@@ -37,12 +35,15 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         uint256 value,
         bytes calldata data
     ) external returns (bytes4) {
-        if (_recReverts == RevertType.Empty) {
+        if (_error == RevertType.RevertWithoutMessage) {
             revert();
-        } else if (_recReverts == RevertType.String) {
+        } else if (_error == RevertType.RevertWithMessage) {
             revert("ERC1155ReceiverMock: reverting on receive");
-        } else if (_recReverts == RevertType.Custom) {
-            revert ERC1155ReceiverMockError();
+        } else if (_error == RevertType.RevertWithCustomError) {
+            revert CustomError(_recRetval);
+        } else if (_error == RevertType.Panic) {
+            uint256 a = uint256(0) / uint256(0);
+            a;
         }
 
         emit Received(operator, from, id, value, data, gasleft());
@@ -56,12 +57,15 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         uint256[] calldata values,
         bytes calldata data
     ) external returns (bytes4) {
-        if (_batReverts == RevertType.Empty) {
+        if (_error == RevertType.RevertWithoutMessage) {
             revert();
-        } else if (_batReverts == RevertType.String) {
+        } else if (_error == RevertType.RevertWithMessage) {
             revert("ERC1155ReceiverMock: reverting on batch receive");
-        } else if (_batReverts == RevertType.Custom) {
-            revert ERC1155ReceiverMockError();
+        } else if (_error == RevertType.RevertWithCustomError) {
+            revert CustomError(_recRetval);
+        } else if (_error == RevertType.Panic) {
+            uint256 a = uint256(0) / uint256(0);
+            a;
         }
 
         emit BatchReceived(operator, from, ids, values, data, gasleft());

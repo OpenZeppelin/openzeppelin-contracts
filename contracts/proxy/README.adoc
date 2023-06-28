@@ -16,7 +16,7 @@ In order to avoid clashes with the storage variables of the implementation contr
 
 There are two alternative ways to add upgradeability to an ERC1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
-- {TransparentUpgradeableProxy}: A proxy with a built in admin and upgrade interface.
+- {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
 - {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
