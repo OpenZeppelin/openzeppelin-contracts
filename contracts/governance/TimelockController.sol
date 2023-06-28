@@ -166,7 +166,29 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) > 0;
+        return getOperationState(id) != OperationState.Unset;
+    }
+
+    /**
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
+     */
+    function isOperationPending(bytes32 id) public view virtual returns (bool) {
+        OperationState state = getOperationState(id);
+        return state == OperationState.Pending || state == OperationState.Ready;
+    }
+
+    /**
+     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
+     */
+    function isOperationReady(bytes32 id) public view virtual returns (bool) {
+        return getOperationState(id) == OperationState.Ready;
+    }
+
+    /**
+     * @dev Returns whether an operation is done or not.
+     */
+    function isOperationDone(bytes32 id) public view virtual returns (bool) {
+        return getOperationState(id) == OperationState.Done;
     }
 
     /**
