@@ -38,7 +38,7 @@ contract('ERC1155Burnable', function (accounts) {
     it("unapproved accounts cannot burn the holder's tokens", async function () {
       await expectRevertCustomError(
         this.token.burn(holder, tokenIds[0], amounts[0].subn(1), { from: other }),
-        'ERC1155InsufficientApprovalForAll',
+        'ERC1155MissingApprovalForAll',
         [other, holder],
       );
     });
@@ -63,7 +63,7 @@ contract('ERC1155Burnable', function (accounts) {
     it("unapproved accounts cannot burn the holder's tokens", async function () {
       await expectRevertCustomError(
         this.token.burnBatch(holder, tokenIds, [amounts[0].subn(1), amounts[1].subn(2)], { from: other }),
-        'ERC1155InsufficientApprovalForAll',
+        'ERC1155MissingApprovalForAll',
         [other, holder],
       );
     });

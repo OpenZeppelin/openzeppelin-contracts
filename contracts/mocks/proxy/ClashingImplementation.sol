@@ -9,7 +9,7 @@ pragma solidity ^0.8.19;
 contract ClashingImplementation {
     event ClashingImplementationCall();
 
-    function changeAdmin(address) external payable {
+    function upgradeTo(address) external payable {
         emit ClashingImplementationCall();
     }
 

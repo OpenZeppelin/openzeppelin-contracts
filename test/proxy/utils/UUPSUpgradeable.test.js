@@ -7,7 +7,7 @@ const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 const UUPSUnsupportedProxiableUUID = artifacts.require('UUPSUnsupportedProxiableUUID');
-const Address = artifacts.require('$Address');
+const Clones = artifacts.require('$Clones');
 
 contract('UUPSUpgradeable', function () {
   before(async function () {
@@ -16,7 +16,8 @@ contract('UUPSUpgradeable', function () {
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
     this.implUpgradeNonUUPS = await NonUpgradeableMock.new();
     this.implUnsupportedUUID = await UUPSUnsupportedProxiableUUID.new();
-    this.helper = await Address.new();
+    // Used for testing non ERC1967 compliant proxies (clones are proxies that don't use the ERC1967 implementation slot)
+    this.cloneFactory = await Clones.new();
   });
 
   beforeEach(async function () {
@@ -65,22 +66,26 @@ contract('UUPSUpgradeable', function () {
   });
 
   it('calling upgradeTo from a contract that is not an ERC1967 proxy (with the right implementation) reverts', async function () {
+    const receipt = await this.cloneFactory.$clone(this.implUpgradeOk.address);
+    const instance = await UUPSUpgradeableMock.at(
+      receipt.logs.find(({ event }) => event === 'return$clone').args.instance,
+    );
+
     await expectRevertCustomError(
-      this.helper.$functionDelegateCall(
-        this.implUpgradeOk.address,
-        this.implUpgradeOk.contract.methods.upgradeTo(this.implUpgradeUnsafe.address).encodeABI(),
-      ),
+      instance.upgradeTo(this.implUpgradeUnsafe.address),
       'UUPSUnauthorizedCallContext',
       [],
     );
   });
 
   it('calling upgradeToAndCall from a contract that is not an ERC1967 proxy (with the right implementation) reverts', async function () {
+    const receipt = await this.cloneFactory.$clone(this.implUpgradeOk.address);
+    const instance = await UUPSUpgradeableMock.at(
+      receipt.logs.find(({ event }) => event === 'return$clone').args.instance,
+    );
+
     await expectRevertCustomError(
-      this.helper.$functionDelegateCall(
-        this.implUpgradeOk.address,
-        this.implUpgradeOk.contract.methods.upgradeToAndCall(this.implUpgradeUnsafe.address, '0x').encodeABI(),
-      ),
+      instance.upgradeToAndCall(this.implUpgradeUnsafe.address, '0x'),
       'UUPSUnauthorizedCallContext',
       [],
     );

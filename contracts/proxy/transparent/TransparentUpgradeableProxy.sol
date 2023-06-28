@@ -13,15 +13,13 @@ import "../../interfaces/IERC1967.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function changeAdmin(address) external;
-
     function upgradeTo(address) external;
 
     function upgradeToAndCall(address, bytes memory) external payable;
 }
 
 /**
- * @dev This contract implements a proxy that is upgradeable by an admin.
+ * @dev This contract implements a proxy that is upgradeable by an immutable admin.
  *
  * To avoid https://medium.com/nomic-labs-blog/malicious-backdoors-in-ethereum-proxies-62629adf3357[proxy selector
  * clashing], which can potentially be used in an attack, this contract uses the
@@ -31,15 +29,16 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if
  * that call matches one of the admin functions exposed by the proxy itself.
  * 2. If the admin calls the proxy, it can access the admin functions, but its calls will never be forwarded to the
- * implementation. If the admin tries to call a function on the implementation it will fail with an error that says
- * "admin cannot fallback to proxy target".
+ * implementation. If the admin tries to call a function on the implementation it will fail with an error indicating the
+ * proxy admin cannot fallback to the target implementation.
  *
- * These properties mean that the admin account can only be used for admin actions like upgrading the proxy or changing
- * the admin, so it's best if it's a dedicated account that is not used for anything else. This will avoid headaches due
- * to sudden errors when trying to call a function from the proxy implementation.
+ * These properties mean that the admin account can only be used for upgrading the proxy, so it's best if it's a dedicated
+ * account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function
+ * from the proxy implementation.
  *
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
- * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
+ * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy, which extends from the
+ * {Ownable} contract to allow for changing the proxy's admin owner.
  *
  * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
  * inherit from that interface, and instead the admin functions are implicitly implemented using a custom dispatch
@@ -47,12 +46,23 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * fully implement transparency without decoding reverts caused by selector clashes between the proxy and the
  * implementation.
  *
+ * IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an immutable variable,
+ * preventing any changes thereafter. However, the admin slot defined in ERC-1967 can still be overwritten by the implementation
+ * logic pointed to by this proxy. In such cases, the contract may end up in an undesirable state where the admin slot is different
+ * from the actual admin.
+ *
  * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the compiler
  * will not check that there are no selector conflicts, due to the note above. A selector clash between any new function
  * and the functions declared in {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could
  * render the admin operations inaccessible, which could prevent upgradeability. Transparency may also be compromised.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
+    // An immutable address for the admin avoid unnecessary SLOADs before each call
+    // at the expense of removing the ability to change the admin once it's set.
+    // This is acceptable if the admin is always a ProxyAdmin instance or similar contract
+    // with its own ability to transfer the permissions to another account.
+    address private immutable _admin;
+
     /**
      * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
      */
@@ -68,6 +78,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
+        _admin = admin_;
+        // Set the storage value and emit an event for ERC-1967 compatibility
         ERC1967Utils.changeAdmin(admin_);
     }
 
@@ -75,15 +87,13 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
      */
     function _fallback() internal virtual override {
-        if (msg.sender == ERC1967Utils.getAdmin()) {
+        if (msg.sender == _admin) {
             bytes memory ret;
             bytes4 selector = msg.sig;
             if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
                 ret = _dispatchUpgradeTo();
             } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 ret = _dispatchUpgradeToAndCall();
-            } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-                ret = _dispatchChangeAdmin();
             } else {
                 revert ProxyDeniedAdminAccess();
             }
@@ -93,20 +103,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         } else {
             super._fallback();
         }
-    }
-
-    /**
-     * @dev Changes the admin of the proxy.
-     *
-     * Emits an {AdminChanged} event.
-     */
-    function _dispatchChangeAdmin() private returns (bytes memory) {
-        _requireZeroValue();
-
-        address newAdmin = abi.decode(msg.data[4:], (address));
-        ERC1967Utils.changeAdmin(newAdmin);
-
-        return "";
     }
 
     /**

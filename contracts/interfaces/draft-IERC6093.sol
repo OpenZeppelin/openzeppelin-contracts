@@ -138,7 +138,7 @@ interface IERC1155Errors {
      * @param operator Address that may be allowed to operate on tokens without being their owner.
      * @param owner Address of the current owner of a token.
      */
-    error ERC1155InsufficientApprovalForAll(address operator, address owner);
+    error ERC1155MissingApprovalForAll(address operator, address owner);
 
     /**
      * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
