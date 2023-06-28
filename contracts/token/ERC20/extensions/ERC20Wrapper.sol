@@ -56,6 +56,9 @@ abstract contract ERC20Wrapper is ERC20 {
         if (sender == address(this)) {
             revert ERC20InvalidSender(address(this));
         }
+        if (!_canReceiveToken(account)) {
+            revert ERC20InvalidReceiver(account);
+        }
         SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
         _mint(account, amount);
         return true;
@@ -65,6 +68,9 @@ abstract contract ERC20Wrapper is ERC20 {
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
      */
     function withdrawTo(address account, uint256 amount) public virtual returns (bool) {
+        if (!_canReceiveToken(account)) {
+            revert ERC20InvalidReceiver(account);
+        }
         _burn(_msgSender(), amount);
         SafeERC20.safeTransfer(_underlying, account, amount);
         return true;
@@ -78,5 +84,16 @@ abstract contract ERC20Wrapper is ERC20 {
         uint256 value = _underlying.balanceOf(address(this)) - totalSupply();
         _mint(account, value);
         return value;
+    }
+
+    /**
+     * @dev Determines whether an account can receive either wrapped or underlying tokens by operating
+     * in this contract.
+     *
+     * By default, it disallows this contract to receive tokens so they don't get stuck, however,
+     * another account can still send tokens to it.
+     */
+    function _canReceiveToken(address account) internal virtual returns (bool) {
+        return account != address(this);
     }
 }
