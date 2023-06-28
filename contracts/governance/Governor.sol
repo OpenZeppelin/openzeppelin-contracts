@@ -272,7 +272,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override returns (uint256) {
+    ) public virtual override returns (uint256 proposalId) {
         address proposer = _msgSender();
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
@@ -287,7 +287,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             }
         }
 
-        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+        proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
@@ -318,8 +318,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             snapshot + duration,
             description
         );
-
-        return proposalId;
     }
 
     /**
@@ -328,12 +326,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * NOTE: This is an empty declaration for timelock modules to hook into.
      */
     function queue(
-        address[] memory /*targets*/,
-        uint256[] memory /*values*/,
-        bytes[] memory /*calldatas*/,
-        bytes32 /*descriptionHash*/
-    ) public virtual returns (uint256) {
-        revert();
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256 proposalId) {
+        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+
+        _queue(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -344,26 +345,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public payable virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public payable virtual override returns (uint256 proposalId) {
+        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued));
 
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded && currentState != ProposalState.Queued) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
-            );
-        }
         _proposals[proposalId].executed = true;
-
         emit ProposalExecuted(proposalId);
 
         _beforeExecute(proposalId, targets, values, calldatas, descriptionHash);
         _execute(proposalId, targets, values, calldatas, descriptionHash);
         _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
-
-        return proposalId;
     }
 
     /**
@@ -374,16 +365,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Pending) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Pending));
-        }
+    ) public virtual override returns (uint256 proposalId) {
+        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
+
         if (_msgSender() != proposalProposer(proposalId)) {
             revert GovernorOnlyProposer(_msgSender());
         }
-        return _cancel(targets, values, calldatas, descriptionHash);
+
+        _cancel(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -439,36 +429,43 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
+     * @dev Internal queuing mechanism.
+     *
+     * NOTE: This reverts by default, and must be overriden (without calling super) to implement queuing.
+     */
+    function _queue(
+        uint256 /* proposalId */,
+        address[] memory /* targets */,
+        uint256[] memory /* values */,
+        bytes[] memory /* calldatas */,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        revert GovernorQueueNotImplemented();
+    }
+
+    /**
      * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
      * canceled to allow distinguishing it from executed proposals.
      *
      * Emits a {IGovernor-ProposalCanceled} event.
      */
     function _cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId,
+        address[] memory /*targets*/,
+        uint256[] memory /*values*/,
+        bytes[] memory /*calldatas*/,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        _validateStateBitmap(
+            proposalId,
+            _ALL_PROPOSAL_STATES_BITMAP
+            ^ _encodeStateBitmap(ProposalState.Canceled)
+            ^ _encodeStateBitmap(ProposalState.Expired)
+            ^ _encodeStateBitmap(ProposalState.Executed)
+        );
 
-        ProposalState currentState = state(proposalId);
-
-        bytes32 forbiddenStates = _encodeStateBitmap(ProposalState.Canceled) |
-            _encodeStateBitmap(ProposalState.Expired) |
-            _encodeStateBitmap(ProposalState.Executed);
-        if (forbiddenStates & _encodeStateBitmap(currentState) != 0) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _ALL_PROPOSAL_STATES_BITMAP ^ forbiddenStates
-            );
-        }
         _proposals[proposalId].canceled = true;
-
         emit ProposalCanceled(proposalId);
-
-        return proposalId;
     }
 
     /**
@@ -690,6 +687,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function _encodeStateBitmap(ProposalState proposalState) internal pure returns (bytes32) {
         return bytes32(1 << uint8(proposalState));
+    }
+
+    /**
+     * @dev Check that the current state of a proposal matches the requirements described by the `allowedStates` bitmap.
+     * This bitmap should be built using `_encodeStateBitmap`.
+     *
+     * If requirements are not met, revert with an `GovernorUnexpectedProposalState` error.
+     */
+    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) private view returns (ProposalState) {
+        ProposalState currentState = state(proposalId);
+        if (_encodeStateBitmap(currentState) & allowedStates == bytes32(0)) {
+            revert GovernorUnexpectedProposalState(proposalId, currentState, allowedStates);
+        }
+        return currentState;
     }
 
     /*

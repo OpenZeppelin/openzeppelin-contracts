@@ -24,7 +24,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ICompoundTimelock private _timelock;
 
     /// @custom:oz-retyped-from mapping(uint256 => GovernorTimelockCompound.ProposalTimelock)
-    mapping(uint256 => uint256) private _proposalTimelocks;
+    /// @custom:oz-renamed-from _proposalTimelocks
+    mapping(uint256 => uint256) private _proposalEta;
 
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
@@ -76,31 +77,33 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposalTimelocks[proposalId];
+        return _proposalEta[proposalId];
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock.
+     * @dev {IGovernor-queue} override resolution
      */
     function queue(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override(Governor, IGovernorTimelock) returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public virtual override(IGovernorTimelock, Governor) returns (uint256) {
+        return super.queue(targets, values, calldatas, descriptionHash);
+    }
 
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded)
-            );
-        }
-
+    /**
+     * @dev Function to queue a proposal to the timelock.
+     */
+    function _queue(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 /*descriptionHash*/
+    ) internal virtual override {
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId] = eta;
+        _proposalEta[proposalId] = eta;
 
         for (uint256 i = 0; i < targets.length; ++i) {
             if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
@@ -110,8 +113,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         }
 
         emit ProposalQueued(proposalId, eta);
-
-        return proposalId;
     }
 
     /**
@@ -139,24 +140,23 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * been queued.
      */
     function _cancel(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+    ) internal virtual override {
+        super._cancel(proposalId, targets, values, calldatas, descriptionHash);
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
             // update state first
-            delete _proposalTimelocks[proposalId];
+            delete _proposalEta[proposalId];
             // do external call later
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
         }
-
-        return proposalId;
     }
 
     /**

@@ -87,32 +87,32 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock.
+     * @dev {IGovernor-queue} override resolution
      */
     function queue(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override(Governor, IGovernorTimelock) returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public virtual override(IGovernorTimelock, Governor) returns (uint256) {
+        return super.queue(targets, values, calldatas, descriptionHash);
+    }
 
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded)
-            );
-        }
-
+    /**
+     * @dev Function to queue a proposal to the timelock.
+     */
+    function _queue(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal virtual override {
         uint256 delay = _timelock.getMinDelay();
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
         _timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
 
         emit ProposalQueued(proposalId, block.timestamp + delay);
-
-        return proposalId;
     }
 
     /**
@@ -139,22 +139,21 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     // well behaved (according to TimelockController) and this will not happen.
     // slither-disable-next-line reentrancy-no-eth
     function _cancel(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
-        bytes32 timelockId = _timelockIds[proposalId];
+    ) internal virtual override {
+        super._cancel(proposalId, targets, values, calldatas, descriptionHash);
 
+        bytes32 timelockId = _timelockIds[proposalId];
         if (timelockId != 0) {
             // cancel
             _timelock.cancel(timelockId);
             // cleanup
             delete _timelockIds[proposalId];
         }
-
-        return proposalId;
     }
 
     /**

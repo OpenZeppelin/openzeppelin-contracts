@@ -77,8 +77,8 @@ class GovernorHelper {
           );
         }
       case 'internal':
-        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
+        return this.governor.methods['$_cancel(uint256,address[],uint256[],bytes[],bytes32)'](
+          ...concatOpts([proposal.id, ...proposal.shortProposal], opts),
         );
       default:
         throw new Error(`unsuported visibility "${visibility}"`);

@@ -44,6 +44,16 @@ abstract contract GovernorTimelockCompoundMock is
         return super.queue(targets, values, calldatas, descriptionHash);
     }
 
+    function _queue(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) {
+        super._queue(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
     function _execute(
         uint256 proposalId,
         address[] memory targets,
@@ -55,12 +65,13 @@ abstract contract GovernorTimelockCompoundMock is
     }
 
     function _cancel(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
-    ) internal override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
-        return super._cancel(targets, values, calldatas, salt);
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) {
+        return super._cancel(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _executor() internal view override(Governor, GovernorTimelockCompound) returns (address) {
