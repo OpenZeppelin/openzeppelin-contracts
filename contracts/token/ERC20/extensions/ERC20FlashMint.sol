@@ -112,7 +112,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         }
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
-        if (receiver.onFlashLoan(msg.sender, token, amount, fee, data) != _RETURN_VALUE) {
+        if (receiver.onFlashLoan(_msgSender(), token, amount, fee, data) != _RETURN_VALUE) {
             revert ERC3156InvalidReceiver(address(receiver));
         }
         address flashFeeReceiver = _flashFeeReceiver();
