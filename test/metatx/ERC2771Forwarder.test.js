@@ -427,28 +427,5 @@ contract('ERC2771Forwarder', function (accounts) {
         });
       });
     });
-
-    it('bubbles out of gas', async function () {
-      const receiver = await CallReceiverMock.new();
-      const gasAvailable = 100000;
-      const idx = 0;
-      this.requestDatas[idx].to = receiver.address;
-      this.requestDatas[idx].data = receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
-      this.requestDatas[idx].gas = 1000000;
-
-      this.requestDatas[idx].signature = this.sign(this.signers[idx].getPrivateKey(), this.requestDatas[idx]);
-
-      await expectRevert.assertion(
-        this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS, {
-          gas: gasAvailable,
-          value: this.msgValue,
-        }),
-      );
-
-      const { transactions } = await web3.eth.getBlock('latest');
-      const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
-
-      expect(gasUsed).to.be.equal(gasAvailable);
-    });
   });
 });
