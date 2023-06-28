@@ -129,19 +129,27 @@ contract('ERC2771Forwarder', function (accounts) {
         );
       });
 
-      it('succeeds', async function () {
+      it('emits an event and consumes nonce for a successful request', async function () {
         const receipt = await this.forwarder.execute(this.requestData);
         expectEvent(receipt, 'ExecutedForwardRequest', {
           signer: this.requestData.from,
           nonce: web3.utils.toBN(this.requestData.nonce),
           success: true,
         });
-      });
-
-      afterEach(async function () {
         expect(await this.forwarder.nonces(this.requestData.from)).to.be.bignumber.equal(
           web3.utils.toBN(this.requestData.nonce + 1),
         );
+      });
+
+      it('reverts with an unsuccessful request', async function () {
+        const receiver = await CallReceiverMock.new();
+        const req = {
+          ...this.requestData,
+          to: receiver.address,
+          data: receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+        };
+        req.signature = this.sign(this.alice.getPrivateKey(), req);
+        await expectRevertCustomError(this.forwarder.execute(req), 'FailedInnerCall', []);
       });
     });
 
