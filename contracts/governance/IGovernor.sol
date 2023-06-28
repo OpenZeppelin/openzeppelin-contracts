@@ -81,6 +81,11 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
+     * @dev Queue operation is not implemented for this governor. Execute should be called directly.
+     */
+    error GovernorQueueNotImplemented();
+
+    /**
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
