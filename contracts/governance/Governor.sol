@@ -347,7 +347,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes32 descriptionHash
     ) public payable virtual override returns (uint256 proposalId) {
         proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued));
+        _validateStateBitmap(
+            proposalId,
+            _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
+        );
 
         _proposals[proposalId].executed = true;
         emit ProposalExecuted(proposalId);
@@ -458,10 +461,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) internal virtual {
         _validateStateBitmap(
             proposalId,
-            _ALL_PROPOSAL_STATES_BITMAP
-            ^ _encodeStateBitmap(ProposalState.Canceled)
-            ^ _encodeStateBitmap(ProposalState.Expired)
-            ^ _encodeStateBitmap(ProposalState.Executed)
+            _ALL_PROPOSAL_STATES_BITMAP ^
+                _encodeStateBitmap(ProposalState.Canceled) ^
+                _encodeStateBitmap(ProposalState.Expired) ^
+                _encodeStateBitmap(ProposalState.Executed)
         );
 
         _proposals[proposalId].canceled = true;
