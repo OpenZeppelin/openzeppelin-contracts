@@ -64,9 +64,8 @@ abstract contract ERC1155Supply is ERC1155 {
         if (to == address(0)) {
             uint256 totalBurnAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 id = ids[i];
                 uint256 amount = amounts[i];
-                _totalSupply[id] -= amount;
+                _totalSupply[ids[i]] -= amount;
                 unchecked {
                     // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
                     totalBurnAmount += amount;
