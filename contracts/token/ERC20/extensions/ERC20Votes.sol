@@ -49,14 +49,14 @@ abstract contract ERC20Votes is ERC20, Votes {
                 revert ERC20ExceededSafeSupply(supply, cap);
             }
         }
-        _transferVotingUnits(from, to, amount);
+        _transferVotingUnits(from, to, _toVotingUnits(amount));
     }
 
     /**
      * @dev Returns the balance of `account`.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
-        return balanceOf(account);
+        return _toVotingUnits(balanceOf(account));
     }
 
     /**
@@ -71,5 +71,12 @@ abstract contract ERC20Votes is ERC20, Votes {
      */
     function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint224 memory) {
         return _checkpoints(account, pos);
+    }
+
+    /**
+     * @dev Converts an `amount` of tokens into voting units.
+     */
+    function _toVotingUnits(uint256 amount) internal view virtual returns (uint256) {
+        return amount;
     }
 }
