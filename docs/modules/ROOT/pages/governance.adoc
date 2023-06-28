@@ -18,11 +18,11 @@ OpenZeppelin’s Governor system was designed with a concern for compatibility w
 
 The ERC20 extension to keep track of votes and vote delegation is one such case. The shorter one is the more generic version because it can support token supplies greater than 2^96, while the “Comp” variant is limited in that regard, but exactly fits the interface of the COMP token that is used by GovernorAlpha and Bravo. Both contract variants share the same events, so they are fully compatible when looking at events only.
 
-=== Governor & GovernorCompatibilityBravo
+=== Governor & GovernorStorage
 
-An OpenZeppelin Governor contract is by default not interface-compatible with Compound's GovernorAlpha or Bravo. Even though events are fully compatible, proposal lifecycle functions (creation, execution, etc.) have different signatures that are meant to optimize storage use. Other functions from GovernorAlpha are Bravo are likewise not available. It’s possible to opt in to a higher level of compatibility by inheriting from the GovernorCompatibilityBravo module, which covers the proposal lifecycle functions such as `propose` and `execute`.
+An OpenZeppelin Governor contract is by default not interface-compatible with Compound's GovernorAlpha or Bravo. Even though events are fully compatible, proposal lifecycle functions (creation, execution, etc.) have different signatures that are meant to optimize storage use. Other functions from GovernorAlpha are Bravo are likewise not available. It’s possible to opt in some Bravo-like behavior by inheriting from the GovernorStorage module. This module provides proposal enumerability and alternate version of the `queue`, `execute` and `cancel` function that only take the proposal id. This module reduces the calldata needed by some operations in exchange for an increased the storage footprint. This might be a good choices for some L2 chains. It also provides primitives for indexing-free frontends.
 
-Note that even with the use of this module, there will still be differences in the way that `proposalId`s are calculated. Governor uses the hash of the proposal parameters with the purpose of keeping its data off-chain by event indexing, while the original Bravo implementation uses sequential `proposalId`s. Due to this and other differences, several of the functions from GovernorBravo are not included in the compatibility module.
+Note that even with the use of this module, there will still be differences in the way that `proposalId`s are calculated. Governor uses the hash of the proposal parameters with the purpose of keeping its data off-chain by event indexing, while the original Bravo implementation uses sequential `proposalId`s. Due to this and other differences, we believe that achieving full GovernorBravo compatibility is not a desirable or realistic goal.
 
 === GovernorTimelockControl & GovernorTimelockCompound
 
