@@ -58,16 +58,12 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
-    function uri(uint256) public view virtual returns (string memory) {
+    function uri(uint256 /* id */) public view virtual returns (string memory) {
         return _uri;
     }
 
     /**
      * @dev See {IERC1155-balanceOf}.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
         return _balances[id][account];
@@ -228,6 +224,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
+     * - `ids` and `amounts` must have the same length.
      */
     function _safeBatchTransferFrom(
         address from,
@@ -295,6 +292,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * Requirements:
      *
      * - `ids` and `amounts` must have the same length.
+     * - `to` cannot be the zero address.
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
@@ -330,6 +328,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *
      * Requirements:
      *
+     * - `from` cannot be the zero address.
+     * - `from` must have at least `amount` tokens of token type `id`.
      * - `ids` and `amounts` must have the same length.
      */
     function _burnBatch(address from, uint256[] memory ids, uint256[] memory amounts) internal {
@@ -352,6 +352,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         emit ApprovalForAll(owner, operator, approved);
     }
 
+    /**
+     * @dev Performs an acceptance check by calling {IERC1155-onERC1155Received} on the `to` address.
+     */
     function _doSafeTransferAcceptanceCheck(
         address operator,
         address from,
@@ -380,6 +383,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         }
     }
 
+    /**
+     * @dev Performs a batch acceptance check by calling {IERC1155-onERC1155BatchReceived} on the `to` address.
+     */
     function _doSafeBatchTransferAcceptanceCheck(
         address operator,
         address from,
@@ -410,20 +416,28 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         }
     }
 
+    /**
+     * @dev Creates an array in memory with only one value for each of the elements provided.
+     */
     function _asSingletonArrays(
         uint256 element1,
         uint256 element2
     ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
         /// @solidity memory-safe-assembly
         assembly {
+            // Load the free memory pointer
             array1 := mload(0x40)
+            // Set array length to 1
             mstore(array1, 1)
+            // Store the single element at the next word after the length (where content starts)
             mstore(add(array1, 0x20), element1)
 
+            // Repeat for next array locating it right after the first array
             array2 := add(array1, 0x40)
             mstore(array2, 1)
             mstore(add(array2, 0x20), element2)
 
+            // Clear the free memory pointer by pointing after the second array
             mstore(0x40, add(array2, 0x40))
         }
     }

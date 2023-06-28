@@ -198,6 +198,9 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * - `spender` cannot be the zero address.
      * - `spender` must have allowance for the caller of at least
      * `requestedDecrease`.
+     *
+     * NOTE: Although this function is designed to avoid double spending with {approval},
+     * it can still be frontruned, preventing any attempt of allowance reduction.
      */
     function decreaseAllowance(address spender, uint256 requestedDecrease) public virtual returns (bool) {
         address owner = _msgSender();

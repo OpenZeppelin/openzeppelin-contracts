@@ -17,7 +17,7 @@ import "../../../security/Pausable.sol";
  * addition to inheriting this contract, you must define both functions, invoking the
  * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
  * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
- * make the contract unpausable.
+ * make the contract not to have pausable capabilities at all.
  *
  * _Available since v3.1._
  */
