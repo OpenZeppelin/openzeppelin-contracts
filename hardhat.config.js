@@ -40,7 +40,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.13',
+      default: '0.8.20',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -72,9 +72,13 @@ module.exports = {
         runs: 200,
       },
       viaIR: withOptimizations && argv.ir,
+      outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
   warnings: {
+    'contracts-exposed/**/*': {
+      'code-size': 'off',
+    },
     '*': {
       'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
@@ -88,11 +92,8 @@ module.exports = {
     },
   },
   exposed: {
-    exclude: [
-      'vendor/**/*',
-      // overflow clash
-      'utils/Timers.sol',
-    ],
+    initializers: true,
+    exclude: ['vendor/**/*'],
   },
   docgen: require('./docs/config'),
 };

@@ -12,6 +12,6 @@ contract('AccessControl', function (accounts) {
     await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, accounts[0]);
   });
 
-  shouldBehaveLikeAccessControl('AccessControl', ...accounts);
-  shouldBehaveLikeAccessControlEnumerable('AccessControl', ...accounts);
+  shouldBehaveLikeAccessControl(...accounts);
+  shouldBehaveLikeAccessControlEnumerable(...accounts);
 });

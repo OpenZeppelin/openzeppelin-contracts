@@ -62,6 +62,20 @@ Some other examples of automation are:
 - Looking for common security vulnerabilities or errors in our code (eg. reentrancy analysis).
 - Keeping dependencies up to date and monitoring for vulnerable dependencies.
 
+## Pull requests
+
+Pull requests are squash-merged to keep the `master` branch history clean. The title of the pull request becomes the commit message, so it should be written in a consistent format:
+
+1) Begin with a capital letter.
+2) Do not end with a period.
+3) Write in the imperative: "Add feature X" and not "Adds feature X" or "Added feature X".
+
+This repository does not follow conventional commits, so do not prefix the title with "fix:" or "feat:".
+
+Work in progress pull requests should be submitted as Drafts and should not be prefixed with "WIP:".
+
+Branch names don't matter, and commit messages within a pull request mostly don't matter either, although they can help the review process.
+
 # Solidity Conventions
 
 In addition to the official Solidity Style Guide we have a number of other conventions that must be followed.
@@ -72,7 +86,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
 * Internal or private state variables or functions should have an underscore prefix.
 
-  ```
+  ```solidity
   contract TestContract {
       uint256 private _privateVar;
       uint256 internal _internalVar;
@@ -84,7 +98,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 * Events should be emitted immediately after the state change that they
   represent, and should be named in the past tense.
 
-  ```
+  ```solidity
   function _burn(address who, uint256 value) internal {
       super._burn(who, value);
       emit TokensBurned(who, value);
@@ -96,8 +110,29 @@ In addition to the official Solidity Style Guide we have a number of other conve
   
 * Interface names should have a capital I prefix.
 
-  ```
+  ```solidity
   interface IERC777 {
   ```
 
+* Contracts not intended to be used standalone should be marked abstract
+  so they are required to be inherited to other contracts.
+
+  ```solidity
+  abstract contract AccessControl is ..., {
+  ```
+
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
+
+* Custom errors should be declared following the [EIP-6093](https://eips.ethereum.org/EIPS/eip-6093) rationale whenever reasonable. Also, consider the following:
+  
+  * The domain prefix should be picked in the following order:
+    1. Use `ERC<number>` if the error is a violation of an ERC specification.
+    2. Use the name of the underlying component where it belongs (eg. `Governor`, `ECDSA`, or `Timelock`).
+
+  * The location of custom errors should be decided in the following order:
+    1. Take the errors from their underlying ERCs if they're already defined.
+    2. Declare the errors in the underlying interface/library if the error makes sense in its context.
+    3. Declare the error in the implementation if the underlying interface/library is not suitable to do so (eg. interface/library already specified in an ERC).
+    4. Declare the error in an extension if the error only happens in such extension or child contracts.
+
+  * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.

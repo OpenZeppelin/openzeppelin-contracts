@@ -5,6 +5,21 @@ function toEthSignedMessageHash(messageHex) {
 }
 
 /**
+ * Create a signed data with intended validator according to the version 0 of EIP-191
+ * @param validatorAddress The address of the validator
+ * @param dataHex The data to be concatenated with the prefix and signed
+ */
+function toDataWithIntendedValidatorHash(validatorAddress, dataHex) {
+  const validatorBuffer = Buffer.from(web3.utils.hexToBytes(validatorAddress));
+  const dataBuffer = Buffer.from(web3.utils.hexToBytes(dataHex));
+  const preambleBuffer = Buffer.from('\x19');
+  const versionBuffer = Buffer.from('\x00');
+  const ethMessage = Buffer.concat([preambleBuffer, versionBuffer, validatorBuffer, dataBuffer]);
+
+  return web3.utils.sha3(ethMessage);
+}
+
+/**
  * Create a signer between a contract and a signer for a voucher of method, args, and redeemer
  * Note that `method` is the web3 method, not the truffle-contract method
  * @param contract TruffleContract
@@ -43,5 +58,6 @@ const getSignFor =
 
 module.exports = {
   toEthSignedMessageHash,
+  toDataWithIntendedValidatorHash,
   getSignFor,
 };

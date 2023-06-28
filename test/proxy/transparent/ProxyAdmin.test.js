@@ -1,13 +1,16 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 const { expect } = require('chai');
 const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
+const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
+
+const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 contract('ProxyAdmin', function (accounts) {
-  const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
+  const [proxyAdminOwner, anotherAccount] = accounts;
 
   before('set implementations', async function () {
     this.implementationV1 = await ImplV1.new();
@@ -16,41 +19,26 @@ contract('ProxyAdmin', function (accounts) {
 
   beforeEach(async function () {
     const initializeData = Buffer.from('');
-    this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
-    this.proxy = await TransparentUpgradeableProxy.new(
+    this.proxyAdmin = await ProxyAdmin.new(proxyAdminOwner);
+    const proxy = await TransparentUpgradeableProxy.new(
       this.implementationV1.address,
       this.proxyAdmin.address,
       initializeData,
-      { from: proxyAdminOwner },
     );
+    this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
   });
 
   it('has an owner', async function () {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
   });
 
-  describe('#changeProxyAdmin', function () {
-    it('fails to change proxy admin if its not the proxy owner', async function () {
-      await expectRevert(
-        this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
-        'caller is not the owner',
-      );
-    });
-
-    it('changes proxy admin', async function () {
-      await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-
-      const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
-      expect(newProxyAdmin).to.be.eq(newAdmin);
-    });
-  });
-
   describe('#upgrade', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'caller is not the owner',
+          'OwnableUnauthorizedAccount',
+          [anotherAccount],
         );
       });
     });
@@ -60,7 +48,7 @@ contract('ProxyAdmin', function (accounts) {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
 
         const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-        expect(implementationAddress).to.be.eq(this.implementationV2.address);
+        expect(implementationAddress).to.be.equal(this.implementationV2.address);
       });
     });
   });
@@ -69,11 +57,12 @@ contract('ProxyAdmin', function (accounts) {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
-        await expectRevert(
+        await expectRevertCustomError(
           this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
             from: anotherAccount,
           }),
-          'caller is not the owner',
+          'OwnableUnauthorizedAccount',
+          [anotherAccount],
         );
       });
     });
@@ -97,7 +86,7 @@ contract('ProxyAdmin', function (accounts) {
             from: proxyAdminOwner,
           });
           const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-          expect(implementationAddress).to.be.eq(this.implementationV2.address);
+          expect(implementationAddress).to.be.equal(this.implementationV2.address);
         });
       });
     });

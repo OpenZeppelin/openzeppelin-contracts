@@ -1,16 +1,87 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflowedMulDiv();
+
     enum Rounding {
         Down, // Toward negative infinity
         Up, // Toward infinity
         Zero // Toward zero
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v5.0._
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v5.0._
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v5.0._
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v5.0._
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v5.0._
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
     }
 
     /**
@@ -43,6 +114,11 @@ library Math {
      * of rounding down.
      */
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (b == 0) {
+            // Guarantee the same behavior as in a regular Solidity division.
+            return a / b;
+        }
+
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a == 0 ? 0 : (a - 1) / b + 1;
     }
@@ -67,11 +143,16 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1, "Math: mulDiv overflow");
+            if (denominator <= prod1) {
+                revert MathOverflowedMulDiv();
+            }
 
             ///////////////////////////////////////////////
             // 512 by 256 division.

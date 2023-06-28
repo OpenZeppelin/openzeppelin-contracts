@@ -1,6 +1,6 @@
 const { BN } = require('@openzeppelin/test-helpers');
 
-const ERC1155Holder = artifacts.require('ERC1155Holder');
+const ERC1155Holder = artifacts.require('$ERC1155Holder');
 const ERC1155 = artifacts.require('$ERC1155');
 
 const { expect } = require('chai');

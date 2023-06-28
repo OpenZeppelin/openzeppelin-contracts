@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/DoubleEndedQueue.sol)
-pragma solidity ^0.8.4;
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/DoubleEndedQueue.sol)
+pragma solidity ^0.8.19;
 
 import "../math/SafeCast.sol";
 
@@ -12,7 +12,7 @@ import "../math/SafeCast.sol";
  *
  * The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be
  * used in storage, and not in memory.
- * ```
+ * ```solidity
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
  *
@@ -22,7 +22,7 @@ library DoubleEndedQueue {
     /**
      * @dev An operation (e.g. {front}) couldn't be completed due to the queue being empty.
      */
-    error Empty();
+    error QueueEmpty();
 
     /**
      * @dev A push operation couldn't be completed due to the queue being full.
@@ -32,7 +32,7 @@ library DoubleEndedQueue {
     /**
      * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.
      */
-    error OutOfBounds();
+    error QueueOutOfBounds();
 
     /**
      * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end
@@ -67,12 +67,12 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
             uint128 backIndex = deque._end;
-            if (backIndex == deque._begin) revert Empty();
+            if (backIndex == deque._begin) revert QueueEmpty();
             --backIndex;
             value = deque._data[backIndex];
             delete deque._data[backIndex];
@@ -95,12 +95,12 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the beginning of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
             uint128 frontIndex = deque._begin;
-            if (frontIndex == deque._end) revert Empty();
+            if (frontIndex == deque._end) revert QueueEmpty();
             value = deque._data[frontIndex];
             delete deque._data[frontIndex];
             deque._begin = frontIndex + 1;
@@ -110,20 +110,20 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the beginning of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         return deque._data[deque._begin];
     }
 
     /**
      * @dev Returns the item at the end of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         unchecked {
             return deque._data[deque._end - 1];
         }
@@ -133,10 +133,10 @@ library DoubleEndedQueue {
      * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
      * `length(deque) - 1`.
      *
-     * Reverts with `OutOfBounds` if the index is out of bounds.
+     * Reverts with `QueueOutOfBounds` if the index is out of bounds.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
-        if (index >= length(deque)) revert OutOfBounds();
+        if (index >= length(deque)) revert QueueOutOfBounds();
         unchecked {
             return deque._data[deque._begin + SafeCast.toUint128(index)];
         }

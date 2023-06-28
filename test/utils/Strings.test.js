@@ -1,4 +1,5 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants } = require('@openzeppelin/test-helpers');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const { expect } = require('chai');
 
@@ -47,22 +48,22 @@ contract('Strings', function () {
     describe('int256', function () {
       it('converts MAX_INT256', async function () {
         const value = constants.MAX_INT256;
-        expect(await this.strings.methods['$toString(int256)'](value)).to.equal(value.toString(10));
+        expect(await this.strings.methods['$toStringSigned(int256)'](value)).to.equal(value.toString(10));
       });
 
       it('converts MIN_INT256', async function () {
         const value = constants.MIN_INT256;
-        expect(await this.strings.methods['$toString(int256)'](value)).to.equal(value.toString(10));
+        expect(await this.strings.methods['$toStringSigned(int256)'](value)).to.equal(value.toString(10));
       });
 
       for (const value of values) {
         it(`convert ${value}`, async function () {
-          expect(await this.strings.methods['$toString(int256)'](value)).to.equal(value);
+          expect(await this.strings.methods['$toStringSigned(int256)'](value)).to.equal(value);
         });
 
         it(`convert negative ${value}`, async function () {
           const negated = new BN(value).neg();
-          expect(await this.strings.methods['$toString(int256)'](negated)).to.equal(negated.toString(10));
+          expect(await this.strings.methods['$toStringSigned(int256)'](negated)).to.equal(negated.toString(10));
         });
       }
     });
@@ -92,9 +93,11 @@ contract('Strings', function () {
     });
 
     it('converts a positive number (short)', async function () {
-      await expectRevert(
-        this.strings.methods['$toHexString(uint256,uint256)'](0x4132, 1),
-        'Strings: hex length insufficient',
+      const length = 1;
+      await expectRevertCustomError(
+        this.strings.methods['$toHexString(uint256,uint256)'](0x4132, length),
+        `StringsInsufficientHexLength`,
+        [0x4132, length],
       );
     });
 
