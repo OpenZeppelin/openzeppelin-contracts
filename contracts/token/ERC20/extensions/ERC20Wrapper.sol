@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
-import "../utils/SafeERC20.sol";
+import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
 
 /**
  * @dev Extension of the ERC20 token contract to support token wrapping.

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/extensions/ERC20FlashMint.sol";
+import {ERC20FlashMint} from "../../token/ERC20/extensions/ERC20FlashMint.sol";
 
 abstract contract ERC20FlashMintMock is ERC20FlashMint {
     uint256 _flashFeeAmount;

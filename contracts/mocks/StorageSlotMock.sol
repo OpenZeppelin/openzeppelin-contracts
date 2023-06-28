@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../utils/StorageSlot.sol";
+import {StorageSlot} from "../utils/StorageSlot.sol";
 
 contract StorageSlotMock {
     using StorageSlot for *;

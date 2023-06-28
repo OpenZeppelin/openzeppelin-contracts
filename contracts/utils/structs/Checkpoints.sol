@@ -4,8 +4,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../math/Math.sol";
-import "../math/SafeCast.sol";
+import {Math} from "../math/Math.sol";
+import {SafeCast} from "../math/SafeCast.sol";
 
 /**
  * @dev This library defines the `History` struct, for checkpointing values as they change at different points in

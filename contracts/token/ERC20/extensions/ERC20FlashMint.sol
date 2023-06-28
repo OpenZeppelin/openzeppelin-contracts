@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../../../interfaces/IERC3156FlashBorrower.sol";
-import "../../../interfaces/IERC3156FlashLender.sol";
-import "../ERC20.sol";
+import {IERC3156FlashBorrower} from "../../../interfaces/IERC3156FlashBorrower.sol";
+import {IERC3156FlashLender} from "../../../interfaces/IERC3156FlashLender.sol";
+import {ERC20} from "../ERC20.sol";
 
 /**
  * @dev Implementation of the ERC3156 Flash loans extension, as defined in

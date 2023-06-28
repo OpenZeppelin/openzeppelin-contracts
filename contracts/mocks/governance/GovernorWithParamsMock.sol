@@ -2,8 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../../governance/extensions/GovernorCountingSimple.sol";
-import "../../governance/extensions/GovernorVotes.sol";
+import {Governor} from "../../governance/Governor.sol";
+import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 
 abstract contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
     event CountParams(uint256 uintParam, string strParam);
