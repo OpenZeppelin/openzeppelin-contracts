@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
-import "../../contracts/utils/ShortStrings.sol";
+import {ShortStrings, ShortString} from "../../contracts/utils/ShortStrings.sol";
 
 contract ShortStringsTest is Test {
     string _fallback;

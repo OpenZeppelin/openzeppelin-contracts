@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "./IBeacon.sol";
-import "../Proxy.sol";
-import "../ERC1967/ERC1967Utils.sol";
+import {IBeacon} from "./IBeacon.sol";
+import {Proxy} from "../Proxy.sol";
+import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev This contract implements a proxy that gets the implementation address for each call from an {UpgradeableBeacon}.

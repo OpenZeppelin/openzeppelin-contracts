@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/extensions/ERC20Permit.sol";
-import "../../utils/math/Math.sol";
-import "../../governance/utils/IVotes.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../utils/cryptography/ECDSA.sol";
+import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {IVotes} from "../../governance/utils/IVotes.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 
 /**
  * @dev Copied from the master branch at commit 86de1e8b6c3fa6b4efa4a5435869d2521be0f5f5

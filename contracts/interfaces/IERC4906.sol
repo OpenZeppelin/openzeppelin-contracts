@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC165.sol";
-import "./IERC721.sol";
+import {IERC165} from "./IERC165.sol";
+import {IERC721} from "./IERC721.sol";
 
 /// @title EIP-721 Metadata Update Extension
 interface IERC4906 is IERC165, IERC721 {
