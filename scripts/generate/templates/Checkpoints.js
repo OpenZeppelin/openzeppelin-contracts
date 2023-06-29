@@ -6,7 +6,6 @@ const header = `\
 pragma solidity ^0.8.19;
 
 import "../math/Math.sol";
-import "../math/SafeCast.sol";
 
 /**
  * @dev This library defines the \`Trace*\` struct, for checkpointing values as they change at different points in
