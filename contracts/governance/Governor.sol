@@ -322,8 +322,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
     /**
      * @dev See {IGovernorTimelock-queue}.
-     *
-     * NOTE: This is an empty declaration for timelock modules to hook into.
      */
     function queue(
         address[] memory targets,
@@ -334,7 +332,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        _queue(proposalId, targets, values, calldatas, descriptionHash);
+        if (!_queue(proposalId, targets, values, calldatas, descriptionHash)) {
+            revert GovernorQueueNotImplemented();
+        }
     }
 
     /**
@@ -432,9 +432,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev Internal queuing mechanism.
+     * @dev Internal queuing mechanism. This is empty by default, and must be overriden to implement queuing.
      *
-     * NOTE: This reverts by default, and must be overriden (without calling super) to implement queuing.
+     * This function returns a boolean that describing weither a queuing logic is implemented or not. This function
+     * returns false by default, which causes the public {queue} to revert. When overriding this, the overriden
+     * version should discard the value returned by the super call and return true instead.
      */
     function _queue(
         uint256 /* proposalId */,
@@ -442,8 +444,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory /* values */,
         bytes[] memory /* calldatas */,
         bytes32 /*descriptionHash*/
-    ) internal virtual {
-        revert GovernorQueueNotImplemented();
+    ) internal virtual returns (bool enabled) {
+        return false;
     }
 
     /**

@@ -50,8 +50,8 @@ abstract contract GovernorTimelockCompoundMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockCompound) {
-        super._queue(proposalId, targets, values, calldatas, descriptionHash);
+    ) internal override(Governor, GovernorTimelockCompound) returns (bool enabled) {
+        return super._queue(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _execute(
