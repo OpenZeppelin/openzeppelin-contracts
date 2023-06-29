@@ -7,6 +7,7 @@ import "../../utils/Context.sol";
 import "../../utils/Nonces.sol";
 import "../../utils/cryptography/EIP712.sol";
 import "../../utils/structs/Checkpoints.sol";
+import "../../utils/math/SafeCast.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
