@@ -83,17 +83,14 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Function to queue a proposal to the timelock.
      */
-    function _queue(
+    function _queueCalls(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 descriptionHash
+        bytes32 /*descriptionHash*/
     ) internal virtual override returns (uint256) {
-        uint256 eta = Math.max(
-            super._queue(proposalId, targets, values, calldatas, descriptionHash),
-            block.timestamp + _timelock.delay()
-        );
+        uint256 eta = block.timestamp + _timelock.delay();
 
         _proposalEta[proposalId] = eta;
 
@@ -108,9 +105,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overridden execute function that run the already queued proposal through the timelock.
+     * @dev Overridden version of the {Governor-_executeCall} function that run the already queued proposal through
+     * the timelock.
      */
-    function _execute(
+    function _executeCalls(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,

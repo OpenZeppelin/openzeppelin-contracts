@@ -55,24 +55,24 @@ contract MyGovernor is
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _queue(
+    function _queueCalls(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
-        return super._queue(proposalId, targets, values, calldatas, descriptionHash);
+        return super._queueCalls(proposalId, targets, values, calldatas, descriptionHash);
     }
 
-    function _execute(
+    function _executeCalls(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeCalls(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(
