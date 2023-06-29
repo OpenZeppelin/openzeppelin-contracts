@@ -27,15 +27,16 @@ abstract contract GovernorStorage is Governor {
     mapping(uint256 => ProposalDetails) private _proposalDetails;
 
     /**
-     * @dev See {IGovernor-propose}.
+     * @dev Hook into the proposing mechanism
      */
-    function propose(
+    function _propose(
+        address proposer,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = super.propose(targets, values, calldatas, description);
+    ) internal virtual override returns (uint256) {
+        uint256 proposalId = super._propose(proposer, targets, values, calldatas, description);
         // store
         _proposalIds.push(proposalId);
         _proposalDetails[proposalId] = ProposalDetails({

@@ -255,52 +255,18 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory description
     ) public virtual override returns (uint256) {
         address proposer = _msgSender();
+
+        // check: description restriction
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
-        uint256 currentTimepoint = clock();
-
-        // Avoid stack too deep
-        {
-            uint256 proposerVotes = getVotes(proposer, currentTimepoint - 1);
-            uint256 votesThreshold = proposalThreshold();
-            if (proposerVotes < votesThreshold) {
-                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
-            }
+        // check proposal threshold
+        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (proposerVotes < votesThreshold) {
+            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
         }
 
-        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
-
-        if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
-            revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
-        }
-        if (_proposals[proposalId].voteStart != 0) {
-            revert GovernorUnexpectedProposalState(proposalId, state(proposalId), bytes32(0));
-        }
-
-        uint256 snapshot = currentTimepoint + votingDelay();
-        uint256 duration = votingPeriod();
-
-        _proposals[proposalId] = ProposalCore({
-            proposer: proposer,
-            voteStart: SafeCast.toUint48(snapshot),
-            voteDuration: SafeCast.toUint32(duration),
-            executed: false,
-            canceled: false
-        });
-
-        emit ProposalCreated(
-            proposalId,
-            proposer,
-            targets,
-            values,
-            new string[](targets.length),
-            calldatas,
-            snapshot,
-            snapshot + duration,
-            description
-        );
-
-        return proposalId;
+        return _propose(proposer, targets, values, calldatas, description);
     }
 
     /**
@@ -372,7 +338,52 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism
+     * @dev Internal propose mechanism. Can be overridden to add more logic on proposal creation.
+     */
+    function _propose(
+        address proposer,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) internal virtual returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+
+        if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
+            revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
+        }
+        if (_proposals[proposalId].voteStart != 0) {
+            revert GovernorUnexpectedProposalState(proposalId, state(proposalId), bytes32(0));
+        }
+
+        uint256 snapshot = clock() + votingDelay();
+        uint256 duration = votingPeriod();
+
+        _proposals[proposalId] = ProposalCore({
+            proposer: proposer,
+            voteStart: SafeCast.toUint48(snapshot),
+            voteDuration: SafeCast.toUint32(duration),
+            executed: false,
+            canceled: false
+        });
+
+        emit ProposalCreated(
+            proposalId,
+            proposer,
+            targets,
+            values,
+            new string[](targets.length),
+            calldatas,
+            snapshot,
+            snapshot + duration,
+            description
+        );
+
+        return proposalId;
+    }
+
+    /**
+     * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism.
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
      * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
