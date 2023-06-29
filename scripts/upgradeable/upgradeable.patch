@@ -59,7 +59,7 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 9d1c405b..c264e29c 100644
+index 27627f43..47c5c7a4 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
@@ -94,8 +94,8 @@ index 9d1c405b..c264e29c 100644
  ```solidity
  pragma solidity ^0.8.19;
  
--import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
++import {ERC71Upgradeable} "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
  
 -contract MyCollectible is ERC721 {
 -    constructor() ERC721("MyCollectible", "MCO") {
@@ -191,7 +191,7 @@ index 2cbff622..97f43d7a 100644
  abstract contract ERC20Wrapper is ERC20 {
      IERC20 private immutable _underlying;
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 711aaba8..4848badd 100644
+index d94e956a..86bb5713 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
