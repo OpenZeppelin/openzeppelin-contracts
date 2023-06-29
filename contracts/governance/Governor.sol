@@ -253,7 +253,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override returns (uint256 proposalId) {
+    ) public virtual override returns (uint256) {
         address proposer = _msgSender();
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
@@ -268,7 +268,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             }
         }
 
-        proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
@@ -299,6 +299,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             snapshot + duration,
             description
         );
+
+        return proposalId;
     }
 
     /**
@@ -309,8 +311,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override returns (uint256 proposalId) {
-        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
         uint256 eta = _queue(proposalId, targets, values, calldatas, descriptionHash);
@@ -319,6 +321,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         } else {
             emit ProposalQueued(proposalId, eta);
         }
+
+        return proposalId;
     }
 
     /**
@@ -329,8 +333,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public payable virtual override returns (uint256 proposalId) {
-        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public payable virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         _validateStateBitmap(
             proposalId,
             _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
@@ -342,6 +346,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         _beforeExecute(proposalId, targets, values, calldatas, descriptionHash);
         _execute(proposalId, targets, values, calldatas, descriptionHash);
         _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
+
+        return proposalId;
     }
 
     /**
@@ -352,8 +358,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override returns (uint256 proposalId) {
-        proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+    ) public virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
 
         if (_msgSender() != proposalProposer(proposalId)) {
@@ -361,10 +367,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         }
 
         _cancel(proposalId, targets, values, calldatas, descriptionHash);
+
+        return proposalId;
     }
 
     /**
      * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism
+     *
+     * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
+     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
      */
     function _execute(
         uint256 /* proposalId */,
@@ -421,6 +432,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * This function returns a timestamp that describes the expected eta for execution. If the returned value is 0
      * (which is the default value), the core will consider queueing to not be implemented, and the public {queue}
      * function will revert.
+     *
+     * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
+     * `ProposalQueued` event. Queuing a proposal should be done using {queue}.
      */
     function _queue(
         uint256 /* proposalId */,
