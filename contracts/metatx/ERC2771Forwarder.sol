@@ -257,25 +257,24 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
         //
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas
-        // and the top-level call still passes, so in order to make sure that the subcall received the requested gas,
-        // the define this model and adding a check:
+        // but the forwarding itself still succeeds. In order to make sure that the subcall received sufficient gas,
+        // we will inspect gasleft() after the forwarding.
         //
-        // Let X be the gas available before the subcall, such that the subcall gets X * 63 / 64.
+        // Let X be the gas available before the subcall, such that the subcall gets at most X * 63 / 64.
         // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
-        // Let Y be the gas used in the subcall gasleft() measured immediately after the subcall will be gasleft() = X - Y.
+        // Let Y be the gas used in the subcall. gasleft() measured immediately after the subcall will be gasleft() = X - Y.
         // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
-        // Then we restrict the model by checking if req.gas / 63 > gasleft(), which is true is true if and only if
+        // Under this assumption req.gas / 63 > gasleft() is true is true if and only if
         // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
-        //
         // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
+        //
         // We will now also see that req.gas / 63 > gasleft() implies that req.gas >= X * 63 / 64.
         // The contract guarantees Y <= req.gas, thus gasleft() = X - Y >= X - req.gas.
         // -    req.gas / 63 > gasleft()
         // -    req.gas / 63 >= X - req.gas
         // -    req.gas >= X * 63 / 64
-        //
         // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly
-        // the relay does not revert.
+        // the forwarding does not revert.
         if (gasleft() < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
