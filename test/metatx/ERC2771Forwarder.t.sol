@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
-import "contracts/metatx/ERC2771Forwarder.sol";
-import "contracts/mocks/CallReceiverMock.sol";
+import {Test} from "forge-std/Test.sol";
+import {ERC2771Forwarder} from "contracts/metatx/ERC2771Forwarder.sol";
+import {CallReceiverMock} from "contracts/mocks/CallReceiverMock.sol";
 
 struct ForwardRequest {
     address from;
