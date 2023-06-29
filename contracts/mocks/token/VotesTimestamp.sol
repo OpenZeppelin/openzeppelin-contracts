@@ -2,8 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/extensions/ERC20Votes.sol";
-import "../../token/ERC721/extensions/ERC721Votes.sol";
+import {ERC20Votes} from "../../token/ERC20/extensions/ERC20Votes.sol";
+import {ERC721Votes} from "../../token/ERC721/extensions/ERC721Votes.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 abstract contract ERC20VotesTimestampMock is ERC20Votes {
     function clock() public view virtual override returns (uint48) {

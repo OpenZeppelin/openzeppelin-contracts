@@ -3,4 +3,4 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC721/IERC721Receiver.sol";
+import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";

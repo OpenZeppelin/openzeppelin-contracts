@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../proxy/utils/UUPSUpgradeable.sol";
+import {UUPSUpgradeable} from "../../proxy/utils/UUPSUpgradeable.sol";
+import {ERC1967Utils} from "../../proxy/ERC1967/ERC1967Utils.sol";
 
 contract NonUpgradeableMock {
     uint256 internal _counter;
