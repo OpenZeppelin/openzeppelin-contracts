@@ -611,12 +611,14 @@ contract('ERC20Votes', function (accounts) {
       await this.token.delegate(bob, { from: alice });
       await this.token.$_mint(alice, tokens);
 
-      // As a result, bob has (tokens ** 2) votes
+      // As a result, bob has (tokens ** 2) voting units
       expect(await this.token.getVotes(bob)).to.be.bignumber.eq(votingUnits.toString());
 
-      // Now
+      // Now alice transfers her tokens to charlie who delegates to himself
       await this.token.delegate(charlie, { from: charlie });
       const { receipt } = await this.token.transfer(charlie, tokens, { from: alice });
+
+      // As a result, charlie got transferred (tokens ** 2) voting units
       expectEvent(receipt, 'Transfer', { from: alice, to: charlie, value: tokens.toString() });
       expectEvent(receipt, 'DelegateVotesChanged', {
         delegate: bob,
