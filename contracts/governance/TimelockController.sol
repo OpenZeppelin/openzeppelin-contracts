@@ -34,7 +34,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     enum OperationState {
         Unset,
-        Pending,
+        Blocked,
         Ready,
         Done
     }
@@ -170,11 +170,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
+     * @dev Returns whether an operation is waitinf for expiration. Note that a "blocked" operation is also "pending".
      */
-    function isOperationPending(bytes32 id) public view virtual returns (bool) {
-        OperationState state = getOperationState(id);
-        return state == OperationState.Pending || state == OperationState.Ready;
+    function isOperationBlocked(bytes32 id) public view virtual returns (bool) {
+        return getOperationState(id) == OperationState.Blocked;
     }
 
     /**
@@ -182,6 +181,14 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool) {
         return getOperationState(id) == OperationState.Ready;
+    }
+
+    /**
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
+     */
+    function isOperationPending(bytes32 id) public view virtual returns (bool) {
+        OperationState state = getOperationState(id);
+        return state == OperationState.Blocked || state == OperationState.Ready;
     }
 
     /**
@@ -209,7 +216,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         } else if (timestamp == _DONE_TIMESTAMP) {
             return OperationState.Done;
         } else if (timestamp > block.timestamp) {
-            return OperationState.Pending;
+            return OperationState.Blocked;
         } else {
             return OperationState.Ready;
         }
@@ -330,8 +337,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * - the caller must have the 'canceller' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
-        if (getOperationState(id) != OperationState.Pending) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Pending);
+        if (!isOperationPending(id)) {
+            revert TimelockUnexpectedOperationState(id, OperationState.Blocked);
         }
         delete _timestamps[id];
 
@@ -413,10 +420,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
-        if (getOperationState(id) != OperationState.Ready) {
+        if (!isOperationReady(id)) {
             revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
-        if (predecessor != bytes32(0) && getOperationState(predecessor) != OperationState.Done) {
+        if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
             revert TimelockUnexecutedPredecessor(predecessor);
         }
     }
