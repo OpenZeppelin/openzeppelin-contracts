@@ -14,6 +14,10 @@ import "../ERC20.sol";
  * Adds the {flashLoan} method, which provides flash loan support at the token
  * level. By default there is no fee, but this can be changed by overriding {flashFee}.
  *
+ * NOTE: When this extension is used along with the {ERC20Capped} extension, its cap
+ * won't be checked in {flashLoan}. Although it can be limited by also overriding {maxFlashLoan}
+ * to also cap the maximum amount of tokens that can be flash-minted.
+ *
  * _Available since v4.1._
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
@@ -38,6 +42,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @dev Returns the maximum amount of tokens available for loan.
      * @param token The address of the token that is requested.
      * @return The amount of token that can be loaned.
+     *
+     * NOTE: This function does not consider any form of supply cap, so in case
+     * it's used in a token with a cap like {ERC20Capped}, make sure to override this
+     * function to integrate the cap instead.
      */
     function maxFlashLoan(address token) public view virtual returns (uint256) {
         return token == address(this) ? type(uint256).max - totalSupply() : 0;
