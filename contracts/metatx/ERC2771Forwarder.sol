@@ -7,6 +7,7 @@ import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Address} from "../utils/Address.sol";
+import {ERC2771Context} from "./ERC2771Context.sol";
 
 /**
  * @dev A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
@@ -21,7 +22,7 @@ import {Address} from "../utils/Address.sol";
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
  */
-contract ERC2771Forwarder is EIP712, Nonces {
+contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
     using ECDSA for bytes32;
 
     struct ForwardRequestData {
@@ -62,6 +63,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev The request `deadline` has expired.
      */
     error ERC2771ForwarderExpiredRequest(uint48 deadline);
+
+    /**
+     * @dev
+     */
+    error ERC2771ForwarderInvalidRelayLength(uint256 targets, uint256 calldatas, uint256 values);
 
     /**
      * @dev See {EIP712-constructor}.
@@ -284,6 +290,36 @@ contract ERC2771Forwarder is EIP712, Nonces {
             assembly {
                 invalid()
             }
+        }
+    }
+
+    /**
+     * @dev Batch arbitrary calls in an atomic way, using ERC2771 for caller-detection. This can be called directly or
+     * through a forwarded request. Combining a signed ForwardRequest with this function allows a user to enforce the
+     * atomic execution of multiple relayed calls.
+     */
+    function atomicBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata calldatas) public payable virtual {
+        uint256 length = targets.length;
+        if (values.length != length || calldatas.length != length) {
+            revert ERC2771ForwarderInvalidRelayLength(length, calldatas.length, values.length);
+        }
+
+        // This will recover the caller is execution is the result of a relay though the Forwarder (this);
+        address caller = _msgSender();
+
+        // relay the subcalls using the caller as the "from"
+        uint256 requestsValue = 0;
+        for (uint256 i = 0; i < length; ++i) {
+            (bool success, ) = targets[i].call{value: values[i]}(abi.encodePacked(calldatas[i], caller));
+            if (!success) {
+                revert Address.FailedInnerCall();
+            }
+            requestsValue += values[i];
+        }
+
+        // passed value must match the forwarded value
+        if (requestsValue != msg.value) {
+            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
         }
     }
 }
