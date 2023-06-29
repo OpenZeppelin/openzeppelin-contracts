@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../governance/utils/Votes.sol";
+import {Votes} from "../governance/utils/Votes.sol";
 
 abstract contract VotesMock is Votes {
     mapping(address => uint256) private _votingUnits;

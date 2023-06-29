@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./math/Math.sol";
-import "./math/SignedMath.sol";
+import {Math} from "./math/Math.sol";
+import {SignedMath} from "./math/SignedMath.sol";
 
 /**
  * @dev String operations.

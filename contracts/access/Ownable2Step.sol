@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "./Ownable.sol";
+import {Ownable} from "./Ownable.sol";
 
 /**
  * @dev Contract module which provides access control mechanism, where

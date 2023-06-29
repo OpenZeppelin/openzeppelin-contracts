@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
-import "../../../contracts/utils/math/Math.sol";
+import {Math} from "../../../contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
     // CEILDIV

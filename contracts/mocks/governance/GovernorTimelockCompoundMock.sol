@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.19;
 
-import "../../governance/extensions/GovernorTimelockCompound.sol";
-import "../../governance/extensions/GovernorSettings.sol";
-import "../../governance/extensions/GovernorCountingSimple.sol";
-import "../../governance/extensions/GovernorVotesQuorumFraction.sol";
+import {IGovernor, Governor} from "../../governance/Governor.sol";
+import {GovernorTimelockCompound} from "../../governance/extensions/GovernorTimelockCompound.sol";
+import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
+import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 
 abstract contract GovernorTimelockCompoundMock is
     GovernorSettings,
