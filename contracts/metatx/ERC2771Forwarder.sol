@@ -298,7 +298,11 @@ contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
      * through a forwarded request. Combining a signed ForwardRequest with this function allows a user to enforce the
      * atomic execution of multiple relayed calls.
      */
-    function atomicBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata calldatas) public payable virtual {
+    function atomicBatch(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata calldatas
+    ) public payable virtual {
         uint256 length = targets.length;
         if (length == 0 || values.length != length || calldatas.length != length) {
             revert ERC2771ForwarderInvalidRelayLength(length, calldatas.length, values.length);
