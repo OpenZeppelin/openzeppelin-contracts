@@ -3,7 +3,7 @@
 pragma solidity ^0.8.19;
 
 /**
- * @dev Library for managing uint256 to bool mapping in a compact and efficient way, providing the keys are sequential.
+ * @dev Library for managing uint256 to bool mapping in a compact and efficient way, provided the keys are sequential.
  * Largely inspired by Uniswap's https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol[merkle-distributor].
  */
 library BitMaps {
