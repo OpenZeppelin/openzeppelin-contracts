@@ -206,7 +206,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * Emits an {ExecutedForwardRequest} event.
      *
      * IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially
-     * leaving ETH stuck in the contract.
+     * leaving value stuck in the contract.
      */
     function _execute(
         ForwardRequestData calldata request,
