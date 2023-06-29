@@ -65,7 +65,7 @@ contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
     error ERC2771ForwarderExpiredRequest(uint48 deadline);
 
     /**
-     * @dev
+     * @dev Empty relay request or a mismatch between the parameters length.
      */
     error ERC2771ForwarderInvalidRelayLength(uint256 targets, uint256 calldatas, uint256 values);
 
@@ -300,7 +300,7 @@ contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
      */
     function atomicBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata calldatas) public payable virtual {
         uint256 length = targets.length;
-        if (values.length != length || calldatas.length != length) {
+        if (length == 0 || values.length != length || calldatas.length != length) {
             revert ERC2771ForwarderInvalidRelayLength(length, calldatas.length, values.length);
         }
 
