@@ -9,13 +9,13 @@ import "../utils/Nonces.sol";
 import "../utils/Address.sol";
 
 /**
- * @dev An implementation of a production-ready forwarder compatible with ERC2771 contracts.
+ * @dev A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
  *
  * This forwarder operates on forward requests that include:
  *
  * * `from`: An address to operate on behalf of. It is required to be equal to the request signer.
  * * `to`: The address that should be called.
- * * `value`: The amount of ETH to attach with the requested call.
+ * * `value`: The amount of native token to attach with the requested call.
  * * `gas`: The amount of gas limit that will be forwarded with the requested call.
  * * `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
  * * `deadline`: A timestamp after which the request is not executable anymore.
@@ -42,9 +42,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Emitted when a `ForwardRequest` is executed.
      *
-     * NOTE: A non successful forwarded request should not be assumed as non out of gas exception because of
-     * {_checkForwardedGas}. Such function doesn't guarantee an out of gas exception won't be thrown, but instead
-     * it guarantees a relayer provided enough gas to cover the signer requested gas.
+     * NOTE: An unsuccessful forward request could be due to an invalid signature, an expired deadline,
+     * or simply a revert in the requested call. The contract guarantees that the relayer is not able to force
+     * the requested call to run out of gas.
      */
     event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
 
@@ -74,8 +74,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
      * matches the `from` parameter of the signed request.
      *
-     * NOTE: A request may return false here but it won't revert in {batchExecute} if a refund receiver
-     * is provided.
+     * NOTE: A request may return false here but it won't cause {executeBatch} to revert if a refund
+     * receiver is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
         (bool alive, bool signerMatch, ) = _validate(request);
@@ -83,8 +83,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Executes a `request` on behalf of `signature`'s signer guaranteeing that the forwarded call
-     * will receive the requested gas and no ETH is left stuck in the contract.
+     * @dev Executes a `request` on behalf of `signature`'s signer using the ERC-2771 protocol. The gas
+     * provided to the requested call may not be exactly the amount requested, but the call will not run
+     * out of gas. Will revert if the request is invalid or the call reverts, in this case the nonce is not consumed.
      *
      * Requirements:
      *
@@ -108,8 +109,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * In case a batch contains at least one invalid request (see {verify}), the
      * request will be skipped and the `refundReceiver` parameter will receive back the
-     * unused requested value at the end of the execution. This is done to prevent unexpected
-     * reverts when a batch includes a request that was already frontrunned by another relayer.
+     * unused requested value at the end of the execution. This is done to prevent reverting
+     * the entire batch when a request is invalid or has already been submitted.
      *
      * If the `refundReceiver` is the `address(0)`, this function will revert when at least
      * one of the requests was not valid instead of skipping it. This could be useful if
@@ -143,14 +144,14 @@ contract ERC2771Forwarder is EIP712, Nonces {
             }
         }
 
-        // The batch should still revert if there's a mismatched msg.value provided
+        // The batch should revert if there's a mismatched msg.value provided
         // to avoid request value tampering
         if (requestsValue != msg.value) {
             revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
         }
 
-        // To avoid unexpected reverts because a request was frontrunned leaving ETH in the contract
-        // the value is sent back instead of reverting.
+        // Some requests with value were invalid (possibly due to frontrunning).
+        // To avoid leaving ETH in the contract this value is refunded.
         if (refundValue != 0) {
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance
@@ -225,7 +226,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             }
         }
 
-        // Avoid execution instead of reverting in case a batch includes an already executed request
+        // Ignore an invalid request because requireValidRequest = false
         if (signerMatch && alive) {
             // Nonce should be used before the call to prevent reusing by reentrancy
             uint256 currentNonce = _useNonce(signer);

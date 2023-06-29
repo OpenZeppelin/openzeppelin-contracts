@@ -70,17 +70,11 @@ contract('ERC2771Forwarder', function (accounts) {
 
   context('verify', function () {
     context('with valid signature', function () {
-      beforeEach(async function () {
+      it('returns true without altering the nonce', async function () {
         expect(await this.forwarder.nonces(this.requestData.from)).to.be.bignumber.equal(
           web3.utils.toBN(this.requestData.nonce),
         );
-      });
-
-      it('success', async function () {
         expect(await this.forwarder.verify(this.requestData)).to.be.equal(true);
-      });
-
-      afterEach(async function () {
         expect(await this.forwarder.nonces(this.requestData.from)).to.be.bignumber.equal(
           web3.utils.toBN(this.requestData.nonce),
         );
