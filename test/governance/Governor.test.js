@@ -2,7 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
-const { fromRpcSig } = require('ethereumjs-util');
+const { fromRpcSig, toRpcSig } = require('ethereumjs-util');
 
 const Enums = require('../helpers/enums');
 const { getDomain, domainType } = require('../helpers/eip712');
@@ -311,22 +311,24 @@ contract('Governor', function (accounts) {
             this.voterBySig = Wallet.generate();
             this.voterBySig.address = web3.utils.toChecksumAddress(this.voterBySig.getAddressString());
 
+            this.data = (contract, message) =>
+              getDomain(contract).then(domain => ({
+                primaryType: 'Ballot',
+                types: {
+                  EIP712Domain: domainType(domain),
+                  Ballot: [
+                    { name: 'proposalId', type: 'uint256' },
+                    { name: 'support', type: 'uint8' },
+                    { name: 'voter', type: 'address' },
+                    { name: 'nonce', type: 'uint256' },
+                  ],
+                },
+                domain,
+                message,
+              }));
+
             this.signature = (contract, message) =>
-              getDomain(contract)
-                .then(domain => ({
-                  primaryType: 'Ballot',
-                  types: {
-                    EIP712Domain: domainType(domain),
-                    Ballot: [
-                      { name: 'proposalId', type: 'uint256' },
-                      { name: 'support', type: 'uint8' },
-                      { name: 'voter', type: 'address' },
-                      { name: 'nonce', type: 'uint256' },
-                    ],
-                  },
-                  domain,
-                  message,
-                }))
+              this.data(contract, message)
                 .then(data => ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }))
                 .then(fromRpcSig);
 
@@ -340,35 +342,46 @@ contract('Governor', function (accounts) {
           it('if signature does not match signer', async function () {
             const nonce = await this.mock.nonces(this.voterBySig.address);
 
-            expectRevertCustomError(
-              this.helper.vote({
-                support: Enums.VoteType.For,
-                voter: this.voterBySig.address,
-                nonce,
-                signature: (...params) => {
-                  const sig = this.signature(...params);
-                  sig[69] ^= 0xff;
-                  return sig;
-                },
-              }),
-              'GovernorInvalidSigner',
-              [],
-            );
+            const voteParams = {
+              support: Enums.VoteType.For,
+              voter: this.voterBySig.address,
+              nonce,
+              signature: async (...params) => {
+                const sig = await this.signature(...params);
+                sig.s[12] ^= 0xff;
+                return sig;
+              },
+            };
+
+            const { r, s, v } = await this.helper.sign(voteParams);
+            const message = this.helper.forgeMessage(voteParams);
+            const data = await this.data(this.mock, message);
+
+            await expectRevertCustomError(this.helper.vote(voteParams), 'GovernorInvalidSigner', [
+              ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }),
+              voteParams.voter,
+            ]);
           });
 
           it('if vote nonce is incorrect', async function () {
             const nonce = await this.mock.nonces(this.voterBySig.address);
 
-            expectRevertCustomError(
-              this.helper.vote({
-                support: Enums.VoteType.For,
-                voter: this.voterBySig.address,
-                nonce: nonce.addn(1),
-                signature: this.signature,
-              }),
+            const voteParams = {
+              support: Enums.VoteType.For,
+              voter: this.voterBySig.address,
+              nonce: nonce.addn(1),
+              signature: this.signature,
+            };
+
+            const { r, s, v } = await this.helper.sign(voteParams);
+            const message = this.helper.forgeMessage(voteParams);
+            const data = await this.data(this.mock, { ...message, nonce });
+
+            await expectRevertCustomError(
+              this.helper.vote(voteParams),
               // The signature check implies the nonce can't be tampered without changing the signer
               'GovernorInvalidSigner',
-              [],
+              [ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }), voteParams.voter],
             );
           });
         });
