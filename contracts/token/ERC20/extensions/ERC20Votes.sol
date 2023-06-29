@@ -3,9 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
-import "../../../governance/utils/Votes.sol";
-import "../../../utils/math/SafeCast.sol";
+import {ERC20} from "../ERC20.sol";
+import {Votes} from "../../../governance/utils/Votes.sol";
+import {SafeCast} from "../../../utils/math/SafeCast.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,

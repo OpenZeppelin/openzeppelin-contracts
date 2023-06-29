@@ -3,16 +3,16 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC721/IERC721Receiver.sol";
-import "../token/ERC1155/IERC1155Receiver.sol";
-import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/EIP712.sol";
-import "../utils/introspection/ERC165.sol";
-import "../utils/math/SafeCast.sol";
-import "../utils/structs/DoubleEndedQueue.sol";
-import "../utils/Address.sol";
-import "../utils/Context.sol";
-import "./IGovernor.sol";
+import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
+import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
+import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
+import {SafeCast} from "../utils/math/SafeCast.sol";
+import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
+import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
  * @dev Core of the governance system, designed to be extended though various modules.

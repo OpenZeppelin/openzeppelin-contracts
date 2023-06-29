@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../security/Pausable.sol";
+import {Pausable} from "../security/Pausable.sol";
 
 contract PausableMock is Pausable {
     bool public drasticMeasureTaken;

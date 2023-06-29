@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../utils/Address.sol";
+import {Address} from "../utils/Address.sol";
 
 contract TimelockReentrant {
     address private _reenterTarget;

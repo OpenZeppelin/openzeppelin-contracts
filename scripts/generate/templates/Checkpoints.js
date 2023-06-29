@@ -5,7 +5,7 @@ const { OPTS } = require('./Checkpoints.opts.js');
 const header = `\
 pragma solidity ^0.8.19;
 
-import "../math/Math.sol";
+import {Math} from "../math/Math.sol";
 
 /**
  * @dev This library defines the \`Trace*\` struct, for checkpointing values as they change at different points in
@@ -20,7 +20,7 @@ import "../math/Math.sol";
 
 const errors = `\
     /**
-     * @dev A value was attempted to be inserted on a past checkpoint. 
+     * @dev A value was attempted to be inserted on a past checkpoint.
      */
     error CheckpointUnorderedInsertion();
 `;

@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
-import "../../contracts/utils/Strings.sol";
-import "../../contracts/governance/Governor.sol";
+import {Test} from "forge-std/Test.sol";
+import {Strings} from "../../contracts/utils/Strings.sol";
+import {Governor} from "../../contracts/governance/Governor.sol";
 
 contract GovernorInternalTest is Test, Governor {
     constructor() Governor("") {}

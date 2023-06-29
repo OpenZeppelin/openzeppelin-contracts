@@ -2,9 +2,11 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC721/extensions/ERC721Consecutive.sol";
-import "../../token/ERC721/extensions/ERC721Pausable.sol";
-import "../../token/ERC721/extensions/ERC721Votes.sol";
+import {ERC721} from "../../token/ERC721/ERC721.sol";
+import {ERC721Consecutive} from "../../token/ERC721/extensions/ERC721Consecutive.sol";
+import {ERC721Pausable} from "../../token/ERC721/extensions/ERC721Pausable.sol";
+import {ERC721Votes} from "../../token/ERC721/extensions/ERC721Votes.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
 
 /**
  * @title ERC721ConsecutiveMock
