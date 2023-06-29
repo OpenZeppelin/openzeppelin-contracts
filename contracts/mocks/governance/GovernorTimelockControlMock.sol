@@ -33,22 +33,13 @@ abstract contract GovernorTimelockControlMock is
         return super.proposalThreshold();
     }
 
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public override(Governor, GovernorTimelockControl) returns (uint256) {
-        return super.queue(targets, values, calldatas, descriptionHash);
-    }
-
     function _queue(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (bool enabled) {
+    ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
         return super._queue(proposalId, targets, values, calldatas, descriptionHash);
     }
 

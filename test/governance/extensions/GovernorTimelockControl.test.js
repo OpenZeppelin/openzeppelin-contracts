@@ -93,7 +93,7 @@ contract('GovernorTimelockControl', function (accounts) {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
+      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));

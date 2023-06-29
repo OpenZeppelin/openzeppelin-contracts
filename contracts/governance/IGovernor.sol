@@ -101,14 +101,19 @@ abstract contract IGovernor is IERC165, IERC6372 {
     );
 
     /**
-     * @dev Emitted when a proposal is canceled.
+     * @dev Emitted when a proposal is queued.
      */
-    event ProposalCanceled(uint256 proposalId);
+    event ProposalQueued(uint256 proposalId, uint256 eta);
 
     /**
      * @dev Emitted when a proposal is executed.
      */
     event ProposalExecuted(uint256 proposalId);
+
+    /**
+     * @dev Emitted when a proposal is canceled.
+     */
+    event ProposalCanceled(uint256 proposalId);
 
     /**
      * @dev Emitted when a vote is cast without params.
@@ -295,8 +300,23 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public virtual returns (uint256 proposalId);
 
     /**
-     * @dev Execute a successful proposal. This requires the quorum to be reached, the vote to be successful, and the
+     * @dev Queue a proposal. Some governors require this step to be performed before execution can happens. Some
+     * governors do not. Queuing a proposal requires the quorum to be reached, the vote to be successful, and the
      * deadline to be reached.
+     *
+     * Emits a {ProposalQueued} event.
+     */
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256 proposalId);
+
+    /**
+     * @dev Execute a successful proposal. This requires the quorum to be reached, the vote to be successful, and the
+     * deadline to be reached. Depending on the governor it might also be required that the proposal was queued and
+     * that some delay passed.
      *
      * Emits a {ProposalExecuted} event.
      *

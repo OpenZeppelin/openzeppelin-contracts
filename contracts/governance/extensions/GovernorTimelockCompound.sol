@@ -81,18 +81,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev {IGovernor-queue} override resolution
-     */
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override(IGovernorTimelock, Governor) returns (uint256) {
-        return super.queue(targets, values, calldatas, descriptionHash);
-    }
-
-    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queue(
@@ -101,10 +89,12 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override returns (bool) {
-        super._queue(proposalId, targets, values, calldatas, descriptionHash);
+    ) internal virtual override returns (uint256) {
+        uint256 eta = Math.max(
+            super._queue(proposalId, targets, values, calldatas, descriptionHash),
+            block.timestamp + _timelock.delay()
+        );
 
-        uint256 eta = block.timestamp + _timelock.delay();
         _proposalEta[proposalId] = eta;
 
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -114,9 +104,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
-        emit ProposalQueued(proposalId, eta);
-
-        return true;
+        return eta;
     }
 
     /**

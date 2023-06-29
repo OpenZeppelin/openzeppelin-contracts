@@ -96,27 +96,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        bytes4 governorCancelId = this.cancel.selector ^ this.proposalProposer.selector;
-
-        bytes4 governorParamsId = this.castVoteWithReasonAndParams.selector ^
-            this.castVoteWithReasonAndParamsBySig.selector ^
-            this.getVotesWithParams.selector;
-
-        // The original interface id in v4.3.
-        bytes4 governor43Id = type(IGovernor).interfaceId ^
-            type(IERC6372).interfaceId ^
-            governorCancelId ^
-            governorParamsId;
-
-        // An updated interface id in v4.6, with params added.
-        bytes4 governor46Id = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId;
-
-        // For the updated interface id in v4.9, we use governorCancelId directly.
-
         return
-            interfaceId == governor43Id ||
-            interfaceId == governor46Id ||
-            interfaceId == governorCancelId ||
+            interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -321,19 +302,22 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev See {IGovernorTimelock-queue}.
+     * @dev See {IGovernor-queue}.
      */
     function queue(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual returns (uint256 proposalId) {
+    ) public virtual override returns (uint256 proposalId) {
         proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        if (!_queue(proposalId, targets, values, calldatas, descriptionHash)) {
+        uint256 eta = _queue(proposalId, targets, values, calldatas, descriptionHash);
+        if (eta == 0) {
             revert GovernorQueueNotImplemented();
+        } else {
+            emit ProposalQueued(proposalId, eta);
         }
     }
 
@@ -432,11 +416,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev Internal queuing mechanism. This is empty by default, and must be overriden to implement queuing.
+     * @dev Internal queuing mechanism. This is empty by default, and must be overridden to implement queuing.
      *
-     * This function returns a boolean that describing weither a queuing logic is implemented or not. This function
-     * returns false by default, which causes the public {queue} to revert. When overriding this, the overriden
-     * version should discard the value returned by the super call and return true instead.
+     * This function returns a timestamp that describes the expected eta for execution. If the returned value is 0
+     * (which is the default value), the core will consider queueing to not be implemented, and the public {queue}
+     * function will revert.
      */
     function _queue(
         uint256 /* proposalId */,
@@ -444,8 +428,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory /* values */,
         bytes[] memory /* calldatas */,
         bytes32 /*descriptionHash*/
-    ) internal virtual returns (bool enabled) {
-        return false;
+    ) internal virtual returns (uint256 eta) {
+        return 0;
     }
 
     /**

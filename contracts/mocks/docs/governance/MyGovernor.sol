@@ -46,15 +46,6 @@ contract MyGovernor is
         return super.propose(targets, values, calldatas, description);
     }
 
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public override(Governor, GovernorTimelockControl) returns (uint256) {
-        return super.queue(targets, values, calldatas, descriptionHash);
-    }
-
     function cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -70,7 +61,7 @@ contract MyGovernor is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (bool enabled) {
+    ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
         return super._queue(proposalId, targets, values, calldatas, descriptionHash);
     }
 
