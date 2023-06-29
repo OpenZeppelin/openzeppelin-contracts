@@ -19,11 +19,6 @@ struct ForwardRequest {
 contract ERC2771ForwarderMock is ERC2771Forwarder {
     constructor(string memory name) ERC2771Forwarder(name) {}
 
-    bytes32 private constant _FORWARD_REQUEST_TYPEHASH =
-        keccak256(
-            "ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,uint48 deadline,bytes data)"
-        );
-
     function structHash(ForwardRequest calldata request) external view returns (bytes32) {
         return
             _hashTypedDataV4(
@@ -132,9 +127,9 @@ contract ERC2771ForwarderTest is Test {
 
         uint256 expectedRefund;
 
-        for (uint i; i < batchSize; ++i) {
+        for (uint256 i = 0; i < batchSize; ++i) {
             bytes memory data;
-            bool succeed = i % 2 == 0; // Half of the requests will succeed
+            bool succeed = uint256(keccak256(abi.encodePacked(initialBalance, i))) % 2 == 0;
 
             if (succeed) {
                 data = abi.encodeCall(CallReceiverMock.mockFunction, ());
