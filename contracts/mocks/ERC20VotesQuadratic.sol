@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC20/extensions/ERC20Votes.sol";
+import {ERC20Votes} from "../token/ERC20/extensions/ERC20Votes.sol";
 
 abstract contract ERC20VotesQuadratic is ERC20Votes {
     /**

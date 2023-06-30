@@ -473,7 +473,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
             mstore(array2, 1)
             mstore(add(array2, 0x20), element2)
 
-            // Clear the free memory pointer by pointing after the second array
+            // Update the free memory pointer by pointing after the second array
             mstore(0x40, add(array2, 0x40))
         }
     }

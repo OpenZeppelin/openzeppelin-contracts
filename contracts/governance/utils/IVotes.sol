@@ -21,7 +21,7 @@ interface IVotes {
     /**
      * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of voting units.
      */
-    event DelegateVotesChanged(address indexed delegate, uint256 previousUnits, uint256 newUnits);
+    event DelegateVotesChanged(address indexed delegate, uint256 previousVotes, uint256 newVotes);
 
     /**
      * @dev Returns the current amount of votes that `account` has.
