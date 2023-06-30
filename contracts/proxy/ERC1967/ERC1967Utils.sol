@@ -86,9 +86,9 @@ library ERC1967Utils {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data) internal {
+    function upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
         upgradeTo(newImplementation);
-        if (data.length > 0) {
+        if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
         }
     }
@@ -168,10 +168,10 @@ library ERC1967Utils {
      *
      * Emits an {IERC1967-BeaconUpgraded} event.
      */
-    function upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
+    function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
         emit BeaconUpgraded(newBeacon);
-        if (data.length > 0) {
+        if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }
     }

@@ -20,7 +20,7 @@ contract ERC1967Proxy is Proxy {
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
      */
     constructor(address _logic, bytes memory _data) payable {
-        ERC1967Utils.upgradeToAndCall(_logic, _data);
+        ERC1967Utils.upgradeToAndCall(_logic, _data, false);
     }
 
     /**
