@@ -137,8 +137,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
         uint256 proposerVotes = getVotes(proposer, clock() - 1);
         uint256 votesThreshold = proposalThreshold();
-        if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
-            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+        if (_msgSender() != proposer) {
+            if(proposerVotes >= votesThreshold){
+                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+            }
         }
 
         return _cancel(targets, values, calldatas, descriptionHash);

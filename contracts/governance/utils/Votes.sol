@@ -194,22 +194,24 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Moves delegated votes from one delegate to another.
      */
     function _moveDelegateVotes(address from, address to, uint256 amount) private {
-        if (from != to && amount > 0) {
-            if (from != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _push(
-                    _delegateCheckpoints[from],
-                    _subtract,
-                    SafeCast.toUint224(amount)
-                );
-                emit DelegateVotesChanged(from, oldValue, newValue);
-            }
-            if (to != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _push(
-                    _delegateCheckpoints[to],
-                    _add,
-                    SafeCast.toUint224(amount)
-                );
-                emit DelegateVotesChanged(to, oldValue, newValue);
+        if (from != to) {
+            if (amount > 0) {
+                if (from != address(0)) {
+                    (uint256 oldValue, uint256 newValue) = _push(
+                        _delegateCheckpoints[from],
+                        _subtract,
+                        SafeCast.toUint224(amount)
+                    );
+                    emit DelegateVotesChanged(from, oldValue, newValue);
+                }
+                if (to != address(0)) {
+                    (uint256 oldValue, uint256 newValue) = _push(
+                        _delegateCheckpoints[to],
+                        _add,
+                        SafeCast.toUint224(amount)
+                    );
+                    emit DelegateVotesChanged(to, oldValue, newValue);
+                }
             }
         }
     }

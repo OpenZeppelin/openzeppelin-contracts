@@ -196,15 +196,17 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     }
 
     function _moveVotingPower(address src, address dst, uint256 amount) private {
-        if (src != dst && amount > 0) {
-            if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
-                emit DelegateVotesChanged(src, oldWeight, newWeight);
-            }
+        if (src != dst) {
+            if (amount > 0) {
+                if (src != address(0)) {
+                    (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                    emit DelegateVotesChanged(src, oldWeight, newWeight);
+                }
 
-            if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
-                emit DelegateVotesChanged(dst, oldWeight, newWeight);
+                if (dst != address(0)) {
+                    (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
+                    emit DelegateVotesChanged(dst, oldWeight, newWeight);
+                }
             }
         }
     }
@@ -222,8 +224,10 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
             oldWeight = oldCkpt.votes;
             newWeight = op(oldWeight, delta);
 
-            if (pos > 0 && oldCkpt.fromBlock == block.number) {
-                _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
+            if (pos > 0) {
+                if (oldCkpt.fromBlock == block.number) {
+                    _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
+                }
             } else {
                 ckpts.push(
                     Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)})

@@ -401,8 +401,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         if (!isOperationReady(id)) {
             revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
-        if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
-            revert TimelockUnexecutedPredecessor(predecessor);
+        if (predecessor != bytes32(0)) {
+            if(!isOperationDone(predecessor)){
+                revert TimelockUnexecutedPredecessor(predecessor);
+            }
         }
     }
 

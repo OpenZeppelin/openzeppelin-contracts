@@ -113,12 +113,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * non-administrated role.
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
-            (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
-            if (newDefaultAdmin != address(0) || !_isScheduleSet(schedule) || !_hasSchedulePassed(schedule)) {
-                revert AccessControlEnforcedDefaultAdminDelay(schedule);
+        if (role == DEFAULT_ADMIN_ROLE) {
+            if (account == defaultAdmin()) {
+                (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
+                if (newDefaultAdmin != address(0) || !_isScheduleSet(schedule) || !_hasSchedulePassed(schedule)) {
+                    revert AccessControlEnforcedDefaultAdminDelay(schedule);
+                }
+                delete _pendingDefaultAdminSchedule;
             }
-            delete _pendingDefaultAdminSchedule;
         }
         super.renounceRole(role, account);
     }
@@ -146,8 +148,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-_revokeRole}.
      */
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
-            delete _currentDefaultAdmin;
+        if (role == DEFAULT_ADMIN_ROLE) {
+            if(account == defaultAdmin()){
+                delete _currentDefaultAdmin;
+            }
         }
         super._revokeRole(role, account);
     }

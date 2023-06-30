@@ -116,8 +116,10 @@ library SafeERC20 {
         // the target address contains contract code and also asserts for success in the low-level call.
 
         bytes memory returndata = address(token).functionCall(data);
-        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
-            revert SafeERC20FailedOperation(address(token));
+        if (returndata.length != 0) {
+            if(!abi.decode(returndata, (bool))){
+                revert SafeERC20FailedOperation(address(token));
+            }
         }
     }
 

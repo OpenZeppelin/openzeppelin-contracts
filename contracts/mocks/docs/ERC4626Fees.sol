@@ -41,8 +41,10 @@ abstract contract ERC4626Fees is ERC4626 {
 
         super._deposit(caller, receiver, assets, shares);
 
-        if (fee > 0 && recipient != address(this)) {
-            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        if (fee > 0) {
+            if (recipient != address(this)) {
+                SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+            }
         }
     }
 
@@ -59,8 +61,10 @@ abstract contract ERC4626Fees is ERC4626 {
 
         super._withdraw(caller, receiver, owner, assets, shares);
 
-        if (fee > 0 && recipient != address(this)) {
-            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        if (fee > 0) {
+            if (recipient != address(this)) {
+                SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+            }
         }
     }
 

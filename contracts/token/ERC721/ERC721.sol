@@ -118,8 +118,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             revert ERC721InvalidOperator(owner);
         }
 
-        if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
-            revert ERC721InvalidApprover(_msgSender());
+        if (_msgSender() != owner) {
+            if (!isApprovedForAll(owner, _msgSender())) {
+                revert ERC721InvalidApprover(_msgSender());
+            }
         }
 
         _approve(to, tokenId);

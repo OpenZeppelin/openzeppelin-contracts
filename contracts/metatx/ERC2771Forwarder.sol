@@ -228,17 +228,19 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Ignore an invalid request because requireValidRequest = false
-        if (signerMatch && alive) {
-            // Nonce should be used before the call to prevent reusing by reentrancy
-            uint256 currentNonce = _useNonce(signer);
+        if (signerMatch) {
+            if (alive) {
+                // Nonce should be used before the call to prevent reusing by reentrancy
+                uint256 currentNonce = _useNonce(signer);
 
-            (success, ) = request.to.call{gas: request.gas, value: request.value}(
-                abi.encodePacked(request.data, request.from)
-            );
+                (success, ) = request.to.call{gas: request.gas, value: request.value}(
+                    abi.encodePacked(request.data, request.from)
+                );
 
-            _checkForwardedGas(request);
+                _checkForwardedGas(request);
 
-            emit ExecutedForwardRequest(signer, currentNonce, success);
+                emit ExecutedForwardRequest(signer, currentNonce, success);
+            }
         }
     }
 
