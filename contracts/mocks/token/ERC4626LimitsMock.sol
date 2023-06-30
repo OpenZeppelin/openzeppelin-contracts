@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/extensions/ERC4626.sol";
+import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
 
 abstract contract ERC4626LimitsMock is ERC4626 {
     uint256 _maxDeposit;

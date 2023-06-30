@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/ERC20.sol";
-import "../../token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20} from "../../token/ERC20/ERC20.sol";
+import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
 
 abstract contract ERC20PermitNoRevertMock is ERC20Permit {
     function permitThatMayRevert(

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/ERC20.sol";
+import {ERC20} from "../../token/ERC20/ERC20.sol";
 
 // contract that replicate USDT (0xdac17f958d2ee523a2206206994597c13d831ec7) approval beavior
 abstract contract ERC20ForceApproveMock is ERC20 {

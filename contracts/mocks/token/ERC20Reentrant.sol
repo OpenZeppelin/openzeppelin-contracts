@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/ERC20.sol";
-import "../../utils/Address.sol";
+import {ERC20} from "../../token/ERC20/ERC20.sol";
+import {Address} from "../../utils/Address.sol";
 
 contract ERC20Reentrant is ERC20("TEST", "TST") {
     enum Type {

@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "./ECDSA.sol";
-import "../ShortStrings.sol";
-import "../../interfaces/IERC5267.sol";
+import {ECDSA} from "./ECDSA.sol";
+import {ShortStrings, ShortString} from "../ShortStrings.sol";
+import {IERC5267} from "../../interfaces/IERC5267.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
@@ -110,7 +110,7 @@ abstract contract EIP712 is IERC5267 {
     }
 
     /**
-     * @dev See {EIP-5267}.
+     * @dev See {IERC-5267}.
      *
      * _Available since v4.9._
      */

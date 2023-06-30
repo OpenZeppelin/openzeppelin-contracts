@@ -3,9 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "./IGovernorTimelock.sol";
-import "../Governor.sol";
-import "../TimelockController.sol";
+import {IGovernorTimelock} from "./IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {TimelockController} from "../TimelockController.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
