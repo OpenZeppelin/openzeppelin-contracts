@@ -146,7 +146,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *   or {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value.
      * - `ids` and `amounts` must have the same length.
      *
-     * NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateChecked} instead.
+     * NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateWithAcceptanceCheck} instead.
      */
     function _update(address from, address to, uint256[] memory ids, uint256[] memory amounts) internal virtual {
         if (ids.length != amounts.length) {
@@ -193,7 +193,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * update to the contract state after this function would break the check-effect-interaction pattern. Consider
      * overriding {_update} instead.
      */
-    function _updateChecked(
+    function _updateWithAcceptanceCheck(
         address from,
         address to,
         uint256[] memory ids,
@@ -233,7 +233,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidSender(address(0));
         }
         (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
-        _updateChecked(from, to, ids, amounts, data);
+        _updateWithAcceptanceCheck(from, to, ids, amounts, data);
     }
 
     /**
@@ -260,7 +260,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        _updateChecked(from, to, ids, amounts, data);
+        _updateWithAcceptanceCheck(from, to, ids, amounts, data);
     }
 
     /**
@@ -302,7 +302,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidReceiver(address(0));
         }
         (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
-        _updateChecked(address(0), to, ids, amounts, data);
+        _updateWithAcceptanceCheck(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -321,7 +321,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (to == address(0)) {
             revert ERC1155InvalidReceiver(address(0));
         }
-        _updateChecked(address(0), to, ids, amounts, data);
+        _updateWithAcceptanceCheck(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -339,7 +339,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidSender(address(0));
         }
         (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
-        _updateChecked(from, address(0), ids, amounts, "");
+        _updateWithAcceptanceCheck(from, address(0), ids, amounts, "");
     }
 
     /**
@@ -357,7 +357,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        _updateChecked(from, address(0), ids, amounts, "");
+        _updateWithAcceptanceCheck(from, address(0), ids, amounts, "");
     }
 
     /**
