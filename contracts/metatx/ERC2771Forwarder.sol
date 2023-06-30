@@ -21,6 +21,11 @@ import {Address} from "../utils/Address.sol";
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
  *
+ * Relayers are able to submit batches if they are processing a high volume of requests. With high
+ * throughput, relayers may run into limitations of the chain such as limits on the number of
+ * transactions in the mempool. In these cases the recommendation is to distribute the load among
+ * multiple accounts.
+ *
  * === Security Considerations
  *
  * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
