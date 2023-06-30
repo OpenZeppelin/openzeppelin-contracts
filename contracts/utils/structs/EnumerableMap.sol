@@ -141,8 +141,10 @@ library EnumerableMap {
      */
     function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
         bytes32 value = map._values[key];
-        if (value == 0 && !contains(map, key)) {
-            revert EnumerableMapNonexistentKey(key);
+        if (value == 0) {
+            if (!contains(map, key)) {
+                revert EnumerableMapNonexistentKey(key);
+            }
         }
         return value;
     }

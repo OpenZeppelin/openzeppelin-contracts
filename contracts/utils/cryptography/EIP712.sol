@@ -79,8 +79,10 @@ abstract contract EIP712 is IERC5267 {
      * @dev Returns the domain separator for the current chain.
      */
     function _domainSeparatorV4() internal view returns (bytes32) {
-        if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
-            return _cachedDomainSeparator;
+        if (address(this) == _cachedThis) {
+            if (block.chainid == _cachedChainId) {
+                return _cachedDomainSeparator;
+            }
         } else {
             return _buildDomainSeparator();
         }

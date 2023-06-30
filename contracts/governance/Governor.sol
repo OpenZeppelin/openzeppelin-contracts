@@ -191,8 +191,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             return ProposalState.Active;
         }
 
-        if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
-            return ProposalState.Succeeded;
+        if (_quorumReached(proposalId)) {
+            if (_voteSucceeded(proposalId)) {
+                return ProposalState.Succeeded;
+            }
         } else {
             return ProposalState.Defeated;
         }
@@ -334,12 +336,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded && currentState != ProposalState.Queued) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
-            );
+        if (currentState != ProposalState.Succeeded) {
+            if (currentState != ProposalState.Queued) {
+                revert GovernorUnexpectedProposalState(
+                    proposalId,
+                    currentState,
+                    _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
+                );
+            }
         }
         _proposals[proposalId].executed = true;
 
@@ -745,16 +749,22 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint8 c = uint8(char);
         unchecked {
             // Case 0-9
-            if (47 < c && c < 58) {
-                return (true, c - 48);
+            if (47 < c) {
+                if (c < 58) {
+                    return (true, c - 48);
+                }
             }
             // Case A-F
-            else if (64 < c && c < 71) {
-                return (true, c - 55);
+            else if (64 < c) {
+                if (c < 71) {
+                    return (true, c - 55);
+                }
             }
             // Case a-f
-            else if (96 < c && c < 103) {
-                return (true, c - 87);
+            else if (96 < c) {
+                if (c < 103) {
+                    return (true, c - 87);
+                }
             }
             // Else: not a hex char
             else {

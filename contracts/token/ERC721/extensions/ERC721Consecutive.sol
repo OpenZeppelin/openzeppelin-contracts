@@ -162,17 +162,19 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
-        if (
-            to == address(0) && // if we burn
-            firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId < _nextConsecutiveId() &&
-            !_sequentialBurn.get(firstTokenId)
-        ) // and the token was never marked as burnt
+        if (to == address(0)) // if we burn
         {
-            if (batchSize != 1) {
-                revert ERC721ForbiddenBatchBurn();
+            if (firstTokenId >= _firstConsecutiveId()) {
+                if (firstTokenId < _nextConsecutiveId()) {
+                    if (!_sequentialBurn.get(firstTokenId)) // and the token was never marked as burnt
+                    {
+                        if (batchSize != 1) {
+                            revert ERC721ForbiddenBatchBurn();
+                        }
+                        _sequentialBurn.set(firstTokenId);
+                    }
+                }
             }
-            _sequentialBurn.set(firstTokenId);
         }
         super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }

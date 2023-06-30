@@ -89,10 +89,12 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
-        if (success && encodedDecimals.length >= 32) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-            if (returnedDecimals <= type(uint8).max) {
-                return (true, uint8(returnedDecimals));
+        if (success) {
+            if (encodedDecimals.length >= 32) {
+                uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
+                if (returnedDecimals <= type(uint8).max) {
+                    return (true, uint8(returnedDecimals));
+                }
             }
         }
         return (false, 0);
