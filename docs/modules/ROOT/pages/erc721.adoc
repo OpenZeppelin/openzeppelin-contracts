@@ -16,7 +16,7 @@ Here's what a contract for tokenized items might look like:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract GameItem is ERC721URIStorage {
     uint256 private _nextTokenId;

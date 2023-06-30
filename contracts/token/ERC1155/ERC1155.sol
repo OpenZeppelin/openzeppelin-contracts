@@ -3,13 +3,13 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC1155.sol";
-import "./IERC1155Receiver.sol";
-import "./extensions/IERC1155MetadataURI.sol";
-import "../../utils/Context.sol";
-import "../../utils/introspection/ERC165.sol";
-import "../../utils/Arrays.sol";
-import "../../interfaces/draft-IERC6093.sol";
+import {IERC1155} from "./IERC1155.sol";
+import {IERC1155Receiver} from "./IERC1155Receiver.sol";
+import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
+import {Context} from "../../utils/Context.sol";
+import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
+import {Arrays} from "../../utils/Arrays.sol";
+import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -116,7 +116,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      */
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public virtual {
         if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
-            revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
         }
         _safeTransferFrom(from, to, id, amount, data);
     }
@@ -132,7 +132,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         bytes memory data
     ) public virtual {
         if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
-            revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
+            revert ERC1155MissingApprovalForAll(_msgSender(), from);
         }
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }

@@ -110,9 +110,9 @@ Here is an example to send JSON Metadata through a Base64 Data URI using an ERC7
 // contracts/My721Token.sol
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract My721Token is ERC721 {
     using Strings for uint256;

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./ECDSA.sol";
-import "../../interfaces/IERC1271.sol";
+import {ECDSA} from "./ECDSA.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../interfaces/IERC2981.sol";
-import "../../utils/introspection/ERC165.sol";
+import {IERC2981} from "../../interfaces/IERC2981.sol";
+import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.

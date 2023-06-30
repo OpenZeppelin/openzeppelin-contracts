@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/introspection/IERC165.sol";
+import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
  * @dev _Available since v3.1._

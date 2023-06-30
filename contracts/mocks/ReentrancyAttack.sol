@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../utils/Context.sol";
+import {Context} from "../utils/Context.sol";
 
 contract ReentrancyAttack is Context {
     function callSender(bytes calldata data) public {
