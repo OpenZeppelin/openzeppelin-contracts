@@ -21,14 +21,14 @@ abstract contract ERC1155Supply is ERC1155 {
     uint256 private _totalSupplyAll;
 
     /**
-     * @dev Total amount of tokens in with a given id.
+     * @dev Total value of tokens in with a given id.
      */
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return _totalSupply[id];
     }
 
     /**
-     * @dev Total amount of tokens.
+     * @dev Total value of tokens.
      */
     function totalSupply() public view virtual returns (uint256) {
         return _totalSupplyAll;
@@ -48,37 +48,37 @@ abstract contract ERC1155Supply is ERC1155 {
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts
+        uint256[] memory values
     ) internal virtual override {
-        super._update(from, to, ids, amounts);
+        super._update(from, to, ids, values);
 
         if (from == address(0)) {
-            uint256 totalMintAmount = 0;
+            uint256 totalMintValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 amount = amounts[i];
+                uint256 value = values[i];
                 // Overflow check required: The rest of the code assumes that totalSupply never overflows
-                _totalSupply[ids[i]] += amount;
-                totalMintAmount += amount;
+                _totalSupply[ids[i]] += value;
+                totalMintValue += value;
             }
             // Overflow check required: The rest of the code assumes that totalSupplyAll never overflows
-            _totalSupplyAll += totalMintAmount;
+            _totalSupplyAll += totalMintValue;
         }
 
         if (to == address(0)) {
-            uint256 totalBurnAmount = 0;
+            uint256 totalBurnValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 amount = amounts[i];
+                uint256 value = values[i];
 
                 unchecked {
-                    // Overflow not possible: amounts[i] <= totalSupply(i)
-                    _totalSupply[ids[i]] -= amount;
-                    // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
-                    totalBurnAmount += amount;
+                    // Overflow not possible: values[i] <= totalSupply(i)
+                    _totalSupply[ids[i]] -= value;
+                    // Overflow not possible: sum(values[i]) <= sum(totalSupply(i)) <= totalSupplyAll
+                    totalBurnValue += value;
                 }
             }
             unchecked {
-                // Overflow not possible: totalBurnAmount = sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
-                _totalSupplyAll -= totalBurnAmount;
+                // Overflow not possible: totalBurnValue = sum(values[i]) <= sum(totalSupply(i)) <= totalSupplyAll
+                _totalSupplyAll -= totalBurnValue;
             }
         }
     }

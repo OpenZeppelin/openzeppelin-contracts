@@ -48,10 +48,10 @@ contract('ERC20Votes', function (accounts) {
       });
 
       it('minting restriction', async function () {
-        const amount = new BN('2').pow(new BN('224'));
-        await expectRevertCustomError(this.token.$_mint(holder, amount), 'ERC20ExceededSafeSupply', [
-          amount,
-          amount.subn(1),
+        const value = new BN('2').pow(new BN('224'));
+        await expectRevertCustomError(this.token.$_mint(holder, value), 'ERC20ExceededSafeSupply', [
+          value,
+          value.subn(1),
         ]);
       });
 

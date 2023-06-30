@@ -29,7 +29,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     error ERC3156UnsupportedToken(address token);
 
     /**
-     * @dev The requested loan exceeds the max loan amount for `token`.
+     * @dev The requested loan exceeds the max loan value for `token`.
      */
     error ERC3156ExceededMaxLoan(uint256 maxLoan);
 
@@ -56,14 +56,14 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * the {_flashFee} function which returns the fee applied when doing flash
      * loans.
      * @param token The token to be flash loaned.
-     * @param amount The amount of tokens to be loaned.
+     * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function flashFee(address token, uint256 amount) public view virtual returns (uint256) {
+    function flashFee(address token, uint256 value) public view virtual returns (uint256) {
         if (token != address(this)) {
             revert ERC3156UnsupportedToken(token);
         }
-        return _flashFee(token, amount);
+        return _flashFee(token, value);
     }
 
     /**
@@ -71,13 +71,13 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * implementation has 0 fees. This function can be overloaded to make
      * the flash loan mechanism deflationary.
      * @param token The token to be flash loaned.
-     * @param amount The amount of tokens to be loaned.
+     * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function _flashFee(address token, uint256 amount) internal view virtual returns (uint256) {
+    function _flashFee(address token, uint256 value) internal view virtual returns (uint256) {
         // silence warning about unused variable without the addition of bytecode.
         token;
-        amount;
+        value;
         return 0;
     }
 
@@ -95,13 +95,13 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @dev Performs a flash loan. New tokens are minted and sent to the
      * `receiver`, who is required to implement the {IERC3156FlashBorrower}
      * interface. By the end of the flash loan, the receiver is expected to own
-     * amount + fee tokens and have them approved back to the token contract itself so
+     * value + fee tokens and have them approved back to the token contract itself so
      * they can be burned.
      * @param receiver The receiver of the flash loan. Should implement the
      * {IERC3156FlashBorrower-onFlashLoan} interface.
      * @param token The token to be flash loaned. Only `address(this)` is
      * supported.
-     * @param amount The amount of tokens to be loaned.
+     * @param value The amount of tokens to be loaned.
      * @param data An arbitrary datafield that is passed to the receiver.
      * @return `true` if the flash loan was successful.
      */
@@ -111,24 +111,24 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     function flashLoan(
         IERC3156FlashBorrower receiver,
         address token,
-        uint256 amount,
+        uint256 value,
         bytes calldata data
     ) public virtual returns (bool) {
         uint256 maxLoan = maxFlashLoan(token);
-        if (amount > maxLoan) {
+        if (value > maxLoan) {
             revert ERC3156ExceededMaxLoan(maxLoan);
         }
-        uint256 fee = flashFee(token, amount);
-        _mint(address(receiver), amount);
-        if (receiver.onFlashLoan(_msgSender(), token, amount, fee, data) != _RETURN_VALUE) {
+        uint256 fee = flashFee(token, value);
+        _mint(address(receiver), value);
+        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != _RETURN_VALUE) {
             revert ERC3156InvalidReceiver(address(receiver));
         }
         address flashFeeReceiver = _flashFeeReceiver();
-        _spendAllowance(address(receiver), address(this), amount + fee);
+        _spendAllowance(address(receiver), address(this), value + fee);
         if (fee == 0 || flashFeeReceiver == address(0)) {
-            _burn(address(receiver), amount + fee);
+            _burn(address(receiver), value + fee);
         } else {
-            _burn(address(receiver), amount);
+            _burn(address(receiver), value);
             _transfer(address(receiver), flashFeeReceiver, fee);
         }
         return true;

@@ -27,7 +27,7 @@ abstract contract ERC20Pausable is ERC20, Pausable {
      *
      * - the contract must not be paused.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override whenNotPaused {
-        super._update(from, to, amount);
+    function _update(address from, address to, uint256 value) internal virtual override whenNotPaused {
+        super._update(from, to, value);
     }
 }
