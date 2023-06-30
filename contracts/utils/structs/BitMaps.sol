@@ -7,13 +7,13 @@ pragma solidity ^0.8.19;
  * Largely inspired by Uniswap's https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol[merkle-distributor].
  * 
  * BitMaps pack 256 booleans across each bit of a single 256-bit slot of `uint256` type.
- * Hence booleans corresponding to 256 *sequential* indices would only consume a single slot, 
+ * Hence booleans corresponding to 256 _sequential_ indices would only consume a single slot, 
  * unlike the regular `bool` which would consume an entire slot for a single value.
  *
  * This results in gas savings in two ways:
  * 
  * - Setting a zero value to non-zero only once every 256 times
- * - Accessing the same warm slot for every 256 *sequential* indices
+ * - Accessing the same warm slot for every 256 _sequential_ indices
  */
 library BitMaps {
     struct BitMap {
