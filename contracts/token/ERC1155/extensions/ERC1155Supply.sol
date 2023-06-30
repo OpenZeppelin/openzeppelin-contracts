@@ -43,10 +43,6 @@ abstract contract ERC1155Supply is ERC1155 {
 
     /**
      * @dev See {ERC1155-_update}.
-     *
-     * IMPORTANT: This function relies on Solidity built-in arithmetic checks and the
-     * invariant of `sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll` where `i` is
-     * the index of each id and amount. Make sure to not break these checks when using this function.
      */
     function _update(
         address from,
@@ -60,9 +56,11 @@ abstract contract ERC1155Supply is ERC1155 {
             uint256 totalMintAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 amount = amounts[i];
+                // Overflow check required: The rest of the code assumes that totalSupply never overflows
                 _totalSupply[ids[i]] += amount;
                 totalMintAmount += amount;
             }
+            // Overflow check required: The rest of the code assumes that totalSupplyAll never overflows
             _totalSupplyAll += totalMintAmount;
         }
 
@@ -70,6 +68,8 @@ abstract contract ERC1155Supply is ERC1155 {
             uint256 totalBurnAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 amount = amounts[i];
+
+                // Overflow check required: The rest of the code assumes that totalSupply never overflows
                 _totalSupply[ids[i]] -= amount;
                 unchecked {
                     // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
