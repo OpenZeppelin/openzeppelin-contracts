@@ -3,10 +3,12 @@
 
 pragma solidity ^0.8.19;
 
-import "./IGovernorTimelock.sol";
-import "../Governor.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../vendor/compound/ICompoundTimelock.sol";
+import {IGovernorTimelock} from "./IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
+import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by

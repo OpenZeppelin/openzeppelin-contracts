@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../interfaces/IERC165.sol";
-import "../interfaces/IERC6372.sol";
+import {IERC165} from "../interfaces/IERC165.sol";
+import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.

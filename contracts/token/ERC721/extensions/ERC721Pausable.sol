@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
-import "../../../security/Pausable.sol";
+import {ERC721} from "../ERC721.sol";
+import {Pausable} from "../../../security/Pausable.sol";
 
 /**
  * @dev ERC721 token with pausable token transfers, minting and burning.

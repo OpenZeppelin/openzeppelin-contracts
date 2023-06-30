@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../../utils/Strings.sol";
-import "../ERC1155.sol";
+import {Strings} from "../../../utils/Strings.sol";
+import {ERC1155} from "../ERC1155.sol";
 
 /**
  * @dev ERC1155 token with storage based token URI management.

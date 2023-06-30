@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../IGovernor.sol";
+import {IGovernor} from "../IGovernor.sol";
 
 /**
  * @dev Extension of the {IGovernor} for timelock supporting modules.

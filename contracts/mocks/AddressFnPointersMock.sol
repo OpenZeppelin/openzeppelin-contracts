@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Address.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev A mock to expose `Address`'s functions with function pointers.

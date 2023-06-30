@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./StorageSlot.sol";
-import "./math/Math.sol";
+import {StorageSlot} from "./StorageSlot.sol";
+import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.
