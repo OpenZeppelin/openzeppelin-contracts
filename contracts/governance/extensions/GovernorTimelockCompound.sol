@@ -89,7 +89,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
-    ) internal virtual override returns (uint256) {
+    ) internal virtual override returns (bool, uint256) {
         uint256 eta = block.timestamp + _timelock.delay();
 
         _proposalEta[proposalId] = eta;
@@ -101,7 +101,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
-        return eta;
+        return (true, eta);
     }
 
     /**

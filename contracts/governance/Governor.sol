@@ -266,59 +266,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
         }
 
-        return _propose(proposer, targets, values, calldatas, description);
-    }
+        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
-    /**
-     * @dev See {IGovernor-queue}.
-     */
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
-        _queue(proposalId, targets, values, calldatas, descriptionHash);
-
-        return proposalId;
-    }
-
-    /**
-     * @dev See {IGovernor-execute}.
-     */
-    function execute(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public payable virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
-        _execute(proposalId, targets, values, calldatas, descriptionHash);
-
-        return proposalId;
-    }
-
-    /**
-     * @dev See {IGovernor-cancel}.
-     */
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
-        // public cancel restrictions (on top of existing _cancel restrictions).
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
-        if (_msgSender() != proposalProposer(proposalId)) {
-            revert GovernorOnlyProposer(_msgSender());
-        }
-
-        _cancel(proposalId, targets, values, calldatas, descriptionHash);
+        _propose(proposalId, targets, values, calldatas, description, proposer);
 
         return proposalId;
     }
@@ -329,14 +279,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * Emits a {IGovernor-ProposalCreated} event.
      */
     function _propose(
-        address proposer,
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        string memory description
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
-
+        string memory description,
+        address proposer
+    ) internal virtual {
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
         }
@@ -366,6 +315,83 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             snapshot + duration,
             description
         );
+    }
+
+    /**
+     * @dev See {IGovernor-queue}.
+     */
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+
+        _queue(proposalId, targets, values, calldatas, descriptionHash);
+
+        return proposalId;
+    }
+
+    /**
+     * @dev Internal queuing mechanism. Can be overridden (with a super call) to add logic before or after the
+     * queuing.
+     *
+     * Emits a {IGovernor-ProposalQueued} event if the eta is not 0.
+     */
+    function _queue(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal virtual {
+        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+
+        (bool implemented, uint256 eta) = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
+
+        if (implemented) {
+            emit ProposalQueued(proposalId, eta);
+        } else {
+            revert GovernorQueueNotImplemented();
+        }
+    }
+
+    /**
+     * @dev Internal queuing mechanism. Can be overridden (without a super call) to modify the way queuing is
+     * performed (for example adding a vault/timelock).
+     *
+     * This is empty by default, and must be overridden to implement queuing.
+     *
+     * This function returns a boolean and a timestamp that describes the expected eta for execution. If the returned
+     * boolean is false (which is the default value), the core will consider queueing to not be implemented, and the
+     * public {queue} function will revert.
+     *
+     * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
+     * `ProposalQueued` event. Queuing a proposal should be done using {queue} or {_queue}.
+     */
+    function _queueCalls(
+        uint256 /*proposalId*/,
+        address[] memory /*targets*/,
+        uint256[] memory /*values*/,
+        bytes[] memory /*calldatas*/,
+        bytes32 /*descriptionHash*/
+    ) internal virtual returns (bool, uint256) {
+        return (false, 0);
+    }
+
+    /**
+     * @dev See {IGovernor-execute}.
+     */
+    function execute(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public payable virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+
+        _execute(proposalId, targets, values, calldatas, descriptionHash);
 
         return proposalId;
     }
@@ -417,7 +443,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * performed (for example adding a vault/timelock).
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
-     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
+     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute} or {_execute}.
      */
     function _executeCalls(
         uint256 /* proposalId */,
@@ -433,50 +459,25 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev Internal queuing mechanism. Can be overridden (with a super call) to add logic before or after the
-     * queuing.
-     *
-     * Emits a {IGovernor-ProposalQueued} event if the eta is not 0.
+     * @dev See {IGovernor-cancel}.
      */
-    function _queue(
-        uint256 proposalId,
+    function cancel(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual {
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+    ) public virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        uint256 eta = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
-
-        if (eta == 0) {
-            revert GovernorQueueNotImplemented();
-        } else {
-            emit ProposalQueued(proposalId, eta);
+        // public cancel restrictions (on top of existing _cancel restrictions).
+        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
+        if (_msgSender() != proposalProposer(proposalId)) {
+            revert GovernorOnlyProposer(_msgSender());
         }
-    }
 
-    /**
-     * @dev Internal queuing mechanism. Can be overridden (without a super call) to modify the way queuing is
-     * performed (for example adding a vault/timelock).
-     *
-     * This is empty by default, and must be overridden to implement queuing.
-     *
-     * This function returns a timestamp that describes the expected eta for execution. If the returned value is 0
-     * (which is the default value), the core will consider queueing to not be implemented, and the public {queue}
-     * function will revert.
-     *
-     * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
-     * `ProposalQueued` event. Queuing a proposal should be done using {queue}.
-     */
-    function _queueCalls(
-        uint256 /*proposalId*/,
-        address[] memory /*targets*/,
-        uint256[] memory /*values*/,
-        bytes[] memory /*calldatas*/,
-        bytes32 /*descriptionHash*/
-    ) internal virtual returns (uint256) {
-        return 0;
+        _cancel(proposalId, targets, values, calldatas, descriptionHash);
+
+        return proposalId;
     }
 
     /**
