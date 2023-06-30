@@ -18,7 +18,7 @@ import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
  *
  * _Available since v3.1._
  */
-abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Errors {
+abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Errors {
     using Arrays for uint256[];
     using Arrays for address[];
 
