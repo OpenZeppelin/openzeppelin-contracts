@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 
 import {ITransparentUpgradeableProxy, TransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
+import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
@@ -29,6 +30,9 @@ contract ProxyAdmin is Ownable {
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {
-        proxy.upgradeToAndCall{value: msg.value}(implementation, data);
+        proxy.upgradeTo(implementation);
+        if (data.length > 0){
+            Address.functionCallWithValue(address(proxy), data, msg.value);
+        }
     }
 }

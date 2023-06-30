@@ -14,7 +14,7 @@ import {IERC1967} from "../../interfaces/IERC1967.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function upgradeToAndCall(address, bytes memory) external payable;
+    function upgradeTo(address) external payable;
 }
 
 /**
@@ -26,10 +26,10 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * things that go hand in hand:
  *
  * 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if
- * that call matches the {ITransparentUpgradeableProxy-upgradeToAndCall} function exposed by the proxy itself.
- * 2. If the admin calls the proxy, it can call the {ITransparentUpgradeableProxy-upgradeToAndCall} function but any other
- * call won't be forwarded to the implementation. If the admin tries to call a function on the implementation it will fail
- * with an error indicating the proxy admin cannot fallback to the target implementation.
+ * that call matches the {ITransparentUpgradeableProxy-upgradeTo} function exposed by the proxy itself.
+ * 2. If the admin calls the proxy, it can call the `upgradeTo` function but any other call won't be forwarded to the
+ * implementation. If the admin tries to call a function on the implementation it will fail with an error indicating the
+ * proxy admin cannot fallback to the target implementation.
  *
  * These properties mean that the admin account can only be used for upgrading the proxy, so it's best if it's a dedicated
  * account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function
@@ -40,9 +40,9 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * {Ownable} contract to allow for changing the proxy's admin owner.
  *
  * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
- * inherit from that interface, and instead the {ITransparentUpgradeableProxy-upgradeToAndCall} is implicitly implemented
- * using a custom dispatch mechanism in `_fallback`. Consequently, the compiler will not produce an ABI for this contract. This is necessary to
- * fully implement transparency without decoding reverts caused by selector clashes between the proxy and the
+ * inherit from that interface, and instead the `upgradeTo` is implicitly implemented using a custom dispatch mechanism
+ * in `_fallback`. Consequently, the compiler will not produce an ABI for this contract. This is necessary to fully
+ * implement transparency without decoding reverts caused by selector clashes between the proxy and the
  * implementation.
  *
  * IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an immutable variable,
@@ -53,8 +53,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the compiler
  * will not check that there are no selector conflicts, due to the note above. A selector clash between any new function
  * and the functions declared in {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could
- * render the {ITransparentUpgradeableProxy-upgradeToAndCall} function inaccessible, preventing upgradeability and compromising
- * transparency.
+ * render the `upgradeTo` function inaccessible, preventing upgradeability and compromising transparency.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     // An immutable address for the admin avoid unnecessary SLOADs before each call
@@ -67,6 +66,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
      */
     error ProxyDeniedAdminAccess();
+
+    /**
+     * @dev msg.value is not 0.
+     */
+    error ProxyNonPayableFunction();
 
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
@@ -85,8 +89,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         if (msg.sender == _admin) {
             bytes memory ret;
             bytes4 selector = msg.sig;
-            if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                ret = _dispatchUpgradeToAndCall();
+            if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
+                ret = _dispatchUpgradeTo();
             } else {
                 revert ProxyDeniedAdminAccess();
             }
@@ -99,14 +103,24 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation if `data` is not
-     * empty, which should be an encoded function call. This is useful to initialize new storage variables in the
-     * proxied contract.
+     * @dev Upgrade the implementation of the proxy.
      */
-    function _dispatchUpgradeToAndCall() private returns (bytes memory) {
-        (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-        ERC1967Utils.upgradeToAndCall(newImplementation, data);
+    function _dispatchUpgradeTo() private returns (bytes memory) {
+        _requireZeroValue();
+
+        (address newImplementation) = abi.decode(msg.data[4:], (address));
+        ERC1967Utils.upgradeTo(newImplementation);
 
         return "";
+    }
+
+    /**
+     * @dev To keep this contract fully transparent, the fallback is payable. This helper is here to enforce
+     * non-payability of function implemented through dispatchers while still allowing value to pass through.
+     */
+    function _requireZeroValue() private {
+        if (msg.value != 0) {
+            revert ProxyNonPayableFunction();
+        }
     }
 }
