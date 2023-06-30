@@ -373,10 +373,14 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
      * @dev Approve `operator` to operate on all of `owner` tokens
      *
      * Emits an {ApprovalForAll} event.
+     *
+     * Requirements:
+     *
+     * - `operator` cannot be the zero address.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        if (owner == operator) {
-            revert ERC1155InvalidOperator(operator);
+        if (operator == address(0)) {
+            revert ERC1155InvalidOperator(address(0));
         }
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
