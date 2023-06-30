@@ -427,6 +427,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         address to,
         uint256 tokenId,
         bytes memory data
+    ) private returns (bool) {
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
                 return retval == IERC721Receiver.onERC721Received.selector;
@@ -440,6 +441,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
                     }
                 }
             }
+        } else {
+            return true;
         }
     }
 
