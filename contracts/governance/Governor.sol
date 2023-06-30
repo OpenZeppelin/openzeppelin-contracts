@@ -3,16 +3,16 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC721/IERC721Receiver.sol";
-import "../token/ERC1155/IERC1155Receiver.sol";
-import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/EIP712.sol";
-import "../utils/introspection/ERC165.sol";
-import "../utils/math/SafeCast.sol";
-import "../utils/structs/DoubleEndedQueue.sol";
-import "../utils/Address.sol";
-import "../utils/Context.sol";
-import "./IGovernor.sol";
+import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
+import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
+import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
+import {SafeCast} from "../utils/math/SafeCast.sol";
+import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
+import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
@@ -34,14 +34,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
     // solhint-disable var-name-mixedcase
     struct ProposalCore {
-        // --- start retyped from Timers.BlockNumber at offset 0x00 ---
-        uint64 voteStart;
         address proposer;
-        bytes4 __gap_unused0;
-        // --- start retyped from Timers.BlockNumber at offset 0x20 ---
-        uint64 voteEnd;
-        bytes24 __gap_unused1;
-        // --- Remaining fields starting at offset 0x40 ---------------
+        uint48 voteStart;
+        uint32 voteDuration;
         bool executed;
         bool canceled;
     }
@@ -166,7 +161,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalCore storage proposal = _proposals[proposalId];
+        // ProposalCore is just one slot. We can load it from storage to memory with a single sload and use memory
+        // object as a cache. This avoid duplicating expensive sloads.
+        ProposalCore memory proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
@@ -219,7 +216,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteEnd;
+        return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
     /**
@@ -300,16 +297,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         }
 
         uint256 snapshot = currentTimepoint + votingDelay();
-        uint256 deadline = snapshot + votingPeriod();
+        uint256 duration = votingPeriod();
 
         _proposals[proposalId] = ProposalCore({
             proposer: proposer,
-            voteStart: SafeCast.toUint64(snapshot),
-            voteEnd: SafeCast.toUint64(deadline),
+            voteStart: SafeCast.toUint48(snapshot),
+            voteDuration: SafeCast.toUint32(duration),
             executed: false,
-            canceled: false,
-            __gap_unused0: 0,
-            __gap_unused1: 0
+            canceled: false
         });
 
         emit ProposalCreated(
@@ -320,7 +315,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             new string[](targets.length),
             calldatas,
             snapshot,
-            deadline,
+            snapshot + duration,
             description
         );
 
@@ -592,13 +587,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory reason,
         bytes memory params
     ) internal virtual returns (uint256) {
-        ProposalCore storage proposal = _proposals[proposalId];
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Active) {
             revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Active));
         }
 
-        uint256 weight = _getVotes(account, proposal.voteStart, params);
+        uint256 weight = _getVotes(account, proposalSnapshot(proposalId), params);
         _countVote(proposalId, account, support, weight, params);
 
         if (params.length == 0) {

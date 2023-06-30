@@ -254,7 +254,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155InsufficientApprovalForAll',
+              'ERC1155MissingApprovalForAll',
               [proxy, multiTokenHolder],
             );
           });
@@ -609,7 +609,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
                 '0x',
                 { from: proxy },
               ),
-              'ERC1155InsufficientApprovalForAll',
+              'ERC1155MissingApprovalForAll',
               [proxy, multiTokenHolder],
             );
           });

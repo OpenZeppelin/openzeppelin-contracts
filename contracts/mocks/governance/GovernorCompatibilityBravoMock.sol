@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.19;
 
-import "../../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../../governance/extensions/GovernorTimelockCompound.sol";
-import "../../governance/extensions/GovernorSettings.sol";
-import "../../governance/extensions/GovernorVotes.sol";
+import {IGovernor, Governor} from "../../governance/Governor.sol";
+import {GovernorCompatibilityBravo} from "../../governance/compatibility/GovernorCompatibilityBravo.sol";
+import {IGovernorTimelock, GovernorTimelockCompound} from "../../governance/extensions/GovernorTimelockCompound.sol";
+import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
+import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
 
 abstract contract GovernorCompatibilityBravoMock is
     GovernorCompatibilityBravo,

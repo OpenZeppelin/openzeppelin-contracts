@@ -4,7 +4,10 @@ const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 const { expectRevertCustomError } = require('../../helpers/customError');
 
-function shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount) {
+function shouldBehaveLikeERC20(initialSupply, accounts, opts = {}) {
+  const [initialHolder, recipient, anotherAccount] = accounts;
+  const { forcedApproval } = opts;
+
   describe('total supply', function () {
     it('returns the total amount of tokens', async function () {
       expect(await this.token.totalSupply()).to.be.bignumber.equal(initialSupply);
@@ -70,13 +73,22 @@ function shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherA
               });
             });
 
-            it('emits an approval event', async function () {
-              expectEvent(await this.token.transferFrom(tokenOwner, to, amount, { from: spender }), 'Approval', {
-                owner: tokenOwner,
-                spender: spender,
-                value: await this.token.allowance(tokenOwner, spender),
+            if (forcedApproval) {
+              it('emits an approval event', async function () {
+                expectEvent(await this.token.transferFrom(tokenOwner, to, amount, { from: spender }), 'Approval', {
+                  owner: tokenOwner,
+                  spender: spender,
+                  value: await this.token.allowance(tokenOwner, spender),
+                });
               });
-            });
+            } else {
+              it('does not emit an approval event', async function () {
+                expectEvent.notEmitted(
+                  await this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                  'Approval',
+                );
+              });
+            }
           });
 
           describe('when the token owner does not have enough balance', function () {
