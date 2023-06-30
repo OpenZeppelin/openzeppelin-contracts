@@ -240,13 +240,11 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
      *
      * Emits a {Transfer} event.
-     *
-     * IMPORTANT: This function relies on the invariant of
-     * `amount <= fromBalance <= totalSupply && toBalance + amount <= totalSupply` and also in the
-     * Solidity built-in arithmetic checks. Make sure to not break these checks when accessing this function.
      */
     function _update(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
+            // Important to check for overflow here, since the rest of the code assumes
+            // that totalSupply never overflows.
             _totalSupply += amount;
         } else {
             uint256 fromBalance = _balances[from];

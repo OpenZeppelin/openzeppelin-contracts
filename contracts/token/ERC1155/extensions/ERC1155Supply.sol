@@ -43,6 +43,10 @@ abstract contract ERC1155Supply is ERC1155 {
 
     /**
      * @dev See {ERC1155-_update}.
+     *
+     * IMPORTANT: This function relies on Solidity built-in arithmetic checks and the
+     * invariant of `sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll` where `i` is
+     * the index of each id and amount. Make sure to not break these checks when using this function.
      */
     function _update(
         address from,

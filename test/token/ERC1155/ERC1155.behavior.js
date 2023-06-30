@@ -151,11 +151,11 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(false);
       });
 
-      it('reverts if attempting to approve self as an operator', async function () {
+      it('reverts if attempting to approve zero address as an operator', async function () {
         await expectRevertCustomError(
-          this.token.setApprovalForAll(multiTokenHolder, true, { from: multiTokenHolder }),
+          this.token.setApprovalForAll(constants.ZERO_ADDRESS, true, { from: multiTokenHolder }),
           'ERC1155InvalidOperator',
-          [multiTokenHolder],
+          [constants.ZERO_ADDRESS],
         );
       });
     });

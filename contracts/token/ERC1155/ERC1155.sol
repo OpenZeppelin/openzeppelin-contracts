@@ -147,9 +147,6 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
      * - `ids` and `amounts` must have the same length.
      *
      * NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateChecked} instead.
-     *
-     * IMPORTANT: This function relies on the invariant of `amount <= fromBalance <= totalSupply` and also in the
-     * Solidity built-in arithmetic checks. Make sure to not break these checks when accessing this function.
      */
     function _update(
         address from,
@@ -174,7 +171,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
                     revert ERC1155InsufficientBalance(from, fromBalance, amount, id);
                 }
                 unchecked {
-                    // Overflow not possible: amount <= fromBalance <= totalSupply
+                    // Overflow not possible: amount <= fromBalance
                     _balances[id][from] = fromBalance - amount;
                 }
             }
