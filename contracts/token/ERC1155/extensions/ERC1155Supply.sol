@@ -52,10 +52,9 @@ abstract contract ERC1155Supply is ERC1155 {
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory amounts
     ) internal virtual override {
-        super._update(from, to, ids, amounts, data);
+        super._update(from, to, ids, amounts);
 
         if (from == address(0)) {
             uint256 totalMintAmount = 0;

@@ -33,9 +33,8 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory amounts
     ) internal virtual override whenNotPaused {
-        super._update(from, to, ids, amounts, data);
+        super._update(from, to, ids, amounts);
     }
 }

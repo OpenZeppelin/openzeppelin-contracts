@@ -148,13 +148,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
      *
      * NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateChecked} instead.
      */
-    function _update(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory /* data */
-    ) internal virtual {
+    function _update(address from, address to, uint256[] memory ids, uint256[] memory amounts) internal virtual {
         if (ids.length != amounts.length) {
             revert ERC1155InvalidArrayLength(ids.length, amounts.length);
         }
@@ -206,7 +200,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155MetadataURI, IERC1155Error
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        _update(from, to, ids, amounts, data);
+        _update(from, to, ids, amounts);
         if (to != address(0)) {
             address operator = _msgSender();
             if (ids.length == 1) {
