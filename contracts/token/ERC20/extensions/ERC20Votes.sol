@@ -50,14 +50,18 @@ abstract contract ERC20Votes is ERC20, Votes {
                 revert ERC20ExceededSafeSupply(supply, cap);
             }
         }
-        _transferVotingUnits(from, to, _toVotingUnits(amount));
+        _transferVotingUnits(from, to, amount);
     }
 
     /**
-     * @dev Returns the balance of `account`.
+     * @dev Returns the voting units of an `account`. Returns the balance by default.
+     *
+     * WARNING: Overriding this function may compromise the internal vote accounting. This is because
+     * the {Votes-_transferVotingUnits} relies on a linear relationship between the number of voting units
+     * and the number of tokens owned by an account.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
-        return _toVotingUnits(balanceOf(account));
+        return balanceOf(account);
     }
 
     /**
@@ -72,12 +76,5 @@ abstract contract ERC20Votes is ERC20, Votes {
      */
     function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint224 memory) {
         return _checkpoints(account, pos);
-    }
-
-    /**
-     * @dev Converts an `amount` of tokens into voting units.
-     */
-    function _toVotingUnits(uint256 amount) internal view virtual returns (uint256) {
-        return amount;
     }
 }

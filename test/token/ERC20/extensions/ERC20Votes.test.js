@@ -25,8 +25,6 @@ const MODES = {
   timestamp: artifacts.require('$ERC20VotesTimestampMock'),
 };
 
-const ERC20VotesQuadratic = artifacts.require('$ERC20VotesQuadratic');
-
 contract('ERC20Votes', function (accounts) {
   const [holder, recipient, holderDelegatee, other1, other2] = accounts;
 
@@ -592,44 +590,4 @@ contract('ERC20Votes', function (accounts) {
       });
     });
   }
-
-  describe('with quadratic voting units', function () {
-    beforeEach(async function () {
-      this.token = await ERC20VotesQuadratic.new(name, symbol, name, version);
-      this.votes = this.token;
-    });
-
-    it('correctly transfers voting units', async function () {
-      const alice = holder;
-      const bob = holderDelegatee;
-      const charlie = other1;
-
-      const tokens = 100;
-      const votingUnits = 10_000;
-
-      // Alice delegates 100 votes to bob
-      await this.token.delegate(bob, { from: alice });
-      await this.token.$_mint(alice, tokens);
-
-      // As a result, bob has (tokens ** 2) voting units
-      expect(await this.token.getVotes(bob)).to.be.bignumber.eq(votingUnits.toString());
-
-      // Now alice transfers her tokens to charlie who delegates to himself
-      await this.token.delegate(charlie, { from: charlie });
-      const { receipt } = await this.token.transfer(charlie, tokens, { from: alice });
-
-      // As a result, charlie got transferred (tokens ** 2) voting units
-      expectEvent(receipt, 'Transfer', { from: alice, to: charlie, value: tokens.toString() });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: bob,
-        previousVotes: votingUnits.toString(),
-        newVotes: '0',
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: charlie,
-        previousVotes: '0',
-        newVotes: votingUnits.toString(),
-      });
-    });
-  });
 });
