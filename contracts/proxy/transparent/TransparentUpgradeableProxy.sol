@@ -6,6 +6,7 @@ pragma solidity ^0.8.19;
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 import {ERC1967Proxy} from "../ERC1967/ERC1967Proxy.sol";
 import {IERC1967} from "../../interfaces/IERC1967.sol";
+import {ProxyAdmin} from "./ProxyAdmin.sol";
 
 /**
  * @dev Interface for {TransparentUpgradeableProxy}. In order to implement transparency, {TransparentUpgradeableProxy}
@@ -76,10 +77,10 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
-    constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
-        _admin = admin_;
+    constructor(address _logic, address initialOwner, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
+        _admin = address(new ProxyAdmin(initialOwner));
         // Set the storage value and emit an event for ERC-1967 compatibility
-        ERC1967Utils.changeAdmin(admin_);
+        ERC1967Utils.changeAdmin(_admin);
     }
 
     /**
