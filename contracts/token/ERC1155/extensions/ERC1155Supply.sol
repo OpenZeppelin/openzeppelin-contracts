@@ -70,14 +70,14 @@ abstract contract ERC1155Supply is ERC1155 {
                 uint256 value = values[i];
 
                 unchecked {
-                    // Overflow not possible: values[i] <= totalSupply(i)
+                    // Overflow not possible: values[i] <= balanceOf(from, ids[i]) <= totalSupply(ids[i])
                     _totalSupply[ids[i]] -= value;
-                    // Overflow not possible: sum(values[i]) <= sum(totalSupply(i)) <= totalSupplyAll
+                    // Overflow not possible: sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
                     totalBurnValue += value;
                 }
             }
             unchecked {
-                // Overflow not possible: totalBurnValue = sum(values[i]) <= sum(totalSupply(i)) <= totalSupplyAll
+                // Overflow not possible: totalBurnValue = sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
                 _totalSupplyAll -= totalBurnValue;
             }
         }
