@@ -19,6 +19,7 @@ const TOKENS = [
 ];
 
 contract('GovernorTimelockControl', function (accounts) {
+  
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -159,7 +160,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
@@ -174,7 +175,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
