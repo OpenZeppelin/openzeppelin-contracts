@@ -56,9 +56,8 @@ abstract contract ERC20Votes is ERC20, Votes {
     /**
      * @dev Returns the voting units of an `account`. Returns the balance by default.
      *
-     * WARNING: Overriding this function may compromise the internal vote accounting. This is because
-     * the {Votes-_transferVotingUnits} relies on a linear relationship between the number of voting units
-     * and the number of tokens owned by an account.
+     * WARNING: Overriding this function may compromise the internal vote accounting.
+     * `ERC20Votes` assumes tokens map to voting units 1:1 and this is not easy to change.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);
