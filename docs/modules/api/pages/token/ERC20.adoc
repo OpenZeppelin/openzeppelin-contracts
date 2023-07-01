@@ -2997,8 +2997,8 @@ non-reverting calls are assumed to be successful.
 ==== `[.contract-item-name]#++forceApprove++#++(contract IERC20 token, address spender, uint256 value)++` [.item-kind]#internal#
 
 Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
-non-reverting calls are assumed to be successful. Compatible with tokens that require the approval to be set to
-0 before setting it to a non-zero value.
+non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval
+to be set to zero before setting it to a non-zero value, such as USDT.
 
 [.contract-item]
 [[SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
