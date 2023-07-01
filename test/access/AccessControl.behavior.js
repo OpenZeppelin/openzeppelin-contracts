@@ -382,7 +382,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   it("should revert if defaultAdmin's admin is changed", async function () {
     await expectRevertCustomError(
-      this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, defaultAdmin),
+      this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, OTHER_ROLE),
       'AccessControlEnforcedDefaultAdminRules',
       [],
     );

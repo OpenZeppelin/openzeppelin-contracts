@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
-import "../../../utils/Context.sol";
+import {ERC20} from "../ERC20.sol";
+import {Context} from "../../../utils/Context.sol";
 
 /**
  * @dev Extension of {ERC20} that allows token holders to destroy both their own

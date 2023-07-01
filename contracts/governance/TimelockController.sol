@@ -3,10 +3,11 @@
 
 pragma solidity ^0.8.19;
 
-import "../access/AccessControl.sol";
-import "../token/ERC721/utils/ERC721Holder.sol";
-import "../token/ERC1155/utils/ERC1155Holder.sol";
-import "../utils/Address.sol";
+import {AccessControl} from "../access/AccessControl.sol";
+import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC1155Receiver} from "../token/ERC1155/utils/ERC1155Receiver.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the

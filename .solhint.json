@@ -9,6 +9,7 @@
     "modifier-name-mixedcase": "error",
     "private-vars-leading-underscore": "error",
     "var-name-mixedcase": "error",
-    "imports-on-top": "error"
+    "imports-on-top": "error",
+    "no-global-import": "error"
   }
 }

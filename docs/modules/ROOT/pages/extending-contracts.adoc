@@ -22,7 +22,7 @@ For example, imagine you want to change xref:api:access.adoc#AccessControl[`Acce
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract ModifiedAccessControl is AccessControl {
     // Override the revokeRole function
@@ -50,7 +50,7 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract ModifiedAccessControl is AccessControl {
     function revokeRole(bytes32 role, address account) public override {
@@ -82,7 +82,7 @@ Here's how you would implement the `IERC721Receiver` pattern in `ERC20`, using t
 ```solidity
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ERC20WithSafeTransfer is ERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount)

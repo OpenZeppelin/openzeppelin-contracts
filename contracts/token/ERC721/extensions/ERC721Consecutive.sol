@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
-import "../../../interfaces/IERC2309.sol";
-import "../../../utils/structs/BitMaps.sol";
-import "../../../utils/structs/Checkpoints.sol";
+import {ERC721} from "../ERC721.sol";
+import {IERC2309} from "../../../interfaces/IERC2309.sol";
+import {BitMaps} from "../../../utils/structs/BitMaps.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in

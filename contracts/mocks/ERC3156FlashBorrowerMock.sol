@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC20/IERC20.sol";
-import "../interfaces/IERC3156.sol";
-import "../utils/Address.sol";
+import {IERC20} from "../token/ERC20/IERC20.sol";
+import {IERC3156FlashBorrower} from "../interfaces/IERC3156.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev WARNING: this IERC3156FlashBorrower mock implementation is for testing purposes ONLY.

@@ -3,4 +3,4 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC721/extensions/IERC721Metadata.sol";
+import {IERC721Metadata} from "../token/ERC721/extensions/IERC721Metadata.sol";

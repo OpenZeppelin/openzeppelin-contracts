@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/math/SafeCast.sol";
-import "../extensions/IGovernorTimelock.sol";
-import "../Governor.sol";
-import "./IGovernorCompatibilityBravo.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {IGovernorTimelock} from "../extensions/IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {IGovernorCompatibilityBravo} from "./IGovernorCompatibilityBravo.sol";
 
 /**
  * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
