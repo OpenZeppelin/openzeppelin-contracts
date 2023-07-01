@@ -15,6 +15,8 @@ import {ERC1155} from "../ERC1155.sol";
  *
  * NOTE: This contract implies a global limit of 2**256 - 1 to the number of tokens
  * that can be minted.
+ *
+ * CAUTION: This extension should not be added in an upgrade to an already deployed contract.
  */
 abstract contract ERC1155Supply is ERC1155 {
     mapping(uint256 => uint256) private _totalSupply;
