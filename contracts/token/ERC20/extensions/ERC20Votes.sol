@@ -54,7 +54,7 @@ abstract contract ERC20Votes is ERC20, Votes {
     }
 
     /**
-     * @dev Returns the voting units of an `account`. Returns the balance by default.
+     * @dev Returns the voting units of an `account`.
      *
      * WARNING: Overriding this function may compromise the internal vote accounting.
      * `ERC20Votes` assumes tokens map to voting units 1:1 and this is not easy to change.
