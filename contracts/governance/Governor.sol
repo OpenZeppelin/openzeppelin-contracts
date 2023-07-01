@@ -28,9 +28,20 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
 abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
-    bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant BALLOT_TYPEHASH =
+        keccak256(
+            "Ballot("
+            "uint256 proposalId,"
+            "uint8 support)"
+        );
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
+        keccak256(
+            "ExtendedBallot("
+            "uint256 proposalId,"
+            "uint8 support,"
+            "string reason,"
+            "bytes params)"
+        );
 
     // solhint-disable var-name-mixedcase
     struct ProposalCore {

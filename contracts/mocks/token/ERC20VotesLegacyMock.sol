@@ -18,7 +18,12 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     }
 
     bytes32 private constant _DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+        keccak256(
+            "Delegation("
+            "address delegatee,"
+            "uint256 nonce,"
+            "uint256 expiry)"
+        );
 
     mapping(address => address) private _delegates;
     mapping(address => Checkpoint[]) private _checkpoints;
