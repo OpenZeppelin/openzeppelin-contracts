@@ -52,7 +52,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev The current state of an operation is not as required.
      */
-    error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
+    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expected);
 
     /**
      * @dev The predecessor to an operation not yet done.
@@ -320,7 +320,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _schedule(bytes32 id, uint256 delay) private {
         if (isOperation(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Unset);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Unset));
         }
         uint256 minDelay = getMinDelay();
         if (delay < minDelay) {
@@ -338,7 +338,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         if (!isOperationPending(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Blocked);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Blocked) | _encodeStateBitmap(OperationState.Ready));
         }
         delete _timestamps[id];
 
@@ -421,7 +421,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
         if (!isOperationReady(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
         if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
             revert TimelockUnexecutedPredecessor(predecessor);
@@ -433,7 +433,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _afterCall(bytes32 id) private {
         if (getOperationState(id) != OperationState.Ready) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
         _timestamps[id] = _DONE_TIMESTAMP;
     }
@@ -454,5 +454,20 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
+    }
+    
+    /**
+     * @dev Encodes a `OperationState` into a `bytes32` representation where each bit enabled corresponds to
+     * the underlying position in the `ProposalState` enum. For example:
+     *
+     * 0x000...1000
+     *   ^^^^^^----- ...
+     *         ^---- Done
+     *          ^--- Ready
+     *           ^-- Blocked
+     *            ^- Unset
+     */
+    function _encodeStateBitmap(OperationState proposalState) internal pure returns (bytes32) {
+        return bytes32(1 << uint8(proposalState));
     }
 }
