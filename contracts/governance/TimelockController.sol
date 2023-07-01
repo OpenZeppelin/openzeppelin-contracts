@@ -338,7 +338,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         if (!isOperationPending(id)) {
-            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Blocked) | _encodeStateBitmap(OperationState.Ready));
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Blocked) | _encodeStateBitmap(OperationState.Ready)
+            );
         }
         delete _timestamps[id];
 
@@ -455,7 +458,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
-    
+
     /**
      * @dev Encodes a `OperationState` into a `bytes32` representation where each bit enabled corresponds to
      * the underlying position in the `ProposalState` enum. For example:

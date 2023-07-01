@@ -19,7 +19,6 @@ const TOKENS = [
 ];
 
 contract('GovernorTimelockControl', function (accounts) {
-  
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
