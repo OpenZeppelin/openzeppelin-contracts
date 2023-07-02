@@ -107,12 +107,12 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
 }
 
 function shouldSupportInterfaces(interfaces = []) {
-  describe.only('ERC165', function () {
+  describe('ERC165', function () {
     beforeEach(function () {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
-    describe('supportsInterface uses less than 30k gas', function () {  
+    describe('supportsInterface uses less than 30k gas', function () {
       it('when it supports', async function () {
         for (const k of interfaces) {
           const interfaceId = INTERFACE_IDS[k] ?? k;
@@ -120,7 +120,7 @@ function shouldSupportInterfaces(interfaces = []) {
         }
       });
 
-      it('when it doesn\'t support', async function () {
+      it("when it doesn't support", async function () {
         expect(await this.contractUnderTest.supportsInterface.estimateGas(InvalidID)).to.be.lte(30000);
       });
     });
