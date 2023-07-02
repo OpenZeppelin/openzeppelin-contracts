@@ -2,6 +2,7 @@ const { makeInterfaceId } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
+const InvalidID = '0xffffffff';
 const INTERFACES = {
   ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
@@ -106,23 +107,35 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
 }
 
 function shouldSupportInterfaces(interfaces = []) {
-  describe('ERC165', function () {
+  describe.only('ERC165', function () {
     beforeEach(function () {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
-    it('supportsInterface uses less than 30k gas', async function () {
-      for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k] ?? k;
-        expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
-      }
+    describe('supportsInterface uses less than 30k gas', function () {  
+      it('when it supports', async function () {
+        for (const k of interfaces) {
+          const interfaceId = INTERFACE_IDS[k] ?? k;
+          expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
+        }
+      });
+
+      it('when it doesn\'t support', async function () {
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(InvalidID)).to.be.lte(30000);
+      });
     });
 
-    it('all interfaces are reported as supported', async function () {
-      for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k] ?? k;
-        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
-      }
+    describe('return values', async function () {
+      it('all interfaces are reported as supported', async function () {
+        for (const k of interfaces) {
+          const interfaceId = INTERFACE_IDS[k] ?? k;
+          expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
+        }
+      });
+
+      it('invalidID is not supported', async function () {
+        expect(await this.contractUnderTest.supportsInterface(InvalidID)).to.be.equal(false, `supports ${InvalidID}`);
+      });
     });
 
     it('all interface functions are in ABI', async function () {
