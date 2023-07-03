@@ -118,6 +118,7 @@ interface IERC1155Errors {
      * @param sender Address whose tokens are being transferred.
      * @param balance Current balance for the interacting account.
      * @param needed Minimum amount required to perform a transfer.
+     * @param tokenId Identifier number of a token.
      */
     error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
 

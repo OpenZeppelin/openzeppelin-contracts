@@ -456,7 +456,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * that `ownerOf(tokenId)` is `a`.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual {
-        _balances[account] += amount;
+    function __unsafe_increaseBalance(address account, uint256 value) internal virtual {
+        _balances[account] += value;
     }
 }
