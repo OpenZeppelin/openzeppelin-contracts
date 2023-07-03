@@ -49,6 +49,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         return super._update(to, tokenId, constraints);
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Votes) {
         super.__unsafe_increaseBalance(account, amount);
     }

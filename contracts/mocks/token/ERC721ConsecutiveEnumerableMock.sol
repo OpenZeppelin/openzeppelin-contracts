@@ -36,6 +36,7 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         return super._update(to, tokenId, constraints);
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function __unsafe_increaseBalance(
         address account,
         uint256 amount
