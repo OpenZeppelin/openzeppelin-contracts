@@ -97,6 +97,15 @@ contract('ERC20Wrapper', function (accounts) {
         value: initialSupply,
       });
     });
+
+    it('reverts minting to the wrapper contract', async function () {
+      await this.underlying.approve(this.token.address, MAX_UINT256, { from: initialHolder });
+      await expectRevertCustomError(
+        this.token.depositFor(this.token.address, MAX_UINT256, { from: initialHolder }),
+        'ERC20InvalidReceiver',
+        [this.token.address],
+      );
+    });
   });
 
   describe('withdraw', function () {
@@ -155,6 +164,14 @@ contract('ERC20Wrapper', function (accounts) {
         to: ZERO_ADDRESS,
         value: initialSupply,
       });
+    });
+
+    it('reverts withdrawing to the wrapper contract', async function () {
+      expectRevertCustomError(
+        this.token.withdrawTo(this.token.address, initialSupply, { from: initialHolder }),
+        'ERC20InvalidReceiver',
+        [this.token.address],
+      );
     });
   });
 

@@ -42,8 +42,8 @@ abstract contract ERC20Capped is ERC20 {
     /**
      * @dev See {ERC20-_update}.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override {
-        super._update(from, to, amount);
+    function _update(address from, address to, uint256 value) internal virtual override {
+        super._update(from, to, value);
 
         if (from == address(0)) {
             uint256 maxSupply = cap();

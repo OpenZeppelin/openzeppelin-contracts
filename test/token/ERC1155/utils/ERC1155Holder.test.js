@@ -11,13 +11,13 @@ contract('ERC1155Holder', function (accounts) {
   const [creator] = accounts;
   const uri = 'https://token-cdn-domain/{id}.json';
   const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
-  const multiTokenAmounts = [new BN(1000), new BN(2000), new BN(3000)];
+  const multiTokenValues = [new BN(1000), new BN(2000), new BN(3000)];
   const transferData = '0x12345678';
 
   beforeEach(async function () {
     this.multiToken = await ERC1155.new(uri);
     this.holder = await ERC1155Holder.new();
-    await this.multiToken.$_mintBatch(creator, multiTokenIds, multiTokenAmounts, '0x');
+    await this.multiToken.$_mintBatch(creator, multiTokenIds, multiTokenValues, '0x');
   });
 
   shouldSupportInterfaces(['ERC165', 'ERC1155Receiver']);
@@ -27,13 +27,13 @@ contract('ERC1155Holder', function (accounts) {
       creator,
       this.holder.address,
       multiTokenIds[0],
-      multiTokenAmounts[0],
+      multiTokenValues[0],
       transferData,
       { from: creator },
     );
 
     expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0])).to.be.bignumber.equal(
-      multiTokenAmounts[0],
+      multiTokenValues[0],
     );
 
     for (let i = 1; i < multiTokenIds.length; i++) {
@@ -50,14 +50,14 @@ contract('ERC1155Holder', function (accounts) {
       creator,
       this.holder.address,
       multiTokenIds,
-      multiTokenAmounts,
+      multiTokenValues,
       transferData,
       { from: creator },
     );
 
     for (let i = 0; i < multiTokenIds.length; i++) {
       expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(
-        multiTokenAmounts[i],
+        multiTokenValues[i],
       );
     }
   });

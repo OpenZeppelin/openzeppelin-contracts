@@ -5,13 +5,12 @@
 pragma solidity ^0.8.19;
 
 import {Math} from "../math/Math.sol";
-import {SafeCast} from "../math/SafeCast.sol";
 
 /**
- * @dev This library defines the `History` struct, for checkpointing values as they change at different points in
+ * @dev This library defines the `Trace*` struct, for checkpointing values as they change at different points in
  * time, and later looking up past values by block number. See {Votes} as an example.
  *
- * To create a history of checkpoints define a variable type `Checkpoints.History` in your contract, and store a new
+ * To create a history of checkpoints define a variable type `Checkpoints.Trace*` in your contract, and store a new
  * checkpoint for the current transaction block using the {push} function.
  *
  * _Available since v4.5._
@@ -35,6 +34,8 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
+     *
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the library.
      */
     function push(Trace224 storage self, uint32 key, uint224 value) internal returns (uint224, uint224) {
         return _insert(self._checkpoints, key, value);
@@ -220,6 +221,8 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
+     *
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the library.
      */
     function push(Trace160 storage self, uint96 key, uint160 value) internal returns (uint160, uint160) {
         return _insert(self._checkpoints, key, value);

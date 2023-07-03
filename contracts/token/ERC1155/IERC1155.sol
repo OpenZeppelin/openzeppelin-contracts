@@ -13,7 +13,7 @@ import {IERC165} from "../../utils/introspection/IERC165.sol";
  */
 interface IERC1155 is IERC165 {
     /**
-     * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
+     * @dev Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
      */
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
 
@@ -45,7 +45,7 @@ interface IERC1155 is IERC165 {
     event URI(string value, uint256 indexed id);
 
     /**
-     * @dev Returns the amount of tokens of token type `id` owned by `account`.
+     * @dev Returns the value of tokens of token type `id` owned by `account`.
      *
      * Requirements:
      *
@@ -84,7 +84,7 @@ interface IERC1155 is IERC165 {
     function isApprovedForAll(address account, address operator) external view returns (bool);
 
     /**
-     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
+     * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`.
      *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
      * to an untrusted contract, when invoking {onERC1155Received} on the receiver.
@@ -97,11 +97,11 @@ interface IERC1155 is IERC165 {
      *
      * - `to` cannot be the zero address.
      * - If the caller is not `from`, it must have been approved to spend ``from``'s tokens via {setApprovalForAll}.
-     * - `from` must have a balance of tokens of type `id` of at least `amount`.
+     * - `from` must have a balance of tokens of type `id` of at least `value` amount.
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
+    function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes calldata data) external;
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
@@ -116,7 +116,7 @@ interface IERC1155 is IERC165 {
      *
      * Requirements:
      *
-     * - `ids` and `amounts` must have the same length.
+     * - `ids` and `values` must have the same length.
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
@@ -124,7 +124,7 @@ interface IERC1155 is IERC165 {
         address from,
         address to,
         uint256[] calldata ids,
-        uint256[] calldata amounts,
+        uint256[] calldata values,
         bytes calldata data
     ) external;
 }
