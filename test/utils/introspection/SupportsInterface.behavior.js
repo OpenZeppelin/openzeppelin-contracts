@@ -2,7 +2,7 @@ const { makeInterfaceId } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const InvalidID = '0xffffffff';
+const INVALID_ID = '0xffffffff';
 const INTERFACES = {
   ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
@@ -112,29 +112,29 @@ function shouldSupportInterfaces(interfaces = []) {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
-    describe('supportsInterface uses less than 30k gas', function () {
-      it('when it supports', async function () {
+    describe('when the interfaceId is supported', function () {
+      it('uses less than 30k fas', async function () {
         for (const k of interfaces) {
           const interfaceId = INTERFACE_IDS[k] ?? k;
           expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
         }
       });
 
-      it("when it doesn't support", async function () {
-        expect(await this.contractUnderTest.supportsInterface.estimateGas(InvalidID)).to.be.lte(30000);
-      });
-    });
-
-    describe('return values', async function () {
-      it('all interfaces are reported as supported', async function () {
+      it('returns true', async function () {
         for (const k of interfaces) {
           const interfaceId = INTERFACE_IDS[k] ?? k;
           expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
         }
       });
+    });
 
-      it('invalidID is not supported', async function () {
-        expect(await this.contractUnderTest.supportsInterface(InvalidID)).to.be.equal(false, `supports ${InvalidID}`);
+    describe('when the interfaceId is not supported', function () {
+      it("uses less thank 30k", async function () {
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(INVALID_ID)).to.be.lte(30000);
+      });
+      
+      it('returns false', async function () {
+        expect(await this.contractUnderTest.supportsInterface(INVALID_ID)).to.be.equal(false, `supports ${INVALID_ID}`);
       });
     });
 
