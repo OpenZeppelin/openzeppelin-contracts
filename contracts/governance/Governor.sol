@@ -32,11 +32,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     bytes32 public constant BALLOT_TYPEHASH =
         keccak256("Ballot(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256(
-            "ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)"
-        );
+        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)");
 
-    // solhint-disable var-name-mixedcase
     struct ProposalCore {
         address proposer;
         uint48 voteStart;
@@ -44,13 +41,16 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bool executed;
         bool canceled;
     }
-    // solhint-enable var-name-mixedcase
+    struct ProposalExtra {
+        uint48 eta;
+    }
 
     bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
     string private _name;
 
     /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
     mapping(uint256 => ProposalCore) private _proposals;
+    mapping(uint256 => ProposalExtra) private _proposalsExtra;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
@@ -152,9 +152,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         if (proposal.executed) {
             return ProposalState.Executed;
-        }
-
-        if (proposal.canceled) {
+        } else if (proposal.canceled) {
             return ProposalState.Canceled;
         }
 
@@ -174,12 +172,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         if (deadline >= currentTimepoint) {
             return ProposalState.Active;
-        }
-
-        if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
+        } else if (!_quorumReached(proposalId) || !_voteSucceeded(proposalId)) {
+            return ProposalState.Defeated;
+        } else if (proposalEta(proposalId) == 0) {
             return ProposalState.Succeeded;
         } else {
-            return ProposalState.Defeated;
+            return ProposalState.Queued;
         }
     }
 
@@ -209,6 +207,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      */
     function proposalProposer(uint256 proposalId) public view virtual override returns (address) {
         return _proposals[proposalId].proposer;
+    }
+
+    /**
+     * @dev Public accessor to check the eta of a queued proposal
+     */
+    function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposalsExtra[proposalId].eta;
     }
 
     /**
@@ -352,9 +357,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) internal virtual {
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        (bool implemented, uint256 eta) = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
+        (bool implemented, uint48 eta) = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
 
         if (implemented) {
+            _proposalsExtra[proposalId].eta = eta;
             emit ProposalQueued(proposalId, eta);
         } else {
             revert GovernorQueueNotImplemented();
@@ -380,7 +386,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256[] memory /*values*/,
         bytes[] memory /*calldatas*/,
         bytes32 /*descriptionHash*/
-    ) internal virtual returns (bool, uint256) {
+    ) internal virtual returns (bool, uint48) {
         return (false, 0);
     }
 

@@ -40,31 +40,13 @@ contract MyGovernor is
         return super.state(proposalId);
     }
 
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description
-    ) public override(Governor, IGovernor) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
-    }
-
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public override(Governor, IGovernor) returns (uint256) {
-        return super.cancel(targets, values, calldatas, descriptionHash);
-    }
-
     function _queueCalls(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (bool, uint256) {
+    ) internal override(Governor, GovernorTimelockControl) returns (bool, uint48) {
         return super._queueCalls(proposalId, targets, values, calldatas, descriptionHash);
     }
 
@@ -90,11 +72,5 @@ contract MyGovernor is
 
     function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }

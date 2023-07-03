@@ -86,6 +86,16 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorQueueNotImplemented();
 
     /**
+     * @dev The proposal hasn't been queued yet.
+     */
+    error GovernorNotQueuedProposal(uint256 proposalId);
+
+    /**
+     * @dev The proposal has already been queued.
+     */
+    error GovernorAlreadyQueuedProposal(uint256 proposalId);
+
+    /**
      * @dev The `voter` doesn't match with the recovered `signer`.
      */
     error GovernorInvalidSigner(address signer, address voter);
@@ -229,6 +239,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev The account that created a proposal.
      */
     function proposalProposer(uint256 proposalId) public view virtual returns (address);
+
+    /**
+     * @notice module:core
+     * @dev The eta of a queued proposal. Unlike {proposalSnapshot} and {proposalDeadline}, this doesn't use the
+     * governor clock, and instead relies on the executor's clock which may be different. In most cases this will be
+     * a timestamp.
+     */
+    function proposalEta(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:user-config

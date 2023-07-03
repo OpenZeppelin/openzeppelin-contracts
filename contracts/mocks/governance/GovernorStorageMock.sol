@@ -16,12 +16,6 @@ abstract contract GovernorStorageMock is
     GovernorCountingSimple,
     GovernorStorage
 {
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
-
     function quorum(
         uint256 blockNumber
     ) public view override(IGovernor, GovernorVotesQuorumFraction) returns (uint256) {
@@ -53,7 +47,7 @@ abstract contract GovernorStorageMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (bool, uint256) {
+    ) internal override(Governor, GovernorTimelockControl) returns (bool, uint48) {
         return super._queueCalls(proposalId, targets, values, calldatas, descriptionHash);
     }
 

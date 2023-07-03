@@ -60,6 +60,7 @@ const INTERFACES = {
     'proposalSnapshot(uint256)',
     'proposalDeadline(uint256)',
     'proposalProposer(uint256)',
+    'proposalEta(uint256)',
     'votingDelay()',
     'votingPeriod()',
     'quorum(uint256)',
@@ -76,7 +77,6 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,address,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,uint8,bytes32,bytes32)',
   ],
-  GovernorTimelock: ['timelock()', 'proposalEta(uint256)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
