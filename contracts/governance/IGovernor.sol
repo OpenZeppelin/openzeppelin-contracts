@@ -354,7 +354,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote using the user's cryptographic signature.
+     * @dev Cast a vote using the voter's signature, including ERC-1271 signature support.
      *
      * Emits a {VoteCast} event.
      */
@@ -366,7 +366,8 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
+     * @dev Cast a vote with a reason and additional encoded parameters using the voter's signature,
+     * including ERC-1271 signature support.
      *
      * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
