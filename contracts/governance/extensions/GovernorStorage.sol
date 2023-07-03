@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../Governor.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that implements storage of proposal details. This modules also provides primitives for
