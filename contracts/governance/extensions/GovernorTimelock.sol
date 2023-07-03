@@ -36,12 +36,15 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Public accessor to check the eta of a queued proposal
+     * @dev Public accessor to check the eta of a queued proposal.
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposalEta[proposalId];
     }
 
+    /**
+     * @dev Public accessor to check the execution details.
+     */
     function proposalExecutionDetails(uint256 proposalId) public view virtual returns (ExecutionDetail[] memory) {
         return _executionDetails[proposalId];
     }
@@ -90,7 +93,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         uint32 setback = 0;
 
-        ExecutionDetail[] memory details = _executionDetails[proposalId];
+        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
         for (uint256 i = 0; i < targets.length; ++i) {
             if (details[i].manager != address(0)) {
                 IAccessManager(details[i].manager).schedule(targets[i], calldatas[i]);
@@ -114,8 +117,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override {
-        ExecutionDetail[] memory details = _executionDetails[proposalId];
-
+        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
         for (uint256 i = 0; i < targets.length; ++i) {
             if (details[i].manager != address(0)) {
                 IAccessManager(details[i].manager).relay{value: values[i]}(targets[i], calldatas[i]);
@@ -138,12 +140,11 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
-        ExecutionDetail[] storage details = _executionDetails[proposalId];
 
+        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
         for (uint256 i = 0; i < targets.length; ++i) {
-            ExecutionDetail memory detail = details[i];
-            if (detail.manager != address(0)) {
-                IAccessManager(detail.manager).cancel(address(this), targets[i], calldatas[i]);
+            if (details[i].manager != address(0)) {
+                IAccessManager(details[i].manager).cancel(address(this), targets[i], calldatas[i]);
             }
         }
 
@@ -152,17 +153,32 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         return proposalId;
     }
 
+    /**
+     * @dev Default delay to apply to function calls that are not (scheduled and) executed through an AccessManager.
+     */
     function _defaultDelay() internal view virtual returns (uint32) {
         return 0;
     }
 
+    /**
+     * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
+     * applied to this call.
+     *
+     * Returns { manager: address(0), delay: _defaultDelay() } if:
+     * - target does not have code
+     * - target does not implement IManaged
+     * - calling canCall on the target's manager returns a 0 delay
+     * - calling canCall on the target's manager reverts
+     * Otherwise (calling canCall on the target's manager returns a non 0 delay), return the address of the
+     * AccessManager to use, and the delay for this call.
+     */
     function _detectExecutionDetails(address target, bytes4 selector) private view returns (ExecutionDetail memory) {
         // If target is not a contract, skip
         if (target.code.length > 0) {
             // Try to fetch autority. If revert, skip
             try IManaged(target).authority() returns(address authority) {
                 // Check can call. If revert, skip
-                try IAccessManager(authority).canCall(address(this), target, selector) returns(bool, uint32 delay) {
+                try IAccessManager(authority).canCall(address(this), target, selector) returns(bool /*allowed*/, uint32 delay) {
                     // If delay is need
                     if (delay > 0) {
                         return ExecutionDetail({ manager: authority, delay: delay });
