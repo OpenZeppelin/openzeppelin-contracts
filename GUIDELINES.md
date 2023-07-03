@@ -136,3 +136,8 @@ In addition to the official Solidity Style Guide we have a number of other conve
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+
+* It is important to follow a few rules around the use of Solidity overrides to avoid introducing unintended consequences due to the interaction with multiple inheritance:
+
+    1. When overriding a function `foo`, always invoke `super.foo`, and pass the same arguments that were received.
+    2. Never use `super` for a function other than the one being overridden.
