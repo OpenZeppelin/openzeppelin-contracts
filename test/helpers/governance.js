@@ -91,16 +91,16 @@ class GovernorHelper {
     return vote.signature
       ? // if signature, and either params or reason →
         vote.params || vote.reason
-        ? this.sign(vote).then(({ v, r, s }) =>
+        ? this.sign(vote).then(signature =>
             this.governor.castVoteWithReasonAndParamsBySig(
               ...concatOpts(
-                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', v, r, s],
+                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', signature],
                 opts,
               ),
             ),
           )
-        : this.sign(vote).then(({ v, r, s }) =>
-            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, v, r, s], opts)),
+        : this.sign(vote).then(signature =>
+            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
           )
       : vote.params
       ? // otherwise if params

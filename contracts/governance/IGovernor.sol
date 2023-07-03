@@ -81,9 +81,10 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
-     * @dev The `voter` doesn't match with the recovered `signer`.
+     * @dev The provided signature is not valid for the expected `voter`.
+     * If the `voter` is a contract, the signature is not valid using {IERC1271-isValidSignature}.
      */
-    error GovernorInvalidSigner(address signer, address voter);
+    error GovernorInvalidSignature(address voter);
 
     /**
      * @dev Emitted when a proposal is created.
@@ -361,9 +362,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256 proposalId,
         uint8 support,
         address voter,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        bytes memory signature
     ) public virtual returns (uint256 balance);
 
     /**
@@ -377,8 +376,6 @@ abstract contract IGovernor is IERC165, IERC6372 {
         address voter,
         string calldata reason,
         bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        bytes memory signature
     ) public virtual returns (uint256 balance);
 }
