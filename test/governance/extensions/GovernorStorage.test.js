@@ -14,7 +14,7 @@ const TOKENS = [
 ];
 
 contract('GovernorStorage', function (accounts) {
-  const [owner, voter1, voter2, voter3, voter4, other] = accounts;
+  const [owner, voter1, voter2, voter3, voter4] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
