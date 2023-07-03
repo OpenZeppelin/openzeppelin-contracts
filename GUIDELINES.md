@@ -140,4 +140,4 @@ In addition to the official Solidity Style Guide we have a number of other conve
 * It is important to follow a few rules around the use of Solidity overrides to avoid introducing unintended consequences due to the interaction with multiple inheritance:
 
     1. When overriding a function `foo`, always invoke `super.foo`, and pass the same arguments that were received.
-    2. Never use `super` for a function other than the one being overridden.
+    2. Never use `super` outside of an override, or for a function other than the one being overridden.
