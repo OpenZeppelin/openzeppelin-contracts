@@ -48,9 +48,9 @@ contract('Clones', function (accounts) {
       const predicted = await factory.$predictDeterministicAddress(implementation, salt);
 
       const creationCode = [
-        '0x3d602d80600a3d3981f3363d3d373d3d3d363d73',
+        '0x3d602c80600a3d3981f33d3d3d3d363d3d37363d73',
         implementation.replace(/0x/, '').toLowerCase(),
-        '5af43d82803e903d91602b57fd5bf3',
+        '5af43d3d93803e602a57fd5bf3',
       ].join('');
 
       expect(computeCreate2Address(salt, creationCode, factory.address)).to.be.equal(predicted);

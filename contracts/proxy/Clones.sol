@@ -14,6 +14,9 @@ pragma solidity ^0.8.19;
  * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the
  * deterministic method.
  *
+ * Bytecode implementation is a bit different from EIP 1167, due to optimizations suggested by 0age in
+ * https://medium.com/coinmonks/the-more-minimal-proxy-5756ae08ee48[The More-Minimal Proxy].
+ * 
  * _Available since v3.4._
  */
 library Clones {
@@ -30,12 +33,11 @@ library Clones {
     function clone(address implementation) internal returns (address instance) {
         /// @solidity memory-safe-assembly
         assembly {
-            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
-            // of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
-            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
-            instance := create(0, 0x09, 0x37)
+            // Packs the first 1 byte of the `implementation` address with the bytecode before the address.
+            mstore(0x00, or(byte(12, implementation), 0x3d602c80600a3d3981f33d3d3d3d363d3d37363d7300))
+            // Packs the remaining 19 bytes of `implementation` with the bytecode after the address.
+            mstore(0x20, or(shl(0x68, implementation), 0x5af43d3d93803e602a57fd5bf3))
+            instance := create(0, 0x0a, 0x36)
         }
         if (instance == address(0)) {
             revert ERC1167FailedCreateClone();
@@ -52,12 +54,11 @@ library Clones {
     function cloneDeterministic(address implementation, bytes32 salt) internal returns (address instance) {
         /// @solidity memory-safe-assembly
         assembly {
-            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
-            // of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
-            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
-            instance := create2(0, 0x09, 0x37, salt)
+            // Packs the first 1 byte of the `implementation` address with the bytecode before the address.
+            mstore(0x00, or(byte(12, implementation), 0x3d602c80600a3d3981f33d3d3d3d363d3d37363d7300))
+            // Packs the remaining 19 bytes of `implementation` with the bytecode after the address.
+            mstore(0x20, or(shl(0x68, implementation), 0x5af43d3d93803e602a57fd5bf3))
+            instance := create2(0, 0x0a, 0x36, salt)
         }
         if (instance == address(0)) {
             revert ERC1167FailedCreateClone();
@@ -75,13 +76,13 @@ library Clones {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
-            mstore(add(ptr, 0x38), deployer)
-            mstore(add(ptr, 0x24), 0x5af43d82803e903d91602b57fd5bf3ff)
+            mstore(add(ptr, 0x36), deployer)
+            mstore(add(ptr, 0x22), 0x5af43d3d93803e602a57fd5bf3ff)
             mstore(add(ptr, 0x14), implementation)
-            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73)
-            mstore(add(ptr, 0x58), salt)
-            mstore(add(ptr, 0x78), keccak256(add(ptr, 0x0c), 0x37))
-            predicted := keccak256(add(ptr, 0x43), 0x55)
+            mstore(ptr, 0x3d602c80600a3d3981f33d3d3d3d363d3d37363d73)
+            mstore(add(ptr, 0x56), salt)
+            mstore(add(ptr, 0x76), keccak256(add(ptr, 0x0b), 0x36))
+            predicted := keccak256(add(ptr, 0x41), 0x55)
         }
     }
 
