@@ -139,6 +139,12 @@ contract('GovernorStorage', function (accounts) {
         await expectEvent.inTransaction(txExecute.tx, this.timelock, 'CallExecuted', { id: this.proposal.timelockid });
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
       });
+
+      it('cancel by id', async function () {
+        await this.helper.propose();
+        const txCancel = await this.mock.cancel(this.proposal.id);
+        expectEvent(txCancel, 'ProposalCanceled', { proposalId: this.proposal.id });
+      });
     });
   }
 });
