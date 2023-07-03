@@ -16,7 +16,7 @@ pragma solidity ^0.8.19;
  *
  * Bytecode implementation is a bit different from EIP 1167, due to optimizations suggested by 0age in
  * https://medium.com/coinmonks/the-more-minimal-proxy-5756ae08ee48[The More-Minimal Proxy].
- * 
+ *
  * _Available since v3.4._
  */
 library Clones {
