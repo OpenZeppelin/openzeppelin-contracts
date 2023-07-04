@@ -52,6 +52,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     /**
      * @dev The current state of an operation is not as required.
+     * The `expectedStates` is a bitmap with the bits enabled for each OperationState enum position
+     * counting from right to left.
+     *
+     * See {_encodeStateBitmap}.
      */
     error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expectedStates);
 
