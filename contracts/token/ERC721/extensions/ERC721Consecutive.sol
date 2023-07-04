@@ -54,11 +54,6 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     error ERC721ForbiddenMint();
 
     /**
-     * @dev Batch burn is not supported.
-     */
-    error ERC721ForbiddenBatchBurn();
-
-    /**
      * @dev Maximum size of a batch of consecutive tokens. This is designed to limit stress on off-chain indexing
      * services that have to record one entry per token, and have protections against "unreasonably large" batches of
      * tokens.
@@ -120,61 +115,40 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
                 revert ERC721ExceededMaxBatchMint(batchSize, maxBatchSize);
             }
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, next, batchSize);
-
             // push an ownership checkpoint & emit event
             uint96 last = next + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
 
-            // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
-            // is attributing ownership of `batchSize` new tokens to account `to`.
-            __unsafe_increaseBalance(to, batchSize);
+            // Preserve the invariant required by `_ownerOf`, given that the new sequentialOwnership
+            // checkpoint is attributing ownership of `batchSize` new tokens to account `to`.
+            _updateBalance(to, batchSize);
 
             emit ConsecutiveTransfer(next, last, address(0), to);
-
-            // hook after
-            _afterTokenTransfer(address(0), to, next, batchSize);
         }
 
         return next;
     }
 
     /**
-     * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
-     *
-     * WARNING: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
-     * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
+     * @dev See {ERC721-_update}. Extends token updates so that non-consecutive minting is disabled
+     * during construction, and burning of tokens that have been sequentially minted are complete.
      */
-    function _mint(address to, uint256 tokenId) internal virtual override {
-        if (address(this).code.length == 0) {
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
+        if (to == address(0) && address(this).code.length == 0) {
             revert ERC721ForbiddenMint();
         }
-        super._mint(to, tokenId);
-    }
 
-    /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
+        super._update(from, to, tokenId);
+
         if (
             to == address(0) && // if we burn
-            firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId < _nextConsecutiveId() &&
-            !_sequentialBurn.get(firstTokenId)
+            tokenId >= _firstConsecutiveId() &&
+            tokenId < _nextConsecutiveId() &&
+            !_sequentialBurn.get(tokenId)
         ) // and the token was never marked as burnt
         {
-            if (batchSize != 1) {
-                revert ERC721ForbiddenBatchBurn();
-            }
-            _sequentialBurn.set(firstTokenId);
+            _sequentialBurn.set(tokenId);
         }
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     /**

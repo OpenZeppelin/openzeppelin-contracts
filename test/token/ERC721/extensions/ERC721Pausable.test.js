@@ -57,7 +57,7 @@ contract('ERC721Pausable', function (accounts) {
     });
 
     it('reverts when trying to burn', async function () {
-      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'EnforcedPause', []);
+      await expectRevertCustomError(this.token.$_burn(owner, firstTokenId), 'EnforcedPause', []);
     });
 
     describe('getApproved', function () {

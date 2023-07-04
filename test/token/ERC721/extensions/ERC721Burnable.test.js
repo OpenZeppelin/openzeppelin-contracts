@@ -31,7 +31,7 @@ contract('ERC721Burnable', function (accounts) {
 
       describe('when successful', function () {
         beforeEach(async function () {
-          receipt = await this.token.burn(tokenId, { from: owner });
+          receipt = await this.token.burn(owner, tokenId, { from: owner });
         });
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
@@ -51,7 +51,7 @@ contract('ERC721Burnable', function (accounts) {
       describe('when there is a previous approval burned', function () {
         beforeEach(async function () {
           await this.token.approve(approved, tokenId, { from: owner });
-          receipt = await this.token.burn(tokenId, { from: owner });
+          receipt = await this.token.burn(owner, tokenId, { from: owner });
         });
 
         context('getApproved', function () {
@@ -63,7 +63,7 @@ contract('ERC721Burnable', function (accounts) {
 
       describe('when there is no previous approval burned', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(tokenId, { from: another }), 'ERC721InsufficientApproval', [
+          await expectRevertCustomError(this.token.burn(owner, tokenId, { from: another }), 'ERC721InsufficientApproval', [
             another,
             tokenId,
           ]);
@@ -72,7 +72,7 @@ contract('ERC721Burnable', function (accounts) {
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(unknownTokenId, { from: owner }), 'ERC721NonexistentToken', [
+          await expectRevertCustomError(this.token.burn(owner, unknownTokenId, { from: owner }), 'ERC721NonexistentToken', [
             unknownTokenId,
           ]);
         });

@@ -22,14 +22,17 @@ abstract contract ERC721Votes is ERC721, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
-        _transferVotingUnits(from, to, batchSize);
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
+        super._update(from, to, tokenId);
+        _transferVotingUnits(from, to, 1);
+    }
+
+    /**
+     * @dev See {ERC721-_updateBalance}. We need that to account tokens that were minted in batch.
+     */
+    function _updateBalance(address account, uint128 value) internal virtual override {
+        super._updateBalance(account, value);
+        _transferVotingUnits(address(0), account, value);
     }
 
     /**

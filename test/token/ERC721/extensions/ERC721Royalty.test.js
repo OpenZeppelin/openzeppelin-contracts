@@ -29,7 +29,7 @@ contract('ERC721Royalty', function (accounts) {
     });
 
     it('removes royalty information after burn', async function () {
-      await this.token.$_burn(tokenId1);
+      await this.token.$_burn(account1, tokenId1);
       const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
       expect(tokenInfo[0]).to.be.equal(constants.ZERO_ADDRESS);

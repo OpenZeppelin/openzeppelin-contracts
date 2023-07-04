@@ -705,14 +705,14 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
       });
 
       it('reverts when adding a token id that already exists', async function () {
-        await expectRevertCustomError(this.token.$_mint(owner, firstTokenId), 'ERC721InvalidSender', [ZERO_ADDRESS]);
+        await expectRevertCustomError(this.token.$_mint(owner, firstTokenId), 'ERC721IncorrectOwner', [ZERO_ADDRESS, firstTokenId, owner]);
       });
     });
   });
 
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
-      await expectRevertCustomError(this.token.$_burn(nonExistentTokenId), 'ERC721NonexistentToken', [
+      await expectRevertCustomError(this.token.$_burn(owner, nonExistentTokenId), 'ERC721NonexistentToken', [
         nonExistentTokenId,
       ]);
     });
@@ -725,7 +725,7 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
 
       context('with burnt token', function () {
         beforeEach(async function () {
-          this.receipt = await this.token.$_burn(firstTokenId);
+          this.receipt = await this.token.$_burn(owner, firstTokenId);
         });
 
         it('emits a Transfer event', function () {
@@ -738,7 +738,7 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
         });
 
         it('reverts when burning a token id that has been deleted', async function () {
-          await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
+          await expectRevertCustomError(this.token.$_burn(owner, firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
         });
       });
     });
@@ -820,7 +820,7 @@ function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherAppr
           const newTokenId = new BN(300);
           const anotherNewTokenId = new BN(400);
 
-          await this.token.$_burn(tokenId);
+          await this.token.$_burn(owner, tokenId);
           await this.token.$_mint(newOwner, newTokenId);
           await this.token.$_mint(newOwner, anotherNewTokenId);
 
@@ -860,7 +860,7 @@ function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherAppr
 
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
-      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
+      await expectRevertCustomError(this.token.$_burn(owner, firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
 
     context('with minted tokens', function () {
@@ -871,7 +871,7 @@ function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherAppr
 
       context('with burnt token', function () {
         beforeEach(async function () {
-          this.receipt = await this.token.$_burn(firstTokenId);
+          this.receipt = await this.token.$_burn(owner, firstTokenId);
         });
 
         it('removes that token from the token list of the owner', async function () {
@@ -883,7 +883,7 @@ function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherAppr
         });
 
         it('burns all tokens', async function () {
-          await this.token.$_burn(secondTokenId, { from: owner });
+          await this.token.$_burn(owner, secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevertCustomError(this.token.tokenByIndex(0), 'ERC721OutOfBoundsIndex', [ZERO_ADDRESS, 0]);
         });

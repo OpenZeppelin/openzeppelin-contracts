@@ -69,11 +69,11 @@ interface IERC721Errors {
 
     /**
      * @dev Indicates an error related to the ownership over a particular token. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
+     * @param claimedOwner Address whose tokens are being transferred.
      * @param tokenId Identifier number of a token.
-     * @param owner Address of the current owner of a token.
+     * @param actualOwner Address of the current owner of a token.
      */
-    error ERC721IncorrectOwner(address sender, uint256 tokenId, address owner);
+    error ERC721IncorrectOwner(address claimedOwner, uint256 tokenId, address actualOwner);
 
     /**
      * @dev Indicates a failure with the token `sender`. Used in transfers.

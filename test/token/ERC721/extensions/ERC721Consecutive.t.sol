@@ -28,8 +28,8 @@ contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
         }
     }
 
-    function burn(uint256 tokenId) public {
-        _burn(tokenId);
+    function burn(address from, uint256 tokenId) public {
+        _burn(from, tokenId);
     }
 
     function _firstConsecutiveId() internal view virtual override returns (uint96) {
@@ -96,7 +96,7 @@ contract ERC721ConsecutiveTest is Test {
 
         // burn a token in [0; supply[
         uint256 tokenId = bound(unboundedTokenId, startingTokenId, startingTokenId + supply - 1);
-        token.burn(tokenId);
+        token.burn(receiver, tokenId);
 
         // balance should have decreased
         assertEq(token.balanceOf(receiver), supply - 1);

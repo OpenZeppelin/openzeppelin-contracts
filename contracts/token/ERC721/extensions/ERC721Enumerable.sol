@@ -76,21 +76,11 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {ERC721-_beforeTokenTransfer}.
      */
-    function _beforeTokenTransfer(
+    function _update(
         address from,
         address to,
-        uint256 firstTokenId,
-        uint256 batchSize
+        uint256 tokenId
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-
-        if (batchSize > 1) {
-            // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert ERC721EnumerableForbiddenBatchMint();
-        }
-
-        uint256 tokenId = firstTokenId;
-
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
         } else if (from != to) {
@@ -101,6 +91,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         } else if (to != from) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
+
+        super._update(from, to, tokenId);
     }
 
     /**
@@ -174,5 +166,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // This also deletes the contents at the last position of the array
         delete _allTokensIndex[tokenId];
         _allTokens.pop();
+    }
+
+    function _updateBalance(address account, uint128 value) internal virtual override {
+        if (value > 0) {
+            revert ERC721EnumerableForbiddenBatchMint();
+        }
+        super._updateBalance(account, value);
     }
 }

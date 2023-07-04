@@ -269,16 +269,16 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
         const t1 = await this.votes.$_mint(accounts[1], tokens[1]);
         await time.advanceBlock();
         // t2 = burn #1
-        const t2 = await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[1]);
+        const t2 = await this.votes.$_burn(accounts[1], tokens[1]);
         await time.advanceBlock();
         // t3 = mint #2
         const t3 = await this.votes.$_mint(accounts[1], tokens[2]);
         await time.advanceBlock();
         // t4 = burn #0
-        const t4 = await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[0]);
+        const t4 = await this.votes.$_burn(accounts[1], tokens[0]);
         await time.advanceBlock();
         // t5 = burn #2
-        const t5 = await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[2]);
+        const t5 = await this.votes.$_burn(accounts[1], tokens[2]);
         await time.advanceBlock();
 
         t0.timepoint = await clockFromReceipt[mode](t0.receipt);

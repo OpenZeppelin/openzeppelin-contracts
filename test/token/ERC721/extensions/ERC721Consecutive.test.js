@@ -131,7 +131,7 @@ contract('ERC721Consecutive', function (accounts) {
         });
 
         it('tokens can be burned and re-minted #1', async function () {
-          expectEvent(await this.token.$_burn(tokenId, { from: user1 }), 'Transfer', {
+          expectEvent(await this.token.$_burn(user1, tokenId, { from: user1 }), 'Transfer', {
             from: user1,
             to: constants.ZERO_ADDRESS,
             tokenId,
@@ -161,7 +161,7 @@ contract('ERC721Consecutive', function (accounts) {
           expect(await this.token.ownerOf(tokenId), user1);
 
           // burn
-          expectEvent(await this.token.$_burn(tokenId, { from: user1 }), 'Transfer', {
+          expectEvent(await this.token.$_burn(user1, tokenId, { from: user1 }), 'Transfer', {
             from: user1,
             to: constants.ZERO_ADDRESS,
             tokenId,
@@ -179,17 +179,6 @@ contract('ERC721Consecutive', function (accounts) {
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user2);
-        });
-
-        it('reverts burning batches of size != 1', async function () {
-          const tokenId = batches[0].amount + offset;
-          const receiver = batches[0].receiver;
-
-          await expectRevertCustomError(
-            this.token.$_afterTokenTransfer(receiver, ZERO_ADDRESS, tokenId, 2),
-            'ERC721ForbiddenBatchBurn',
-            [],
-          );
         });
       });
     });

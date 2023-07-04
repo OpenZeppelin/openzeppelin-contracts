@@ -64,15 +64,17 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     }
 
     /**
-     * @dev See {ERC721-_burn}. This override additionally checks to see if a
+     * @dev See {ERC721-_update}. This override additionally extends burns to see if a
      * token-specific URI was set for the token, and if so, it deletes the token URI from
      * the storage mapping.
      */
-    function _burn(uint256 tokenId) internal virtual override {
-        super._burn(tokenId);
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
+        super._update(from, to, tokenId);
 
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
+        if (to == address(0)) {
+            if (bytes(_tokenURIs[tokenId]).length != 0) {
+                delete _tokenURIs[tokenId];
+            }
         }
     }
 }
