@@ -171,10 +171,11 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns whether an operation is waitinf for expiration. Note that a "blocked" operation is also "pending".
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
-    function isOperationBlocked(bytes32 id) public view virtual returns (bool) {
-        return getOperationState(id) == OperationState.Blocked;
+    function isOperationPending(bytes32 id) public view virtual returns (bool) {
+        OperationState state = getOperationState(id);
+        return state == OperationState.Blocked || state == OperationState.Ready;
     }
 
     /**
@@ -182,14 +183,6 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool) {
         return getOperationState(id) == OperationState.Ready;
-    }
-
-    /**
-     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
-     */
-    function isOperationPending(bytes32 id) public view virtual returns (bool) {
-        OperationState state = getOperationState(id);
-        return state == OperationState.Blocked || state == OperationState.Ready;
     }
 
     /**
