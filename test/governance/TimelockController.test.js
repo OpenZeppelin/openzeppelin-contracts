@@ -882,7 +882,7 @@ contract('TimelockController', function (accounts) {
         await expectRevertCustomError(
           this.mock.cancel(constants.ZERO_BYTES32, { from: canceller }),
           'TimelockUnexpectedOperationState',
-          [constants.ZERO_BYTES32, proposalStatesToBitMap([OperationState.Blocked, OperationState.Ready])],
+          [constants.ZERO_BYTES32, proposalStatesToBitMap([OperationState.Waiting, OperationState.Ready])],
         );
       });
 

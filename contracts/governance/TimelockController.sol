@@ -35,7 +35,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     enum OperationState {
         Unset,
-        Blocked,
+        Waiting,
         Ready,
         Done
     }
@@ -175,7 +175,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function isOperationPending(bytes32 id) public view returns (bool) {
         OperationState state = getOperationState(id);
-        return state == OperationState.Blocked || state == OperationState.Ready;
+        return state == OperationState.Waiting || state == OperationState.Ready;
     }
 
     /**
@@ -210,7 +210,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         } else if (timestamp == _DONE_TIMESTAMP) {
             return OperationState.Done;
         } else if (timestamp > block.timestamp) {
-            return OperationState.Blocked;
+            return OperationState.Waiting;
         } else {
             return OperationState.Ready;
         }
@@ -334,7 +334,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         if (!isOperationPending(id)) {
             revert TimelockUnexpectedOperationState(
                 id,
-                _encodeStateBitmap(OperationState.Blocked) | _encodeStateBitmap(OperationState.Ready)
+                _encodeStateBitmap(OperationState.Waiting) | _encodeStateBitmap(OperationState.Ready)
             );
         }
         delete _timestamps[id];
@@ -461,7 +461,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      *   ^^^^^^----- ...
      *         ^---- Done
      *          ^--- Ready
-     *           ^-- Blocked
+     *           ^-- Waiting
      *            ^- Unset
      */
     function _encodeStateBitmap(OperationState proposalState) internal pure returns (bytes32) {
