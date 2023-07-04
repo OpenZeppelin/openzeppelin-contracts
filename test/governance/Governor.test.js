@@ -196,24 +196,30 @@ contract('Governor', function (accounts) {
       });
 
       describe('vote with signature', function () {
-        beforeEach(async function () {
-          this.sign = privateKey => (contract, message) =>
-            getDomain(contract)
-              .then(domain => ({
-                primaryType: 'Ballot',
-                types: {
-                  EIP712Domain: domainType(domain),
-                  Ballot: [
-                    { name: 'proposalId', type: 'uint256' },
-                    { name: 'support', type: 'uint8' },
-                    { name: 'voter', type: 'address' },
-                    { name: 'nonce', type: 'uint256' },
-                  ],
-                },
-                domain,
-                message,
-              }))
-              .then(data => ethSigUtil.signTypedMessage(privateKey, { data }));
+        const sign = privateKey => async (contract, message) => {
+          const domain = await getDomain(contract);
+          return ethSigUtil.signTypedMessage(privateKey, {
+            data: {
+              primaryType: 'Ballot',
+              types: {
+                EIP712Domain: domainType(domain),
+                Ballot: [
+                  { name: 'proposalId', type: 'uint256' },
+                  { name: 'support', type: 'uint8' },
+                  { name: 'voter', type: 'address' },
+                  { name: 'nonce', type: 'uint256' },
+                ],
+              },
+              domain,
+              message,
+            },
+          });
+        };
+
+        afterEach('no other votes are cast for proposalId', async function () {
+          expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
         });
 
         it('votes with an EOA signature', async function () {
@@ -232,7 +238,7 @@ contract('Governor', function (accounts) {
               support: Enums.VoteType.For,
               voter: voterBySigAddress,
               nonce,
-              signature: this.sign(voterBySig.getPrivateKey()),
+              signature: sign(voterBySig.getPrivateKey()),
             }),
             'VoteCast',
             {
@@ -266,7 +272,7 @@ contract('Governor', function (accounts) {
               support: Enums.VoteType.For,
               voter: wallet.address,
               nonce,
-              signature: this.sign(ERC1271WalletOwner.getPrivateKey()),
+              signature: sign(ERC1271WalletOwner.getPrivateKey()),
             }),
             'VoteCast',
             {
@@ -282,7 +288,7 @@ contract('Governor', function (accounts) {
           expect(await this.mock.nonces(wallet.address)).to.be.bignumber.equal(nonce.addn(1));
         });
 
-        afterEach(async function () {
+        afterEach('no other votes are cast', async function () {
           expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
           expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
           expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);

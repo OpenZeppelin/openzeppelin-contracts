@@ -120,7 +120,7 @@ contract('GovernorWithParams', function (accounts) {
         expect(votes.forVotes).to.be.bignumber.equal(weight);
       });
 
-      describe.only('voting by signature', function () {
+      describe('voting by signature', function () {
         beforeEach(async function () {
           this.voterBySig = Wallet.generate();
           this.voterBySig.address = web3.utils.toChecksumAddress(this.voterBySig.getAddressString());
@@ -143,8 +143,8 @@ contract('GovernorWithParams', function (accounts) {
               message,
             }));
 
-          this.sign = privateKey => (contract, message) =>
-            this.data(contract, message).then(data => ethSigUtil.signTypedMessage(privateKey, { data }));
+          this.sign = privateKey => async (contract, message) =>
+            ethSigUtil.signTypedMessage(privateKey, { data: await this.data(contract, message) });
         });
 
         it('suports EOA signatures', async function () {
