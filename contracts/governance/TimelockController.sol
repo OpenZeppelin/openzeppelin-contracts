@@ -465,7 +465,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      *           ^-- Waiting
      *            ^- Unset
      */
-    function _encodeStateBitmap(OperationState proposalState) internal pure returns (bytes32) {
-        return bytes32(1 << uint8(proposalState));
+    function _encodeStateBitmap(OperationState operationState) internal pure returns (bytes32) {
+        return bytes32(1 << uint8(operationState));
     }
 }
