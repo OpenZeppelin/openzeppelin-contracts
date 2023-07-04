@@ -456,7 +456,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     /**
      * @dev Encodes a `OperationState` into a `bytes32` representation where each bit enabled corresponds to
-     * the underlying position in the `ProposalState` enum. For example:
+     * the underlying position in the `OperationState` enum. For example:
      *
      * 0x000...1000
      *   ^^^^^^----- ...
