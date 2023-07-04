@@ -1,5 +1,6 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { proposalStatesToBitMap } = require('../helpers/governance');
 
 const { expect } = require('chai');
 
@@ -195,7 +196,7 @@ contract('TimelockController', function (accounts) {
               { from: proposer },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, OperationState.Unset],
+            [this.operation.id, proposalStatesToBitMap(OperationState.Unset)],
           );
         });
 
@@ -267,7 +268,7 @@ contract('TimelockController', function (accounts) {
               { from: executor },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, OperationState.Ready],
+            [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
           );
         });
 
@@ -295,7 +296,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, OperationState.Ready],
+              [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
             );
           });
 
@@ -313,7 +314,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, OperationState.Ready],
+              [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
             );
           });
 
@@ -408,7 +409,7 @@ contract('TimelockController', function (accounts) {
                   { from: executor },
                 ),
                 'TimelockUnexpectedOperationState',
-                [reentrantOperation.id, OperationState.Ready],
+                [reentrantOperation.id, proposalStatesToBitMap(OperationState.Ready)],
               );
 
               // Disable reentrancy
@@ -505,7 +506,7 @@ contract('TimelockController', function (accounts) {
               { from: proposer },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, OperationState.Unset],
+            [this.operation.id, proposalStatesToBitMap(OperationState.Unset)],
           );
         });
 
@@ -596,7 +597,7 @@ contract('TimelockController', function (accounts) {
               { from: executor },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, OperationState.Ready],
+            [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
           );
         });
 
@@ -624,7 +625,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, OperationState.Ready],
+              [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
             );
           });
 
@@ -642,7 +643,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, OperationState.Ready],
+              [this.operation.id, proposalStatesToBitMap(OperationState.Ready)],
             );
           });
 
@@ -784,7 +785,7 @@ contract('TimelockController', function (accounts) {
                   { from: executor },
                 ),
                 'TimelockUnexpectedOperationState',
-                [reentrantBatchOperation.id, OperationState.Ready],
+                [reentrantBatchOperation.id, proposalStatesToBitMap(OperationState.Ready)],
               );
 
               // Disable reentrancy
@@ -881,7 +882,7 @@ contract('TimelockController', function (accounts) {
         await expectRevertCustomError(
           this.mock.cancel(constants.ZERO_BYTES32, { from: canceller }),
           'TimelockUnexpectedOperationState',
-          [constants.ZERO_BYTES32, OperationState.Pending],
+          [constants.ZERO_BYTES32, proposalStatesToBitMap([OperationState.Waiting, OperationState.Ready])],
         );
       });
 
