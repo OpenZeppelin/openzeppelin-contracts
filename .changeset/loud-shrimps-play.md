@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Add state getter in TimelockController using OperationState enum
+`TimelockController`: Add a state getter that returns an `OperationState` enum.
