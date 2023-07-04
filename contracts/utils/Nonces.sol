@@ -6,7 +6,7 @@ import {Context} from "./Context.sol";
 /**
  * @dev Provides tracking nonces for addresses. Nonces will only increment.
  */
- abstract contract Nonces is Context {
+abstract contract Nonces is Context {
     bytes32 internal constant DEFAULT_TYPEHASH = 0;
 
     /**
