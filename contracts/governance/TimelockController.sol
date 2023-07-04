@@ -53,7 +53,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev The current state of an operation is not as required.
      */
-    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expected);
+    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expectedStates);
 
     /**
      * @dev The predecessor to an operation not yet done.
