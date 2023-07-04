@@ -429,7 +429,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        if (getOperationState(id) != OperationState.Ready) {
+        if (!isOperationReady(id)) {
             revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
         _timestamps[id] = _DONE_TIMESTAMP;
