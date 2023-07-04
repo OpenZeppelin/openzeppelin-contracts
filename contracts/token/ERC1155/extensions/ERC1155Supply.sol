@@ -15,20 +15,22 @@ import {ERC1155} from "../ERC1155.sol";
  *
  * NOTE: This contract implies a global limit of 2**256 - 1 to the number of tokens
  * that can be minted.
+ *
+ * CAUTION: This extension should not be added in an upgrade to an already deployed contract.
  */
 abstract contract ERC1155Supply is ERC1155 {
     mapping(uint256 => uint256) private _totalSupply;
     uint256 private _totalSupplyAll;
 
     /**
-     * @dev Total amount of tokens in with a given id.
+     * @dev Total value of tokens in with a given id.
      */
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return _totalSupply[id];
     }
 
     /**
-     * @dev Total amount of tokens.
+     * @dev Total value of tokens.
      */
     function totalSupply() public view virtual returns (uint256) {
         return _totalSupplyAll;
@@ -48,35 +50,38 @@ abstract contract ERC1155Supply is ERC1155 {
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory values
     ) internal virtual override {
+        super._update(from, to, ids, values);
+
         if (from == address(0)) {
-            uint256 totalMintAmount = 0;
+            uint256 totalMintValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 amount = amounts[i];
-                _totalSupply[ids[i]] += amount;
-                totalMintAmount += amount;
+                uint256 value = values[i];
+                // Overflow check required: The rest of the code assumes that totalSupply never overflows
+                _totalSupply[ids[i]] += value;
+                totalMintValue += value;
             }
-            _totalSupplyAll += totalMintAmount;
+            // Overflow check required: The rest of the code assumes that totalSupplyAll never overflows
+            _totalSupplyAll += totalMintValue;
         }
 
         if (to == address(0)) {
-            uint256 totalBurnAmount = 0;
+            uint256 totalBurnValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 id = ids[i];
-                uint256 amount = amounts[i];
-                _totalSupply[id] -= amount;
+                uint256 value = values[i];
+
                 unchecked {
-                    // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
-                    totalBurnAmount += amount;
+                    // Overflow not possible: values[i] <= balanceOf(from, ids[i]) <= totalSupply(ids[i])
+                    _totalSupply[ids[i]] -= value;
+                    // Overflow not possible: sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
+                    totalBurnValue += value;
                 }
             }
             unchecked {
-                // Overflow not possible: totalBurnAmount = sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
-                _totalSupplyAll -= totalBurnAmount;
+                // Overflow not possible: totalBurnValue = sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
+                _totalSupplyAll -= totalBurnValue;
             }
         }
-        super._update(from, to, ids, amounts, data);
     }
 }
