@@ -52,8 +52,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 === Core
 
-{{IGovernor}}
-
 {{Governor}}
 
 === Modules
@@ -70,19 +68,13 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorTimelockCompound}}
 
-{{IGovernorTimelock}}
-
 {{GovernorSettings}}
 
 {{GovernorPreventLateQuorum}}
 
 {{GovernorCompatibilityBravo}}
 
-{{IGovernorCompatibilityBravo}}
-
 == Utils
-
-{{IVotes}}
 
 {{Votes}}
 
