@@ -66,7 +66,7 @@ contract ERC2771ForwarderTest is Test {
         uint256 nonce,
         uint48 deadline,
         bytes memory data
-    ) private view returns (ERC2771Forwarder.ForwardRequestData memory _requestData) {
+    ) private view returns (ERC2771Forwarder.ForwardRequestData memory) {
         ForwardRequest memory request = ForwardRequest({
             from: _signer,
             to: address(_receiver),
@@ -81,18 +81,19 @@ contract ERC2771ForwarderTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_signerPrivateKey, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
 
-        _requestData = ERC2771Forwarder.ForwardRequestData({
-            from: request.from,
-            to: request.to,
-            value: request.value,
-            gas: request.gas,
-            deadline: request.deadline,
-            data: request.data,
-            signature: signature
-        });
+        return
+            ERC2771Forwarder.ForwardRequestData({
+                from: request.from,
+                to: request.to,
+                value: request.value,
+                gas: request.gas,
+                deadline: request.deadline,
+                data: request.data,
+                signature: signature
+            });
     }
 
-    function testExecuteAvoidsETHStuck(uint256 initialBalance, uint256 value) public {
+    function testExecuteAvoidsETHStuck(uint256 initialBalance, uint256 value, bool targetReverts) public {
         vm.assume(initialBalance < _MAX_ETHER);
         vm.assume(value < _MAX_ETHER);
 
@@ -101,15 +102,21 @@ contract ERC2771ForwarderTest is Test {
         uint256 nonce = _erc2771Forwarder.nonces(_signer);
 
         vm.deal(address(this), value);
-        _erc2771Forwarder.execute{value: value}(
-            _forgeRequestData({
-                value: value,
-                nonce: nonce,
-                deadline: uint48(block.timestamp + 1),
-                data: abi.encodeCall(CallReceiverMock.mockFunction, ())
-            })
-        );
 
+        ERC2771Forwarder.ForwardRequestData memory requestData = _forgeRequestData({
+            value: value,
+            nonce: nonce,
+            deadline: uint48(block.timestamp + 1),
+            data: targetReverts
+                ? abi.encodeCall(CallReceiverMock.mockFunctionRevertsNoReason, ())
+                : abi.encodeCall(CallReceiverMock.mockFunction, ())
+        });
+
+        if (targetReverts) {
+            vm.expectRevert();
+        }
+
+        _erc2771Forwarder.execute{value: value}(requestData);
         assertEq(address(_erc2771Forwarder).balance, initialBalance);
     }
 
