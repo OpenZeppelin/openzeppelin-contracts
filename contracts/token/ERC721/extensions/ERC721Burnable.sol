@@ -19,9 +19,6 @@ abstract contract ERC721Burnable is Context, ERC721 {
      * - The caller must own `tokenId` or be an approved operator.
      */
     function burn(uint256 tokenId) public virtual {
-        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
-            revert ERC721InsufficientApproval(_msgSender(), tokenId);
-        }
-        _burn(tokenId);
+        _updateWithConstraints(address(0), tokenId, _constraintApprovedOrOwner);
     }
 }

@@ -141,11 +141,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
     function _update(
+        address from,
         address to,
-        uint256 tokenId,
-        function(address, address, uint256) view constraints
-    ) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, constraints);
+        uint256 tokenId
+    ) internal virtual override {
+        super._update(from, to, tokenId);
 
         // only mint after construction
         if (from == address(0) && address(this).code.length == 0) {
@@ -160,8 +160,6 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         ) {
             _sequentialBurn.set(tokenId);
         }
-
-        return from;
     }
 
     /**

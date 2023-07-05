@@ -155,7 +155,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _update(to, tokenId, _constraintApprovedOrOwner);
+        address owner = _updateWithConstraints(to, tokenId, _constraintApprovedOrOwner);
         if (owner != from) {
             revert ERC721IncorrectOwner(from, tokenId, owner);
         }
@@ -265,20 +265,29 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * The `constraints` argument is used to specify constraints, and eventually revert. For example this can be used
      * to ensure that the current owner is what was expected.
-
-     * All customizations to transfers, mints, and burns should be done by overriding this function.
      *
      * Emits a {Transfer} event.
      */
-    function _update(
+    function _updateWithConstraints(
         address to,
         uint256 tokenId,
         function(address, address, uint256) view constraints
     ) internal virtual returns (address) {
         address from = _ownerOf(tokenId);
-
         constraints(from, to, tokenId);
+        _update(from, to, tokenId);
+        return from;
+    }
 
+    /**
+     * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+     * (or `to`) is the zero address.
+     *
+     * All customizations to transfers, mints, and burns should be done by overriding this function.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _update(address from, address to, uint256 tokenId) internal virtual {
         if (from != address(0)) {
             delete _tokenApprovals[tokenId];
             unchecked {
@@ -295,8 +304,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
-
-        return from;
     }
 
     /**
@@ -315,7 +322,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        _update(to, tokenId, _constraintNotMinted);
+        _updateWithConstraints(to, tokenId, _constraintNotMinted);
     }
 
     /**
@@ -330,7 +337,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal {
-        _update(address(0), tokenId, _constraintMinted);
+        _updateWithConstraints(address(0), tokenId, _constraintMinted);
     }
 
     /**
@@ -348,7 +355,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _update(to, tokenId, _constraintMinted);
+        address owner = _updateWithConstraints(to, tokenId, _constraintMinted);
         if (owner != from) {
             revert ERC721IncorrectOwner(from, tokenId, owner);
         }
