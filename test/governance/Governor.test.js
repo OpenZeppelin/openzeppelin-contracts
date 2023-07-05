@@ -2,7 +2,6 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
-const { fromRpcSig, toRpcSig } = require('ethereumjs-util');
 
 const Enums = require('../helpers/enums');
 const { getDomain, domainType } = require('../helpers/eip712');
@@ -18,6 +17,7 @@ const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
+const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -166,55 +166,6 @@ contract('Governor', function (accounts) {
         expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
       });
 
-      it('votes with signature', async function () {
-        const voterBySig = Wallet.generate();
-        const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
-
-        const signature = (contract, message) =>
-          getDomain(contract)
-            .then(domain => ({
-              primaryType: 'Ballot',
-              types: {
-                EIP712Domain: domainType(domain),
-                Ballot: [
-                  { name: 'proposalId', type: 'uint256' },
-                  { name: 'support', type: 'uint8' },
-                  { name: 'voter', type: 'address' },
-                  { name: 'nonce', type: 'uint256' },
-                ],
-              },
-              domain,
-              message,
-            }))
-            .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
-            .then(fromRpcSig);
-
-        await this.token.delegate(voterBySigAddress, { from: voter1 });
-
-        const nonce = await this.mock.nonces(voterBySigAddress);
-
-        // Run proposal
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        expectEvent(
-          await this.helper.vote({ support: Enums.VoteType.For, voter: voterBySigAddress, nonce, signature }),
-          'VoteCast',
-          {
-            voter: voterBySigAddress,
-            support: Enums.VoteType.For,
-          },
-        );
-        await this.helper.waitForDeadline();
-        await this.helper.execute();
-
-        // After
-        expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voterBySigAddress)).to.be.equal(true);
-        expect(await this.mock.nonces(voterBySigAddress)).to.be.bignumber.equal(nonce.addn(1));
-      });
-
       it('send ethers', async function () {
         const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
@@ -242,6 +193,106 @@ contract('Governor', function (accounts) {
         // After
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
         expect(await web3.eth.getBalance(empty)).to.be.bignumber.equal(value);
+      });
+
+      describe('vote with signature', function () {
+        const sign = privateKey => async (contract, message) => {
+          const domain = await getDomain(contract);
+          return ethSigUtil.signTypedMessage(privateKey, {
+            data: {
+              primaryType: 'Ballot',
+              types: {
+                EIP712Domain: domainType(domain),
+                Ballot: [
+                  { name: 'proposalId', type: 'uint256' },
+                  { name: 'support', type: 'uint8' },
+                  { name: 'voter', type: 'address' },
+                  { name: 'nonce', type: 'uint256' },
+                ],
+              },
+              domain,
+              message,
+            },
+          });
+        };
+
+        afterEach('no other votes are cast for proposalId', async function () {
+          expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
+        });
+
+        it('votes with an EOA signature', async function () {
+          const voterBySig = Wallet.generate();
+          const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
+
+          await this.token.delegate(voterBySigAddress, { from: voter1 });
+
+          const nonce = await this.mock.nonces(voterBySigAddress);
+
+          // Run proposal
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          expectEvent(
+            await this.helper.vote({
+              support: Enums.VoteType.For,
+              voter: voterBySigAddress,
+              nonce,
+              signature: sign(voterBySig.getPrivateKey()),
+            }),
+            'VoteCast',
+            {
+              voter: voterBySigAddress,
+              support: Enums.VoteType.For,
+            },
+          );
+          await this.helper.waitForDeadline();
+          await this.helper.execute();
+
+          // After
+          expect(await this.mock.hasVoted(this.proposal.id, voterBySigAddress)).to.be.equal(true);
+          expect(await this.mock.nonces(voterBySigAddress)).to.be.bignumber.equal(nonce.addn(1));
+        });
+
+        it('votes with a valid EIP-1271 signature', async function () {
+          const ERC1271WalletOwner = Wallet.generate();
+          ERC1271WalletOwner.address = web3.utils.toChecksumAddress(ERC1271WalletOwner.getAddressString());
+
+          const wallet = await ERC1271WalletMock.new(ERC1271WalletOwner.address);
+
+          await this.token.delegate(wallet.address, { from: voter1 });
+
+          const nonce = await this.mock.nonces(wallet.address);
+
+          // Run proposal
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          expectEvent(
+            await this.helper.vote({
+              support: Enums.VoteType.For,
+              voter: wallet.address,
+              nonce,
+              signature: sign(ERC1271WalletOwner.getPrivateKey()),
+            }),
+            'VoteCast',
+            {
+              voter: wallet.address,
+              support: Enums.VoteType.For,
+            },
+          );
+          await this.helper.waitForDeadline();
+          await this.helper.execute();
+
+          // After
+          expect(await this.mock.hasVoted(this.proposal.id, wallet.address)).to.be.equal(true);
+          expect(await this.mock.nonces(wallet.address)).to.be.bignumber.equal(nonce.addn(1));
+        });
+
+        afterEach('no other votes are cast', async function () {
+          expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
+        });
       });
 
       describe('should revert', function () {
@@ -328,9 +379,9 @@ contract('Governor', function (accounts) {
               }));
 
             this.signature = (contract, message) =>
-              this.data(contract, message)
-                .then(data => ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }))
-                .then(fromRpcSig);
+              this.data(contract, message).then(data =>
+                ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }),
+              );
 
             await this.token.delegate(this.voterBySig.address, { from: voter1 });
 
@@ -348,19 +399,13 @@ contract('Governor', function (accounts) {
               nonce,
               signature: async (...params) => {
                 const sig = await this.signature(...params);
-                sig.s[12] ^= 0xff;
-                return sig;
+                const tamperedSig = web3.utils.hexToBytes(sig);
+                tamperedSig[42] ^= 0xff;
+                return web3.utils.bytesToHex(tamperedSig);
               },
             };
 
-            const { r, s, v } = await this.helper.sign(voteParams);
-            const message = this.helper.forgeMessage(voteParams);
-            const data = await this.data(this.mock, message);
-
-            await expectRevertCustomError(this.helper.vote(voteParams), 'GovernorInvalidSigner', [
-              ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }),
-              voteParams.voter,
-            ]);
+            await expectRevertCustomError(this.helper.vote(voteParams), 'GovernorInvalidSignature', [voteParams.voter]);
           });
 
           it('if vote nonce is incorrect', async function () {
@@ -373,15 +418,11 @@ contract('Governor', function (accounts) {
               signature: this.signature,
             };
 
-            const { r, s, v } = await this.helper.sign(voteParams);
-            const message = this.helper.forgeMessage(voteParams);
-            const data = await this.data(this.mock, { ...message, nonce });
-
             await expectRevertCustomError(
               this.helper.vote(voteParams),
               // The signature check implies the nonce can't be tampered without changing the signer
-              'GovernorInvalidSigner',
-              [ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }), voteParams.voter],
+              'GovernorInvalidSignature',
+              [voteParams.voter],
             );
           });
         });

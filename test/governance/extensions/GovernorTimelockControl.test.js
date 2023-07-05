@@ -155,7 +155,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
@@ -170,7 +170,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
