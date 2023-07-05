@@ -38,10 +38,8 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     mapping(address => address) private _delegation;
 
-    /// @custom:oz-retyped-from mapping(address => Checkpoints.History)
     mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
 
-    /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _totalCheckpoints;
 
     /**
