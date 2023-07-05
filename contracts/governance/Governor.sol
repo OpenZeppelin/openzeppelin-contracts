@@ -5,8 +5,8 @@ pragma solidity ^0.8.19;
 
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
 import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
-import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
@@ -47,7 +47,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
     string private _name;
 
-    /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
     mapping(uint256 => ProposalCore) private _proposals;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
@@ -517,22 +516,19 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 proposalId,
         uint8 support,
         address voter,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        bytes memory signature
     ) public virtual override returns (uint256) {
-        address signer = ECDSA.recover(
+        bool valid = SignatureChecker.isValidSignatureNow(
+            voter,
             _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
-            v,
-            r,
-            s
+            signature
         );
 
-        if (voter != signer) {
-            revert GovernorInvalidSigner(signer, voter);
+        if (!valid) {
+            revert GovernorInvalidSignature(voter);
         }
 
-        return _castVote(proposalId, signer, support, "");
+        return _castVote(proposalId, voter, support, "");
     }
 
     /**
@@ -544,11 +540,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         string calldata reason,
         bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        bytes memory signature
     ) public virtual override returns (uint256) {
-        address signer = ECDSA.recover(
+        bool valid = SignatureChecker.isValidSignatureNow(
+            voter,
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
@@ -562,16 +557,14 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
                     )
                 )
             ),
-            v,
-            r,
-            s
+            signature
         );
 
-        if (voter != signer) {
-            revert GovernorInvalidSigner(signer, voter);
+        if (!valid) {
+            revert GovernorInvalidSignature(voter);
         }
 
-        return _castVote(proposalId, signer, support, reason, params);
+        return _castVote(proposalId, voter, support, reason, params);
     }
 
     /**
