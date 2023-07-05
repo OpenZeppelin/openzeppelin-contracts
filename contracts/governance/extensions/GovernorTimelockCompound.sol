@@ -42,9 +42,11 @@ abstract contract GovernorTimelockCompound is Governor {
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);
 
-        return (currentState == ProposalState.Queued && block.timestamp >= proposalEta(proposalId) + _timelock.GRACE_PERIOD())
-            ? ProposalState.Expired
-            : currentState;
+        return
+            (currentState == ProposalState.Queued &&
+                block.timestamp >= proposalEta(proposalId) + _timelock.GRACE_PERIOD())
+                ? ProposalState.Expired
+                : currentState;
     }
 
     /**
