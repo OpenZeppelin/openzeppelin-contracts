@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { capitalize, unique } = require('../../helpers');
+const { capitalize } = require('../../helpers');
 
 const TYPES = [
   { type: 'address', isValueType: true, version: '4.1' },
