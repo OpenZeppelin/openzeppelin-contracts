@@ -221,7 +221,9 @@ index d94e956a..86bb5713 100644
 -    uint256 private immutable _cachedChainId;
 -    address private immutable _cachedThis;
 -
++    /// @custom:oz-renamed-from _HASHED_NAME
      bytes32 private immutable _hashedName;
++    /// @custom:oz-renamed-from _HASHED_VERSION
      bytes32 private immutable _hashedVersion;
  
 -    ShortString private immutable _name;
