@@ -18,13 +18,9 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Core
 
-{{IERC1155}}
-
 {{IERC1155MetadataURI}}
 
 {{ERC1155}}
-
-{{IERC1155Receiver}}
 
 {{ERC1155Receiver}}
 

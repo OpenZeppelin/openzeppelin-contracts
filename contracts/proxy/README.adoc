@@ -56,8 +56,6 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 == ERC1967
 
-{{IERC1967}}
-
 {{ERC1967Proxy}}
 
 {{ERC1967Utils}}
@@ -71,8 +69,6 @@ The current implementation of this security mechanism uses https://eips.ethereum
 == Beacon
 
 {{BeaconProxy}}
-
-{{IBeacon}}
 
 {{UpgradeableBeacon}}
 

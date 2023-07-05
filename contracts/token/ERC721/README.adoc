@@ -34,17 +34,11 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Core
 
-{{IERC721}}
-
 {{IERC721Metadata}}
-
-{{IERC721Enumerable}}
 
 {{ERC721}}
 
 {{ERC721Enumerable}}
-
-{{IERC721Receiver}}
 
 == Extensions
 

@@ -36,8 +36,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Core
 
-{{IERC20}}
-
 {{IERC20Metadata}}
 
 {{ERC20}}
