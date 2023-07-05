@@ -1,4 +1,3 @@
-const assert = require('assert');
 const format = require('../format-lines');
 const { range } = require('../../helpers');
 
