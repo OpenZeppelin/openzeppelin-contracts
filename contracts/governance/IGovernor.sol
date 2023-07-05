@@ -8,8 +8,6 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
- *
- * _Available since v4.3._
  */
 abstract contract IGovernor is IERC165, IERC6372 {
     enum ProposalState {

@@ -109,8 +109,6 @@ const toUintDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toUint(uint)', length)}._
  */
 function toUint${length}(uint256 value) internal pure returns (uint${length}) {
     if (value > type(uint${length}).max) {
@@ -132,8 +130,6 @@ const toIntDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toInt(int)', length)}._
  */
 function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
     downcasted = int${length}(value);
@@ -151,8 +147,6 @@ const toInt = length => `\
  * Requirements:
  *
  * - input must be less than or equal to maxInt${length}.
- *
- * _Available since v${version('toInt(uint)', length)}._
  */
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
@@ -170,8 +164,6 @@ const toUint = length => `\
  * Requirements:
  *
  * - input must be greater than or equal to 0.
- *
- * _Available since v${version('toUint(int)', length)}._
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
     if (value < 0) {

@@ -10,13 +10,6 @@ const TYPES = [
   { type: 'bytes', isValueType: false, version: '4.9' },
 ].map(type => Object.assign(type, { struct: (type.name ?? capitalize(type.type)) + 'Slot' }));
 
-const VERSIONS = unique(TYPES.map(t => t.version)).map(
-  version =>
-    `_Available since v${version} for ${TYPES.filter(t => t.version == version)
-      .map(t => `\`${t.type}\``)
-      .join(', ')}._`,
-);
-
 const header = `\
 pragma solidity ^0.8.19;
 
@@ -43,8 +36,6 @@ pragma solidity ^0.8.19;
  *     }
  * }
  * \`\`\`
- *
-${VERSIONS.map(s => ` * ${s}`).join('\n')}
  */
 `;
 

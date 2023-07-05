@@ -23,8 +23,6 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
  * - Additionally, {votingPeriod} must also be implemented
- *
- * _Available since v4.3._
  */
 abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;

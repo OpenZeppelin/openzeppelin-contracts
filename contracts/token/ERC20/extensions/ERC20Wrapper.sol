@@ -12,8 +12,6 @@ import {SafeERC20} from "../utils/SafeERC20.sol";
  * Users can deposit and withdraw "underlying tokens" and receive a matching number of "wrapped tokens". This is useful
  * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC20Votes} will allow the
  * wrapping of an existing "basic" ERC20 into a governance token.
- *
- * _Available since v4.2._
  */
 abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;

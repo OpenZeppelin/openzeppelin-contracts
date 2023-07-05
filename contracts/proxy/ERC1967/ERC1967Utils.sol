@@ -10,8 +10,6 @@ import {StorageSlot} from "../../utils/StorageSlot.sol";
 /**
  * @dev This abstract contract provides getters and event emitting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
- *
- * _Available since v4.1._
  */
 library ERC1967Utils {
     // We re-declare ERC-1967 events here because they can't be used directly from IERC1967.
