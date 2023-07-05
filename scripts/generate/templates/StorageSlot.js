@@ -1,13 +1,13 @@
 const format = require('../format-lines');
-const { capitalize, unique } = require('../../helpers');
+const { capitalize } = require('../../helpers');
 
 const TYPES = [
-  { type: 'address', isValueType: true, version: '4.1' },
-  { type: 'bool', isValueType: true, name: 'Boolean', version: '4.1' },
-  { type: 'bytes32', isValueType: true, version: '4.1' },
-  { type: 'uint256', isValueType: true, version: '4.1' },
-  { type: 'string', isValueType: false, version: '4.9' },
-  { type: 'bytes', isValueType: false, version: '4.9' },
+  { type: 'address', isValueType: true },
+  { type: 'bool', isValueType: true, name: 'Boolean' },
+  { type: 'bytes32', isValueType: true },
+  { type: 'uint256', isValueType: true },
+  { type: 'string', isValueType: false },
+  { type: 'bytes', isValueType: false },
 ].map(type => Object.assign(type, { struct: (type.name ?? capitalize(type.type)) + 'Slot' }));
 
 const header = `\
