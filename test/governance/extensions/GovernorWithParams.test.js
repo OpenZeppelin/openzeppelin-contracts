@@ -2,11 +2,12 @@ const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
-const { fromRpcSig } = require('ethereumjs-util');
+const { fromRpcSig, toRpcSig } = require('ethereumjs-util');
 
 const Enums = require('../../helpers/enums');
 const { getDomain, domainType } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Governor = artifacts.require('$GovernorWithParamsMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -119,56 +120,119 @@ contract('GovernorWithParams', function (accounts) {
         expect(votes.forVotes).to.be.bignumber.equal(weight);
       });
 
-      it('Voting with params by signature is properly supported', async function () {
-        const voterBySig = Wallet.generate();
-        const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
+      describe('voting by signature', function () {
+        beforeEach(async function () {
+          this.voterBySig = Wallet.generate();
+          this.voterBySig.address = web3.utils.toChecksumAddress(this.voterBySig.getAddressString());
 
-        const signature = (contract, message) =>
-          getDomain(contract)
-            .then(domain => ({
+          this.data = (contract, message) =>
+            getDomain(contract).then(domain => ({
               primaryType: 'ExtendedBallot',
               types: {
                 EIP712Domain: domainType(domain),
                 ExtendedBallot: [
                   { name: 'proposalId', type: 'uint256' },
                   { name: 'support', type: 'uint8' },
+                  { name: 'voter', type: 'address' },
+                  { name: 'nonce', type: 'uint256' },
                   { name: 'reason', type: 'string' },
                   { name: 'params', type: 'bytes' },
                 ],
               },
               domain,
               message,
-            }))
-            .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
-            .then(fromRpcSig);
+            }));
 
-        await this.token.delegate(voterBySigAddress, { from: voter2 });
+          this.signature = (contract, message) =>
+            this.data(contract, message)
+              .then(data => ethSigUtil.signTypedMessage(this.voterBySig.getPrivateKey(), { data }))
+              .then(fromRpcSig);
 
-        // Run proposal
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
+          await this.token.delegate(this.voterBySig.address, { from: voter2 });
 
-        const weight = web3.utils.toBN(web3.utils.toWei('7')).sub(rawParams.uintParam);
-
-        const tx = await this.helper.vote({
-          support: Enums.VoteType.For,
-          reason: 'no particular reason',
-          params: encodedParams,
-          signature,
+          // Run proposal
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
         });
 
-        expectEvent(tx, 'CountParams', { ...rawParams });
-        expectEvent(tx, 'VoteCastWithParams', {
-          voter: voterBySigAddress,
-          proposalId: this.proposal.id,
-          support: Enums.VoteType.For,
-          weight,
-          reason: 'no particular reason',
-          params: encodedParams,
+        it('is properly supported', async function () {
+          const weight = web3.utils.toBN(web3.utils.toWei('7')).sub(rawParams.uintParam);
+
+          const nonce = await this.mock.nonces(this.voterBySig.address);
+
+          const tx = await this.helper.vote({
+            support: Enums.VoteType.For,
+            voter: this.voterBySig.address,
+            nonce,
+            reason: 'no particular reason',
+            params: encodedParams,
+            signature: this.signature,
+          });
+
+          expectEvent(tx, 'CountParams', { ...rawParams });
+          expectEvent(tx, 'VoteCastWithParams', {
+            voter: this.voterBySig.address,
+            proposalId: this.proposal.id,
+            support: Enums.VoteType.For,
+            weight,
+            reason: 'no particular reason',
+            params: encodedParams,
+          });
+
+          const votes = await this.mock.proposalVotes(this.proposal.id);
+          expect(votes.forVotes).to.be.bignumber.equal(weight);
+          expect(await this.mock.nonces(this.voterBySig.address)).to.be.bignumber.equal(nonce.addn(1));
         });
 
-        const votes = await this.mock.proposalVotes(this.proposal.id);
-        expect(votes.forVotes).to.be.bignumber.equal(weight);
+        it('reverts if signature does not match signer', async function () {
+          const nonce = await this.mock.nonces(this.voterBySig.address);
+
+          const voteParams = {
+            support: Enums.VoteType.For,
+            voter: this.voterBySig.address,
+            nonce,
+            signature: async (...params) => {
+              const sig = await this.signature(...params);
+              sig.s[12] ^= 0xff;
+              return sig;
+            },
+            reason: 'no particular reason',
+            params: encodedParams,
+          };
+
+          const { r, s, v } = await this.helper.sign(voteParams);
+          const message = this.helper.forgeMessage(voteParams);
+          const data = await this.data(this.mock, message);
+
+          await expectRevertCustomError(this.helper.vote(voteParams), 'GovernorInvalidSigner', [
+            ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }),
+            voteParams.voter,
+          ]);
+        });
+
+        it('reverts if vote nonce is incorrect', async function () {
+          const nonce = await this.mock.nonces(this.voterBySig.address);
+
+          const voteParams = {
+            support: Enums.VoteType.For,
+            voter: this.voterBySig.address,
+            nonce: nonce.addn(1),
+            signature: this.signature,
+            reason: 'no particular reason',
+            params: encodedParams,
+          };
+
+          const { r, s, v } = await this.helper.sign(voteParams);
+          const message = this.helper.forgeMessage(voteParams);
+          const data = await this.data(this.mock, { ...message, nonce });
+
+          await expectRevertCustomError(
+            this.helper.vote(voteParams),
+            // The signature check implies the nonce can't be tampered without changing the signer
+            'GovernorInvalidSigner',
+            [ethSigUtil.recoverTypedSignature({ sig: toRpcSig(v, r, s), data }), voteParams.voter],
+          );
+        });
       });
     });
   }

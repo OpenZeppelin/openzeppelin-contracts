@@ -20,6 +20,25 @@ import {Address} from "../utils/Address.sol";
  * * `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
+ *
+ * Relayers are able to submit batches if they are processing a high volume of requests. With high
+ * throughput, relayers may run into limitations of the chain such as limits on the number of
+ * transactions in the mempool. In these cases the recommendation is to distribute the load among
+ * multiple accounts.
+ *
+ * ==== Security Considerations
+ *
+ * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
+ * specified in the request. This contract does not implement any kind of retribution for this gas,
+ * and it is assumed that there is an out of band incentive for relayers to pay for execution on
+ * behalf of signers. Often, the relayer is operated by a project that will consider it a user
+ * acquisition cost.
+ *
+ * By offering to pay for gas, relayers are at risk of having that gas used by an attacker toward
+ * some other purpose that is not aligned with the expected out of band incentives. If you operate a
+ * relayer, consider whitelisting target contracts and function selectors. When relaying ERC-721 or
+ * ERC-1155 transfers specifically, consider rejecting the use of the `data` field, since it can be
+ * used to execute arbitrary code.
  */
 contract ERC2771Forwarder is EIP712, Nonces {
     using ECDSA for bytes32;
