@@ -15,8 +15,6 @@ import {IGovernorCompatibilityBravo} from "./IGovernorCompatibilityBravo.sol";
  * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     enum VoteType {

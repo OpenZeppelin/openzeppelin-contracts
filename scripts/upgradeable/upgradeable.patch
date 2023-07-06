@@ -126,7 +126,7 @@ index df141192..1cf90ad1 100644
    "keywords": [
      "solidity",
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index d94e956a..b2d3546f 100644
+index ff34e814..a9d08d5c 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -137,10 +137,10 @@ index d94e956a..b2d3546f 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -29,28 +28,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -27,28 +26,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+  * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+  * separator of the implementation contract. This will cause the `_domainSeparatorV4` function to always rebuild the
   * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
-  *
-  * _Available since v3.4._
 - *
 - * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
   */
@@ -170,7 +170,7 @@ index d94e956a..b2d3546f 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -65,29 +54,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -63,29 +52,23 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -208,7 +208,7 @@ index d94e956a..b2d3546f 100644
      }
  
      /**
-@@ -128,6 +111,10 @@ abstract contract EIP712 is IERC5267 {
+@@ -124,6 +107,10 @@ abstract contract EIP712 is IERC5267 {
              uint256[] memory extensions
          )
      {
@@ -219,14 +219,12 @@ index d94e956a..b2d3546f 100644
          return (
              hex"0f", // 01111
              _EIP712Name(),
-@@ -142,26 +129,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -138,22 +125,62 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
 -     * NOTE: By default this function reads _name which is an immutable value.
 -     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
--     *
--     * _Available since v5.0._
 +     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
 +     * are a concern.
       */
@@ -244,7 +242,10 @@ index d94e956a..b2d3546f 100644
 -     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
 +     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
 +     * are a concern.
-+     */
+      */
+-    // solhint-disable-next-line func-name-mixedcase
+-    function _EIP712Version() internal view returns (string memory) {
+-        return _version.toStringWithFallback(_versionFallback);
 +    function _EIP712Version() internal view virtual returns (string memory) {
 +        return _version;
 +    }
@@ -272,13 +273,9 @@ index d94e956a..b2d3546f 100644
 +
 +    /**
 +     * @dev The hash of the version parameter for the EIP712 domain.
-      *
--     * _Available since v5.0._
++     *
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
-      */
--    // solhint-disable-next-line func-name-mixedcase
--    function _EIP712Version() internal view returns (string memory) {
--        return _version.toStringWithFallback(_versionFallback);
++     */
 +    function _EIP712VersionHash() internal view returns (bytes32) {
 +        string memory version = _EIP712Version();
 +        if (bytes(version).length > 0) {

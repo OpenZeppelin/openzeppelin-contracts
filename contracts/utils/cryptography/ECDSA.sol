@@ -63,8 +63,6 @@ library ECDSA {
      * Documentation for signature generation:
      * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
      * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
-     *
-     * _Available since v4.3._
      */
     function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError, bytes32) {
         if (signature.length == 65) {
@@ -109,8 +107,6 @@ library ECDSA {
      * @dev Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.
      *
      * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]
-     *
-     * _Available since v4.3._
      */
     function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError, bytes32) {
         unchecked {
@@ -123,8 +119,6 @@ library ECDSA {
 
     /**
      * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
-     *
-     * _Available since v4.2._
      */
     function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, r, vs);
@@ -135,8 +129,6 @@ library ECDSA {
     /**
      * @dev Overload of {ECDSA-tryRecover} that receives the `v`,
      * `r` and `s` signature fields separately.
-     *
-     * _Available since v4.3._
      */
     function tryRecover(
         bytes32 hash,
