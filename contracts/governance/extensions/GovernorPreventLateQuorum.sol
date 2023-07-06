@@ -20,7 +20,6 @@ import {Math} from "../../utils/math/Math.sol";
 abstract contract GovernorPreventLateQuorum is Governor {
     uint48 private _voteExtension;
 
-    /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
     mapping(uint256 => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
