@@ -32,9 +32,14 @@ library Time {
     function isSet(Timepoint self) internal pure returns (bool) { return self.get() != 0; }
 
     /**
+     * @dev Check if a Timepoint is before another
+     */
+    function isBefore(Timepoint self, Timepoint ref) internal pure returns (bool) { return self.get() < ref.get(); }
+
+    /**
      * @dev Check if a Timepoint is in the past
      */
-    function isPast(Timepoint self) internal view returns (bool) { return self.get() < clock().get(); }
+    function isPast(Timepoint self) internal view returns (bool) { return self.isBefore(clock()); }
 
     /**
      * @dev Check if a Timepoint is set and in the past

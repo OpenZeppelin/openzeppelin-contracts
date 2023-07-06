@@ -8,65 +8,7 @@ import "../../utils/Address.sol";
 import "../../utils/Context.sol";
 import "../../utils/types/Time.sol";
 
-
-
-
-
-
-
-contract DelayedActions is Context {
-    using Time for *;
-
-    mapping(bytes32 => Time.Timepoint) private _schedules; // todo: add accessor
-
-    event Scheduled(bytes32, address, address, bytes);
-    event Executed(bytes32);
-    event Canceled(bytes32);
-
-    modifier withDelay(Time.Duration setback) {
-        _executeCheck(_hashOperation(_msgSender(), address(this), _msgData()), setback);
-        _;
-    }
-
-    function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
-        return _schedule(_msgSender(), target, data);
-    }
-
-    function _schedule(address caller, address target, bytes calldata data) internal virtual returns (bytes32) {
-        bytes32 id = _hashOperation(caller, target, data);
-        require(!_schedules[id].isSet(), "Already scheduled");
-        _schedules[id] = Time.clock();
-        emit Scheduled(id, caller, target, data);
-        return id;
-    }
-
-    function _executeCheck(bytes32 id, Time.Duration setback) internal virtual {
-        Time.Timepoint timepoint = _schedules[id];
-        if (setback.get() != 0) {
-            require(timepoint.isSet(), "missing schedule");
-            require(timepoint.add(setback).isPast(), "not ready");
-        }
-        if (timepoint.isSet()) {
-            _schedules[id] = 0.toTimepoint(); // delete
-            emit Executed(id);
-        }
-    }
-
-    function _cancel(bytes32 id) internal virtual {
-        require(_schedules[id].isSet(), "invalid schedule");
-        _schedules[id] = 0.toTimepoint(); // delete
-        emit Canceled(id);
-    }
-
-    function _hashOperation(address caller, address target, bytes calldata data) internal virtual pure returns (bytes32) {
-        return keccak256(abi.encode(caller, target, data));
-    }
-}
-
-
-
-
-contract AccessManager is IAccessManager, DelayedActions {
+contract AccessManager is Context, IAccessManager {
     using Time for *;
 
     uint256 public constant ADMIN_GROUP  = type(uint256).min; // 0
@@ -75,16 +17,45 @@ contract AccessManager is IAccessManager, DelayedActions {
     mapping(address target => AccessMode mode) private _contractMode;
     mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
     mapping(uint256 group => Group) private _groups;
+    mapping(bytes32 => Time.Timepoint) private _schedules;
 
     // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
+
+    /**
+     * @dev A delay operation was schedule.
+     */
+    event Scheduled(bytes32 id, address caller, address target, bytes data);
+
+    /**
+     * @dev A scheduled operation was executed.
+     */
+    event Executed(bytes32);
+
+    /**
+     * @dev A scheduled operation was canceled.
+     */
+    event Canceled(bytes32);
+
+    error AccessManagerAlreadyScheduled(bytes32 id);
+    error AccessManagerNotScheduled(bytes32 id);
+    error AccessManagerNotReady(bytes32 id);
+    error AccessManagerAcountAlreadyInGroup(uint256 group, address account);
+    error AccessManagerAcountNotInGroup(uint256 group, address account);
+    error AccessManagerBadConfirmation();
+    error AccessControlUnauthorizedAccount(address msgsender, uint256 group);
+    error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
+    error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
 
     /**
      * @dev Check that the caller has a given permission level (`group`). Note that this does NOT consider execution
      * delays that may be associated to that group.
      */
     modifier onlyGroup(uint256 group) {
-        require(hasGroup(group, _msgSender()));
+        address msgsender = _msgSender();
+        if (!hasGroup(group, msgsender)) {
+            revert AccessControlUnauthorizedAccount(msgsender, group);
+        }
         _;
     }
 
@@ -216,7 +187,9 @@ contract AccessManager is IAccessManager, DelayedActions {
      * todo: emit an event
      */
     function renounceRole(uint256 group, address callerConfirmation) public virtual {
-        require(callerConfirmation == _msgSender(), "AccessManager: can only renounce roles for self");
+        if (callerConfirmation != _msgSender()) {
+            revert AccessManagerBadConfirmation();
+        }
         _revokeRole(group, callerConfirmation);
     }
 
@@ -281,7 +254,9 @@ contract AccessManager is IAccessManager, DelayedActions {
      * todo: emit an event
      */
     function _grantRole(uint256 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal virtual {
-        require(!_groups[group].members[account].since.isSet(), "AccessManager: account is already in group");
+        if (_groups[group].members[account].since.isSet()) {
+            revert AccessManagerAcountAlreadyInGroup(group, account);
+        }
         _groups[group].members[account] = Access({
             since: Time.clock().add(grantDelay),
             delay: executionDelay.toDelay()
@@ -295,7 +270,9 @@ contract AccessManager is IAccessManager, DelayedActions {
      * todo: emit an event
      */
     function _revokeRole(uint256 group, address account) internal virtual {
-        require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
+        if (!_groups[group].members[account].since.isSet()) {
+            revert AccessManagerAcountNotInGroup(group, account);
+        }
         delete _groups[group].members[account];
         // todo emit event
     }
@@ -309,7 +286,9 @@ contract AccessManager is IAccessManager, DelayedActions {
      * todo: emit an event
      */
     function _setExecuteDelay(uint256 group, address account, Time.Duration newDuration, bool immediate) internal virtual {
-        require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
+        if (!_groups[group].members[account].since.isSet()) {
+            revert AccessManagerAcountNotInGroup(group, account);
+        }
 
         // Here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
         // enforced when scheduling.
@@ -451,12 +430,76 @@ contract AccessManager is IAccessManager, DelayedActions {
         // todo emit event
     }
 
-    // ==================================================== OTHERS ====================================================
+    // =============================================== DELAYED ACTIONS ================================================
     /**
-     * @dev See {DelayedActions-schedule}
+     * @dev Return the timepoint at which an action was scheduled.
      */
-    function schedule(address target, bytes calldata data) public virtual override(IAccessManager, DelayedActions) returns (bytes32) {
-        return super.schedule(target, data);
+    function getSchedule(bytes32 id) public virtual returns (Time.Timepoint) {
+        return _schedules[id];
+    }
+
+    /**
+     * @dev Schedule a delayed action, and return the action identifier.
+     *
+     * Emits an {Scheduled} event.
+     */
+    function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
+        address caller = _msgSender();
+
+        bytes32 id = _hashOperation(caller, target, data);
+        if (_schedules[id].isSet()) {
+            revert AccessManagerAlreadyScheduled(id);
+        }
+        _schedules[id] = Time.clock();
+
+        emit Scheduled(id, caller, target, data);
+
+        return id;
+    }
+
+    /**
+     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
+     * execution delay is 0.
+     *
+     * Emits an {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
+     */
+    function relay(address target, bytes calldata data) public payable virtual {
+        address caller = _msgSender();
+        bytes4 selector = bytes4(data[0:4]);
+
+        // Fetch restriction to that apply to the caller on the targeted function
+        (bool allowed, uint32 setback) = canCall(caller, target, selector);
+
+        // If caller is not authorised, revert
+        if (!allowed) {
+            revert AccessManagerUnauthorizedCall(caller, target, selector);
+        }
+
+        // If caller is authorised, check operation was scheduled early enough
+        bytes32 id = _hashOperation(caller, target, data);
+        Time.Timepoint timepoint = _schedules[id];
+        if (setback != 0) {
+            if (!timepoint.isSet()) {
+                revert AccessManagerNotScheduled(id);
+            }
+            if (!timepoint.add(setback.toDuration()).isPast()) {
+                revert AccessManagerNotReady(id);
+            }
+        }
+        if (timepoint.isSet()) {
+            _schedules[id] = 0.toTimepoint(); // delete
+            emit Executed(id);
+        }
+
+        // Mark the target and selector as authorised
+        bytes32 relayIdentifierBefore = _relayIdentifier;
+        _relayIdentifier = keccak256(abi.encodePacked(target, selector));
+
+        // Perform call
+        Address.functionCallWithValue(target, data, msg.value);
+
+        // Reset relay identifier
+        _relayIdentifier = relayIdentifierBefore;
     }
 
     /**
@@ -470,31 +513,30 @@ contract AccessManager is IAccessManager, DelayedActions {
      */
     function cancel(address caller, address target, bytes calldata data) public virtual {
         address msgsender = _msgSender();
-        require(caller == msgsender && hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, bytes4(data[0:4]))), msgsender), "unauthorised");
-        _cancel(_hashOperation(caller, target, data));
+        bytes4 selector = bytes4(data[0:4]);
+
+        // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
+        if (
+            caller != msgsender ||
+            hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)
+        ) {
+            revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+        }
+
+        bytes32 id = _hashOperation(caller, target, data);
+        if (!_schedules[id].isSet()) {
+            revert AccessManagerNotScheduled(id);
+        }
+        _schedules[id] = 0.toTimepoint(); // delete
+
+        emit Canceled(id);
     }
 
-    /**
-     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
-     * execution delay is 0.
-     *
-     * Emits an {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
-     */
-    function relay(address target, bytes calldata data) public payable virtual {
-        address caller = _msgSender();
-        (bool allowed, uint32 setback) = canCall(caller, target, bytes4(data[0:4]));
-
-        require(allowed, "unauthorized");
-        _executeCheck(_hashOperation(caller, target, data), setback.toDuration());
-
-        bytes32 relayIdentifierBefore = _relayIdentifier;
-        _relayIdentifier = keccak256(abi.encodePacked(target, bytes4(data[0:4])));
-
-        Address.functionCallWithValue(target, data, msg.value);
-
-        _relayIdentifier = relayIdentifierBefore;
+    function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
+        return keccak256(abi.encode(caller, target, data));
     }
 
+    // ==================================================== OTHERS ====================================================
     /**
      * @dev Change the AccessManager instance used by a contract that correctly uses this instace.
      *
