@@ -1,6 +1,8 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
+
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const shouldBehaveLikeClone = require('./Clones.behaviour');
 
@@ -36,7 +38,7 @@ contract('Clones', function (accounts) {
       // deploy once
       expectEvent(await factory.$cloneDeterministic(implementation, salt), 'return$cloneDeterministic');
       // deploy twice
-      await expectRevert(factory.$cloneDeterministic(implementation, salt), 'ERC1167: create2 failed');
+      await expectRevertCustomError(factory.$cloneDeterministic(implementation, salt), 'ERC1167FailedCreateClone', []);
     });
 
     it('address prediction', async function () {

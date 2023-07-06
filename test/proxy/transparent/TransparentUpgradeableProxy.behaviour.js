@@ -1,10 +1,11 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const { expect } = require('chai');
+const { web3 } = require('hardhat');
 
-const Proxy = artifacts.require('Proxy');
 const Implementation1 = artifacts.require('Implementation1');
 const Implementation2 = artifacts.require('Implementation2');
 const Implementation3 = artifacts.require('Implementation3');
@@ -34,9 +35,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
   describe('implementation', function () {
     it('returns the current implementation address', async function () {
-      const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-
-      expect(implementation).to.be.equal(this.implementationV0);
+      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+      expect(implementationAddress).to.be.equal(this.implementationV0);
     });
 
     it('delegates to the implementation', async function () {
@@ -44,6 +44,32 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const value = await dummy.get();
 
       expect(value).to.equal(true);
+    });
+  });
+
+  describe('proxy admin', function () {
+    it('emits AdminChanged event during construction', async function () {
+      expectEvent.inConstruction(this.proxy, 'AdminChanged', {
+        previousAdmin: ZERO_ADDRESS,
+        newAdmin: proxyAdminAddress,
+      });
+    });
+
+    it('sets the admin in the storage', async function () {
+      expect(await getAddressInSlot(this.proxy, AdminSlot)).to.be.equal(proxyAdminAddress);
+    });
+
+    it('can overwrite the admin by the implementation', async function () {
+      const dummy = new DummyImplementation(this.proxyAddress);
+      await dummy.unsafeOverrideAdmin(anotherAccount);
+      const ERC1967AdminSlotValue = await getAddressInSlot(this.proxy, AdminSlot);
+      expect(ERC1967AdminSlotValue).to.be.equal(anotherAccount);
+
+      // Still allows previous admin to execute admin operations
+      expect(ERC1967AdminSlotValue).to.not.equal(proxyAdminAddress);
+      expectEvent(await this.proxy.upgradeTo(this.implementationV1, { from: proxyAdminAddress }), 'Upgraded', {
+        implementation: this.implementationV1,
+      });
     });
   });
 
@@ -55,8 +81,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         it('upgrades to the requested implementation', async function () {
           await this.proxy.upgradeTo(this.implementationV1, { from });
 
-          const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-          expect(implementation).to.be.equal(this.implementationV1);
+          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+          expect(implementationAddress).to.be.equal(this.implementationV1);
         });
 
         it('emits an event', async function () {
@@ -68,10 +94,9 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
       describe('when the given implementation is the zero address', function () {
         it('reverts', async function () {
-          await expectRevert(
-            this.proxy.upgradeTo(ZERO_ADDRESS, { from }),
-            'ERC1967: new implementation is not a contract',
-          );
+          await expectRevertCustomError(this.proxy.upgradeTo(ZERO_ADDRESS, { from }), 'ERC1967InvalidImplementation', [
+            ZERO_ADDRESS,
+          ]);
         });
       });
     });
@@ -103,8 +128,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           });
 
           it('upgrades to the requested implementation', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-            expect(implementation).to.be.equal(this.behavior.address);
+            const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+            expect(implementationAddress).to.be.equal(this.behavior.address);
           });
 
           it('emits an event', function () {
@@ -122,13 +147,11 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             expect(balance.toString()).to.be.bignumber.equal(value.toString());
           });
 
-          it.skip('uses the storage of the proxy', async function () {
+          it('uses the storage of the proxy', async function () {
             // storage layout should look as follows:
-            //  - 0: Initializable storage
-            //  - 1-50: Initailizable reserved storage (50 slots)
-            //  - 51: initializerRan
-            //  - 52: x
-            const storedValue = await Proxy.at(this.proxyAddress).getStorageAt(52);
+            //  - 0: Initializable storage ++ initializerRan ++ onlyInitializingRan
+            //  - 1: x
+            const storedValue = await web3.eth.getStorageAt(this.proxyAddress, 1);
             expect(parseInt(storedValue)).to.eq(42);
           });
         });
@@ -168,7 +191,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           });
 
           it('upgrades to the requested version and emits an event', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+            const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
             expect(implementation).to.be.equal(this.behaviorV1.address);
             expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
           });
@@ -196,7 +219,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             });
 
             it('upgrades to the requested version and emits an event', async function () {
-              const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+              const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
               expect(implementation).to.be.equal(this.behaviorV2.address);
               expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
@@ -227,7 +250,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
               });
 
               it('upgrades to the requested version and emits an event', async function () {
-                const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+                const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
                 expect(implementation).to.be.equal(this.behaviorV3.address);
                 expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
@@ -261,93 +284,49 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
   });
 
-  describe('changeAdmin', function () {
-    describe('when the new proposed admin is not the zero address', function () {
-      const newAdmin = anotherAccount;
-
-      describe('when the sender is the admin', function () {
-        beforeEach('transferring', async function () {
-          this.receipt = await this.proxy.changeAdmin(newAdmin, { from: proxyAdminAddress });
-        });
-
-        it('assigns new proxy admin', async function () {
-          const newProxyAdmin = await this.proxy.admin.call({ from: newAdmin });
-          expect(newProxyAdmin).to.be.equal(anotherAccount);
-        });
-
-        it('emits an event', function () {
-          expectEvent(this.receipt, 'AdminChanged', {
-            previousAdmin: proxyAdminAddress,
-            newAdmin: newAdmin,
-          });
-        });
-      });
-
-      describe('when the sender is not the admin', function () {
-        it('reverts', async function () {
-          await expectRevert.unspecified(this.proxy.changeAdmin(newAdmin, { from: anotherAccount }));
-        });
-      });
-    });
-
-    describe('when the new proposed admin is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevert(
-          this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'ERC1967: new admin is the zero address',
-        );
-      });
-    });
-  });
-
-  describe('storage', function () {
-    it('should store the implementation address in specified location', async function () {
-      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-      expect(implementationAddress).to.be.equal(this.implementationV0);
-    });
-
-    it('should store the admin proxy in specified location', async function () {
-      const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
-      const proxyAdminAddress = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
-      expect(proxyAdminAddress).to.be.equal(proxyAdminAddress);
-    });
-  });
-
   describe('transparent proxy', function () {
     beforeEach('creating proxy', async function () {
       const initializeData = Buffer.from('');
-      this.impl = await ClashingImplementation.new();
-      this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
-
+      this.clashingImplV0 = (await ClashingImplementation.new()).address;
+      this.clashingImplV1 = (await ClashingImplementation.new()).address;
+      this.proxy = await createProxy(this.clashingImplV0, proxyAdminAddress, initializeData, {
+        from: proxyAdminOwner,
+      });
       this.clashing = new ClashingImplementation(this.proxy.address);
     });
 
     it('proxy admin cannot call delegated functions', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
-        'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
+        'ProxyDeniedAdminAccess',
+        [],
       );
     });
 
     describe('when function names clash', function () {
-      it('when sender is proxy admin should run the proxy function', async function () {
-        const value = await this.proxy.admin.call({ from: proxyAdminAddress, value: 0 });
-        expect(value).to.be.equal(proxyAdminAddress);
+      it('executes the proxy function if the sender is the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: proxyAdminAddress, value: 0 });
+        expectEvent(receipt, 'Upgraded', { implementation: this.clashingImplV1 });
       });
 
-      it('when sender is other should delegate to implementation', async function () {
-        const value = await this.proxy.admin.call({ from: anotherAccount, value: 0 });
-        expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
+      it('delegates the call to implementation when sender is not the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: anotherAccount, value: 0 });
+        expectEvent.notEmitted(receipt, 'Upgraded');
+        expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
       });
 
-      it('when sender is proxy admin value should not be accepted', async function () {
-        await expectRevert.unspecified(this.proxy.admin.call({ from: proxyAdminAddress, value: 1 }));
+      it('requires 0 value calling upgradeTo by proxy admin', async function () {
+        await expectRevertCustomError(
+          this.proxy.upgradeTo(this.clashingImplV1, { from: proxyAdminAddress, value: 1 }),
+          'ProxyNonPayableFunction',
+          [],
+        );
       });
 
-      it('when sender is other value should be accepted', async function () {
-        const value = await this.proxy.admin.call({ from: anotherAccount, value: 1 });
-        expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
+      it('allows calling with value if sender is not the admin', async function () {
+        const receipt = await this.proxy.upgradeTo(this.clashingImplV1, { from: anotherAccount, value: 1 });
+        expectEvent.notEmitted(receipt, 'Upgraded');
+        expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
       });
     });
   });

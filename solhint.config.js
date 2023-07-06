@@ -10,6 +10,7 @@ const rules = [
   'modifier-name-mixedcase',
   'var-name-mixedcase',
   'imports-on-top',
+  'no-global-import',
   ...customRules.map(r => `openzeppelin/${r}`),
 ];
 

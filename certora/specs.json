@@ -10,6 +10,16 @@
     "files": ["certora/harnesses/AccessControlHarness.sol"]
   },
   {
+    "spec": "AccessControlDefaultAdminRules",
+    "contract": "AccessControlDefaultAdminRulesHarness",
+    "files": ["certora/harnesses/AccessControlDefaultAdminRulesHarness.sol"]
+  },
+  {
+    "spec": "DoubleEndedQueue",
+    "contract": "DoubleEndedQueueHarness",
+    "files": ["certora/harnesses/DoubleEndedQueueHarness.sol"]
+  },
+  {
     "spec": "Ownable",
     "contract": "OwnableHarness",
     "files": ["certora/harnesses/OwnableHarness.sol"]
@@ -47,9 +57,25 @@
     ]
   },
   {
+    "spec": "ERC721",
+    "contract": "ERC721Harness",
+    "files": ["certora/harnesses/ERC721Harness.sol", "certora/harnesses/ERC721ReceiverHarness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
     "spec": "Initializable",
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
+  },
+  {
+    "spec": "EnumerableSet",
+    "contract": "EnumerableSetHarness",
+    "files": ["certora/harnesses/EnumerableSetHarness.sol"]
+  },
+  {
+    "spec": "EnumerableMap",
+    "contract": "EnumerableMapHarness",
+    "files": ["certora/harnesses/EnumerableMapHarness.sol"]
   },
   {
     "spec": "TimelockController",
