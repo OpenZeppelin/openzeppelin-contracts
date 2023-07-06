@@ -64,8 +64,6 @@ library Address {
      *
      * - `target` must be a contract.
      * - calling `target` with `data` must not revert.
-     *
-     * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
         return functionCallWithValue(target, data, 0, defaultRevert);
@@ -78,8 +76,6 @@ library Address {
      * Requirements:
      *
      * - `customRevert` must be a reverting function.
-     *
-     * _Available since v5.0._
      */
     function functionCall(
         address target,
@@ -97,8 +93,6 @@ library Address {
      *
      * - the calling contract must have an ETH balance of at least `value`.
      * - the called Solidity function must be `payable`.
-     *
-     * _Available since v3.1._
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, defaultRevert);
@@ -111,8 +105,6 @@ library Address {
      * Requirements:
      *
      * - `customRevert` must be a reverting function.
-     *
-     * _Available since v5.0._
      */
     function functionCallWithValue(
         address target,
@@ -130,8 +122,6 @@ library Address {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
      * but performing a static call.
-     *
-     * _Available since v3.3._
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
         return functionStaticCall(target, data, defaultRevert);
@@ -140,8 +130,6 @@ library Address {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
      * but performing a static call.
-     *
-     * _Available since v3.3._
      */
     function functionStaticCall(
         address target,
@@ -155,8 +143,6 @@ library Address {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
      * but performing a delegate call.
-     *
-     * _Available since v3.4._
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
         return functionDelegateCall(target, data, defaultRevert);
@@ -165,8 +151,6 @@ library Address {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
      * but performing a delegate call.
-     *
-     * _Available since v3.4._
      */
     function functionDelegateCall(
         address target,
@@ -180,8 +164,6 @@ library Address {
     /**
      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
      * the revert reason or using the provided `customRevert`) in case of unsuccessful call or if target was not a contract.
-     *
-     * _Available since v5.0._
      */
     function verifyCallResultFromTarget(
         address target,
@@ -206,8 +188,6 @@ library Address {
     /**
      * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
      * revert reason or with a default revert error.
-     *
-     * _Available since v5.0._
      */
     function verifyCallResult(bool success, bytes memory returndata) internal view returns (bytes memory) {
         return verifyCallResult(success, returndata, defaultRevert);
@@ -220,8 +200,6 @@ library Address {
      * Requirements:
      *
      * - `customRevert` must be a reverting function.
-     *
-     * _Available since v5.0._
      */
     function verifyCallResult(
         bool success,
