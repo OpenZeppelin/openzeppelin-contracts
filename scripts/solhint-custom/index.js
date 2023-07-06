@@ -2,10 +2,7 @@ const path = require('path');
 const minimatch = require('minimatch');
 
 // Files matching these patterns will be ignored unless a rule has `static global = true`
-const ignore = [
-  'contracts/mocks/**/*',
-  'test/**/*',
-];
+const ignore = ['contracts/mocks/**/*', 'test/**/*'];
 
 class Base {
   constructor(reporter, config, source, fileName) {
@@ -59,10 +56,7 @@ module.exports = [
     }
 
     FunctionDefinition(node) {
-      if (
-        node.visibility === 'private' ||
-        (node.visibility === 'internal' && node.parent.kind !== 'library')
-      ) {
+      if (node.visibility === 'private' || (node.visibility === 'internal' && node.parent.kind !== 'library')) {
         if (!/^_/.test(node.name)) {
           this.error(node, 'Private and internal functions must be prefixed with underscore');
         }
