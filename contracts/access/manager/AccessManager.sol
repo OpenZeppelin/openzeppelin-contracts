@@ -90,7 +90,7 @@ contract AccessManager is Context, IAccessManager {
             return (isRelayedCall, isRelayedCall ? 0 : Time.MAX_DURATION.get());
         } else {
             uint256 group = getFunctionAllowedGroup(target, selector);
-            Access storage access = _groups[group].members[caller]; // todo: memory ?
+            Access memory access = _groups[group].members[caller];
             Time.Duration delay = (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
                 : Time.MAX_DURATION;

@@ -91,14 +91,16 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             );
         }
 
+        ExecutionDetail[] storage details = proposalExecutionDetails(proposalId);
+        ExecutionDetail memory detail;
         uint32 setback = 0;
 
-        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (details[i].manager != address(0)) {
-                IAccessManager(details[i].manager).schedule(targets[i], calldatas[i]);
+            detail = details[i];
+            if (detail.manager != address(0)) {
+                IAccessManager(detail.manager).schedule(targets[i], calldatas[i]);
             }
-            setback = uint32(Math.max(setback, details[i].delay)); // cast is safe, both parameters are uint32
+            setback = uint32(Math.max(setback, detail.delay)); // cast is safe, both parameters are uint32
         }
 
         uint256 eta = block.timestamp + setback;
@@ -117,10 +119,13 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override {
-        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
+        ExecutionDetail[] storage details = proposalExecutionDetails(proposalId);
+        ExecutionDetail memory detail;
+
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (details[i].manager != address(0)) {
-                IAccessManager(details[i].manager).relay{value: values[i]}(targets[i], calldatas[i]);
+            detail = details[i];
+            if (detail.manager != address(0)) {
+                IAccessManager(detail.manager).relay{value: values[i]}(targets[i], calldatas[i]);
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
                 Address.verifyCallResult(success, returndata);
