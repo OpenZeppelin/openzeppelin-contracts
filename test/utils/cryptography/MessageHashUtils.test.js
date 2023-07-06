@@ -1,7 +1,6 @@
 require('@openzeppelin/test-helpers');
 const { toEthSignedMessageHash, toDataWithIntendedValidatorHash } = require('../../helpers/sign');
 const { domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { getChainId } = require('../../helpers/chainid');
 
 const { expect } = require('chai');
 
@@ -24,9 +23,8 @@ contract('MessageHashUtils', function () {
     });
 
     it('prefixes dynamic length data correctly', async function () {
-      const message = '0x' + Buffer.from('abcd').toString('hex');
-      expect(await this.messageHashUtils.methods['$toEthSignedMessageHash(bytes)'](message)).to.equal(
-        toEthSignedMessageHash(message),
+      expect(await this.messageHashUtils.methods['$toEthSignedMessageHash(bytes)'](this.message)).to.equal(
+        toEthSignedMessageHash(this.message),
       );
     });
   });
@@ -44,7 +42,7 @@ contract('MessageHashUtils', function () {
       const domain = {
         name: 'Test',
         version: 1,
-        chainId: await getChainId(),
+        chainId: 1,
         verifyingContract: this.verifyingAddress,
       };
       const structhash = web3.utils.randomHex(32);
