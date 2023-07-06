@@ -30,10 +30,22 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     bytes32 public constant BALLOT_TYPEHASH =
-        keccak256("Ballot(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
+        keccak256(
+            "Ballot("
+            "uint256 proposalId,"
+            "uint8 support,"
+            "address voter,"
+            "uint256 nonce)"
+        );
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
         keccak256(
-            "ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)"
+            "ExtendedBallot("
+            "uint256 proposalId,"
+            "uint8 support,"
+            "address voter,"
+            "uint256 nonce,"
+            "string reason,"
+            "bytes params)"
         );
 
     // solhint-disable var-name-mixedcase
