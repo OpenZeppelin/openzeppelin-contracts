@@ -23,7 +23,7 @@ import {Address} from "../../utils/Address.sol";
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ICompoundTimelock private _timelock;
 
-    mapping(uint256 => uint256) private _proposalTimelocks;
+    mapping(uint256 proposalId => uint256 eta) private _proposalTimelocks;
 
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.

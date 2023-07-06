@@ -30,7 +30,7 @@ contract VestingWallet is Context {
     error VestingWalletInvalidBeneficiary(address beneficiary);
 
     uint256 private _released;
-    mapping(address => uint256) private _erc20Released;
+    mapping(address token => uint256 amount) private _erc20Released;
     address private immutable _beneficiary;
     uint64 private immutable _start;
     uint64 private immutable _duration;

@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {Votes} from "../governance/utils/Votes.sol";
 
 abstract contract VotesMock is Votes {
-    mapping(address => uint256) private _votingUnits;
+    mapping(address voter => uint256 units) private _votingUnits;
 
     function getTotalSupply() public view returns (uint256) {
         return _getTotalSupply();

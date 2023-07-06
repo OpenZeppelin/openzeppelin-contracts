@@ -24,7 +24,7 @@ import {IERC165} from "../../interfaces/IERC165.sol";
  */
 abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     TimelockController private _timelock;
-    mapping(uint256 => bytes32) private _timelockIds;
+    mapping(uint256 proposalId => bytes32 timelockId) private _timelockIds;
 
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.

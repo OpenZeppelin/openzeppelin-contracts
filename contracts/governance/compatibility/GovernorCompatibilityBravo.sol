@@ -31,11 +31,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 forVotes;
         uint256 againstVotes;
         uint256 abstainVotes;
-        mapping(address => Receipt) receipts;
+        mapping(address voter => Receipt receipt) receipts;
         bytes32 descriptionHash;
     }
 
-    mapping(uint256 => ProposalDetails) private _proposalDetails;
+    mapping(uint256 proposalId => ProposalDetails details) private _proposalDetails;
 
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {

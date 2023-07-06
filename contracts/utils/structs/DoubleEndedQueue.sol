@@ -42,7 +42,7 @@ library DoubleEndedQueue {
     struct Bytes32Deque {
         int128 _begin;
         int128 _end;
-        mapping(int128 => bytes32) _data;
+        mapping(int128 index => bytes32 value) _data;
     }
 
     /**

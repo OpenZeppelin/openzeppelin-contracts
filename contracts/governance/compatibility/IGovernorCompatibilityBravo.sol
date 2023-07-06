@@ -33,7 +33,7 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
         uint256 abstainVotes;
         bool canceled;
         bool executed;
-        mapping(address => Receipt) receipts;
+        mapping(address voter => Receipt receipt) receipts;
     }
 
     /**
