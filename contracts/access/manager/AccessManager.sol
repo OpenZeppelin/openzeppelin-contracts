@@ -532,6 +532,9 @@ contract AccessManager is Context, IAccessManager {
         emit Canceled(id);
     }
 
+    /**
+     * @dev Hashing function for delayed actions
+     */
     function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
