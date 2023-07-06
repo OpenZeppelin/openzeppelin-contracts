@@ -1,4 +1,4 @@
-const customRules = require('./scripts/solhint-custom').map(r => r.ruleId);
+const customRules = require('./scripts/solhint-custom');
 
 const rules = [
   'no-unused-vars',
@@ -11,7 +11,7 @@ const rules = [
   'var-name-mixedcase',
   'imports-on-top',
   'no-global-import',
-  ...customRules.map(r => `openzeppelin/${r}`),
+  ...customRules.map(r => `openzeppelin/${r.ruleId}`),
 ];
 
 module.exports = {
