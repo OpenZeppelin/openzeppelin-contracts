@@ -26,25 +26,25 @@ interface IAccessManager is IAuthority {
     // - the grand delay
     struct Group {
         mapping(address user => Access access) members;
-        bytes32 admin;
-        bytes32 guardian;
+        uint256 admin;
+        uint256 guardian;
         Time.Delay delay; // delay for granting
     }
 
     function getContractMode(address target) external view returns (AccessMode);
-    function getFunctionAllowedGroup(address target, bytes4 selector) external view returns (bytes32);
-    function getGroupAdmin(bytes32 group) external view returns (bytes32);
-    function getGroupGuardian(bytes32 group) external view returns (bytes32);
-    function getAccess(bytes32 group, address account) external view returns (Access memory);
-    function hasGroup(bytes32 group, address account) external view returns (bool);
+    function getFunctionAllowedGroup(address target, bytes4 selector) external view returns (uint256);
+    function getGroupAdmin(uint256 group) external view returns (uint256);
+    function getGroupGuardian(uint256 group) external view returns (uint256);
+    function getAccess(uint256 group, address account) external view returns (Access memory);
+    function hasGroup(uint256 group, address account) external view returns (bool);
 
-    function grantRole(bytes32 group, address account, uint32 executionDelay) external;
-    function revokeRole(bytes32 group, address account) external;
-    function renounceRole(bytes32 group, address callerConfirmation) external;
-    function setExecuteDelay(bytes32 group, address account, uint32 newDelay) external;
-    function setGroupAdmin(bytes32 group, bytes32 admin) external;
-    function setGroupGuardian(bytes32 group, bytes32 guardian) external;
-    function setGrantDelay(bytes32 group, uint32 newDelay) external;
+    function grantRole(uint256 group, address account, uint32 executionDelay) external;
+    function revokeRole(uint256 group, address account) external;
+    function renounceRole(uint256 group, address callerConfirmation) external;
+    function setExecuteDelay(uint256 group, address account, uint32 newDelay) external;
+    function setGroupAdmin(uint256 group, uint256 admin) external;
+    function setGroupGuardian(uint256 group, uint256 guardian) external;
+    function setGrantDelay(uint256 group, uint32 newDelay) external;
     function setContractModeCustom(address target) external;
     function setContractModeOpen(address target) external;
     function setContractModeClosed(address target) external;

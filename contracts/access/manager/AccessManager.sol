@@ -69,18 +69,18 @@ contract DelayedActions is Context {
 contract AccessManager is IAccessManager, DelayedActions {
     using Time for *;
 
-    bytes32 public constant ADMIN_GROUP  = bytes32(type(uint256).min); // 0
-    bytes32 public constant PUBLIC_GROUP = bytes32(type(uint256).max); // 2**256-1
+    uint256 public constant ADMIN_GROUP  = type(uint256).min; // 0
+    uint256 public constant PUBLIC_GROUP = type(uint256).max; // 2**256-1
 
     mapping(address target => AccessMode mode) private _contractMode;
-    mapping(address target => mapping(bytes4 selector => bytes32 group)) private _allowedGroups;
-    mapping(bytes32 group => Group) private _groups;
+    mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
+    mapping(uint256 group => Group) private _groups;
 
     /**
      * @dev Check that the caller has a given permission level (`group`). Note that this does NOT consider execution
      * delays that may be associated to that group.
      */
-    modifier onlyGroup(bytes32 group) {
+    modifier onlyGroup(uint256 group) {
         require(hasGroup(group, _msgSender()));
         _;
     }
@@ -113,7 +113,7 @@ contract AccessManager is IAccessManager, DelayedActions {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions.
             return (true, 0);
         } else {
-            bytes32 group = getFunctionAllowedGroup(target, selector);
+            uint256 group = getFunctionAllowedGroup(target, selector);
             Access storage access = _groups[group].members[caller]; // todo: memory ?
             Time.Duration delay = (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
@@ -133,7 +133,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      * @dev Get the permission level (group) required to call a function. This only applies for contract that are
      * operating under the `Custom` mode.
      */
-    function getFunctionAllowedGroup(address target, bytes4 selector) public view virtual returns (bytes32) {
+    function getFunctionAllowedGroup(address target, bytes4 selector) public view virtual returns (uint256) {
         return _allowedGroups[target][selector];
     }
 
@@ -143,7 +143,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      * The admin permission is required to grant the group, revoke the group and update the execution delay to execute
      * an action that is restricted to this group.
      */
-    function getGroupAdmin(bytes32 group) public view virtual returns (bytes32) {
+    function getGroupAdmin(uint256 group) public view virtual returns (uint256) {
         return _groups[group].admin;
     }
 
@@ -152,7 +152,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * The guardian permssion allows canceling actions that have been scheduled under the group.
      */
-    function getGroupGuardian(bytes32 group) public view virtual returns (bytes32) {
+    function getGroupGuardian(uint256 group) public view virtual returns (uint256) {
         return _groups[group].guardian;
     }
 
@@ -160,7 +160,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      * @dev Get the access details for a given account in a given group. These details include the timepoint at which
      * membership becomes active, and the delay applied to all action by this user that require this permission level.
      */
-    function getAccess(bytes32 group, address account) public view virtual returns (Access memory) {
+    function getAccess(uint256 group, address account) public view virtual returns (Access memory) {
         return _groups[group].members[account];
     }
 
@@ -168,7 +168,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      * @dev Check if a given account currently had the permission level corresponding to a given group. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasGroup(bytes32 group, address account) public view virtual returns (bool) {
+    function hasGroup(uint256 group, address account) public view virtual returns (bool) {
         return getAccess(group, account).since.isSetAndPast();
     }
 
@@ -184,7 +184,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function grantRole(bytes32 group, address account, uint32 executionDelay) public virtual onlyGroup(getGroupAdmin(group)) {
+    function grantRole(uint256 group, address account, uint32 executionDelay) public virtual onlyGroup(getGroupAdmin(group)) {
         _grantRole(group, account, _groups[group].delay.get(), executionDelay.toDuration());
     }
 
@@ -197,7 +197,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function revokeRole(bytes32 group, address account) public virtual onlyGroup(getGroupAdmin(group)) {
+    function revokeRole(uint256 group, address account) public virtual onlyGroup(getGroupAdmin(group)) {
         _revokeRole(group, account);
     }
 
@@ -210,7 +210,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function renounceRole(bytes32 group, address callerConfirmation) public virtual {
+    function renounceRole(uint256 group, address callerConfirmation) public virtual {
         require(callerConfirmation == _msgSender(), "AccessManager: can only renounce roles for self");
         _revokeRole(group, callerConfirmation);
     }
@@ -227,7 +227,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function setExecuteDelay(bytes32 group, address account, uint32 newDelay) public virtual onlyGroup(getGroupAdmin(group)){
+    function setExecuteDelay(uint256 group, address account, uint32 newDelay) public virtual onlyGroup(getGroupAdmin(group)){
         _setExecuteDelay(group, account, newDelay.toDuration(), false);
     }
 
@@ -240,7 +240,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function setGroupAdmin(bytes32 group, bytes32 admin) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupAdmin(uint256 group, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupAdmin(group, admin);
     }
 
@@ -253,7 +253,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function setGroupGuardian(bytes32 group, bytes32 guardian) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupGuardian(uint256 group, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupGuardian(group, guardian);
     }
 
@@ -266,7 +266,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function setGrantDelay(bytes32 group, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGrantDelay(uint256 group, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
         _setGrantDelay(group, newDelay.toDuration(), false);
     }
 
@@ -275,7 +275,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _grantRole(bytes32 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal virtual {
+    function _grantRole(uint256 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal virtual {
         require(!_groups[group].members[account].since.isSet(), "AccessManager: account is already in group");
         _groups[group].members[account] = Access({
             since: Time.clock().add(grantDelay),
@@ -289,7 +289,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _revokeRole(bytes32 group, address account) internal virtual {
+    function _revokeRole(uint256 group, address account) internal virtual {
         require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
         delete _groups[group].members[account];
         // todo emit event
@@ -303,7 +303,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _setExecuteDelay(bytes32 group, address account, Time.Duration newDuration, bool immediate) internal virtual {
+    function _setExecuteDelay(uint256 group, address account, Time.Duration newDuration, bool immediate) internal virtual {
         require(_groups[group].members[account].since.isSet(), "AccessManager: account is not in group");
 
         // Here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
@@ -331,7 +331,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _setGroupAdmin(bytes32 group, bytes32 admin) internal virtual {
+    function _setGroupAdmin(uint256 group, uint256 admin) internal virtual {
         _groups[group].admin = admin;
         // todo emit event
     }
@@ -341,7 +341,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _setGroupGuardian(bytes32 group, bytes32 guardian) internal virtual {
+    function _setGroupGuardian(uint256 group, uint256 guardian) internal virtual {
         _groups[group].guardian = guardian;
         // todo emit event
     }
@@ -354,7 +354,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _setGrantDelay(bytes32 group, Time.Duration newDelay, bool immediate) internal virtual {
+    function _setGrantDelay(uint256 group, Time.Duration newDelay, bool immediate) internal virtual {
         _groups[group].delay = immediate
             ? newDelay.toDelay()
             : _groups[group].delay.update(newDelay);
@@ -375,7 +375,7 @@ contract AccessManager is IAccessManager, DelayedActions {
     function setFunctionAllowedGroup(
         address target,
         bytes4[] calldata selectors,
-        bytes32 group
+        uint256 group
     ) public virtual onlyGroup(ADMIN_GROUP) { // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFunctionAllowedGroup(target, selectors[i], group);
@@ -388,7 +388,7 @@ contract AccessManager is IAccessManager, DelayedActions {
      *
      * todo: emit an event
      */
-    function _setFunctionAllowedGroup(address target, bytes4 selector, bytes32 group) internal virtual {
+    function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 group) internal virtual {
         _allowedGroups[target][selector] = group;
         // todo emit event
     }
