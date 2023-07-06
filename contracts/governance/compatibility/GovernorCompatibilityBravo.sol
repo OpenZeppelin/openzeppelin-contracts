@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.3) (governance/compatibility/GovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
-import "../../utils/math/SafeCast.sol";
-import "../extensions/IGovernorTimelock.sol";
-import "../Governor.sol";
-import "./IGovernorCompatibilityBravo.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {IGovernorTimelock} from "../extensions/IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {IGovernorCompatibilityBravo} from "./IGovernorCompatibilityBravo.sol";
 
 /**
  * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
@@ -15,8 +15,6 @@ import "./IGovernorCompatibilityBravo.sol";
  * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     enum VoteType {
@@ -26,7 +24,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     struct ProposalDetails {
-        address proposer;
         address[] targets;
         uint256[] values;
         string[] signatures;
@@ -56,7 +53,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         string memory description
     ) public virtual override(IGovernor, Governor) returns (uint256) {
         // Stores the proposal details (if not already present) and executes the propose logic from the core.
-        _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
+        _storeProposal(targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -70,12 +67,14 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        require(signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+        if (signatures.length != calldatas.length) {
+            revert GovernorInvalidSignaturesLength(signatures.length, calldatas.length);
+        }
         // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
         // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
         // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
         // is added there is also executed when calling this alternative interface.
-        _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
+        _storeProposal(targets, values, signatures, calldatas, description);
         return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
 
@@ -132,12 +131,13 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes32 descriptionHash
     ) public virtual override(IGovernor, Governor) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        address proposer = _proposalDetails[proposalId].proposer;
+        address proposer = proposalProposer(proposalId);
 
-        require(
-            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
-            "GovernorBravo: proposer above threshold"
-        );
+        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
+            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+        }
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -153,7 +153,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         for (uint256 i = 0; i < fullcalldatas.length; ++i) {
             fullcalldatas[i] = bytes(signatures[i]).length == 0
                 ? calldatas[i]
-                : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
+                : bytes.concat(abi.encodeWithSignature(signatures[i]), calldatas[i]);
         }
 
         return fullcalldatas;
@@ -182,7 +182,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev Store proposal metadata (if not already present) for later lookup.
      */
     function _storeProposal(
-        address proposer,
         address[] memory targets,
         uint256[] memory values,
         string[] memory signatures,
@@ -194,7 +193,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
         ProposalDetails storage details = _proposalDetails[proposalId];
         if (details.descriptionHash == bytes32(0)) {
-            details.proposer = proposer;
             details.targets = targets;
             details.values = values;
             details.signatures = signatures;
@@ -228,12 +226,12 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         )
     {
         id = proposalId;
+        proposer = proposalProposer(proposalId);
         eta = proposalEta(proposalId);
         startBlock = proposalSnapshot(proposalId);
         endBlock = proposalDeadline(proposalId);
 
         ProposalDetails storage details = _proposalDetails[proposalId];
-        proposer = details.proposer;
         forVotes = details.forVotes;
         againstVotes = details.againstVotes;
         abstainVotes = details.abstainVotes;
@@ -315,7 +313,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already cast");
+        if (receipt.hasVoted) {
+            revert GovernorAlreadyCastVote(account);
+        }
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -327,7 +327,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompatibilityBravo: invalid vote type");
+            revert GovernorInvalidVoteType();
         }
     }
 }

@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockCompound.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorTimelockCompound.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
-import "./IGovernorTimelock.sol";
-import "../Governor.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../vendor/compound/ICompoundTimelock.sol";
+import {IGovernorTimelock} from "./IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
+import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
@@ -17,14 +19,11 @@ import "../../vendor/compound/ICompoundTimelock.sol";
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ICompoundTimelock private _timelock;
 
-    /// @custom:oz-retyped-from mapping(uint256 => GovernorTimelockCompound.ProposalTimelock)
-    mapping(uint256 => uint64) private _proposalTimelocks;
+    mapping(uint256 => uint256) private _proposalTimelocks;
 
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
@@ -90,16 +89,22 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
+        ProposalState currentState = state(proposalId);
+        if (currentState != ProposalState.Succeeded) {
+            revert GovernorUnexpectedProposalState(
+                proposalId,
+                currentState,
+                _encodeStateBitmap(ProposalState.Succeeded)
+            );
+        }
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId] = SafeCast.toUint64(eta);
+        _proposalTimelocks[proposalId] = eta;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            require(
-                !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
-                "GovernorTimelockCompound: identical proposal action already queued"
-            );
+            if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
+                revert GovernorAlreadyQueuedProposal(proposalId);
+            }
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
@@ -119,7 +124,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes32 /*descriptionHash*/
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
-        require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
+        if (eta == 0) {
+            revert GovernorNotQueuedProposal(proposalId);
+        }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);

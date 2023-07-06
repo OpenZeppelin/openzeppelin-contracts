@@ -114,4 +114,25 @@ In addition to the official Solidity Style Guide we have a number of other conve
   interface IERC777 {
   ```
 
+* Contracts not intended to be used standalone should be marked abstract
+  so they are required to be inherited to other contracts.
+
+  ```solidity
+  abstract contract AccessControl is ..., {
+  ```
+
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
+
+* Custom errors should be declared following the [EIP-6093](https://eips.ethereum.org/EIPS/eip-6093) rationale whenever reasonable. Also, consider the following:
+  
+  * The domain prefix should be picked in the following order:
+    1. Use `ERC<number>` if the error is a violation of an ERC specification.
+    2. Use the name of the underlying component where it belongs (eg. `Governor`, `ECDSA`, or `Timelock`).
+
+  * The location of custom errors should be decided in the following order:
+    1. Take the errors from their underlying ERCs if they're already defined.
+    2. Declare the errors in the underlying interface/library if the error makes sense in its context.
+    3. Declare the error in the implementation if the underlying interface/library is not suitable to do so (eg. interface/library already specified in an ERC).
+    4. Declare the error in an extension if the error only happens in such extension or child contracts.
+
+  * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.

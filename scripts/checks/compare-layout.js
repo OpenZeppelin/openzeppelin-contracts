@@ -10,6 +10,7 @@ for (const name in oldLayout) {
   if (name in newLayout) {
     const report = getStorageUpgradeReport(oldLayout[name], newLayout[name], {});
     if (!report.ok) {
+      console.log(`Storage layout incompatilibity found in ${name}:`);
       console.log(report.explain());
       process.exitCode = 1;
     }

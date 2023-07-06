@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/ShortStrings.sol)
 
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
-import "./StorageSlot.sol";
+import {StorageSlot} from "./StorageSlot.sol";
 
 // | string  | 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA   |
 // | length  | 0x                                                              BB |

@@ -29,7 +29,7 @@ contract('ShortStrings', function () {
           const decoded = await this.mock.$toString(encoded);
           expect(decoded).to.be.equal(str);
         } else {
-          await expectRevertCustomError(this.mock.$toShortString(str), `StringTooLong("${str}")`);
+          await expectRevertCustomError(this.mock.$toShortString(str), 'StringTooLong', [str]);
         }
       });
 
@@ -41,7 +41,7 @@ contract('ShortStrings', function () {
         if (str.length < 32) {
           expect(await promise).to.be.equal(str);
         } else {
-          await expectRevertCustomError(promise, 'InvalidShortString()');
+          await expectRevertCustomError(promise, 'InvalidShortString', []);
         }
 
         const length = await this.mock.$byteLengthWithFallback(ret0, 0);

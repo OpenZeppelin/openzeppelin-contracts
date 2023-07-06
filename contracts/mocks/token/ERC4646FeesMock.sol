@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
-import "../docs/ERC4626Fees.sol";
+import {ERC4626Fees} from "../docs/ERC4626Fees.sol";
 
 abstract contract ERC4626FeesMock is ERC4626Fees {
     uint256 private immutable _entryFeeBasePointValue;

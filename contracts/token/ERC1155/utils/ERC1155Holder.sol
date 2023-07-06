@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC1155/utils/ERC1155Holder.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
-import "./ERC1155Receiver.sol";
+import {ERC1155Receiver} from "./ERC1155Receiver.sol";
 
 /**
- * Simple implementation of `ERC1155Receiver` that will allow a contract to hold ERC1155 tokens.
+ * @dev Simple implementation of `ERC1155Receiver` that will allow a contract to hold ERC1155 tokens.
  *
  * IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be
  * stuck.
- *
- * @dev _Available since v3.1._
  */
-contract ERC1155Holder is ERC1155Receiver {
+abstract contract ERC1155Holder is ERC1155Receiver {
     function onERC1155Received(
         address,
         address,
