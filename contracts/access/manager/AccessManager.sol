@@ -75,6 +75,7 @@ contract AccessManager is IAccessManager, DelayedActions {
     mapping(address target => AccessMode mode) private _contractMode;
     mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
     mapping(uint256 group => Group) private _groups;
+    bytes32 private _relayIdentifier;
 
     /**
      * @dev Check that the caller has a given permission level (`group`). Note that this does NOT consider execution
@@ -111,7 +112,8 @@ contract AccessManager is IAccessManager, DelayedActions {
             return (false, Time.MAX_DURATION.get()); // use 0 ?
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions.
-            return (true, 0);
+            bool isRelayedCall = _relayIdentifier == keccak256(abi.encodePacked(target, selector));
+            return (isRelayedCall, isRelayedCall ? 0 : Time.MAX_DURATION.get());
         } else {
             uint256 group = getFunctionAllowedGroup(target, selector);
             Access storage access = _groups[group].members[caller]; // todo: memory ?
@@ -482,7 +484,9 @@ contract AccessManager is IAccessManager, DelayedActions {
         require(allowed, "unauthorized");
         _executeCheck(_hashOperation(caller, target, data), setback.toDuration());
 
+        _relayIdentifier = keccak256(abi.encodePacked(target, bytes4(data[0:4])));
         Address.functionCallWithValue(target, data, msg.value);
+        _relayIdentifier = bytes32(0);
     }
 
     /**
