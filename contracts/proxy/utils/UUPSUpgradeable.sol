@@ -109,7 +109,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
      *
      * ```solidity
-     * function _authorizeUpgrade(address) internal  onlyOwner {}
+     * function _authorizeUpgrade(address) internal onlyOwner {}
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
