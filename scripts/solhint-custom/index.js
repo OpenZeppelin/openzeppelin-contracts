@@ -44,26 +44,28 @@ module.exports = [
   },
 
   class extends Base {
-    static ruleId = 'underscore-prefix';
+    static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-      const constantOrImmutable = node.isDeclaredConst || node.isImmutable;
-      if (node.isStateVar && !constantOrImmutable && node.visibility === 'private') {
-        if (!/^_/.test(node.name)) {
-          this.error(node, 'Private variables must be prefixed with underscore');
+      if (node.isDeclaredConst) {
+        if (/^_/.test(node.name)) {
+          // TODO: re-enable and fix
+          // this.error(node, 'Constant variables should not have leading underscore');
         }
+      } else if (node.visibility === 'private' && !/^_/.test(node.name)) {
+        this.error(node, 'Non-constant private variables must have leading underscore');
       }
     }
 
     FunctionDefinition(node) {
       if (node.visibility === 'private' || (node.visibility === 'internal' && node.parent.kind !== 'library')) {
         if (!/^_/.test(node.name)) {
-          this.error(node, 'Private and internal functions must be prefixed with underscore');
+          this.error(node, 'Private and internal functions must have leading underscore');
         }
       }
       if (node.visibility === 'internal' && node.parent.kind === 'library') {
         if (/^_/.test(node.name)) {
-          this.error(node, 'Library internal functions should not be prefixed with underscore');
+          this.error(node, 'Library internal functions should not have leading underscore');
         }
       }
     }
