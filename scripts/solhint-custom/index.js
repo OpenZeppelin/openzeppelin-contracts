@@ -25,7 +25,7 @@ module.exports = [
   class extends Base {
     static ruleId = 'interface-names';
 
-    ContractDefinition(node, ...args) {
+    ContractDefinition(node) {
       if (node.kind === 'interface' && !/^I[A-Z]/.test(node.name)) {
         this.error(node, 'Interface names should have a capital I prefix');
       }
