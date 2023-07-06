@@ -5,12 +5,12 @@ const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
-module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyCreator) {
+module.exports = function shouldBehaveLikeProxy(createProxy, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
     await expectRevert.unspecified(
-      createProxy(nonContractAddress, proxyAdminAddress, initializeData, {
+      createProxy(nonContractAddress, initializeData, {
         from: proxyCreator,
       }),
     );
@@ -43,7 +43,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
     describe('when not sending balance', function () {
       beforeEach('creating proxy', async function () {
         this.proxy = (
-          await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+          await createProxy(this.implementation, initializeData, {
             from: proxyCreator,
           })
         ).address;
@@ -57,7 +57,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
       beforeEach('creating proxy', async function () {
         this.proxy = (
-          await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+          await createProxy(this.implementation, initializeData, {
             from: proxyCreator,
             value,
           })
@@ -76,7 +76,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
             })
           ).address;
@@ -93,7 +93,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
+            createProxy(this.implementation, initializeData, { from: proxyCreator, value }),
           );
         });
       });
@@ -106,7 +106,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
             })
           ).address;
@@ -123,7 +123,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
               value,
             })
@@ -148,7 +148,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
             })
           ).address;
@@ -165,7 +165,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
+            createProxy(this.implementation, initializeData, { from: proxyCreator, value }),
           );
         });
       });
@@ -180,7 +180,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
             })
           ).address;
@@ -197,7 +197,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
+            await createProxy(this.implementation, initializeData, {
               from: proxyCreator,
               value,
             })
@@ -216,7 +216,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
       it('reverts', async function () {
         await expectRevert(
-          createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator }),
+          createProxy(this.implementation, initializeData, { from: proxyCreator }),
           'DummyImplementation reverted',
         );
       });

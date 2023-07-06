@@ -9,5 +9,5 @@ contract('ERC1967Proxy', function (accounts) {
     return ERC1967Proxy.new(implementation, initData, opts);
   };
 
-  shouldBehaveLikeProxy(createProxy, undefined, proxyAdminOwner);
+  shouldBehaveLikeProxy(createProxy, proxyAdminOwner);
 });
