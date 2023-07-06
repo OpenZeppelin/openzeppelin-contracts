@@ -75,6 +75,8 @@ contract AccessManager is IAccessManager, DelayedActions {
     mapping(address target => AccessMode mode) private _contractMode;
     mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
     mapping(uint256 group => Group) private _groups;
+
+    // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
 
     /**
@@ -111,7 +113,8 @@ contract AccessManager is IAccessManager, DelayedActions {
         } else if (mode == AccessMode.Closed) {
             return (false, Time.MAX_DURATION.get()); // use 0 ?
         } else if (caller == address(this)) {
-            // Caller is AccessManager => call was relayed. In that case the relay already checked permissions.
+            // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
+            // verify that the call "identifier", which is set during the relay call, is correct.
             bool isRelayedCall = _relayIdentifier == keccak256(abi.encodePacked(target, selector));
             return (isRelayedCall, isRelayedCall ? 0 : Time.MAX_DURATION.get());
         } else {
@@ -484,9 +487,12 @@ contract AccessManager is IAccessManager, DelayedActions {
         require(allowed, "unauthorized");
         _executeCheck(_hashOperation(caller, target, data), setback.toDuration());
 
+        bytes32 relayIdentifierBefore = _relayIdentifier;
         _relayIdentifier = keccak256(abi.encodePacked(target, bytes4(data[0:4])));
+
         Address.functionCallWithValue(target, data, msg.value);
-        _relayIdentifier = bytes32(0);
+
+        _relayIdentifier = relayIdentifierBefore;
     }
 
     /**
