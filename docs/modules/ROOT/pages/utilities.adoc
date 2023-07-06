@@ -23,7 +23,7 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 }
 ----
 
-WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentations.
+WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
 
 === Verifying Merkle Proofs
 
