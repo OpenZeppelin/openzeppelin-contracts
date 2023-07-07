@@ -49,11 +49,8 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         super._update(from, to, tokenId);
     }
 
-    function _updateBalance(
-        address account,
-        uint128 value
-    ) internal virtual override(ERC721, ERC721Votes) {
-        super._updateBalance(account, value);
+    function _increaseBalance(address account, uint128 value) internal virtual override(ERC721, ERC721Votes) {
+        super._increaseBalance(account, value);
     }
 }
 

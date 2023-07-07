@@ -28,11 +28,15 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         return super._ownerOf(tokenId);
     }
 
-    function _update(address from, address to, uint256 tokenId) internal virtual override(ERC721Consecutive, ERC721Enumerable) {
+    function _update(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721Consecutive, ERC721Enumerable) {
         super._update(from, to, tokenId);
     }
 
-    function _updateBalance(address account, uint128 value) internal virtual override(ERC721, ERC721Enumerable) {
-        super._updateBalance(account, value);
+    function _increaseBalance(address account, uint128 value) internal virtual override(ERC721, ERC721Enumerable) {
+        super._increaseBalance(account, value);
     }
 }

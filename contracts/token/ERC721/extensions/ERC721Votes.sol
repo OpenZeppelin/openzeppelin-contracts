@@ -28,10 +28,10 @@ abstract contract ERC721Votes is ERC721, Votes {
     }
 
     /**
-     * @dev See {ERC721-_updateBalance}. We need that to account tokens that were minted in batch.
+     * @dev See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch.
      */
-    function _updateBalance(address account, uint128 value) internal virtual override {
-        super._updateBalance(account, value);
+    function _increaseBalance(address account, uint128 value) internal virtual override {
+        super._increaseBalance(account, value);
         _transferVotingUnits(address(0), account, value);
     }
 

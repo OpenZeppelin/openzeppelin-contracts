@@ -198,7 +198,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns the owner of the `tokenId`. Returns `address(0)` if token doesn't exist.
      *
      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
-     * core ERC721 logic MUST be matched with the use of {_updateBalance} to keep balances
+     * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
      * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
      */
@@ -370,9 +370,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     * @dev Increases the balance of `account` by `value`.
+     * Write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
      */
-    function _updateBalance(address account, uint128 value) internal virtual {
+    function _increaseBalance(address account, uint128 value) internal virtual {
         unchecked {
             _balances[account] += value;
         }

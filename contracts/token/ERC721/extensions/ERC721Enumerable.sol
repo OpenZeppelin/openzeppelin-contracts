@@ -76,11 +76,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {ERC721-_beforeTokenTransfer}.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
         } else if (from != to) {
@@ -168,10 +164,13 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         _allTokens.pop();
     }
 
-    function _updateBalance(address account, uint128 value) internal virtual override {
+    /**
+     * @dev See {ERC721-_increaseBalance}.
+     */
+    function _increaseBalance(address account, uint128 value) internal virtual override {
         if (value > 0) {
             revert ERC721EnumerableForbiddenBatchMint();
         }
-        super._updateBalance(account, value);
+        super._increaseBalance(account, value);
     }
 }

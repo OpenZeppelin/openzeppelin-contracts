@@ -121,7 +121,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
             // Preserve the invariant required by `_ownerOf`, given that the new sequentialOwnership
             // checkpoint is attributing ownership of `batchSize` new tokens to account `to`.
-            _updateBalance(to, batchSize);
+            _increaseBalance(to, batchSize);
 
             emit ConsecutiveTransfer(next, last, address(0), to);
         }
