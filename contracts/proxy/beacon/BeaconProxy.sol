@@ -11,8 +11,10 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  * @dev This contract implements a proxy that gets the implementation address for each call from an {UpgradeableBeacon}.
  *
  * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
- * conflict with the storage layout of the implementation behind the proxy. It is also stored in an immutable variable
- * for gas efficiency when reading it internally.
+ * conflict with the storage layout of the implementation behind the proxy.
+ *
+ * CAUTION: The beacon address can only be set once during construction, and cannot be changed afterwards.
+ * You must ensure that you either control the beacon, or trust the beacon to not upgrade the implementation maliciously.
  */
 contract BeaconProxy is Proxy {
     // An immutable address for the beacon to avoid unnecessary SLOADs before each delegate call.
