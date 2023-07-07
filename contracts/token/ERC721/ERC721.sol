@@ -199,7 +199,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
      * core ERC721 logic MUST be matched with the use of {_updateBalance} to keep balances
-     * consistent with ownership. The invariant being that for any address `a` the value returned by
+     * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
