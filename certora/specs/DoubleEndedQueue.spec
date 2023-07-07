@@ -1,64 +1,25 @@
-import "helpers/helpers.spec"
+import "helpers/helpers.spec";
 
 methods {
-    pushFront(bytes32)                    envfree
-    pushBack(bytes32)                     envfree
-    popFront()          returns (bytes32) envfree
-    popBack()           returns (bytes32) envfree
-    clear()                               envfree
+    function pushFront(bytes32) external                   envfree;
+    function pushBack(bytes32)                    external envfree;
+    function popFront()         external returns (bytes32) envfree;
+    function popBack()          external returns (bytes32) envfree;
+    function clear()            external                   envfree;
 
     // exposed for FV
-    begin()             returns (int128)  envfree
-    end()               returns (int128)  envfree
+    function begin()            external returns (uint128) envfree;
+    function end()              external returns (uint128) envfree;
 
     // view
-    length()            returns (uint256) envfree
-    empty()             returns (bool)    envfree
-    front()             returns (bytes32) envfree
-    back()              returns (bytes32) envfree
-    at_(uint256)        returns (bytes32) envfree // at is a reserved word
+    function length()           external returns (uint256) envfree;
+    function empty()            external returns (bool)    envfree;
+    function front()            external returns (bytes32) envfree;
+    function back()             external returns (bytes32) envfree;
+    function at_(uint256)       external returns (bytes32) envfree; // at is a reserved word
 }
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Helpers                                                                                                             │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-function min_int128() returns mathint {
-    return -(1 << 127);
-}
-
-function max_int128() returns mathint {
-    return (1 << 127) - 1;
-}
-
-// Could be broken in theory, but not in practice
-function boundedQueue() returns bool {
-    return
-        max_int128() > to_mathint(end()) &&
-        min_int128() < to_mathint(begin());
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: end is larger or equal than begin                                                                        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant boundariesConsistency()
-    end() >= begin()
-    filtered { f -> !f.isView }
-    { preserved { require boundedQueue(); } }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: length is end minus begin                                                                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant lengthConsistency()
-    length() == to_mathint(end()) - to_mathint(begin())
-    filtered { f -> !f.isView }
-    { preserved { require boundedQueue(); } }
+definition full() returns bool = length() == max_uint128;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -68,22 +29,19 @@ invariant lengthConsistency()
 invariant emptiness()
     empty() <=> length() == 0
     filtered { f -> !f.isView }
-    { preserved { require boundedQueue(); } }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: front points to the first index and back points to the last one                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant queueEndings()
-    at_(length() - 1) == back() && at_(0) == front()
+invariant queueFront()
+    at_(0) == front()
     filtered { f -> !f.isView }
-    {
-        preserved {
-            requireInvariant boundariesConsistency();
-            require boundedQueue();
-        }
-    }
+
+invariant queueBack()
+    at_(require_uint256(length() - 1)) == back()
+    filtered { f -> !f.isView }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -91,18 +49,18 @@ invariant queueEndings()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushFront(bytes32 value) {
-    require boundedQueue();
-
     uint256 lengthBefore = length();
+    bool    fullBefore   = full();
 
     pushFront@withrevert(value);
+    bool success = !lastReverted;
 
     // liveness
-    assert !lastReverted, "never reverts";
+    assert success <=> !fullBefore, "never revert if not previously full";
 
     // effect
-    assert front() == value, "front set to value";
-    assert length() == lengthBefore + 1, "queue extended";
+    assert success => front() == value, "front set to value";
+    assert success => to_mathint(length()) == lengthBefore + 1, "queue extended";
 }
 
 /*
@@ -111,15 +69,13 @@ rule pushFront(bytes32 value) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushFrontConsistency(uint256 index) {
-    require boundedQueue();
-
     bytes32 beforeAt = at_(index);
 
     bytes32 value;
     pushFront(value);
 
     // try to read value
-    bytes32 afterAt = at_@withrevert(index + 1);
+    bytes32 afterAt = at_@withrevert(require_uint256(index + 1));
 
     assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
@@ -131,18 +87,18 @@ rule pushFrontConsistency(uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushBack(bytes32 value) {
-    require boundedQueue();
-
     uint256 lengthBefore = length();
+    bool    fullBefore   = full();
 
     pushBack@withrevert(value);
+    bool success = !lastReverted;
 
     // liveness
-    assert !lastReverted, "never reverts";
+    assert success <=> !fullBefore, "never revert if not previously full";
 
     // effect
-    assert back() == value, "back set to value";
-    assert length() == lengthBefore + 1, "queue increased";
+    assert success => back() == value, "back set to value";
+    assert success => to_mathint(length()) == lengthBefore + 1, "queue increased";
 }
 
 /*
@@ -151,8 +107,6 @@ rule pushBack(bytes32 value) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushBackConsistency(uint256 index) {
-    require boundedQueue();
-
     bytes32 beforeAt = at_(index);
 
     bytes32 value;
@@ -171,9 +125,6 @@ rule pushBackConsistency(uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popFront {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     uint256 lengthBefore = length();
     bytes32 frontBefore = front@withrevert();
 
@@ -185,7 +136,7 @@ rule popFront {
 
     // effect
     assert success => frontBefore == popped, "previous front is returned";
-    assert success => length() == lengthBefore - 1, "queue decreased";
+    assert success => to_mathint(length()) == lengthBefore - 1, "queue decreased";
 }
 
 /*
@@ -194,9 +145,6 @@ rule popFront {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popFrontConsistency(uint256 index) {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     // Read (any) value that is not the front (this asserts the value exists / the queue is long enough)
     require index > 1;
     bytes32 before = at_(index);
@@ -204,7 +152,7 @@ rule popFrontConsistency(uint256 index) {
     popFront();
 
     // try to read value
-    bytes32 after = at_@withrevert(index - 1);
+    bytes32 after = at_@withrevert(require_uint256(index - 1));
 
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
@@ -216,9 +164,6 @@ rule popFrontConsistency(uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popBack {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     uint256 lengthBefore = length();
     bytes32 backBefore = back@withrevert();
 
@@ -230,7 +175,7 @@ rule popBack {
 
     // effect
     assert success => backBefore == popped, "previous back is returned";
-    assert success => length() == lengthBefore - 1, "queue decreased";
+    assert success => to_mathint(length()) == lengthBefore - 1, "queue decreased";
 }
 
 /*
@@ -239,11 +184,8 @@ rule popBack {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popBackConsistency(uint256 index) {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     // Read (any) value that is not the back (this asserts the value exists / the queue is long enough)
-    require index < length() - 1;
+    require to_mathint(index) < length() - 1;
     bytes32 before = at_(index);
 
     popBack();
@@ -275,24 +217,25 @@ rule clear {
 │ Rule: front/back access reverts only if the queue is empty or querying out of bounds                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyEmptyRevert(env e) {
+rule onlyEmptyOrFullRevert(env e) {
     require nonpayable(e);
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
 
     method f;
     calldataarg args;
 
     bool emptyBefore = empty();
+    bool fullBefore = full();
 
     f@withrevert(e, args);
 
     assert lastReverted => (
-        (f.selector == front().selector && emptyBefore) ||
-        (f.selector == back().selector && emptyBefore) ||
-        (f.selector == popFront().selector  && emptyBefore) ||
-        (f.selector == popBack().selector  && emptyBefore) ||
-        f.selector == at_(uint256).selector // revert conditions are verified in onlyOutOfBoundsRevert
+        (f.selector == sig:front().selector            && emptyBefore) ||
+        (f.selector == sig:back().selector             && emptyBefore) ||
+        (f.selector == sig:popFront().selector         && emptyBefore) ||
+        (f.selector == sig:popBack().selector          && emptyBefore) ||
+        (f.selector == sig:pushFront(bytes32).selector && fullBefore ) ||
+        (f.selector == sig:pushBack(bytes32).selector  && fullBefore ) ||
+        f.selector == sig:at_(uint256).selector // revert conditions are verified in onlyOutOfBoundsRevert
     ), "only revert if empty or out of bounds";
 }
 
@@ -302,9 +245,6 @@ rule onlyEmptyRevert(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyOutOfBoundsRevert(uint256 index) {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     at_@withrevert(index);
 
     assert lastReverted <=> index >= length(), "only reverts if index is out of bounds";
@@ -316,9 +256,6 @@ rule onlyOutOfBoundsRevert(uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noLengthChange(env e) {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     method f;
     calldataarg args;
 
@@ -327,11 +264,11 @@ rule noLengthChange(env e) {
     uint256 lengthAfter = length();
 
     assert lengthAfter != lengthBefore => (
-        (f.selector == pushFront(bytes32).selector && lengthAfter == lengthBefore + 1) ||
-        (f.selector == pushBack(bytes32).selector && lengthAfter == lengthBefore + 1) ||
-        (f.selector == popBack().selector && lengthAfter == lengthBefore - 1) ||
-        (f.selector == popFront().selector && lengthAfter == lengthBefore - 1) ||
-        (f.selector == clear().selector && lengthAfter == 0)
+        (f.selector == sig:pushFront(bytes32).selector && to_mathint(lengthAfter) == lengthBefore + 1) ||
+        (f.selector == sig:pushBack(bytes32).selector  && to_mathint(lengthAfter) == lengthBefore + 1) ||
+        (f.selector == sig:popBack().selector          && to_mathint(lengthAfter) == lengthBefore - 1) ||
+        (f.selector == sig:popFront().selector         && to_mathint(lengthAfter) == lengthBefore - 1) ||
+        (f.selector == sig:clear().selector            && lengthAfter == 0)
     ), "length is only affected by clear/pop/push operations";
 }
 
@@ -341,9 +278,6 @@ rule noLengthChange(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDataChange(env e) {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-
     method f;
     calldataarg args;
 
@@ -354,13 +288,13 @@ rule noDataChange(env e) {
     bool atAfterSuccess = !lastReverted;
 
     assert !atAfterSuccess <=> (
-        f.selector == clear().selector ||
-        (f.selector == popBack().selector && index == length()) ||
-        (f.selector == popFront().selector && index == length())
+        (f.selector == sig:clear().selector                        ) ||
+        (f.selector == sig:popBack().selector  && index == length()) ||
+        (f.selector == sig:popFront().selector && index == length())
     ), "indexes of the queue are only removed by clear or pop";
 
     assert atAfterSuccess && atAfter != atBefore => (
-        f.selector == popFront().selector ||
-        f.selector == pushFront(bytes32).selector
+        f.selector == sig:popFront().selector ||
+        f.selector == sig:pushFront(bytes32).selector
     ), "values of the queue are only changed by popFront or pushFront";
 }
