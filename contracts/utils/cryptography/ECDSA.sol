@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.19;
 
-import {Strings} from "../Strings.sol";
-
 /**
  * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
  *
@@ -34,18 +32,6 @@ library ECDSA {
      */
     error ECDSAInvalidSignatureS(bytes32 s);
 
-    function _throwError(RecoverError error, bytes32 errorArg) private pure {
-        if (error == RecoverError.NoError) {
-            return; // no error: do nothing
-        } else if (error == RecoverError.InvalidSignature) {
-            revert ECDSAInvalidSignature();
-        } else if (error == RecoverError.InvalidSignatureLength) {
-            revert ECDSAInvalidSignatureLength(uint256(errorArg));
-        } else if (error == RecoverError.InvalidSignatureS) {
-            revert ECDSAInvalidSignatureS(errorArg);
-        }
-    }
-
     /**
      * @dev Returns the address that signed a hashed message (`hash`) with
      * `signature` or error string. This address can then be used for verification purposes.
@@ -58,7 +44,7 @@ library ECDSA {
      * verification to be secure: it is possible to craft signatures that
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
      * this is by receiving a hash of the original message (which may otherwise
-     * be too long), and then calling {toEthSignedMessageHash} on it.
+     * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      *
      * Documentation for signature generation:
      * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
@@ -95,7 +81,7 @@ library ECDSA {
      * verification to be secure: it is possible to craft signatures that
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
      * this is by receiving a hash of the original message (which may otherwise
-     * be too long), and then calling {toEthSignedMessageHash} on it.
+     * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
@@ -169,63 +155,17 @@ library ECDSA {
     }
 
     /**
-     * @dev Returns an Ethereum Signed Message, created from a `hash`. This
-     * produces hash corresponding to the one signed with the
-     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
-     * JSON-RPC method as part of EIP-191.
-     *
-     * See {recover}.
+     * @dev Optionally reverts with the corresponding custom error according to the `error` argument provided.
      */
-    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
-        // 32 is the length in bytes of hash,
-        // enforced by the type signature above
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x00, "\x19Ethereum Signed Message:\n32")
-            mstore(0x1c, hash)
-            message := keccak256(0x00, 0x3c)
+    function _throwError(RecoverError error, bytes32 errorArg) private pure {
+        if (error == RecoverError.NoError) {
+            return; // no error: do nothing
+        } else if (error == RecoverError.InvalidSignature) {
+            revert ECDSAInvalidSignature();
+        } else if (error == RecoverError.InvalidSignatureLength) {
+            revert ECDSAInvalidSignatureLength(uint256(errorArg));
+        } else if (error == RecoverError.InvalidSignatureS) {
+            revert ECDSAInvalidSignatureS(errorArg);
         }
-    }
-
-    /**
-     * @dev Returns an Ethereum Signed Message, created from `s`. This
-     * produces hash corresponding to the one signed with the
-     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
-     * JSON-RPC method as part of EIP-191.
-     *
-     * See {recover}.
-     */
-    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(s.length), s));
-    }
-
-    /**
-     * @dev Returns an Ethereum Signed Typed Data, created from a
-     * `domainSeparator` and a `structHash`. This produces hash corresponding
-     * to the one signed with the
-     * https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`]
-     * JSON-RPC method as part of EIP-712.
-     *
-     * See {recover}.
-     */
-    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 data) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            let ptr := mload(0x40)
-            mstore(ptr, hex"19_01")
-            mstore(add(ptr, 0x02), domainSeparator)
-            mstore(add(ptr, 0x22), structHash)
-            data := keccak256(ptr, 0x42)
-        }
-    }
-
-    /**
-     * @dev Returns an Ethereum Signed Data with intended validator, created from a
-     * `validator` and `data` according to the version 0 of EIP-191.
-     *
-     * See {recover}.
-     */
-    function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(hex"19_00", validator, data));
     }
 }
