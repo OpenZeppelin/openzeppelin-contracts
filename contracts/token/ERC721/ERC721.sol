@@ -118,8 +118,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             revert ERC721InvalidOperator(owner);
         }
 
-        if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
-            revert ERC721InvalidApprover(_msgSender());
+        address sender = _msgSender();
+        if (sender != owner && !isApprovedForAll(owner, sender)) {
+            revert ERC721InvalidApprover(sender);
         }
 
         _approve(to, tokenId);
@@ -182,9 +183,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Requirements:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
+     * - `from` and `to` cannot be the zero address
+     * - `tokenId` token must exist `from` should be the current owner of the token or an approved operator.
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
@@ -230,6 +230,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         return owner == spender || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender;
     }
 
+    /**
+     * @dev Checks whether `spender` was approved by `owner` to operate on `tokenId` or is the owner of `tokenId`.
+     * Reverts if `spender` is not approved nor owner of `tokenId`.
+     */
     function _checkApproved(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isApproved(owner, spender, tokenId)) {
             address actualOwner = _ownerOf(tokenId);
@@ -290,7 +294,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Requirements:
      *
-     * - `tokenId` must exist.
+     * - `tokenId` must exist, so `from` cannot be the zero address.
+     * - `from` should be the current owner of the token or an approved operator.
      *
      * Emits a {Transfer} event.
      */
@@ -303,12 +308,12 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Transfers `tokenId` from `from` to `to`.
-     *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
+     * As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
      *
      * Requirements:
      *
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
+     * - `from` and `to` cannot be the zero address
+     * - `from` should be the current owner of the token or an approved operator.
      *
      * Emits a {Transfer} event.
      */
@@ -322,6 +327,18 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         _update(from, to, tokenId);
     }
 
+    /**
+     * @dev Updates the ownership of toke with id `tokenId` from `from` to `to`.
+     * It clears the approval for the token when is transferred.
+     *
+     * Requirements:
+     *
+     * - `from` should be the current owner of the token or an approved operator.
+     *
+     * NOTE: The `from` should be `address(0)` for mints and `to` should be `address(0)` for burns.
+     *
+     * Emits a {Transfer} event.
+     */
     function _update(address from, address to, uint256 tokenId) internal virtual {
         address owner = _ownerOf(tokenId);
         if (from != owner) {
@@ -335,6 +352,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (from != address(0)) {
             delete _tokenApprovals[tokenId];
             unchecked {
+                // Decrease balance with unchecked arithmetic because `owner == from` and
+                // therefore we can guarantee `_balances[from] >= 1`.
                 _balances[from] -= 1;
             }
         }
@@ -400,12 +419,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @param tokenId uint256 ID of the token to be transferred
      * @param data bytes optional data to send along with the call
      */
-    function _checkOnERC721Received(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) private {
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory data) private {
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
                 if (retval != IERC721Receiver.onERC721Received.selector) {
