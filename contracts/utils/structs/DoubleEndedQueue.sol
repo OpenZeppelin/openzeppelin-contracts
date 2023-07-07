@@ -27,7 +27,7 @@ library DoubleEndedQueue {
     /**
      * @dev A push operation couldn't be completed due to the queue being full.
      */
-    error Full();
+    error QueueFull();
 
     /**
      * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.
@@ -58,7 +58,7 @@ library DoubleEndedQueue {
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
             uint128 backIndex = deque._end;
-            if (backIndex + 1 == deque._begin) revert Full();
+            if (backIndex + 1 == deque._begin) revert QueueFull();
             deque._data[backIndex] = value;
             deque._end = backIndex + 1;
         }
@@ -86,7 +86,7 @@ library DoubleEndedQueue {
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
             uint128 frontIndex = deque._begin - 1;
-            if (frontIndex == deque._end) revert Full();
+            if (frontIndex == deque._end) revert QueueFull();
             deque._data[frontIndex] = value;
             deque._begin = frontIndex;
         }
