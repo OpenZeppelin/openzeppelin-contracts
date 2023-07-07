@@ -15,7 +15,7 @@ import {ProxyAdmin} from "./ProxyAdmin.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function upgradeTo(address) external payable;
+    function upgradeToAndCall(address, bytes calldata) external payable;
 }
 
 /**
@@ -90,8 +90,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         if (msg.sender == _admin) {
             bytes memory ret;
             bytes4 selector = msg.sig;
-            if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
-                ret = _dispatchUpgradeTo();
+            if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
+                ret = _dispatchUpgradeToAndCall();
             } else {
                 revert ProxyDeniedAdminAccess();
             }
@@ -106,11 +106,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Upgrade the implementation of the proxy.
      */
-    function _dispatchUpgradeTo() private returns (bytes memory) {
-        _requireZeroValue();
+    function _dispatchUpgradeToAndCall() private returns (bytes memory) {
+        bool forceCall = msg.value > 0;
 
-        (address newImplementation) = abi.decode(msg.data[4:], (address));
-        ERC1967Utils.upgradeTo(newImplementation);
+        (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
+        ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
 
         return "";
     }

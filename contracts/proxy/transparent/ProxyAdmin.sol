@@ -12,6 +12,8 @@ import {Address} from "../../utils/Address.sol";
  * explanation of why you would want to use this see the documentation for {TransparentUpgradeableProxy}.
  */
 contract ProxyAdmin is Ownable {
+    uint256 public immutable PROXY_ADMIN_VERSION = 2;
+
     /**
      * @dev Sets the initial owner who can perform upgrades.
      */
@@ -29,32 +31,7 @@ contract ProxyAdmin is Ownable {
         ITransparentUpgradeableProxy proxy,
         address implementation,
         bytes memory data
-    ) public payable virtual {
-        // Owner checked by _upgrade
-        _upgrade(proxy, implementation);
-        Address.functionCallWithValue(address(proxy), data, msg.value);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-_dispatchUpgradeTo}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) public virtual {
-        // Owner checked by _upgrade
-        _upgrade(proxy, implementation);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation`.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function _upgrade(ITransparentUpgradeableProxy proxy, address implementation) internal onlyOwner {
-        proxy.upgradeTo(implementation);
+    ) public payable virtual onlyOwner {
+        proxy.upgradeToAndCall{ value: msg.value }(implementation, data);
     }
 }
