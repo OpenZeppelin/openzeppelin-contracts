@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../Governor.sol";
-import "../../utils/math/Math.sol";
+import {Governor} from "../Governor.sol";
+import {Math} from "../../utils/math/Math.sol";
 
 /**
  * @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from
@@ -14,13 +14,10 @@ import "../../utils/math/Math.sol";
  * If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at
  * least a specified time has passed (the "vote extension" parameter). This parameter can be set through a governance
  * proposal.
- *
- * _Available since v4.5._
  */
 abstract contract GovernorPreventLateQuorum is Governor {
     uint48 private _voteExtension;
 
-    /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
     mapping(uint256 => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.

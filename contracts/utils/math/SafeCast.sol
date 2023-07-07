@@ -46,8 +46,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 248 bits
-     *
-     * _Available since v4.7._
      */
     function toUint248(uint256 value) internal pure returns (uint248) {
         if (value > type(uint248).max) {
@@ -65,8 +63,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 240 bits
-     *
-     * _Available since v4.7._
      */
     function toUint240(uint256 value) internal pure returns (uint240) {
         if (value > type(uint240).max) {
@@ -84,8 +80,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 232 bits
-     *
-     * _Available since v4.7._
      */
     function toUint232(uint256 value) internal pure returns (uint232) {
         if (value > type(uint232).max) {
@@ -103,8 +97,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 224 bits
-     *
-     * _Available since v4.2._
      */
     function toUint224(uint256 value) internal pure returns (uint224) {
         if (value > type(uint224).max) {
@@ -122,8 +114,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 216 bits
-     *
-     * _Available since v4.7._
      */
     function toUint216(uint256 value) internal pure returns (uint216) {
         if (value > type(uint216).max) {
@@ -141,8 +131,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 208 bits
-     *
-     * _Available since v4.7._
      */
     function toUint208(uint256 value) internal pure returns (uint208) {
         if (value > type(uint208).max) {
@@ -160,8 +148,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 200 bits
-     *
-     * _Available since v4.7._
      */
     function toUint200(uint256 value) internal pure returns (uint200) {
         if (value > type(uint200).max) {
@@ -179,8 +165,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 192 bits
-     *
-     * _Available since v4.7._
      */
     function toUint192(uint256 value) internal pure returns (uint192) {
         if (value > type(uint192).max) {
@@ -198,8 +182,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 184 bits
-     *
-     * _Available since v4.7._
      */
     function toUint184(uint256 value) internal pure returns (uint184) {
         if (value > type(uint184).max) {
@@ -217,8 +199,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 176 bits
-     *
-     * _Available since v4.7._
      */
     function toUint176(uint256 value) internal pure returns (uint176) {
         if (value > type(uint176).max) {
@@ -236,8 +216,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 168 bits
-     *
-     * _Available since v4.7._
      */
     function toUint168(uint256 value) internal pure returns (uint168) {
         if (value > type(uint168).max) {
@@ -255,8 +233,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 160 bits
-     *
-     * _Available since v4.7._
      */
     function toUint160(uint256 value) internal pure returns (uint160) {
         if (value > type(uint160).max) {
@@ -274,8 +250,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 152 bits
-     *
-     * _Available since v4.7._
      */
     function toUint152(uint256 value) internal pure returns (uint152) {
         if (value > type(uint152).max) {
@@ -293,8 +267,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 144 bits
-     *
-     * _Available since v4.7._
      */
     function toUint144(uint256 value) internal pure returns (uint144) {
         if (value > type(uint144).max) {
@@ -312,8 +284,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 136 bits
-     *
-     * _Available since v4.7._
      */
     function toUint136(uint256 value) internal pure returns (uint136) {
         if (value > type(uint136).max) {
@@ -331,8 +301,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 128 bits
-     *
-     * _Available since v2.5._
      */
     function toUint128(uint256 value) internal pure returns (uint128) {
         if (value > type(uint128).max) {
@@ -350,8 +318,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 120 bits
-     *
-     * _Available since v4.7._
      */
     function toUint120(uint256 value) internal pure returns (uint120) {
         if (value > type(uint120).max) {
@@ -369,8 +335,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 112 bits
-     *
-     * _Available since v4.7._
      */
     function toUint112(uint256 value) internal pure returns (uint112) {
         if (value > type(uint112).max) {
@@ -388,8 +352,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 104 bits
-     *
-     * _Available since v4.7._
      */
     function toUint104(uint256 value) internal pure returns (uint104) {
         if (value > type(uint104).max) {
@@ -407,8 +369,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 96 bits
-     *
-     * _Available since v4.2._
      */
     function toUint96(uint256 value) internal pure returns (uint96) {
         if (value > type(uint96).max) {
@@ -426,8 +386,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 88 bits
-     *
-     * _Available since v4.7._
      */
     function toUint88(uint256 value) internal pure returns (uint88) {
         if (value > type(uint88).max) {
@@ -445,8 +403,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 80 bits
-     *
-     * _Available since v4.7._
      */
     function toUint80(uint256 value) internal pure returns (uint80) {
         if (value > type(uint80).max) {
@@ -464,8 +420,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 72 bits
-     *
-     * _Available since v4.7._
      */
     function toUint72(uint256 value) internal pure returns (uint72) {
         if (value > type(uint72).max) {
@@ -483,8 +437,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 64 bits
-     *
-     * _Available since v2.5._
      */
     function toUint64(uint256 value) internal pure returns (uint64) {
         if (value > type(uint64).max) {
@@ -502,8 +454,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 56 bits
-     *
-     * _Available since v4.7._
      */
     function toUint56(uint256 value) internal pure returns (uint56) {
         if (value > type(uint56).max) {
@@ -521,8 +471,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 48 bits
-     *
-     * _Available since v4.7._
      */
     function toUint48(uint256 value) internal pure returns (uint48) {
         if (value > type(uint48).max) {
@@ -540,8 +488,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 40 bits
-     *
-     * _Available since v4.7._
      */
     function toUint40(uint256 value) internal pure returns (uint40) {
         if (value > type(uint40).max) {
@@ -559,8 +505,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 32 bits
-     *
-     * _Available since v2.5._
      */
     function toUint32(uint256 value) internal pure returns (uint32) {
         if (value > type(uint32).max) {
@@ -578,8 +522,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 24 bits
-     *
-     * _Available since v4.7._
      */
     function toUint24(uint256 value) internal pure returns (uint24) {
         if (value > type(uint24).max) {
@@ -597,8 +539,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 16 bits
-     *
-     * _Available since v2.5._
      */
     function toUint16(uint256 value) internal pure returns (uint16) {
         if (value > type(uint16).max) {
@@ -616,8 +556,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 8 bits
-     *
-     * _Available since v2.5._
      */
     function toUint8(uint256 value) internal pure returns (uint8) {
         if (value > type(uint8).max) {
@@ -632,8 +570,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must be greater than or equal to 0.
-     *
-     * _Available since v3.0._
      */
     function toUint256(int256 value) internal pure returns (uint256) {
         if (value < 0) {
@@ -652,8 +588,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 248 bits
-     *
-     * _Available since v4.7._
      */
     function toInt248(int256 value) internal pure returns (int248 downcasted) {
         downcasted = int248(value);
@@ -672,8 +606,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 240 bits
-     *
-     * _Available since v4.7._
      */
     function toInt240(int256 value) internal pure returns (int240 downcasted) {
         downcasted = int240(value);
@@ -692,8 +624,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 232 bits
-     *
-     * _Available since v4.7._
      */
     function toInt232(int256 value) internal pure returns (int232 downcasted) {
         downcasted = int232(value);
@@ -712,8 +642,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 224 bits
-     *
-     * _Available since v4.7._
      */
     function toInt224(int256 value) internal pure returns (int224 downcasted) {
         downcasted = int224(value);
@@ -732,8 +660,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 216 bits
-     *
-     * _Available since v4.7._
      */
     function toInt216(int256 value) internal pure returns (int216 downcasted) {
         downcasted = int216(value);
@@ -752,8 +678,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 208 bits
-     *
-     * _Available since v4.7._
      */
     function toInt208(int256 value) internal pure returns (int208 downcasted) {
         downcasted = int208(value);
@@ -772,8 +696,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 200 bits
-     *
-     * _Available since v4.7._
      */
     function toInt200(int256 value) internal pure returns (int200 downcasted) {
         downcasted = int200(value);
@@ -792,8 +714,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 192 bits
-     *
-     * _Available since v4.7._
      */
     function toInt192(int256 value) internal pure returns (int192 downcasted) {
         downcasted = int192(value);
@@ -812,8 +732,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 184 bits
-     *
-     * _Available since v4.7._
      */
     function toInt184(int256 value) internal pure returns (int184 downcasted) {
         downcasted = int184(value);
@@ -832,8 +750,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 176 bits
-     *
-     * _Available since v4.7._
      */
     function toInt176(int256 value) internal pure returns (int176 downcasted) {
         downcasted = int176(value);
@@ -852,8 +768,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 168 bits
-     *
-     * _Available since v4.7._
      */
     function toInt168(int256 value) internal pure returns (int168 downcasted) {
         downcasted = int168(value);
@@ -872,8 +786,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 160 bits
-     *
-     * _Available since v4.7._
      */
     function toInt160(int256 value) internal pure returns (int160 downcasted) {
         downcasted = int160(value);
@@ -892,8 +804,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 152 bits
-     *
-     * _Available since v4.7._
      */
     function toInt152(int256 value) internal pure returns (int152 downcasted) {
         downcasted = int152(value);
@@ -912,8 +822,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 144 bits
-     *
-     * _Available since v4.7._
      */
     function toInt144(int256 value) internal pure returns (int144 downcasted) {
         downcasted = int144(value);
@@ -932,8 +840,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 136 bits
-     *
-     * _Available since v4.7._
      */
     function toInt136(int256 value) internal pure returns (int136 downcasted) {
         downcasted = int136(value);
@@ -952,8 +858,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 128 bits
-     *
-     * _Available since v3.1._
      */
     function toInt128(int256 value) internal pure returns (int128 downcasted) {
         downcasted = int128(value);
@@ -972,8 +876,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 120 bits
-     *
-     * _Available since v4.7._
      */
     function toInt120(int256 value) internal pure returns (int120 downcasted) {
         downcasted = int120(value);
@@ -992,8 +894,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 112 bits
-     *
-     * _Available since v4.7._
      */
     function toInt112(int256 value) internal pure returns (int112 downcasted) {
         downcasted = int112(value);
@@ -1012,8 +912,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 104 bits
-     *
-     * _Available since v4.7._
      */
     function toInt104(int256 value) internal pure returns (int104 downcasted) {
         downcasted = int104(value);
@@ -1032,8 +930,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 96 bits
-     *
-     * _Available since v4.7._
      */
     function toInt96(int256 value) internal pure returns (int96 downcasted) {
         downcasted = int96(value);
@@ -1052,8 +948,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 88 bits
-     *
-     * _Available since v4.7._
      */
     function toInt88(int256 value) internal pure returns (int88 downcasted) {
         downcasted = int88(value);
@@ -1072,8 +966,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 80 bits
-     *
-     * _Available since v4.7._
      */
     function toInt80(int256 value) internal pure returns (int80 downcasted) {
         downcasted = int80(value);
@@ -1092,8 +984,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 72 bits
-     *
-     * _Available since v4.7._
      */
     function toInt72(int256 value) internal pure returns (int72 downcasted) {
         downcasted = int72(value);
@@ -1112,8 +1002,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 64 bits
-     *
-     * _Available since v3.1._
      */
     function toInt64(int256 value) internal pure returns (int64 downcasted) {
         downcasted = int64(value);
@@ -1132,8 +1020,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 56 bits
-     *
-     * _Available since v4.7._
      */
     function toInt56(int256 value) internal pure returns (int56 downcasted) {
         downcasted = int56(value);
@@ -1152,8 +1038,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 48 bits
-     *
-     * _Available since v4.7._
      */
     function toInt48(int256 value) internal pure returns (int48 downcasted) {
         downcasted = int48(value);
@@ -1172,8 +1056,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 40 bits
-     *
-     * _Available since v4.7._
      */
     function toInt40(int256 value) internal pure returns (int40 downcasted) {
         downcasted = int40(value);
@@ -1192,8 +1074,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 32 bits
-     *
-     * _Available since v3.1._
      */
     function toInt32(int256 value) internal pure returns (int32 downcasted) {
         downcasted = int32(value);
@@ -1212,8 +1092,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 24 bits
-     *
-     * _Available since v4.7._
      */
     function toInt24(int256 value) internal pure returns (int24 downcasted) {
         downcasted = int24(value);
@@ -1232,8 +1110,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 16 bits
-     *
-     * _Available since v3.1._
      */
     function toInt16(int256 value) internal pure returns (int16 downcasted) {
         downcasted = int16(value);
@@ -1252,8 +1128,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must fit into 8 bits
-     *
-     * _Available since v3.1._
      */
     function toInt8(int256 value) internal pure returns (int8 downcasted) {
         downcasted = int8(value);
@@ -1268,8 +1142,6 @@ library SafeCast {
      * Requirements:
      *
      * - input must be less than or equal to maxInt256.
-     *
-     * _Available since v3.0._
      */
     function toInt256(uint256 value) internal pure returns (int256) {
         // Note: Unsafe cast below is okay because `type(int256).max` is guaranteed to be positive

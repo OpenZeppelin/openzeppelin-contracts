@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../IERC721.sol";
+import {IERC721} from "../IERC721.sol";
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional metadata extension

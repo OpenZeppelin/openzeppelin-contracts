@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/DoubleEndedQueue.sol)
 pragma solidity ^0.8.19;
 
-import "../math/SafeCast.sol";
+import {SafeCast} from "../math/SafeCast.sol";
 
 /**
  * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of
@@ -15,8 +15,6 @@ import "../math/SafeCast.sol";
  * ```solidity
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
- *
- * _Available since v4.6._
  */
 library DoubleEndedQueue {
     /**

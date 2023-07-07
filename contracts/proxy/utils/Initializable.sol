@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/Address.sol";
+import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -58,7 +58,6 @@ import "../../utils/Address.sol";
 abstract contract Initializable {
     /**
      * @dev Indicates that the contract has been initialized.
-     * @custom:oz-retyped-from bool
      */
     uint8 private _initialized;
 

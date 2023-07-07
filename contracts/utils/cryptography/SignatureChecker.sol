@@ -3,15 +3,13 @@
 
 pragma solidity ^0.8.19;
 
-import "./ECDSA.sol";
-import "../../interfaces/IERC1271.sol";
+import {ECDSA} from "./ECDSA.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA
  * signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets like
- * Argent and Gnosis Safe.
- *
- * _Available since v4.1._
+ * Argent and Safe Wallet (previously Gnosis Safe).
  */
 library SignatureChecker {
     /**

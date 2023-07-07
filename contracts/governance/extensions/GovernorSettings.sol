@@ -3,12 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../Governor.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for settings updatable through governance.
- *
- * _Available since v4.4._
  */
 abstract contract GovernorSettings is Governor {
     // amount of token

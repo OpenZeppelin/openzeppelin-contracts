@@ -6,14 +6,16 @@ const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const ERC2771ContextMock = artifacts.require('ERC2771ContextMock');
-const MinimalForwarder = artifacts.require('MinimalForwarder');
+const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 contract('ERC2771Context', function (accounts) {
+  const MAX_UINT48 = web3.utils.toBN(1).shln(48).subn(1).toString();
+
   beforeEach(async function () {
-    this.forwarder = await MinimalForwarder.new();
+    this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
     this.recipient = await ERC2771ContextMock.new(this.forwarder.address);
 
     this.domain = await getDomain(this.forwarder);
@@ -25,6 +27,7 @@ contract('ERC2771Context', function (accounts) {
         { name: 'value', type: 'uint256' },
         { name: 'gas', type: 'uint256' },
         { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint48' },
         { name: 'data', type: 'bytes' },
       ],
     };
@@ -63,14 +66,17 @@ contract('ERC2771Context', function (accounts) {
           to: this.recipient.address,
           value: '0',
           gas: '100000',
-          nonce: (await this.forwarder.getNonce(this.sender)).toString(),
+          nonce: (await this.forwarder.nonces(this.sender)).toString(),
+          deadline: MAX_UINT48,
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
-        expect(await this.forwarder.verify(req, sign)).to.equal(true);
+        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
+        expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(req);
         await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: this.sender });
       });
     });
@@ -86,14 +92,17 @@ contract('ERC2771Context', function (accounts) {
           to: this.recipient.address,
           value: '0',
           gas: '100000',
-          nonce: (await this.forwarder.getNonce(this.sender)).toString(),
+          nonce: (await this.forwarder.nonces(this.sender)).toString(),
+          deadline: MAX_UINT48,
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
-        expect(await this.forwarder.verify(req, sign)).to.equal(true);
+        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
+        expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(req);
         await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', { data, integerValue, stringValue });
       });
     });

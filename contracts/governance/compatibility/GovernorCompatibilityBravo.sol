@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/math/SafeCast.sol";
-import "../extensions/IGovernorTimelock.sol";
-import "../Governor.sol";
-import "./IGovernorCompatibilityBravo.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {IGovernorTimelock} from "../extensions/IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {IGovernorCompatibilityBravo} from "./IGovernorCompatibilityBravo.sol";
 
 /**
  * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
@@ -15,8 +15,6 @@ import "./IGovernorCompatibilityBravo.sol";
  * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     enum VoteType {

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../interfaces/draft-IERC1822.sol";
-import "../ERC1967/ERC1967Utils.sol";
+import {IERC1822Proxiable} from "../../interfaces/draft-IERC1822.sol";
+import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
@@ -15,8 +15,6 @@ import "../ERC1967/ERC1967Utils.sol";
  * `UUPSUpgradeable` with a custom implementation of upgrades.
  *
  * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
- *
- * _Available since v4.1._
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment

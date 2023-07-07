@@ -3,11 +3,13 @@
 
 pragma solidity ^0.8.19;
 
-import "../IERC1155Receiver.sol";
-import "../../../utils/introspection/ERC165.sol";
+import {IERC1155Receiver} from "../IERC1155Receiver.sol";
+import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
- * @dev _Available since v3.1._
+ * @dev Basic contract implementing the ERC-165 interface for {IERC1155Receiver}.
+ *
+ * NOTE: This contract does not suffice to receive tokens. See {ERC1155Holder}.
  */
 abstract contract ERC1155Receiver is ERC165, IERC1155Receiver {
     /**

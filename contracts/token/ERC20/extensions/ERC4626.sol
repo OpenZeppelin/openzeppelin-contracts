@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
-import "../utils/SafeERC20.sol";
-import "../../../interfaces/IERC4626.sol";
-import "../../../utils/math/Math.sol";
+import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
+import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
@@ -44,8 +44,6 @@ import "../../../utils/math/Math.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
- *
- * _Available since v4.7._
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;

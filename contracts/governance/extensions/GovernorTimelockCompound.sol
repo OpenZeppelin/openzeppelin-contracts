@@ -3,10 +3,12 @@
 
 pragma solidity ^0.8.19;
 
-import "./IGovernorTimelock.sol";
-import "../Governor.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../vendor/compound/ICompoundTimelock.sol";
+import {IGovernorTimelock} from "./IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
+import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
@@ -17,13 +19,10 @@ import "../../vendor/compound/ICompoundTimelock.sol";
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ICompoundTimelock private _timelock;
 
-    /// @custom:oz-retyped-from mapping(uint256 => GovernorTimelockCompound.ProposalTimelock)
     mapping(uint256 => uint256) private _proposalTimelocks;
 
     /**
