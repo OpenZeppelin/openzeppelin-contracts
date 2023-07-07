@@ -47,7 +47,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
-     * @dev Overload {_grantRole} to track enumerable memberships
+     * @dev Overload {AccessControl-_grantRole} to track enumerable memberships
      */
     function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
         bool granted = super._grantRole(role, account);
@@ -58,7 +58,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
-     * @dev Overload {_revokeRole} to track enumerable memberships
+     * @dev Overload {AccessControl-_revokeRole} to track enumerable memberships
      */
     function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         bool revoked = super._revokeRole(role, account);
