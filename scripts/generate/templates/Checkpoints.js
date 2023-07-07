@@ -13,8 +13,6 @@ import {Math} from "../math/Math.sol";
  *
  * To create a history of checkpoints define a variable type \`Checkpoints.Trace*\` in your contract, and store a new
  * checkpoint for the current transaction block using the {push} function.
- *
- * _Available since v4.5._
  */
 `;
 

@@ -21,8 +21,6 @@ import {IERC165} from "../../interfaces/IERC165.sol";
  * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
  * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
  * executing a Denial of Service attack. This risk will be mitigated in a future release.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     TimelockController private _timelock;

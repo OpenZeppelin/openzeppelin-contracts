@@ -17,8 +17,6 @@ import {ERC20} from "../ERC20.sol";
  * NOTE: When this extension is used along with the {ERC20Capped} or {ERC20Votes} extensions,
  * {maxFlashLoan} will not correctly reflect the maximum that can be flash minted. We recommend
  * overriding {maxFlashLoan} so that it correctly reflects the supply cap.
- *
- * _Available since v4.1._
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 private constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");

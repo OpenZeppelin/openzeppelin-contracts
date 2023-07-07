@@ -13,8 +13,6 @@ import {Votes} from "../../../governance/utils/Votes.sol";
  * Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
  * on every transfer. Token holders can either delegate to a trusted representative who will decide how to make use of
  * the votes in governance decisions, or they can delegate to themselves to be their own representative.
- *
- * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, Votes {
     /**

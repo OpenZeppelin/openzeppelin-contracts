@@ -45,8 +45,6 @@ library ERC165Checker {
      * is that some interfaces may not be supported.
      *
      * See {IERC165-supportsInterface}.
-     *
-     * _Available since v3.4._
      */
     function getSupportedInterfaces(
         address account,

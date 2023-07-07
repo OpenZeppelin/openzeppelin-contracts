@@ -15,8 +15,6 @@ import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
  * @dev Implementation of the basic standard multi-token.
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
- *
- * _Available since v3.1._
  */
 abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Errors {
     using Arrays for uint256[];
