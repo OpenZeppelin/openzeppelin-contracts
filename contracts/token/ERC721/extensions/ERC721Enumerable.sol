@@ -76,11 +76,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {ERC721-_update}.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
         super._update(from, to, tokenId);
 
         if (from == address(0)) {

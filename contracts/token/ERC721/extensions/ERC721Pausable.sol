@@ -27,11 +27,7 @@ abstract contract ERC721Pausable is ERC721, Pausable {
      *
      * - the contract must not be paused.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
         _requireNotPaused();
         super._update(from, to, tokenId);
     }

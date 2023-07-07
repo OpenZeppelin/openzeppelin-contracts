@@ -138,11 +138,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * Warning: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
      * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
+    function _update(address from, address to, uint256 tokenId) internal virtual override {
         super._update(from, to, tokenId);
 
         // only mint after construction
