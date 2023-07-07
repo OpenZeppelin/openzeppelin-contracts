@@ -328,7 +328,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Updates the ownership of toke with id `tokenId` from `from` to `to`.
+     * @dev Updates the ownership of token with id `tokenId` from `from` to `to`.
      * It clears the approval for the token when is transferred.
      *
      * Requirements:

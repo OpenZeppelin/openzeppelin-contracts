@@ -63,18 +63,21 @@ contract('ERC721Burnable', function (accounts) {
 
       describe('when there is no previous approval burned', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(owner, tokenId, { from: another }), 'ERC721InsufficientApproval', [
-            another,
-            tokenId,
-          ]);
+          await expectRevertCustomError(
+            this.token.burn(owner, tokenId, { from: another }),
+            'ERC721InsufficientApproval',
+            [another, tokenId],
+          );
         });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(owner, unknownTokenId, { from: owner }), 'ERC721NonexistentToken', [
-            unknownTokenId,
-          ]);
+          await expectRevertCustomError(
+            this.token.burn(owner, unknownTokenId, { from: owner }),
+            'ERC721NonexistentToken',
+            [unknownTokenId],
+          );
         });
       });
     });

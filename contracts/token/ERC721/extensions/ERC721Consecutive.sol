@@ -134,7 +134,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * during construction, and burning of tokens that have been sequentially minted are complete.
      */
     function _update(address from, address to, uint256 tokenId) internal virtual override {
-        if (to == address(0) && address(this).code.length == 0) {
+        if (from == address(0) && address(this).code.length == 0) {
             revert ERC721ForbiddenMint();
         }
 

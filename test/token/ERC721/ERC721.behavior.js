@@ -705,7 +705,11 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
       });
 
       it('reverts when adding a token id that already exists', async function () {
-        await expectRevertCustomError(this.token.$_mint(owner, firstTokenId), 'ERC721IncorrectOwner', [ZERO_ADDRESS, firstTokenId, owner]);
+        await expectRevertCustomError(this.token.$_mint(owner, firstTokenId), 'ERC721IncorrectOwner', [
+          ZERO_ADDRESS,
+          firstTokenId,
+          owner,
+        ]);
       });
     });
   });
@@ -738,7 +742,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
         });
 
         it('reverts when burning a token id that has been deleted', async function () {
-          await expectRevertCustomError(this.token.$_burn(owner, firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
+          await expectRevertCustomError(this.token.$_burn(owner, firstTokenId), 'ERC721NonexistentToken', [
+            firstTokenId,
+          ]);
         });
       });
     });

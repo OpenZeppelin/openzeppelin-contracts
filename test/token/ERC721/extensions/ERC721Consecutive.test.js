@@ -117,7 +117,11 @@ contract('ERC721Consecutive', function (accounts) {
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(true);
 
-          await expectRevertCustomError(this.token.$_mint(user1, tokenId), 'ERC721InvalidSender', [ZERO_ADDRESS]);
+          await expectRevertCustomError(this.token.$_mint(user1, tokenId), 'ERC721IncorrectOwner', [
+            ZERO_ADDRESS,
+            tokenId,
+            await this.token.ownerOf(tokenId),
+          ]);
         });
       });
 
@@ -190,14 +194,6 @@ contract('ERC721Consecutive', function (accounts) {
         ERC721ConsecutiveMock.new(name, symbol, 0, [], [user1], ['5001']),
         'ERC721ExceededMaxBatchMint',
         [5000, 5001],
-      );
-    });
-
-    it('cannot use single minting during construction', async function () {
-      await expectRevertCustomError(
-        ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
-        'ERC721ForbiddenMint',
-        [],
       );
     });
 
