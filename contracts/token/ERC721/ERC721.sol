@@ -359,7 +359,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         }
 
         if (to != address(0)) {
-            _increaseBalance(to, 1);
+            unchecked {
+                _balances[to] += 1;
+            }
         }
 
         _owners[tokenId] = to;
