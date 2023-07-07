@@ -184,7 +184,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Grants `role` to `account`.
+     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.
      *
      * Internal function without access restriction.
      *
@@ -201,7 +201,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revokes `role` from `account`.
+     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
      *
      * Internal function without access restriction.
      *
