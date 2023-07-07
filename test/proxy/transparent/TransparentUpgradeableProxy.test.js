@@ -423,5 +423,4 @@ contract('TransparentUpgradeableProxy', function (accounts) {
       expect(res.toString()).to.eq('0');
     });
   });
-
 });

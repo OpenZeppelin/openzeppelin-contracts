@@ -12,6 +12,7 @@ import {Address} from "../../utils/Address.sol";
  * explanation of why you would want to use this see the documentation for {TransparentUpgradeableProxy}.
  */
 contract ProxyAdmin is Ownable {
+    // solhint-disable-next-line var-name-mixedcase
     uint256 public immutable PROXY_ADMIN_VERSION = 2;
 
     /**
@@ -32,6 +33,6 @@ contract ProxyAdmin is Ownable {
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {
-        proxy.upgradeToAndCall{ value: msg.value }(implementation, data);
+        proxy.upgradeToAndCall{value: msg.value}(implementation, data);
     }
 }
