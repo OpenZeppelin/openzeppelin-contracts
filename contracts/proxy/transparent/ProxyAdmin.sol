@@ -5,7 +5,6 @@ pragma solidity ^0.8.19;
 
 import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
-import {Address} from "../../utils/Address.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
