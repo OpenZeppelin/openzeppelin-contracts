@@ -35,8 +35,6 @@ import {IERC5313} from "../interfaces/IERC5313.sol";
  *    ) {}
  * }
  * ```
- *
- * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
     // pending admin pair read/written together frequently

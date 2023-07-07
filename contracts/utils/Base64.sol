@@ -5,8 +5,6 @@ pragma solidity ^0.8.19;
 
 /**
  * @dev Provides a set of functions to operate with Base64 strings.
- *
- * _Available since v4.5._
  */
 library Base64 {
     /**

@@ -52,6 +52,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 === Core
 
+{{IGovernor}}
+
 {{Governor}}
 
 === Modules

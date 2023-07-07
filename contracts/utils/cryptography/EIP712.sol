@@ -28,8 +28,6 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
  * separator of the implementation contract. This will cause the `_domainSeparatorV4` function to always rebuild the
  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
  *
- * _Available since v3.4._
- *
  * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
  */
 abstract contract EIP712 is IERC5267 {
@@ -111,8 +109,6 @@ abstract contract EIP712 is IERC5267 {
 
     /**
      * @dev See {IERC-5267}.
-     *
-     * _Available since v4.9._
      */
     function eip712Domain()
         public
@@ -144,8 +140,6 @@ abstract contract EIP712 is IERC5267 {
      *
      * NOTE: By default this function reads _name which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
-     *
-     * _Available since v5.0._
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view returns (string memory) {
@@ -157,8 +151,6 @@ abstract contract EIP712 is IERC5267 {
      *
      * NOTE: By default this function reads _version which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
-     *
-     * _Available since v5.0._
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
