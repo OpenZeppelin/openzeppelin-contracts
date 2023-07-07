@@ -12,7 +12,7 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  *
  * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
  * conflict with the storage layout of the implementation behind the proxy. It is also stored in an immutable variable
- * for gas efficiency when reading it.
+ * for gas efficiency when reading it internally.
  */
 contract BeaconProxy is Proxy {
     // An immutable address for the beacon to avoid unnecessary SLOADs before each delegate call.
