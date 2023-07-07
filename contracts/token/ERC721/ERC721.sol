@@ -359,9 +359,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         }
 
         if (to != address(0)) {
-            unchecked {
-                _balances[to] += 1;
-            }
+            _increaseBalance(to, 1);
         }
 
         _owners[tokenId] = to;
@@ -370,8 +368,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Increases the balance of `account` by `value`.
-     * Write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     * @dev Increases the balance of `account` by an arbitrary `value`.
+     *
+     * This function provides write access to the balances, which can be used by extensions that
+     * "mint" tokens using an {ownerOf} override.
      */
     function _increaseBalance(address account, uint128 value) internal virtual {
         unchecked {
