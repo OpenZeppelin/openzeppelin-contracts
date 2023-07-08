@@ -118,8 +118,10 @@ contract('UUPSUpgradeable', function () {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
-    await expectRevertCustomError(this.instance.upgradeToAndCall(otherInstance.address, '0x'), 'ERC1967InvalidImplementation', [
-      otherInstance.address,
-    ]);
+    await expectRevertCustomError(
+      this.instance.upgradeToAndCall(otherInstance.address, '0x'),
+      'ERC1967InvalidImplementation',
+      [otherInstance.address],
+    );
   });
 });
