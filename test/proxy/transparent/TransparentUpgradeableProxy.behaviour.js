@@ -19,11 +19,11 @@ const InitializableMock = artifacts.require('InitializableMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const ClashingImplementation = artifacts.require('ClashingImplementation');
 
-module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProxy, accounts) {
-  const [initialOwner, proxyCreator, anotherAccount] = accounts;
+module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProxy, initialOwner, accounts) {
+  const [proxyCreator, anotherAccount] = accounts;
 
-  async function createProxyWithImpersonatedProxyAdmin(logic, owner, initData, opts) {
-    const proxy = await createProxy(logic, owner, initData, { from: proxyCreator, ...opts });
+  async function createProxyWithImpersonatedProxyAdmin(logic, initData, opts) {
+    const proxy = await createProxy(logic, initData, { from: proxyCreator, ...opts });
 
     // Expect proxy admin to be the first and only contract created by the proxy
     const proxyAdminAddress = computeCreateAddress(proxy.address, 1);
@@ -44,7 +44,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     const initializeData = Buffer.from('');
     const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
       this.implementationV0,
-      initialOwner,
       initializeData,
     );
     this.proxy = proxy;
@@ -280,7 +279,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       this.clashingImplV1 = (await ClashingImplementation.new()).address;
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         this.clashingImplV0,
-        initialOwner,
         initializeData,
       );
       this.proxy = proxy;
@@ -321,7 +319,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const instance1 = await Implementation1.new();
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         instance1.address,
-        initialOwner,
         initializeData,
       );
 
@@ -340,7 +337,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const instance2 = await Implementation2.new();
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         instance2.address,
-        initialOwner,
         initializeData,
       );
 
@@ -360,7 +356,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const instance1 = await Implementation1.new();
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         instance1.address,
-        initialOwner,
         initializeData,
       );
 
@@ -380,7 +375,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const instance1 = await Implementation1.new();
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         instance1.address,
-        initialOwner,
         initializeData,
       );
 
@@ -399,7 +393,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const instance4 = await Implementation4.new();
       const { proxy, proxyAdminAddress } = await createProxyWithImpersonatedProxyAdmin(
         instance4.address,
-        initialOwner,
         initializeData,
       );
 
