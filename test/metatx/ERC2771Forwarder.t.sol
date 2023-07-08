@@ -94,8 +94,8 @@ contract ERC2771ForwarderTest is Test {
     }
 
     function testExecuteAvoidsETHStuck(uint256 initialBalance, uint256 value, bool targetReverts) public {
-        vm.assume(initialBalance < _MAX_ETHER);
-        vm.assume(value < _MAX_ETHER);
+        initialBalance = bound(initialBalance, 0, _MAX_ETHER);
+        value = bound(value, 0, _MAX_ETHER);
 
         vm.deal(address(_erc2771Forwarder), initialBalance);
 
@@ -122,8 +122,8 @@ contract ERC2771ForwarderTest is Test {
 
     function testExecuteBatchAvoidsETHStuck(uint256 initialBalance, uint256 batchSize, uint256 value) public {
         batchSize = bound(batchSize, 1, 10);
-        vm.assume(initialBalance < _MAX_ETHER);
-        vm.assume(value < _MAX_ETHER);
+        initialBalance = bound(initialBalance, 0, _MAX_ETHER);
+        value = bound(value, 0, _MAX_ETHER);
 
         vm.deal(address(_erc2771Forwarder), initialBalance);
         uint256 nonce = _erc2771Forwarder.nonces(_signer);
