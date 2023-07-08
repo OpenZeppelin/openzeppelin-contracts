@@ -18,7 +18,6 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  */
 contract BeaconProxy is Proxy {
     // An immutable address for the beacon to avoid unnecessary SLOADs before each delegate call.
-    // This is private to avoid generating a getter function that could clash with a function from the implementation.
     address private immutable _beacon;
 
     /**
@@ -41,6 +40,13 @@ contract BeaconProxy is Proxy {
      * @dev Returns the current implementation address of the associated beacon.
      */
     function _implementation() internal view virtual override returns (address) {
-        return IBeacon(_beacon).implementation();
+        return IBeacon(_getBeacon()).implementation();
+    }
+
+    /**
+     * @dev Returns the beacon.
+     */
+    function _getBeacon() internal view virtual returns (address) {
+        return _beacon;
     }
 }
