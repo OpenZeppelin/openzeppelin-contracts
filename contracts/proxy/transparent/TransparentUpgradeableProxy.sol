@@ -69,6 +69,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     error ProxyDeniedAdminAccess();
 
     /**
+     * @dev The proxy rejected value included with `upgradeToAndCall` that would not execute the `receive` function.
+     */
+    error ProxyRejectedValue();
+
+    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
@@ -100,10 +105,13 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev Upgrade the implementation of the proxy.
      */
     function _dispatchUpgradeToAndCall() private returns (bytes memory) {
-        bool forceCall = msg.value > 0;
-
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
+
+        if (data.length == 0 && msg.value > 0) {
+            revert ProxyRejectedValue();
+        }
+
+        ERC1967Utils.upgradeToAndCall(newImplementation, data, /* forceCall = */ false);
 
         return "";
     }
