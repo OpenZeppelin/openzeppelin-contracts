@@ -2,6 +2,7 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 const { getSlot, ImplementationSlot } = require('../helpers/erc1967');
 
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
@@ -57,16 +58,16 @@ module.exports = function shouldBehaveLikeProxy(createProxy, accounts) {
     describe('when sending some balance', function () {
       const value = 10e5;
 
-      beforeEach('creating proxy', async function () {
-        this.proxy = (
-          await createProxy(this.implementation, initializeData, {
+      it('reverts', async function () {
+        await expectRevertCustomError(
+          createProxy(this.implementation, initializeData, {
             from: proxyCreator,
             value,
-          })
-        ).address;
+          }),
+          'ERC1967NonPayable',
+          [],
+        );
       });
-
-      assertProxyInitialization({ value: 0, balance: value });
     });
   });
 

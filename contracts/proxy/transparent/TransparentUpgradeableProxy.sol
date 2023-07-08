@@ -105,13 +105,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _dispatchUpgradeToAndCall() private returns (bytes memory) {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-
-        if (data.length == 0 && msg.value > 0) {
-            revert ProxyRejectedValue();
-        }
-
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, /* forceCall = */ false);
-
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
         return "";
     }
 }
