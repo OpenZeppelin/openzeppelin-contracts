@@ -1,4 +1,4 @@
-const { network, web3 } = require('hardhat');
+const { web3 } = require('hardhat');
 const { impersonateAccount, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
 
 // Hardhat default balance
