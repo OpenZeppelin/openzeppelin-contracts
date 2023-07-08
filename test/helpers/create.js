@@ -1,7 +1,7 @@
 const { rlp } = require('ethereumjs-util');
 
-function computeCreateAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([deployer.address ?? deployer, nonce])).slice(-40));
+function computeCreateAddress(deployer, nonce) {
+  return web3.utils.toChecksumAddress(web3.utils.sha3(rlp.encode([deployer.address ?? deployer, nonce])).slice(-40));
 }
 
 function computeCreate2Address(saltHex, bytecode, deployer) {
