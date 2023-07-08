@@ -68,11 +68,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     error ProxyDeniedAdminAccess();
 
     /**
-     * @dev The proxy rejected value included with `upgradeToAndCall` that would not execute the `receive` function.
-     */
-    error ProxyRejectedValue();
-
-    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
