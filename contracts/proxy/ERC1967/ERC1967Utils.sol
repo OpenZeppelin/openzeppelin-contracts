@@ -161,10 +161,13 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Perform beacon upgrade with additional setup call. Note: This upgrades the address of the beacon, it does
-     * not upgrade the implementation contained in the beacon (see {UpgradeableBeacon-_setImplementation} for that).
+     * @dev Change the beacon and trigger a setup call.
      *
      * Emits an {IERC1967-BeaconUpgraded} event.
+     *
+     * CAUTION: Invoking this function has no effect on an instance of {BeaconProxy} since v5, since
+     * it uses an immutable beacon without looking at the value of the ERC-1967 beacon slot for
+     * efficiency.
      */
     function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);

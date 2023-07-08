@@ -12,8 +12,14 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  *
  * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
  * conflict with the storage layout of the implementation behind the proxy.
+ *
+ * CAUTION: The beacon address can only be set once during construction, and cannot be changed afterwards.
+ * You must ensure that you either control the beacon, or trust the beacon to not upgrade the implementation maliciously.
  */
 contract BeaconProxy is Proxy {
+    // An immutable address for the beacon to avoid unnecessary SLOADs before each delegate call.
+    address private immutable _beacon;
+
     /**
      * @dev Initializes the proxy with `beacon`.
      *
@@ -27,12 +33,20 @@ contract BeaconProxy is Proxy {
      */
     constructor(address beacon, bytes memory data) payable {
         ERC1967Utils.upgradeBeaconToAndCall(beacon, data, false);
+        _beacon = beacon;
     }
 
     /**
      * @dev Returns the current implementation address of the associated beacon.
      */
     function _implementation() internal view virtual override returns (address) {
-        return IBeacon(ERC1967Utils.getBeacon()).implementation();
+        return IBeacon(_getBeacon()).implementation();
+    }
+
+    /**
+     * @dev Returns the beacon.
+     */
+    function _getBeacon() internal view virtual returns (address) {
+        return _beacon;
     }
 }
