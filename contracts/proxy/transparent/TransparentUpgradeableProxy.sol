@@ -88,10 +88,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     function _fallback() internal virtual override {
         if (msg.sender == _admin) {
             if (msg.sig == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                bytes memory ret = _dispatchUpgradeToAndCall();
-                assembly {
-                    return(add(ret, 0x20), mload(ret))
-                }
+                _dispatchUpgradeToAndCall();
             } else {
                 revert ProxyDeniedAdminAccess();
             }
@@ -103,9 +100,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Upgrade the implementation of the proxy.
      */
-    function _dispatchUpgradeToAndCall() private returns (bytes memory) {
+    function _dispatchUpgradeToAndCall() private {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
         ERC1967Utils.upgradeToAndCall(newImplementation, data);
-        return "";
     }
 }
