@@ -12,8 +12,7 @@ import {ShortStrings, ShortString} from "../../utils/ShortStrings.sol";
  * explanation of why you would want to use this see the documentation for {TransparentUpgradeableProxy}.
  */
 contract ProxyAdmin is Ownable {
-    // solhint-disable-next-line var-name-mixedcase
-    ShortString public immutable PROXY_ADMIN_VERSION = ShortStrings.toShortString(string("5.0.0"));
+    string public constant PROXY_ADMIN_VERSION = "5.0.0";
 
     /**
      * @dev Sets the initial owner who can perform upgrades.
