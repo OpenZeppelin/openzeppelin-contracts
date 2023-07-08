@@ -1,6 +1,6 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const RLP = require('rlp');
+const { rlp } = require('ethereumjs-util');
 
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
@@ -17,7 +17,7 @@ const ERC1155 = artifacts.require('$ERC1155');
 function makeContractAddress(creator, nonce) {
   return web3.utils.toChecksumAddress(
     web3.utils
-      .sha3(RLP.encode([creator, nonce]))
+      .sha3(rlp.encode([creator, nonce]))
       .slice(12)
       .substring(14),
   );
