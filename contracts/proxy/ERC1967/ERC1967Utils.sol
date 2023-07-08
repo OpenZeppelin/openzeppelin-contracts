@@ -138,6 +138,13 @@ library ERC1967Utils {
     bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**
+     * @dev Returns the current beacon.
+     */
+    function getBeacon() internal view returns (address) {
+        return StorageSlot.getAddressSlot(BEACON_SLOT).value;
+    }
+
+    /**
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
