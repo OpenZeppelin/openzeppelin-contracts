@@ -1,3 +1,5 @@
+const RLP = require('rlp');
+
 function computeCreate2Address(saltHex, bytecode, deployer) {
   return web3.utils.toChecksumAddress(
     `0x${web3.utils
@@ -6,6 +8,16 @@ function computeCreate2Address(saltHex, bytecode, deployer) {
   );
 }
 
+function computeCreateAddress(creator, nonce) {
+  return web3.utils.toChecksumAddress(
+    web3.utils
+      .sha3(RLP.encode([creator, nonce]))
+      .slice(12)
+      .substring(14),
+  );
+}
+
 module.exports = {
   computeCreate2Address,
+  computeCreateAddress,
 };

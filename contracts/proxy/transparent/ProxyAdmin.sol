@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 
 import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
+import {ShortStrings, ShortString} from "../../utils/ShortStrings.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
@@ -12,7 +13,7 @@ import {Ownable} from "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     // solhint-disable-next-line var-name-mixedcase
-    uint256 public immutable PROXY_ADMIN_VERSION = 2;
+    ShortString public immutable PROXY_ADMIN_VERSION = ShortStrings.toShortString(string("5.0.0"));
 
     /**
      * @dev Sets the initial owner who can perform upgrades.

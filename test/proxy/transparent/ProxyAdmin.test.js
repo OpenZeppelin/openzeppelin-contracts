@@ -8,6 +8,7 @@ const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableP
 
 const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const { expectRevertCustomError } = require('../../helpers/customError');
+const { computeCreateAddress } = require('../../helpers/create');
 
 contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, anotherAccount] = accounts;
@@ -19,17 +20,42 @@ contract('ProxyAdmin', function (accounts) {
 
   beforeEach(async function () {
     const initializeData = Buffer.from('');
-    this.proxyAdmin = await ProxyAdmin.new(proxyAdminOwner);
-    const proxy = await TransparentUpgradeableProxy.new(
-      this.implementationV1.address,
-      this.proxyAdmin.address,
-      initializeData,
-    );
+    const proxy = await TransparentUpgradeableProxy.new(this.implementationV1.address, proxyAdminOwner, initializeData);
+
+    const proxyNonce = await web3.eth.getTransactionCount(proxy.address);
+    const proxyAdminAddress = computeCreateAddress(proxy.address, proxyNonce - 1); // Nonce already used
+    this.proxyAdmin = await ProxyAdmin.at(proxyAdminAddress);
+
     this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
   });
 
   it('has an owner', async function () {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
+  });
+
+  describe('#upgrade', function () {
+    context('with unauthorized account', function () {
+      it('fails to upgrade', async function () {
+        await expectRevertCustomError(
+          this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, '0x', {
+            from: anotherAccount,
+          }),
+          'OwnableUnauthorizedAccount',
+          [anotherAccount],
+        );
+      });
+    });
+
+    context('with authorized account', function () {
+      it('upgrades implementation', async function () {
+        await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, '0x', {
+          from: proxyAdminOwner,
+        });
+
+        const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+        expect(implementationAddress).to.be.equal(this.implementationV2.address);
+      });
+    });
   });
 
   describe('#upgradeAndCall', function () {

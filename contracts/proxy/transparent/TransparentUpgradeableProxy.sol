@@ -69,11 +69,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     error ProxyDeniedAdminAccess();
 
     /**
-     * @dev msg.value is not 0.
-     */
-    error ProxyNonPayableFunction();
-
-    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
@@ -88,16 +83,14 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _fallback() internal virtual override {
         if (msg.sender == _admin) {
-            bytes memory ret;
-            bytes4 selector = msg.sig;
-            if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                ret = _dispatchUpgradeToAndCall();
-            } else {
-                revert ProxyDeniedAdminAccess();
+            if (msg.sig == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
+                bytes memory ret = _dispatchUpgradeToAndCall();
+                assembly {
+                    return(add(ret, 0x20), mload(ret))
+                }
             }
-            assembly {
-                return(add(ret, 0x20), mload(ret))
-            }
+
+            revert ProxyDeniedAdminAccess();
         } else {
             super._fallback();
         }
@@ -113,15 +106,5 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
 
         return "";
-    }
-
-    /**
-     * @dev To keep this contract fully transparent, the fallback is payable. This helper is here to enforce
-     * non-payability of function implemented through dispatchers while still allowing value to pass through.
-     */
-    function _requireZeroValue() private {
-        if (msg.value != 0) {
-            revert ProxyNonPayableFunction();
-        }
     }
 }
