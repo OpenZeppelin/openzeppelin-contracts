@@ -88,9 +88,9 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
                 assembly {
                     return(add(ret, 0x20), mload(ret))
                 }
+            } else {
+                revert ProxyDeniedAdminAccess();
             }
-
-            revert ProxyDeniedAdminAccess();
         } else {
             super._fallback();
         }
