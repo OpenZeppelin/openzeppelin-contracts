@@ -33,7 +33,7 @@ contract('ProxyAdmin', function (accounts) {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
   });
 
-  describe('#upgrade', function () {
+  describe('without data', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         await expectRevertCustomError(
@@ -58,7 +58,7 @@ contract('ProxyAdmin', function (accounts) {
     });
   });
 
-  describe('#upgradeAndCall', function () {
+  describe('with data', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
