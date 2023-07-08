@@ -53,7 +53,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         bytes signature;
     }
 
-    bytes32 private constant _FORWARD_REQUEST_TYPEHASH =
+    bytes32 internal constant _FORWARD_REQUEST_TYPEHASH =
         keccak256(
             "ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,uint48 deadline,bytes data)"
         );
@@ -255,7 +255,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                 abi.encodePacked(request.data, request.from)
             );
 
-            _checkForwardedGas(request);
+            _checkForwardedGas(gasleft(), request);
 
             emit ExecutedForwardRequest(signer, currentNonce, success);
         }
@@ -270,10 +270,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * It reverts consuming all the available gas if the forwarded gas is not the requested gas.
      *
-     * IMPORTANT: This function should be called exactly the end of the forwarded call. Any gas consumed
-     * in between will make room for bypassing this check.
+     * IMPORTANT: The `gasLeft` parameter should be measured exactly at the end of the forwarded call.
+     * Any gas consumed in between will make room for bypassing this check.
      */
-    function _checkForwardedGas(ForwardRequestData calldata request) private view {
+    function _checkForwardedGas(uint256 gasLeft, ForwardRequestData calldata request) private pure {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
         //
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas
@@ -295,7 +295,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // -    req.gas >= X * 63 / 64
         // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly
         // the forwarding does not revert.
-        if (gasleft() < request.gas / 63) {
+        if (gasLeft < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
             // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
