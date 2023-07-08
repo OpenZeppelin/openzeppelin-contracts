@@ -25,8 +25,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
   async function createProxyWithImpersonatedProxyAdmin(logic, owner, initData, opts) {
     const proxy = await createProxy(logic, owner, initData, { from: proxyCreator, ...opts });
 
-    const proxyNonce = await web3.eth.getTransactionCount(proxy.address);
-    const proxyAdminAddress = computeCreateAddress(proxy.address, proxyNonce - 1); // Nonce already used
+    // Expect proxy admin to be the first and only contract created by the proxy
+    const proxyAdminAddress = computeCreateAddress(proxy.address, 1);
     await impersonate(proxyAdminAddress);
 
     return {
