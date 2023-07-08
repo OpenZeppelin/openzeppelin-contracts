@@ -1,23 +1,14 @@
 const { network, web3 } = require('hardhat');
+const { impersonateAccount, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
 
-async function impersonate(account) {
-  await Promise.all([
-    network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [account],
-    }),
-    await setBalance(account),
-  ]);
-}
+// Hardhat default balance
+const DEFAULT_BALANCE = web3.utils.toBN('10000000000000000000000');
 
-async function setBalance(
-  account,
-  balance = web3.utils.toBN('10000000000000000000000'), // Hardhat default balance
-) {
-  return network.provider.send('hardhat_setBalance', [account, web3.utils.numberToHex(balance)]);
+async function impersonate(account, balance = DEFAULT_BALANCE) {
+  await impersonateAccount(account);
+  await setBalance(account, balance);
 }
 
 module.exports = {
   impersonate,
-  setBalance,
 };
