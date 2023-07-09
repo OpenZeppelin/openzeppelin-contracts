@@ -18,6 +18,7 @@ const MigratableMockV3 = artifacts.require('MigratableMockV3');
 const InitializableMock = artifacts.require('InitializableMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const ClashingImplementation = artifacts.require('ClashingImplementation');
+const Ownable = artifacts.require('Ownable');
 
 module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProxy, initialOwner, accounts) {
   const [proxyCreator, anotherAccount] = accounts;
@@ -72,8 +73,10 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       });
     });
 
-    it('sets the proxy admin in storage', async function () {
+    it('sets the proxy admin in storage with the correct initial owner', async function () {
       expect(await getAddressInSlot(this.proxy, AdminSlot)).to.be.equal(this.proxyAdminAddress);
+      const proxyAdmin = await Ownable.at(this.proxyAdminAddress);
+      expect(await proxyAdmin.owner()).to.be.equal(initialOwner);
     });
 
     it('can overwrite the admin by the implementation', async function () {

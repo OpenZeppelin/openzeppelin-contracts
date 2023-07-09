@@ -68,8 +68,9 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     error ProxyDeniedAdminAccess();
 
     /**
-     * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
-     * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
+     * @dev Initializes an upgradeable proxy managed by an instance of a {ProxyAdmin} with an `initialOwner`,
+     * backed by the implementation at `_logic`, and optionally initialized with `_data` as explained in
+     * {ERC1967Proxy-constructor}.
      */
     constructor(address _logic, address initialOwner, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _admin = address(new ProxyAdmin(initialOwner));

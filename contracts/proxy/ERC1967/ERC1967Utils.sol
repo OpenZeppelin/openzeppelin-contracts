@@ -75,7 +75,7 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Perform implementation upgrade with additional setup call.
+     * @dev Performs implementation upgrade with additional setup call if data is nonempty.
      *
      * Emits an {IERC1967-Upgraded} event.
      */
@@ -179,6 +179,9 @@ library ERC1967Utils {
         }
     }
 
+    /**
+     * @dev Reverts if `msg.value` is not zero.
+     */
     function _checkNonPayable() private {
         if (msg.value > 0) {
             revert ERC1967NonPayable();
