@@ -40,6 +40,12 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 ```
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
+Note: Only while working with Foundry  
+
+Head to foundry.toml and add the below line
+```
+remappings = ["@openzeppelin/=lib/openzeppelin-contracts/"]
+```
 
 ### Usage
 
