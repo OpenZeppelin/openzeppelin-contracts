@@ -7,8 +7,14 @@ const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableP
 contract('TransparentUpgradeableProxy', function (accounts) {
   const [owner, ...otherAccounts] = accounts;
 
-  const createProxy = async function (logic, initData, opts = {}) {
-    const { address, transactionHash } = await TransparentUpgradeableProxy.new(logic, owner, initData, opts);
+  // `undefined`, `null` and other false-ish opts will not be forwarded.
+  const createProxy = async function (logic, initData, opts = undefined) {
+    const { address, transactionHash } = await TransparentUpgradeableProxy.new(
+      logic,
+      owner,
+      initData,
+      ...[opts].filter(Boolean),
+    );
     const instance = await ITransparentUpgradeableProxy.at(address);
     return { ...instance, transactionHash };
   };

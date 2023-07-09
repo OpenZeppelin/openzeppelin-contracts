@@ -21,10 +21,10 @@ const ClashingImplementation = artifacts.require('ClashingImplementation');
 const Ownable = artifacts.require('Ownable');
 
 module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProxy, initialOwner, accounts) {
-  const [proxyCreator, anotherAccount] = accounts;
+  const [anotherAccount] = accounts;
 
-  async function createProxyWithImpersonatedProxyAdmin(logic, initData, opts) {
-    const proxy = await createProxy(logic, initData, { from: proxyCreator, ...opts });
+  async function createProxyWithImpersonatedProxyAdmin(logic, initData, opts = undefined) {
+    const proxy = await createProxy(logic, initData, opts);
 
     // Expect proxy admin to be the first and only contract created by the proxy
     const proxyAdminAddress = computeCreateAddress(proxy.address, 1);
