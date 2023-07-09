@@ -5,13 +5,14 @@ const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeablePro
 const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
 
 contract('TransparentUpgradeableProxy', function (accounts) {
-  const [proxyAdminAddress, proxyAdminOwner] = accounts;
+  const [owner, ...otherAccounts] = accounts;
 
-  const createProxy = async function (logic, admin, initData, opts) {
-    const { address } = await TransparentUpgradeableProxy.new(logic, admin, initData, opts);
-    return ITransparentUpgradeableProxy.at(address);
+  const createProxy = async function (logic, initData, opts = {}) {
+    const { address, transactionHash } = await TransparentUpgradeableProxy.new(logic, owner, initData, opts);
+    const instance = await ITransparentUpgradeableProxy.at(address);
+    return { ...instance, transactionHash };
   };
 
-  shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyAdminOwner);
-  shouldBehaveLikeTransparentUpgradeableProxy(createProxy, accounts);
+  shouldBehaveLikeProxy(createProxy, otherAccounts);
+  shouldBehaveLikeTransparentUpgradeableProxy(createProxy, owner, otherAccounts);
 });

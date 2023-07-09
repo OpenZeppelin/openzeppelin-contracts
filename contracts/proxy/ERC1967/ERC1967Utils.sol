@@ -53,6 +53,11 @@ library ERC1967Utils {
     error ERC1967InvalidBeacon(address beacon);
 
     /**
+     * @dev An upgrade function sees `msg.value > 0` that may be lost.
+     */
+    error ERC1967NonPayable();
+
+    /**
      * @dev Returns the current implementation address.
      */
     function getImplementation() internal view returns (address) {
@@ -70,24 +75,18 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Perform implementation upgrade
-     *
-     * Emits an {IERC1967-Upgraded} event.
-     */
-    function upgradeTo(address newImplementation) internal {
-        _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
-    }
-
-    /**
      * @dev Perform implementation upgrade with additional setup call.
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
-        upgradeTo(newImplementation);
-        if (data.length > 0 || forceCall) {
+    function upgradeToAndCall(address newImplementation, bytes memory data) internal {
+        _setImplementation(newImplementation);
+        emit Upgraded(newImplementation);
+
+        if (data.length > 0) {
             Address.functionDelegateCall(newImplementation, data);
+        } else {
+            _checkNonPayable();
         }
     }
 
@@ -161,7 +160,7 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Change the beacon and trigger a setup call.
+     * @dev Change the beacon and trigger a setup call if data is nonempty.
      *
      * Emits an {IERC1967-BeaconUpgraded} event.
      *
@@ -169,11 +168,20 @@ library ERC1967Utils {
      * it uses an immutable beacon without looking at the value of the ERC-1967 beacon slot for
      * efficiency.
      */
-    function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
+    function upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
         _setBeacon(newBeacon);
         emit BeaconUpgraded(newBeacon);
-        if (data.length > 0 || forceCall) {
+
+        if (data.length > 0) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
+        } else {
+            _checkNonPayable();
+        }
+    }
+
+    function _checkNonPayable() private {
+        if (msg.value > 0) {
+            revert ERC1967NonPayable();
         }
     }
 }

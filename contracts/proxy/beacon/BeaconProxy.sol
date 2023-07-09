@@ -36,7 +36,7 @@ contract BeaconProxy is Proxy {
      * - `beacon` must be a contract with the interface {IBeacon}.
      */
     constructor(address beacon, bytes memory data) payable {
-        ERC1967Utils.upgradeBeaconToAndCall(beacon, data, false);
+        ERC1967Utils.upgradeBeaconToAndCall(beacon, data);
         _beacon = beacon;
     }
 

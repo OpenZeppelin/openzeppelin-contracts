@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import {ITransparentUpgradeableProxy, TransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
+import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
 
 /**
@@ -12,24 +12,24 @@ import {Ownable} from "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
+     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address)`
+     * and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
+     * while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
+     * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
+     * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
+     * during an upgrade.
+     */
+    // solhint-disable-next-line private-vars-leading-underscore
+    string internal constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+
+    /**
      * @dev Sets the initial owner who can perform upgrades.
      */
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
-        proxy.upgradeTo(implementation);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation. See
-     * {TransparentUpgradeableProxy-upgradeToAndCall}.
+     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation.
+     * See {TransparentUpgradeableProxy-_dispatchUpgradeToAndCall}.
      *
      * Requirements:
      *

@@ -1,6 +1,6 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const RLP = require('rlp');
+const { computeCreateAddress } = require('../../helpers/create');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 const { clockFromReceipt } = require('../../helpers/time');
@@ -11,15 +11,6 @@ const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 const { shouldBehaveLikeEIP6372 } = require('../utils/EIP6372.behavior');
-
-function makeContractAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(RLP.encode([creator, nonce]))
-      .slice(12)
-      .substring(14),
-  );
-}
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -58,7 +49,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);
-        const predictGovernor = makeContractAddress(deployer, nonce + 1);
+        const predictGovernor = computeCreateAddress(deployer, nonce + 1);
 
         this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
         this.mock = await Governor.new(
