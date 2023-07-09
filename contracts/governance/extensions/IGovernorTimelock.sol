@@ -7,8 +7,6 @@ import {IGovernor} from "../IGovernor.sol";
 
 /**
  * @dev Extension of the {IGovernor} for timelock supporting modules.
- *
- * _Available since v4.3._
  */
 abstract contract IGovernorTimelock is IGovernor {
     /**

@@ -20,8 +20,6 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- *
- * _Available since v4.2._
  */
 abstract contract ERC20Votes is ERC20, Votes {
     /**
@@ -41,8 +39,8 @@ abstract contract ERC20Votes is ERC20, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override {
-        super._update(from, to, amount);
+    function _update(address from, address to, uint256 value) internal virtual override {
+        super._update(from, to, value);
         if (from == address(0)) {
             uint256 supply = totalSupply();
             uint256 cap = _maxSupply();
@@ -50,11 +48,14 @@ abstract contract ERC20Votes is ERC20, Votes {
                 revert ERC20ExceededSafeSupply(supply, cap);
             }
         }
-        _transferVotingUnits(from, to, amount);
+        _transferVotingUnits(from, to, value);
     }
 
     /**
-     * @dev Returns the balance of `account`.
+     * @dev Returns the voting units of an `account`.
+     *
+     * WARNING: Overriding this function may compromise the internal vote accounting.
+     * `ERC20Votes` assumes tokens map to voting units 1:1 and this is not easy to change.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);

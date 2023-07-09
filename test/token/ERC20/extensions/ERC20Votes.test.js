@@ -10,7 +10,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { batchInBlock } = require('../../../helpers/txpool');
-const { getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
+const { getDomain, domainType } = require('../../../helpers/eip712');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 const { expectRevertCustomError } = require('../../../helpers/customError');
 
@@ -48,10 +48,10 @@ contract('ERC20Votes', function (accounts) {
       });
 
       it('minting restriction', async function () {
-        const amount = new BN('2').pow(new BN('224'));
-        await expectRevertCustomError(this.token.$_mint(holder, amount), 'ERC20ExceededSafeSupply', [
-          amount,
-          amount.subn(1),
+        const value = web3.utils.toBN(1).shln(224);
+        await expectRevertCustomError(this.token.$_mint(holder, value), 'ERC20ExceededSafeSupply', [
+          value,
+          value.subn(1),
         ]);
       });
 
@@ -84,8 +84,8 @@ contract('ERC20Votes', function (accounts) {
             });
             expectEvent(receipt, 'DelegateVotesChanged', {
               delegate: holder,
-              previousBalance: '0',
-              newBalance: supply,
+              previousVotes: '0',
+              newVotes: supply,
             });
 
             expect(await this.token.delegates(holder)).to.be.equal(holder);
@@ -147,8 +147,8 @@ contract('ERC20Votes', function (accounts) {
             });
             expectEvent(receipt, 'DelegateVotesChanged', {
               delegate: delegatorAddress,
-              previousBalance: '0',
-              newBalance: supply,
+              previousVotes: '0',
+              newVotes: supply,
             });
 
             expect(await this.token.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
@@ -248,13 +248,13 @@ contract('ERC20Votes', function (accounts) {
           });
           expectEvent(receipt, 'DelegateVotesChanged', {
             delegate: holder,
-            previousBalance: supply,
-            newBalance: '0',
+            previousVotes: supply,
+            newVotes: '0',
           });
           expectEvent(receipt, 'DelegateVotesChanged', {
             delegate: holderDelegatee,
-            previousBalance: '0',
-            newBalance: supply,
+            previousVotes: '0',
+            newVotes: supply,
           });
 
           expect(await this.token.delegates(holder)).to.be.equal(holderDelegatee);
@@ -290,8 +290,8 @@ contract('ERC20Votes', function (accounts) {
           expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
           expectEvent(receipt, 'DelegateVotesChanged', {
             delegate: holder,
-            previousBalance: supply,
-            newBalance: supply.subn(1),
+            previousVotes: supply,
+            newVotes: supply.subn(1),
           });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -310,7 +310,7 @@ contract('ERC20Votes', function (accounts) {
 
           const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
           expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousVotes: '0', newVotes: '1' });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
           expect(
@@ -331,10 +331,10 @@ contract('ERC20Votes', function (accounts) {
           expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
           expectEvent(receipt, 'DelegateVotesChanged', {
             delegate: holder,
-            previousBalance: supply,
-            newBalance: supply.subn(1),
+            previousVotes: supply,
+            newVotes: supply.subn(1),
           });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousVotes: '0', newVotes: '1' });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
           expect(

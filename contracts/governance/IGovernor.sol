@@ -8,8 +8,6 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
- *
- * _Available since v4.3._
  */
 abstract contract IGovernor is IERC165, IERC6372 {
     enum ProposalState {
@@ -79,6 +77,12 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev The vote type used is not valid for the corresponding counting module.
      */
     error GovernorInvalidVoteType();
+
+    /**
+     * @dev The provided signature is not valid for the expected `voter`.
+     * If the `voter` is a contract, the signature is not valid using {IERC1271-isValidSignature}.
+     */
+    error GovernorInvalidSignature(address voter);
 
     /**
      * @dev Emitted when a proposal is created.
@@ -348,30 +352,29 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote using the user's cryptographic signature.
+     * @dev Cast a vote using the voter's signature, including ERC-1271 signature support.
      *
      * Emits a {VoteCast} event.
      */
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        address voter,
+        bytes memory signature
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
+     * @dev Cast a vote with a reason and additional encoded parameters using the voter's signature,
+     * including ERC-1271 signature support.
      *
      * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
         uint8 support,
+        address voter,
         string calldata reason,
         bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        bytes memory signature
     ) public virtual returns (uint256 balance);
 }

@@ -84,52 +84,52 @@ contract('ERC20Pausable', function (accounts) {
     });
 
     describe('mint', function () {
-      const amount = new BN('42');
+      const value = new BN('42');
 
       it('allows to mint when unpaused', async function () {
-        await this.token.$_mint(recipient, amount);
+        await this.token.$_mint(recipient, value);
 
-        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(value);
       });
 
       it('allows to mint when paused and then unpaused', async function () {
         await this.token.$_pause();
         await this.token.$_unpause();
 
-        await this.token.$_mint(recipient, amount);
+        await this.token.$_mint(recipient, value);
 
-        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(value);
       });
 
       it('reverts when trying to mint when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevertCustomError(this.token.$_mint(recipient, amount), 'EnforcedPause', []);
+        await expectRevertCustomError(this.token.$_mint(recipient, value), 'EnforcedPause', []);
       });
     });
 
     describe('burn', function () {
-      const amount = new BN('42');
+      const value = new BN('42');
 
       it('allows to burn when unpaused', async function () {
-        await this.token.$_burn(holder, amount);
+        await this.token.$_burn(holder, value);
 
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(amount));
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(value));
       });
 
       it('allows to burn when paused and then unpaused', async function () {
         await this.token.$_pause();
         await this.token.$_unpause();
 
-        await this.token.$_burn(holder, amount);
+        await this.token.$_burn(holder, value);
 
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(amount));
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(value));
       });
 
       it('reverts when trying to burn when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevertCustomError(this.token.$_burn(holder, amount), 'EnforcedPause', []);
+        await expectRevertCustomError(this.token.$_burn(holder, value), 'EnforcedPause', []);
       });
     });
   });

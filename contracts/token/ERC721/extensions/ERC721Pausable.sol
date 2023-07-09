@@ -17,7 +17,7 @@ import {Pausable} from "../../../security/Pausable.sol";
  * addition to inheriting this contract, you must define both functions, invoking the
  * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
  * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
- * make the contract unpausable.
+ * make the contract pause mechanism of the contract unreachable, and thus unusable.
  */
 abstract contract ERC721Pausable is ERC721, Pausable {
     /**
