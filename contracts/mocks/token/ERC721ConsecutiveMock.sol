@@ -44,14 +44,14 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
     function _update(
         address to,
         uint256 tokenId,
-        bytes32 optionalChecks
+        address operatorCheck
     ) internal virtual override(ERC721Consecutive, ERC721Pausable, ERC721Votes) returns (address) {
-        return super._update(to, tokenId, optionalChecks);
+        return super._update(to, tokenId, operatorCheck);
     }
 
     // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Votes) {
-        super.__unsafe_increaseBalance(account, amount);
+    function _increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Votes) {
+        super._increaseBalance(account, amount);
     }
 }
 

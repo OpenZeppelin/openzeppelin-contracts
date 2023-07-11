@@ -76,8 +76,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {ERC721-_update}.
      */
-    function _update(address to, uint256 tokenId, bytes32 optionalChecks) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, optionalChecks);
+    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, operatorCheck);
 
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
@@ -167,13 +167,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * See {ERC721-__unsafe_increaseBalance}. We need that to account tokens that were minted in batch
+     * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
      */
-    // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override {
+    function _increaseBalance(address account, uint256 amount) internal virtual override {
         if (amount > 0) {
             revert ERC721EnumerableForbiddenBatchMint();
         }
-        super.__unsafe_increaseBalance(account, amount);
+        super._increaseBalance(account, amount);
     }
 }

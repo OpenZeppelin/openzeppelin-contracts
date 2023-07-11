@@ -20,8 +20,8 @@ abstract contract ERC721Votes is ERC721, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address to, uint256 tokenId, bytes32 optionalChecks) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, optionalChecks);
+    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, operatorCheck);
 
         _transferVotingUnits(from, to, 1);
 
@@ -38,11 +38,11 @@ abstract contract ERC721Votes is ERC721, Votes {
     }
 
     /**
-     * See {ERC721-__unsafe_increaseBalance}. We need that to account tokens that were minted in batch
+     * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal virtual override {
-        super.__unsafe_increaseBalance(account, amount);
+    function _increaseBalance(address account, uint256 amount) internal virtual override {
+        super._increaseBalance(account, amount);
         _transferVotingUnits(address(0), account, amount);
     }
 }

@@ -124,7 +124,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
             // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
             // is attributing ownership of `batchSize` new tokens to account `to`.
-            __unsafe_increaseBalance(to, batchSize);
+            _increaseBalance(to, batchSize);
 
             emit ConsecutiveTransfer(next, last, address(0), to);
         }
@@ -138,8 +138,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * Warning: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
      * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
-    function _update(address to, uint256 tokenId, bytes32 optionalChecks) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, optionalChecks);
+    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, operatorCheck);
 
         // only mint after construction
         if (from == address(0) && address(this).code.length == 0) {
