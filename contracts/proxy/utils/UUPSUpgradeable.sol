@@ -17,7 +17,7 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable __self = address(this);
 
     /**
