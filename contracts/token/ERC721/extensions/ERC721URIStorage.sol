@@ -68,11 +68,13 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * token-specific URI was set for the token, and if so, it deletes the token URI from
      * the storage mapping.
      */
-    function _update(address from, address to, uint256 tokenId) internal virtual override {
-        super._update(from, to, tokenId);
+    function _update(address to, uint256 tokenId, bytes32 optionalChecks) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, optionalChecks);
 
         if (to == address(0) && bytes(_tokenURIs[tokenId]).length != 0) {
             delete _tokenURIs[tokenId];
         }
+
+        return from;
     }
 }

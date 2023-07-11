@@ -50,7 +50,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
-            _updateWithConstraints(address(0), tokenId, _constraintApprovedOrOwner);
+            _update(address(0), tokenId, CONSTRAINT_MINTED | CONSTRAINT_SPENDER_APPROVED_OR_OWNER);
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
             // slither-disable-next-line reentrancy-no-eth

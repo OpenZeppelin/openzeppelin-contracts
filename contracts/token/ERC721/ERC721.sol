@@ -19,6 +19,10 @@ import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
     using Strings for uint256;
 
+    bytes32 internal constant CONSTRAINT_MINTED = bytes32(uint256(1) << 0);
+    bytes32 internal constant CONSTRAINT_NOT_MINTED = bytes32(uint256(1) << 1);
+    bytes32 internal constant CONSTRAINT_SPENDER_APPROVED_OR_OWNER = bytes32(uint256(1) << 2);
+
     // Token name
     string private _name;
 
@@ -155,7 +159,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _updateWithConstraints(to, tokenId, _constraintApprovedOrOwner);
+        address owner = _update(to, tokenId, CONSTRAINT_MINTED | CONSTRAINT_SPENDER_APPROVED_OR_OWNER);
         if (owner != from) {
             revert ERC721IncorrectOwner(from, tokenId, owner);
         }
@@ -263,31 +267,35 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
      * (or `to`) is the zero address.
      *
-     * The `constraints` argument is used to specify constraints, and eventually revert. For example this can be used
-     * to ensure that the current owner is what was expected.
+     * The `optionalChecks` argument is used to specify constraints, that the caller would want to be checked as part
+     * of the update.
      *
      * Emits a {Transfer} event.
      */
-    function _updateWithConstraints(
+    function _update(
         address to,
         uint256 tokenId,
-        function(address, address, uint256) view constraints
+        bytes32 optionalChecks
     ) internal virtual returns (address) {
         address from = _ownerOf(tokenId);
-        constraints(from, to, tokenId);
-        _update(from, to, tokenId);
-        return from;
-    }
 
-    /**
-     * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-     * (or `to`) is the zero address.
-     *
-     * All customizations to transfers, mints, and burns should be done by overriding this function.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _update(address from, address to, uint256 tokenId) internal virtual {
+        // Perform optional checks
+        if (optionalChecks & CONSTRAINT_MINTED != 0 && from == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+
+        if (optionalChecks & CONSTRAINT_NOT_MINTED != 0 && from != address(0)) {
+            revert ERC721InvalidSender(address(0));
+        }
+
+        if (optionalChecks & CONSTRAINT_SPENDER_APPROVED_OR_OWNER != 0) {
+            address spender = _msgSender();
+            if (from != spender && !isApprovedForAll(from, spender) && getApproved(tokenId) != spender) {
+                revert ERC721InsufficientApproval(_msgSender(), tokenId);
+            }
+        }
+
+        // Execute the update
         if (from != address(0)) {
             delete _tokenApprovals[tokenId];
             unchecked {
@@ -304,6 +312,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
+
+        return from;
     }
 
     /**
@@ -322,7 +332,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        _updateWithConstraints(to, tokenId, _constraintNotMinted);
+        _update(to, tokenId, CONSTRAINT_NOT_MINTED);
     }
 
     /**
@@ -337,7 +347,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal {
-        _updateWithConstraints(address(0), tokenId, _constraintMinted);
+        _update(address(0), tokenId, CONSTRAINT_MINTED);
     }
 
     /**
@@ -355,7 +365,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _updateWithConstraints(to, tokenId, _constraintMinted);
+        address owner = _update(to, tokenId, CONSTRAINT_MINTED);
         if (owner != from) {
             revert ERC721IncorrectOwner(from, tokenId, owner);
         }
@@ -390,34 +400,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     function _requireMinted(uint256 tokenId) internal view virtual {
         if (!_exists(tokenId)) {
             revert ERC721NonexistentToken(tokenId);
-        }
-    }
-
-    /**
-     * @dev Constraint: revert if token is already minted
-     */
-    function _constraintNotMinted(address from, address, uint256) internal pure {
-        if (from != address(0)) {
-            revert ERC721InvalidSender(address(0));
-        }
-    }
-
-    /**
-     * @dev Constraint: revert if token is not yet minted
-     */
-    function _constraintMinted(address from, address, uint256 tokenId) internal pure {
-        if (from == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
-    }
-
-    /**
-     * @dev Constraint: check that the caller is the current owner, or approved by the current owner
-     */
-    function _constraintApprovedOrOwner(address owner, address, uint256 tokenId) internal view {
-        address spender = _msgSender();
-        if (spender != owner && !isApprovedForAll(owner, spender) && getApproved(tokenId) != spender) {
-            revert ERC721InsufficientApproval(_msgSender(), tokenId);
         }
     }
 

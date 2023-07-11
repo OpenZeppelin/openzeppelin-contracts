@@ -29,11 +29,11 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
     }
 
     function _update(
-        address from,
         address to,
-        uint256 tokenId
-    ) internal virtual override(ERC721Consecutive, ERC721Enumerable) {
-        super._update(from, to, tokenId);
+        uint256 tokenId,
+        bytes32 optionalChecks
+    ) internal virtual override(ERC721Consecutive, ERC721Enumerable) returns (address) {
+        return super._update(to, tokenId, optionalChecks);
     }
 
     // solhint-disable-next-line func-name-mixedcase
