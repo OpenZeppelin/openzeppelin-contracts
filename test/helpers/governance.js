@@ -81,7 +81,7 @@ class GovernorHelper {
           ...concatOpts(proposal.shortProposal, opts),
         );
       default:
-        throw new Error(`unsuported visibility "${visibility}"`);
+        throw new Error(`unsupported visibility "${visibility}"`);
     }
   }
 
