@@ -106,8 +106,9 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         }
 
         uint256 delay = _timelock.getMinDelay();
-        _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
-        _timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
+        bytes32 salt = _timelockSalt(descriptionHash);
+        _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
+        _timelock.scheduleBatch(targets, values, calldatas, 0, salt, delay);
 
         emit ProposalQueued(proposalId, block.timestamp + delay);
 
@@ -125,7 +126,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override {
         // execute
-        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, _timelockSalt(descriptionHash));
         // cleanup for refund
         delete _timelockIds[proposalId];
     }
@@ -176,5 +177,15 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     function _updateTimelock(TimelockController newTimelock) private {
         emit TimelockChange(address(_timelock), address(newTimelock));
         _timelock = newTimelock;
+    }
+
+    /**
+     * @dev Computes the {TimelockController} operation salt.
+     *
+     * It is computed with the governor address itself to avoid collisions across governor instances using the
+     * same timelock.
+     */
+    function _timelockSalt(bytes32 descriptionHash) private view returns (bytes32) {
+        return bytes20(address(this)) ^ descriptionHash;
     }
 }
