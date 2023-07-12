@@ -114,9 +114,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function approve(address to, uint256 tokenId) public virtual {
         address owner = ownerOf(tokenId);
+        address caller = _msgSender();
 
-        if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
-            revert ERC721InvalidApprover(_msgSender());
+        if (owner != caller && !isApprovedForAll(owner, caller)) {
+            revert ERC721InvalidApprover(caller);
         }
 
         _approve(to, tokenId);
@@ -390,7 +391,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         address owner = ownerOf(tokenId);
-        if (to == owner || to == address(0)) {
+        if (to == owner) {
             revert ERC721InvalidOperator(to);
         }
         _tokenApprovals[tokenId] = to;
