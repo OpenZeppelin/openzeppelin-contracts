@@ -175,9 +175,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
-        if (!_checkOnERC721Received(from, to, tokenId, data)) {
-            revert ERC721InvalidReceiver(to);
-        }
+        _checkOnERC721Received(from, to, tokenId, data);
     }
 
     /**
@@ -200,15 +198,28 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Returns whether `spender` is allowed to manage `tokenId`.
+     * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
+     * particular (ignoring whether it is owned by `owner`).
      *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
+     * WARNING:
+     * - ownership is not checked.
+     * - spender = address(0) will lead to this function returning true in unexpected situations.
      */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        address owner = ownerOf(tokenId);
-        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+    function _isApproved(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+        return owner == spender || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender;
+    }
+
+    /**
+     * @dev Checks whether `spender` was approved by `owner` to operate on `tokenId` or is the owner of `tokenId`.
+     * Reverts if `spender` is not approved nor owner of `tokenId`.
+     *
+     * WARNING:
+     * - ownership is not checked.
+     */
+    function _checkApproved(address owner, address spender, uint256 tokenId) internal view virtual {
+        if (!_isApproved(owner, spender, tokenId)) {
+            revert ERC721InsufficientApproval(spender, tokenId);
+        }
     }
 
     /**
@@ -220,16 +231,12 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits a {Transfer} event.
      */
-    function _update(
-        address to,
-        uint256 tokenId,
-        address operatorCheck
-    ) internal virtual returns (address) {
+    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual returns (address) {
         address from = _ownerOf(tokenId);
 
         // Perform (optional) operator check
-        if (operatorCheck != address(0) && from != operatorCheck && !isApprovedForAll(from, operatorCheck) && getApproved(tokenId) != operatorCheck) {
-            revert ERC721InsufficientApproval(operatorCheck, tokenId);
+        if (operatorCheck != address(0)) {
+            _checkApproved(from, operatorCheck, tokenId);
         }
 
         // Execute the update
@@ -295,9 +302,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        if (!_checkOnERC721Received(address(0), to, tokenId, data)) {
-            revert ERC721InvalidReceiver(to);
-        }
+        _checkOnERC721Received(address(0), to, tokenId, data);
     }
 
     /**
@@ -361,9 +366,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
-        if (!_checkOnERC721Received(from, to, tokenId, data)) {
-            revert ERC721InvalidReceiver(to);
-        }
+        _checkOnERC721Received(from, to, tokenId, data);
     }
 
     /**
@@ -399,24 +402,20 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address.
-     * The call is not executed if the target address is not a contract.
+     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address. This will revert if the
+     * recipient doesn't accept the token transfer. The call is not executed if the target address is not a contract.
      *
      * @param from address representing the previous owner of the given token ID
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred
      * @param data bytes optional data to send along with the call
-     * @return bool whether the call correctly returned the expected magic value
      */
-    function _checkOnERC721Received(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) private returns (bool) {
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory data) private {
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
-                return retval == IERC721Receiver.onERC721Received.selector;
+                if (retval != IERC721Receiver.onERC721Received.selector) {
+                    revert ERC721InvalidReceiver(to);
+                }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
                     revert ERC721InvalidReceiver(to);
@@ -427,8 +426,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
                     }
                 }
             }
-        } else {
-            return true;
         }
     }
 
