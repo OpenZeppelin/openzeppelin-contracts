@@ -31,7 +31,7 @@ contract CompTimelock {
     event NewPendingAdmin(address indexed newPendingAdmin);
     event NewDelay(uint256 indexed newDelay);
     event CancelTransaction(
-        bytes32 indexed operationHash,
+        bytes32 indexed txHash,
         address indexed target,
         uint256 value,
         string signature,
@@ -39,7 +39,7 @@ contract CompTimelock {
         uint256 eta
     );
     event ExecuteTransaction(
-        bytes32 indexed operationHash,
+        bytes32 indexed txHash,
         address indexed target,
         uint256 value,
         string signature,
@@ -47,7 +47,7 @@ contract CompTimelock {
         uint256 eta
     );
     event QueueTransaction(
-        bytes32 indexed operationHash,
+        bytes32 indexed txHash,
         address indexed target,
         uint256 value,
         string signature,
@@ -63,7 +63,7 @@ contract CompTimelock {
     address public pendingAdmin;
     uint256 public delay;
 
-    mapping(bytes32 operationHash => bool queued) public queuedTransactions;
+    mapping(bytes32 => bool) public queuedTransactions;
 
     constructor(address admin_, uint256 delay_) {
         require(delay_ >= MINIMUM_DELAY, "Timelock::constructor: Delay must exceed minimum delay.");
@@ -112,11 +112,11 @@ contract CompTimelock {
             "Timelock::queueTransaction: Estimated execution block must satisfy delay."
         );
 
-        bytes32 operationHash = keccak256(abi.encode(target, value, signature, data, eta));
-        queuedTransactions[operationHash] = true;
+        bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
+        queuedTransactions[txHash] = true;
 
-        emit QueueTransaction(operationHash, target, value, signature, data, eta);
-        return operationHash;
+        emit QueueTransaction(txHash, target, value, signature, data, eta);
+        return txHash;
     }
 
     function cancelTransaction(
@@ -128,10 +128,10 @@ contract CompTimelock {
     ) public {
         require(msg.sender == admin, "Timelock::cancelTransaction: Call must come from admin.");
 
-        bytes32 operationHash = keccak256(abi.encode(target, value, signature, data, eta));
-        queuedTransactions[operationHash] = false;
+        bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
+        queuedTransactions[txHash] = false;
 
-        emit CancelTransaction(operationHash, target, value, signature, data, eta);
+        emit CancelTransaction(txHash, target, value, signature, data, eta);
     }
 
     function executeTransaction(
@@ -143,12 +143,12 @@ contract CompTimelock {
     ) public payable returns (bytes memory) {
         require(msg.sender == admin, "Timelock::executeTransaction: Call must come from admin.");
 
-        bytes32 operationHash = keccak256(abi.encode(target, value, signature, data, eta));
-        require(queuedTransactions[operationHash], "Timelock::executeTransaction: Transaction hasn't been queued.");
+        bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
+        require(queuedTransactions[txHash], "Timelock::executeTransaction: Transaction hasn't been queued.");
         require(getBlockTimestamp() >= eta, "Timelock::executeTransaction: Transaction hasn't surpassed time lock.");
         require(getBlockTimestamp() <= eta + GRACE_PERIOD, "Timelock::executeTransaction: Transaction is stale.");
 
-        queuedTransactions[operationHash] = false;
+        queuedTransactions[txHash] = false;
 
         bytes memory callData;
 
@@ -162,7 +162,7 @@ contract CompTimelock {
         (bool success, bytes memory returnData) = target.call{value: value}(callData);
         require(success, "Timelock::executeTransaction: Transaction execution reverted.");
 
-        emit ExecuteTransaction(operationHash, target, value, signature, data, eta);
+        emit ExecuteTransaction(txHash, target, value, signature, data, eta);
 
         return returnData;
     }
