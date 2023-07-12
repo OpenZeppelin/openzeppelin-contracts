@@ -153,7 +153,7 @@ contract('GovernorTimelockControl', function (accounts) {
         });
 
         describe('on execute', function () {
-          it.only('if not queued', async function () {
+          it('if not queued', async function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
