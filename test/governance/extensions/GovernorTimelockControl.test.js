@@ -18,7 +18,6 @@ const TOKENS = [
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 
-describe.only('only', function () {
 contract('GovernorTimelockControl', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
@@ -513,4 +512,3 @@ contract('GovernorTimelockControl', function (accounts) {
     });
   }
 });
-})
