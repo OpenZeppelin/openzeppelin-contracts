@@ -40,8 +40,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     /**
      * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
      */
-    // solhint-disable-next-line func-name-mixedcase
-    function _increaseBalance(address account, uint256 amount) internal virtual override {
+    function _increaseBalance(address account, uint128 amount) internal virtual override {
         super._increaseBalance(account, amount);
         _transferVotingUnits(address(0), account, amount);
     }

@@ -180,6 +180,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+     *
+     * WARNING: Any override of this function that allocates token to accounts following a custom logic should go in
+     * pair with a call to {_increaseBalance} so that balances and ownerships remain consistent with one another.
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         return _owners[tokenId];
@@ -432,11 +435,14 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
      *
-     * WARNING: Anyone calling this MUST ensure that the balances remain consistent with the ownership. The invariant
-     * being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such
-     * that `ownerOf(tokenId)` is `a`.
+     * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
+     * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
+     *
+     * WARNING: Increassing an account's balance using this function should go in pair with an override of the
+     * {_ownerOf} function that resolve the ownership of the corresponding tokens so that balances and ownerships
+     * remain consistent with one another.
      */
-    function _increaseBalance(address account, uint256 value) internal virtual {
+    function _increaseBalance(address account, uint128 value) internal virtual {
         _balances[account] += value;
     }
 }

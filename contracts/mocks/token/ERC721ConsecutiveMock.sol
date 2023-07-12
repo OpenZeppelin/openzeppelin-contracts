@@ -50,7 +50,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
     }
 
     // solhint-disable-next-line func-name-mixedcase
-    function _increaseBalance(address account, uint256 amount) internal virtual override(ERC721, ERC721Votes) {
+    function _increaseBalance(address account, uint128 amount) internal virtual override(ERC721, ERC721Votes) {
         super._increaseBalance(account, amount);
     }
 }
