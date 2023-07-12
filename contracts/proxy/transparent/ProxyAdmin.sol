@@ -20,7 +20,7 @@ contract ProxyAdmin is Ownable {
      * during an upgrade.
      */
     // solhint-disable-next-line private-vars-leading-underscore
-    string internal constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
 
     /**
      * @dev Sets the initial owner who can perform upgrades.
@@ -34,6 +34,7 @@ contract ProxyAdmin is Ownable {
      * Requirements:
      *
      * - This contract must be the admin of `proxy`.
+     * - If `data` is empty, `msg.value` must be zero.
      */
     function upgradeAndCall(
         ITransparentUpgradeableProxy proxy,

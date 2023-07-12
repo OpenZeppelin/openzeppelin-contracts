@@ -25,6 +25,10 @@ contract('UUPSUpgradeable', function () {
     this.instance = await UUPSUpgradeableMock.at(address);
   });
 
+  it('has an interface version', async function () {
+    expect(await this.instance.UPGRADE_INTERFACE_VERSION()).to.equal('5.0.0');
+  });
+
   it('upgrade to upgradeable implementation', async function () {
     const { receipt } = await this.instance.upgradeToAndCall(this.implUpgradeOk.address, '0x');
     expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);

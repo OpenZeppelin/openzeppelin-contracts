@@ -33,6 +33,10 @@ contract('ProxyAdmin', function (accounts) {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
   });
 
+  it('has an interface version', async function () {
+    expect(await this.proxyAdmin.UPGRADE_INTERFACE_VERSION()).to.equal('5.0.0');
+  });
+
   describe('without data', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {

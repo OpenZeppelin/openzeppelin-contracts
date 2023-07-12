@@ -79,7 +79,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
+     * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior.
      */
     function _fallback() internal virtual override {
         if (msg.sender == _admin) {
@@ -94,7 +94,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy.
+     * @dev Upgrade the implementation of the proxy. See {ERC1967Utils-upgradeToAndCall}.
+     *
+     * Requirements:
+     *
+     * - If `data` is empty, `msg.value` must be zero.
      */
     function _dispatchUpgradeToAndCall() private {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));

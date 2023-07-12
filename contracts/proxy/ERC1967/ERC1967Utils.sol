@@ -76,6 +76,8 @@ library ERC1967Utils {
 
     /**
      * @dev Performs implementation upgrade with additional setup call if data is nonempty.
+     * This function is payable only if the setup call is performed, otherwise `msg.value` is rejected
+     * to avoid stuck value in the contract.
      *
      * Emits an {IERC1967-Upgraded} event.
      */
@@ -161,6 +163,8 @@ library ERC1967Utils {
 
     /**
      * @dev Change the beacon and trigger a setup call if data is nonempty.
+     * This function is payable only if the setup call is performed, otherwise `msg.value` is rejected
+     * to avoid stuck value in the contract.
      *
      * Emits an {IERC1967-BeaconUpgraded} event.
      *

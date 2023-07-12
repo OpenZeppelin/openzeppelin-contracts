@@ -29,7 +29,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * during an upgrade.
      */
     // solhint-disable-next-line private-vars-leading-underscore
-    string internal constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
 
     /**
      * @dev The call is from an unauthorized context.

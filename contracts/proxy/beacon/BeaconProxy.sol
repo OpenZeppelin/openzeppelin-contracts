@@ -34,6 +34,7 @@ contract BeaconProxy is Proxy {
      * Requirements:
      *
      * - `beacon` must be a contract with the interface {IBeacon}.
+     * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address beacon, bytes memory data) payable {
         ERC1967Utils.upgradeBeaconToAndCall(beacon, data);
