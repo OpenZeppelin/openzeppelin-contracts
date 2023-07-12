@@ -18,7 +18,8 @@ const TOKENS = [
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 
-contract.only('GovernorTimelockControl', function (accounts) {
+describe.only('only', function () {
+contract('GovernorTimelockControl', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -512,3 +513,4 @@ contract.only('GovernorTimelockControl', function (accounts) {
     });
   }
 });
+})
