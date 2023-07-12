@@ -151,7 +151,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
@@ -213,7 +213,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-     * (or `to`) is the zero address.
+     * (or `to`) is the zero address. Returns the owner of the `tokenId` before the update.
      *
      * The `operatorCheck` argument is optional. If the value passed is non 0, then this function will check that
      * `operatorCheck` is either the owner of the token, or approved to operate on the token (by the owner).
