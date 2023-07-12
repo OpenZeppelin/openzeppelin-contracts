@@ -153,13 +153,15 @@ contract('GovernorTimelockControl', function (accounts) {
         });
 
         describe('on execute', function () {
-          it('if not queued', async function () {
+          it.only('if not queued', async function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline(+1);
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+
+            console.log(this.mock.address, this.proposal.shortProposal[3]);
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
