@@ -38,7 +38,7 @@ contract('GovernorTimelockControl', function (accounts) {
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       const timelockSalt = (address, descriptionHash) =>
-        web3.utils.numberToHex(web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)));
+        '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
