@@ -264,9 +264,9 @@ contract('Math', function () {
 
       it('large values', async function () {
         for (const rounding of RoundingDown) {
-          expect(
-            await this.math.$mulDiv(new BN('42'), MAX_UINT256_SUB1, MAX_UINT256, rounding),
-          ).to.be.bignumber.equal(new BN('41'));
+          expect(await this.math.$mulDiv(new BN('42'), MAX_UINT256_SUB1, MAX_UINT256, rounding)).to.be.bignumber.equal(
+            new BN('41'),
+          );
 
           expect(await this.math.$mulDiv(new BN('17'), MAX_UINT256, MAX_UINT256, rounding)).to.be.bignumber.equal(
             new BN('17'),
@@ -276,9 +276,9 @@ contract('Math', function () {
             await this.math.$mulDiv(MAX_UINT256_SUB1, MAX_UINT256_SUB1, MAX_UINT256, rounding),
           ).to.be.bignumber.equal(MAX_UINT256_SUB2);
 
-          expect(
-            await this.math.$mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, rounding),
-          ).to.be.bignumber.equal(MAX_UINT256_SUB1);
+          expect(await this.math.$mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, rounding)).to.be.bignumber.equal(
+            MAX_UINT256_SUB1,
+          );
 
           expect(await this.math.$mulDiv(MAX_UINT256, MAX_UINT256, MAX_UINT256, rounding)).to.be.bignumber.equal(
             MAX_UINT256,
@@ -375,9 +375,7 @@ contract('Math', function () {
           expect(await this.math.methods['$log2(uint256,uint8)']('7', rounding)).to.be.bignumber.equal('2');
           expect(await this.math.methods['$log2(uint256,uint8)']('8', rounding)).to.be.bignumber.equal('3');
           expect(await this.math.methods['$log2(uint256,uint8)']('9', rounding)).to.be.bignumber.equal('3');
-          expect(await this.math.methods['$log2(uint256,uint8)'](MAX_UINT256, rounding)).to.be.bignumber.equal(
-            '255',
-          );
+          expect(await this.math.methods['$log2(uint256,uint8)'](MAX_UINT256, rounding)).to.be.bignumber.equal('255');
         }
       });
 
