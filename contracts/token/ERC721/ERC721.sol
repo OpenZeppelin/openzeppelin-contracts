@@ -114,12 +114,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function approve(address to, uint256 tokenId) public virtual {
         address owner = ownerOf(tokenId);
-        if (to == owner) {
-            revert ERC721InvalidOperator(owner);
-        }
+        address caller = _msgSender();
 
-        if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
-            revert ERC721InvalidApprover(_msgSender());
+        if (owner != caller && !isApprovedForAll(owner, caller)) {
+            revert ERC721InvalidApprover(caller);
         }
 
         _approve(to, tokenId);
@@ -131,7 +129,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     function getApproved(uint256 tokenId) public view virtual returns (address) {
         _requireMinted(tokenId);
 
-        return _tokenApprovals[tokenId];
+        return _getApproved(tokenId);
     }
 
     /**
@@ -198,6 +196,13 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
         return _ownerOf(tokenId) != address(0);
+    }
+
+    /**
+     * @dev Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
+     */
+    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
+        return _tokenApprovals[tokenId];
     }
 
     /**
@@ -378,8 +383,12 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {Approval} event.
      */
     function _approve(address to, uint256 tokenId) internal virtual {
+        address owner = ownerOf(tokenId);
+        if (to == owner) {
+            revert ERC721InvalidOperator(to);
+        }
         _tokenApprovals[tokenId] = to;
-        emit Approval(ownerOf(tokenId), to, tokenId);
+        emit Approval(owner, to, tokenId);
     }
 
     /**
@@ -388,8 +397,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        if (owner == operator) {
-            revert ERC721InvalidOperator(owner);
+        if (operator == owner || operator == address(0)) {
+            revert ERC721InvalidOperator(operator);
         }
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
