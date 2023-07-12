@@ -161,8 +161,6 @@ contract('GovernorTimelockControl', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-            console.log(this.mock.address, this.proposal.shortProposal[3]);
-
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
               proposalStatesToBitMap(Enums.OperationState.Ready),
