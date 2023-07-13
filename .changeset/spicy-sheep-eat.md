@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-Change access folder structure
+`access`: Move `AccessControl` extensions to a dedicated directory.
