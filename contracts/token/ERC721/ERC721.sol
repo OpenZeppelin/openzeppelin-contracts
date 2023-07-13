@@ -194,7 +194,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * WARNING: This function doesn't check that `owner` is the actual owner of the specified `tokenId`. Moreover, it returns true if `owner == spender` in order to skip the check where needed. Consider checking for cases where `spender == address(0)` since they could lead to unexpected behavior.
      */
-    function _isAuthorised(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+    function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return
             spender != address(0) &&
             (owner == spender || isApprovedForAll(owner, spender) || _getApproved(tokenId) == spender);
@@ -204,13 +204,13 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
      * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
      *
-     * WARNING: This function relies on {_isAuthorised}, so it doesn't check whether `owner` is the actual owner of `tokenId` and will skip the check if `spender == owner`
+     * WARNING: This function relies on {_isAuthorized}, so it doesn't check whether `owner` is the actual owner of `tokenId` and will skip the check if `spender == owner`
      */
-    function _checkAuthorised(address owner, address spender, uint256 tokenId) internal view virtual {
+    function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
         // That first check is needed because the error is different, and should as precedence over insufficient approval
         if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
-        } else if (!_isAuthorised(owner, spender, tokenId)) {
+        } else if (!_isAuthorized(owner, spender, tokenId)) {
             revert ERC721InsufficientApproval(spender, tokenId);
         }
     }
@@ -245,7 +245,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
         // Perform (optional) operator check
         if (auth != address(0)) {
-            _checkAuthorised(from, auth, tokenId);
+            _checkAuthorized(from, auth, tokenId);
         }
 
         // Execute the update
