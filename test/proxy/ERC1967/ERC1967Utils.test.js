@@ -15,7 +15,7 @@ const ERC1967Utils = artifacts.require('$ERC1967Utils');
 
 const V1 = artifacts.require('DummyImplementation');
 const V2 = artifacts.require('DummyImplementationV2');
-const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
+const UpgradeableBeaconMock = artifacts.require('UpgradeableBeaconMock');
 
 contract('ERC1967Utils', function (accounts) {
   const [, admin, anotherAccount] = accounts;
@@ -112,7 +112,7 @@ contract('ERC1967Utils', function (accounts) {
 
   describe('BEACON_SLOT', function () {
     beforeEach('set beacon', async function () {
-      this.beacon = await UpgradeableBeacon.new(this.v1.address, admin);
+      this.beacon = await UpgradeableBeaconMock.new(this.v1.address);
       await setSlot(this.utils, BeaconSlot, this.beacon.address);
     });
 
@@ -125,7 +125,7 @@ contract('ERC1967Utils', function (accounts) {
 
     describe('upgradeBeaconToAndCall', function () {
       it('sets beacon in storage and emits event', async function () {
-        const newBeacon = await UpgradeableBeacon.new(this.v2.address, admin);
+        const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
         const receipt = await this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA);
 
         expect(await getAddressInSlot(this.utils.address, BeaconSlot)).to.equal(newBeacon.address);
@@ -141,12 +141,7 @@ contract('ERC1967Utils', function (accounts) {
       });
 
       it("reverts when beacon's implementation does not contain code", async function () {
-        const newBeacon = await UpgradeableBeacon.new(this.v2.address, admin);
-
-        // Corrupt beacon's implementation
-        // Note that the beacon itself is not ERC1967 compliant, so implementation is at slot 1
-        // after the owner in slot 0.
-        await setSlot(newBeacon, 1, anotherAccount);
+        const newBeacon = await UpgradeableBeaconMock.new(anotherAccount);
 
         await expectRevertCustomError(
           this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA),
@@ -157,7 +152,7 @@ contract('ERC1967Utils', function (accounts) {
 
       describe('when data is empty', function () {
         it('reverts when value is sent', async function () {
-          const newBeacon = await UpgradeableBeacon.new(this.v2.address, admin);
+          const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
           await expectRevertCustomError(
             this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA, { value: 1 }),
             'ERC1967NonPayable',
@@ -173,7 +168,7 @@ contract('ERC1967Utils', function (accounts) {
 
           // Initialize by calling migrate and modifying the slot 0 `value`
           const initializeData = this.v2.contract.methods.migrate(newVal).encodeABI();
-          const newBeacon = await UpgradeableBeacon.new(this.v2.address, admin);
+          const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
           await this.utils.$upgradeBeaconToAndCall(newBeacon.address, initializeData);
 
           // Because of the delegatecall to `migrate`, the ERC1967Utils will hold the new value at slot 0
