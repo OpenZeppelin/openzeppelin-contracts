@@ -59,8 +59,8 @@ In the case of `ERC721`, the `_update` function does not include a `from` parame
 this previous owner is returned by the `_update` function, so it can be used for a posteriori checks. In addition to `to` and `tokenId`, a third parameter (`auth`) is
 present in this function. This parameter enabled an optional check that the caller/spender is approved to do the transfer. This check cannot be performed after the transfer (because the transfer resets the approval), and doing it before `_update` would require a duplicate call to `_ownerOf`.
 
-In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was removed in favor of a new `_isAuthorised` function. Overrides that used to target the
-`_isApprovedOrOwner` should now be performed on the `_isAuthorised` function. Calls to `_isApprovedOrOwner` that preceded a call to `_transfer`, `_burn` or `_approve`
+In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was removed in favor of a new `_isAuthorized` function. Overrides that used to target the
+`_isApprovedOrOwner` should now be performed on the `_isAuthorized` function. Calls to `_isApprovedOrOwner` that preceded a call to `_transfer`, `_burn` or `_approve`
 should be removed in favor of using the `auth` argument in `_update` and `_approve`. This is showcased in `ERC721Burnable.burn` and in `ERC721Wrapper.withdrawTo`.
 
 The `_exist` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
