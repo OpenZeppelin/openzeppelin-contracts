@@ -77,20 +77,20 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {ERC721-_update}.
      */
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, auth);
+        address previousOwner = super._update(to, tokenId, auth);
 
-        if (from == address(0)) {
+        if (previousOwner == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
-        } else if (from != to) {
-            _removeTokenFromOwnerEnumeration(from, tokenId);
+        } else if (previousOwner != to) {
+            _removeTokenFromOwnerEnumeration(previousOwner, tokenId);
         }
         if (to == address(0)) {
             _removeTokenFromAllTokensEnumeration(tokenId);
-        } else if (from != to) {
+        } else if (previousOwner != to) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
 
-        return from;
+        return previousOwner;
     }
 
     /**

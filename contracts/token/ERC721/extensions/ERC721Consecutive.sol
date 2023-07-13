@@ -139,10 +139,10 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, auth);
+        address previousOwner = super._update(to, tokenId, auth);
 
         // only mint after construction
-        if (from == address(0) && address(this).code.length == 0) {
+        if (previousOwner == address(0) && address(this).code.length == 0) {
             revert ERC721ForbiddenMint();
         }
 
@@ -155,7 +155,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             _sequentialBurn.set(tokenId);
         }
 
-        return from;
+        return previousOwner;
     }
 
     /**

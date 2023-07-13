@@ -69,12 +69,12 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * the storage mapping.
      */
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, auth);
+        address previousOwner = super._update(to, tokenId, auth);
 
         if (to == address(0) && bytes(_tokenURIs[tokenId]).length != 0) {
             delete _tokenURIs[tokenId];
         }
 
-        return from;
+        return previousOwner;
     }
 }
