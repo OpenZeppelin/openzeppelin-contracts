@@ -101,8 +101,8 @@ library Math {
     /**
      * @dev Returns the ceiling of the division of two numbers.
      *
-     * This differs from standard division with `/` in that it rounds up instead
-     * of rounding down.
+     * This differs from standard division with `/` in that it rounds towards infinity instead
+     * of rounding towards zero.
      */
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         if (b == 0) {
@@ -214,7 +214,8 @@ library Math {
     }
 
     /**
-     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
+     * towards zero.
      *
      * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
@@ -262,7 +263,7 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 2, rounded down, of a positive value.
+     * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
     function log2(uint256 value) internal pure returns (uint256) {
@@ -315,7 +316,7 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 10, rounded down, of a positive value.
+     * @dev Return the log in base 10 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
     function log10(uint256 value) internal pure returns (uint256) {
@@ -364,7 +365,7 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 256, rounded down, of a positive value.
+     * @dev Return the log in base 256 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      *
      * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
