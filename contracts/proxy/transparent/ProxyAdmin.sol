@@ -19,7 +19,6 @@ contract ProxyAdmin is Ownable {
      * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
      * during an upgrade.
      */
-    // solhint-disable-next-line private-vars-leading-underscore
     string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
 
     /**
