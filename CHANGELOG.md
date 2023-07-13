@@ -63,7 +63,7 @@ In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was r
 `_isApprovedOrOwner` should now be performed on the `_isAuthorized` function. Calls to `_isApprovedOrOwner` that preceded a call to `_transfer`, `_burn` or `_approve`
 should be removed in favor of using the `auth` argument in `_update` and `_approve`. This is showcased in `ERC721Burnable.burn` and in `ERC721Wrapper.withdrawTo`.
 
-The `_exist` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
+The `_exists` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
 
 #### ERC165Storage
 
