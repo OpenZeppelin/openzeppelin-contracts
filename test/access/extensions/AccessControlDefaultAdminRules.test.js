@@ -2,7 +2,7 @@ const { time, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
-} = require('./AccessControl.behavior.js');
+} = require('../AccessControl.behavior.js');
 
 const AccessControlDefaultAdminRules = artifacts.require('$AccessControlDefaultAdminRules');
 
