@@ -3,7 +3,6 @@ pragma solidity ^0.8.19;
 
 import {ERC4626Test} from "erc4626-tests/ERC4626.test.sol";
 
-import {SafeCast} from "openzeppelin/utils/math/SafeCast.sol";
 import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";
 import {ERC4626} from "openzeppelin/token/ERC20/extensions/ERC4626.sol";
 

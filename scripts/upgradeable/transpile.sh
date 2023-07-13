@@ -33,3 +33,6 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
   -p 'contracts/**/presets/**/*'
+
+# delete compilation artifacts of vanilla code
+npm run clean

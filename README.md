@@ -41,6 +41,8 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
 
+Add `@openzeppelin/=lib/openzeppelin-contracts/` in `remappings.txt.` 
+
 ### Usage
 
 Once installed, you can use the contracts in the library by importing them:
