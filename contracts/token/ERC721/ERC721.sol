@@ -113,14 +113,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual {
-        address owner = ownerOf(tokenId);
-        address caller = _msgSender();
-
-        if (owner != caller && !isApprovedForAll(owner, caller)) {
-            revert ERC721InvalidApprover(caller);
-        }
-
-        _approve(to, tokenId);
+        _approve(to, tokenId, _msgSender());
     }
 
     /**
@@ -153,10 +146,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
+        // Setting an "auth" arguments means that `_update` will check that the token exists (from != 0),
+        // no need to duplicate that check here.
         address previousOwner = _update(to, tokenId, _msgSender());
-        if (previousOwner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        } else if (previousOwner != from) {
+        if (previousOwner != from) {
             revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
     }
@@ -179,10 +172,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
      *
-      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the 
-      * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances 
-      * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by 
-      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`. 
+     * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
+     * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+     * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
+     * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         return _owners[tokenId];
@@ -201,19 +194,40 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * WARNING: This function doesn't check that `owner` is the actual owner of the specified `tokenId`. Moreover, it returns true if `owner == spender` in order to skip the check where needed. Consider checking for cases where `spender == address(0)` since they could lead to unexpected behavior.
      */
-    function _isApproved(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
-        return owner == spender || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender;
+    function _isAuthorised(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+        return
+            spender != address(0) &&
+            (owner == spender || isApprovedForAll(owner, spender) || _getApproved(tokenId) == spender);
     }
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
      * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
      *
-     * WARNING: This function relies on {_isApproved}, so it doesn't check whether `owner` is the actual owner of `tokenId` and will skip the check if `spender == owner`
+     * WARNING: This function relies on {_isAuthorised}, so it doesn't check whether `owner` is the actual owner of `tokenId` and will skip the check if `spender == owner`
      */
-    function _checkApproved(address owner, address spender, uint256 tokenId) internal view virtual {
-        if (!_isApproved(owner, spender, tokenId)) {
+    function _checkAuthorised(address owner, address spender, uint256 tokenId) internal view virtual {
+        // That first check is needed because the error is different, and should as precedence over insufficient approval
+        if (owner == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        } else if (!_isAuthorised(owner, spender, tokenId)) {
             revert ERC721InsufficientApproval(spender, tokenId);
+        }
+    }
+
+    /**
+     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     *
+     * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
+     * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
+     *
+     * WARNING: Increassing an account's balance using this function should go in pair with an override of the
+     * {_ownerOf} function that resolve the ownership of the corresponding tokens so that balances and ownerships
+     * remain consistent with one another.
+     */
+    function _increaseBalance(address account, uint128 value) internal virtual {
+        unchecked {
+            _balances[account] += value;
         }
     }
 
@@ -221,17 +235,17 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
      * (or `to`) is the zero address. Returns the owner of the `tokenId` before the update.
      *
-     * The `operatorCheck` argument is optional. If the value passed is non 0, then this function will check that
-     * `operatorCheck` is either the owner of the token, or approved to operate on the token (by the owner).
+     * The `auth` argument is optional. If the value passed is non 0, then this function will check that
+     * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
      *
      * Emits a {Transfer} event.
      */
-    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual returns (address) {
+    function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         address from = _ownerOf(tokenId);
 
         // Perform (optional) operator check
-        if (operatorCheck != address(0)) {
-            _checkApproved(from, operatorCheck, tokenId);
+        if (auth != address(0)) {
+            _checkAuthorised(from, auth, tokenId);
         }
 
         // Execute the update
@@ -271,8 +285,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address from = _update(to, tokenId, address(0));
-        if (from != address(0)) {
+        address previousOwner = _update(to, tokenId, address(0));
+        if (previousOwner != address(0)) {
             revert ERC721InvalidSender(address(0));
         }
     }
@@ -312,8 +326,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal {
-        address from = _update(address(0), tokenId, address(0));
-        if (from == address(0)) {
+        address previousOwner = _update(address(0), tokenId, address(0));
+        if (previousOwner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
     }
@@ -375,13 +389,18 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev Approve `to` to operate on `tokenId`
      *
+     * The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+     * either the owner of the token, or approved to operate on all tokens held by this owner.
+     *
      * Emits an {Approval} event.
      */
-    function _approve(address to, uint256 tokenId) internal virtual {
+    function _approve(address to, uint256 tokenId, address auth) internal virtual {
         address owner = ownerOf(tokenId);
-        if (to == owner) {
-            revert ERC721InvalidOperator(to);
+
+        if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
+            revert ERC721InvalidApprover(auth);
         }
+
         _tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
     }
@@ -396,7 +415,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        if (operator == owner || operator == address(0)) {
+        if (operator == address(0)) {
             revert ERC721InvalidOperator(operator);
         }
         _operatorApprovals[owner][operator] = approved;
@@ -437,22 +456,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
-     *
-     * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
-     * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
-     *
-     * WARNING: Increassing an account's balance using this function should go in pair with an override of the
-     * {_ownerOf} function that resolve the ownership of the corresponding tokens so that balances and ownerships
-     * remain consistent with one another.
-     */
-    function _increaseBalance(address account, uint128 value) internal virtual {
-        unchecked {
-          _balances[account] += value;
         }
     }
 }

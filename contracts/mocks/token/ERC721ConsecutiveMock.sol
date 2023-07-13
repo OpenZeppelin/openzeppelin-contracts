@@ -44,9 +44,9 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
     function _update(
         address to,
         uint256 tokenId,
-        address operatorCheck
+        address auth
     ) internal virtual override(ERC721Consecutive, ERC721Pausable, ERC721Votes) returns (address) {
-        return super._update(to, tokenId, operatorCheck);
+        return super._update(to, tokenId, auth);
     }
 
     // solhint-disable-next-line func-name-mixedcase

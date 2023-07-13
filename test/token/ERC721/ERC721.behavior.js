@@ -524,14 +524,6 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
         });
       });
 
-      context('when the address that receives the approval is the owner', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(this.token.approve(owner, tokenId, { from: owner }), 'ERC721InvalidOperator', [
-            owner,
-          ]);
-        });
-      });
-
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
           await expectRevertCustomError(
@@ -642,16 +634,6 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
               approved: true,
             });
           });
-        });
-      });
-
-      context('when the operator is the owner', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.setApprovalForAll(owner, true, { from: owner }),
-            'ERC721InvalidOperator',
-            [owner],
-          );
         });
       });
     });

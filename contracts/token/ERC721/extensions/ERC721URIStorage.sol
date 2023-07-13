@@ -55,7 +55,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * - `tokenId` must exist.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        if (!_exists(tokenId)) {
+        if (_ownerOf(tokenId) == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
         _tokenURIs[tokenId] = _tokenURI;
@@ -68,8 +68,8 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * token-specific URI was set for the token, and if so, it deletes the token URI from
      * the storage mapping.
      */
-    function _update(address to, uint256 tokenId, address operatorCheck) internal virtual override returns (address) {
-        address from = super._update(to, tokenId, operatorCheck);
+    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, auth);
 
         if (to == address(0) && bytes(_tokenURIs[tokenId]).length != 0) {
             delete _tokenURIs[tokenId];
