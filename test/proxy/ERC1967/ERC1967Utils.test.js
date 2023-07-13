@@ -14,7 +14,7 @@ const { ZERO_ADDRESS } = constants;
 const ERC1967Utils = artifacts.require('$ERC1967Utils');
 
 const V1 = artifacts.require('DummyImplementation');
-const V2 = artifacts.require('DummyImplementationV2');
+const V2 = artifacts.require('CallReceiverMock');
 const UpgradeableBeaconMock = artifacts.require('UpgradeableBeaconMock');
 
 contract('ERC1967Utils', function (accounts) {
@@ -68,16 +68,9 @@ contract('ERC1967Utils', function (accounts) {
 
       describe('when data is not empty', function () {
         it('delegates a call to the new implementation', async function () {
-          const valueSlot = 0;
-          const newVal = web3.utils.hexToNumber('0xdeabeef');
-
-          // Initialize by calling migrate and modifying the slot 0 `value`
-          const initializeData = this.v2.contract.methods.migrate(newVal).encodeABI();
-          await this.utils.$upgradeToAndCall(this.v2.address, initializeData);
-
-          // Because of the delegatecall to `migrate`, the ERC1967Utils will hold the new value at slot 0
-          const slotValue = await getSlot(this.utils.address, valueSlot);
-          expect(web3.utils.hexToNumber(slotValue)).to.equal(newVal);
+          const initializeData = this.v2.contract.methods.mockFunction().encodeABI();
+          const receipt = await this.utils.$upgradeToAndCall(this.v2.address, initializeData);
+          await expectEvent.inTransaction(receipt.tx, await V2.at(this.utils.address), 'MockFunctionCalled');
         });
       });
     });
@@ -163,17 +156,10 @@ contract('ERC1967Utils', function (accounts) {
 
       describe('when data is not empty', function () {
         it('delegates a call to the new implementation', async function () {
-          const valueSlot = 0;
-          const newVal = web3.utils.hexToNumber('0xdeabeef');
-
-          // Initialize by calling migrate and modifying the slot 0 `value`
-          const initializeData = this.v2.contract.methods.migrate(newVal).encodeABI();
+          const initializeData = this.v2.contract.methods.mockFunction().encodeABI();
           const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
-          await this.utils.$upgradeBeaconToAndCall(newBeacon.address, initializeData);
-
-          // Because of the delegatecall to `migrate`, the ERC1967Utils will hold the new value at slot 0
-          const slotValue = await getSlot(this.utils.address, valueSlot);
-          expect(web3.utils.hexToNumber(slotValue)).to.equal(newVal);
+          const receipt = await this.utils.$upgradeBeaconToAndCall(newBeacon.address, initializeData);
+          await expectEvent.inTransaction(receipt.tx, await V2.at(this.utils.address), 'MockFunctionCalled');
         });
       });
     });
