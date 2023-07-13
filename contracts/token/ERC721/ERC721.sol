@@ -179,8 +179,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
      *
-     * WARNING: Any override of this function that allocates token to accounts following a custom logic should go in
-     * pair with a call to {_increaseBalance} so that balances and ownerships remain consistent with one another.
+      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the 
+      * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances 
+      * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by 
+      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`. 
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         return _owners[tokenId];
@@ -209,20 +211,17 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
      * particular (ignoring whether it is owned by `owner`).
      *
-     * WARNING:
-     * - ownership is not checked.
-     * - spender = address(0) will lead to this function returning true in unexpected situations.
+     * WARNING: This function doesn't check that `owner` is the actual owner of the specified `tokenId`. Moreover, it returns true if `owner == spender` in order to skip the check where needed. Consider checking for cases where `spender == address(0)` since they could lead to unexpected behavior.
      */
     function _isApproved(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return owner == spender || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender;
     }
 
     /**
-     * @dev Checks whether `spender` was approved by `owner` to operate on `tokenId` or is the owner of `tokenId`.
-     * Reverts if `spender` is not approved nor owner of `tokenId`.
+     * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
+     * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
      *
-     * WARNING:
-     * - ownership is not checked.
+     * WARNING: This function relies on {_isApproved}, so it doesn't check whether `owner` is the actual owner of `tokenId` and will skip the check if `spender == owner`
      */
     function _checkApproved(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isApproved(owner, spender, tokenId)) {
@@ -291,7 +290,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
+     * @dev Mints `tokenId`, transfers it to `to` and checks for `to` acceptance.
      *
      * Requirements:
      *
@@ -355,8 +354,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
+     * are aware of the ERC721 standard to prevent tokens from being forever locked.
      *
      * `data` is additional data, it has no specified format and it is sent in call to `to`.
      *
@@ -373,8 +372,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits a {Transfer} event.
      */
     function _safeTransfer(address from, address to, uint256 tokenId) internal {
-        _transfer(from, to, tokenId);
-        _checkOnERC721Received(from, to, tokenId, "");
+        _safeTransfer(from, to, tokenId, "");
     }
 
     /**
@@ -402,6 +400,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Approve `operator` to operate on all of `owner` tokens
+     *
+     * Requirements:
+     * - operator can't be the address zero.
+     * - owner can't approve himself.
      *
      * Emits an {ApprovalForAll} event.
      */
@@ -461,6 +463,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * remain consistent with one another.
      */
     function _increaseBalance(address account, uint128 value) internal virtual {
-        _balances[account] += value;
+        unchecked {
+          _balances[account] += value;
+        }
     }
 }
