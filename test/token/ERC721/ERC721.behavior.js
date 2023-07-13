@@ -635,6 +635,16 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
             });
           });
         });
+
+        context('when the operator is address zero', function () {
+          it('reverts', async function () {
+            await expectRevertCustomError(
+              this.token.setApprovalForAll(constants.ZERO_ADDRESS, true, { from: owner }),
+              'ERC721InvalidOperator',
+              [constants.ZERO_ADDRESS],
+            );
+          });
+        });
       });
     });
 
