@@ -1,13 +1,6 @@
 const { expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const {
-  getAddressInSlot,
-  setSlot,
-  getSlot,
-  ImplementationSlot,
-  AdminSlot,
-  BeaconSlot,
-} = require('../../helpers/erc1967');
+const { getAddressInSlot, setSlot, ImplementationSlot, AdminSlot, BeaconSlot } = require('../../helpers/erc1967');
 
 const { ZERO_ADDRESS } = constants;
 
