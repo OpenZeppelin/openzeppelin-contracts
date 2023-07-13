@@ -59,9 +59,8 @@ contract('BeaconProxy', function (accounts) {
 
     it('no initialization', async function () {
       const data = Buffer.from('');
-      const balance = '10';
-      this.proxy = await BeaconProxy.new(this.beacon.address, data, { value: balance });
-      await this.assertInitialized({ value: '0', balance });
+      this.proxy = await BeaconProxy.new(this.beacon.address, data);
+      await this.assertInitialized({ value: '0', balance: '0' });
     });
 
     it('non-payable initialization', async function () {
@@ -79,7 +78,16 @@ contract('BeaconProxy', function (accounts) {
       await this.assertInitialized({ value, balance });
     });
 
-    it('reverting initialization', async function () {
+    it('reverting initialization due to value', async function () {
+      const data = Buffer.from('');
+      await expectRevertCustomError(
+        BeaconProxy.new(this.beacon.address, data, { value: '1' }),
+        'ERC1967NonPayable',
+        [],
+      );
+    });
+
+    it('reverting initialization function', async function () {
       const data = this.implementationV0.contract.methods.reverts().encodeABI();
       await expectRevert(BeaconProxy.new(this.beacon.address, data), 'DummyImplementation reverted');
     });
