@@ -19,8 +19,8 @@ abstract contract ERC721Burnable is Context, ERC721 {
      * - The caller must own `tokenId` or be an approved operator.
      */
     function burn(uint256 tokenId) public virtual {
-        // Setting an "auth" arguments means that `_update` will check that the token exists (from != 0),
-        // no need to duplicate that check here.
+        // Setting an "auth" arguments enables the `_isApproved` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         _update(address(0), tokenId, _msgSender());
     }
 }

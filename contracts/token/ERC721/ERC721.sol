@@ -146,8 +146,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        // Setting an "auth" arguments means that `_update` will check that the token exists (from != 0),
-        // no need to duplicate that check here.
+        // Setting an "auth" arguments enables the `_isApproved` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
         address previousOwner = _update(to, tokenId, _msgSender());
         if (previousOwner != from) {
             revert ERC721IncorrectOwner(from, tokenId, previousOwner);
@@ -394,7 +394,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits an {Approval} event.
      */
-    function _approve(address to, uint256 tokenId, address auth) internal virtual {
+    function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         address owner = ownerOf(tokenId);
 
         if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
@@ -403,6 +403,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
         _tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
+
+        return owner;
     }
 
     /**
