@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./math/Math.sol";
-import "./math/SignedMath.sol";
+import {Math} from "./math/Math.sol";
+import {SignedMath} from "./math/SignedMath.sol";
 
 /**
  * @dev String operations.
@@ -46,7 +46,7 @@ library Strings {
     /**
      * @dev Converts a `int256` to its ASCII `string` decimal representation.
      */
-    function toString(int256 value) internal pure returns (string memory) {
+    function toStringSigned(int256 value) internal pure returns (string memory) {
         return string.concat(value < 0 ? "-" : "", toString(SignedMath.abs(value)));
     }
 

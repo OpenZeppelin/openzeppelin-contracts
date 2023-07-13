@@ -21,8 +21,8 @@ $ npm install @openzeppelin/contracts-upgradeable
 The package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `Upgradeable`.
 
 ```diff
--import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
++import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
  
 -contract MyCollectible is ERC721 {
 +contract MyCollectible is ERC721Upgradeable {

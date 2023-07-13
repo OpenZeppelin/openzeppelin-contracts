@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
-import "../../../interfaces/IERC2309.sol";
-import "../../../utils/structs/BitMaps.sol";
-import "../../../utils/structs/Checkpoints.sol";
+import {ERC721} from "../ERC721.sol";
+import {IERC2309} from "../../../interfaces/IERC2309.sol";
+import {BitMaps} from "../../../utils/structs/BitMaps.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
@@ -26,8 +26,6 @@ import "../../../utils/structs/Checkpoints.sol";
  * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
  * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
  * super call before your custom logic.
- *
- * _Available since v4.8._
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;

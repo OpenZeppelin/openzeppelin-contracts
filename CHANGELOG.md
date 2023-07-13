@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+> **Warning** Version 5.0 is under active development and should not be used. Install the releases from npm or use the version tags in the repository.
+
 ### Removals
 
 The following contracts, libraries and functions were removed:
@@ -58,6 +62,10 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
 }
 ```
+
+## 4.9.2 (2023-06-16)
+
+- `MerkleProof`: Fix a bug in `processMultiProof` and `processMultiProofCalldata` that allows proving arbitrary leaves if the tree contains a node with value 0 at depth 1.
 
 ## 4.9.1 (2023-06-07)
 

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../../../token/ERC20/ERC20.sol";
-import "../../../token/ERC20/extensions/ERC20Permit.sol";
-import "../../../token/ERC20/extensions/ERC20Votes.sol";
+import {ERC20} from "../../../token/ERC20/ERC20.sol";
+import {ERC20Permit} from "../../../token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "../../../token/ERC20/extensions/ERC20Votes.sol";
+import {Nonces} from "../../../utils/Nonces.sol";
 
 contract MyToken is ERC20, ERC20Permit, ERC20Votes {
     constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}

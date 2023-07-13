@@ -47,7 +47,7 @@ function shouldRunMerge({
   hasPendingChangesets,
   prBackExists,
 }) {
-  return isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !hasPendingChangesets && prBackExists;
+  return isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !hasPendingChangesets && !prBackExists;
 }
 
 async function getState({ github, context, core }) {
@@ -79,7 +79,7 @@ async function getState({ github, context, core }) {
     state: 'open',
   });
 
-  state.prBackExists = prs.length === 0;
+  state.prBackExists = prs.length !== 0;
 
   state.isPublishedOnNpm = await isPublishedOnNpm(packageName, version);
 

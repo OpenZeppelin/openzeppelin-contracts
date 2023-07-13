@@ -3,20 +3,17 @@
 
 pragma solidity ^0.8.19;
 
-import "./GovernorVotes.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../utils/structs/Checkpoints.sol";
+import {GovernorVotes} from "./GovernorVotes.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
  * fraction of the total supply.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     using Checkpoints for Checkpoints.Trace224;
 
-    /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);

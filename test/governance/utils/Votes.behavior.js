@@ -70,8 +70,8 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
         });
         expectEvent(receipt, 'DelegateVotesChanged', {
           delegate: accounts[1],
-          previousBalance: '0',
-          newBalance: weight,
+          previousVotes: '0',
+          newVotes: weight,
         });
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(accounts[1]);
@@ -100,13 +100,13 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
         });
         expectEvent(receipt, 'DelegateVotesChanged', {
           delegate: accounts[1],
-          previousBalance: weight,
-          newBalance: '0',
+          previousVotes: weight,
+          newVotes: '0',
         });
         expectEvent(receipt, 'DelegateVotesChanged', {
           delegate: accounts[2],
-          previousBalance: '0',
-          newBalance: weight,
+          previousVotes: '0',
+          newVotes: weight,
         });
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(accounts[2]);
@@ -152,8 +152,8 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
           });
           expectEvent(receipt, 'DelegateVotesChanged', {
             delegate: delegatee,
-            previousBalance: '0',
-            newBalance: weight,
+            previousVotes: '0',
+            newVotes: weight,
           });
 
           expect(await this.votes.delegates(delegator.address)).to.be.equal(delegatee);

@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../access/AccessControl.sol";
-import "../token/ERC721/utils/ERC721Holder.sol";
-import "../token/ERC1155/utils/ERC1155Holder.sol";
-import "../utils/Address.sol";
+import {AccessControl} from "../access/AccessControl.sol";
+import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -20,8 +20,6 @@ import "../utils/Address.sol";
  * is in charge of proposing (resp executing) operations. A common use case is
  * to position this {TimelockController} as the owner of a smart contract, with
  * a multisig or a DAO as the sole proposer.
- *
- * _Available since v3.3._
  */
 contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
@@ -34,7 +32,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     enum OperationState {
         Unset,
-        Pending,
+        Waiting,
         Ready,
         Done
     }
@@ -51,8 +49,12 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
 
     /**
      * @dev The current state of an operation is not as required.
+     * The `expectedStates` is a bitmap with the bits enabled for each OperationState enum position
+     * counting from right to left.
+     *
+     * See {_encodeStateBitmap}.
      */
-    error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
+    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expectedStates);
 
     /**
      * @dev The predecessor to an operation not yet done.
@@ -157,7 +159,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(AccessControl, ERC1155Receiver) returns (bool) {
+    ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -165,30 +167,30 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) > 0;
+    function isOperation(bytes32 id) public view returns (bool) {
+        return getOperationState(id) != OperationState.Unset;
     }
 
     /**
      * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
-    function isOperationPending(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) > _DONE_TIMESTAMP;
+    function isOperationPending(bytes32 id) public view returns (bool) {
+        OperationState state = getOperationState(id);
+        return state == OperationState.Waiting || state == OperationState.Ready;
     }
 
     /**
      * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
      */
-    function isOperationReady(bytes32 id) public view virtual returns (bool) {
-        uint256 timestamp = getTimestamp(id);
-        return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
+    function isOperationReady(bytes32 id) public view returns (bool) {
+        return getOperationState(id) == OperationState.Ready;
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
-    function isOperationDone(bytes32 id) public view virtual returns (bool) {
-        return getTimestamp(id) == _DONE_TIMESTAMP;
+    function isOperationDone(bytes32 id) public view returns (bool) {
+        return getOperationState(id) == OperationState.Done;
     }
 
     /**
@@ -197,6 +199,22 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function getTimestamp(bytes32 id) public view virtual returns (uint256) {
         return _timestamps[id];
+    }
+
+    /**
+     * @dev Returns operation state.
+     */
+    function getOperationState(bytes32 id) public view virtual returns (OperationState) {
+        uint256 timestamp = getTimestamp(id);
+        if (timestamp == 0) {
+            return OperationState.Unset;
+        } else if (timestamp == _DONE_TIMESTAMP) {
+            return OperationState.Done;
+        } else if (timestamp > block.timestamp) {
+            return OperationState.Waiting;
+        } else {
+            return OperationState.Ready;
+        }
     }
 
     /**
@@ -297,7 +315,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _schedule(bytes32 id, uint256 delay) private {
         if (isOperation(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Unset);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Unset));
         }
         uint256 minDelay = getMinDelay();
         if (delay < minDelay) {
@@ -315,7 +333,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         if (!isOperationPending(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Pending);
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Waiting) | _encodeStateBitmap(OperationState.Ready)
+            );
         }
         delete _timestamps[id];
 
@@ -398,7 +419,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
         if (!isOperationReady(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
         if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
             revert TimelockUnexecutedPredecessor(predecessor);
@@ -410,7 +431,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _afterCall(bytes32 id) private {
         if (!isOperationReady(id)) {
-            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
         _timestamps[id] = _DONE_TIMESTAMP;
     }
@@ -426,10 +447,26 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        if (msg.sender != address(this)) {
-            revert TimelockUnauthorizedCaller(msg.sender);
+        address sender = _msgSender();
+        if (sender != address(this)) {
+            revert TimelockUnauthorizedCaller(sender);
         }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
+    }
+
+    /**
+     * @dev Encodes a `OperationState` into a `bytes32` representation where each bit enabled corresponds to
+     * the underlying position in the `OperationState` enum. For example:
+     *
+     * 0x000...1000
+     *   ^^^^^^----- ...
+     *         ^---- Done
+     *          ^--- Ready
+     *           ^-- Waiting
+     *            ^- Unset
+     */
+    function _encodeStateBitmap(OperationState operationState) internal pure returns (bytes32) {
+        return bytes32(1 << uint8(operationState));
     }
 }

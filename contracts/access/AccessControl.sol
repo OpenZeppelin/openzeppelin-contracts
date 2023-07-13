@@ -3,10 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "./IAccessControl.sol";
-import "../utils/Context.sol";
-import "../utils/Strings.sol";
-import "../utils/introspection/ERC165.sol";
+import {IAccessControl} from "./IAccessControl.sol";
+import {Context} from "../utils/Context.sol";
+import {ERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -64,8 +63,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * The format of the revert reason is given by the following regular expression:
      *
      *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
-     *
-     * _Available since v4.1._
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role);
@@ -91,8 +88,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Overriding this function changes the behavior of the {onlyRole} modifier.
      *
      * Format of the revert message is described in {_checkRole}.
-     *
-     * _Available since v4.6._
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());

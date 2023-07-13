@@ -6,7 +6,7 @@ const {
 
 const AccessControlEnumerable = artifacts.require('$AccessControlEnumerable');
 
-contract('AccessControl', function (accounts) {
+contract('AccessControlEnumerable', function (accounts) {
   beforeEach(async function () {
     this.accessControl = await AccessControlEnumerable.new({ from: accounts[0] });
     await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, accounts[0]);

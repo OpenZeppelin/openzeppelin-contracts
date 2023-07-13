@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC165.sol";
+import {IERC165} from "./IERC165.sol";
 
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.
@@ -45,8 +45,6 @@ library ERC165Checker {
      * is that some interfaces may not be supported.
      *
      * See {IERC165-supportsInterface}.
-     *
-     * _Available since v3.4._
      */
     function getSupportedInterfaces(
         address account,

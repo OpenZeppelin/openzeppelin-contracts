@@ -3,7 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
+import {IERC721, ERC721} from "../ERC721.sol";
+import {IERC721Receiver} from "../IERC721Receiver.sol";
 
 /**
  * @dev Extension of the ERC721 token contract to support token wrapping.
@@ -11,8 +12,6 @@ import "../ERC721.sol";
  * Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is useful
  * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow the
  * wrapping of an existing "basic" ERC721 into a governance token.
- *
- * _Available since v4.9.0_
  */
 abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;

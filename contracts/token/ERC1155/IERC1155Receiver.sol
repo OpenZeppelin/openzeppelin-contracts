@@ -3,10 +3,11 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/introspection/IERC165.sol";
+import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
- * @dev _Available since v3.1._
+ * @dev Interface that must be implemented by smart contracts in order to receive
+ * ERC-1155 token transfers.
  */
 interface IERC1155Receiver is IERC165 {
     /**

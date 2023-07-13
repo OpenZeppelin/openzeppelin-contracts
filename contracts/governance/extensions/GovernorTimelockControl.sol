@@ -3,9 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "./IGovernorTimelock.sol";
-import "../Governor.sol";
-import "../TimelockController.sol";
+import {IGovernorTimelock} from "./IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {TimelockController} from "../TimelockController.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
@@ -20,8 +21,6 @@ import "../TimelockController.sol";
  * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
  * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
  * executing a Denial of Service attack. This risk will be mitigated in a future release.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     TimelockController private _timelock;
@@ -60,11 +59,13 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 queueid = _timelockIds[proposalId];
         if (queueid == bytes32(0)) {
             return currentState;
-        } else if (_timelock.isOperationDone(queueid)) {
-            return ProposalState.Executed;
         } else if (_timelock.isOperationPending(queueid)) {
             return ProposalState.Queued;
+        } else if (_timelock.isOperationDone(queueid)) {
+            // This can happen if the proposal is executed directly on the timelock.
+            return ProposalState.Executed;
         } else {
+            // This can happen if the proposal is canceled directly on the timelock.
             return ProposalState.Canceled;
         }
     }
@@ -117,13 +118,16 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
      * @dev Overridden execute function that run the already queued proposal through the timelock.
      */
     function _execute(
-        uint256 /* proposalId */,
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override {
+        // execute
         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+        // cleanup for refund
+        delete _timelockIds[proposalId];
     }
 
     /**
@@ -140,9 +144,12 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        bytes32 timelockId = _timelockIds[proposalId];
 
-        if (_timelockIds[proposalId] != 0) {
-            _timelock.cancel(_timelockIds[proposalId]);
+        if (timelockId != 0) {
+            // cancel
+            _timelock.cancel(timelockId);
+            // cleanup
             delete _timelockIds[proposalId];
         }
 

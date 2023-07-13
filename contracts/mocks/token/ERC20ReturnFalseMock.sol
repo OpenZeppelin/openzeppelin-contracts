@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/ERC20.sol";
+import {ERC20} from "../../token/ERC20/ERC20.sol";
 
 abstract contract ERC20ReturnFalseMock is ERC20 {
     function transfer(address, uint256) public pure override returns (bool) {
