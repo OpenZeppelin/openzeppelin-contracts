@@ -226,8 +226,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
      * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
      *
-     * WARNING: Increassing an account's balance using this function should go in pair with an override of the
-     * {_ownerOf} function that resolve the ownership of the corresponding tokens so that balances and ownerships
+     * WARNING: Increasing an account's balance using this function tends to be paired with an override of the
+     * {_ownerOf} function to resolve the ownership of the corresponding tokens so that balances and ownership
      * remain consistent with one another.
      */
     function _increaseBalance(address account, uint128 value) internal virtual {
@@ -244,6 +244,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
      *
      * Emits a {Transfer} event.
+     *
+     * NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
      */
     function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         address from = _ownerOf(tokenId);
