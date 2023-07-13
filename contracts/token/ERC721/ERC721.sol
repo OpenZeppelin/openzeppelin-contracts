@@ -368,7 +368,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * `data` is additional data, it has no specified format and it is sent in call to `to`.
      *
-     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
+     * This internal function is like {safeTransferFrom} in the sense that it invokes
+     * {IERC721Receiver-onERC721Received} on the receiver, and can be used to e.g.
      * implement alternative mechanisms to perform token transfer, such as signature-based.
      *
      * Requirements:
