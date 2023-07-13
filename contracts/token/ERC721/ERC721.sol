@@ -153,11 +153,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _update(to, tokenId, _msgSender());
-        if (owner == address(0)) {
+        address previousOwner = _update(to, tokenId, _msgSender());
+        if (previousOwner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
-        } else if (owner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, owner);
+        } else if (previousOwner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
     }
 
@@ -184,18 +184,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         return _owners[tokenId];
-    }
-
-    /**
-     * @dev Returns whether `tokenId` exists.
-     *
-     * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
-     *
-     * Tokens start existing when they are minted (`_mint`),
-     * and stop existing when they are burned (`_burn`).
-     */
-    function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _ownerOf(tokenId) != address(0);
     }
 
     /**
@@ -346,11 +334,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        address owner = _update(to, tokenId, address(0));
-        if (owner == address(0)) {
+        address previousOwner = _update(to, tokenId, address(0));
+        if (previousOwner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
-        } else if (owner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, owner);
+        } else if (previousOwner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
     }
 
@@ -417,7 +405,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Reverts if the `tokenId` has not been minted yet.
      */
     function _requireMinted(uint256 tokenId) internal view virtual {
-        if (!_exists(tokenId)) {
+        if (_ownerOf(tokenId) == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
     }
