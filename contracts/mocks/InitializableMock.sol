@@ -79,7 +79,7 @@ contract ChildConstructorInitializableMock is ConstructorInitializableMock {
 contract ReinitializerMock is Initializable {
     uint256 public counter;
 
-    function getInitializedVersion() public view returns (uint8) {
+    function getInitializedVersion() public view returns (uint16) {
         return _getInitializedVersion();
     }
 
@@ -87,15 +87,15 @@ contract ReinitializerMock is Initializable {
         doStuff();
     }
 
-    function reinitialize(uint8 i) public reinitializer(i) {
+    function reinitialize(uint16 i) public reinitializer(i) {
         doStuff();
     }
 
-    function nestedReinitialize(uint8 i, uint8 j) public reinitializer(i) {
+    function nestedReinitialize(uint16 i, uint16 j) public reinitializer(i) {
         reinitialize(j);
     }
 
-    function chainReinitialize(uint8 i, uint8 j) public {
+    function chainReinitialize(uint16 i, uint16 j) public {
         reinitialize(i);
         reinitialize(j);
     }
