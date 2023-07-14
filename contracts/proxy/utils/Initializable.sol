@@ -66,7 +66,7 @@ abstract contract Initializable {
         /**
          * @dev Indicates that the contract has been initialized.
          */
-        uint16 _initialized;
+        uint64 _initialized;
         /**
          * @dev Indicates that the contract is in the process of being initialized.
          */
@@ -90,7 +90,7 @@ abstract contract Initializable {
     /**
      * @dev Triggered when the contract has been initialized or reinitialized.
      */
-    event Initialized(uint16 version);
+    event Initialized(uint64 version);
 
     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
@@ -138,7 +138,7 @@ abstract contract Initializable {
      *
      * Emits an {Initialized} event.
      */
-    modifier reinitializer(uint16 version) {
+    modifier reinitializer(uint64 version) {
         // solhint-disable-next-line var-name-mixedcase
         InitializableStorage storage $ = _getInitializableStorage();
 
@@ -178,16 +178,16 @@ abstract contract Initializable {
         if ($._initializing) {
             revert AlreadyInitialized();
         }
-        if ($._initialized != type(uint16).max) {
-            $._initialized = type(uint16).max;
-            emit Initialized(type(uint16).max);
+        if ($._initialized != type(uint64).max) {
+            $._initialized = type(uint64).max;
+            emit Initialized(type(uint64).max);
         }
     }
 
     /**
      * @dev Returns the highest version that has been initialized. See {reinitializer}.
      */
-    function _getInitializedVersion() internal view returns (uint16) {
+    function _getInitializedVersion() internal view returns (uint64) {
         return _getInitializableStorage()._initialized;
     }
 
