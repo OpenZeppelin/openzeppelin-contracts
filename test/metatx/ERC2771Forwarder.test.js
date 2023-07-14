@@ -41,7 +41,7 @@ contract('ERC2771Forwarder', function (accounts) {
     this.alice.address = web3.utils.toChecksumAddress(this.alice.getAddressString());
 
     this.timestamp = await time.latest();
-    this.receiver = await CallReceiverMock.new(this.forwarder.address, { value: 1e18 });
+    this.receiver = await CallReceiverMock.new();
     this.request = {
       from: this.alice.address,
       to: this.receiver.address,
