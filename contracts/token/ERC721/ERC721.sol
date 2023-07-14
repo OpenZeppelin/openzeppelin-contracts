@@ -419,7 +419,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Requirements:
      * - operator can't be the address zero.
-     * - owner can't approve himself.
      *
      * Emits an {ApprovalForAll} event.
      */
