@@ -26,6 +26,10 @@ import {Address} from "../utils/Address.sol";
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
  *
+ * NOTE: The `receive()` function is not available with ERC2771 because it requires `msg.data` to
+ * always have the `from` address at the end of the calldata, whereas the `receive()` function only
+ * works when data is empty.
+ *
  * ==== Security Considerations
  *
  * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
