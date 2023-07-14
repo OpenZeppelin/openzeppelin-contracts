@@ -251,11 +251,19 @@ contract ERC2771Forwarder is EIP712, Nonces {
             // Nonce should be used before the call to prevent reusing by reentrancy
             uint256 currentNonce = _useNonce(signer);
 
-            (success, ) = request.to.call{gas: request.gas, value: request.value}(
-                abi.encodePacked(request.data, request.from)
-            );
+            uint256 reqGas = request.gas;
+            address to = request.to;
+            uint256 value = request.value;
+            bytes memory data = abi.encodePacked(request.data, request.from);
 
-            _checkForwardedGas(gasleft(), request);
+            uint256 gasLeft;
+
+            assembly {
+                success := call(reqGas, to, value, add(data, 0x20), mload(data), 0, 0)
+                gasLeft := gas()
+            }
+
+            _checkForwardedGas(gasLeft, request);
 
             emit ExecutedForwardRequest(signer, currentNonce, success);
         }
