@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../security/ReentrancyGuard.sol";
-import "./ReentrancyAttack.sol";
+import {ReentrancyGuard} from "../security/ReentrancyGuard.sol";
+import {ReentrancyAttack} from "./ReentrancyAttack.sol";
 
 contract ReentrancyMock is ReentrancyGuard {
     uint256 public counter;
@@ -33,8 +33,7 @@ contract ReentrancyMock is ReentrancyGuard {
 
     function countAndCall(ReentrancyAttack attacker) public nonReentrant {
         _count();
-        bytes4 func = bytes4(keccak256("callback()"));
-        attacker.callSender(func);
+        attacker.callSender(abi.encodeCall(this.callback, ()));
     }
 
     function _count() private {

@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../../utils/math/SafeCast.sol";
-import "../extensions/IGovernorTimelock.sol";
-import "../Governor.sol";
-import "./IGovernorCompatibilityBravo.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {IGovernorTimelock} from "../extensions/IGovernorTimelock.sol";
+import {IGovernor, Governor} from "../Governor.sol";
+import {IGovernorCompatibilityBravo} from "./IGovernorCompatibilityBravo.sol";
 
 /**
  * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
@@ -15,8 +15,6 @@ import "./IGovernorCompatibilityBravo.sol";
  * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     enum VoteType {
@@ -69,7 +67,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        require(signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+        if (signatures.length != calldatas.length) {
+            revert GovernorInvalidSignaturesLength(signatures.length, calldatas.length);
+        }
         // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
         // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
         // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
@@ -133,10 +133,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         address proposer = proposalProposer(proposalId);
 
-        require(
-            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
-            "GovernorBravo: proposer above threshold"
-        );
+        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
+            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+        }
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -152,7 +153,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         for (uint256 i = 0; i < fullcalldatas.length; ++i) {
             fullcalldatas[i] = bytes(signatures[i]).length == 0
                 ? calldatas[i]
-                : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
+                : bytes.concat(abi.encodeWithSignature(signatures[i]), calldatas[i]);
         }
 
         return fullcalldatas;
@@ -312,7 +313,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already cast");
+        if (receipt.hasVoted) {
+            revert GovernorAlreadyCastVote(account);
+        }
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -324,7 +327,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompatibilityBravo: invalid vote type");
+            revert GovernorInvalidVoteType();
         }
     }
 }

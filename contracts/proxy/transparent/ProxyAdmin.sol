@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./TransparentUpgradeableProxy.sol";
-import "../../access/Ownable.sol";
+import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
+import {Ownable} from "../../access/Ownable.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
@@ -12,39 +12,28 @@ import "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
+     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address)`
+     * and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
+     * while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
+     * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
+     * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
+     * during an upgrade.
+     */
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+
+    /**
      * @dev Sets the initial owner who can perform upgrades.
      */
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     /**
-     * @dev Changes the admin of `proxy` to `newAdmin`.
-     *
-     * Requirements:
-     *
-     * - This contract must be the current admin of `proxy`.
-     */
-    function changeProxyAdmin(ITransparentUpgradeableProxy proxy, address newAdmin) public virtual onlyOwner {
-        proxy.changeAdmin(newAdmin);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
+     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation.
+     * See {TransparentUpgradeableProxy-_dispatchUpgradeToAndCall}.
      *
      * Requirements:
      *
      * - This contract must be the admin of `proxy`.
-     */
-    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
-        proxy.upgradeTo(implementation);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation. See
-     * {TransparentUpgradeableProxy-upgradeToAndCall}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
+     * - If `data` is empty, `msg.value` must be zero.
      */
     function upgradeAndCall(
         ITransparentUpgradeableProxy proxy,

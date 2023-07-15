@@ -3,8 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
-import "./IERC721Enumerable.sol";
+import {ERC721} from "../ERC721.sol";
+import {IERC721Enumerable} from "./IERC721Enumerable.sol";
+import {IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev This implements an optional extension of {ERC721} defined in the EIP that adds enumerability
@@ -27,6 +28,18 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     mapping(uint256 => uint256) private _allTokensIndex;
 
     /**
+     * @dev An `owner`'s token query was out of bounds for `index`.
+     *
+     * NOTE: The owner being `address(0)` indicates a global out of bounds index.
+     */
+    error ERC721OutOfBoundsIndex(address owner, uint256 index);
+
+    /**
+     * @dev Batch mint is not allowed.
+     */
+    error ERC721EnumerableForbiddenBatchMint();
+
+    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
@@ -37,7 +50,9 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
-        require(index < balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
+        if (index >= balanceOf(owner)) {
+            revert ERC721OutOfBoundsIndex(owner, index);
+        }
         return _ownedTokens[owner][index];
     }
 
@@ -52,7 +67,9 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
     function tokenByIndex(uint256 index) public view virtual returns (uint256) {
-        require(index < totalSupply(), "ERC721Enumerable: global index out of bounds");
+        if (index >= totalSupply()) {
+            revert ERC721OutOfBoundsIndex(address(0), index);
+        }
         return _allTokens[index];
     }
 
@@ -69,7 +86,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
         if (batchSize > 1) {
             // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert("ERC721Enumerable: consecutive transfers not supported");
+            revert ERC721EnumerableForbiddenBatchMint();
         }
 
         uint256 tokenId = firstTokenId;

@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
-import "../utils/SafeERC20.sol";
-import "../../../interfaces/IERC4626.sol";
-import "../../../utils/math/Math.sol";
+import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
+import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
@@ -44,14 +44,32 @@ import "../../../utils/math/Math.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
- *
- * _Available since v4.7._
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20 private immutable _asset;
     uint8 private immutable _underlyingDecimals;
+
+    /**
+     * @dev Attempted to deposit more assets than the max amount for `receiver`.
+     */
+    error ERC4626ExceededMaxDeposit(address receiver, uint256 assets, uint256 max);
+
+    /**
+     * @dev Attempted to mint more shares than the max amount for `receiver`.
+     */
+    error ERC4626ExceededMaxMint(address receiver, uint256 shares, uint256 max);
+
+    /**
+     * @dev Attempted to withdraw more assets than the max amount for `receiver`.
+     */
+    error ERC4626ExceededMaxWithdraw(address owner, uint256 assets, uint256 max);
+
+    /**
+     * @dev Attempted to redeem more shares than the max amount for `receiver`.
+     */
+    error ERC4626ExceededMaxRedeem(address owner, uint256 shares, uint256 max);
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
@@ -101,12 +119,12 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-convertToShares}. */
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
-        return _convertToShares(assets, Math.Rounding.Down);
+        return _convertToShares(assets, Math.Rounding.Floor);
     }
 
     /** @dev See {IERC4626-convertToAssets}. */
     function convertToAssets(uint256 shares) public view virtual returns (uint256) {
-        return _convertToAssets(shares, Math.Rounding.Down);
+        return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
     /** @dev See {IERC4626-maxDeposit}. */
@@ -121,7 +139,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-maxWithdraw}. */
     function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
+        return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
     }
 
     /** @dev See {IERC4626-maxRedeem}. */
@@ -131,27 +149,30 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-previewDeposit}. */
     function previewDeposit(uint256 assets) public view virtual returns (uint256) {
-        return _convertToShares(assets, Math.Rounding.Down);
+        return _convertToShares(assets, Math.Rounding.Floor);
     }
 
     /** @dev See {IERC4626-previewMint}. */
     function previewMint(uint256 shares) public view virtual returns (uint256) {
-        return _convertToAssets(shares, Math.Rounding.Up);
+        return _convertToAssets(shares, Math.Rounding.Ceil);
     }
 
     /** @dev See {IERC4626-previewWithdraw}. */
     function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
-        return _convertToShares(assets, Math.Rounding.Up);
+        return _convertToShares(assets, Math.Rounding.Ceil);
     }
 
     /** @dev See {IERC4626-previewRedeem}. */
     function previewRedeem(uint256 shares) public view virtual returns (uint256) {
-        return _convertToAssets(shares, Math.Rounding.Down);
+        return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
     /** @dev See {IERC4626-deposit}. */
     function deposit(uint256 assets, address receiver) public virtual returns (uint256) {
-        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
+        uint256 maxAssets = maxDeposit(receiver);
+        if (assets > maxAssets) {
+            revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
+        }
 
         uint256 shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -165,7 +186,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * In this case, the shares will be minted without requiring any assets to be deposited.
      */
     function mint(uint256 shares, address receiver) public virtual returns (uint256) {
-        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+        uint256 maxShares = maxMint(receiver);
+        if (shares > maxShares) {
+            revert ERC4626ExceededMaxMint(receiver, shares, maxShares);
+        }
 
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -175,7 +199,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-withdraw}. */
     function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256) {
-        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
+        uint256 maxAssets = maxWithdraw(owner);
+        if (assets > maxAssets) {
+            revert ERC4626ExceededMaxWithdraw(owner, assets, maxAssets);
+        }
 
         uint256 shares = previewWithdraw(assets);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
@@ -185,7 +212,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-redeem}. */
     function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256) {
-        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
+        uint256 maxShares = maxRedeem(owner);
+        if (shares > maxShares) {
+            revert ERC4626ExceededMaxRedeem(owner, shares, maxShares);
+        }
 
         uint256 assets = previewRedeem(shares);
         _withdraw(_msgSender(), receiver, owner, assets, shares);

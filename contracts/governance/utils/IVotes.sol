@@ -4,19 +4,22 @@ pragma solidity ^0.8.19;
 
 /**
  * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
- *
- * _Available since v4.5._
  */
 interface IVotes {
+    /**
+     * @dev The signature used has expired.
+     */
+    error VotesExpiredSignature(uint256 expiry);
+
     /**
      * @dev Emitted when an account changes their delegate.
      */
     event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
 
     /**
-     * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.
+     * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of voting units.
      */
-    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+    event DelegateVotesChanged(address indexed delegate, uint256 previousVotes, uint256 newVotes);
 
     /**
      * @dev Returns the current amount of votes that `account` has.

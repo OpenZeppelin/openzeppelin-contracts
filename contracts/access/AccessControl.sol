@@ -3,10 +3,9 @@
 
 pragma solidity ^0.8.19;
 
-import "./IAccessControl.sol";
-import "../utils/Context.sol";
-import "../utils/Strings.sol";
-import "../utils/introspection/ERC165.sol";
+import {IAccessControl} from "./IAccessControl.sol";
+import {Context} from "../utils/Context.sol";
+import {ERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -64,8 +63,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * The format of the revert reason is given by the following regular expression:
      *
      *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
-     *
-     * _Available since v4.1._
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role);
@@ -91,8 +88,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Overriding this function changes the behavior of the {onlyRole} modifier.
      *
      * Format of the revert message is described in {_checkRole}.
-     *
-     * _Available since v4.6._
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());
@@ -107,16 +102,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
-            revert(
-                string(
-                    abi.encodePacked(
-                        "AccessControl: account ",
-                        Strings.toHexString(account),
-                        " is missing role ",
-                        Strings.toHexString(uint256(role), 32)
-                    )
-                )
-            );
+            revert AccessControlUnauthorizedAccount(account, role);
         }
     }
 
@@ -173,14 +159,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      *
      * May emit a {RoleRevoked} event.
      */
-    function renounceRole(bytes32 role, address account) public virtual {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+    function renounceRole(bytes32 role, address callerConfirmation) public virtual {
+        if (callerConfirmation != _msgSender()) {
+            revert AccessControlBadConfirmation();
+        }
 
-        _revokeRole(role, account);
+        _revokeRole(role, callerConfirmation);
     }
 
     /**

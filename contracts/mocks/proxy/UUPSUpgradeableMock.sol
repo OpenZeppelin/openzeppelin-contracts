@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../proxy/utils/UUPSUpgradeable.sol";
+import {UUPSUpgradeable} from "../../proxy/utils/UUPSUpgradeable.sol";
+import {ERC1967Utils} from "../../proxy/ERC1967/ERC1967Utils.sol";
 
 contract NonUpgradeableMock {
     uint256 internal _counter;
@@ -22,11 +23,13 @@ contract UUPSUpgradeableMock is NonUpgradeableMock, UUPSUpgradeable {
 }
 
 contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
-    function upgradeTo(address newImplementation) public override {
-        _upgradeToAndCall(newImplementation, bytes(""), false);
-    }
-
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
-        _upgradeToAndCall(newImplementation, data, false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
+    }
+}
+
+contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
+    function proxiableUUID() external pure override returns (bytes32) {
+        return keccak256("invalid UUID");
     }
 }

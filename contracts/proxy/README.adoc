@@ -11,12 +11,12 @@ Most of the proxies below are built on an abstract base contract.
 
 In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[EIP1967] storage slots.
 
-- {ERC1967Upgrade}: Internal functions to get and set the storage slots defined in EIP1967.
+- {ERC1967Utils}: Internal functions to get and set the storage slots defined in EIP1967.
 - {ERC1967Proxy}: A proxy using EIP1967 storage slots. Not upgradeable by default.
 
 There are two alternative ways to add upgradeability to an ERC1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
-- {TransparentUpgradeableProxy}: A proxy with a built in admin and upgrade interface.
+- {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
 - {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
@@ -60,7 +60,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 {{ERC1967Proxy}}
 
-{{ERC1967Upgrade}}
+{{ERC1967Utils}}
 
 == Transparent Proxy
 

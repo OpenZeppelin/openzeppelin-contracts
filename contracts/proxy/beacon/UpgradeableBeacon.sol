@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./IBeacon.sol";
-import "../../access/Ownable.sol";
+import {IBeacon} from "./IBeacon.sol";
+import {Ownable} from "../../access/Ownable.sol";
 
 /**
  * @dev This contract is used in conjunction with one or more instances of {BeaconProxy} to determine their
@@ -14,6 +14,11 @@ import "../../access/Ownable.sol";
  */
 contract UpgradeableBeacon is IBeacon, Ownable {
     address private _implementation;
+
+    /**
+     * @dev The `implementation` of the beacon is invalid.
+     */
+    error BeaconInvalidImplementation(address implementation);
 
     /**
      * @dev Emitted when the implementation returned by the beacon is changed.
@@ -57,7 +62,9 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
-        require(newImplementation.code.length > 0, "UpgradeableBeacon: implementation is not a contract");
+        if (newImplementation.code.length == 0) {
+            revert BeaconInvalidImplementation(newImplementation);
+        }
         _implementation = newImplementation;
     }
 }

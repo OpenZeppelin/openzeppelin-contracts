@@ -2,9 +2,10 @@
 // OpenZeppelin Contracts (last updated v4.9.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.19;
 
-import "../token/ERC20/utils/SafeERC20.sol";
-import "../utils/Address.sol";
-import "../utils/Context.sol";
+import {IERC20} from "../token/ERC20/IERC20.sol";
+import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
 
 /**
  * @title VestingWallet
@@ -23,6 +24,11 @@ contract VestingWallet is Context {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
+    /**
+     * @dev The `beneficiary` is not a valid account.
+     */
+    error VestingWalletInvalidBeneficiary(address beneficiary);
+
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;
     address private immutable _beneficiary;
@@ -33,7 +39,9 @@ contract VestingWallet is Context {
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
     constructor(address beneficiaryAddress, uint64 startTimestamp, uint64 durationSeconds) payable {
-        require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
+        if (beneficiaryAddress == address(0)) {
+            revert VestingWalletInvalidBeneficiary(address(0));
+        }
         _beneficiary = beneficiaryAddress;
         _start = startTimestamp;
         _duration = durationSeconds;

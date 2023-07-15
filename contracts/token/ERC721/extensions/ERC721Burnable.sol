@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC721.sol";
-import "../../../utils/Context.sol";
+import {ERC721} from "../ERC721.sol";
+import {Context} from "../../../utils/Context.sol";
 
 /**
  * @title ERC721 Burnable Token
@@ -19,8 +19,9 @@ abstract contract ERC721Burnable is Context, ERC721 {
      * - The caller must own `tokenId` or be an approved operator.
      */
     function burn(uint256 tokenId) public virtual {
-        //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
+        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
+            revert ERC721InsufficientApproval(_msgSender(), tokenId);
+        }
         _burn(tokenId);
     }
 }

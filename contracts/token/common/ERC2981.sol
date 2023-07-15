@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../interfaces/IERC2981.sol";
-import "../../utils/introspection/ERC165.sol";
+import {IERC2981} from "../../interfaces/IERC2981.sol";
+import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
@@ -18,8 +18,6 @@ import "../../utils/introspection/ERC165.sol";
  * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
  * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
  * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
- *
- * _Available since v4.5._
  */
 abstract contract ERC2981 is IERC2981, ERC165 {
     struct RoyaltyInfo {
@@ -29,6 +27,26 @@ abstract contract ERC2981 is IERC2981, ERC165 {
 
     RoyaltyInfo private _defaultRoyaltyInfo;
     mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev The default royalty set is invalid (eg. (numerator / denominator) >= 1).
+     */
+    error ERC2981InvalidDefaultRoyalty(uint256 numerator, uint256 denominator);
+
+    /**
+     * @dev The default royalty receiver is invalid.
+     */
+    error ERC2981InvalidDefaultRoyaltyReceiver(address receiver);
+
+    /**
+     * @dev The royalty set for an specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
+     */
+    error ERC2981InvalidTokenRoyalty(uint256 tokenId, uint256 numerator, uint256 denominator);
+
+    /**
+     * @dev The royalty receiver for `tokenId` is invalid.
+     */
+    error ERC2981InvalidTokenRoyaltyReceiver(uint256 tokenId, address receiver);
 
     /**
      * @dev See {IERC165-supportsInterface}.
@@ -70,8 +88,14 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      * - `feeNumerator` cannot be greater than the fee denominator.
      */
     function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: invalid receiver");
+        uint256 denominator = _feeDenominator();
+        if (feeNumerator > denominator) {
+            // Royalty fee will exceed the sale price
+            revert ERC2981InvalidDefaultRoyalty(feeNumerator, denominator);
+        }
+        if (receiver == address(0)) {
+            revert ERC2981InvalidDefaultRoyaltyReceiver(address(0));
+        }
 
         _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
     }
@@ -92,8 +116,14 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      * - `feeNumerator` cannot be greater than the fee denominator.
      */
     function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: Invalid parameters");
+        uint256 denominator = _feeDenominator();
+        if (feeNumerator > denominator) {
+            // Royalty fee will exceed the sale price
+            revert ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator);
+        }
+        if (receiver == address(0)) {
+            revert ERC2981InvalidTokenRoyaltyReceiver(tokenId, address(0));
+        }
 
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
     }

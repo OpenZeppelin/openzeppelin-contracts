@@ -3,5 +3,5 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC3156FlashBorrower.sol";
-import "./IERC3156FlashLender.sol";
+import {IERC3156FlashBorrower} from "./IERC3156FlashBorrower.sol";
+import {IERC3156FlashLender} from "./IERC3156FlashLender.sol";

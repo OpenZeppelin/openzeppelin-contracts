@@ -29,7 +29,10 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -x 'contracts/proxy/**/*' \
   -x '!contracts/proxy/Clones.sol' \
   -x '!contracts/proxy/ERC1967/ERC1967Storage.sol' \
-  -x '!contracts/proxy/ERC1967/ERC1967Upgrade.sol' \
+  -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \
   -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
   -p 'contracts/**/presets/**/*'
+
+# delete compilation artifacts of vanilla code
+npm run clean

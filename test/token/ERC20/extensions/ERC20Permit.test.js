@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const { BN, constants, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256 } = constants;
 
@@ -12,13 +12,13 @@ const ERC20Permit = artifacts.require('$ERC20Permit');
 
 const { Permit, getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 contract('ERC20Permit', function (accounts) {
   const [initialHolder, spender] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const version = '1';
 
   const initialSupply = new BN(100);
 
@@ -65,15 +65,25 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('rejects reused signature', async function () {
-      const { v, r, s } = await buildData(this.token)
-        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+      const sig = await buildData(this.token).then(data =>
+        ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }),
+      );
+      const { r, s, v } = fromRpcSig(sig);
 
       await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
-      await expectRevert(
+      const domain = await getDomain(this.token);
+      const typedMessage = {
+        primaryType: 'Permit',
+        types: { EIP712Domain: domainType(domain), Permit },
+        domain,
+        message: { owner, spender, value, nonce: nonce + 1, deadline: maxDeadline },
+      };
+
+      await expectRevertCustomError(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC20Permit: invalid signature',
+        'ERC2612InvalidSigner',
+        [ethSigUtil.recoverTypedSignature({ data: typedMessage, sig }), owner],
       );
     });
 
@@ -84,9 +94,10 @@ contract('ERC20Permit', function (accounts) {
         .then(data => ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data }))
         .then(fromRpcSig);
 
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC20Permit: invalid signature',
+        'ERC2612InvalidSigner',
+        [await otherWallet.getAddressString(), owner],
       );
     });
 
@@ -97,7 +108,11 @@ contract('ERC20Permit', function (accounts) {
         .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
         .then(fromRpcSig);
 
-      await expectRevert(this.token.permit(owner, spender, value, deadline, v, r, s), 'ERC20Permit: expired deadline');
+      await expectRevertCustomError(
+        this.token.permit(owner, spender, value, deadline, v, r, s),
+        'ERC2612ExpiredSignature',
+        [deadline],
+      );
     });
   });
 });

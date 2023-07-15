@@ -12,14 +12,14 @@ contract(['ERC1155URIStorage'], function (accounts) {
   const baseUri = 'https://token.com/';
 
   const tokenId = new BN('1');
-  const amount = new BN('3000');
+  const value = new BN('3000');
 
   describe('with base uri set', function () {
     beforeEach(async function () {
       this.token = await ERC1155URIStorage.new(erc1155Uri);
       await this.token.$_setBaseURI(baseUri);
 
-      await this.token.$_mint(holder, tokenId, amount, '0x');
+      await this.token.$_mint(holder, tokenId, value, '0x');
     });
 
     it('can request the token uri, returning the erc1155 uri if no token uri was set', async function () {
@@ -44,7 +44,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
     beforeEach(async function () {
       this.token = await ERC1155URIStorage.new('');
 
-      await this.token.$_mint(holder, tokenId, amount, '0x');
+      await this.token.$_mint(holder, tokenId, value, '0x');
     });
 
     it('can request the token uri, returning an empty string if no token uri was set', async function () {

@@ -3,4 +3,4 @@
 
 pragma solidity ^0.8.19;
 
-import "../token/ERC721/extensions/IERC721Enumerable.sol";
+import {IERC721Enumerable} from "../token/ERC721/extensions/IERC721Enumerable.sol";

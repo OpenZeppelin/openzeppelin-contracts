@@ -3,11 +3,11 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC20Permit.sol";
-import "../ERC20.sol";
-import "../../../utils/cryptography/ECDSA.sol";
-import "../../../utils/cryptography/EIP712.sol";
-import "../../../utils/Nonces.sol";
+import {IERC20Permit} from "./IERC20Permit.sol";
+import {ERC20} from "../ERC20.sol";
+import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../../../utils/cryptography/EIP712.sol";
+import {Nonces} from "../../../utils/Nonces.sol";
 
 /**
  * @dev Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
@@ -16,13 +16,21 @@ import "../../../utils/Nonces.sol";
  * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
  * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
- *
- * _Available since v3.4._
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
+    /**
+     * @dev Permit deadline has expired.
+     */
+    error ERC2612ExpiredSignature(uint256 deadline);
+
+    /**
+     * @dev Mismatched signature.
+     */
+    error ERC2612InvalidSigner(address signer, address owner);
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
@@ -43,14 +51,18 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+        if (block.timestamp > deadline) {
+            revert ERC2612ExpiredSignature(deadline);
+        }
 
         bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
         address signer = ECDSA.recover(hash, v, r, s);
-        require(signer == owner, "ERC20Permit: invalid signature");
+        if (signer != owner) {
+            revert ERC2612InvalidSigner(signer, owner);
+        }
 
         _approve(owner, spender, value);
     }

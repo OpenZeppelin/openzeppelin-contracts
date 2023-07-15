@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./StorageSlot.sol";
-import "./math/Math.sol";
+import {StorageSlot} from "./StorageSlot.sol";
+import {Math} from "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.
@@ -22,18 +22,18 @@ library Arrays {
      * repeated elements.
      */
     function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
-        if (array.length == 0) {
-            return 0;
-        }
-
         uint256 low = 0;
         uint256 high = array.length;
+
+        if (high == 0) {
+            return 0;
+        }
 
         while (low < high) {
             uint256 mid = Math.average(low, high);
 
             // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
-            // because Math.average rounds down (it does integer division with truncation).
+            // because Math.average rounds towards zero (it does integer division with truncation).
             if (unsafeAccess(array, mid).value > element) {
                 high = mid;
             } else {
@@ -101,5 +101,27 @@ library Arrays {
             slot := add(keccak256(0, 0x20), pos)
         }
         return slot.getUint256Slot();
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     *
+     * WARNING: Only use if you are certain `pos` is lower than the array length.
+     */
+    function unsafeMemoryAccess(uint256[] memory arr, uint256 pos) internal pure returns (uint256 res) {
+        assembly {
+            res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     *
+     * WARNING: Only use if you are certain `pos` is lower than the array length.
+     */
+    function unsafeMemoryAccess(address[] memory arr, uint256 pos) internal pure returns (address res) {
+        assembly {
+            res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
     }
 }

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../Proxy.sol";
-import "./ERC1967Upgrade.sol";
+import {Proxy} from "../Proxy.sol";
+import {ERC1967Utils} from "./ERC1967Utils.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -12,15 +12,19 @@ import "./ERC1967Upgrade.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
  */
-contract ERC1967Proxy is Proxy, ERC1967Upgrade {
+contract ERC1967Proxy is Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
+     *
+     * Requirements:
+     *
+     * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address _logic, bytes memory _data) payable {
-        _upgradeToAndCall(_logic, _data, false);
+        ERC1967Utils.upgradeToAndCall(_logic, _data);
     }
 
     /**
@@ -31,6 +35,6 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function _implementation() internal view virtual override returns (address impl) {
-        return _getImplementation();
+        return ERC1967Utils.getImplementation();
     }
 }

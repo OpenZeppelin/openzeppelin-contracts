@@ -40,7 +40,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.19',
+      default: '0.8.20',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -78,6 +78,7 @@ module.exports = {
   warnings: {
     'contracts-exposed/**/*': {
       'code-size': 'off',
+      'initcode-size': 'off',
     },
     '*': {
       'code-size': withOptimizations,

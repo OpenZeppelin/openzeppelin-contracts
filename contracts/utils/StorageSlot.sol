@@ -22,14 +22,11 @@ pragma solidity ^0.8.19;
  *     }
  *
  *     function _setImplementation(address newImplementation) internal {
- *         require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
+ *         require(newImplementation.code.length > 0);
  *         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
  *     }
  * }
  * ```
- *
- * _Available since v4.1 for `address`, `bool`, `bytes32`, `uint256`._
- * _Available since v4.9 for `string`, `bytes`._
  */
 library StorageSlot {
     struct AddressSlot {

@@ -5,18 +5,22 @@ const { OPTS } = require('./Checkpoints.opts.js');
 const header = `\
 pragma solidity ^0.8.19;
 
-import "../math/Math.sol";
-import "../math/SafeCast.sol";
+import {Math} from "../math/Math.sol";
 
 /**
- * @dev This library defines the \`History\` struct, for checkpointing values as they change at different points in
+ * @dev This library defines the \`Trace*\` struct, for checkpointing values as they change at different points in
  * time, and later looking up past values by block number. See {Votes} as an example.
  *
- * To create a history of checkpoints define a variable type \`Checkpoints.History\` in your contract, and store a new
+ * To create a history of checkpoints define a variable type \`Checkpoints.Trace*\` in your contract, and store a new
  * checkpoint for the current transaction block using the {push} function.
- *
- * _Available since v4.5._
  */
+`;
+
+const errors = `\
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint.
+     */
+    error CheckpointUnorderedInsertion();
 `;
 
 const template = opts => `\
@@ -33,6 +37,8 @@ struct ${opts.checkpointTypeName} {
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
+ * 
+ * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the library.
  */
 function push(
     ${opts.historyTypeName} storage self,
@@ -145,7 +151,9 @@ function _insert(
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
         // Checkpoint keys must be non-decreasing.
-        require(last.${opts.keyFieldName} <= key, "Checkpoint: decreasing keys");
+        if(last.${opts.keyFieldName} > key) {
+            revert CheckpointUnorderedInsertion();
+        }
 
         // Update or push new checkpoint
         if (last.${opts.keyFieldName} == key) {
@@ -226,6 +234,7 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
+  errors,
   OPTS.flatMap(opts => template(opts)),
   '}',
 );
