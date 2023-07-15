@@ -429,7 +429,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
                 payload,
                 "ERC1155: transfer to non-ERC1155Receiver implementer"
             );
-            if (bytes4(response) != IERC1155Receiver.onERC1155BatchReceived.selector) {
+            if (abi.decode(response, (bytes4)) != IERC1155Receiver.onERC1155BatchReceived.selector) {
                 revert("ERC1155: ERC1155Receiver rejected tokens");
             }
         }

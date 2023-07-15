@@ -438,7 +438,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
                 payload,
                 "ERC721: transfer to non ERC721Receiver implementer"
             );
-            return bytes4(response) == IERC721Receiver.onERC721Received.selector;
+            return abi.decode(response, (bytes4)) == IERC721Receiver.onERC721Received.selector;
         } else {
             return true;
         }
