@@ -102,22 +102,9 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier initializer() {
-        // solhint-disable-next-line var-name-mixedcase
-        InitializableStorage storage $ = _getInitializableStorage();
-
-        bool isTopLevelCall = !$._initializing;
-        if (!(isTopLevelCall && $._initialized < 1) && !(address(this).code.length == 0 && $._initialized == 1)) {
-            revert AlreadyInitialized();
-        }
-        $._initialized = 1;
-        if (isTopLevelCall) {
-            $._initializing = true;
-        }
+        bool isTopLevelCall = _beforeInitialize(1);
         _;
-        if (isTopLevelCall) {
-            $._initializing = false;
-            emit Initialized(1);
-        }
+        _afterInitialize(isTopLevelCall, 1);
     }
 
     /**
@@ -139,17 +126,9 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint64 version) {
-        // solhint-disable-next-line var-name-mixedcase
-        InitializableStorage storage $ = _getInitializableStorage();
-
-        if ($._initializing || $._initialized >= version) {
-            revert AlreadyInitialized();
-        }
-        $._initialized = version;
-        $._initializing = true;
+        bool isTopLevelCall = _beforeInitialize(version);
         _;
-        $._initializing = false;
-        emit Initialized(version);
+        _afterInitialize(isTopLevelCall, version);
     }
 
     /**
@@ -205,6 +184,41 @@ abstract contract Initializable {
     function _getInitializableStorage() private pure returns (InitializableStorage storage $) {
         assembly {
             $.slot := _INITIALIZABLE_STORAGE
+        }
+    }
+
+    function _setInitializedVersion(uint64 version) private returns (bool) {
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        // Cache values
+        bool initializing = $._initializing;
+        uint64 initialized = $._initialized;
+
+        bool reinitializing = version > 1;
+        bool increasing = version > initialized;
+
+        if (initializing ? reinitializing : !increasing) {
+            revert AlreadyInitialized();
+        }
+
+        $._initialized = version;
+
+        return !initializing;
+    }
+
+    function _beforeInitialize(uint64 version) private returns (bool) {
+        bool isTopLevelCall = _setInitializedVersion(version);
+        if (isTopLevelCall) {
+            _getInitializableStorage()._initializing = true;
+        }
+        return isTopLevelCall;
+    }
+
+    function _afterInitialize(bool isTopLevelCall, uint64 version) private {
+        if (isTopLevelCall) {
+            _getInitializableStorage()._initializing = false;
+            emit Initialized(version);
         }
     }
 }

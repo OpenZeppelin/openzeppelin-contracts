@@ -4,11 +4,9 @@ const { expectRevertCustomError } = require('../../helpers/customError');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
-const ChildConstructorInitializableMock = artifacts.require('ChildConstructorInitializableMock');
 const ReinitializerMock = artifacts.require('ReinitializerMock');
 const SampleChild = artifacts.require('SampleChild');
-const DisableBad1 = artifacts.require('DisableBad1');
-const DisableBad2 = artifacts.require('DisableBad2');
+const DisableBad = artifacts.require('DisableBad');
 const DisableOk = artifacts.require('DisableOk');
 
 contract('Initializable', function () {
@@ -46,10 +44,6 @@ contract('Initializable', function () {
     });
 
     describe('nested under an initializer', function () {
-      it('initializer modifier reverts', async function () {
-        await expectRevertCustomError(this.contract.initializerNested(), 'AlreadyInitialized', []);
-      });
-
       it('onlyInitializing modifier succeeds', async function () {
         await this.contract.onlyInitializingNested();
         expect(await this.contract.onlyInitializingRan()).to.equal(true);
@@ -64,13 +58,6 @@ contract('Initializable', function () {
   it('nested initializer can run during construction', async function () {
     const contract2 = await ConstructorInitializableMock.new();
     expect(await contract2.initializerRan()).to.equal(true);
-    expect(await contract2.onlyInitializingRan()).to.equal(true);
-  });
-
-  it('multiple constructor levels can be initializers', async function () {
-    const contract2 = await ChildConstructorInitializableMock.new();
-    expect(await contract2.initializerRan()).to.equal(true);
-    expect(await contract2.childInitializerRan()).to.equal(true);
     expect(await contract2.onlyInitializingRan()).to.equal(true);
   });
 
@@ -205,15 +192,13 @@ contract('Initializable', function () {
   });
 
   describe('disabling initialization', function () {
-    it('old and new patterns in bad sequence', async function () {
-      await expectRevertCustomError(DisableBad1.new(), 'AlreadyInitialized', []);
-      await expectRevertCustomError(DisableBad2.new(), 'AlreadyInitialized', []);
+    it('disables initializers', async function () {
+      const ok = await DisableOk.new();
+      await expectEvent.inConstruction(ok, 'Initialized', { version: '18446744073709551615' }); // MAX_UINT64
     });
 
-    it('old and new patterns in good sequence', async function () {
-      const ok = await DisableOk.new();
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '1' });
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '18446744073709551615' }); // MAX_UINT64
+    it('reverts disabling initializers and using the initializer modifier', async function () {
+      await expectRevertCustomError(DisableBad.new(), 'AlreadyInitialized', []);
     });
   });
 });

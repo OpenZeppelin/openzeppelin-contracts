@@ -25,10 +25,6 @@ contract InitializableMock is Initializable {
         onlyInitializingRan = true;
     }
 
-    function initializerNested() public initializer {
-        initialize();
-    }
-
     function onlyInitializingNested() public initializer {
         initializeOnlyInitializing();
     }
@@ -61,18 +57,6 @@ contract ConstructorInitializableMock is Initializable {
 
     function initializeOnlyInitializing() public onlyInitializing {
         onlyInitializingRan = true;
-    }
-}
-
-contract ChildConstructorInitializableMock is ConstructorInitializableMock {
-    bool public childInitializerRan;
-
-    constructor() initializer {
-        childInitialize();
-    }
-
-    function childInitialize() public initializer {
-        childInitializerRan = true;
     }
 }
 
@@ -109,22 +93,14 @@ contract ReinitializerMock is Initializable {
     }
 }
 
-contract DisableNew is Initializable {
+contract DisableOk is Initializable {
     constructor() {
         _disableInitializers();
     }
 }
 
-contract DisableOld is Initializable {
-    constructor() initializer {}
-}
-
-contract DisableBad1 is DisableNew, DisableOld {}
-
-contract DisableBad2 is Initializable {
+contract DisableBad is Initializable {
     constructor() initializer {
         _disableInitializers();
     }
 }
-
-contract DisableOk is DisableOld, DisableNew {}
