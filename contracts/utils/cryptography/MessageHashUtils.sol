@@ -21,7 +21,7 @@ library MessageHashUtils {
      * hash signed when using the https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`] JSON-RPC method.
      *
      * NOTE: The `hash` parameter is intended to be the result of hashing a raw message with
-     * keccak256, althoguh any bytes32 value can be safely used because the final digest will
+     * keccak256, although any bytes32 value can be safely used because the final digest will
      * be re-hashed.
      *
      * See {ECDSA-recover}.
