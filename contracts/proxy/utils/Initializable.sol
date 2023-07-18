@@ -191,14 +191,11 @@ abstract contract Initializable {
         // solhint-disable-next-line var-name-mixedcase
         InitializableStorage storage $ = _getInitializableStorage();
 
-        // Cache values
         bool initializing = $._initializing;
-        uint64 initialized = $._initialized;
 
-        bool reinitializing = version > 1;
-        bool increasing = version > initialized;
-
-        if (initializing ? reinitializing : !increasing) {
+        // When it's initializing check if it's a reinitializer, otherwise check if
+        // the intended version is not already set.
+        if (initializing ? version > 1 : version <= $._initialized) {
             revert AlreadyInitialized();
         }
 
