@@ -94,6 +94,7 @@ const INTERFACES = {
   GovernorCancel: ['proposalProposer(uint256)', 'cancel(address[],uint256[],bytes[],bytes32)'],
   GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
+  ERC5313: ['owner()'],
 };
 
 const INTERFACE_IDS = {};

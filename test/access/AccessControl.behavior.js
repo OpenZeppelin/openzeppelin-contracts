@@ -224,7 +224,7 @@ function shouldBehaveLikeAccessControlEnumerable(admin, authorized, other, other
 }
 
 function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, newDefaultAdmin, other) {
-  shouldSupportInterfaces(['AccessControlDefaultAdminRules']);
+  shouldSupportInterfaces(['AccessControlDefaultAdminRules', 'ERC5313']);
 
   for (const getter of ['owner', 'defaultAdmin']) {
     describe(`${getter}()`, function () {

@@ -63,7 +63,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
+        return
+            interfaceId == type(IAccessControlDefaultAdminRules).interfaceId ||
+            interfaceId == type(IERC5313).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
