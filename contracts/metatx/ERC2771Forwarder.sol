@@ -26,9 +26,11 @@ import {Address} from "../utils/Address.sol";
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
  *
- * NOTE: The `receive()` function is not available with ERC2771 because it requires `msg.data` to
- * always have the `from` address at the end of the calldata, whereas the `receive()` function only
- * works when data is empty.
+ * WARNING: Any forwarded call to a contract relying on a specific calldata length will be affected
+ * this forwarder since the ERC2771 specification requires `msg.data` to always be suffixed with the
+ * `from` address, making the minimum calldata length received within the subcall is 20 for the address
+ * size in bytes. An example of this is the `receive` function, which can be accessed only when the
+ * calldata is nonempty.
  *
  * ==== Security Considerations
  *
