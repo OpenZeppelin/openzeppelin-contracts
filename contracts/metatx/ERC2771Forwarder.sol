@@ -27,10 +27,10 @@ import {Address} from "../utils/Address.sol";
  * multiple accounts.
  *
  * WARNING: Any forwarded call to a contract relying on a specific calldata length will be affected
- * this forwarder since the ERC2771 specification requires `msg.data` to always be suffixed with the
- * `from` address, making the minimum calldata length received within the subcall is 20 for the address
- * size in bytes. An example of this is the `receive` function, which can be accessed only when the
- * calldata is nonempty.
+ * by this forwarder since the ERC2771 specification requires `msg.data` to always be suffixed with the
+ * `from` address, adding the address size in bytes (20) to the calldata size. An example of an unexpected
+ * behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`
+ * function, which can be accessed only if `msg.data.length == 0`.
  *
  * ==== Security Considerations
  *
