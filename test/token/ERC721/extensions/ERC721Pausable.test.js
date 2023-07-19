@@ -81,12 +81,6 @@ contract('ERC721Pausable', function (accounts) {
       });
     });
 
-    describe('exists', function () {
-      it('returns token existence', async function () {
-        expect(await this.token.$_exists(firstTokenId)).to.equal(true);
-      });
-    });
-
     describe('isApprovedForAll', function () {
       it('returns the approval of the operator', async function () {
         expect(await this.token.isApprovedForAll(owner, operator)).to.equal(false);
