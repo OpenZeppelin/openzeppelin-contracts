@@ -965,8 +965,8 @@ contract('ERC4626', function (accounts) {
     }
 
     // 5. Bob mints 2000 shares (costs 3001 assets)
-    // NOTE: Bob's assets spent got rounded up
-    // NOTE: Alices's vault assets got rounded up
+    // NOTE: Bob's assets spent got rounded towards infinity
+    // NOTE: Alices's vault assets got rounded towards infinity
     {
       const { tx } = await this.vault.mint(2000, user2, { from: user2 });
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
@@ -1056,7 +1056,7 @@ contract('ERC4626', function (accounts) {
     }
 
     // 9. Alice withdraws 3643 assets (2000 shares)
-    // NOTE: Bob's assets have been rounded back up
+    // NOTE: Bob's assets have been rounded back towards infinity
     {
       const { tx } = await this.vault.withdraw(3643, user1, user1, { from: user1 });
       await expectEvent.inTransaction(tx, this.vault, 'Transfer', {

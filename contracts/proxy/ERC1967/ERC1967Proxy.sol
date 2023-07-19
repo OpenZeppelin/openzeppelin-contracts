@@ -18,9 +18,13 @@ contract ERC1967Proxy is Proxy {
      *
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
+     *
+     * Requirements:
+     *
+     * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address _logic, bytes memory _data) payable {
-        ERC1967Utils.upgradeToAndCall(_logic, _data, false);
+        ERC1967Utils.upgradeToAndCall(_logic, _data);
     }
 
     /**
