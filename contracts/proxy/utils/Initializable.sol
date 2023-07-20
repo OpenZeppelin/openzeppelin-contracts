@@ -187,6 +187,14 @@ abstract contract Initializable {
         }
     }
 
+    /**
+     * @dev Sets the initialized version.
+     *
+     * Requirements:
+     *
+     * - If the contract is initializing the version set must not be that of an reinitializer.
+     * - If the contract is not initializing the version must not be already set.
+     */
     function _setInitializedVersion(uint64 version) private returns (bool) {
         // solhint-disable-next-line var-name-mixedcase
         InitializableStorage storage $ = _getInitializableStorage();
@@ -204,6 +212,10 @@ abstract contract Initializable {
         return !initializing;
     }
 
+    /**
+     * @dev Runs before initialization.
+     * It sets the initialized version and sets the initializing flag to true.
+     */
     function _beforeInitialize(uint64 version) private returns (bool) {
         bool isTopLevelCall = _setInitializedVersion(version);
         if (isTopLevelCall) {
@@ -212,6 +224,10 @@ abstract contract Initializable {
         return isTopLevelCall;
     }
 
+    /**
+     * @dev Runs after initialization.
+     * It clears the initializing flag and emits an {Initialized} event if it is a top level call.
+     */
     function _afterInitialize(bool isTopLevelCall, uint64 version) private {
         if (isTopLevelCall) {
             _getInitializableStorage()._initializing = false;
