@@ -78,7 +78,10 @@ abstract contract EIP712 is IERC5267 {
      * @dev Returns the domain separator for the current chain.
      *
      * NOTE: Caching the domain separator saves 6+ times more Gas than is wasted if the contract address or
-     * `block.chainid` mismatches with the cached ones compared to the direct `_buildDomainSeparator` call.
+     * `block.chainid` mismatches with the cached ones, compared to the direct `_buildDomainSeparator` call.
+     *
+     * NOTE: Usage of `immutable` variables saves 40+ times more Gas than is wasted if the contract address or
+     * `block.chainid` mismatches with the cached ones, compared to the usage of state variables.
      */
     function _domainSeparatorV4() internal view returns (bytes32) {
         if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
