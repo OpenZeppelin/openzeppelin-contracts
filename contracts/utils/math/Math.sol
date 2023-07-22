@@ -225,12 +225,12 @@ library Math {
     /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
      */
-    function sqrt(uint256 a) internal pure returns (uint256 result) {
+    function sqrt(uint256 a) internal pure returns (uint256) {
         unchecked {
             if (a <= 1) { return a; }
             if (a >= ((1 << 128) - 1)**2) { return (1 << 128) - 1; }
             uint256 aAux = a;
-            result = 1;
+            uint256 result = 1;
             if (aAux >= (1 << 128)) { aAux >>= 128; result <<= 64; }
             if (aAux >= (1 << 64 )) { aAux >>= 64;  result <<= 32; }
             if (aAux >= (1 << 32 )) { aAux >>= 32;  result <<= 16; }
@@ -245,7 +245,10 @@ library Math {
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
-            return result * result <= a ? result : (result - 1);
+            if (result * result <= x) {
+                return result;
+            }
+            return result-1;
         }
     }
 
