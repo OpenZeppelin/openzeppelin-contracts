@@ -89,7 +89,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revert with a standard message if `account` is missing `role`.
+     * @dev Revert with a custom error if `account` is missing `role`.
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
