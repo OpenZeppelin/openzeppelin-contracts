@@ -216,13 +216,25 @@ library Math {
     /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
-     *
-     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
     function sqrt(uint256 a) internal pure returns (uint256) {
         unchecked {
+            // Take care of easy edge cases
             if (a <= 1) { return a; }
+            // This check ensures no overflow
             if (a >= ((1 << 128) - 1)**2) { return (1 << 128) - 1; }
+
+            // If we have
+            //
+            //      2^{e-1} <= sqrt(x) < 2^{e},
+            //
+            // then at the end of initialization, we will have
+            //
+            //      result == 2^{e-1} + 2^{e-2}.
+            //
+            // This ensures that
+            //
+            //      abs(sqrt(x) - result) <= 2^{e-2}.
             uint256 aAux = a;
             uint256 result = 1;
             if (aAux >= (1 << 128)) { aAux >>= 128; result <<= 64; }
@@ -233,12 +245,18 @@ library Math {
             if (aAux >= (1 << 4  )) { aAux >>= 4;   result <<= 2;  }
             if (aAux >= (1 << 2  )) {               result <<= 1;  }
             result += (result >> 1);
+
+            // Perform the 6 required Newton iteration
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
+
+            // We either have
+            //
+            //      Isqrt(x) == result      or      Isqrt(x) == result-1.
             if (result * result <= a) {
                 return result;
             }
