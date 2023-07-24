@@ -239,7 +239,7 @@ library Math {
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
-            if (result * result <= x) {
+            if (result * result <= a) {
                 return result;
             }
             return result-1;
