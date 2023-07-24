@@ -81,7 +81,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revert with a standard message if `_msgSender()` is missing `role`.
+     * @dev Revert with a custom error if `_msgSender()` is missing `role`.
      * Overriding this function changes the behavior of the {onlyRole} modifier.
      */
     function _checkRole(bytes32 role) internal view virtual {
