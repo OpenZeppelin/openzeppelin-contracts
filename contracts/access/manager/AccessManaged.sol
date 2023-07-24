@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.20;
 
-import "./IAuthority.sol";
-import "./IManaged.sol";
+import {IAuthority} from "./IAuthority.sol";
+import {IManaged} from "./IManaged.sol";
 
-contract AccessManagedImmutable is IManaged {
+contract AccessManaged is IManaged {
     address private _authority;
 
     event AuthorityUpdate(address newAuthority);

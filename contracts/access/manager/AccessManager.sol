@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 
 import {IAccessManager} from "./IAccessManager.sol";
 import {IManaged} from "./IManaged.sol";
-import "../../utils/Address.sol";
-import "../../utils/Context.sol";
-import "../../utils/types/Time.sol";
+import {Address} from "../../utils/Address.sol";
+import {Context} from "../../utils/Context.sol";
+import {Time} from "../../utils/types/Time.sol";
 
 contract AccessManager is Context, IAccessManager {
     using Time for *;
@@ -90,9 +90,8 @@ contract AccessManager is Context, IAccessManager {
             return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
         } else {
             uint256 group = getFunctionAllowedGroup(target, selector);
-            Access memory access = _groups[group].members[caller];
-            uint32 delay = (group == PUBLIC_GROUP || access.since.isSetAndBefore(Time.timestamp()))
-                ? access.delay.get()
+            uint32 delay = hasGroup(group, caller)
+                ? getAccess(group, caller).delay.get()
                 : type(uint32).max;
             return (true, delay);
         }
@@ -145,7 +144,7 @@ contract AccessManager is Context, IAccessManager {
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
     function hasGroup(uint256 group, address account) public view virtual returns (bool) {
-        return getAccess(group, account).since.isSetAndBefore(Time.timestamp());
+        return group == PUBLIC_GROUP || getAccess(group, account).since.isSetAndBefore(Time.timestamp());
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
