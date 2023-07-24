@@ -9,11 +9,12 @@ The OpenZeppelin Contracts provide a ton of useful utilities that you can use in
 
 xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
-The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#ECDSA-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
+The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
 [source,solidity]
 ----
 using ECDSA for bytes32;
+using MessageHashUtils for bytes32;
 
 function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
     return data
@@ -22,7 +23,7 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 }
 ----
 
-WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
+WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
 
 === Verifying Merkle Proofs
 

@@ -81,10 +81,10 @@ abstract contract ERC4626Fees is ERC4626 {
     }
 
     function _feeOnRaw(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
-        return assets.mulDiv(feeBasePoint, 1e5, Math.Rounding.Up);
+        return assets.mulDiv(feeBasePoint, 1e5, Math.Rounding.Ceil);
     }
 
     function _feeOnTotal(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
-        return assets.mulDiv(feeBasePoint, feeBasePoint + 1e5, Math.Rounding.Up);
+        return assets.mulDiv(feeBasePoint, feeBasePoint + 1e5, Math.Rounding.Ceil);
     }
 }

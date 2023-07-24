@@ -2,7 +2,7 @@ const {
   DEFAULT_ADMIN_ROLE,
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
-} = require('./AccessControl.behavior.js');
+} = require('../AccessControl.behavior.js');
 
 const AccessControlEnumerable = artifacts.require('$AccessControlEnumerable');
 

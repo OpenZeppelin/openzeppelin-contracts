@@ -15,8 +15,6 @@ import {SafeCast} from "../math/SafeCast.sol";
  * ```solidity
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
- *
- * _Available since v4.6._
  */
 library DoubleEndedQueue {
     /**

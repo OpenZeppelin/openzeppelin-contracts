@@ -20,6 +20,25 @@ import {Address} from "../utils/Address.sol";
  * * `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
+ *
+ * Relayers are able to submit batches if they are processing a high volume of requests. With high
+ * throughput, relayers may run into limitations of the chain such as limits on the number of
+ * transactions in the mempool. In these cases the recommendation is to distribute the load among
+ * multiple accounts.
+ *
+ * ==== Security Considerations
+ *
+ * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
+ * specified in the request. This contract does not implement any kind of retribution for this gas,
+ * and it is assumed that there is an out of band incentive for relayers to pay for execution on
+ * behalf of signers. Often, the relayer is operated by a project that will consider it a user
+ * acquisition cost.
+ *
+ * By offering to pay for gas, relayers are at risk of having that gas used by an attacker toward
+ * some other purpose that is not aligned with the expected out of band incentives. If you operate a
+ * relayer, consider whitelisting target contracts and function selectors. When relaying ERC-721 or
+ * ERC-1155 transfers specifically, consider rejecting the use of the `data` field, since it can be
+ * used to execute arbitrary code.
  */
 contract ERC2771Forwarder is EIP712, Nonces {
     using ECDSA for bytes32;
@@ -34,7 +53,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         bytes signature;
     }
 
-    bytes32 private constant _FORWARD_REQUEST_TYPEHASH =
+    bytes32 internal constant _FORWARD_REQUEST_TYPEHASH =
         keccak256(
             "ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,uint48 deadline,bytes data)"
         );
@@ -236,7 +255,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                 abi.encodePacked(request.data, request.from)
             );
 
-            _checkForwardedGas(request);
+            _checkForwardedGas(gasleft(), request);
 
             emit ExecutedForwardRequest(signer, currentNonce, success);
         }
@@ -251,10 +270,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * It reverts consuming all the available gas if the forwarded gas is not the requested gas.
      *
-     * IMPORTANT: This function should be called exactly the end of the forwarded call. Any gas consumed
-     * in between will make room for bypassing this check.
+     * IMPORTANT: The `gasLeft` parameter should be measured exactly at the end of the forwarded call.
+     * Any gas consumed in between will make room for bypassing this check.
      */
-    function _checkForwardedGas(ForwardRequestData calldata request) private view {
+    function _checkForwardedGas(uint256 gasLeft, ForwardRequestData calldata request) private pure {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
         //
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas
@@ -276,7 +295,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // -    req.gas >= X * 63 / 64
         // In other words if req.gas < X * 63 / 64 then req.gas / 63 <= gasleft(), thus if the relayer behaves honestly
         // the forwarding does not revert.
-        if (gasleft() < request.gas / 63) {
+        if (gasLeft < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
             // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
