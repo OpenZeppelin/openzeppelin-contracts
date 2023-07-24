@@ -125,6 +125,6 @@ library Time {
      * @dev pack the components into a Delay object.
      */
     function pack(uint32 oldValue, uint32 newValue, uint48 effect) internal pure returns (Delay) {
-        return Delay.wrap((uint112(oldValue)) | (uint112(newValue) << 32) | (uint112(effect) << 64));
+        return Delay.wrap(uint112(oldValue) | (uint112(newValue) << 32) | (uint112(effect) << 64));
     }
 }
