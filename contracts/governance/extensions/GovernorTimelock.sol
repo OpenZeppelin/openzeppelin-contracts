@@ -13,7 +13,6 @@ import {IAccessManager} from "../../access/manager/IAccessManager.sol";
  * _Available since v5.0._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
-
     struct ExecutionDetail {
         address manager;
         uint32 delay;
@@ -184,16 +183,19 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         // If target is not a contract, skip
         if (target.code.length > 0) {
             // Try to fetch autority. If revert, skip
-            try IManaged(target).authority() returns(address authority) {
+            try IManaged(target).authority() returns (address authority) {
                 // Check can call. If revert, skip
-                try IAccessManager(authority).canCall(address(this), target, selector) returns(bool /*allowed*/, uint32 delay) {
+                try IAccessManager(authority).canCall(address(this), target, selector) returns (
+                    bool /*allowed*/,
+                    uint32 delay
+                ) {
                     // If delay is need
                     if (delay > 0) {
-                        return ExecutionDetail({ manager: authority, delay: delay });
+                        return ExecutionDetail({manager: authority, delay: delay});
                     }
                 } catch {}
             } catch {}
         }
-        return ExecutionDetail({ manager: address(0), delay: _defaultDelay() });
+        return ExecutionDetail({manager: address(0), delay: _defaultDelay()});
     }
 }
