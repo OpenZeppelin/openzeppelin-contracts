@@ -13,7 +13,7 @@ interface IAccessManager is IAuthority {
     struct Access {
         // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
         // are not available. Should be checked using {Time-isSetAndPast}
-        Time.Timepoint since;
+        uint48 since;
         // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
         // functions that use the `onlyRole` modifier.
         Time.Delay delay;

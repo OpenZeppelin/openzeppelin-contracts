@@ -45,7 +45,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the execution details.
      */
-    function proposalExecutionDetails(uint256 proposalId) public view virtual returns (ExecutionDetail[] memory) {
+    function proposalExecutionDetails(uint256 proposalId) public view returns (ExecutionDetail[] memory) {
         return _executionDetails[proposalId];
     }
 
@@ -91,7 +91,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             );
         }
 
-        ExecutionDetail[] storage details = proposalExecutionDetails(proposalId);
+        ExecutionDetail[] storage details = _executionDetails[proposalId];
         ExecutionDetail memory detail;
         uint32 setback = 0;
 
@@ -119,7 +119,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override {
-        ExecutionDetail[] storage details = proposalExecutionDetails(proposalId);
+        ExecutionDetail[] storage details = _executionDetails[proposalId];
         ExecutionDetail memory detail;
 
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -146,10 +146,13 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        ExecutionDetail[] memory details = proposalExecutionDetails(proposalId);
+        ExecutionDetail[] storage details = _executionDetails[proposalId];
+        ExecutionDetail memory detail;
+
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (details[i].manager != address(0)) {
-                IAccessManager(details[i].manager).cancel(address(this), targets[i], calldatas[i]);
+            detail = details[i];
+            if (detail.manager != address(0)) {
+                IAccessManager(detail.manager).cancel(address(this), targets[i], calldatas[i]);
             }
         }
 

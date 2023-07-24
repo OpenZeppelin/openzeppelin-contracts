@@ -17,7 +17,7 @@ contract AccessManager is Context, IAccessManager {
     mapping(address target => AccessMode mode) private _contractMode;
     mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
     mapping(uint256 group => Group) private _groups;
-    mapping(bytes32 => Time.Timepoint) private _schedules;
+    mapping(bytes32 => uint48) private _schedules;
 
     // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
@@ -61,7 +61,7 @@ contract AccessManager is Context, IAccessManager {
 
     constructor(address initialAdmin) {
         // admin is active immediatly and without any execution delay.
-        _grantRole(ADMIN_GROUP, initialAdmin, 0.toDuration(), 0.toDuration());
+        _grantRole(ADMIN_GROUP, initialAdmin, 0, 0);
     }
 
     // =================================================== GETTERS ====================================================
@@ -82,19 +82,19 @@ contract AccessManager is Context, IAccessManager {
         if (mode == AccessMode.Open) {
             return (true, 0);
         } else if (mode == AccessMode.Closed) {
-            return (false, Time.MAX_DURATION.get()); // use 0 ?
+            return (false, type(uint32).max); // use 0 ?
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
             bool isRelayedCall = _relayIdentifier == keccak256(abi.encodePacked(target, selector));
-            return (isRelayedCall, isRelayedCall ? 0 : Time.MAX_DURATION.get());
+            return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
         } else {
             uint256 group = getFunctionAllowedGroup(target, selector);
             Access memory access = _groups[group].members[caller];
-            Time.Duration delay = (group == PUBLIC_GROUP || access.since.isSetAndPast())
+            uint32 delay = (group == PUBLIC_GROUP || access.since.isSetAndPast())
                 ? access.delay.get()
-                : Time.MAX_DURATION;
-            return (true, delay.get());
+                : type(uint32).max;
+            return (true, delay);
         }
     }
 
@@ -161,7 +161,7 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function grantRole(uint256 group, address account, uint32 executionDelay) public virtual onlyGroup(getGroupAdmin(group)) {
-        _grantRole(group, account, _groups[group].delay.get(), executionDelay.toDuration());
+        _grantRole(group, account, _groups[group].delay.get(), executionDelay);
     }
 
     /**
@@ -206,7 +206,7 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function setExecuteDelay(uint256 group, address account, uint32 newDelay) public virtual onlyGroup(getGroupAdmin(group)){
-        _setExecuteDelay(group, account, newDelay.toDuration(), false);
+        _setExecuteDelay(group, account, newDelay, false);
     }
 
     /**
@@ -245,7 +245,7 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function setGrantDelay(uint256 group, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
-        _setGrantDelay(group, newDelay.toDuration(), false);
+        _setGrantDelay(group, newDelay, false);
     }
 
     /**
@@ -253,12 +253,12 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _grantRole(uint256 group, address account, Time.Duration grantDelay, Time.Duration executionDelay) internal virtual {
-        if (_groups[group].members[account].since.isSet()) {
+    function _grantRole(uint256 group, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+        if (_groups[group].members[account].since != 0) {
             revert AccessManagerAcountAlreadyInGroup(group, account);
         }
         _groups[group].members[account] = Access({
-            since: Time.clock().add(grantDelay),
+            since: Time.clock() + grantDelay,
             delay: executionDelay.toDelay()
         });
         // todo emit event
@@ -270,7 +270,7 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function _revokeRole(uint256 group, address account) internal virtual {
-        if (!_groups[group].members[account].since.isSet()) {
+        if (_groups[group].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(group, account);
         }
         delete _groups[group].members[account];
@@ -285,8 +285,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _setExecuteDelay(uint256 group, address account, Time.Duration newDuration, bool immediate) internal virtual {
-        if (!_groups[group].members[account].since.isSet()) {
+    function _setExecuteDelay(uint256 group, address account, uint32 newDuration, bool immediate) internal virtual {
+        if (_groups[group].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(group, account);
         }
 
@@ -301,11 +301,11 @@ contract AccessManager is Context, IAccessManager {
         //     - since that is the new delay execution is possible.
         // - 2h after the update, an execution is possible.
 
-        Time.Duration oldDuration = _groups[group].members[account].delay.get();
+        uint32 oldDuration = _groups[group].members[account].delay.get();
 
-        _groups[group].members[account].delay = (immediate || oldDuration.get() < newDuration.get())
+        _groups[group].members[account].delay = (immediate || oldDuration < newDuration)
             ? newDuration.toDelay()
-            : Time.pack(oldDuration, newDuration, Time.clock().add(oldDuration));
+            : Time.pack(oldDuration, newDuration, Time.clock() + oldDuration);
 
         // todo emit event
     }
@@ -338,7 +338,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _setGrantDelay(uint256 group, Time.Duration newDelay, bool immediate) internal virtual {
+    function _setGrantDelay(uint256 group, uint32 newDelay, bool immediate) internal virtual {
         _groups[group].delay = immediate
             ? newDelay.toDelay()
             : _groups[group].delay.update(newDelay);
@@ -434,7 +434,7 @@ contract AccessManager is Context, IAccessManager {
     /**
      * @dev Return the timepoint at which an action was scheduled.
      */
-    function getSchedule(bytes32 id) public virtual returns (Time.Timepoint) {
+    function getSchedule(bytes32 id) public virtual returns (uint48) {
         return _schedules[id];
     }
 
@@ -447,7 +447,7 @@ contract AccessManager is Context, IAccessManager {
         address caller = _msgSender();
 
         bytes32 id = _hashOperation(caller, target, data);
-        if (_schedules[id].isSet()) {
+        if (_schedules[id] != 0) {
             revert AccessManagerAlreadyScheduled(id);
         }
         _schedules[id] = Time.clock();
@@ -477,17 +477,17 @@ contract AccessManager is Context, IAccessManager {
 
         // If caller is authorised, check operation was scheduled early enough
         bytes32 id = _hashOperation(caller, target, data);
-        Time.Timepoint timepoint = _schedules[id];
+        uint48 timepoint = _schedules[id];
         if (setback != 0) {
-            if (!timepoint.isSet()) {
+            if (timepoint == 0) {
                 revert AccessManagerNotScheduled(id);
             }
-            if (!timepoint.add(setback.toDuration()).isPast()) {
+            if (timepoint + setback > Time.clock()) {
                 revert AccessManagerNotReady(id);
             }
         }
-        if (timepoint.isSet()) {
-            _schedules[id] = 0.toTimepoint(); // delete
+        if (timepoint != 0) {
+            delete _schedules[id];
             emit Executed(id);
         }
 
@@ -524,11 +524,10 @@ contract AccessManager is Context, IAccessManager {
         }
 
         bytes32 id = _hashOperation(caller, target, data);
-        if (!_schedules[id].isSet()) {
+        if (_schedules[id] == 0) {
             revert AccessManagerNotScheduled(id);
         }
-        _schedules[id] = 0.toTimepoint(); // delete
-
+        delete _schedules[id];
         emit Canceled(id);
     }
 
