@@ -58,8 +58,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
-     * with a custom error including the required role.
-     *
+     * with an {AccessControlUnauthorizedAccount} error including the required role.
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role);
@@ -81,15 +80,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revert with a custom error if `_msgSender()` is missing `role`.
-     * Overriding this function changes the behavior of the {onlyRole} modifier.
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());
     }
 
     /**
-     * @dev Revert with a custom error if `account` is missing `role`.
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`
+     * is missing `role`.
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
