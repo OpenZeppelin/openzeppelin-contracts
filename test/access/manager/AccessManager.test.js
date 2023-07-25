@@ -1,15 +1,19 @@
 const { expectEvent, expectRevert, constants, time } = require('@openzeppelin/test-helpers');
+const { expectRevertCustomError } = require('../../helpers/customError');
+const { Enum } = require('../../helpers/enums');
 const { selector } = require('../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
+
+const AccessMode = Enum('Custom', 'Closed', 'Open');
 
 const ADMIN_GROUP = 0;
 const SOME_GROUP = 42;
 const PUBLIC_GROUP = constants.MAX_UINT256;
 
 contract('AccessManager', function (accounts) {
-  const [admin, other] = accounts;
+  const [admin, user, other] = accounts;
 
   beforeEach(async function () {
     this.manager = await AccessManager.new(admin);
@@ -17,13 +21,125 @@ contract('AccessManager', function (accounts) {
   });
 
   it('groups are correctly initialized', async function () {
+    // group admin
+    expect(await this.manager.getGroupAdmin(ADMIN_GROUP)).to.be.equal(ADMIN_GROUP);
+    expect(await this.manager.getGroupAdmin(SOME_GROUP)).to.be.equal(ADMIN_GROUP);
+    expect(await this.manager.getGroupAdmin(PUBLIC_GROUP)).to.be.equal(ADMIN_GROUP);
+    // group guardian
+    expect(await this.manager.getGroupGuardian(ADMIN_GROUP)).to.be.equal(ADMIN_GROUP);
+    expect(await this.manager.getGroupGuardian(SOME_GROUP)).to.be.equal(ADMIN_GROUP);
+    expect(await this.manager.getGroupGuardian(PUBLIC_GROUP)).to.be.equal(ADMIN_GROUP);
+    // group members
     expect(await this.manager.hasGroup(ADMIN_GROUP, admin)).to.be.equal(true);
-    expect(await this.manager.hasGroup(ADMIN_GROUP, other)).to.be.equal(false);
+    expect(await this.manager.hasGroup(ADMIN_GROUP, user)).to.be.equal(false);
     expect(await this.manager.hasGroup(SOME_GROUP, admin)).to.be.equal(false);
-    expect(await this.manager.hasGroup(SOME_GROUP, other)).to.be.equal(false);
+    expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.equal(false);
     expect(await this.manager.hasGroup(PUBLIC_GROUP, admin)).to.be.equal(true);
-    expect(await this.manager.hasGroup(PUBLIC_GROUP, other)).to.be.equal(true);
+    expect(await this.manager.hasGroup(PUBLIC_GROUP, user)).to.be.equal(true);
   });
+
+  describe('groups management', function () {
+    describe('grand role', function () {
+      describe.only('without a grant delay', function () {
+
+        it ('without an execute delay', async function () {
+          expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.false;
+
+          const { receipt } = await this.manager.grantRole(SOME_GROUP, user, 0, { from: admin});
+          // expectEvent(receipt, 'Something', [ 'some', 'args' ]);
+
+          expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.true;
+
+          const { delay } = await this.manager.getAccess(SOME_GROUP, user);
+          expect(delay).to.be.bignumber.equal('0');
+        });
+
+        it ('with an execute delay', async function () {
+          const executeDelay = web3.utils.toBN(10);
+
+          expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.false;
+
+          const { receipt } = await this.manager.grantRole(SOME_GROUP, user, executeDelay, { from: admin});
+          // expectEvent(receipt, 'Something', [ 'some', 'args' ]);
+
+          expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.true;
+
+          const { delay } = await this.manager.getAccess(SOME_GROUP, user);
+          expect(delay).to.be.bignumber.equal(executeDelay);
+        });
+
+        it ('to a user that is already in the group', async function () {
+          await this.manager.grantRole(SOME_GROUP, user, 0, { from: admin});
+
+          expect(await this.manager.hasGroup(SOME_GROUP, user)).to.be.true;
+
+          await expectRevertCustomError(
+            this.manager.grantRole(SOME_GROUP, user, 0, { from: admin}),
+            'AccessManagerAcountAlreadyInGroup',
+            [ SOME_GROUP, user ],
+          );
+
+        });
+
+        it ('grant role is restricted', async function () {
+          await expectRevertCustomError(
+            this.manager.grantRole(SOME_GROUP, user, 0, { from: other}),
+            'AccessControlUnauthorizedAccount',
+            [other, 0],
+          );
+        });
+      });
+
+
+
+
+      describe.only('with a grant delay', function () {
+        const grantDelay = 10;
+        beforeEach(async function () {
+          await this.manager.$_setGrantDelay(SOME_GROUP, grantDelay, true);
+        });
+
+
+      });
+    });
+
+    describe('revoke role', function () {});
+    describe('renounce role', function () {});
+    describe('change group admin', function () {});
+    describe('change group guardian', function () {});
+    describe('change execution delay', function () {});
+    describe('change grant delay', function () {});
+  });
+
+
+
+  // describe('calling managed contract', function () {
+  //   describe('without a delay', function () {
+  //     for (const [ modeName, mode] of Object.entries(AccessMode)) {
+
+
+
+  //       describe(`mode: ${modeName}`, function () {
+  //         beforeEach(async function () {
+  //           await this.manager[`setContractMode${modeName}`](this.target.address);
+  //         });
+
+
+
+  //         it ('', async function () {
+  //           expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(mode);
+  //         });
+
+
+
+  //       });
+
+
+
+
+  //     }
+  //   });
+  // });
 
   // describe('restricted functions', function () {
   //   describe('grantGroup', function () {

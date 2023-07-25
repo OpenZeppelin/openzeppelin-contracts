@@ -144,7 +144,7 @@ contract AccessManager is Context, IAccessManager {
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
     function hasGroup(uint256 group, address account) public view virtual returns (bool) {
-        return group == PUBLIC_GROUP || getAccess(group, account).since.isSetAndBefore(Time.timestamp());
+        return group == PUBLIC_GROUP || getAccess(group, account).since.isSetAndPast(Time.timestamp());
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================

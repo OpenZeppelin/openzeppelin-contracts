@@ -8,9 +8,6 @@ import {IManaged} from "./IManaged.sol";
 contract AccessManaged is IManaged {
     address private _authority;
 
-    event AuthorityUpdate(address newAuthority);
-    error AccessManagedUnauthorized(address caller);
-
     constructor(address initialAuthority) {
         _setAuthority(initialAuthority);
     }
@@ -20,12 +17,12 @@ contract AccessManaged is IManaged {
         _;
     }
 
-    function authority() public view returns (address) {
-        return address(_authority);
+    function authority() public view virtual returns (address) {
+        return _authority;
     }
 
-    function updateAuthority(address newAuthority) public {
-        if (msg.sender != _authority) {
+    function updateAuthority(address newAuthority) public virtual {
+        if (msg.sender != authority()) {
             revert AccessManagedUnauthorized(msg.sender);
         }
         _setAuthority(newAuthority);
@@ -33,11 +30,11 @@ contract AccessManaged is IManaged {
 
     function _setAuthority(address newAuthority) internal virtual {
         _authority = newAuthority;
-        emit AuthorityUpdate(newAuthority);
+        emit AuthorityUpdated(newAuthority);
     }
 
     function _checkCanCall(address caller, bytes4 selector) internal view virtual {
-        (bool allowed, uint32 delay) = IAuthority(_authority).canCall(caller, address(this), selector);
+        (bool allowed, uint32 delay) = IAuthority(authority()).canCall(caller, address(this), selector);
         if (!allowed || delay > 0) {
             revert AccessManagedUnauthorized(caller);
         }

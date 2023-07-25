@@ -35,8 +35,8 @@ library Time {
     /**
      * @dev Check if a timepoint is set, and in the past
      */
-    function isSetAndBefore(uint48 timepoint, uint48 ref) internal pure returns (bool) {
-        return timepoint != 0 && timepoint < ref;
+    function isSetAndPast(uint48 timepoint, uint48 ref) internal pure returns (bool) {
+        return timepoint != 0 && timepoint <= ref;
     }
 
     // ==================================================== Delay =====================================================
