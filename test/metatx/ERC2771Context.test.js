@@ -86,9 +86,9 @@ contract('ERC2771Context', function (accounts) {
         // The forwarder doesn't produce calls with calldata length less than 20 bytes
         const recipient = await ERC2771ContextMock.new(anotherAccount);
 
-        const { tx } = await recipient.msgSender({ from: anotherAccount });
+        const { receipt } = await recipient.msgSender({ from: anotherAccount });
 
-        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: anotherAccount });
+        await expectEvent(receipt, 'Sender', { sender: anotherAccount });
       });
     });
 
