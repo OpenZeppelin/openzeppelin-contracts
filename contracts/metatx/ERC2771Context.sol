@@ -22,7 +22,7 @@ abstract contract ERC2771Context is Context {
     }
 
     function _msgSender() internal view virtual override returns (address sender) {
-        if (isTrustedForwarder(msg.sender)) {
+        if (isTrustedForwarder(msg.sender) && msg.data.length >= 20) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             /// @solidity memory-safe-assembly
             assembly {
