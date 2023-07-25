@@ -7,6 +7,7 @@ import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
 import {Address} from "../../utils/Address.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
@@ -101,13 +102,12 @@ abstract contract GovernorTimelockCompound is Governor {
      * been queued.
      */
     function _cancel(
-        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override {
-        super._cancel(proposalId, targets, values, calldatas, descriptionHash);
+    ) internal virtual override returns (uint256) {
+        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
@@ -116,6 +116,8 @@ abstract contract GovernorTimelockCompound is Governor {
                 _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
         }
+
+        return proposalId;
     }
 
     /**

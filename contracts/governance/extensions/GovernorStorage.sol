@@ -30,14 +30,13 @@ abstract contract GovernorStorage is Governor {
      * @dev Hook into the proposing mechanism
      */
     function _propose(
-        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description,
         address proposer
-    ) internal virtual override {
-        super._propose(proposalId, targets, values, calldatas, description, proposer);
+    ) internal virtual override returns (uint256) {
+        uint256 proposalId = super._propose(targets, values, calldatas, description, proposer);
 
         // store
         _proposalIds.push(proposalId);
@@ -47,6 +46,8 @@ abstract contract GovernorStorage is Governor {
             calldatas: calldatas,
             descriptionHash: keccak256(bytes(description))
         });
+
+        return proposalId;
     }
 
     /**

@@ -111,13 +111,12 @@ abstract contract GovernorTimelockControl is Governor {
     // well behaved (according to TimelockController) and this will not happen.
     // slither-disable-next-line reentrancy-no-eth
     function _cancel(
-        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override {
-        super._cancel(proposalId, targets, values, calldatas, descriptionHash);
+    ) internal virtual override returns (uint256) {
+        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
         bytes32 timelockId = _timelockIds[proposalId];
         if (timelockId != 0) {
@@ -126,6 +125,8 @@ abstract contract GovernorTimelockControl is Governor {
             // cleanup
             delete _timelockIds[proposalId];
         }
+
+        return proposalId;
     }
 
     /**
