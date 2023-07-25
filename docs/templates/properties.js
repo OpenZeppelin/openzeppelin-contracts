@@ -35,6 +35,10 @@ module.exports['has-events'] = function ({ item }) {
   return item.inheritance.some(c => c.events.length > 0);
 };
 
+module.exports['has-errors'] = function ({ item }) {
+  return item.inheritance.some(c => c.errors.length > 0);
+};
+
 module.exports['inherited-functions'] = function ({ item }) {
   const { inheritance } = item;
   const baseFunctions = new Set(inheritance.flatMap(c => c.functions.flatMap(f => f.baseFunctions ?? [])));
