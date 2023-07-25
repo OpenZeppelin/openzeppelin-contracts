@@ -47,7 +47,7 @@ library Time {
      *
      * In particular, the {update} function guarantees that is the delay is reduced, the old delay still applies for
      * some time. For example if the delay is currently 7 days to do an upgrade, the admin should not be able to set
-     * the delay to 0 and upgrade immediatly. If the admin wants to reduce the delay, the old delay (7 days) should
+     * the delay to 0 and upgrade immediately. If the admin wants to reduce the delay, the old delay (7 days) should
      * still apply for some time.
      *
      *

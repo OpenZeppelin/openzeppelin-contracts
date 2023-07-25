@@ -19,7 +19,7 @@ interface IAccessManager is IAuthority {
         // are not available. Should be checked using {Time-isSetAndPast}
         uint48 since;
         // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
-        // functions that use the `onlyRole` modifier.
+        // functions that use the `onlyGroup` modifier.
         Time.Delay delay;
     }
 

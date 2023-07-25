@@ -70,7 +70,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Function to queue a proposal to the timelock.
      *
-     * NOTE: execution delay is estimated based on the delay information retreived in {proposal}. This value may be
+     * NOTE: execution delay is estimated based on the delay information retrieved in {proposal}. This value may be
      * off if the delay were updated during the vote.
      */
     function queue(
@@ -182,7 +182,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     function _detectExecutionDetails(address target, bytes4 selector) private view returns (ExecutionDetail memory) {
         // If target is not a contract, skip
         if (target.code.length > 0) {
-            // Try to fetch autority. If revert, skip
+            // Try to fetch authority. If revert, skip
             try IManaged(target).authority() returns (address authority) {
                 // Check can call. If revert, skip
                 try IAccessManager(authority).canCall(address(this), target, selector) returns (
