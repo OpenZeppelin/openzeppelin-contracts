@@ -220,9 +220,13 @@ library Math {
     function sqrt(uint256 a) internal pure returns (uint256) {
         unchecked {
             // Take care of easy edge cases
-            if (a <= 1) { return a; }
-            // This check ensures no overflow
-            if (a >= ((1 << 128) - 1)**2) { return (1 << 128) - 1; }
+            if (a <= 1) {
+                return a;
+            }
+            // This check ensures no overflow at return
+            if (a >= uint256(type(uint128).max)**2) {
+                return type(uint128).max;
+            }
 
             // If we have
             //
@@ -246,7 +250,7 @@ library Math {
             if (aAux >= (1 << 2  )) {               result <<= 1;  }
             result += (result >> 1);
 
-            // Perform the 6 required Newton iteration
+            // Perform the 6 required Newton iterations
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
