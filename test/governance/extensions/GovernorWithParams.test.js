@@ -147,7 +147,7 @@ contract('GovernorWithParams', function (accounts) {
             ethSigUtil.signTypedMessage(privateKey, { data: await this.data(contract, message) });
         });
 
-        it('suports EOA signatures', async function () {
+        it('supports EOA signatures', async function () {
           await this.token.delegate(this.voterBySig.address, { from: voter2 });
 
           const weight = web3.utils.toBN(web3.utils.toWei('7')).sub(rawParams.uintParam);

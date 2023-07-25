@@ -1,5 +1,5 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
-const { computeCreate2Address } = require('../helpers/create2');
+const { computeCreate2Address } = require('../helpers/create');
 const { expect } = require('chai');
 
 const { expectRevertCustomError } = require('../helpers/customError');
