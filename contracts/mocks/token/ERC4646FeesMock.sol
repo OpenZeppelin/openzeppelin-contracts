@@ -11,14 +11,14 @@ abstract contract ERC4626FeesMock is ERC4626Fees {
     address private immutable _exitFeeRecipientValue;
 
     constructor(
-        uint256 entryFeeBasePoint,
+        uint256 entryFeePCM,
         address entryFeeRecipient,
-        uint256 exitFeeBasePoint,
+        uint256 exitFeePCM,
         address exitFeeRecipient
     ) {
-        _entryFeePCMValue = entryFeeBasePoint;
+        _entryFeePCMValue = entryFeePCM;
         _entryFeeRecipientValue = entryFeeRecipient;
-        _exitFeePCMValue = exitFeeBasePoint;
+        _exitFeePCMValue = exitFeePCM;
         _exitFeeRecipientValue = exitFeeRecipient;
     }
 
