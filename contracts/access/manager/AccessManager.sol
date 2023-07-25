@@ -15,9 +15,9 @@ contract AccessManager is Context, IAccessManager {
     uint256 public constant PUBLIC_GROUP = type(uint256).max; // 2**256-1
 
     mapping(address target => AccessMode mode) private _contractMode;
-    mapping(address target => mapping(bytes4 selector => uint256 group)) private _allowedGroups;
-    mapping(uint256 group => Group) private _groups;
-    mapping(bytes32 => uint48) private _schedules;
+    mapping(address target => mapping(bytes4 selector => uint256 groupId)) private _allowedGroups;
+    mapping(uint256 groupId => Group) private _groups;
+    mapping(bytes32 operationId => uint48 schedule) private _schedules;
 
     // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
@@ -25,42 +25,42 @@ contract AccessManager is Context, IAccessManager {
     /**
      * @dev A delay operation was schedule.
      */
-    event Scheduled(bytes32 id, address caller, address target, bytes data);
+    event Scheduled(bytes32 operationId, address caller, address target, bytes data);
 
     /**
      * @dev A scheduled operation was executed.
      */
-    event Executed(bytes32);
+    event Executed(bytes32 operationId);
 
     /**
      * @dev A scheduled operation was canceled.
      */
-    event Canceled(bytes32);
+    event Canceled(bytes32 operationId);
 
-    error AccessManagerAlreadyScheduled(bytes32 id);
-    error AccessManagerNotScheduled(bytes32 id);
-    error AccessManagerNotReady(bytes32 id);
-    error AccessManagerAcountAlreadyInGroup(uint256 group, address account);
-    error AccessManagerAcountNotInGroup(uint256 group, address account);
+    error AccessManagerAlreadyScheduled(bytes32 operationId);
+    error AccessManagerNotScheduled(bytes32 operationId);
+    error AccessManagerNotReady(bytes32 operationId);
+    error AccessManagerAcountAlreadyInGroup(uint256 groupId, address account);
+    error AccessManagerAcountNotInGroup(uint256 groupId, address account);
     error AccessManagerBadConfirmation();
-    error AccessControlUnauthorizedAccount(address msgsender, uint256 group);
+    error AccessControlUnauthorizedAccount(address msgsender, uint256 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
     error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
 
     /**
-     * @dev Check that the caller has a given permission level (`group`). Note that this does NOT consider execution
+     * @dev Check that the caller has a given permission level (`groupId`). Note that this does NOT consider execution
      * delays that may be associated to that group.
      */
-    modifier onlyGroup(uint256 group) {
+    modifier onlyGroup(uint256 groupId) {
         address msgsender = _msgSender();
-        if (!hasGroup(group, msgsender)) {
-            revert AccessControlUnauthorizedAccount(msgsender, group);
+        if (!hasGroup(groupId, msgsender)) {
+            revert AccessControlUnauthorizedAccount(msgsender, groupId);
         }
         _;
     }
 
     constructor(address initialAdmin) {
-        // admin is active immediatly and without any execution delay.
+        // admin is active immediately and without any execution delay.
         _grantRole(ADMIN_GROUP, initialAdmin, 0, 0);
     }
 
@@ -89,9 +89,9 @@ contract AccessManager is Context, IAccessManager {
             bool isRelayedCall = _relayIdentifier == keccak256(abi.encodePacked(target, selector));
             return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
         } else {
-            uint256 group = getFunctionAllowedGroup(target, selector);
-            uint32 delay = hasGroup(group, caller)
-                ? getAccess(group, caller).delay.get()
+            uint256 groupId = getFunctionAllowedGroup(target, selector);
+            uint32 delay = hasGroup(groupId, caller)
+                ? getAccess(groupId, caller).delay.get()
                 : type(uint32).max;
             return (true, delay);
         }
@@ -113,43 +113,44 @@ contract AccessManager is Context, IAccessManager {
     }
 
     /**
-     * @dev Get the group that acts as an admin for given group.
+     * @dev Get the id of the group that acts as an admin for given group.
      *
      * The admin permission is required to grant the group, revoke the group and update the execution delay to execute
-     * an action that is restricted to this group.
+     * an operation that is restricted to this group.
      */
-    function getGroupAdmin(uint256 group) public view virtual returns (uint256) {
-        return _groups[group].admin;
+    function getGroupAdmin(uint256 groupId) public view virtual returns (uint256) {
+        return _groups[groupId].admin;
     }
 
     /**
      * @dev Get the group that acts as a guardian for a given group.
      *
-     * The guardian permssion allows canceling actions that have been scheduled under the group.
+     * The guardian permission allows canceling operations that have been scheduled under the group.
      */
-    function getGroupGuardian(uint256 group) public view virtual returns (uint256) {
-        return _groups[group].guardian;
+    function getGroupGuardian(uint256 groupId) public view virtual returns (uint256) {
+        return _groups[groupId].guardian;
     }
 
     /**
      * @dev Get the access details for a given account in a given group. These details include the timepoint at which
-     * membership becomes active, and the delay applied to all action by this user that require this permission level.
+     * membership becomes active, and the delay applied to all operation by this user that require this permission
+     * level.
      */
-    function getAccess(uint256 group, address account) public view virtual returns (Access memory) {
-        return _groups[group].members[account];
+    function getAccess(uint256 groupId, address account) public view virtual returns (Access memory) {
+        return _groups[groupId].members[account];
     }
 
     /**
      * @dev Check if a given account currently had the permission level corresponding to a given group. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasGroup(uint256 group, address account) public view virtual returns (bool) {
-        return group == PUBLIC_GROUP || getAccess(group, account).since.isSetAndPast(Time.timestamp());
+    function hasGroup(uint256 groupId, address account) public view virtual returns (bool) {
+        return groupId == PUBLIC_GROUP || getAccess(groupId, account).since.isSetAndPast(Time.timestamp());
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
     /**
-     * @dev Give permission to an account to execute function restricted to a group. Optionnaly, a delay can be
+     * @dev Give permission to an account to execute function restricted to a group. Optionally, a delay can be
      * enforced for any function call, byt this user, that require this level of permission. This call is only
      * effective after a grant delay that is specific to the group being granted.
      *
@@ -160,11 +161,11 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function grantRole(
-        uint256 group,
+        uint256 groupId,
         address account,
         uint32 executionDelay
-    ) public virtual onlyGroup(getGroupAdmin(group)) {
-        _grantRole(group, account, _groups[group].delay.get(), executionDelay);
+    ) public virtual onlyGroup(getGroupAdmin(groupId)) {
+        _grantRole(groupId, account, _groups[groupId].delay.get(), executionDelay);
     }
 
     /**
@@ -176,8 +177,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function revokeRole(uint256 group, address account) public virtual onlyGroup(getGroupAdmin(group)) {
-        _revokeRole(group, account);
+    function revokeRole(uint256 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
+        _revokeRole(groupId, account);
     }
 
     /**
@@ -189,18 +190,18 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function renounceRole(uint256 group, address callerConfirmation) public virtual {
+    function renounceRole(uint256 groupId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
         }
-        _revokeRole(group, callerConfirmation);
+        _revokeRole(groupId, callerConfirmation);
     }
 
     /**
      * @dev Set the execution delay for a given account in a given group. This update is not immediate and follows the
      * delay rules. For example, If a user currently has a delay of 3 hours, and this is called to reduce that delay to
-     * 1 hour, the new delay will take some time to take effect, enforcing that any action executed in the 3 hours that
-     * follows this update was indeed scheduled before this update.
+     * 1 hour, the new delay will take some time to take effect, enforcing that any operation executed in the 3 hours
+     * that follows this update was indeed scheduled before this update.
      *
      * Requirements:
      *
@@ -209,11 +210,11 @@ contract AccessManager is Context, IAccessManager {
      * todo: emit an event
      */
     function setExecuteDelay(
-        uint256 group,
+        uint256 groupId,
         address account,
         uint32 newDelay
-    ) public virtual onlyGroup(getGroupAdmin(group)) {
-        _setExecuteDelay(group, account, newDelay, false);
+    ) public virtual onlyGroup(getGroupAdmin(groupId)) {
+        _setExecuteDelay(groupId, account, newDelay, false);
     }
 
     /**
@@ -225,8 +226,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function setGroupAdmin(uint256 group, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
-        _setGroupAdmin(group, admin);
+    function setGroupAdmin(uint256 groupId, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
+        _setGroupAdmin(groupId, admin);
     }
 
     /**
@@ -238,8 +239,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function setGroupGuardian(uint256 group, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
-        _setGroupGuardian(group, guardian);
+    function setGroupGuardian(uint256 groupId, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
+        _setGroupGuardian(groupId, guardian);
     }
 
     /**
@@ -251,8 +252,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function setGrantDelay(uint256 group, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
-        _setGrantDelay(group, newDelay, false);
+    function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+        _setGrantDelay(groupId, newDelay, false);
     }
 
     /**
@@ -260,11 +261,11 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _grantRole(uint256 group, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
-        if (_groups[group].members[account].since != 0) {
-            revert AccessManagerAcountAlreadyInGroup(group, account);
+    function _grantRole(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+        if (_groups[groupId].members[account].since != 0) {
+            revert AccessManagerAcountAlreadyInGroup(groupId, account);
         }
-        _groups[group].members[account] = Access({
+        _groups[groupId].members[account] = Access({
             since: Time.timestamp() + grantDelay,
             delay: executionDelay.toDelay()
         });
@@ -276,11 +277,11 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _revokeRole(uint256 group, address account) internal virtual {
-        if (_groups[group].members[account].since == 0) {
-            revert AccessManagerAcountNotInGroup(group, account);
+    function _revokeRole(uint256 groupId, address account) internal virtual {
+        if (_groups[groupId].members[account].since == 0) {
+            revert AccessManagerAcountNotInGroup(groupId, account);
         }
-        delete _groups[group].members[account];
+        delete _groups[groupId].members[account];
         // todo emit event
     }
 
@@ -288,13 +289,13 @@ contract AccessManager is Context, IAccessManager {
      * @dev Internal version of {setExecuteDelay} without access control.
      *
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
-     * immediatly.
+     * immediately.
      *
      * todo: emit an event
      */
-    function _setExecuteDelay(uint256 group, address account, uint32 newDuration, bool immediate) internal virtual {
-        if (_groups[group].members[account].since == 0) {
-            revert AccessManagerAcountNotInGroup(group, account);
+    function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration, bool immediate) internal virtual {
+        if (_groups[groupId].members[account].since == 0) {
+            revert AccessManagerAcountNotInGroup(groupId, account);
         }
 
         // Here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
@@ -308,9 +309,9 @@ contract AccessManager is Context, IAccessManager {
         //     - since that is the new delay execution is possible.
         // - 2h after the update, an execution is possible.
 
-        uint32 oldDuration = _groups[group].members[account].delay.get();
+        uint32 oldDuration = _groups[groupId].members[account].delay.get();
 
-        _groups[group].members[account].delay = (immediate || oldDuration < newDuration)
+        _groups[groupId].members[account].delay = (immediate || oldDuration < newDuration)
             ? newDuration.toDelay()
             : Time.pack(oldDuration, newDuration, Time.timestamp() + oldDuration);
 
@@ -322,8 +323,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _setGroupAdmin(uint256 group, uint256 admin) internal virtual {
-        _groups[group].admin = admin;
+    function _setGroupAdmin(uint256 groupId, uint256 admin) internal virtual {
+        _groups[groupId].admin = admin;
         // todo emit event
     }
 
@@ -332,8 +333,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _setGroupGuardian(uint256 group, uint256 guardian) internal virtual {
-        _groups[group].guardian = guardian;
+    function _setGroupGuardian(uint256 groupId, uint256 guardian) internal virtual {
+        _groups[groupId].guardian = guardian;
         // todo emit event
     }
 
@@ -341,18 +342,18 @@ contract AccessManager is Context, IAccessManager {
      * @dev Internal version of {setGrantDelay} without access control.
      *
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
-     * immediatly.
+     * immediately.
      *
      * todo: emit an event
      */
-    function _setGrantDelay(uint256 group, uint32 newDelay, bool immediate) internal virtual {
-        _groups[group].delay = immediate ? newDelay.toDelay() : _groups[group].delay.update(newDelay);
+    function _setGrantDelay(uint256 groupId, uint32 newDelay, bool immediate) internal virtual {
+        _groups[groupId].delay = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay);
         // todo emit event
     }
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
     /**
-     * @dev Set the level of permission (`group`) required to call functions indentified by the `selectors` in the
+     * @dev Set the level of permission (`group`) required to call functions identified by the `selectors` in the
      * `target` contract.
      *
      * Requirements:
@@ -364,11 +365,11 @@ contract AccessManager is Context, IAccessManager {
     function setFunctionAllowedGroup(
         address target,
         bytes4[] calldata selectors,
-        uint256 group
+        uint256 groupId
     ) public virtual onlyGroup(ADMIN_GROUP) {
         // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
-            _setFunctionAllowedGroup(target, selectors[i], group);
+            _setFunctionAllowedGroup(target, selectors[i], groupId);
         }
         // todo emit event
     }
@@ -378,8 +379,8 @@ contract AccessManager is Context, IAccessManager {
      *
      * todo: emit an event
      */
-    function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 group) internal virtual {
-        _allowedGroups[target][selector] = group;
+    function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 groupId) internal virtual {
+        _allowedGroups[target][selector] = groupId;
         // todo emit event
     }
 
@@ -439,30 +440,30 @@ contract AccessManager is Context, IAccessManager {
         // todo emit event
     }
 
-    // =============================================== DELAYED ACTIONS ================================================
+    // ============================================== DELAYED OPERATIONS ==============================================
     /**
-     * @dev Return the timepoint at which an action was scheduled.
+     * @dev Return the timepoint at which an operation was scheduled.
      */
     function getSchedule(bytes32 id) public virtual returns (uint48) {
         return _schedules[id];
     }
 
     /**
-     * @dev Schedule a delayed action, and return the action identifier.
+     * @dev Schedule a delayed operation, and return the operation identifier.
      *
      * Emits an {Scheduled} event.
      */
     function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
         address caller = _msgSender();
 
-        bytes32 id = _hashOperation(caller, target, data);
-        if (_schedules[id] != 0) {
-            revert AccessManagerAlreadyScheduled(id);
+        bytes32 operationId = _hashOperation(caller, target, data);
+        if (_schedules[operationId] != 0) {
+            revert AccessManagerAlreadyScheduled(operationId);
         }
-        _schedules[id] = Time.timestamp();
+        _schedules[operationId] = Time.timestamp();
 
-        emit Scheduled(id, caller, target, data);
-        return id;
+        emit Scheduled(operationId, caller, target, data);
+        return operationId;
     }
 
     /**
@@ -484,19 +485,19 @@ contract AccessManager is Context, IAccessManager {
         }
 
         // If caller is authorised, check operation was scheduled early enough
-        bytes32 id = _hashOperation(caller, target, data);
-        uint48 timepoint = _schedules[id];
+        bytes32 operationId = _hashOperation(caller, target, data);
+        uint48 timepoint = _schedules[operationId];
         if (setback != 0) {
             if (timepoint == 0) {
-                revert AccessManagerNotScheduled(id);
+                revert AccessManagerNotScheduled(operationId);
             }
             if (timepoint + setback > Time.timestamp()) {
-                revert AccessManagerNotReady(id);
+                revert AccessManagerNotReady(operationId);
             }
         }
         if (timepoint != 0) {
-            delete _schedules[id];
-            emit Executed(id);
+            delete _schedules[operationId];
+            emit Executed(operationId);
         }
 
         // Mark the target and selector as authorised
@@ -528,16 +529,16 @@ contract AccessManager is Context, IAccessManager {
             revert AccessManagerCannotCancel(msgsender, caller, target, selector);
         }
 
-        bytes32 id = _hashOperation(caller, target, data);
-        if (_schedules[id] == 0) {
-            revert AccessManagerNotScheduled(id);
+        bytes32 operationId = _hashOperation(caller, target, data);
+        if (_schedules[operationId] == 0) {
+            revert AccessManagerNotScheduled(operationId);
         }
-        delete _schedules[id];
-        emit Canceled(id);
+        delete _schedules[operationId];
+        emit Canceled(operationId);
     }
 
     /**
-     * @dev Hashing function for delayed actions
+     * @dev Hashing function for delayed operations
      */
     function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
@@ -545,7 +546,7 @@ contract AccessManager is Context, IAccessManager {
 
     // ==================================================== OTHERS ====================================================
     /**
-     * @dev Change the AccessManager instance used by a contract that correctly uses this instace.
+     * @dev Change the AccessManager instance used by a contract that correctly uses this instance.
      *
      * Requirements:
      *
