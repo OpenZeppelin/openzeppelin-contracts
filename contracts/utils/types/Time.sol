@@ -113,7 +113,7 @@ library Time {
      * @dev Split a delay into its components: oldValue, newValue and effect (transition timepoint).
      */
     function split(Delay self) internal pure returns (uint32, uint32, uint48) {
-        uint128 raw = Delay.unwrap(self);
+        uint112 raw = Delay.unwrap(self);
         return (
             uint32(raw), // oldValue
             uint32(raw >> 32), // newValue
