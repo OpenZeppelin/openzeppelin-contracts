@@ -89,8 +89,9 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     }
 
     /**
-     * @dev Throws if the execution is not being performed through a delegatecall call
-     * Throws if not called through an active proxy
+     * @dev Reverts if the execution is not performed via delegatecall or the execution
+     * context is not of a proxy with an ERC1967-compliant implementation pointing to self.
+     * See {_onlyProxy}.
      */
     function _checkProxy() internal view virtual {
         if (
