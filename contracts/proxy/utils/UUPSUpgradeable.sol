@@ -103,7 +103,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     }
 
     /**
-     * @dev Throws if called through a delegate call
+     * @dev Reverts if the execution is performed via delegatecall.
+     * See {notDelegated}.
      */
     function _checkNotDelegated() internal view virtual {
         if (address(this) != __self) {
