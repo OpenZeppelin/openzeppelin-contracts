@@ -145,6 +145,18 @@ abstract contract Initializable {
     }
 
     /**
+     * @dev Returns true if this contract has been initialized.
+
+     */
+
+function _checkInitializing() internal view   {
+        if (!_initializing) {
+            revert NotInitializing();
+        }
+    }
+
+
+    /**
      * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.
      * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized
      * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
@@ -172,7 +184,7 @@ abstract contract Initializable {
     /**
      * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
-    function _isInitializing() internal view returns (bool) {
+    function _isInitializing() internal view returns (bool) {  
         return _initializing;
     }
 }
