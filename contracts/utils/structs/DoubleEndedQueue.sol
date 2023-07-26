@@ -2,8 +2,6 @@
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/DoubleEndedQueue.sol)
 pragma solidity ^0.8.19;
 
-import {SafeCast} from "../math/SafeCast.sol";
-
 /**
  * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of
  * the sequence (called front and back). Among other access patterns, it can be used to implement efficient LIFO and
@@ -135,8 +133,9 @@ library DoubleEndedQueue {
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
         if (index >= length(deque)) revert QueueOutOfBounds();
+				// by construction, length is a uint128, so the check enshures that index can safelly be casted to a uint128.
         unchecked {
-            return deque._data[deque._begin + SafeCast.toUint128(index)];
+            return deque._data[deque._begin + uint128(index)];
         }
     }
 
