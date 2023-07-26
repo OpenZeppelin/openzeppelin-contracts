@@ -155,7 +155,6 @@ library DoubleEndedQueue {
      * @dev Returns the number of items in the queue.
      */
     function length(Bytes32Deque storage deque) internal view returns (uint256) {
-        // We also assume there are at most uint128.max items in the queue.
         unchecked {
             return uint256(deque._end - deque._begin);
         }
