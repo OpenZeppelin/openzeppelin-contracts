@@ -23,31 +23,6 @@ contract AccessManager is Context, IAccessManager {
     bytes32 private _relayIdentifier;
 
     /**
-     * @dev A delay operation was schedule.
-     */
-    event Scheduled(bytes32 operationId, address caller, address target, bytes data);
-
-    /**
-     * @dev A scheduled operation was executed.
-     */
-    event Executed(bytes32 operationId);
-
-    /**
-     * @dev A scheduled operation was canceled.
-     */
-    event Canceled(bytes32 operationId);
-
-    error AccessManagerAlreadyScheduled(bytes32 operationId);
-    error AccessManagerNotScheduled(bytes32 operationId);
-    error AccessManagerNotReady(bytes32 operationId);
-    error AccessManagerAcountAlreadyInGroup(uint256 groupId, address account);
-    error AccessManagerAcountNotInGroup(uint256 groupId, address account);
-    error AccessManagerBadConfirmation();
-    error AccessControlUnauthorizedAccount(address msgsender, uint256 groupId);
-    error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
-    error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
-
-    /**
      * @dev Check that the caller has a given permission level (`groupId`). Note that this does NOT consider execution
      * delays that may be associated to that group.
      */
@@ -61,7 +36,7 @@ contract AccessManager is Context, IAccessManager {
 
     constructor(address initialAdmin) {
         // admin is active immediately and without any execution delay.
-        _grantRole(ADMIN_GROUP, initialAdmin, 0, 0);
+        _grantGroup(ADMIN_GROUP, initialAdmin, 0, 0);
     }
 
     // =================================================== GETTERS ====================================================
@@ -90,9 +65,7 @@ contract AccessManager is Context, IAccessManager {
             return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
-            uint32 delay = hasGroup(groupId, caller)
-                ? getAccess(groupId, caller).delay.get()
-                : type(uint32).max;
+            uint32 delay = hasGroup(groupId, caller) ? getAccess(groupId, caller).delay.get() : type(uint32).max;
             return (true, delay);
         }
     }
@@ -158,14 +131,14 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * todo: emit an event
+     * Emit a {GroupGranted} event
      */
-    function grantRole(
+    function grantGroup(
         uint256 groupId,
         address account,
         uint32 executionDelay
     ) public virtual onlyGroup(getGroupAdmin(groupId)) {
-        _grantRole(groupId, account, _groups[groupId].delay.get(), executionDelay);
+        _grantGroup(groupId, account, _groups[groupId].delay.get(), executionDelay);
     }
 
     /**
@@ -175,10 +148,10 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * todo: emit an event
+     * Emit a {GroupRevoked} event
      */
-    function revokeRole(uint256 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
-        _revokeRole(groupId, account);
+    function revokeGroup(uint256 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
+        _revokeGroup(groupId, account);
     }
 
     /**
@@ -188,13 +161,13 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be `callerConfirmation`.
      *
-     * todo: emit an event
+     * Emit a {GroupRevoked} event
      */
-    function renounceRole(uint256 groupId, address callerConfirmation) public virtual {
+    function renounceGroup(uint256 groupId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
         }
-        _revokeRole(groupId, callerConfirmation);
+        _revokeGroup(groupId, callerConfirmation);
     }
 
     /**
@@ -207,7 +180,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * todo: emit an event
+     * Emit a {GroupExecutionDelayUpdate} event
      */
     function setExecuteDelay(
         uint256 groupId,
@@ -224,7 +197,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emit a {GroupAdminChanged} event
      */
     function setGroupAdmin(uint256 groupId, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupAdmin(groupId, admin);
@@ -237,7 +210,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emit a {GroupGuardianChanged} event
      */
     function setGroupGuardian(uint256 groupId, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupGuardian(groupId, guardian);
@@ -250,39 +223,40 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emit a {GroupGrantDelayChanged} event
      */
     function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
         _setGrantDelay(groupId, newDelay, false);
     }
 
     /**
-     * @dev Internal version of {grantRole} without access control.
+     * @dev Internal version of {grantGroup} without access control.
      *
-     * todo: emit an event
+     * Emit a {GroupGranted} event
      */
-    function _grantRole(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+    function _grantGroup(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
         if (_groups[groupId].members[account].since != 0) {
             revert AccessManagerAcountAlreadyInGroup(groupId, account);
         }
-        _groups[groupId].members[account] = Access({
-            since: Time.timestamp() + grantDelay,
-            delay: executionDelay.toDelay()
-        });
-        // todo emit event
+
+        uint48 since = Time.timestamp() + grantDelay;
+        _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+
+        emit GroupGranted(groupId, account, since, executionDelay);
     }
 
     /**
-     * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
+     * @dev Internal version of {revokeGroup} without access control. This logic is also used by {renounceGroup}.
      *
-     * todo: emit an event
+     * Emit a {GroupRevoked} event
      */
-    function _revokeRole(uint256 groupId, address account) internal virtual {
+    function _revokeGroup(uint256 groupId, address account) internal virtual {
         if (_groups[groupId].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
         delete _groups[groupId].members[account];
-        // todo emit event
+
+        emit GroupRevoked(groupId, account);
     }
 
     /**
@@ -291,7 +265,7 @@ contract AccessManager is Context, IAccessManager {
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
      * immediately.
      *
-     * todo: emit an event
+     * Emit a {GroupExecutionDelayUpdate} event
      */
     function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration, bool immediate) internal virtual {
         if (_groups[groupId].members[account].since == 0) {
@@ -310,32 +284,34 @@ contract AccessManager is Context, IAccessManager {
         // - 2h after the update, an execution is possible.
 
         uint32 oldDuration = _groups[groupId].members[account].delay.get();
+        uint32 effectDelay = (immediate || oldDuration < newDuration) ? 0 : oldDuration;
+        uint48 effectPoint = Time.timestamp() + effectDelay;
 
-        _groups[groupId].members[account].delay = (immediate || oldDuration < newDuration)
-            ? newDuration.toDelay()
-            : Time.pack(oldDuration, newDuration, Time.timestamp() + oldDuration);
+        _groups[groupId].members[account].delay = Time.pack(oldDuration, newDuration, effectPoint);
 
-        // todo emit event
+        emit GroupExecutionDelayUpdate(groupId, account, newDuration, effectPoint);
     }
 
     /**
      * @dev Internal version of {setGroupAdmin} without access control.
      *
-     * todo: emit an event
+     * Emit a {GroupAdminChanged} event
      */
     function _setGroupAdmin(uint256 groupId, uint256 admin) internal virtual {
         _groups[groupId].admin = admin;
-        // todo emit event
+
+        emit GroupAdminChanged(groupId, admin);
     }
 
     /**
      * @dev Internal version of {setGroupGuardian} without access control.
      *
-     * todo: emit an event
+     * Emit a {GroupGuardianChanged} event
      */
     function _setGroupGuardian(uint256 groupId, uint256 guardian) internal virtual {
         _groups[groupId].guardian = guardian;
-        // todo emit event
+
+        emit GroupGuardianChanged(groupId, guardian);
     }
 
     /**
@@ -344,11 +320,15 @@ contract AccessManager is Context, IAccessManager {
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
      * immediately.
      *
-     * todo: emit an event
+     * Emit a {GroupGrantDelayChanged} event
      */
     function _setGrantDelay(uint256 groupId, uint32 newDelay, bool immediate) internal virtual {
-        _groups[groupId].delay = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay);
-        // todo emit event
+        Time.Delay updated = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay);
+        (, , uint48 effect) = updated.split();
+
+        _groups[groupId].delay = updated;
+
+        emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
