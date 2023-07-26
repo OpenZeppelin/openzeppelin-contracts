@@ -77,6 +77,18 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         _;
     }
 
+   // Internal function to check governance
+function _checkGovernance() internal  {
+    if (_executor() != _msgSender()) {
+        revert GovernorOnlyExecutor(_msgSender());
+    }
+    if (_executor() != address(this)) {
+        bytes32 msgDataHash = keccak256(_msgData());
+        // loop until popping the expected operation - throw if deque is empty (operation not authorized)
+        while (_governanceCall.popFront() != msgDataHash) {}
+    }
+}
+
     /**
      * @dev Sets the value for {name} and {version}
      */
@@ -618,7 +630,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
      * Note that if the executor is simply the governor itself, use of `relay` is redundant.
      */
-    function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
+    function relay(address target, uint256 value, bytes calldata data) external payable virtual  {
+        _checkGovernance();
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         Address.verifyCallResult(success, returndata);
     }
