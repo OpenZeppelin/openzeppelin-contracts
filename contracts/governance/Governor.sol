@@ -221,7 +221,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev Throws if the executor is not the owner.
+     * @dev Reverts if the `msg.sender` is not the executor. In case the executor is not this contract
+     * itself, the function reverts if `msg.data` is not whitelisted as a result of an {execute}
+     * operation. See {onlyGovernance}.
      */
     function _checkGovernance() internal virtual {
         if (_executor() != _msgSender()) {
