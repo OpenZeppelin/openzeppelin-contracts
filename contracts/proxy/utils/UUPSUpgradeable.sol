@@ -47,26 +47,44 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * function through ERC1167 minimal proxies (clones) would not normally pass this test, but is not guaranteed to
      * fail.
      */
-    modifier onlyProxy() {
-        if (
-            address(this) == __self || // Must be called through delegatecall
-            ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
-        ) {
-            revert UUPSUnauthorizedCallContext();
-        }
-        _;
+    // modifier onlyProxy() {
+    //     if (
+    //         address(this) == __self || // Must be called through delegatecall
+    //         ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
+    //     ) {
+    //         revert UUPSUnauthorizedCallContext();
+    //     }
+    //     _;
+    // }
+    // Internal function to check if the contract is being called through a proxy
+function _checkProxy(address self) internal  {
+    if (
+        address(this) == self || // Must be called through delegatecall
+        ERC1967Utils.getImplementation() != self // Must be called through an active proxy
+    ) {
+        revert UUPSUnauthorizedCallContext();
     }
+}
+
+
 
     /**
      * @dev Check that the execution is not being performed through a delegate call. This allows a function to be
      * callable on the implementing contract but not through proxies.
      */
-    modifier notDelegated() {
+    // modifier notDelegated() {
+    //     if (address(this) != __self) {
+    //         // Must not be called through delegatecall
+    //         revert UUPSUnauthorizedCallContext();
+    //     }
+    //     _;
+    // }
+
+    function _checkNotDelegated() internal  {
         if (address(this) != __self) {
             // Must not be called through delegatecall
             revert UUPSUnauthorizedCallContext();
         }
-        _;
     }
 
     /**
@@ -77,7 +95,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+    function proxiableUUID() external view virtual  returns (bytes32) {
+        _checkNotDelegated();
         return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
@@ -91,7 +110,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
+    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual {
+        _checkProxy(__self);
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallUUPS(newImplementation, data);
     }

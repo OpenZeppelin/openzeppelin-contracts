@@ -65,17 +65,19 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * for example, additional timelock proposers are not able to change governance parameters without going through the
      * governance protocol (since v4.6).
      */
-    modifier onlyGovernance() {
-        if (_executor() != _msgSender()) {
-            revert GovernorOnlyExecutor(_msgSender());
-        }
-        if (_executor() != address(this)) {
-            bytes32 msgDataHash = keccak256(_msgData());
-            // loop until popping the expected operation - throw if deque is empty (operation not authorized)
-            while (_governanceCall.popFront() != msgDataHash) {}
-        }
-        _;
-    }
+
+     
+    // modifier onlyGovernance() {
+    //     if (_executor() != _msgSender()) {
+    //         revert GovernorOnlyExecutor(_msgSender());
+    //     }
+    //     if (_executor() != address(this)) {
+    //         bytes32 msgDataHash = keccak256(_msgData());
+    //         // loop until popping the expected operation - throw if deque is empty (operation not authorized)
+    //         while (_governanceCall.popFront() != msgDataHash) {}
+    //     }
+    //     _;
+    // }
 
    // Internal function to check governance
 function _checkGovernance() internal  {
