@@ -16,6 +16,12 @@ contract ContextMock is Context {
     function msgData(uint256 integerValue, string memory stringValue) public {
         emit Data(_msgData(), integerValue, stringValue);
     }
+
+    event DataShort(bytes data);
+
+    function msgDataShort() public {
+        emit DataShort(_msgData());
+    }
 }
 
 contract ContextMockCaller {
