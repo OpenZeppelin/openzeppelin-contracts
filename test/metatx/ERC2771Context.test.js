@@ -118,7 +118,7 @@ contract('ERC2771Context', function (accounts) {
       });
     });
 
-    it.only('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
+    it('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
       // The forwarder doesn't produce calls with calldata length less than 20 bytes
       const recipient = await ERC2771ContextMock.new(trustedForwarder);
 
