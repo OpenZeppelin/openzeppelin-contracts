@@ -4,8 +4,9 @@ pragma solidity ^0.8.20;
 
 import {IAuthority} from "./IAuthority.sol";
 import {IManaged} from "./IManaged.sol";
+import {Context} from "../../utils/Context.sol";
 
-contract AccessManaged is IManaged {
+abstract contract AccessManaged is Context, IManaged {
     address private _authority;
 
     constructor(address initialAuthority) {
@@ -13,7 +14,7 @@ contract AccessManaged is IManaged {
     }
 
     modifier restricted() {
-        _checkCanCall(msg.sender, msg.sig);
+        _checkCanCall(_msgSender(), address(this), msg.sig);
         _;
     }
 
@@ -22,8 +23,9 @@ contract AccessManaged is IManaged {
     }
 
     function updateAuthority(address newAuthority) public virtual {
-        if (msg.sender != authority()) {
-            revert AccessManagedUnauthorized(msg.sender);
+        address caller = _msgSender();
+        if (caller != authority()) {
+            revert AccessManagedUnauthorized(caller);
         }
         _setAuthority(newAuthority);
     }
@@ -33,8 +35,8 @@ contract AccessManaged is IManaged {
         emit AuthorityUpdated(newAuthority);
     }
 
-    function _checkCanCall(address caller, bytes4 selector) internal view virtual {
-        (bool allowed, uint32 delay) = IAuthority(authority()).canCall(caller, address(this), selector);
+    function _checkCanCall(address caller, address target, bytes4 selector) internal view virtual {
+        (bool allowed, uint32 delay) = IAuthority(authority()).canCall(caller, target, selector);
         if (!allowed || delay > 0) {
             revert AccessManagedUnauthorized(caller);
         }
