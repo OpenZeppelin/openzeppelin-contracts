@@ -102,9 +102,22 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier initializer() {
-        bool isTopLevelCall = _beforeInitialize(1);
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        bool isTopLevelCall = !$._initializing;
+        if (!(isTopLevelCall && $._initialized < 1) && !(address(this).code.length == 0 && $._initialized == 1)) {
+            revert AlreadyInitialized();
+        }
+        $._initialized = 1;
+        if (isTopLevelCall) {
+            $._initializing = true;
+        }
         _;
-        _afterInitialize(isTopLevelCall, 1);
+        if (isTopLevelCall) {
+            $._initializing = false;
+            emit Initialized(1);
+        }
     }
 
     /**
@@ -126,9 +139,17 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint64 version) {
-        bool isTopLevelCall = _beforeInitialize(version);
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        if ($._initializing || $._initialized >= version) {
+            revert AlreadyInitialized();
+        }
+        $._initialized = version;
+        $._initializing = true;
         _;
-        _afterInitialize(isTopLevelCall, version);
+        $._initializing = false;
+        emit Initialized(version);
     }
 
     /**
@@ -184,54 +205,6 @@ abstract contract Initializable {
     function _getInitializableStorage() private pure returns (InitializableStorage storage $) {
         assembly {
             $.slot := _INITIALIZABLE_STORAGE
-        }
-    }
-
-    /**
-     * @dev Sets the initialized version.
-     *
-     * Requirements:
-     *
-     * - If the contract is initializing the version set must not be that of an reinitializer.
-     * - If the contract is not initializing the version must not be already set.
-     */
-    function _setInitializedVersion(uint64 version) private returns (bool) {
-        // solhint-disable-next-line var-name-mixedcase
-        InitializableStorage storage $ = _getInitializableStorage();
-
-        bool initializing = $._initializing;
-
-        // When it's initializing check if it's a reinitializer, otherwise check if
-        // the intended version is not already set.
-        if (initializing ? version > 1 : version <= $._initialized) {
-            revert AlreadyInitialized();
-        }
-
-        $._initialized = version;
-
-        return !initializing;
-    }
-
-    /**
-     * @dev Runs before initialization.
-     * It sets the initialized version and sets the initializing flag to true.
-     */
-    function _beforeInitialize(uint64 version) private returns (bool) {
-        bool isTopLevelCall = _setInitializedVersion(version);
-        if (isTopLevelCall) {
-            _getInitializableStorage()._initializing = true;
-        }
-        return isTopLevelCall;
-    }
-
-    /**
-     * @dev Runs after initialization.
-     * It clears the initializing flag and emits an {Initialized} event if it is a top level call.
-     */
-    function _afterInitialize(bool isTopLevelCall, uint64 version) private {
-        if (isTopLevelCall) {
-            _getInitializableStorage()._initializing = false;
-            emit Initialized(version);
         }
     }
 }
