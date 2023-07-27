@@ -48,12 +48,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * fail.
      */
     modifier onlyProxy() {
-        if (
-            address(this) == __self || // Must be called through delegatecall
-            ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
-        ) {
-            revert UUPSUnauthorizedCallContext();
-        }
+        _checkProxy();
         _;
     }
 
@@ -62,10 +57,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * callable on the implementing contract but not through proxies.
      */
     modifier notDelegated() {
-        if (address(this) != __self) {
-            // Must not be called through delegatecall
-            revert UUPSUnauthorizedCallContext();
-        }
+        _checkNotDelegated();
         _;
     }
 
@@ -94,6 +86,31 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallUUPS(newImplementation, data);
+    }
+
+    /**
+     * @dev Reverts if the execution is not performed via delegatecall or the execution
+     * context is not of a proxy with an ERC1967-compliant implementation pointing to self.
+     * See {_onlyProxy}.
+     */
+    function _checkProxy() internal view virtual {
+        if (
+            address(this) == __self || // Must be called through delegatecall
+            ERC1967Utils.getImplementation() != __self // Must be called through an active proxy
+        ) {
+            revert UUPSUnauthorizedCallContext();
+        }
+    }
+
+    /**
+     * @dev Reverts if the execution is performed via delegatecall.
+     * See {notDelegated}.
+     */
+    function _checkNotDelegated() internal view virtual {
+        if (address(this) != __self) {
+            // Must not be called through delegatecall
+            revert UUPSUnauthorizedCallContext();
+        }
     }
 
     /**

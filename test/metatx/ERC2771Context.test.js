@@ -12,6 +12,8 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 contract('ERC2771Context', function (accounts) {
+  const [, anotherAccount] = accounts;
+
   const MAX_UINT48 = web3.utils.toBN(1).shln(48).subn(1).toString();
 
   beforeEach(async function () {
@@ -78,6 +80,15 @@ contract('ERC2771Context', function (accounts) {
 
         const { tx } = await this.forwarder.execute(req);
         await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: this.sender });
+      });
+
+      it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
+        // The forwarder doesn't produce calls with calldata length less than 20 bytes
+        const recipient = await ERC2771ContextMock.new(anotherAccount);
+
+        const { receipt } = await recipient.msgSender({ from: anotherAccount });
+
+        await expectEvent(receipt, 'Sender', { sender: anotherAccount });
       });
     });
 
