@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import {IAuthority} from "./IAuthority.sol";
 import {IManaged} from "./IManaged.sol";
