@@ -157,10 +157,15 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
-        if (!_isInitializing()) {
-            revert NotInitializing();
-        }
+        _checkInitializing();
         _;
+    }
+
+    /**
+     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.
+     */
+    function _checkInitializing() internal view virtual {
+        if (!_initializing) revert NotInitializing();
     }
 
     /**

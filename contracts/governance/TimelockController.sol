@@ -102,7 +102,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Initializes the contract with the following parameters:
      *
-     * - `minDelay`: initial minimum delay for operations
+     * - `minDelay`: initial minimum delay in seconds for operations
      * - `proposers`: accounts to be granted proposer and canceller roles
      * - `executors`: accounts to be granted executor role
      * - `admin`: optional account to be granted admin role; disable with zero address
@@ -218,7 +218,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns the minimum delay for an operation to become valid.
+     * @dev Returns the minimum delay in seconds for an operation to become valid.
      *
      * This value can be changed by executing an operation that calls `updateDelay`.
      */
