@@ -65,8 +65,8 @@ contract AccessManager is Context, IAccessManager {
             return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
-            uint32 delay = hasGroup(groupId, caller) ? getAccess(groupId, caller).delay.get() : type(uint32).max;
-            return (true, delay);
+            return
+                hasGroup(groupId, caller) ? (true, getAccess(groupId, caller).delay.get()) : (false, type(uint32).max);
         }
     }
 
@@ -373,7 +373,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emits a {AccessModeUpdated} event.
      */
     function setContractModeCustom(address target) public virtual onlyGroup(ADMIN_GROUP) {
         // todo set delay or document risks
@@ -388,7 +388,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emits a {AccessModeUpdated} event.
      */
     function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) {
         // todo set delay or document risks
@@ -403,7 +403,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emits a {AccessModeUpdated} event.
      */
     function setContractModeClosed(address target) public virtual onlyGroup(ADMIN_GROUP) {
         // todo set delay or document risks
@@ -413,25 +413,25 @@ contract AccessManager is Context, IAccessManager {
     /**
      * @dev Set the operating mode of a contract. This is an internal setter with no access restrictions.
      *
-     * todo: emit an event
+     * Emits a {AccessModeUpdated} event.
      */
     function _setContractMode(address target, AccessMode mode) internal virtual {
         _contractMode[target] = mode;
-        // todo emit event
+        emit AccessModeUpdated(target, mode);
     }
 
     // ============================================== DELAYED OPERATIONS ==============================================
     /**
      * @dev Return the timepoint at which an operation was scheduled.
      */
-    function getSchedule(bytes32 id) public virtual returns (uint48) {
+    function getSchedule(bytes32 id) public view virtual returns (uint48) {
         return _schedules[id];
     }
 
     /**
      * @dev Schedule a delayed operation, and return the operation identifier.
      *
-     * Emits an {Scheduled} event.
+     * Emits a {Scheduled} event.
      */
     function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
         address caller = _msgSender();
@@ -450,7 +450,7 @@ contract AccessManager is Context, IAccessManager {
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
      * execution delay is 0.
      *
-     * Emits an {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
+     * Emits a {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
      */
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
@@ -504,15 +504,16 @@ contract AccessManager is Context, IAccessManager {
         address msgsender = _msgSender();
         bytes4 selector = bytes4(data[0:4]);
 
-        // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
-        if (caller != msgsender || hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)) {
-            revert AccessManagerCannotCancel(msgsender, caller, target, selector);
-        }
-
         bytes32 operationId = _hashOperation(caller, target, data);
         if (_schedules[operationId] == 0) {
             revert AccessManagerNotScheduled(operationId);
         }
+
+        // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
+        if (caller != msgsender && !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)) {
+            revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+        }
+
         delete _schedules[operationId];
         emit Canceled(operationId);
     }

@@ -35,7 +35,6 @@ interface IAccessManager is IAuthority {
         Time.Delay delay; // delay for granting
     }
 
-
     /**
      * @dev A delay operation was schedule.
      */
@@ -57,6 +56,7 @@ interface IAccessManager is IAuthority {
     event GroupAdminChanged(uint256 indexed groupId, uint256 indexed admin);
     event GroupGuardianChanged(uint256 indexed groupId, uint256 indexed guardian);
     event GroupGrantDelayChanged(uint256 indexed groupId, uint32 delay, uint48 from);
+    event AccessModeUpdated(address indexed target, AccessMode mode);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);

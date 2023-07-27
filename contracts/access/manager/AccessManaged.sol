@@ -27,6 +27,9 @@ abstract contract AccessManaged is Context, IManaged {
         if (caller != authority()) {
             revert AccessManagedUnauthorized(caller);
         }
+        if (newAuthority.code.length == 0) {
+            revert AccessManagedInvalidAuthority(newAuthority);
+        }
         _setAuthority(newAuthority);
     }
 
