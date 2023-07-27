@@ -29,11 +29,11 @@ contract DoubleEndedQueueHarness {
         _deque.clear();
     }
 
-    function begin() external view returns (int128) {
+    function begin() external view returns (uint128) {
         return _deque._begin;
     }
 
-    function end() external view returns (int128) {
+    function end() external view returns (uint128) {
         return _deque._end;
     }
 
