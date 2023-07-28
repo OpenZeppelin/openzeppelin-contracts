@@ -77,6 +77,8 @@ interface IAccessManager is IAuthority {
 
     function getGroupGuardian(uint256 group) external view returns (uint256);
 
+    function getGroupGrantDelay(uint256 groupId) external view returns (uint32);
+
     function getAccess(uint256 group, address account) external view returns (Access memory);
 
     function hasGroup(uint256 group, address account) external view returns (bool);

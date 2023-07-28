@@ -105,6 +105,15 @@ contract AccessManager is Context, IAccessManager {
     }
 
     /**
+     * @dev Get the group current grant delay, that value may change at any point, without an event emitted, following
+     * a call to {setGrantDelay}. Changes to this value, including effect timepoint are notified by the
+     * {GroupGrantDelayChanged} event.
+     */
+    function getGroupGrantDelay(uint256 groupId) public view virtual returns (uint32) {
+        return _groups[groupId].delay.get();
+    }
+
+    /**
      * @dev Get the access details for a given account in a given group. These details include the timepoint at which
      * membership becomes active, and the delay applied to all operation by this user that require this permission
      * level.
@@ -138,7 +147,7 @@ contract AccessManager is Context, IAccessManager {
         address account,
         uint32 executionDelay
     ) public virtual onlyGroup(getGroupAdmin(groupId)) {
-        _grantGroup(groupId, account, _groups[groupId].delay.get(), executionDelay);
+        _grantGroup(groupId, account, getGroupGrantDelay(groupId), executionDelay);
     }
 
     /**
@@ -287,7 +296,9 @@ contract AccessManager is Context, IAccessManager {
         uint32 effectDelay = (immediate || oldDuration < newDuration) ? 0 : oldDuration;
         uint48 effectPoint = Time.timestamp() + effectDelay;
 
-        _groups[groupId].members[account].delay = Time.pack(oldDuration, newDuration, effectPoint);
+        _groups[groupId].members[account].delay = effectDelay == 0
+            ? Time.toDelay(newDuration)
+            : Time.pack(oldDuration, newDuration, effectPoint);
 
         emit GroupExecutionDelayUpdate(groupId, account, newDuration, effectPoint);
     }
