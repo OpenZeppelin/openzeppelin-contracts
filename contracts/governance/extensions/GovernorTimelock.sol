@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 import {IGovernorTimelock} from "./IGovernorTimelock.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {IManaged} from "../../access/manager/IManaged.sol";
+import {IAuthority} from "../../access/manager/IAuthority.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
 import {Address} from "../../utils/Address.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -16,7 +17,7 @@ import {Math} from "../../utils/math/Math.sol";
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     struct ExecutionDetail {
-        address manager;
+        address authority;
         uint32 delay;
     }
 
@@ -98,8 +99,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             detail = details[i];
-            if (detail.manager != address(0)) {
-                IAccessManager(detail.manager).schedule(targets[i], calldatas[i]);
+            if (detail.authority != address(0)) {
+                IAccessManager(detail.authority).schedule(targets[i], calldatas[i]);
             }
             setback = uint32(Math.max(setback, detail.delay)); // cast is safe, both parameters are uint32
         }
@@ -125,8 +126,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             detail = details[i];
-            if (detail.manager != address(0)) {
-                IAccessManager(detail.manager).relay{value: values[i]}(targets[i], calldatas[i]);
+            if (detail.authority != address(0)) {
+                IAccessManager(detail.authority).relay{value: values[i]}(targets[i], calldatas[i]);
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
                 Address.verifyCallResult(success, returndata);
@@ -152,8 +153,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             detail = details[i];
-            if (detail.manager != address(0)) {
-                IAccessManager(detail.manager).cancel(address(this), targets[i], calldatas[i]);
+            if (detail.authority != address(0)) {
+                IAccessManager(detail.authority).cancel(address(this), targets[i], calldatas[i]);
             }
         }
 
@@ -182,22 +183,27 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * AccessManager to use, and the delay for this call.
      */
     function _detectExecutionDetails(address target, bytes4 selector) private view returns (ExecutionDetail memory) {
-        // If target is not a contract, skip
-        if (target.code.length > 0) {
-            // Try to fetch authority. If revert, skip
-            try IManaged(target).authority() returns (address authority) {
-                // Check can call. If revert, skip
-                try IAccessManager(authority).canCall(address(this), target, selector) returns (
-                    bool /*allowed*/,
-                    uint32 delay
-                ) {
-                    // If delay is need
-                    if (delay > 0) {
-                        return ExecutionDetail({manager: authority, delay: delay});
-                    }
-                } catch {}
-            } catch {}
+        bool success;
+        bytes memory returndata;
+
+        // Get authority
+        (success, returndata) = target.staticcall(abi.encodeCall(IManaged.authority, ()));
+        if (success && returndata.length >= 0x20) {
+            address authority = abi.decode(returndata, (address));
+
+            // Check if governor can call, and try to detect a delay
+            (success, returndata) = authority.staticcall(
+                abi.encodeCall(IAuthority.canCall, (address(this), target, selector))
+            );
+            if (success && returndata.length >= 0x40) {
+                (bool authorized, uint32 delay) = abi.decode(returndata, (bool, uint32));
+
+                // if direct call is not authorized, and delayed call is possible
+                if (!authorized && delay > 0) {
+                    return ExecutionDetail({authority: authority, delay: delay});
+                }
+            }
         }
-        return ExecutionDetail({manager: address(0), delay: _defaultDelay()});
+        return ExecutionDetail({authority: address(0), delay: _defaultDelay()});
     }
 }

@@ -618,8 +618,8 @@ contract('AccessManager', function (accounts) {
 
         it('canCall', async function () {
           const result = await this.manager.canCall(user, this.target.address, selector('fnRestricted()'));
-          expect(result[0]).to.be.equal(directSuccess)
-          expect(result[1]).to.be.bignumber.equal((!directSuccess && indirectSuccess) ? callerOpt.delay ?? '0' : '0');
+          expect(result[0]).to.be.equal(directSuccess);
+          expect(result[1]).to.be.bignumber.equal(!directSuccess && indirectSuccess ? callerOpt.delay ?? '0' : '0');
         });
 
         it('Calling a non restricted function never revert', async function () {
