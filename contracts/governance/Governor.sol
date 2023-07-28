@@ -66,14 +66,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * governance protocol (since v4.6).
      */
     modifier onlyGovernance() {
-        if (_executor() != _msgSender()) {
-            revert GovernorOnlyExecutor(_msgSender());
-        }
-        if (_executor() != address(this)) {
-            bytes32 msgDataHash = keccak256(_msgData());
-            // loop until popping the expected operation - throw if deque is empty (operation not authorized)
-            while (_governanceCall.popFront() != msgDataHash) {}
-        }
+        _checkGovernance();
         _;
     }
 
@@ -225,6 +218,22 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      */
     function proposalProposer(uint256 proposalId) public view virtual override returns (address) {
         return _proposals[proposalId].proposer;
+    }
+
+    /**
+     * @dev Reverts if the `msg.sender` is not the executor. In case the executor is not this contract
+     * itself, the function reverts if `msg.data` is not whitelisted as a result of an {execute}
+     * operation. See {onlyGovernance}.
+     */
+    function _checkGovernance() internal virtual {
+        if (_executor() != _msgSender()) {
+            revert GovernorOnlyExecutor(_msgSender());
+        }
+        if (_executor() != address(this)) {
+            bytes32 msgDataHash = keccak256(_msgData());
+            // loop until popping the expected operation - throw if deque is empty (operation not authorized)
+            while (_governanceCall.popFront() != msgDataHash) {}
+        }
     }
 
     /**

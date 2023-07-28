@@ -100,7 +100,6 @@ jobs:
       - uses: crytic/slither-action@v0.3.0
         with:
           node-version: 18.15
-          slither-version: 0.9.3
 
   codespell:
     runs-on: ubuntu-latest

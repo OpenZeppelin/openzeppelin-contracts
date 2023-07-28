@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.19;
 
-import {Address} from "../../utils/Address.sol";
-
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
  * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an
@@ -140,10 +138,17 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
+        _checkInitializing();
+        _;
+    }
+
+    /**
+     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.
+     */
+    function _checkInitializing() internal view virtual {
         if (!_initializing) {
             revert NotInitializing();
         }
-        _;
     }
 
     /**
