@@ -7,5 +7,5 @@ interface IAuthority {
         address caller,
         address target,
         bytes4 selector
-    ) external view returns (bool allowed, uint32 delay);
+    ) external view returns (bool allowed);
 }

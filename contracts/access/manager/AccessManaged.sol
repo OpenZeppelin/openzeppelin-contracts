@@ -39,8 +39,7 @@ abstract contract AccessManaged is Context, IManaged {
     }
 
     function _checkCanCall(address caller, address target, bytes4 selector) internal view virtual {
-        (bool allowed, uint32 delay) = IAuthority(authority()).canCall(caller, target, selector);
-        if (!allowed || delay > 0) {
+        if (!IAuthority(authority()).canCall(caller, target, selector)) {
             revert AccessManagedUnauthorized(caller);
         }
     }

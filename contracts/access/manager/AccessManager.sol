@@ -57,16 +57,16 @@ contract AccessManager is Context, IAccessManager {
         if (mode == AccessMode.Open) {
             return (true, 0);
         } else if (mode == AccessMode.Closed) {
-            return (false, type(uint32).max); // use 0 ?
+            return (false, 0);
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
-            bool isRelayedCall = _relayIdentifier == keccak256(abi.encodePacked(target, selector));
-            return (isRelayedCall, isRelayedCall ? 0 : type(uint32).max);
+            return (_relayIdentifier == keccak256(abi.encodePacked(target, selector)), 0);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
-            return
-                hasGroup(groupId, caller) ? (true, getAccess(groupId, caller).delay.get()) : (false, type(uint32).max);
+            bool inGroup = hasGroup(groupId, caller);
+            uint32 executeDelay = inGroup ? getAccess(groupId, caller).delay.get() : 0;
+            return (inGroup && executeDelay == 0, executeDelay);
         }
     }
 
@@ -448,10 +448,10 @@ contract AccessManager is Context, IAccessManager {
         bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, ) = canCall(caller, target, selector);
+        (bool allowed, uint32 setback) = canCall(caller, target, selector);
 
         // If caller is not authorised, revert
-        if (!allowed) {
+        if (!allowed && setback == 0) {
             revert AccessManagerUnauthorizedCall(caller, target, selector);
         }
 
@@ -480,7 +480,7 @@ contract AccessManager is Context, IAccessManager {
         (bool allowed, uint32 setback) = canCall(caller, target, selector);
 
         // If caller is not authorised, revert
-        if (!allowed) {
+        if (!allowed && setback == 0) {
             revert AccessManagerUnauthorizedCall(caller, target, selector);
         }
 
