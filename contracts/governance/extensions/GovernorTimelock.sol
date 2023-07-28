@@ -15,7 +15,7 @@ import {Math} from "../../utils/math/Math.sol";
  *
  * _Available since v5.0._
  */
-abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
+abstract contract GovernorTimelock is IGovernorTimelock, Governor {
     struct ExecutionDetail {
         address authority;
         uint32 delay;
@@ -124,6 +124,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         ExecutionDetail[] storage details = _executionDetails[proposalId];
         ExecutionDetail memory detail;
 
+        // TODO: enforce ETA (might include some _defaultDelaySeconds that are not enforced by any authority)
+
         for (uint256 i = 0; i < targets.length; ++i) {
             detail = details[i];
             if (detail.authority != address(0)) {
@@ -165,8 +167,12 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
     /**
      * @dev Default delay to apply to function calls that are not (scheduled and) executed through an AccessManager.
+     *
+     * NOTE: execution delays are processed by the AccessManager contracts. We expect these to always be in seconds.
+     * Therefore, the default delay that is enforced for calls that don't go through an access manager is also in
+     * seconds, regardless of the Governor's clock mode.
      */
-    function _defaultDelay() internal view virtual returns (uint32) {
+    function _defaultDelaySeconds() internal view virtual returns (uint32) {
         return 0;
     }
 
@@ -174,7 +180,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
      * applied to this call.
      *
-     * Returns { manager: address(0), delay: _defaultDelay() } if:
+     * Returns { manager: address(0), delay: _defaultDelaySeconds() } if:
      * - target does not have code
      * - target does not implement IManaged
      * - calling canCall on the target's manager returns a 0 delay
@@ -204,6 +210,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
                 }
             }
         }
-        return ExecutionDetail({authority: address(0), delay: _defaultDelay()});
+        return ExecutionDetail({authority: address(0), delay: _defaultDelaySeconds()});
     }
 }
