@@ -26,12 +26,6 @@ import {Address} from "../utils/Address.sol";
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
  *
- * WARNING: Any forwarded call to a contract relying on a specific calldata length will be affected
- * by this forwarder since the ERC2771 specification requires `msg.data` to always be suffixed with the
- * `from` address, adding the address size in bytes (20) to the calldata size. An example of an unexpected
- * behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`
- * function, which can be accessed only if `msg.data.length == 0`.
- *
  * ==== Security Considerations
  *
  * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
