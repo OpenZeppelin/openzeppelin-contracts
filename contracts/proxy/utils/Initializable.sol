@@ -165,7 +165,9 @@ abstract contract Initializable {
      * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.
      */
     function _checkInitializing() internal view virtual {
-        if (!_initializing) revert NotInitializing();
+        if (!_isInitializing()) {
+            revert NotInitializing();
+        }
     }
 
     /**
