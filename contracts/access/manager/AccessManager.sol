@@ -41,9 +41,9 @@ contract AccessManager is Context, IAccessManager {
 
     // =================================================== GETTERS ====================================================
     /**
-     * @dev Check if an address (`caller`) is authorised to call a given function on a given contract. Additionally,
-     * returns the delay needed to perform the call. If there is a delay, the call must be scheduled (with {schedule})
-     * and executed (with {relay}).
+     * @dev Check if an address (`caller`) is authorised to call a given function on a given contract directly (with
+     * no restriction). Additionally, it returns the delay needed to perform the call indirectly through the {schedule}
+     * & {relay} workflow.
      *
      * This function is usually called by the targeted contract to control immediate execution of restricted functions.
      * Therefore we only return true is the call can be performed without any delay. If the call is subject to a delay,
@@ -51,6 +51,10 @@ contract AccessManager is Context, IAccessManager {
      *
      * We may be able to hash the operation, and check if the call was scheduled, but we would not be able to cleanup
      * the schedule, leaving the possibility of multiple executions. Maybe this function should not be view?
+     *
+     * NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
+     * is backward compatible. Some contract may thus ignore the second return argument. In that case they will fail
+     * to identify the indirect workflow, and will consider call that require a delay to be forbidden.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
         AccessMode mode = getContractMode(target);
