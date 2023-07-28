@@ -71,7 +71,7 @@ This directory includes primitives for financial systems:
 
 [.contract]
 [[PaymentSplitter]]
-=== `++PaymentSplitter++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.2/contracts/finance/PaymentSplitter.sol[{github-icon},role=heading-link]
+=== `++PaymentSplitter++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/finance/PaymentSplitter.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -252,7 +252,7 @@ contract.
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.2/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

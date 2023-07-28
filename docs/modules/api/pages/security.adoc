@@ -43,7 +43,7 @@ TIP: For an overview on reentrancy and the possible mechanisms to prevent it, re
 
 [.contract]
 [[PullPayment]]
-=== `++PullPayment++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.2/contracts/security/PullPayment.sol[{github-icon},role=heading-link]
+=== `++PullPayment++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/security/PullPayment.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -116,7 +116,7 @@ there is no danger of them being spent before withdrawal.
 
 [.contract]
 [[ReentrancyGuard]]
-=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.2/contracts/security/ReentrancyGuard.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/security/ReentrancyGuard.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -186,7 +186,7 @@ Returns true if the reentrancy guard is currently set to "entered", which indica
 
 [.contract]
 [[Pausable]]
-=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.2/contracts/security/Pausable.sol[{github-icon},role=heading-link]
+=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/security/Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
