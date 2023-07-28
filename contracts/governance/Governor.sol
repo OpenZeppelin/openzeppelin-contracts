@@ -363,9 +363,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        (bool implemented, uint48 eta) = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
+        (bool queued, uint48 eta) = _queueCalls(proposalId, targets, values, calldatas, descriptionHash);
 
-        if (implemented) {
+        if (queued) {
             _proposalsExtra[proposalId].eta = eta;
             emit ProposalQueued(proposalId, eta);
         } else {
@@ -382,7 +382,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * This is empty by default, and must be overridden to implement queuing.
      *
      * This function returns a boolean and a timestamp that describes the expected eta for execution. If the returned
-     * boolean is false (which is the default value), the core will consider queueing to not be implemented, and the
+     * boolean is false (which is the default value), the core will consider queueing did not succeed, and the
      * public {queue} function will revert.
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
