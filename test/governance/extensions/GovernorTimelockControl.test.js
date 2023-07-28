@@ -2,7 +2,7 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap, timelockSalt } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Timelock = artifacts.require('TimelockController');
@@ -35,9 +35,6 @@ contract('GovernorTimelockControl', function (accounts) {
 
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
-      const timelockSalt = (address, descriptionHash) =>
-        '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
-
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 

@@ -2,7 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper } = require('../../helpers/governance');
+const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
 
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorStorageMock');
@@ -80,7 +80,7 @@ contract('GovernorStorage', function (accounts) {
         this.proposal.timelockid = await this.timelock.hashOperationBatch(
           ...this.proposal.shortProposal.slice(0, 3),
           '0x0',
-          this.proposal.shortProposal[3],
+          timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
         );
       });
 
