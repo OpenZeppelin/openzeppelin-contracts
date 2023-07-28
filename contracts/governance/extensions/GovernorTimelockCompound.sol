@@ -77,7 +77,7 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_executeCall} function that run the already queued proposal through
+     * @dev Overridden version of the {Governor-_doExecute} function that run the already queued proposal through
      * the timelock.
      */
     function _doExecute(
