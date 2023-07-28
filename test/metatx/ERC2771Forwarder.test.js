@@ -240,7 +240,7 @@ contract('ERC2771Forwarder', function (accounts) {
       const estimate = await this.estimateRequest(this.request);
 
       // Because the relayer call consumes gas until the `CALL` opcode, the gas left after failing
-      // the subcall is not be enough to finish the top level call (after testing), so we add a
+      // the subcall won't enough to finish the top level call (after testing), so we add a
       // moderated buffer.
       const gasAvailable = estimate + 2_000;
 
