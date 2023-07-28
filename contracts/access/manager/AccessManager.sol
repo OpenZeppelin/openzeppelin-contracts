@@ -340,7 +340,7 @@ contract AccessManager is Context, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * todo: emit an event
+     * Emit a {FunctionAllowedGroupUpdated} event per selector
      */
     function setFunctionAllowedGroup(
         address target,
@@ -351,17 +351,16 @@ contract AccessManager is Context, IAccessManager {
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFunctionAllowedGroup(target, selectors[i], groupId);
         }
-        // todo emit event
     }
 
     /**
      * @dev Internal version of {setFunctionAllowedGroup} without access control.
      *
-     * todo: emit an event
+     * Emit a {FunctionAllowedGroupUpdated} event
      */
     function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 groupId) internal virtual {
         _allowedGroups[target][selector] = groupId;
-        // todo emit event
+        emit FunctionAllowedGroupUpdated(target, selector, groupId);
     }
 
     // =============================================== MODE MANAGEMENT ================================================
@@ -435,7 +434,17 @@ contract AccessManager is Context, IAccessManager {
      */
     function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
         address caller = _msgSender();
+        bytes4 selector = bytes4(data[0:4]);
 
+        // Fetch restriction to that apply to the caller on the targeted function
+        (bool allowed, ) = canCall(caller, target, selector);
+
+        // If caller is not authorised, revert
+        if (!allowed) {
+            revert AccessManagerUnauthorizedCall(caller, target, selector);
+        }
+
+        // If caller is authorised, schedule operation
         bytes32 operationId = _hashOperation(caller, target, data);
         if (_schedules[operationId] != 0) {
             revert AccessManagerAlreadyScheduled(operationId);

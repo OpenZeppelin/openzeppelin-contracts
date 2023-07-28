@@ -9,5 +9,6 @@ interface IManaged {
     error AccessManagedInvalidAuthority(address authority);
 
     function authority() external view returns (address);
+
     function updateAuthority(address) external;
 }

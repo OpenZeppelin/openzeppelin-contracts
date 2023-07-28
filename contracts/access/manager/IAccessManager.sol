@@ -57,6 +57,7 @@ interface IAccessManager is IAuthority {
     event GroupGuardianChanged(uint256 indexed groupId, uint256 indexed guardian);
     event GroupGrantDelayChanged(uint256 indexed groupId, uint32 delay, uint48 from);
     event AccessModeUpdated(address indexed target, AccessMode mode);
+    event FunctionAllowedGroupUpdated(address indexed target, bytes4 selector, uint256 indexed groupId);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
