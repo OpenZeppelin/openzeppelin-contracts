@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../access/manager/AccessManaged.sol";
+import {AccessManaged} from "../access/manager/AccessManaged.sol";
 
 abstract contract AccessManagedTarget is AccessManaged {
     event CalledRestricted(address caller);
