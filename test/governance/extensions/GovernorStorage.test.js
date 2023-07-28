@@ -1,6 +1,7 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const { expectRevertCustomError } = require('../../helpers/customError');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
 
@@ -91,11 +92,11 @@ contract('GovernorStorage', function (accounts) {
           // panic code 0x32 (out-of-bound)
           await expectRevert.unspecified(this.mock.getProposalDetailsAt(0));
 
-          const proposalDetailsForId = await this.mock.getProposalDetails(this.proposal.id);
-          expect(proposalDetailsForId[0]).to.be.deep.equal([]);
-          expect(proposalDetailsForId[1].map(x => x.toString())).to.be.deep.equal([]);
-          expect(proposalDetailsForId[2]).to.be.deep.equal([]);
-          expect(proposalDetailsForId[3]).to.be.equal(constants.ZERO_BYTES32);
+          await expectRevertCustomError(
+            this.mock.getProposalDetails(this.proposal.id),
+            'GovernorNonexistentProposal',
+            [this.proposal.id],
+          );
         });
 
         it('after propose', async function () {

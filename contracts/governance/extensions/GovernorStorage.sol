@@ -97,12 +97,15 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev Returns the details of a proposalId.
+     * @dev Returns the details of a proposalId. Reverts if `proposalId` is not a known proposal.
      */
     function getProposalDetails(
         uint256 proposalId
     ) public view virtual returns (address[] memory, uint256[] memory, bytes[] memory, bytes32) {
-        ProposalDetails storage details = _proposalDetails[proposalId];
+        ProposalDetails memory details = _proposalDetails[proposalId];
+        if (details.descriptionHash == 0) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
         return (details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
