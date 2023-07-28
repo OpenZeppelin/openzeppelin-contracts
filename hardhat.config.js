@@ -78,6 +78,7 @@ module.exports = {
   warnings: {
     'contracts-exposed/**/*': {
       'code-size': 'off',
+      'initcode-size': 'off',
     },
     '*': {
       'code-size': withOptimizations,

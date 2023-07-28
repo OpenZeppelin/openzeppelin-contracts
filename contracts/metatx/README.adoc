@@ -9,4 +9,4 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 == Utils
 
-{{MinimalForwarder}}
+{{ERC2771Forwarder}}

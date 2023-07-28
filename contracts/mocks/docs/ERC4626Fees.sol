@@ -2,7 +2,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../../token/ERC20/extensions/ERC4626.sol";
+import {IERC20} from "../../token/ERC20/IERC20.sol";
+import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
+import {SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
+import {Math} from "../../utils/math/Math.sol";
 
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
@@ -78,10 +81,10 @@ abstract contract ERC4626Fees is ERC4626 {
     }
 
     function _feeOnRaw(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
-        return assets.mulDiv(feeBasePoint, 1e5, Math.Rounding.Up);
+        return assets.mulDiv(feeBasePoint, 1e5, Math.Rounding.Ceil);
     }
 
     function _feeOnTotal(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
-        return assets.mulDiv(feeBasePoint, feeBasePoint + 1e5, Math.Rounding.Up);
+        return assets.mulDiv(feeBasePoint, feeBasePoint + 1e5, Math.Rounding.Ceil);
     }
 }

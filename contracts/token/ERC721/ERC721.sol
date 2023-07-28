@@ -3,13 +3,13 @@
 
 pragma solidity ^0.8.19;
 
-import "./IERC721.sol";
-import "./IERC721Receiver.sol";
-import "./extensions/IERC721Metadata.sol";
-import "../../utils/Context.sol";
-import "../../utils/Strings.sol";
-import "../../utils/introspection/ERC165.sol";
-import "../../interfaces/draft-IERC6093.sol";
+import {IERC721} from "./IERC721.sol";
+import {IERC721Receiver} from "./IERC721Receiver.sol";
+import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
+import {Context} from "../../utils/Context.sol";
+import {Strings} from "../../utils/Strings.sol";
+import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
+import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
@@ -413,7 +413,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
+     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
      * @param from address representing the previous owner of the given token ID
@@ -486,7 +486,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * that `ownerOf(tokenId)` is `a`.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal {
-        _balances[account] += amount;
+    function __unsafe_increaseBalance(address account, uint256 value) internal {
+        _balances[account] += value;
     }
 }

@@ -3,12 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../IGovernor.sol";
+import {IGovernor} from "../IGovernor.sol";
 
 /**
  * @dev Interface extension that adds missing functions to the {Governor} core to provide `GovernorBravo` compatibility.
- *
- * _Available since v4.3._
  */
 abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**

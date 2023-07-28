@@ -1,64 +1,7 @@
-const assert = require('assert');
 const format = require('../format-lines');
 const { range } = require('../../helpers');
 
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
-
-// Returns the version of OpenZeppelin Contracts in which a particular function was introduced.
-// This is used in the docs for each function.
-const version = (selector, length) => {
-  switch (selector) {
-    case 'toUint(uint)': {
-      switch (length) {
-        case 8:
-        case 16:
-        case 32:
-        case 64:
-        case 128:
-          return '2.5';
-        case 96:
-        case 224:
-          return '4.2';
-        default:
-          assert(LENGTHS.includes(length));
-          return '4.7';
-      }
-    }
-    case 'toInt(int)': {
-      switch (length) {
-        case 8:
-        case 16:
-        case 32:
-        case 64:
-        case 128:
-          return '3.1';
-        default:
-          assert(LENGTHS.includes(length));
-          return '4.7';
-      }
-    }
-    case 'toUint(int)': {
-      switch (length) {
-        case 256:
-          return '3.0';
-        default:
-          assert(false);
-          return;
-      }
-    }
-    case 'toInt(uint)': {
-      switch (length) {
-        case 256:
-          return '3.0';
-        default:
-          assert(false);
-          return;
-      }
-    }
-    default:
-      assert(false);
-  }
-};
 
 const header = `\
 pragma solidity ^0.8.19;
@@ -109,8 +52,6 @@ const toUintDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toUint(uint)', length)}._
  */
 function toUint${length}(uint256 value) internal pure returns (uint${length}) {
     if (value > type(uint${length}).max) {
@@ -132,8 +73,6 @@ const toIntDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toInt(int)', length)}._
  */
 function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
     downcasted = int${length}(value);
@@ -151,8 +90,6 @@ const toInt = length => `\
  * Requirements:
  *
  * - input must be less than or equal to maxInt${length}.
- *
- * _Available since v${version('toInt(uint)', length)}._
  */
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
@@ -170,8 +107,6 @@ const toUint = length => `\
  * Requirements:
  *
  * - input must be greater than or equal to 0.
- *
- * _Available since v${version('toUint(int)', length)}._
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
     if (value < 0) {

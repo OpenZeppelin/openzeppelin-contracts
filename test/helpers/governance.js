@@ -81,7 +81,7 @@ class GovernorHelper {
           ...concatOpts(proposal.shortProposal, opts),
         );
       default:
-        throw new Error(`unsuported visibility "${visibility}"`);
+        throw new Error(`unsupported visibility "${visibility}"`);
     }
   }
 
@@ -91,26 +91,17 @@ class GovernorHelper {
     return vote.signature
       ? // if signature, and either params or reason →
         vote.params || vote.reason
-        ? vote
-            .signature(this.governor, {
-              proposalId: proposal.id,
-              support: vote.support,
-              reason: vote.reason || '',
-              params: vote.params || '',
-            })
-            .then(({ v, r, s }) =>
-              this.governor.castVoteWithReasonAndParamsBySig(
-                ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params || '', v, r, s], opts),
+        ? this.sign(vote).then(signature =>
+            this.governor.castVoteWithReasonAndParamsBySig(
+              ...concatOpts(
+                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', signature],
+                opts,
               ),
-            )
-        : vote
-            .signature(this.governor, {
-              proposalId: proposal.id,
-              support: vote.support,
-            })
-            .then(({ v, r, s }) =>
-              this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, v, r, s], opts)),
-            )
+            ),
+          )
+        : this.sign(vote).then(signature =>
+            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
+          )
       : vote.params
       ? // otherwise if params
         this.governor.castVoteWithReasonAndParams(
@@ -120,6 +111,23 @@ class GovernorHelper {
       ? // otherwise if reason
         this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
+  }
+
+  sign(vote = {}) {
+    return vote.signature(this.governor, this.forgeMessage(vote));
+  }
+
+  forgeMessage(vote = {}) {
+    const proposal = this.currentProposal;
+
+    const message = { proposalId: proposal.id, support: vote.support, voter: vote.voter, nonce: vote.nonce };
+
+    if (vote.params || vote.reason) {
+      message.reason = vote.reason || '';
+      message.params = vote.params || '';
+    }
+
+    return message;
   }
 
   async waitForSnapshot(offset = 0) {

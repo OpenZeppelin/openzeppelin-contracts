@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.19;
 
-import "../../interfaces/draft-IERC1822.sol";
-import "../ERC1967/ERC1967Utils.sol";
+import {IERC1822Proxiable} from "../../interfaces/draft-IERC1822.sol";
+import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
@@ -15,12 +15,20 @@ import "../ERC1967/ERC1967Utils.sol";
  * `UUPSUpgradeable` with a custom implementation of upgrades.
  *
  * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
- *
- * _Available since v4.1._
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable __self = address(this);
+
+    /**
+     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgradeTo(address)`
+     * and `upgradeToAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
+     * while `upgradeToAndCall` will invoke the `receive` function if the second argument is the empty byte string.
+     * If the getter returns `"5.0.0"`, only `upgradeToAndCall(address,bytes)` is present, and the second argument must
+     * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
+     * during an upgrade.
+     */
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
 
     /**
      * @dev The call is from an unauthorized context.
@@ -74,20 +82,6 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy to `newImplementation`.
-     *
-     * Calls {_authorizeUpgrade}.
-     *
-     * Emits an {Upgraded} event.
-     *
-     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
-     */
-    function upgradeTo(address newImplementation) public virtual onlyProxy {
-        _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
-    }
-
-    /**
      * @dev Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call
      * encoded in `data`.
      *
@@ -99,17 +93,17 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, data, true);
+        _upgradeToAndCallUUPS(newImplementation, data);
     }
 
     /**
      * @dev Function that should revert when `msg.sender` is not authorized to upgrade the contract. Called by
-     * {upgradeTo} and {upgradeToAndCall}.
+     * {upgradeToAndCall}.
      *
      * Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
      *
      * ```solidity
-     * function _authorizeUpgrade(address) internal  onlyOwner {}
+     * function _authorizeUpgrade(address) internal onlyOwner {}
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
@@ -119,12 +113,12 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) private {
+    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data) private {
         try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
             if (slot != ERC1967Utils.IMPLEMENTATION_SLOT) {
                 revert UUPSUnsupportedProxiableUUID(slot);
             }
-            ERC1967Utils.upgradeToAndCall(newImplementation, data, forceCall);
+            ERC1967Utils.upgradeToAndCall(newImplementation, data);
         } catch {
             // The implementation is not UUPS
             revert ERC1967Utils.ERC1967InvalidImplementation(newImplementation);
