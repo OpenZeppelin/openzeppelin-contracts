@@ -92,10 +92,10 @@ contract('GovernorStorage', function (accounts) {
           await expectRevert.unspecified(this.mock.getProposalDetailsAt(0));
 
           const proposalDetailsForId = await this.mock.getProposalDetails(this.proposal.id);
-          expect(proposalDetailsForId[0]).to.be.bignumber.equal(this.proposal.id);
-          expect(proposalDetailsForId[1]).to.be.deep.equal([]);
-          expect(proposalDetailsForId[2].map(x => x.toString())).to.be.deep.equal([]);
-          expect(proposalDetailsForId[3]).to.be.deep.equal([]);
+          expect(proposalDetailsForId[0]).to.be.deep.equal([]);
+          expect(proposalDetailsForId[1].map(x => x.toString())).to.be.deep.equal([]);
+          expect(proposalDetailsForId[2]).to.be.deep.equal([]);
+          expect(proposalDetailsForId[3]).to.be.equal(constants.ZERO_BYTES32);
         });
 
         it('after propose', async function () {
@@ -108,12 +108,13 @@ contract('GovernorStorage', function (accounts) {
           expect(proposalDetailsAt0[1]).to.be.deep.equal(this.proposal.targets);
           expect(proposalDetailsAt0[2].map(x => x.toString())).to.be.deep.equal(this.proposal.values);
           expect(proposalDetailsAt0[3]).to.be.deep.equal(this.proposal.fulldata);
+          expect(proposalDetailsAt0[4]).to.be.equal(this.proposal.descriptionHash);
 
           const proposalDetailsForId = await this.mock.getProposalDetails(this.proposal.id);
-          expect(proposalDetailsForId[0]).to.be.bignumber.equal(this.proposal.id);
-          expect(proposalDetailsForId[1]).to.be.deep.equal(this.proposal.targets);
-          expect(proposalDetailsForId[2].map(x => x.toString())).to.be.deep.equal(this.proposal.values);
-          expect(proposalDetailsForId[3]).to.be.deep.equal(this.proposal.fulldata);
+          expect(proposalDetailsForId[0]).to.be.deep.equal(this.proposal.targets);
+          expect(proposalDetailsForId[1].map(x => x.toString())).to.be.deep.equal(this.proposal.values);
+          expect(proposalDetailsForId[2]).to.be.deep.equal(this.proposal.fulldata);
+          expect(proposalDetailsForId[3]).to.be.equal(this.proposal.descriptionHash);
         });
       });
 
