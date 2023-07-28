@@ -232,7 +232,7 @@ contract('ERC2771Forwarder', function (accounts) {
     it('bubbles out of gas forced by the relayer', async function () {
       // If there's an incentive behind executing requests, a malicious relayer could grief
       // the forwarder by executing requests and providing a top-level call gas limit that
-      // is too low to succesfully finish the request after the 63/64 rule.
+      // is too low to successfully finish the request after the 63/64 rule.
 
       // We set the baseline to the gas limit consumed by a successful request if it was executed
       // normally. Note this includes the 21000 buffer that also the relayer will be charged to
