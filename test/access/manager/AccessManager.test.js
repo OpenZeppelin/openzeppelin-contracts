@@ -1,13 +1,11 @@
 const { expectEvent, constants, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { Enum } = require('../../helpers/enums');
+const { AccessMode } = require('../../helpers/enums');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
-
-const AccessMode = Enum('Custom', 'Closed', 'Open');
 
 const GROUPS = {
   ADMIN: web3.utils.toBN(0),
@@ -22,10 +20,10 @@ const grantDelay = web3.utils.toBN(10);
 
 const MAX_UINT = n => web3.utils.toBN(1).shln(n).subn(1);
 
-const split = (delay) => ({
+const split = delay => ({
   oldValue: web3.utils.toBN(delay).shrn(0).and(MAX_UINT(32)).toString(),
   newValue: web3.utils.toBN(delay).shrn(32).and(MAX_UINT(32)).toString(),
-  effect:   web3.utils.toBN(delay).shrn(64).and(MAX_UINT(48)).toString(),
+  effect: web3.utils.toBN(delay).shrn(64).and(MAX_UINT(48)).toString(),
 });
 
 contract('AccessManager', function (accounts) {
@@ -337,11 +335,12 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(
-          receipt,
-          'GroupExecutionDelayUpdate',
-          { groupId: GROUPS.SOME, account: member, delay: newDelay, from: timestamp },
-        );
+        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+          groupId: GROUPS.SOME,
+          account: member,
+          delay: newDelay,
+          from: timestamp,
+        });
 
         // immediate effect
         const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
@@ -363,11 +362,12 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(
-          receipt,
-          'GroupExecutionDelayUpdate',
-          { groupId: GROUPS.SOME, account: member, delay: newDelay, from: timestamp.add(oldDelay) },
-        );
+        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+          groupId: GROUPS.SOME,
+          account: member,
+          delay: newDelay,
+          from: timestamp.add(oldDelay),
+        });
 
         // delayed effect
         const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
@@ -390,11 +390,12 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(
-          receipt,
-          'GroupExecutionDelayUpdate',
-          { groupId: GROUPS.SOME, account: other, delay: executeDelay, from: timestamp },
-        );
+        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+          groupId: GROUPS.SOME,
+          account: other,
+          delay: executeDelay,
+          from: timestamp,
+        });
       });
 
       it('changing the execution delay is restricted', async function () {
@@ -432,7 +433,11 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, from: timestamp.add(oldDelay).sub(newDelay) });
+        expectEvent(receipt, 'GroupGrantDelayChanged', {
+          groupId: GROUPS.SOME,
+          delay: newDelay,
+          from: timestamp.add(oldDelay).sub(newDelay),
+        });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
 
@@ -447,7 +452,7 @@ contract('AccessManager', function (accounts) {
           'AccessControlUnauthorizedAccount',
           [GROUPS.ADMIN, other],
         );
-        });
+      });
     });
   });
 
