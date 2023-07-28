@@ -41,6 +41,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bool executed;
         bool canceled;
     }
+
+    // A separate struct so Solidity doesn't read 2 slots into memory when reading ProposalCore.
     struct ProposalExtra {
         uint48 eta;
     }
@@ -273,7 +275,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) public virtual override returns (uint256) {
         address proposer = _msgSender();
 
-        // check: description restriction
+        // check description restriction
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
         // check proposal threshold
