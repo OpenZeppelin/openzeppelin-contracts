@@ -54,12 +54,12 @@ abstract contract GovernorStorage is Governor {
      * @dev Version of {IGovernorTimelock-queue} with only `proposalId` as an argument.
      */
     function queue(uint256 proposalId) public virtual {
-        ProposalDetails storage proposalDetails = _proposalDetails[proposalId];
+        ProposalDetails storage details = _proposalDetails[proposalId];
         queue(
-            proposalDetails.targets,
-            proposalDetails.values,
-            proposalDetails.calldatas,
-            proposalDetails.descriptionHash
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
         );
     }
 
@@ -67,12 +67,12 @@ abstract contract GovernorStorage is Governor {
      * @dev Version of {IGovernor-execute} with only `proposalId` as an argument.
      */
     function execute(uint256 proposalId) public payable virtual {
-        ProposalDetails storage proposalDetails = _proposalDetails[proposalId];
+        ProposalDetails storage details = _proposalDetails[proposalId];
         execute(
-            proposalDetails.targets,
-            proposalDetails.values,
-            proposalDetails.calldatas,
-            proposalDetails.descriptionHash
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
         );
     }
 
@@ -80,26 +80,26 @@ abstract contract GovernorStorage is Governor {
      * @dev ProposalId version of {IGovernor-cancel}.
      */
     function cancel(uint256 proposalId) public virtual {
-        ProposalDetails storage proposalDetails = _proposalDetails[proposalId];
+        ProposalDetails storage details = _proposalDetails[proposalId];
         cancel(
-            proposalDetails.targets,
-            proposalDetails.values,
-            proposalDetails.calldatas,
-            proposalDetails.descriptionHash
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
         );
     }
 
     /**
      * @dev Returns the number of stored proposals.
      */
-    function getProposalCount() public view virtual returns (uint256) {
+    function proposalCount() public view virtual returns (uint256) {
         return _proposalIds.length;
     }
 
     /**
      * @dev Returns the details of a proposalId. Reverts if `proposalId` is not a known proposal.
      */
-    function getProposalDetails(
+    function proposalDetails(
         uint256 proposalId
     ) public view virtual returns (address[] memory, uint256[] memory, bytes[] memory, bytes32) {
         ProposalDetails memory details = _proposalDetails[proposalId];
@@ -112,7 +112,7 @@ abstract contract GovernorStorage is Governor {
     /**
      * @dev Returns the details (including the proposalId) of a proposal given its sequential index.
      */
-    function getProposalDetailsAt(
+    function proposalDetailsAt(
         uint256 index
     ) public view virtual returns (uint256, address[] memory, uint256[] memory, bytes[] memory, bytes32) {
         uint256 proposalId = _proposalIds[index];
@@ -121,7 +121,7 @@ abstract contract GovernorStorage is Governor {
             uint256[] memory values,
             bytes[] memory calldatas,
             bytes32 descriptionHash
-        ) = getProposalDetails(proposalId);
+        ) = proposalDetails(proposalId);
         return (proposalId, targets, values, calldatas, descriptionHash);
     }
 }

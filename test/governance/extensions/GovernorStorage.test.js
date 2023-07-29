@@ -87,12 +87,12 @@ contract('GovernorStorage', function (accounts) {
 
       describe('proposal indexing', function () {
         it('before propose', async function () {
-          expect(await this.mock.getProposalCount()).to.be.bignumber.equal('0');
+          expect(await this.mock.proposalCount()).to.be.bignumber.equal('0');
 
           // panic code 0x32 (out-of-bound)
-          await expectRevert.unspecified(this.mock.getProposalDetailsAt(0));
+          await expectRevert.unspecified(this.mock.proposalDetailsAt(0));
 
-          await expectRevertCustomError(this.mock.getProposalDetails(this.proposal.id), 'GovernorNonexistentProposal', [
+          await expectRevertCustomError(this.mock.proposalDetails(this.proposal.id), 'GovernorNonexistentProposal', [
             this.proposal.id,
           ]);
         });
@@ -100,16 +100,16 @@ contract('GovernorStorage', function (accounts) {
         it('after propose', async function () {
           await this.helper.propose();
 
-          expect(await this.mock.getProposalCount()).to.be.bignumber.equal('1');
+          expect(await this.mock.proposalCount()).to.be.bignumber.equal('1');
 
-          const proposalDetailsAt0 = await this.mock.getProposalDetailsAt(0);
+          const proposalDetailsAt0 = await this.mock.proposalDetailsAt(0);
           expect(proposalDetailsAt0[0]).to.be.bignumber.equal(this.proposal.id);
           expect(proposalDetailsAt0[1]).to.be.deep.equal(this.proposal.targets);
           expect(proposalDetailsAt0[2].map(x => x.toString())).to.be.deep.equal(this.proposal.values);
           expect(proposalDetailsAt0[3]).to.be.deep.equal(this.proposal.fulldata);
           expect(proposalDetailsAt0[4]).to.be.equal(this.proposal.descriptionHash);
 
-          const proposalDetailsForId = await this.mock.getProposalDetails(this.proposal.id);
+          const proposalDetailsForId = await this.mock.proposalDetails(this.proposal.id);
           expect(proposalDetailsForId[0]).to.be.deep.equal(this.proposal.targets);
           expect(proposalDetailsForId[1].map(x => x.toString())).to.be.deep.equal(this.proposal.values);
           expect(proposalDetailsForId[2]).to.be.deep.equal(this.proposal.fulldata);
