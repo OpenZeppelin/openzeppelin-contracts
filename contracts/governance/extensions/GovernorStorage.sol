@@ -116,7 +116,12 @@ abstract contract GovernorStorage is Governor {
         uint256 index
     ) public view virtual returns (uint256, address[] memory, uint256[] memory, bytes[] memory, bytes32) {
         uint256 proposalId = _proposalIds[index];
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) = getProposalDetails(proposalId);
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = getProposalDetails(proposalId);
         return (proposalId, targets, values, calldatas, descriptionHash);
     }
 }

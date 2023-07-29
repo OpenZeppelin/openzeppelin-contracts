@@ -92,11 +92,9 @@ contract('GovernorStorage', function (accounts) {
           // panic code 0x32 (out-of-bound)
           await expectRevert.unspecified(this.mock.getProposalDetailsAt(0));
 
-          await expectRevertCustomError(
-            this.mock.getProposalDetails(this.proposal.id),
-            'GovernorNonexistentProposal',
-            [this.proposal.id],
-          );
+          await expectRevertCustomError(this.mock.getProposalDetails(this.proposal.id), 'GovernorNonexistentProposal', [
+            this.proposal.id,
+          ]);
         });
 
         it('after propose', async function () {
