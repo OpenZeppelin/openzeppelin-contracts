@@ -11,7 +11,7 @@ import {Math} from "../../utils/math/Math.sol";
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
-    uint256 private constant _BASE_POINT_SCALE = 1e4;
+    uint256 private constant _BASIS_POINT_SCALE = 1e4;
 
     // === Overrides === ///
 
@@ -92,12 +92,12 @@ abstract contract ERC4626Fees is ERC4626 {
     /// @dev Calculates the fees that should be added to an amount `assets` that does not already include fees.
     /// Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
     function _feeOnRaw(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
-        return assets.mulDiv(feeBasisPoints, _BASE_POINT_SCALE, Math.Rounding.Ceil);
+        return assets.mulDiv(feeBasisPoints, _BASIS_POINT_SCALE, Math.Rounding.Ceil);
     }
 
     /// @dev Calculates the fee part of an amount `assets` that already includes fees.
     /// Used in {IERC4626-deposit} and {IERC4626-redeem} operations.
     function _feeOnTotal(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
-        return assets.mulDiv(feeBasisPoints, feeBasisPoints + _BASE_POINT_SCALE, Math.Rounding.Ceil);
+        return assets.mulDiv(feeBasisPoints, feeBasisPoints + _BASIS_POINT_SCALE, Math.Rounding.Ceil);
     }
 }
