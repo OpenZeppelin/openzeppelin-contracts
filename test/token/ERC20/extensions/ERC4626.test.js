@@ -739,7 +739,7 @@ contract('ERC4626', function (accounts) {
   describe('ERC4626Fees', function () {
     const feeBasisPoints = web3.utils.toBN(5e3);
     const valueWithoutFees = web3.utils.toBN(10000);
-    const fees = valueWithoutFees.mul(feeBasisPoints).divn(1e5);
+    const fees = valueWithoutFees.mul(feeBasisPoints).divn(1e4);
     const valueWithFees = valueWithoutFees.add(fees);
 
     describe('input fees', function () {
