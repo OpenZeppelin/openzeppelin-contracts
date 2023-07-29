@@ -13,7 +13,7 @@ abstract contract ERC4626Fees is ERC4626 {
 
     uint256 private constant _BASIS_POINT_SCALE = 1e4;
 
-    // === Overrides === ///
+    // === Overrides ===
 
     /// @dev Preview taking an entry fee on deposit. See {IERC4626-previewDeposit}.
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
@@ -69,14 +69,14 @@ abstract contract ERC4626Fees is ERC4626 {
         }
     }
 
-    // === Fee configuration === ///
+    // === Fee configuration ===
 
     function _entryFeeBasisPoints() internal view virtual returns (uint256) {
-        return 0; // replace with e.g. 1_000 for 1%
+        return 0; // replace with e.g. 100 for 1%
     }
 
     function _exitFeeBasisPoints() internal view virtual returns (uint256) {
-        return 0; // replace with e.g. 1_000 for 1%
+        return 0; // replace with e.g. 100 for 1%
     }
 
     function _entryFeeRecipient() internal view virtual returns (address) {
@@ -87,7 +87,7 @@ abstract contract ERC4626Fees is ERC4626 {
         return address(0); // replace with e.g. a treasury address
     }
 
-    // === Fee operations === ///
+    // === Fee operations ===
 
     /// @dev Calculates the fees that should be added to an amount `assets` that does not already include fees.
     /// Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
