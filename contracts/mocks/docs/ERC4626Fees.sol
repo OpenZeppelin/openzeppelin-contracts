@@ -72,19 +72,19 @@ abstract contract ERC4626Fees is ERC4626 {
     // === Fee configuration === ///
 
     function _entryFeeBasePoint() internal view virtual returns (uint256) {
-        return 0; // i.e. 1_000 for 1%
+        return 0; // replace with e.g. 1_000 for 1%
     }
 
     function _exitFeeBasePoint() internal view virtual returns (uint256) {
-        return 0; // i.e. 1_000 for 1%
+        return 0; // replace with e.g. 1_000 for 1%
     }
 
     function _entryFeeRecipient() internal view virtual returns (address) {
-        return address(0); // i.e. treasury
+        return address(0); // replace with e.g. a treasury address
     }
 
     function _exitFeeRecipient() internal view virtual returns (address) {
-        return address(0); // i.e. treasury
+        return address(0); // replace with e.g. a treasury address
     }
 
     // === Fee operations === ///
