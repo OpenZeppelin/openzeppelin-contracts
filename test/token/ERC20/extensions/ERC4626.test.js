@@ -689,9 +689,9 @@ contract('ERC4626', function (accounts) {
   }
 
   describe('ERC4626Fees', function () {
-    const feeBasePoint = web3.utils.toBN(5e3);
+    const feeBasisPoints = web3.utils.toBN(5e3);
     const amountWithoutFees = web3.utils.toBN(10000);
-    const fees = amountWithoutFees.mul(feeBasePoint).divn(1e5);
+    const fees = amountWithoutFees.mul(feeBasisPoints).divn(1e4);
     const amountWithFees = amountWithoutFees.add(fees);
 
     describe('input fees', function () {
@@ -701,7 +701,7 @@ contract('ERC4626', function (accounts) {
           name + ' Vault',
           symbol + 'V',
           this.token.address,
-          feeBasePoint,
+          feeBasisPoints,
           other,
           0,
           constants.ZERO_ADDRESS,
