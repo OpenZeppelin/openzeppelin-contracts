@@ -7,41 +7,41 @@ import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
 import {SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../utils/math/Math.sol";
 
-/// @dev ERC4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Per_cent_mille[PCM].
+/// @dev ERC4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[base point (bp)].
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
-    uint256 private constant _PCM_SCALE = 1e5;
+    uint256 private constant _BASE_POINT_SCALE = 1e4;
 
     // === Overrides === ///
 
     /// @dev Preview taking an entry fee on deposit. See {IERC4626-previewDeposit}.
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
-        uint256 fee = _feeOnTotal(assets, _entryFeePCM());
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasePoint());
         return super.previewDeposit(assets - fee);
     }
 
     /// @dev Preview adding an entry fee on mint. See {IERC4626-previewMint}.
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
         uint256 assets = super.previewMint(shares);
-        return assets + _feeOnRaw(assets, _entryFeePCM());
+        return assets + _feeOnRaw(assets, _entryFeeBasePoint());
     }
 
     /// @dev Preview adding an exit fee on withdraw. See {IERC4626-previewWithdraw}.
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
-        uint256 fee = _feeOnRaw(assets, _exitFeePCM());
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasePoint());
         return super.previewWithdraw(assets + fee);
     }
 
     /// @dev Preview taking an exit fee on redeem. See {IERC4626-previewRedeem}.
     function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
         uint256 assets = super.previewRedeem(shares);
-        return assets - _feeOnTotal(assets, _exitFeePCM());
+        return assets - _feeOnTotal(assets, _exitFeeBasePoint());
     }
 
     /// @dev Send entry fee to {_entryFeeRecipient}. See {IERC4626-_deposit}.
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
-        uint256 fee = _feeOnTotal(assets, _entryFeePCM());
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasePoint());
         address recipient = _entryFeeRecipient();
 
         super._deposit(caller, receiver, assets, shares);
@@ -59,7 +59,7 @@ abstract contract ERC4626Fees is ERC4626 {
         uint256 assets,
         uint256 shares
     ) internal virtual override {
-        uint256 fee = _feeOnRaw(assets, _exitFeePCM());
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasePoint());
         address recipient = _exitFeeRecipient();
 
         super._withdraw(caller, receiver, owner, assets, shares);
@@ -71,11 +71,11 @@ abstract contract ERC4626Fees is ERC4626 {
 
     // === Fee configuration === ///
 
-    function _entryFeePCM() internal view virtual returns (uint256) {
+    function _entryFeeBasePoint() internal view virtual returns (uint256) {
         return 0; // i.e. 1_000 for 1%
     }
 
-    function _exitFeePCM() internal view virtual returns (uint256) {
+    function _exitFeeBasePoint() internal view virtual returns (uint256) {
         return 0; // i.e. 1_000 for 1%
     }
 
@@ -90,12 +90,11 @@ abstract contract ERC4626Fees is ERC4626 {
     // === Fee operations === ///
 
     /// @dev Calculates the fees that should be added to an amount `assets` that does not already include fees. Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
-    function _feeOnRaw(uint256 assets, uint256 feePCM) private pure returns (uint256) {
-        return assets.mulDiv(feePCM, _PCM_SCALE, Math.Rounding.Ceil);
+    function _feeOnRaw(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
+        return assets.mulDiv(feeBasePoint, _BASE_POINT_SCALE, Math.Rounding.Ceil);
     }
 
     /// @dev Calculates the fee part of an amount `assets` that already includes fees. Used in {IERC4626-deposit} and {IERC4626-redeem} operations.
-    function _feeOnTotal(uint256 assets, uint256 feePCM) private pure returns (uint256) {
-        return assets.mulDiv(feePCM, feePCM + _PCM_SCALE, Math.Rounding.Ceil);
-    }
+    function _feeOnTotal(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
+        return assets.mulDiv(feeBasePoint, feeBasePoint + _BASE_POINT_SCALE, Math.Rounding.Ceil);
 }
