@@ -89,12 +89,12 @@ abstract contract ERC4626Fees is ERC4626 {
 
     // === Fee operations === ///
 
-    /// @dev Calculates fee on `assets` not including fees. Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
+    /// @dev Calculates the fees that should be added to an amount `assets` that does not already include fees. Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
     function _feeOnRaw(uint256 assets, uint256 feePCM) private pure returns (uint256) {
         return assets.mulDiv(feePCM, _PCM_SCALE, Math.Rounding.Ceil);
     }
 
-    /// @dev Calculates fee on `assets` already including fees. Used in {IERC4626-deposit} and {IERC4626-redeem} operations.
+    /// @dev Calculates the fee part of an amount `assets` that already includes fees. Used in {IERC4626-deposit} and {IERC4626-redeem} operations.
     function _feeOnTotal(uint256 assets, uint256 feePCM) private pure returns (uint256) {
         return assets.mulDiv(feePCM, feePCM + _PCM_SCALE, Math.Rounding.Ceil);
     }
