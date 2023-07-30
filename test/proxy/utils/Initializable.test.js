@@ -213,7 +213,7 @@ contract('Initializable', function () {
     it('old and new patterns in good sequence', async function () {
       const ok = await DisableOk.new();
       await expectEvent.inConstruction(ok, 'Initialized', { version: '1' });
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '18446744073709551615' }); // MAX_UINT64
+      await expectEvent.inConstruction(ok, 'Initialized', { version: BigInt('0xFFFFFFFFFFFFFFFF').toString() }); // MAX_UINT64
     });
   });
 });
