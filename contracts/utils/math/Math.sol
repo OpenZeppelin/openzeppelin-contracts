@@ -124,11 +124,10 @@ library Math {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2^256 + prod0.
-            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
                 let mm := mulmod(x, y, not(0))
-                prod0 := mul(x, y)
                 prod1 := sub(sub(mm, prod0), lt(mm, prod0))
             }
 
