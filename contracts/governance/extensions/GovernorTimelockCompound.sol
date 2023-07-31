@@ -63,7 +63,7 @@ abstract contract GovernorTimelockCompound is Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
-    ) internal virtual override returns (bool, uint48) {
+    ) internal virtual override returns (uint48) {
         uint48 eta = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -73,7 +73,7 @@ abstract contract GovernorTimelockCompound is Governor {
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
-        return (true, eta);
+        return eta;
     }
 
     /**

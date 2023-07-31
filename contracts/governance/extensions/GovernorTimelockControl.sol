@@ -76,14 +76,14 @@ abstract contract GovernorTimelockControl is Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override returns (bool, uint48) {
+    ) internal virtual override returns (uint48) {
         uint256 delay = _timelock.getMinDelay();
 
         bytes32 salt = _timelockSalt(descriptionHash);
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
         _timelock.scheduleBatch(targets, values, calldatas, 0, salt, delay);
 
-        return (true, SafeCast.toUint48(block.timestamp + delay));
+        return SafeCast.toUint48(block.timestamp + delay);
     }
 
     /**

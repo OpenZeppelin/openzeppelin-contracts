@@ -363,9 +363,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        (bool queued, uint48 eta) = _doQueue(proposalId, targets, values, calldatas, descriptionHash);
+        uint48 eta = _doQueue(proposalId, targets, values, calldatas, descriptionHash);
 
-        if (queued) {
+        if (eta != 0) {
             _proposalsExtra[proposalId].eta = eta;
             emit ProposalQueued(proposalId, eta);
         } else {
@@ -381,9 +381,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      *
      * This is empty by default, and must be overridden to implement queuing.
      *
-     * This function returns a boolean and a timestamp that describes the expected eta for execution. If the returned
-     * boolean is false (which is the default value), the core will consider queueing did not succeed, and the
-     * public {queue} function will revert.
+     * This function returns a timestamp that describes the expected eta for execution. If the returned value is 0
+     * (which is the default value), the core will consider queueing did not succeed, and the public {queue} function
+     * will revert.
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
      * `ProposalQueued` event. Queuing a proposal should be done using {queue} or {_queue}.
@@ -394,8 +394,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256[] memory /*values*/,
         bytes[] memory /*calldatas*/,
         bytes32 /*descriptionHash*/
-    ) internal virtual returns (bool, uint48) {
-        return (false, 0);
+    ) internal virtual returns (uint48) {
+        return 0;
     }
 
     /**

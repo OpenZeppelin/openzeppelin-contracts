@@ -46,7 +46,7 @@ abstract contract GovernorStorageMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (bool, uint48) {
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
         return super._doQueue(proposalId, targets, values, calldatas, descriptionHash);
     }
 
