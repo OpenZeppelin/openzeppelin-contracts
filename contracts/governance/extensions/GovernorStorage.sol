@@ -55,12 +55,7 @@ abstract contract GovernorStorage is Governor {
      */
     function queue(uint256 proposalId) public virtual {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        queue(
-            details.targets,
-            details.values,
-            details.calldatas,
-            details.descriptionHash
-        );
+        queue(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
     /**
@@ -68,12 +63,7 @@ abstract contract GovernorStorage is Governor {
      */
     function execute(uint256 proposalId) public payable virtual {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        execute(
-            details.targets,
-            details.values,
-            details.calldatas,
-            details.descriptionHash
-        );
+        execute(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
     /**
@@ -81,12 +71,7 @@ abstract contract GovernorStorage is Governor {
      */
     function cancel(uint256 proposalId) public virtual {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        cancel(
-            details.targets,
-            details.values,
-            details.calldatas,
-            details.descriptionHash
-        );
+        cancel(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
     /**

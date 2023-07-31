@@ -53,8 +53,6 @@ const INTERFACES = {
   Governor: [
     'name()',
     'version()',
-    'clock()', // part of ERC-6372, but redeclared as public
-    'CLOCK_MODE()', // part of ERC-6372, but redeclared as public
     'COUNTING_MODE()',
     'hashProposal(address[],uint256[],bytes[],bytes32)',
     'state(uint256)',
