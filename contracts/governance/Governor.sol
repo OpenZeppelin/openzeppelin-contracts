@@ -42,16 +42,20 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bool canceled;
     }
 
-    // A separate struct so Solidity doesn't read 2 slots into memory when reading ProposalCore.
     struct ProposalExtra {
         uint48 eta;
+    }
+
+    // Each object in this should fit into a single slot so it can be cached efficiently
+    struct ProposalFull {
+        ProposalCore core;
+        ProposalExtra extra;
     }
 
     bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
     string private _name;
 
-    mapping(uint256 => ProposalCore) private _proposals;
-    mapping(uint256 => ProposalExtra) private _proposalsExtra;
+    mapping(uint256 => ProposalFull) private _proposals;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
@@ -142,11 +146,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         // ProposalCore is just one slot. We can load it from storage to memory with a single sload and use memory
         // object as a cache. This avoid duplicating expensive sloads.
-        ProposalCore memory proposal = _proposals[proposalId];
+        ProposalCore memory core = _proposals[proposalId].core;
 
-        if (proposal.executed) {
+        if (core.executed) {
             return ProposalState.Executed;
-        } else if (proposal.canceled) {
+        } else if (core.canceled) {
             return ProposalState.Canceled;
         }
 
@@ -186,28 +190,28 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteStart;
+        return _proposals[proposalId].core.voteStart;
     }
 
     /**
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
+        return _proposals[proposalId].core.voteStart + _proposals[proposalId].core.voteDuration;
     }
 
     /**
      * @dev Returns the account that created a given proposal.
      */
     function proposalProposer(uint256 proposalId) public view virtual override returns (address) {
-        return _proposals[proposalId].proposer;
+        return _proposals[proposalId].core.proposer;
     }
 
     /**
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposalsExtra[proposalId].eta;
+        return _proposals[proposalId].extra.eta;
     }
 
     /**
@@ -305,14 +309,14 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
         }
-        if (_proposals[proposalId].voteStart != 0) {
+        if (_proposals[proposalId].core.voteStart != 0) {
             revert GovernorUnexpectedProposalState(proposalId, state(proposalId), bytes32(0));
         }
 
         uint256 snapshot = clock() + votingDelay();
         uint256 duration = votingPeriod();
 
-        _proposals[proposalId] = ProposalCore({
+        _proposals[proposalId].core = ProposalCore({
             proposer: proposer,
             voteStart: SafeCast.toUint48(snapshot),
             voteDuration: SafeCast.toUint32(duration),
@@ -366,7 +370,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint48 eta = _doQueue(proposalId, targets, values, calldatas, descriptionHash);
 
         if (eta != 0) {
-            _proposalsExtra[proposalId].eta = eta;
+            _proposals[proposalId].extra.eta = eta;
             emit ProposalQueued(proposalId, eta);
         } else {
             revert GovernorQueueNotImplemented();
@@ -430,7 +434,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         );
 
         // mark as executed before calls to avoid reentrancy
-        _proposals[proposalId].executed = true;
+        _proposals[proposalId].core.executed = true;
 
         // before execute: register governance call in queue.
         if (_executor() != address(this)) {
@@ -520,7 +524,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
                 _encodeStateBitmap(ProposalState.Executed)
         );
 
-        _proposals[proposalId].canceled = true;
+        _proposals[proposalId].core.canceled = true;
         emit ProposalCanceled(proposalId);
 
         return proposalId;
