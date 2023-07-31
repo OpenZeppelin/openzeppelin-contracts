@@ -36,8 +36,9 @@ library SignedMath {
      */
     function abs(int256 n) internal pure returns (uint256) {
         unchecked {
-            // must be unchecked in order to support `n = type(int256).min`
-            return uint256(n >= 0 ? n : -n);
+            // Formula from the "Bit Twiddling Hacks" by Sean Eron Anderson
+            int256 mask = n >> 255;
+            return uint256((n + mask) ^ mask);
         }
     }
 }
