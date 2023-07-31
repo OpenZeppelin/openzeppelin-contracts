@@ -20,7 +20,7 @@ For example, imagine you want to change xref:api:access.adoc#AccessControl[`Acce
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -48,7 +48,7 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -80,7 +80,7 @@ Hooks are simply functions that are called before or after some action takes pla
 Here's how you would implement the `IERC721Receiver` pattern in `ERC20`, using the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook:
 
 ```solidity
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
