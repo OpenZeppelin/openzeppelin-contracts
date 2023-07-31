@@ -37,6 +37,9 @@ contract('GovernorTimelockControl', function (accounts) {
 
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
+      const timelockSalt = (address, descriptionHash) =>
+        '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
+
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
@@ -86,10 +89,11 @@ contract('GovernorTimelockControl', function (accounts) {
           ],
           '<proposal description>',
         );
+
         this.proposal.timelockid = await this.timelock.hashOperationBatch(
           ...this.proposal.shortProposal.slice(0, 3),
           '0x0',
-          this.proposal.shortProposal[3],
+          timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
         );
       });
 
@@ -204,7 +208,7 @@ contract('GovernorTimelockControl', function (accounts) {
             await this.timelock.executeBatch(
               ...this.proposal.shortProposal.slice(0, 3),
               '0x0',
-              this.proposal.shortProposal[3],
+              timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
             );
 
             await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [

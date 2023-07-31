@@ -6,7 +6,6 @@ pragma solidity ^0.8.19;
 import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
-import {ERC1155Receiver} from "../token/ERC1155/utils/ERC1155Receiver.sol";
 import {Address} from "../utils/Address.sol";
 
 /**
@@ -103,7 +102,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Initializes the contract with the following parameters:
      *
-     * - `minDelay`: initial minimum delay for operations
+     * - `minDelay`: initial minimum delay in seconds for operations
      * - `proposers`: accounts to be granted proposer and canceller roles
      * - `executors`: accounts to be granted executor role
      * - `admin`: optional account to be granted admin role; disable with zero address
@@ -160,7 +159,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(AccessControl, ERC1155Receiver) returns (bool) {
+    ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -219,7 +218,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns the minimum delay for an operation to become valid.
+     * @dev Returns the minimum delay in seconds for an operation to become valid.
      *
      * This value can be changed by executing an operation that calls `updateDelay`.
      */

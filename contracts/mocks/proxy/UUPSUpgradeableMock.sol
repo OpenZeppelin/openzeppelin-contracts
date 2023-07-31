@@ -23,12 +23,8 @@ contract UUPSUpgradeableMock is NonUpgradeableMock, UUPSUpgradeable {
 }
 
 contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
-    function upgradeTo(address newImplementation) public override {
-        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
-    }
-
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
     }
 }
 
