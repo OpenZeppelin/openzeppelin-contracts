@@ -155,15 +155,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        // ProposalCore is just one slot. We can load it from storage to memory with a single sload and use memory
-        // object as a cache. This avoid duplicating expensive sloads.
-        ProposalCore memory proposal = _proposals[proposalId];
+        // ProposalCore is just one slot. We can load it from storage to stack with a single sload
+        ProposalCore storage proposal = _proposals[proposalId];
+        (bool proposalExecuted, bool proposalCanceled) = (proposal.executed, proposal.canceled);
 
-        if (proposal.executed) {
+        if (proposalExecuted) {
             return ProposalState.Executed;
         }
 
-        if (proposal.canceled) {
+        if (proposalCanceled) {
             return ProposalState.Canceled;
         }
 
