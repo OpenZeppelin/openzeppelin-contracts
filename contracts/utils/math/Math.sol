@@ -162,8 +162,7 @@ library Math {
             // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
             // See https://cs.stackexchange.com/q/138556/92363.
 
-            // Does not overflow because the denominator cannot be zero at this stage in the function.
-            uint256 twos = denominator & (~denominator + 1);
+            uint256 twos = denominator & (0 - denominator);
             assembly {
                 // Divide denominator by twos.
                 denominator := div(denominator, twos)
