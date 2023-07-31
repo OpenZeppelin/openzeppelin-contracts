@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // This file was procedurally generated from scripts/generate/templates/Checkpoints.t.js.
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {SafeCast} from "../../../contracts/utils/math/SafeCast.sol";

@@ -198,7 +198,7 @@ The Governor will automatically detect the clock mode used by the token and adap
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
