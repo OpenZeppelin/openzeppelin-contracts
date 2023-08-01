@@ -1,4 +1,3 @@
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
 const { network } = require('hardhat');
 const { promisify } = require('util');
 
@@ -19,7 +18,7 @@ async function batchInBlock(txs) {
       await queue();
     }
     // mine one block
-    await mine();
+    await network.provider.send('evm_mine');
     // fetch receipts
     const receipts = await Promise.all(promises);
     // Sanity check, all tx should be in the same block
@@ -33,18 +32,7 @@ async function batchInBlock(txs) {
   }
 }
 
-async function mineWith(fn) {
-  if (typeof fn !== 'function') {
-    throw new Error('Argument to mine with is not a function');
-  }
-  await network.provider.send('evm_setAutomine', [false]);
-  await fn();
-  await network.provider.send('evm_setAutomine', [true]);
-  await mine();
-}
-
 module.exports = {
   countPendingTransactions,
   batchInBlock,
-  mineWith,
 };

@@ -4,7 +4,6 @@ const { expect } = require('chai');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
-const { mineWith } = require('../../helpers/txpool');
 
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorStorageMock');
@@ -54,20 +53,19 @@ contract('GovernorStorage', function (accounts) {
 
         await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
-        await mineWith(async () => {
-          await this.timelock.grantRole(PROPOSER_ROLE, this.mock.address);
-          await this.timelock.grantRole(PROPOSER_ROLE, owner);
-          await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
-          await this.timelock.grantRole(CANCELLER_ROLE, owner);
-          await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
-          await this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
+        // normal setup: governor is proposer, everyone is executor, timelock is its own admin
+        await this.timelock.grantRole(PROPOSER_ROLE, this.mock.address);
+        await this.timelock.grantRole(PROPOSER_ROLE, owner);
+        await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
+        await this.timelock.grantRole(CANCELLER_ROLE, owner);
+        await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
+        await this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
 
-          await this.token.$_mint(owner, tokenSupply);
-          await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-          await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-          await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-          await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
-        });
+        await this.token.$_mint(owner, tokenSupply);
+        await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
         // default proposal
         this.proposal = this.helper.setProposal(
