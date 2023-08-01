@@ -30,7 +30,18 @@ contract SignedMathTest is Test {
     }
 
     // AVERAGE
-    function testAverage(int256 a, int256 b) public {
+    // 1. simple test, not full int256 range
+    function testAverage1(int256 a, int256 b) public {
+        a = bound(a, 0, type(int256).max / 2);
+        b = bound(b, 0, type(int256).max / 2);
+
+        int256 result = SignedMath.average(a, b);
+
+        assertEq(result, (a + b) / 2);
+    }
+
+    // 2. more complex test, full int256 range
+    function testAverage2(int256 a, int256 b) public {
         int256 result = SignedMath.average(a, b);
 
         if (a == b) {
@@ -45,10 +56,11 @@ contract SignedMathTest is Test {
                 // must be unchecked in order to support `a = type(int256).min, b = type(int256).max`
                 uint256 deltaLower = uint256(result - min);
                 uint256 deltaUpper = uint256(max - result);
+                uint256 remainder = uint256((a & 1) ^ (b & 1));
                 if (deltaLower > deltaUpper) {
-                    assertTrue(deltaLower - deltaUpper <= 1);
+                    assertTrue(deltaLower - deltaUpper == remainder);
                 } else {
-                    assertTrue(deltaUpper - deltaLower <= 1);
+                    assertTrue(deltaUpper - deltaLower == remainder);
                 }
             }
         }
