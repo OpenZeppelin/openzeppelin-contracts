@@ -55,18 +55,18 @@ contract('GovernorStorage', function (accounts) {
         await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
         await mineWith(async () => {
-          this.timelock.grantRole(PROPOSER_ROLE, this.mock.address);
-          this.timelock.grantRole(PROPOSER_ROLE, owner);
-          this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
-          this.timelock.grantRole(CANCELLER_ROLE, owner);
-          this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
-          this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
+          await this.timelock.grantRole(PROPOSER_ROLE, this.mock.address);
+          await this.timelock.grantRole(PROPOSER_ROLE, owner);
+          await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
+          await this.timelock.grantRole(CANCELLER_ROLE, owner);
+          await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
+          await this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
 
-          this.token.$_mint(owner, tokenSupply);
-          this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-          this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-          this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-          this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+          await this.token.$_mint(owner, tokenSupply);
+          await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+          await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+          await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+          await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
         });
 
         // default proposal
