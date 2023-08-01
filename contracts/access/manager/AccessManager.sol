@@ -6,9 +6,10 @@ import {IAccessManager} from "./IAccessManager.sol";
 import {IManaged} from "./IManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
+import {Multicall} from "../../utils/Multicall.sol";
 import {Time} from "../../utils/types/Time.sol";
 
-contract AccessManager is Context, IAccessManager {
+contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
     uint256 public constant ADMIN_GROUP = type(uint256).min; // 0
