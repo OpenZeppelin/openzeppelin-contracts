@@ -451,7 +451,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         // after execute: cleanup governance call queue.
         if (_executor() != address(this) && !_governanceCall.empty()) {
-              _governanceCall.clear();
+            _governanceCall.clear();
         }
 
         emit ProposalExecuted(proposalId);

@@ -847,7 +847,9 @@ contract('Governor', function (accounts) {
           });
 
           it('someone else cannot propose', async function () {
-            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorRestrictedProposer', [voter1]);
+            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorRestrictedProposer', [
+              voter1,
+            ]);
           });
         });
       });
