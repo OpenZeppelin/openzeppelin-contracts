@@ -252,9 +252,9 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev The eta of a queued proposal. Unlike {proposalSnapshot} and {proposalDeadline}, this doesn't use the
-     * governor clock, and instead relies on the executor's clock which may be different. In most cases this will be
-     * a timestamp.
+     * @dev The time when a queued proposal becomes executable ("ETA"). Unlike {proposalSnapshot} and
+     * {proposalDeadline}, this doesn't use the governor clock, and instead relies on the executor's clock which may be
+     * different. In most cases this will be a timestamp.
      */
     function proposalEta(uint256 proposalId) public view virtual returns (uint256);
 
