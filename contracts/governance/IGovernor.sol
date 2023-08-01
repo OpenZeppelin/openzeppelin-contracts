@@ -69,9 +69,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVotingPeriod(uint256 votingPeriod);
 
     /**
-     * @dev The `proposer` does not have the required votes to operate on a proposal.
+     * @dev The `proposer` does not have the required votes to create a proposal.
      */
     error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
+
+    /**
+     * @dev The `proposer` is not allowed to create a proposal.
+     */
+    error GovernorRestrictedProposer(address proposer);
 
     /**
      * @dev The vote type used is not valid for the corresponding counting module.

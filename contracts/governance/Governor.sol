@@ -280,7 +280,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address proposer = _msgSender();
 
         // check description restriction
-        require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
+        if (!_isValidDescriptionForProposer(proposer, description)) {
+            revert GovernorRestrictedProposer(proposer);
+        }
 
         // check proposal threshold
         uint256 proposerVotes = getVotes(proposer, clock() - 1);
