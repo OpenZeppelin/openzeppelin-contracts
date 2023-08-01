@@ -369,7 +369,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        uint48 eta = _doQueue(proposalId, targets, values, calldatas, descriptionHash);
+        uint48 eta = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
 
         if (eta != 0) {
             _proposals[proposalId].extra.eta = eta;
@@ -394,7 +394,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
      * `ProposalQueued` event. Queuing a proposal should be done using {queue} or {_queue}.
      */
-    function _doQueue(
+    function _queueOperations(
         uint256 /*proposalId*/,
         address[] memory /*targets*/,
         uint256[] memory /*values*/,
@@ -447,7 +447,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             }
         }
 
-        _doExecute(proposalId, targets, values, calldatas, descriptionHash);
+        _executeOperations(proposalId, targets, values, calldatas, descriptionHash);
 
         // after execute: cleanup governance call queue.
         if (_executor() != address(this) && !_governanceCall.empty()) {
@@ -466,7 +466,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
      * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute} or {_execute}.
      */
-    function _doExecute(
+    function _executeOperations(
         uint256 /* proposalId */,
         address[] memory targets,
         uint256[] memory values,

@@ -70,7 +70,7 @@ abstract contract GovernorTimelockControl is Governor {
     /**
      * @dev Function to queue a proposal to the timelock.
      */
-    function _doQueue(
+    function _queueOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
@@ -87,10 +87,10 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_doExecute} function that runs the already queued proposal through
+     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal through
      * the timelock.
      */
-    function _doExecute(
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
