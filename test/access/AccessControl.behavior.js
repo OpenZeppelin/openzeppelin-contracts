@@ -191,6 +191,36 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
       );
     });
   });
+
+  describe('internal functions', function () {
+    describe('_grantRole', function () {
+      it('return true if the account does not have the role', async function () {
+        const receipt = await this.accessControl.$_grantRole(ROLE, authorized);
+        expectEvent(receipt, 'return$_grantRole', { ret0: true });
+      });
+
+      it('return false if the account has the role', async function () {
+        await this.accessControl.$_grantRole(ROLE, authorized);
+
+        const receipt = await this.accessControl.$_grantRole(ROLE, authorized);
+        expectEvent(receipt, 'return$_grantRole', { ret0: false });
+      });
+    });
+
+    describe('_revokeRole', function () {
+      it('return true if the account has the role', async function () {
+        await this.accessControl.$_grantRole(ROLE, authorized);
+
+        const receipt = await this.accessControl.$_revokeRole(ROLE, authorized);
+        expectEvent(receipt, 'return$_revokeRole', { ret0: true });
+      });
+
+      it('return false if the account does not have the role', async function () {
+        const receipt = await this.accessControl.$_revokeRole(ROLE, authorized);
+        expectEvent(receipt, 'return$_revokeRole', { ret0: false });
+      });
+    });
+  });
 }
 
 function shouldBehaveLikeAccessControlEnumerable(admin, authorized, other, otherAdmin, otherAuthorized) {
