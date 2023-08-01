@@ -285,24 +285,13 @@ contract AccessManager is Context, IAccessManager {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
 
-        // Here, we cannot use the "normal" `update` workflow because the delay is checked at execution and not
-        // enforced when scheduling.
-        //
-        // For example if we used `update`, the following would be possible:
-        // - update from 3h to 1h.
-        // - new schedule takes effect in 2h
-        // - schedule (mark an initiation timepoint) in 1h
-        //   - just 1h after that the timepoint will be 1h old,
-        //     - since that is the new delay execution is possible.
-        // - 2h after the update, an execution is possible.
-
-        uint32 oldDuration = _groups[groupId].members[account].delay.get();
-        uint32 effectDelay = (immediate || oldDuration < newDuration) ? 0 : oldDuration;
-        uint48 effectPoint = Time.timestamp() + effectDelay;
-
-        _groups[groupId].members[account].delay = effectDelay == 0
+        Time.Delay newDelay = immediate
             ? Time.toDelay(newDuration)
-            : Time.pack(oldDuration, newDuration, effectPoint);
+            : _groups[groupId].members[account].delay.update(newDuration, 0); // TODO: minsetback ?
+
+        (, , uint48 effectPoint) = newDelay.split();
+
+        _groups[groupId].members[account].delay = newDelay;
 
         emit GroupExecutionDelayUpdate(groupId, account, newDuration, effectPoint);
     }
@@ -338,7 +327,7 @@ contract AccessManager is Context, IAccessManager {
      * Emit a {GroupGrantDelayChanged} event
      */
     function _setGrantDelay(uint256 groupId, uint32 newDelay, bool immediate) internal virtual {
-        Time.Delay updated = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay);
+        Time.Delay updated = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay, 0); // TODO: minsetback ?
         (, , uint48 effect) = updated.split();
 
         _groups[groupId].delay = updated;
@@ -436,7 +425,8 @@ contract AccessManager is Context, IAccessManager {
 
     // ============================================== DELAYED OPERATIONS ==============================================
     /**
-     * @dev Return the timepoint at which an operation was scheduled.
+     * @dev Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
+     * operation is not yet scheduled, was executed or was canceled.
      */
     function getSchedule(bytes32 id) public view virtual returns (uint48) {
         return _schedules[id];
@@ -464,7 +454,7 @@ contract AccessManager is Context, IAccessManager {
         if (_schedules[operationId] != 0) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
-        _schedules[operationId] = Time.timestamp();
+        _schedules[operationId] = Time.timestamp() + setback;
 
         emit Scheduled(operationId, caller, target, data);
         return operationId;
@@ -495,7 +485,7 @@ contract AccessManager is Context, IAccessManager {
             if (timepoint == 0) {
                 revert AccessManagerNotScheduled(operationId);
             }
-            if (timepoint + setback > Time.timestamp()) {
+            if (timepoint > Time.timestamp()) {
                 revert AccessManagerNotReady(operationId);
             }
         }

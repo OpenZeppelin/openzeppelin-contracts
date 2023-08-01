@@ -344,9 +344,9 @@ contract('AccessManager', function (accounts) {
 
         // immediate effect
         const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayAfter.oldValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.newValue).to.be.bignumber.equal('0');
-        expect(delayAfter.effect).to.be.bignumber.equal('0');
+        expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
+        expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
+        expect(delayAfter.effect).to.be.bignumber.equal(timestamp);
       });
 
       it('decreassing the delay takes time', async function () {
@@ -366,14 +366,15 @@ contract('AccessManager', function (accounts) {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
-          from: timestamp.add(oldDelay),
+          from: timestamp.add(oldDelay).sub(newDelay),
         });
 
         // delayed effect
         const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
+
         expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
         expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.effect).to.be.bignumber.equal(timestamp.add(oldDelay));
+        expect(delayAfter.effect).to.be.bignumber.equal(timestamp.add(oldDelay).sub(newDelay));
       });
 
       it('cannot set the delay of a non member', async function () {
@@ -663,7 +664,10 @@ contract('AccessManager', function (accounts) {
               data: this.call[1],
             });
 
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp);
+            // if can call directly, delay should be 0. Otherwize, the delay should be applied
+            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
+              timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay),
+            );
 
             // execute without wait
             if (directSuccess) {
@@ -694,7 +698,10 @@ contract('AccessManager', function (accounts) {
               data: this.call[1],
             });
 
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp);
+            // if can call directly, delay should be 0. Otherwize, the delay should be applied
+            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
+              timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay),
+            );
 
             // wait
             await time.increase(callerOpt.delay ?? 0);
@@ -735,7 +742,7 @@ contract('AccessManager', function (accounts) {
       const { receipt } = await this.schedule();
       const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-      expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp);
+      expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp.add(executeDelay));
 
       // we need to set the clock 2 seconds before the value, because the increaseTo "consumes" the timestamp
       // and the next transaction will be one after that (see check bellow)

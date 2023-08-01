@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.19;
 
+import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
 
 /**
@@ -103,9 +104,9 @@ library Time {
      * @dev Update a Delay object so that it takes a new duration after at a timepoint that is automatically computed
      * to enforce the old delay at the moment of the update.
      */
-    function update(Delay self, uint32 newValue) internal view returns (Delay) {
+    function update(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay) {
         uint32 value = self.get();
-        uint32 setback = value > newValue ? value - newValue : 0; // todo: 0 means immediate update. ACDAR does something more opinionated
+        uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
         return self.updateAt(newValue, timestamp() + setback);
     }
 
