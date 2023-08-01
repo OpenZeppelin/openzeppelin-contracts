@@ -1,4 +1,4 @@
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "../patched/governance/TimelockController.sol";
 

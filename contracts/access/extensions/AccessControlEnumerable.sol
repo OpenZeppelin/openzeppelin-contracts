@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.5.0) (access/AccessControlEnumerable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IAccessControlEnumerable} from "./IAccessControlEnumerable.sol";
 import {AccessControl} from "../AccessControl.sol";
@@ -47,18 +47,24 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
-     * @dev Overload {_grantRole} to track enumerable memberships
+     * @dev Overload {AccessControl-_grantRole} to track enumerable memberships
      */
-    function _grantRole(bytes32 role, address account) internal virtual override {
-        super._grantRole(role, account);
-        _roleMembers[role].add(account);
+    function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
+        bool granted = super._grantRole(role, account);
+        if (granted) {
+            _roleMembers[role].add(account);
+        }
+        return granted;
     }
 
     /**
-     * @dev Overload {_revokeRole} to track enumerable memberships
+     * @dev Overload {AccessControl-_revokeRole} to track enumerable memberships
      */
-    function _revokeRole(bytes32 role, address account) internal virtual override {
-        super._revokeRole(role, account);
-        _roleMembers[role].remove(account);
+    function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
+        bool revoked = super._revokeRole(role, account);
+        if (revoked) {
+            _roleMembers[role].remove(account);
+        }
+        return revoked;
     }
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IManaged} from "./IManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
