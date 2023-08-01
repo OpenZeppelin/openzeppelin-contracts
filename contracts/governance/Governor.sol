@@ -355,9 +355,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
     /**
      * @dev Internal queuing mechanism. Can be overridden (with a super call) to add logic before or after the
-     * queuing.
+     * queuing. May revert if the governor is not configured to need queuing.
      *
-     * Emits a {IGovernor-ProposalQueued} event if the eta is not 0.
+     * Emits a {IGovernor-ProposalQueued} event.
      */
     function _queue(
         address[] memory targets,
