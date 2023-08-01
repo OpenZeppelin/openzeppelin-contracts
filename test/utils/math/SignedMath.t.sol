@@ -46,7 +46,7 @@ contract SignedMathTest is Test {
                 uint256 deltaLower = uint256(result - min);
                 uint256 deltaUpper = uint256(max - result);
                 if (deltaLower > deltaUpper) {
-                    assertTrue(deltaLower - deltaUpper <= 1); 
+                    assertTrue(deltaLower - deltaUpper <= 1);
                 } else {
                     assertTrue(deltaUpper - deltaLower <= 1);
                 }
