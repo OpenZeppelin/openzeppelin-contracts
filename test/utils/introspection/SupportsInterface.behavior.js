@@ -56,6 +56,7 @@ const INTERFACES = {
     'COUNTING_MODE()',
     'hashProposal(address[],uint256[],bytes[],bytes32)',
     'state(uint256)',
+    'proposalThreshold()',
     'proposalSnapshot(uint256)',
     'proposalDeadline(uint256)',
     'proposalProposer(uint256)',

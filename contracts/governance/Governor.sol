@@ -180,9 +180,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     * @dev See {IGovernor-proposalThreshold}.
      */
-    function proposalThreshold() public view virtual returns (uint256) {
+    function proposalThreshold() public view virtual override returns (uint256) {
         return 0;
     }
 

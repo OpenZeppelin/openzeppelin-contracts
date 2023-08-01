@@ -225,6 +225,12 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
+     * @dev The number of votes required in order for a voter to become a proposer.
+     */
+    function proposalThreshold() public view virtual returns (uint256);
+
+    /**
+     * @notice module:core
      * @dev Timepoint used to retrieve user's votes and quorum. If using block number (as per Compound's Comp), the
      * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
      * following block.
