@@ -34,7 +34,7 @@ async function batchInBlock(txs) {
 }
 
 async function mineWith(fn) {
-  if (typeof fnOrTxs !== 'function') {
+  if (typeof fn !== 'function') {
     throw new Error('Argument to mine with is not a function');
   }
   await network.provider.send('evm_setAutomine', [false]);
