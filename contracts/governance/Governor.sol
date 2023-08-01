@@ -201,14 +201,14 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev Returns the account that created a given proposal.
+     * @dev See {IGovernor-proposalProposer}.
      */
     function proposalProposer(uint256 proposalId) public view virtual override returns (address) {
         return _proposals[proposalId].core.proposer;
     }
 
     /**
-     * @dev Public accessor to check the eta of a queued proposal
+     * @dev See {IGovernor-proposalEta}.
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].extra.eta;
