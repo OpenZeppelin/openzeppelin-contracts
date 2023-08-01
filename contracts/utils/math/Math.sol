@@ -124,11 +124,10 @@ library Math {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2^256 + prod0.
-            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
                 let mm := mulmod(x, y, not(0))
-                prod0 := mul(x, y)
                 prod1 := sub(sub(mm, prod0), lt(mm, prod0))
             }
 
@@ -163,8 +162,7 @@ library Math {
             // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
             // See https://cs.stackexchange.com/q/138556/92363.
 
-            // Does not overflow because the denominator cannot be zero at this stage in the function.
-            uint256 twos = denominator & (~denominator + 1);
+            uint256 twos = denominator & (0 - denominator);
             assembly {
                 // Divide denominator by twos.
                 denominator := div(denominator, twos)
