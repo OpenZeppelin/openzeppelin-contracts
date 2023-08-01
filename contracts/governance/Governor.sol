@@ -448,10 +448,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         _doExecute(proposalId, targets, values, calldatas, descriptionHash);
 
         // after execute: cleanup governance call queue.
-        if (_executor() != address(this)) {
-            if (!_governanceCall.empty()) {
-                _governanceCall.clear();
-            }
+        if (_executor() != address(this) && !_governanceCall.empty()) {
+              _governanceCall.clear();
         }
 
         emit ProposalExecuted(proposalId);
@@ -490,7 +488,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) public virtual override returns (uint256) {
         // The proposalId will be recomputed in the `_cancel` call further down. However we need the value before we
         // do the internal call, because we need to check the proposal state BEFORE the internal `_cancel` call
-        // changes it. The `hashPropocal` duplication has a cost that is limited, and that we accept.
+        // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         // public cancel restrictions (on top of existing _cancel restrictions).
@@ -762,7 +760,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev Check that the current state of a proposal matches the requirements described by the `allowedStates` bitmap.
      * This bitmap should be built using `_encodeStateBitmap`.
      *
-     * If requirements are not met, revert with an `GovernorUnexpectedProposalState` error.
+     * If requirements are not met, reverts with a {GovernorUnexpectedProposalState} error.
      */
     function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) private view returns (ProposalState) {
         ProposalState currentState = state(proposalId);
