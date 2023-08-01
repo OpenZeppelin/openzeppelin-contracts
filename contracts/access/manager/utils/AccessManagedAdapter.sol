@@ -32,10 +32,12 @@ contract AccessManagedAdapter is AccessManaged {
 
         (bool success, bytes memory returndata) = target.call{value: msg.value}(data);
         if (success) {
+            /// @solidity memory-safe-assembly
             assembly {
                 return(add(32, returndata), mload(returndata))
             }
         } else {
+            /// @solidity memory-safe-assembly
             assembly {
                 revert(add(32, returndata), mload(returndata))
             }
