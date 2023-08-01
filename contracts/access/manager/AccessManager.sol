@@ -137,6 +137,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // =============================================== GROUP MANAGEMENT ===============================================
     /**
+     * @dev Give a label to a group, for improved group discoverabily by UIs.
+     *
+     * Emit a {GroupLabel} event.
+     */
+    function labelGroup(uint256 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
+        emit GroupLabel(groupId, label);
+    }
+
+    /**
      * @dev Give permission to an account to execute function restricted to a group. Optionally, a delay can be
      * enforced for any function call, byt this user, that require this level of permission. This call is only
      * effective after a grant delay that is specific to the group being granted.

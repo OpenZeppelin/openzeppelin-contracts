@@ -80,6 +80,34 @@ contract('AccessManager', function (accounts) {
   });
 
   describe('Groups management', function () {
+    describe('label group', function () {
+      it('admin can emit a label event', async function () {
+        expectEvent(
+          await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin }),
+          'GroupLabel',
+          { groupId: GROUPS.SOME, label: 'Some label' },
+        );
+      });
+
+      it('admin can re-emit a label event', async function () {
+        await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin });
+
+        expectEvent(
+          await this.manager.labelGroup(GROUPS.SOME, 'Updated label', { from: admin }),
+          'GroupLabel',
+          { groupId: GROUPS.SOME, label: 'Updated label' },
+        );
+      });
+
+      it('emitting a label is restricted', async function () {
+        await expectRevertCustomError(
+          this.manager.labelGroup(GROUPS.SOME, 'Invalid label', { from: other }),
+          'AccessControlUnauthorizedAccount',
+          [other, GROUPS.ADMIN],
+        );
+      });
+    });
+
     describe('grand group', function () {
       describe('without a grant delay', function () {
         it('without an execute delay', async function () {

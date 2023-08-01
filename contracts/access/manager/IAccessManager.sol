@@ -56,6 +56,7 @@ interface IAccessManager {
      */
     event Canceled(bytes32 operationId);
 
+    event GroupLabel(uint256 indexed groupId, string label);
     event GroupGranted(uint256 indexed groupId, address indexed account, uint48 since, uint32 delay);
     event GroupRevoked(uint256 indexed groupId, address indexed account);
     event GroupExecutionDelayUpdate(uint256 indexed groupId, address indexed account, uint32 delay, uint48 from);
