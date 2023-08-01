@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 import {ShortStrings, ShortString} from "../ShortStrings.sol";

@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Standard ERC20 Errors
- * Interface of the ERC6093 custom errors for ERC20 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
  */
 interface IERC20Errors {
     /**
@@ -50,8 +49,7 @@ interface IERC20Errors {
 
 /**
  * @dev Standard ERC721 Errors
- * Interface of the ERC6093 custom errors for ERC721 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
  */
 interface IERC721Errors {
     /**
@@ -109,8 +107,7 @@ interface IERC721Errors {
 
 /**
  * @dev Standard ERC1155 Errors
- * Interface of the ERC6093 custom errors for ERC1155 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
  */
 interface IERC1155Errors {
     /**
