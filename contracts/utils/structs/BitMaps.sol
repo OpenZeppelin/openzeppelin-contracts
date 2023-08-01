@@ -46,7 +46,11 @@ library BitMaps {
     function set(BitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index >> 8;
         uint256 mask = 1 << (index & 0xff);
-        bitmap._data[bucket] |= mask;
+        uint256 chunk = bitmap._data[bucket];
+
+        if (chunk & mask == 0) {
+            bitmap._data[bucket] = chunk ^ mask;
+        }
     }
 
     /**
@@ -55,6 +59,10 @@ library BitMaps {
     function unset(BitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index >> 8;
         uint256 mask = 1 << (index & 0xff);
-        bitmap._data[bucket] &= ~mask;
+        uint256 chunk = bitmap._data[bucket];
+
+        if (chunk & mask != 0) {
+            bitmap._data[bucket] = chunk ^ mask;
+        }
     }
 }
