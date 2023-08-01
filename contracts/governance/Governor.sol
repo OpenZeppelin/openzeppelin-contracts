@@ -503,8 +503,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
-     * canceled to allow distinguishing it from executed proposals.
+     * @dev Internal cancel mechanism with minimal restrictions. A proposal can be cancelled in any state other than
+     * Canceled, Expired, or Executed. Once cancelled a proposal can't be re-submitted.
      *
      * Emits a {IGovernor-ProposalCanceled} event.
      */
