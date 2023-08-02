@@ -32,6 +32,10 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
  * they will be highly secured (e.g., a multisig or a well-configured DAO).
+ *
+ * NOTE: This contract implements a form of the {IAuthority} interface, but {canCall} has additional return data so it
+ * doesn't inherit `IAuthority`. It is however compatible with the `IAuthority` interface since the first 32 bytes of
+ * the return data are a boolean as expected by that interface.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;

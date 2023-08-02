@@ -5,13 +5,6 @@ pragma solidity ^0.8.20;
 import {IManaged} from "./IManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
 
-/**
- * @dev TODO:
- *
- * NOTE: This contract implements canCall with addition return data (bool, uint32) so it doesn't inherit from
- * IAuthority. It is however compatible with the IAuthority interface since interpretation of the the first 32 bytes
- * of the return data are a match.
- */
 interface IAccessManager {
     enum AccessMode {
         Custom,
