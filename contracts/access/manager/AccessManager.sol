@@ -9,6 +9,30 @@ import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 import {Time} from "../../utils/types/Time.sol";
 
+/**
+ * @dev AccessManager is a central contract to store the permissions of a system.
+ *
+ * The smart contracts under the control of an AccessManager instance will have a set of "restricted" functions, and the
+ * exact details of how access is restricted for each of those functions is configurable by the admins of the instance.
+ * These restrictions are expressed in terms of "groups".
+ *
+ * An AccessManager instance will define a set of groups. Accounts can be added into any number of these groups. Each of
+ * them defines a role, and may confer access to some of the restricted functions in the system, as configured by admins
+ * through the use of {setFunctionAllowedGroup}.
+ *
+ * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
+ * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
+ * `restricted` modifier.
+ *
+ * There is a special group defined by default named "public" which all accounts automatically have.
+ *
+ * Contracts where functions are mapped to groups are said to be in a "custom" mode, but contracts can also be
+ * configured in two special modes: 1) the "open" mode, where all functions are allowed to the "public" group, and 2)
+ * the "closed" mode, where no function is allowed to any group.
+ *
+ * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
+ * they will be highly secured (e.g., a multisig or a well-configured DAO).
+ */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
