@@ -163,7 +163,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Give a label to a group, for improved group discoverabily by UIs.
      *
-     * Emit a {GroupLabel} event.
+     * Emits a {GroupLabel} event.
      */
     function labelGroup(uint256 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
         emit GroupLabel(groupId, label);
@@ -178,7 +178,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * Emit a {GroupGranted} event
+     * Emits a {GroupGranted} event
      */
     function grantGroup(
         uint256 groupId,
@@ -195,7 +195,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * Emit a {GroupRevoked} event
+     * Emits a {GroupRevoked} event
      */
     function revokeGroup(uint256 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
         _revokeGroup(groupId, account);
@@ -208,7 +208,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be `callerConfirmation`.
      *
-     * Emit a {GroupRevoked} event
+     * Emits a {GroupRevoked} event
      */
     function renounceGroup(uint256 groupId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
@@ -227,7 +227,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * Emit a {GroupExecutionDelayUpdate} event
+     * Emits a {GroupExecutionDelayUpdate} event
      */
     function setExecuteDelay(
         uint256 groupId,
@@ -244,7 +244,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emit a {GroupAdminChanged} event
+     * Emits a {GroupAdminChanged} event
      */
     function setGroupAdmin(uint256 groupId, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupAdmin(groupId, admin);
@@ -257,7 +257,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emit a {GroupGuardianChanged} event
+     * Emits a {GroupGuardianChanged} event
      */
     function setGroupGuardian(uint256 groupId, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupGuardian(groupId, guardian);
@@ -270,7 +270,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emit a {GroupGrantDelayChanged} event
+     * Emits a {GroupGrantDelayChanged} event
      */
     function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
         _setGrantDelay(groupId, newDelay, false);
@@ -279,7 +279,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {grantGroup} without access control.
      *
-     * Emit a {GroupGranted} event
+     * Emits a {GroupGranted} event
      */
     function _grantGroup(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
         if (_groups[groupId].members[account].since != 0) {
@@ -295,7 +295,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {revokeGroup} without access control. This logic is also used by {renounceGroup}.
      *
-     * Emit a {GroupRevoked} event
+     * Emits a {GroupRevoked} event
      */
     function _revokeGroup(uint256 groupId, address account) internal virtual {
         if (_groups[groupId].members[account].since == 0) {
@@ -312,7 +312,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
      * immediately.
      *
-     * Emit a {GroupExecutionDelayUpdate} event
+     * Emits a {GroupExecutionDelayUpdate} event
      */
     function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration, bool immediate) internal virtual {
         if (_groups[groupId].members[account].since == 0) {
@@ -333,7 +333,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setGroupAdmin} without access control.
      *
-     * Emit a {GroupAdminChanged} event
+     * Emits a {GroupAdminChanged} event
      */
     function _setGroupAdmin(uint256 groupId, uint256 admin) internal virtual {
         _groups[groupId].admin = admin;
@@ -344,7 +344,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setGroupGuardian} without access control.
      *
-     * Emit a {GroupGuardianChanged} event
+     * Emits a {GroupGuardianChanged} event
      */
     function _setGroupGuardian(uint256 groupId, uint256 guardian) internal virtual {
         _groups[groupId].guardian = guardian;
@@ -358,7 +358,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
      * immediately.
      *
-     * Emit a {GroupGrantDelayChanged} event
+     * Emits a {GroupGrantDelayChanged} event
      */
     function _setGrantDelay(uint256 groupId, uint32 newDelay, bool immediate) internal virtual {
         Time.Delay updated = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay, 0); // TODO: minsetback ?
@@ -378,7 +378,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emit a {FunctionAllowedGroupUpdated} event per selector
+     * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
     function setFunctionAllowedGroup(
         address target,
@@ -394,7 +394,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setFunctionAllowedGroup} without access control.
      *
-     * Emit a {FunctionAllowedGroupUpdated} event
+     * Emits a {FunctionAllowedGroupUpdated} event
      */
     function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 groupId) internal virtual {
         _allowedGroups[target][selector] = groupId;
