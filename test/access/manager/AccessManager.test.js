@@ -82,21 +82,19 @@ contract('AccessManager', function (accounts) {
   describe('Groups management', function () {
     describe('label group', function () {
       it('admin can emit a label event', async function () {
-        expectEvent(
-          await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin }),
-          'GroupLabel',
-          { groupId: GROUPS.SOME, label: 'Some label' },
-        );
+        expectEvent(await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin }), 'GroupLabel', {
+          groupId: GROUPS.SOME,
+          label: 'Some label',
+        });
       });
 
       it('admin can re-emit a label event', async function () {
         await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin });
 
-        expectEvent(
-          await this.manager.labelGroup(GROUPS.SOME, 'Updated label', { from: admin }),
-          'GroupLabel',
-          { groupId: GROUPS.SOME, label: 'Updated label' },
-        );
+        expectEvent(await this.manager.labelGroup(GROUPS.SOME, 'Updated label', { from: admin }), 'GroupLabel', {
+          groupId: GROUPS.SOME,
+          label: 'Updated label',
+        });
       });
 
       it('emitting a label is restricted', async function () {
@@ -907,9 +905,9 @@ contract('AccessManager', function (accounts) {
       );
     });
 
-    it('updateAuthority is restricted on managed', async function () {
+    it('setAuthority is restricted on AccessManaged', async function () {
       await expectRevertCustomError(
-        this.target.updateAuthority(this.newManager.address, { from: admin }),
+        this.target.setAuthority(this.newManager.address, { from: admin }),
         'AccessManagedUnauthorized',
         [admin],
       );

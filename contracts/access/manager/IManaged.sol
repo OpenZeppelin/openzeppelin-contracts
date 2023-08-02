@@ -10,5 +10,5 @@ interface IManaged {
 
     function authority() external view returns (address);
 
-    function updateAuthority(address) external;
+    function setAuthority(address) external;
 }

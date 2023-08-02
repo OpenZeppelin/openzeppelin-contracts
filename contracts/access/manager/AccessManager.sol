@@ -587,6 +587,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) {
         // todo set delay or document risks
-        target.updateAuthority(newAuthority);
+        target.setAuthority(newAuthority);
     }
 }

@@ -64,7 +64,7 @@ abstract contract AccessManaged is Context, IManaged {
     /**
      * @dev Transfers control to a new authority. The caller must be the current authority.
      */
-    function updateAuthority(address newAuthority) public virtual {
+    function setAuthority(address newAuthority) public virtual {
         address caller = _msgSender();
         if (caller != authority()) {
             revert AccessManagedUnauthorized(caller);
