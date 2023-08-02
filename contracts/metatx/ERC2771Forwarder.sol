@@ -107,8 +107,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * receiver is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
-        (bool alive, bool signerMatch, ) = _validate(request);
-        return alive && signerMatch;
+        (bool active, bool signerMatch, ) = _validate(request);
+        return active && signerMatch;
     }
 
     /**
@@ -196,7 +196,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _validate(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool alive, bool signerMatch, address signer) {
+    ) internal view virtual returns (bool active, bool signerMatch, address signer) {
         (bool isValid, address recovered) = _recoverForwardRequestSigner(request);
         return (request.deadline >= block.timestamp, isValid && recovered == request.from, recovered);
     }
@@ -247,12 +247,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         bool requireValidRequest
     ) internal virtual returns (bool success) {
-        (bool alive, bool signerMatch, address signer) = _validate(request);
+        (bool active, bool signerMatch, address signer) = _validate(request);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
         if (requireValidRequest) {
-            if (!alive) {
+            if (!active) {
                 revert ERC2771ForwarderExpiredRequest(request.deadline);
             }
 
@@ -262,7 +262,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Ignore an invalid request because requireValidRequest = false
-        if (signerMatch && alive) {
+        if (signerMatch && active) {
             // Nonce should be used before the call to prevent reusing by reentrancy
             uint256 currentNonce = _useNonce(signer);
 
