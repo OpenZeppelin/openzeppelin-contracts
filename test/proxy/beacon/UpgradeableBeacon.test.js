@@ -20,6 +20,13 @@ contract('UpgradeableBeacon', function (accounts) {
       this.beacon = await UpgradeableBeacon.new(this.v1.address, owner);
     });
 
+    it('emits Upgraded event to the first implementation', async function () {
+      const beacon = await UpgradeableBeacon.new(this.v1.address, owner);
+      await expectEvent.inTransaction(beacon.contract.transactionHash, beacon, 'Upgraded', {
+        implementation: this.v1.address,
+      });
+    });
+
     it('returns implementation', async function () {
       expect(await this.beacon.implementation()).to.equal(this.v1.address);
     });
