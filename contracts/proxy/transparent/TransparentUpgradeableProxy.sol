@@ -78,14 +78,21 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     constructor(address _logic, address initialOwner, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _admin = address(new ProxyAdmin(initialOwner));
         // Set the storage value and emit an event for ERC-1967 compatibility
-        ERC1967Utils.changeAdmin(_admin);
+        ERC1967Utils.changeAdmin(_proxyAdmin());
+    }
+
+    /**
+     * @dev Returns the admin of this proxy.
+     */
+    function _proxyAdmin() internal virtual returns (address) {
+        return _admin;
     }
 
     /**
      * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior.
      */
     function _fallback() internal virtual override {
-        if (msg.sender == _admin) {
+        if (msg.sender == _proxyAdmin()) {
             if (msg.sig == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 _dispatchUpgradeToAndCall();
             } else {
