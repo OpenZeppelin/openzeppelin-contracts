@@ -45,6 +45,9 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * implement transparency without decoding reverts caused by selector clashes between the proxy and the
  * implementation.
  *
+ * NOTE: This proxy does not inherit from {Context} deliberately. The {ProxyAdmin} of this contract won't send a
+ * meta-transaction in any way, and any other meta-transaction setup should be made in the implementation contract.
+ *
  * IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an immutable variable,
  * preventing any changes thereafter. However, the admin slot defined in ERC-1967 can still be overwritten by the implementation
  * logic pointed to by this proxy. In such cases, the contract may end up in an undesirable state where the admin slot is different
