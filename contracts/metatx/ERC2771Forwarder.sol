@@ -26,6 +26,12 @@ import {Address} from "../utils/Address.sol";
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
  *
+ * NOTE: Batching requests includes an optional refund for unused `msg.value` that is achieved by
+ * performing a call with empty calldata. While this is within the bounds of ERC-2771 compliance,
+ * if the refund receiver happens to consider the forwarder a trusted forwarder, it MUST properly
+ * handle `msg.data.length == 0`. `ERC2771Context` in OpenZeppelin Contracts versions prior to 4.9.3
+ * do not handle this properly.
+ *
  * ==== Security Considerations
  *
  * If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
