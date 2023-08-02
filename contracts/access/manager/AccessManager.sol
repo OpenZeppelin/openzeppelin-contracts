@@ -238,7 +238,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address account,
         uint32 newDelay
     ) public virtual onlyGroup(getGroupAdmin(groupId)) {
-        _setExecuteDelay(groupId, account, newDelay, false);
+        _setExecuteDelay(groupId, account, newDelay);
     }
 
     /**
@@ -277,7 +277,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupGrantDelayChanged} event
      */
     function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
-        _setGrantDelay(groupId, newDelay, false);
+        _setGrantDelay(groupId, newDelay);
     }
 
     /**
@@ -318,24 +318,19 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setExecuteDelay} without access control.
      *
-     * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
-     * immediately.
-     *
      * Emits a {GroupExecutionDelayUpdate} event
      */
-    function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration, bool immediate) internal virtual {
-        if (_groups[groupId].members[account].since == 0) {
+    function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration) internal virtual {
+        if (groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        } else if (_groups[groupId].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
 
-        Time.Delay newDelay = immediate
-            ? Time.toDelay(newDuration)
-            : _groups[groupId].members[account].delay.update(newDuration, 0); // TODO: minsetback ?
-
-        (, , uint48 effectPoint) = newDelay.split();
-
+        Time.Delay newDelay = _groups[groupId].members[account].delay.update(newDuration, 0); // TODO: minsetback ?
         _groups[groupId].members[account].delay = newDelay;
 
+        (, , uint48 effectPoint) = newDelay.split();
         emit GroupExecutionDelayUpdate(groupId, account, newDuration, effectPoint);
     }
 
@@ -372,17 +367,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setGrantDelay} without access control.
      *
-     * The `immediate` flag can be used to bypass the delay protection and force the new delay to take effect
-     * immediately.
-     *
      * Emits a {GroupGrantDelayChanged} event
      */
-    function _setGrantDelay(uint256 groupId, uint32 newDelay, bool immediate) internal virtual {
-        Time.Delay updated = immediate ? newDelay.toDelay() : _groups[groupId].delay.update(newDelay, 0); // TODO: minsetback ?
-        (, , uint48 effect) = updated.split();
+    function _setGrantDelay(uint256 groupId, uint32 newDelay) internal virtual {
+        if (groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        }
 
+        Time.Delay updated = _groups[groupId].delay.update(newDelay, 0); // TODO: minsetback ?
         _groups[groupId].delay = updated;
 
+        (, , uint48 effect) = updated.split();
         emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
 
@@ -572,9 +567,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (_schedules[operationId] == 0) {
             revert AccessManagerNotScheduled(operationId);
         } else if (
-            caller != msgsender && !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)
+            caller != msgsender &&
+            !hasGroup(ADMIN_GROUP, msgsender) &&
+            !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)
         ) {
-            // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
+            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
             revert AccessManagerCannotCancel(msgsender, caller, target, selector);
         }
 

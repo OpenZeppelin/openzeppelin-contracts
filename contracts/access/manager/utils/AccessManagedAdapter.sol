@@ -17,6 +17,8 @@ import {AccessManaged} from "../AccessManaged.sol";
  * proceed if the function is allowed for the caller in the AccessManager instance.
  */
 contract AccessManagedAdapter is AccessManaged {
+    error AccessManagedAdapterUnauthorizedSelfRelay();
+
     /**
      * @dev Initializes an adapter connected to an AccessManager instance.
      */
@@ -28,6 +30,10 @@ contract AccessManagedAdapter is AccessManaged {
      * allowed for the function.
      */
     function relay(address target, bytes calldata data) external payable {
+        if (target == address(this)) {
+            revert AccessManagedAdapterUnauthorizedSelfRelay();
+        }
+
         _checkCanCall(_msgSender(), target, bytes4(data[0:4]));
 
         (bool success, bytes memory returndata) = target.call{value: msg.value}(data);

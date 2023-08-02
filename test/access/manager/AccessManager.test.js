@@ -174,7 +174,7 @@ contract('AccessManager', function (accounts) {
 
       describe('with a grant delay', function () {
         beforeEach(async function () {
-          await this.manager.$_setGrantDelay(GROUPS.SOME, grantDelay, true);
+          await this.manager.$_setGrantDelay(GROUPS.SOME, grantDelay);
         });
 
         it('granted group is not active immediatly', async function () {
@@ -351,48 +351,52 @@ contract('AccessManager', function (accounts) {
       it('increassing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay, true);
+
+        const { receipt: receipt1 } = await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        const timestamp1 = await clockFromReceipt.timestamp(receipt1).then(web3.utils.toBN);
 
         const delayBefore = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayBefore.oldValue).to.be.bignumber.equal(oldDelay);
-        expect(delayBefore.newValue).to.be.bignumber.equal('0');
-        expect(delayBefore.effect).to.be.bignumber.equal('0');
+        expect(delayBefore.oldValue).to.be.bignumber.equal('0');
+        expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
+        expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
+        const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt2, 'GroupExecutionDelayUpdate', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
-          from: timestamp,
+          from: timestamp2,
         });
 
         // immediate effect
         const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
         expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
         expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.effect).to.be.bignumber.equal(timestamp);
+        expect(delayAfter.effect).to.be.bignumber.equal(timestamp2);
       });
 
       it('decreassing the delay takes time', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay, true);
+
+        const { receipt: receipt1 } = await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        const timestamp1 = await clockFromReceipt.timestamp(receipt1).then(web3.utils.toBN);
 
         const delayBefore = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayBefore.oldValue).to.be.bignumber.equal(oldDelay);
-        expect(delayBefore.newValue).to.be.bignumber.equal('0');
-        expect(delayBefore.effect).to.be.bignumber.equal('0');
+        expect(delayBefore.oldValue).to.be.bignumber.equal('0');
+        expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
+        expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
+        const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt2, 'GroupExecutionDelayUpdate', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
-          from: timestamp.add(oldDelay).sub(newDelay),
+          from: timestamp2.add(oldDelay).sub(newDelay),
         });
 
         // delayed effect
@@ -400,7 +404,7 @@ contract('AccessManager', function (accounts) {
 
         expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
         expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.effect).to.be.bignumber.equal(timestamp.add(oldDelay).sub(newDelay));
+        expect(delayAfter.effect).to.be.bignumber.equal(timestamp2.add(oldDelay).sub(newDelay));
       });
 
       it('cannot set the delay of a non member', async function () {
@@ -438,7 +442,7 @@ contract('AccessManager', function (accounts) {
       it('increassing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
-        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay, true);
+        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
 
@@ -453,7 +457,7 @@ contract('AccessManager', function (accounts) {
       it('increassing the delay has delay effect', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
-        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay, true);
+        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
 
