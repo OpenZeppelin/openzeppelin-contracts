@@ -153,12 +153,12 @@ library ERC1967Utils {
             revert ERC1967InvalidBeacon(newBeacon);
         }
 
+        StorageSlot.getAddressSlot(BEACON_SLOT).value = newBeacon;
+
         address beaconImplementation = IBeacon(newBeacon).implementation();
         if (beaconImplementation.code.length == 0) {
             revert ERC1967InvalidImplementation(beaconImplementation);
         }
-
-        StorageSlot.getAddressSlot(BEACON_SLOT).value = newBeacon;
     }
 
     /**
