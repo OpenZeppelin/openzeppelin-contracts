@@ -584,19 +584,17 @@ contract('AccessManager', function (accounts) {
         { mode: AccessMode.Custom, group: GROUPS.PUBLIC },
       ],
     )) {
+      const public =
+        targetOpt.mode == AccessMode.Open || (targetOpt.mode == AccessMode.Custom && targetOpt.group == GROUPS.PUBLIC);
+
       // can we call with a delay ?
       const indirectSuccess =
-        targetOpt.mode == AccessMode.Open ||
-        (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group)) ||
-        (targetOpt.mode == AccessMode.Custom && targetOpt.group == GROUPS.PUBLIC);
+        public || (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group));
 
       // can we call without a delay ?
       const directSuccess =
-        targetOpt.mode == AccessMode.Open || // contract is open
-        (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group) && !callerOpt.delay) || // user has group, without a delay
-        (targetOpt.mode == AccessMode.Custom &&
-          targetOpt.group == GROUPS.PUBLIC &&
-          !(callerOpt.delay && callerOpt.groups?.includes(GROUPS.PUBLIC))); // function is public, and user doesn't have a delay on the public group
+        public ||
+        (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group) && !callerOpt.delay);
 
       const description = [
         'Caller in groups',
@@ -621,9 +619,9 @@ contract('AccessManager', function (accounts) {
                 selector('fnUnrestricted()'),
                 targetOpt.group,
               ),
-            ...(callerOpt.groups ?? []).map(groupId =>
-              this.manager.$_grantGroup(groupId, user, 0, callerOpt.delay ?? 0),
-            ),
+            ...(callerOpt.groups ?? [])
+              .filter(groupId => groupId != GROUPS.PUBLIC)
+              .map(groupId => this.manager.$_grantGroup(groupId, user, 0, callerOpt.delay ?? 0)),
           ]);
 
           // post setup checks
@@ -638,8 +636,13 @@ contract('AccessManager', function (accounts) {
           }
           for (const groupId of callerOpt.groups ?? []) {
             const access = await this.manager.getAccess(groupId, user);
-            expect(access.since).to.be.bignumber.gt('0');
-            expect(access.delay).to.be.bignumber.eq(String(callerOpt.delay ?? 0));
+            if (groupId == GROUPS.PUBLIC) {
+              expect(access.since).to.be.bignumber.eq('0');
+              expect(access.delay).to.be.bignumber.eq('0');
+            } else {
+              expect(access.since).to.be.bignumber.gt('0');
+              expect(access.delay).to.be.bignumber.eq(String(callerOpt.delay ?? 0));
+            }
           }
         });
 

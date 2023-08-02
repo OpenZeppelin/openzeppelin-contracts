@@ -62,6 +62,7 @@ interface IAccessManager {
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
     error AccessManagerNotReady(bytes32 operationId);
+    error AccessManagerLockedGroup(uint256 groupId);
     error AccessManagerAcountAlreadyInGroup(uint256 groupId, address account);
     error AccessManagerAcountNotInGroup(uint256 groupId, address account);
     error AccessManagerBadConfirmation();

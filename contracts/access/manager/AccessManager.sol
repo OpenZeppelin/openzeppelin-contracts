@@ -286,7 +286,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupGranted} event
      */
     function _grantGroup(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
-        if (_groups[groupId].members[account].since != 0) {
+        if (groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        } else if (_groups[groupId].members[account].since != 0) {
             revert AccessManagerAcountAlreadyInGroup(groupId, account);
         }
 
@@ -302,9 +304,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupRevoked} event
      */
     function _revokeGroup(uint256 groupId, address account) internal virtual {
-        if (_groups[groupId].members[account].since == 0) {
+        if (groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        } else if (_groups[groupId].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
+
         delete _groups[groupId].members[account];
 
         emit GroupRevoked(groupId, account);
@@ -340,6 +345,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupAdminChanged} event
      */
     function _setGroupAdmin(uint256 groupId, uint256 admin) internal virtual {
+        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        }
+
         _groups[groupId].admin = admin;
 
         emit GroupAdminChanged(groupId, admin);
@@ -351,6 +360,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupGuardianChanged} event
      */
     function _setGroupGuardian(uint256 groupId, uint256 guardian) internal virtual {
+        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        }
+
         _groups[groupId].guardian = guardian;
 
         emit GroupGuardianChanged(groupId, guardian);
@@ -522,8 +535,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (setback != 0) {
             if (timepoint == 0) {
                 revert AccessManagerNotScheduled(operationId);
-            }
-            if (timepoint > Time.timestamp()) {
+            } else if (timepoint > Time.timestamp()) {
                 revert AccessManagerNotReady(operationId);
             }
         }
@@ -559,10 +571,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = _hashOperation(caller, target, data);
         if (_schedules[operationId] == 0) {
             revert AccessManagerNotScheduled(operationId);
-        }
-
-        // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
-        if (caller != msgsender && !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)) {
+        } else if (
+            caller != msgsender && !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)
+        ) {
+            // calls can only be canceled by the account that scheduled them, or by a guardian of the required group.
             revert AccessManagerCannotCancel(msgsender, caller, target, selector);
         }
 
