@@ -197,30 +197,35 @@ contract ERC2771Forwarder is EIP712, Nonces {
     function _validate(
         ForwardRequestData calldata request
     ) internal view virtual returns (bool alive, bool signerMatch, address signer) {
-        signer = _recoverForwardRequestSigner(request);
-        return (request.deadline >= block.timestamp, signer == request.from, signer);
+        (bool isValid, address recovered) = _recoverForwardRequestSigner(request);
+        return (request.deadline >= block.timestamp, isValid && recovered == request.from, recovered);
     }
 
     /**
-     * @dev Recovers the signer of an EIP712 message hash for a forward `request` and its corresponding `signature`.
-     * See {ECDSA-recover}.
+     * @dev Returns a tuple with the recovered the signer of an EIP712 forward request message hash
+     * and a boolean indicating if the signature is valid.
+     *
+     * NOTE: The signature is considered valid if {ECDSA-tryRecover} indicates no recover error for it.
      */
-    function _recoverForwardRequestSigner(ForwardRequestData calldata request) internal view virtual returns (address) {
-        return
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        _FORWARD_REQUEST_TYPEHASH,
-                        request.from,
-                        request.to,
-                        request.value,
-                        request.gas,
-                        nonces(request.from),
-                        request.deadline,
-                        keccak256(request.data)
-                    )
+    function _recoverForwardRequestSigner(
+        ForwardRequestData calldata request
+    ) internal view virtual returns (bool, address) {
+        (address recovered, ECDSA.RecoverError err, ) = _hashTypedDataV4(
+            keccak256(
+                abi.encode(
+                    _FORWARD_REQUEST_TYPEHASH,
+                    request.from,
+                    request.to,
+                    request.value,
+                    request.gas,
+                    nonces(request.from),
+                    request.deadline,
+                    keccak256(request.data)
                 )
-            ).recover(request.signature);
+            )
+        ).tryRecover(request.signature);
+
+        return (err == ECDSA.RecoverError.NoError, recovered);
     }
 
     /**
