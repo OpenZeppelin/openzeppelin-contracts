@@ -1,4 +1,4 @@
-const { constants } = require('@openzeppelin/test-helpers');
+const { constants, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../../helpers/customError');
 const { AccessMode } = require('../../../helpers/enums');
 const { selector } = require('../../../helpers/methods');
@@ -116,6 +116,29 @@ contract('AccessManagedAdapter', function (accounts) {
 
       it('relayed call (without group): success', async function () {
         await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
+      });
+    });
+
+    describe('function is available with execution delay', function () {
+      const delay = 10;
+
+      beforeEach(async function () {
+        await this.manager.$_setExecuteDelay(groupId, user, delay);
+        await this.manager.$_setFunctionAllowedGroup(this.ownable.address, selector('$_checkOwner()'), groupId);
+      });
+
+      it('unscheduled call reverts', async function () {
+        await expectRevertCustomError(
+          this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: user }),
+          'AccessManagedRequiredDelay',
+          [user, delay],
+        );
+      });
+
+      it('scheduled call succeeds', async function () {
+        await this.manager.schedule(this.ownable.address, selector('$_checkOwner()'), { from: user });
+        await time.increase(delay);
+        await this.manager.relayViaAdapter(this.ownable.address, selector('$_checkOwner()'), this.adapter.address, { from: user });
       });
     });
   });
