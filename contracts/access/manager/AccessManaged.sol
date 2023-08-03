@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IAuthority} from "./IAuthority.sol";
+import {IAuthority, safeCanCall} from "./IAuthority.sol";
 import {IManaged} from "./IManaged.sol";
 import {Context} from "../../utils/Context.sol";
 
@@ -87,8 +87,13 @@ abstract contract AccessManaged is Context, IManaged {
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
     function _checkCanCall(address caller, address target, bytes4 selector) internal view virtual {
-        if (!IAuthority(authority()).canCall(caller, target, selector)) {
-            revert AccessManagedUnauthorized(caller);
+        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, target, selector);
+        if (!allowed) {
+            if (delay > 0) {
+                revert AccessManagedRequiredDelay(caller, delay);
+            } else {
+                revert AccessManagedUnauthorized(caller);
+            }
         }
     }
 }
