@@ -169,19 +169,6 @@ interface IGovernor is IERC165, IERC6372 {
     function version() external view returns (string memory);
 
     /**
-     * @notice module:core
-     * @dev See {IERC6372}
-     */
-    function clock() external view returns (uint48);
-
-    /**
-     * @notice module:core
-     * @dev See {IERC6372}
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() external view returns (string memory);
-
-    /**
      * @notice module:voting
      * @dev A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
      * be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of

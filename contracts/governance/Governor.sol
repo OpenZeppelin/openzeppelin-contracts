@@ -99,7 +99,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return
-            interfaceId == type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ||
+            interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -828,12 +828,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @inheritdoc IGovernor
+     * @inheritdoc IERC6372
      */
     function clock() public view virtual returns (uint48);
 
     /**
-     * @inheritdoc IGovernor
+     * @inheritdoc IERC6372
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory);
