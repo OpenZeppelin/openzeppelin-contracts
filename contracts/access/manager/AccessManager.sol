@@ -4,8 +4,6 @@ pragma solidity ^0.8.20;
 
 import {IAccessManager} from "./IAccessManager.sol";
 import {IManaged} from "./IManaged.sol";
-import {IAuthority} from "./IAuthority.sol";
-import {AccessManagedAdapter} from "./utils/AccessManagedAdapter.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
@@ -509,20 +507,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
+     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
      * execution delay is 0.
      *
      * Emits a {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
      */
     function relay(address target, bytes calldata data) public payable virtual {
-        relayViaAdapter(target, data, address(0));
-    }
-
-    /**
-     * @dev Execute a function that is delay restricted in the same way as {relay} but through an
-     * {AccessManagedAdapter}.
-     */
-    function relayViaAdapter(address target, bytes calldata data, address adapter) public payable virtual {
         address caller = _msgSender();
         bytes4 selector = bytes4(data[0:4]);
 
@@ -553,13 +543,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 relayIdentifierBefore = _relayIdentifier;
         _relayIdentifier = keccak256(abi.encodePacked(target, selector));
 
-        if (adapter != address(0)) {
-            // Perform call through adapter
-            AccessManagedAdapter(adapter).relay{value: msg.value}(target, data);
-        } else {
-            // Perform call directly
-            Address.functionCallWithValue(target, data, msg.value);
-        }
+        // Perform call
+        Address.functionCallWithValue(target, data, msg.value);
 
         // Reset relay identifier
         _relayIdentifier = relayIdentifierBefore;
