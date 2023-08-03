@@ -112,7 +112,7 @@ interface IAccessManager {
 
     function setContractModeClosed(address target) external;
 
-    function schedule(address target, bytes calldata data) external returns (bytes32);
+    function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32);
 
     function cancel(address caller, address target, bytes calldata data) external;
 

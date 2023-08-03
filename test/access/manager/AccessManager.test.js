@@ -37,7 +37,7 @@ contract('AccessManager', function (accounts) {
       web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [user, ...this.call]),
     );
     this.direct = (opts = {}) => this.target.fnRestricted({ from: user, ...opts });
-    this.schedule = (opts = {}) => this.manager.schedule(...this.call, { from: user, ...opts });
+    this.schedule = (opts = {}) => this.manager.schedule(...this.call, 0, { from: user, ...opts });
     this.relay = (opts = {}) => this.manager.relay(...this.call, { from: user, ...opts });
     this.cancel = (opts = {}) => this.manager.cancel(user, ...this.call, { from: user, ...opts });
   });
@@ -844,6 +844,8 @@ contract('AccessManager', function (accounts) {
             await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
           }
         });
+
+        it('Scheduling for later than needed'); // TODO
       });
     }
   });
@@ -1042,7 +1044,7 @@ contract('AccessManager', function (accounts) {
 
     describe('with prior scheduling', async function () {
       beforeEach('schedule', async function () {
-        await this.manager.schedule(this.manager.address, this.data, { from: admin });
+        await this.manager.schedule(this.manager.address, this.data, 0, { from: admin });
       });
 
       it('without delay: reverts', async function () {

@@ -131,7 +131,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Expiration delay for scheduled proposals
      */
     function expiration() public view virtual returns (uint48) {
-        return 2 weeks;
+        return 1 weeks;
     }
 
     /**
@@ -548,19 +548,23 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Schedule a delayed operation, and return the operation identifier.
+     * @dev Schedule a delayed operation for future execution, and return the operation identifier. It is possible to
+     * choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
+     * required for the caller. The special value zero will automatically set the earliest possible time.
      *
      * Emits a {Scheduled} event.
      */
-    function schedule(address target, bytes calldata data) public virtual returns (bytes32) {
+    function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32) {
         address caller = _msgSender();
         bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
         (bool allowed, uint32 setback) = canCall(caller, target, selector);
 
+        uint48 minWhen = Time.timestamp() + setback;
+
         // If caller is not authorised, revert
-        if (!allowed && setback == 0) {
+        if (!allowed && (setback == 0 || when != 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, selector);
         }
 
@@ -571,7 +575,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (timepoint != 0 && timepoint + expiration() > Time.timestamp()) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
-        _schedules[operationId] = Time.timestamp() + setback;
+        _schedules[operationId] = when == 0 ? minWhen : when;
 
         emit Scheduled(operationId, caller, target, data);
         return operationId;
