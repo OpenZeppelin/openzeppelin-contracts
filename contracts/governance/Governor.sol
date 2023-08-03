@@ -350,21 +350,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual override returns (uint256) {
-        return _queue(targets, values, calldatas, descriptionHash);
-    }
-
-    /**
-     * @dev Internal queuing mechanism. Can be overridden (with a super call) to add logic before or after the
-     * queuing. May revert if the governor is not configured to need queuing.
-     *
-     * Emits a {IGovernor-ProposalQueued} event.
-     */
-    function _queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
@@ -413,21 +398,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public payable virtual override returns (uint256) {
-        return _execute(targets, values, calldatas, descriptionHash);
-    }
-
-    /**
-     * @dev Internal execution mechanism. Can be overridden (with a super call) to add logic before or after the
-     * execution.
-     *
-     * Emits a {IGovernor-ProposalExecuted} event.
-     */
-    function _execute(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(

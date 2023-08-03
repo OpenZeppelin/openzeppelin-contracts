@@ -333,7 +333,8 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public virtual returns (uint256 proposalId);
 
     /**
-     * @dev Queue a proposal. Some governors require this step to be performed before execution can happen.
+     * @dev Queue a proposal. Some governors require this step to be performed before execution can happen. If queuing
+     * is not necessary, this function may revert.
      * Queuing a proposal requires the quorum to be reached, the vote to be successful, and the deadline to be reached.
      *
      * Emits a {ProposalQueued} event.
