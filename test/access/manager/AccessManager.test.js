@@ -580,7 +580,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe.only('Calling restricted & unrestricted functions', function () {
+  describe('Calling restricted & unrestricted functions', function () {
     const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
     for (const [callerOpt, targetOpt] of product(
