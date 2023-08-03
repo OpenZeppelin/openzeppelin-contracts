@@ -16,9 +16,7 @@ abstract contract GovernorStorageMock is
     GovernorCountingSimple,
     GovernorStorage
 {
-    function quorum(
-        uint256 blockNumber
-    ) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(blockNumber);
     }
 

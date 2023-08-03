@@ -827,29 +827,28 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
     }
 
+    /**
+     * @inheritdoc IGovernor
+     */
+    function clock() public view virtual returns (uint48);
 
     /**
      * @inheritdoc IGovernor
      */
-    function clock() public virtual view returns (uint48);
+    function CLOCK_MODE() public view virtual returns (string memory);
 
     /**
      * @inheritdoc IGovernor
      */
-    function CLOCK_MODE() public virtual view returns (string memory);
+    function votingDelay() public view virtual returns (uint256);
 
     /**
      * @inheritdoc IGovernor
      */
-    function votingDelay() public virtual view returns (uint256);
+    function votingPeriod() public view virtual returns (uint256);
 
     /**
      * @inheritdoc IGovernor
      */
-    function votingPeriod() public virtual view returns (uint256);
-
-    /**
-     * @inheritdoc IGovernor
-     */
-    function quorum(uint256 timepoint) public virtual view returns (uint256);
+    function quorum(uint256 timepoint) public view virtual returns (uint256);
 }
