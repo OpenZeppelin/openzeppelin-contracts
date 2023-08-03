@@ -317,7 +317,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             voteStart: SafeCast.toUint48(snapshot),
             voteDuration: SafeCast.toUint32(duration),
             executed: false,
-            canceled: false
+            canceled: false,
+            eta: 0
         });
 
         emit ProposalCreated(
