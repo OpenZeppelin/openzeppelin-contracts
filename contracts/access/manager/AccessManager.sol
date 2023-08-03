@@ -104,6 +104,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
+     * @dev Expiration delay for scheduled proposals
+     */
+    function expiration() public view virtual returns (uint48) {
+        return 2 weeks;
+    }
+
+    /**
      * @dev Get the mode under which a contract is operating.
      */
     function getContractMode(address target) public view virtual returns (AccessMode) {
@@ -497,7 +504,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // If caller is authorised, schedule operation
         bytes32 operationId = _hashOperation(caller, target, data);
-        if (_schedules[operationId] != 0) {
+        uint48 timepoint = _schedules[operationId];
+        // Cannot reschedule unless the operation has expired
+        if (timepoint != 0 && timepoint + expiration() > Time.timestamp()) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
         _schedules[operationId] = Time.timestamp() + setback;
@@ -526,15 +535,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // If caller is authorised, check operation was scheduled early enough
         bytes32 operationId = _hashOperation(caller, target, data);
-        uint48 timepoint = _schedules[operationId];
+
         if (setback != 0) {
-            if (timepoint == 0) {
-                revert AccessManagerNotScheduled(operationId);
-            } else if (timepoint > Time.timestamp()) {
-                revert AccessManagerNotReady(operationId);
-            }
-        }
-        if (timepoint != 0) {
+            _consumeScheduledOp(operationId);
+        } else if (_schedules[operationId] != 0) {
             delete _schedules[operationId];
             emit Executed(operationId);
         }
@@ -548,6 +552,37 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Reset relay identifier
         _relayIdentifier = relayIdentifierBefore;
+    }
+
+    /**
+     * @dev Consume a scheduled operation targetting the caller. If such an operation exists, mark it as consumed
+     * (emit an {Executed} event and clean the state). Otherwize, throw an error.
+     *
+     * This is usefull for contract that want to enforce that calls targetting them were scheduled on the manager,
+     * with all the verifications that it implies.
+     *
+     * Emit a {Executed} event
+     */
+    function consumeScheduledOp(address caller, bytes calldata data) public virtual {
+        _consumeScheduledOp(_hashOperation(caller, _msgSender(), data));
+    }
+
+    /**
+     * @dev Internal variant of {consumeScheduledOp} that operates on bytes32 operationId.
+     */
+    function _consumeScheduledOp(bytes32 operationId) internal virtual {
+        uint48 timepoint = _schedules[operationId];
+
+        if (timepoint == 0) {
+            revert AccessManagerNotScheduled(operationId);
+        } else if (timepoint > Time.timestamp()) {
+            revert AccessManagerNotReady(operationId);
+        } else if (timepoint + expiration() <= Time.timestamp()) {
+            revert AccessManagerExpired(operationId);
+        }
+
+        delete _schedules[operationId];
+        emit Executed(operationId);
     }
 
     /**

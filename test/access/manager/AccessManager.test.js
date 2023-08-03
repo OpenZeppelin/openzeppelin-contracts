@@ -44,6 +44,7 @@ contract('AccessManager', function (accounts) {
     this.opId = web3.utils.keccak256(
       web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [user, ...this.call]),
     );
+    this.direct = (opts = {}) => this.target.fnRestricted({ from: user, ...opts });
     this.schedule = (opts = {}) => this.manager.schedule(...this.call, { from: user, ...opts });
     this.relay = (opts = {}) => this.manager.relay(...this.call, { from: user, ...opts });
     this.cancel = (opts = {}) => this.manager.cancel(user, ...this.call, { from: user, ...opts });
@@ -667,10 +668,12 @@ contract('AccessManager', function (accounts) {
         });
 
         it(`Calling a restricted function directly should ${directSuccess ? 'succeed' : 'revert'}`, async function () {
-          const promise = this.target.fnRestricted({ from: user });
+          const promise = this.direct();
 
           if (directSuccess) {
             expectEvent(await promise, 'CalledRestricted', { caller: user });
+          } else if (indirectSuccess) {
+            await expectRevertCustomError(promise, 'AccessManagerNotScheduled', [this.opId]);
           } else {
             await expectRevertCustomError(promise, 'AccessManagedUnauthorized', [user]);
           }
@@ -681,7 +684,7 @@ contract('AccessManager', function (accounts) {
           if (directSuccess) {
             const { receipt, tx } = await this.relay();
             expectEvent.notEmitted(receipt, 'Executed', { operationId: this.opId });
-            expectEvent.inTransaction(tx, this.target, 'Calledrestricted', { caller: this.manager.address });
+            await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
           } else if (indirectSuccess) {
             await expectRevertCustomError(this.relay(), 'AccessManagerNotScheduled', [this.opId]);
           } else {
@@ -710,7 +713,7 @@ contract('AccessManager', function (accounts) {
             if (directSuccess) {
               const { receipt, tx } = await this.relay();
               expectEvent(receipt, 'Executed', { operationId: this.opId });
-              expectEvent.inTransaction(tx, this.target, 'Calledrestricted', { caller: this.manager.address });
+              await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
 
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
             } else if (indirectSuccess) {
@@ -747,11 +750,86 @@ contract('AccessManager', function (accounts) {
             if (directSuccess || indirectSuccess) {
               const { receipt, tx } = await this.relay();
               expectEvent(receipt, 'Executed', { operationId: this.opId });
-              expectEvent.inTransaction(tx, this.target, 'Calledrestricted', { caller: this.manager.address });
+              await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
 
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
             } else {
               await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          } else {
+            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+          }
+        });
+
+        it('Calling indirectly: schedule and call', async function () {
+          if (directSuccess || indirectSuccess) {
+            const { receipt } = await this.schedule();
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+            expectEvent(receipt, 'Scheduled', {
+              operationId: this.opId,
+              caller: user,
+              target: this.call[0],
+              data: this.call[1],
+            });
+
+            // if can call directly, delay should be 0. Otherwize, the delay should be applied
+            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay);
+            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+            // execute without wait
+            const promise = this.direct();
+            if (directSuccess) {
+              expectEvent(await promise, 'CalledRestricted', { caller: user });
+
+              // schedule is not reset
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+            } else if (indirectSuccess) {
+              await expectRevertCustomError(promise, 'AccessManagerNotReady', [this.opId]);
+            } else {
+              await expectRevertCustomError(promise, 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          } else {
+            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+          }
+        });
+
+        it('Calling indirectly: schedule wait and relay', async function () {
+          if (directSuccess || indirectSuccess) {
+            const { receipt } = await this.schedule();
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+            expectEvent(receipt, 'Scheduled', {
+              operationId: this.opId,
+              caller: user,
+              target: this.call[0],
+              data: this.call[1],
+            });
+
+            // if can call directly, delay should be 0. Otherwize, the delay should be applied
+            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay);
+            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+            // wait
+            await time.increase(callerOpt.delay ?? 0);
+
+            // execute without wait
+            const promise = await this.direct();
+            if (directSuccess) {
+              expectEvent(await promise, 'CalledRestricted', { caller: user });
+
+              // schedule is not reset
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+            } else if (indirectSuccess) {
+              const receipt = await promise;
+
+              expectEvent(receipt, 'CalledRestricted', { caller: user });
+              await expectEvent.inTransaction(receipt.tx, this.manager, 'Executed', { operationId: this.opId });
+
+              // schedule is reset
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+            } else {
+              await expectRevertCustomError(this.direct(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
             }
           } else {
             await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
@@ -895,7 +973,7 @@ contract('AccessManager', function (accounts) {
       expect(await this.target.authority()).to.be.equal(this.manager.address);
 
       const { tx } = await this.manager.updateAuthority(this.target.address, this.newManager.address, { from: admin });
-      expectEvent.inTransaction(tx, this.target, 'AuthorityUpdated', { authority: this.newManager.address });
+      await expectEvent.inTransaction(tx, this.target, 'AuthorityUpdated', { authority: this.newManager.address });
 
       expect(await this.target.authority()).to.be.equal(this.newManager.address);
     });

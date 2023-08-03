@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority, safeCanCall} from "./IAuthority.sol";
+import {IAccessManager } from "./IAccessManager.sol";
 import {IManaged} from "./IManaged.sol";
 import {Context} from "../../utils/Context.sol";
 
@@ -50,7 +51,7 @@ abstract contract AccessManaged is Context, IManaged {
      * ====
      */
     modifier restricted() {
-        _checkCanCall(_msgSender(), msg.sig);
+        _checkCanCall(_msgSender(), _msgData());
         _;
     }
 
@@ -86,11 +87,11 @@ abstract contract AccessManaged is Context, IManaged {
     /**
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
-    function _checkCanCall(address caller, bytes4 selector) internal view virtual {
-        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, address(this), selector);
+    function _checkCanCall(address caller, bytes memory data) internal virtual {
+        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, address(this), bytes4(data));
         if (!allowed) {
             if (delay > 0) {
-                revert AccessManagedRequiredDelay(caller, delay);
+                IAccessManager(authority()).consumeScheduledOp(caller, data);
             } else {
                 revert AccessManagedUnauthorized(caller);
             }
