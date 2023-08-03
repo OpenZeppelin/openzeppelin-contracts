@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import {IGovernorTimelock} from "./IGovernorTimelock.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {IManaged} from "../../access/manager/IManaged.sol";
-import {IAuthority} from "../../access/manager/IAuthority.sol";
+import {IAuthority, safeCanCall} from "../../access/manager/IAuthority.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
 import {Address} from "../../utils/Address.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -198,18 +198,14 @@ abstract contract GovernorTimelock is IGovernorTimelock, Governor {
             address authority = abi.decode(returndata, (address));
 
             // Check if governor can call, and try to detect a delay
-            (success, returndata) = authority.staticcall(
-                abi.encodeCall(IAuthority.canCall, (address(this), target, selector))
-            );
-            if (success && returndata.length >= 0x40) {
-                (bool authorized, uint32 delay) = abi.decode(returndata, (bool, uint32));
+            (bool authorized, uint32 delay) = safeCanCall(authority, address(this), target, selector);
 
-                // if direct call is not authorized, and delayed call is possible
-                if (!authorized && delay > 0) {
-                    return ExecutionDetail({authority: authority, delay: delay});
-                }
+            // If direct call is not authorized, and delayed call is possible
+            if (!authorized && delay > 0) {
+                return ExecutionDetail({authority: authority, delay: delay});
             }
         }
+
         return ExecutionDetail({authority: address(0), delay: _defaultDelaySeconds()});
     }
 }
