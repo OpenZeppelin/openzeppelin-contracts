@@ -516,7 +516,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforeend, or the
+     * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
      * execution delay is 0.
      *
      * Emits a {Executed} event if the call was scheduled. Unscheduled call (with no delay) do not emit that event.
