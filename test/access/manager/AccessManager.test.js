@@ -1011,4 +1011,52 @@ contract('AccessManager', function (accounts) {
       );
     });
   });
+
+  // TODO: test all admin functions
+  describe('admin delays', function () {
+    const delay = '1000';
+
+    beforeEach('set admin delay', async function () {
+      this.adminSelector = selector('setContractModeOpen(address)');
+
+      this.tx = await this.manager.setAdminFunctionDelay(this.adminSelector, delay, { from: admin });
+
+      this.data = this.manager.contract.methods.setContractModeOpen(this.target.address).encodeABI();
+      this.opId = web3.utils.keccak256(
+        web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
+      );
+    });
+
+    it('emits event', async function () {
+      const from = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
+      expectEvent(this.tx.receipt, 'AdminDelayUpdated', { selector: this.adminSelector, delay, from });
+    });
+
+    it('without prior scheduling: reverts', async function () {
+      await expectRevertCustomError(
+        this.manager.setContractModeOpen(this.target.address, { from: admin }),
+        'AccessManagerNotScheduled',
+        [this.opId],
+      );
+    });
+
+    describe('with prior scheduling', async function () {
+      beforeEach('schedule', async function () {
+        await this.manager.schedule(this.manager.address, this.data, { from: admin });
+      });
+
+      it('without delay: reverts', async function () {
+        await expectRevertCustomError(
+          this.manager.setContractModeOpen(this.target.address, { from: admin }),
+          'AccessManagerNotReady',
+          [this.opId],
+        );
+      });
+
+      it('with delay: succeeds', async function () {
+        await time.increase(delay);
+        await this.manager.setContractModeOpen(this.target.address, { from: admin });
+      });
+    });
+  });
 });

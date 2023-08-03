@@ -47,6 +47,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(address target => mapping(bytes4 selector => uint256 groupId)) private _allowedGroups;
     mapping(uint256 groupId => Group) private _groups;
     mapping(bytes32 operationId => uint48 schedule) private _schedules;
+    mapping(bytes4 selector => Time.Delay delay) private _adminDelays;
 
     // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
@@ -59,6 +60,21 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address msgsender = _msgSender();
         if (!hasGroup(groupId, msgsender)) {
             revert AccessControlUnauthorizedAccount(msgsender, groupId);
+        }
+        _;
+    }
+
+    /**
+     * @dev Check that the caller is an admin and that the top-level function currently executing has been scheduled
+     * sufficiently ahead of time, if necessary according to admin delays.
+     */
+    modifier onlyDelayedAdmin() {
+        address msgsender = _msgSender();
+        (bool allowed, uint32 delay) = canCall(msgsender, address(this), msg.sig);
+        if (delay > 0) {
+            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
+        } else if (!allowed) {
+            revert AccessControlUnauthorizedAccount(msgsender, ADMIN_GROUP);
         }
         _;
     }
@@ -95,6 +111,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
             return (_relayIdentifier == keccak256(abi.encodePacked(target, selector)), 0);
+        } else if (target == address(this)) {
+            bool allowed = hasGroup(ADMIN_GROUP, caller);
+            uint32 delay = _adminDelays[selector].get();
+            return (allowed && delay == 0, delay);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
             bool inGroup = hasGroup(groupId, caller);
@@ -303,7 +323,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGrantDelayChanged} event
      */
-    function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyDelayedAdmin {
         _setGrantDelay(groupId, newDelay);
     }
 
@@ -408,6 +428,28 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
 
+    /**
+     * @dev Set the execution delay for an admin function of the AccessManager. This update is not
+     * immediate and follows the same rules of {setExecuteDelay}.
+     *
+     * Emits an {AdminDelayUpdated} event.
+     */
+    function setAdminFunctionDelay(bytes4 selector, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+        _setAdminFunctionDelay(selector, newDelay);
+    }
+
+    /**
+     * @dev Internal version of {setAdminFunctionDelay} without access control.
+     *
+     * Emits an {AdminDelayUpdated} event
+     */
+    function _setAdminFunctionDelay(bytes4 selector, uint32 newDelay) internal virtual {
+        Time.Delay updated = _adminDelays[selector].update(newDelay, 0); // TODO: minsetback ?
+        _adminDelays[selector] = updated;
+        (, , uint48 effectPoint) = updated.split();
+        emit AdminDelayUpdated(selector, newDelay, effectPoint);
+    }
+
     // ============================================= FUNCTION MANAGEMENT ==============================================
     /**
      * @dev Set the level of permission (`group`) required to call functions identified by the `selectors` in the
@@ -423,7 +465,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address target,
         bytes4[] calldata selectors,
         uint256 groupId
-    ) public virtual onlyGroup(ADMIN_GROUP) {
+    ) public virtual onlyDelayedAdmin {
         // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFunctionAllowedGroup(target, selectors[i], groupId);
@@ -466,7 +508,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {AccessModeUpdated} event.
      */
-    function setContractModeOpen(address target) public virtual onlyGroup(ADMIN_GROUP) {
+    function setContractModeOpen(address target) public virtual onlyDelayedAdmin {
         // todo set delay or document risks
         _setContractMode(target, AccessMode.Open);
     }
@@ -584,7 +626,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emit a {Executed} event
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
-        _consumeScheduledOp(_hashOperation(caller, _msgSender(), data));
+        address target = _msgSender();
+        _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
     /**
@@ -649,7 +692,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      */
-    function updateAuthority(IManaged target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) {
+    function updateAuthority(IManaged target, address newAuthority) public virtual onlyDelayedAdmin {
         // todo set delay or document risks
         target.setAuthority(newAuthority);
     }
