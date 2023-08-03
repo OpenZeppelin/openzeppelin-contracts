@@ -39,7 +39,7 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-state} function status check on the timelock if in ss`Queued`.
+     * @dev Overridden version of the {Governor-state} function that considers the status reported by the timelock.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);
