@@ -52,7 +52,7 @@ interface IAccessManager {
     event GroupLabel(uint256 indexed groupId, string label);
     event GroupGranted(uint256 indexed groupId, address indexed account, uint48 since, uint32 delay);
     event GroupRevoked(uint256 indexed groupId, address indexed account);
-    event GroupExecutionDelayUpdate(uint256 indexed groupId, address indexed account, uint32 delay, uint48 from);
+    event GroupExecutionDelayUpdated(uint256 indexed groupId, address indexed account, uint32 delay, uint48 from);
     event GroupAdminChanged(uint256 indexed groupId, uint256 indexed admin);
     event GroupGuardianChanged(uint256 indexed groupId, uint256 indexed guardian);
     event GroupGrantDelayChanged(uint256 indexed groupId, uint32 delay, uint48 from);

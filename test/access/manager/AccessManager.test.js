@@ -373,7 +373,7 @@ contract('AccessManager', function (accounts) {
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
@@ -403,7 +403,7 @@ contract('AccessManager', function (accounts) {
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
@@ -431,7 +431,7 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
           groupId: GROUPS.SOME,
           account: other,
           delay: executeDelay,
