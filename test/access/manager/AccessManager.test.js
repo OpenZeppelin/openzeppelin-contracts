@@ -360,7 +360,9 @@ contract('AccessManager', function (accounts) {
         expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
         expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
 
-        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
+        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+          from: manager,
+        });
         const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
 
         expectEvent(receipt2, 'GroupExecutionDelayUpdate', {
@@ -389,7 +391,9 @@ contract('AccessManager', function (accounts) {
         expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
         expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
 
-        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, { from: manager });
+        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+          from: manager,
+        });
         const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
 
         expectEvent(receipt2, 'GroupExecutionDelayUpdate', {

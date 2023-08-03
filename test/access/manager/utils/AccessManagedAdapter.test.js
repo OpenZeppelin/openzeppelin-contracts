@@ -138,7 +138,9 @@ contract('AccessManagedAdapter', function (accounts) {
       it('scheduled call succeeds', async function () {
         await this.manager.schedule(this.ownable.address, selector('$_checkOwner()'), { from: user });
         await time.increase(delay);
-        await this.manager.relayViaAdapter(this.ownable.address, selector('$_checkOwner()'), this.adapter.address, { from: user });
+        await this.manager.relayViaAdapter(this.ownable.address, selector('$_checkOwner()'), this.adapter.address, {
+          from: user,
+        });
       });
     });
   });
