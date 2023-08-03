@@ -1,3 +1,4 @@
+const { web3 } = require('hardhat');
 const { forward } = require('../helpers/time');
 const { ProposalState } = require('./enums');
 
@@ -14,6 +15,9 @@ function concatHex(...args) {
 function concatOpts(args, opts = null) {
   return opts ? args.concat(opts) : args;
 }
+
+const timelockSalt = (address, descriptionHash) =>
+  '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
 class GovernorHelper {
   constructor(governor, mode = 'blocknumber') {
@@ -245,4 +249,5 @@ function proposalStatesToBitMap(proposalStates, options = {}) {
 module.exports = {
   GovernorHelper,
   proposalStatesToBitMap,
+  timelockSalt,
 };

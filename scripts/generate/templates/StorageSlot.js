@@ -11,7 +11,7 @@ const TYPES = [
 ].map(type => Object.assign(type, { struct: (type.name ?? capitalize(type.type)) + 'Slot' }));
 
 const header = `\
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.

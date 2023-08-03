@@ -36,7 +36,7 @@ Timelock extensions add a delay for governance decisions to be executed. The wor
 
 Other extensions can customize the behavior or interface in multiple ways.
 
-* {GovernorCompatibilityBravo}: Extends the interface to be fully `GovernorBravo`-compatible. Note that events are compatible regardless of whether this extension is included or not.
+* {GovernorStorage}: Stores the proposal details onchain and provides enumerability of the proposals. This can be useful for some L2 chains where storage is cheap compared to calldata.
 
 * {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiring an upgrade.
 
@@ -74,7 +74,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorPreventLateQuorum}}
 
-{{GovernorCompatibilityBravo}}
+{{GovernorStorage}}
 
 == Utils
 

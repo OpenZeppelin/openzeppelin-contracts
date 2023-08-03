@@ -4,7 +4,7 @@ const { range } = require('../../helpers');
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 
 const header = `\
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow

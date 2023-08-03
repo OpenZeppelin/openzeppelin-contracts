@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/StorageSlot.sol)
 // This file was procedurally generated from scripts/generate/templates/StorageSlot.js.
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.

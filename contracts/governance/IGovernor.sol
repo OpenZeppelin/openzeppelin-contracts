@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/IGovernor.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC165} from "../interfaces/IERC165.sol";
 import {IERC6372} from "../interfaces/IERC6372.sol";
@@ -9,7 +9,7 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 /**
  * @dev Interface of the {Governor} core.
  */
-abstract contract IGovernor is IERC165, IERC6372 {
+interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {
         Pending,
         Active,
@@ -69,14 +69,34 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVotingPeriod(uint256 votingPeriod);
 
     /**
-     * @dev The `proposer` does not have the required votes to operate on a proposal.
+     * @dev The `proposer` does not have the required votes to create a proposal.
      */
     error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
+
+    /**
+     * @dev The `proposer` is not allowed to create a proposal.
+     */
+    error GovernorRestrictedProposer(address proposer);
 
     /**
      * @dev The vote type used is not valid for the corresponding counting module.
      */
     error GovernorInvalidVoteType();
+
+    /**
+     * @dev Queue operation is not implemented for this governor. Execute should be called directly.
+     */
+    error GovernorQueueNotImplemented();
+
+    /**
+     * @dev The proposal hasn't been queued yet.
+     */
+    error GovernorNotQueuedProposal(uint256 proposalId);
+
+    /**
+     * @dev The proposal has already been queued.
+     */
+    error GovernorAlreadyQueuedProposal(uint256 proposalId);
 
     /**
      * @dev The provided signature is not valid for the expected `voter`.
@@ -100,14 +120,19 @@ abstract contract IGovernor is IERC165, IERC6372 {
     );
 
     /**
-     * @dev Emitted when a proposal is canceled.
+     * @dev Emitted when a proposal is queued.
      */
-    event ProposalCanceled(uint256 proposalId);
+    event ProposalQueued(uint256 proposalId, uint256 eta);
 
     /**
      * @dev Emitted when a proposal is executed.
      */
     event ProposalExecuted(uint256 proposalId);
+
+    /**
+     * @dev Emitted when a proposal is canceled.
+     */
+    event ProposalCanceled(uint256 proposalId);
 
     /**
      * @dev Emitted when a vote is cast without params.
@@ -135,26 +160,13 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @notice module:core
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() public view virtual returns (string memory);
+    function name() external view returns (string memory);
 
     /**
      * @notice module:core
      * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
      */
-    function version() public view virtual returns (string memory);
-
-    /**
-     * @notice module:core
-     * @dev See {IERC6372}
-     */
-    function clock() public view virtual returns (uint48);
-
-    /**
-     * @notice module:core
-     * @dev See EIP-6372.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual returns (string memory);
+    function version() external view returns (string memory);
 
     /**
      * @notice module:voting
@@ -179,7 +191,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * JavaScript class.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public view virtual returns (string memory);
+    function COUNTING_MODE() external view returns (string memory);
 
     /**
      * @notice module:core
@@ -190,13 +202,19 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public pure virtual returns (uint256);
+    ) external pure returns (uint256);
 
     /**
      * @notice module:core
      * @dev Current state of a proposal, following Compound's convention
      */
-    function state(uint256 proposalId) public view virtual returns (ProposalState);
+    function state(uint256 proposalId) external view returns (ProposalState);
+
+    /**
+     * @notice module:core
+     * @dev The number of votes required in order for a voter to become a proposer.
+     */
+    function proposalThreshold() external view returns (uint256);
 
     /**
      * @notice module:core
@@ -204,20 +222,28 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
      * following block.
      */
-    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
+    function proposalSnapshot(uint256 proposalId) external view returns (uint256);
 
     /**
      * @notice module:core
      * @dev Timepoint at which votes close. If using block number, votes close at the end of this block, so it is
      * possible to cast a vote during this block.
      */
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
+    function proposalDeadline(uint256 proposalId) external view returns (uint256);
 
     /**
      * @notice module:core
      * @dev The account that created a proposal.
      */
-    function proposalProposer(uint256 proposalId) public view virtual returns (address);
+    function proposalProposer(uint256 proposalId) external view returns (address);
+
+    /**
+     * @notice module:core
+     * @dev The time when a queued proposal becomes executable ("ETA"). Unlike {proposalSnapshot} and
+     * {proposalDeadline}, this doesn't use the governor clock, and instead relies on the executor's clock which may be
+     * different. In most cases this will be a timestamp.
+     */
+    function proposalEta(uint256 proposalId) external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -230,7 +256,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * NOTE: While this interface returns a uint256, timepoints are stored as uint48 following the ERC-6372 clock type.
      * Consequently this value must fit in a uint48 (when added to the current clock). See {IERC6372-clock}.
      */
-    function votingDelay() public view virtual returns (uint256);
+    function votingDelay() external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -244,7 +270,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * proposals that have already been submitted. The type used to save it is a uint32. Consequently, while this
      * interface returns a uint256, the value it returns should fit in a uint32.
      */
-    function votingPeriod() public view virtual returns (uint256);
+    function votingPeriod() external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -253,7 +279,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
      */
-    function quorum(uint256 timepoint) public view virtual returns (uint256);
+    function quorum(uint256 timepoint) external view returns (uint256);
 
     /**
      * @notice module:reputation
@@ -262,7 +288,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 timepoint) public view virtual returns (uint256);
+    function getVotes(address account, uint256 timepoint) external view returns (uint256);
 
     /**
      * @notice module:reputation
@@ -272,13 +298,13 @@ abstract contract IGovernor is IERC165, IERC6372 {
         address account,
         uint256 timepoint,
         bytes memory params
-    ) public view virtual returns (uint256);
+    ) external view returns (uint256);
 
     /**
      * @notice module:voting
      * @dev Returns whether `account` has cast a vote on `proposalId`.
      */
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
+    function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
     /**
      * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
@@ -291,22 +317,37 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual returns (uint256 proposalId);
+    ) external returns (uint256 proposalId);
+
+    /**
+     * @dev Queue a proposal. Some governors require this step to be performed before execution can happen. If queuing
+     * is not necessary, this function may revert.
+     * Queuing a proposal requires the quorum to be reached, the vote to be successful, and the deadline to be reached.
+     *
+     * Emits a {ProposalQueued} event.
+     */
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) external returns (uint256 proposalId);
 
     /**
      * @dev Execute a successful proposal. This requires the quorum to be reached, the vote to be successful, and the
-     * deadline to be reached.
+     * deadline to be reached. Depending on the governor it might also be required that the proposal was queued and
+     * that some delay passed.
      *
      * Emits a {ProposalExecuted} event.
      *
-     * Note: some module can modify the requirements for execution, for example by adding an additional timelock.
+     * NOTE: Some modules can modify the requirements for execution, for example by adding an additional timelock.
      */
     function execute(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public payable virtual returns (uint256 proposalId);
+    ) external payable returns (uint256 proposalId);
 
     /**
      * @dev Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending state, i.e.
@@ -319,14 +360,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual returns (uint256 proposalId);
+    ) external returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason
@@ -337,7 +378,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256 proposalId,
         uint8 support,
         string calldata reason
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason and additional encoded parameters
@@ -349,7 +390,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint8 support,
         string calldata reason,
         bytes memory params
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the voter's signature, including ERC-1271 signature support.
@@ -361,7 +402,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint8 support,
         address voter,
         bytes memory signature
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason and additional encoded parameters using the voter's signature,
@@ -376,5 +417,5 @@ abstract contract IGovernor is IERC165, IERC6372 {
         string calldata reason,
         bytes memory params,
         bytes memory signature
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 }
