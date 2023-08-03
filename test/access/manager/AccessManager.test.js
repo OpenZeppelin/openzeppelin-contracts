@@ -770,7 +770,7 @@ contract('AccessManager', function (accounts) {
           }
         });
 
-        it('Calling indirectly: schedule and call', async function () {
+        it('Calling directly: schedule and call', async function () {
           if (directSuccess || indirectSuccess) {
             const { receipt } = await this.schedule();
             const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
@@ -803,7 +803,7 @@ contract('AccessManager', function (accounts) {
           }
         });
 
-        it('Calling indirectly: schedule wait and relay', async function () {
+        it('Calling directly: schedule wait and call', async function () {
           if (directSuccess || indirectSuccess) {
             const { receipt } = await this.schedule();
             const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
