@@ -4,26 +4,23 @@ const { AccessMode } = require('../../../helpers/enums');
 const { selector } = require('../../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
-const AccessManagedAdapter = artifacts.require('AccessManagedAdapter');
 const Ownable = artifacts.require('$Ownable');
 
 const groupId = web3.utils.toBN(1);
 
-contract('AccessManagedAdapter', function (accounts) {
+contract('AccessManager+Ownable', function (accounts) {
   const [admin, user, other] = accounts;
 
   beforeEach(async function () {
     this.manager = await AccessManager.new(admin);
-    this.adapter = await AccessManagedAdapter.new(this.manager.address);
-    this.ownable = await Ownable.new(this.adapter.address);
+    this.ownable = await Ownable.new(this.manager.address);
 
     // add user to group
     await this.manager.$_grantGroup(groupId, user, 0, 0);
   });
 
   it('initial state', async function () {
-    expect(await this.adapter.authority()).to.be.equal(this.manager.address);
-    expect(await this.ownable.owner()).to.be.equal(this.adapter.address);
+    expect(await this.ownable.owner()).to.be.equal(this.manager.address);
   });
 
   describe('Contract is Closed', function () {
@@ -37,17 +34,17 @@ contract('AccessManagedAdapter', function (accounts) {
 
     it('relayed call (with group): reverts', async function () {
       await expectRevertCustomError(
-        this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: user }),
-        'AccessManagedUnauthorized',
-        [user],
+        this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user }),
+        'AccessManagerUnauthorizedCall',
+        [user, this.ownable.address, selector('$_checkOwner()')],
       );
     });
 
     it('relayed call (without group): reverts', async function () {
       await expectRevertCustomError(
-        this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
-        'AccessManagedUnauthorized',
-        [other],
+        this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
+        'AccessManagerUnauthorizedCall',
+        [other, this.ownable.address, selector('$_checkOwner()')],
       );
     });
   });
@@ -62,11 +59,11 @@ contract('AccessManagedAdapter', function (accounts) {
     });
 
     it('relayed call (with group): success', async function () {
-      await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
+      await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
     });
 
     it('relayed call (without group): success', async function () {
-      await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
+      await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
     });
   });
 
@@ -85,14 +82,14 @@ contract('AccessManagedAdapter', function (accounts) {
       });
 
       it('relayed call (with group): success', async function () {
-        await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
+        await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
       });
 
       it('relayed call (without group): reverts', async function () {
         await expectRevertCustomError(
-          this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
-          'AccessManagedUnauthorized',
-          [other],
+          this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
+          'AccessManagerUnauthorizedCall',
+          [other, this.ownable.address, selector('$_checkOwner()')],
         );
       });
     });
@@ -111,11 +108,11 @@ contract('AccessManagedAdapter', function (accounts) {
       });
 
       it('relayed call (with group): success', async function () {
-        await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
+        await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
       });
 
       it('relayed call (without group): success', async function () {
-        await this.adapter.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
+        await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
       });
     });
   });
@@ -125,9 +122,9 @@ contract('AccessManagedAdapter', function (accounts) {
     await this.manager.$_setContractMode(address, AccessMode.Open);
 
     await expectRevertCustomError(
-      this.adapter.relay(address, selector('$_checkOwner()')),
+      this.manager.relay(address, selector('$_checkOwner()')),
       'OwnableUnauthorizedAccount',
-      [this.adapter.address],
+      [this.manager.address],
     );
   });
 });

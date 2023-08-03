@@ -50,7 +50,7 @@ abstract contract AccessManaged is Context, IManaged {
      * ====
      */
     modifier restricted() {
-        _checkCanCall(_msgSender(), address(this), msg.sig);
+        _checkCanCall(_msgSender(), msg.sig);
         _;
     }
 
@@ -86,8 +86,8 @@ abstract contract AccessManaged is Context, IManaged {
     /**
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
-    function _checkCanCall(address caller, address target, bytes4 selector) internal view virtual {
-        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, target, selector);
+    function _checkCanCall(address caller, bytes4 selector) internal view virtual {
+        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, address(this), selector);
         if (!allowed) {
             if (delay > 0) {
                 revert AccessManagedRequiredDelay(caller, delay);
