@@ -51,6 +51,7 @@ abstract contract GovernorStorage is Governor {
      * @dev Version of {IGovernorTimelock-queue} with only `proposalId` as an argument.
      */
     function queue(uint256 proposalId) public virtual {
+        // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
         queue(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
@@ -59,6 +60,7 @@ abstract contract GovernorStorage is Governor {
      * @dev Version of {IGovernor-execute} with only `proposalId` as an argument.
      */
     function execute(uint256 proposalId) public payable virtual {
+        // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
         execute(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
@@ -67,6 +69,7 @@ abstract contract GovernorStorage is Governor {
      * @dev ProposalId version of {IGovernor-cancel}.
      */
     function cancel(uint256 proposalId) public virtual {
+        // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
         cancel(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
@@ -84,6 +87,7 @@ abstract contract GovernorStorage is Governor {
     function proposalDetails(
         uint256 proposalId
     ) public view virtual returns (address[] memory, uint256[] memory, bytes[] memory, bytes32) {
+        // here, using memory is more efficient than storage
         ProposalDetails memory details = _proposalDetails[proposalId];
         if (details.descriptionHash == 0) {
             revert GovernorNonexistentProposal(proposalId);
