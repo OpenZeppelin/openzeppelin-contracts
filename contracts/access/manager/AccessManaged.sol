@@ -87,7 +87,7 @@ abstract contract AccessManaged is Context, IManaged {
     /**
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
-    function _checkCanCall(address caller, bytes memory data) internal virtual {
+    function _checkCanCall(address caller, bytes calldata data) internal virtual {
         (bool allowed, uint32 delay) = safeCanCall(authority(), caller, address(this), bytes4(data));
         if (!allowed) {
             if (delay > 0) {
