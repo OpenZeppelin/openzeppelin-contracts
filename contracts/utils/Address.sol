@@ -116,7 +116,9 @@ library Address {
         bool success,
         bytes memory returndata
     ) internal view returns (bytes memory) {
-        if (success) {
+        if (!success) {
+            _revert(returndata);
+        } else {
             if (returndata.length == 0) {
                 // only check if target is a contract if the call was successful and the return data is empty
                 // otherwise we already know that it was a contract
@@ -125,8 +127,6 @@ library Address {
                 }
             }
             return returndata;
-        } else {
-            _revert(returndata);
         }
     }
 

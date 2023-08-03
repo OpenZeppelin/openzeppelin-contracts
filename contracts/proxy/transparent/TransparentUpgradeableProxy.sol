@@ -93,10 +93,10 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _fallback() internal virtual override {
         if (msg.sender == _proxyAdmin()) {
-            if (msg.sig == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                _dispatchUpgradeToAndCall();
-            } else {
+            if (msg.sig != ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 revert ProxyDeniedAdminAccess();
+            } else {
+                _dispatchUpgradeToAndCall();
             }
         } else {
             super._fallback();
