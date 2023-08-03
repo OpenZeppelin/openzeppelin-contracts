@@ -176,7 +176,7 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev See EIP-6372.
+     * @dev See {IERC6372}
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() external view returns (string memory);
@@ -227,7 +227,7 @@ interface IGovernor is IERC165, IERC6372 {
      * @notice module:core
      * @dev The number of votes required in order for a voter to become a proposer.
      */
-    function proposalThreshold() public view virtual returns (uint256);
+    function proposalThreshold() external view returns (uint256);
 
     /**
      * @notice module:core
