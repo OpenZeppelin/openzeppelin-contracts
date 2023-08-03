@@ -74,7 +74,7 @@ library Time {
      */
     function getAt(Delay self, uint48 timepoint) internal pure returns (uint32) {
         (uint32 oldValue, uint32 newValue, uint48 effect) = self.split();
-        return (effect == 0 || effect > timepoint) ? oldValue : newValue;
+        return effect.isSetAndPast(timepoint) ? newValue : oldValue;
     }
 
     /**

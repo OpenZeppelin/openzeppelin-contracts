@@ -87,7 +87,7 @@ interface IAccessManager {
 
     function getGroupGrantDelay(uint256 groupId) external view returns (uint32);
 
-    function getAccess(uint256 group, address account) external view returns (Access memory);
+    function getAccess(uint256 group, address account) external view returns (uint48, uint32, uint32, uint48);
 
     function hasGroup(uint256 group, address account) external view returns (bool);
 

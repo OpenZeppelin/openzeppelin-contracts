@@ -18,14 +18,6 @@ Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
-const MAX_UINT = n => web3.utils.toBN(1).shln(n).subn(1);
-
-const split = delay => ({
-  oldValue: web3.utils.toBN(delay).shrn(0).and(MAX_UINT(32)).toString(),
-  newValue: web3.utils.toBN(delay).shrn(32).and(MAX_UINT(32)).toString(),
-  effect: web3.utils.toBN(delay).shrn(64).and(MAX_UINT(48)).toString(),
-});
-
 contract('AccessManager', function (accounts) {
   const [admin, manager, member, user, other] = accounts;
 
@@ -118,9 +110,11 @@ contract('AccessManager', function (accounts) {
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
 
-          const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(delay).to.be.bignumber.equal('0');
-          expect(since).to.be.bignumber.equal(timestamp);
+          const access = await this.manager.getAccess(GROUPS.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
+          expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+          expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+          expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
         it('with an execute delay', async function () {
@@ -137,9 +131,11 @@ contract('AccessManager', function (accounts) {
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
 
-          const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(delay).to.be.bignumber.equal(executeDelay);
-          expect(since).to.be.bignumber.equal(timestamp);
+          const access = await this.manager.getAccess(GROUPS.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
+          expect(access[1]).to.be.bignumber.equal(executeDelay); // currentDelay
+          expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+          expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
         it('to a user that is already in the group', async function () {
@@ -190,9 +186,11 @@ contract('AccessManager', function (accounts) {
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
 
-          const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(delay).to.be.bignumber.equal('0');
-          expect(since).to.be.bignumber.equal(timestamp.add(grantDelay));
+          const access = await this.manager.getAccess(GROUPS.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
+          expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+          expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+          expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
         it('granted group is active after the delay', async function () {
@@ -209,9 +207,11 @@ contract('AccessManager', function (accounts) {
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
 
-          const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(delay).to.be.bignumber.equal('0');
-          expect(since).to.be.bignumber.equal(timestamp.add(grantDelay));
+          const access = await this.manager.getAccess(GROUPS.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
+          expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+          expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+          expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
       });
     });
@@ -225,9 +225,11 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.false;
 
-        const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(delay).to.be.bignumber.equal('0');
-        expect(since).to.be.bignumber.equal('0');
+        const access = await this.manager.getAccess(GROUPS.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('from a user that is scheduled for joining the group', async function () {
@@ -240,9 +242,11 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
 
-        const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(delay).to.be.bignumber.equal('0');
-        expect(since).to.be.bignumber.equal('0');
+        const access = await this.manager.getAccess(GROUPS.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('from a user that is not in the group', async function () {
@@ -273,9 +277,11 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.false;
 
-        const { delay, since } = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(delay).to.be.bignumber.equal('0');
-        expect(since).to.be.bignumber.equal('0');
+        const access = await this.manager.getAccess(GROUPS.SOME, member);
+        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('for a user that is schedule for joining the group', async function () {
@@ -288,9 +294,11 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
 
-        const { delay, since } = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(delay).to.be.bignumber.equal('0');
-        expect(since).to.be.bignumber.equal('0');
+        const access = await this.manager.getAccess(GROUPS.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('for a user that is not in the group', async function () {
@@ -353,63 +361,60 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        const { receipt: receipt1 } = await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
-        const timestamp1 = await clockFromReceipt.timestamp(receipt1).then(web3.utils.toBN);
+        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
 
-        const delayBefore = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayBefore.oldValue).to.be.bignumber.equal('0');
-        expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
-        expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
+        const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
+        expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
+        expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
-        const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
+        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt2, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
-          from: timestamp2,
+          from: timestamp,
         });
 
         // immediate effect
-        const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
-        expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.effect).to.be.bignumber.equal(timestamp2);
+        const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
+        expect(accessAfter[1]).to.be.bignumber.equal(newDelay); // currentDelay
+        expect(accessAfter[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('decreassing the delay takes time', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        const { receipt: receipt1 } = await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
-        const timestamp1 = await clockFromReceipt.timestamp(receipt1).then(web3.utils.toBN);
+        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
 
-        const delayBefore = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-        expect(delayBefore.oldValue).to.be.bignumber.equal('0');
-        expect(delayBefore.newValue).to.be.bignumber.equal(oldDelay);
-        expect(delayBefore.effect).to.be.bignumber.equal(timestamp1);
+        const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
+        expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
+        expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt: receipt2 } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
-        const timestamp2 = await clockFromReceipt.timestamp(receipt2).then(web3.utils.toBN);
+        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt2, 'GroupExecutionDelayUpdate', {
+        expectEvent(receipt, 'GroupExecutionDelayUpdate', {
           groupId: GROUPS.SOME,
           account: member,
           delay: newDelay,
-          from: timestamp2.add(oldDelay).sub(newDelay),
+          from: timestamp.add(oldDelay).sub(newDelay),
         });
 
         // delayed effect
-        const delayAfter = await this.manager.getAccess(GROUPS.SOME, member).then(([, delay]) => split(delay));
-
-        expect(delayAfter.oldValue).to.be.bignumber.equal(oldDelay);
-        expect(delayAfter.newValue).to.be.bignumber.equal(newDelay);
-        expect(delayAfter.effect).to.be.bignumber.equal(timestamp2.add(oldDelay).sub(newDelay));
+        const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
+        expect(accessAfter[1]).to.be.bignumber.equal(oldDelay); // currentDelay
+        expect(accessAfter[2]).to.be.bignumber.equal(newDelay); // pendingDelay
+        expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(oldDelay).sub(newDelay)); // effect
       });
 
       it('cannot set the delay of a non member', async function () {
@@ -575,7 +580,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('Calling restricted & unrestricted functions', function () {
+  describe.only('Calling restricted & unrestricted functions', function () {
     const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
     for (const [callerOpt, targetOpt] of product(
@@ -646,11 +651,15 @@ contract('AccessManager', function (accounts) {
           for (const groupId of callerOpt.groups ?? []) {
             const access = await this.manager.getAccess(groupId, user);
             if (groupId == GROUPS.PUBLIC) {
-              expect(access.since).to.be.bignumber.eq('0');
-              expect(access.delay).to.be.bignumber.eq('0');
+              expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+              expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+              expect(access[3]).to.be.bignumber.equal('0'); // effect
             } else {
-              expect(access.since).to.be.bignumber.gt('0');
-              expect(access.delay).to.be.bignumber.eq(String(callerOpt.delay ?? 0));
+              expect(access[0]).to.be.bignumber.gt('0'); // inGroupSince
+              expect(access[1]).to.be.bignumber.eq(String(callerOpt.delay ?? 0)); // currentDelay
+              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+              expect(access[3]).to.be.bignumber.equal('0'); // effect
             }
           }
         });

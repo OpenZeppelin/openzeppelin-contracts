@@ -98,8 +98,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
             bool inGroup = hasGroup(groupId, caller);
-            uint32 executeDelay = inGroup ? getAccess(groupId, caller).delay.get() : 0;
-            return (inGroup && executeDelay == 0, executeDelay);
+            if (!inGroup) {
+                return (false, 0);
+            } else {
+                (, uint32 currentDelay, , ) = getAccess(groupId, caller);
+                return (currentDelay == 0, currentDelay);
+            }
         }
     }
 
@@ -157,9 +161,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the access details for a given account in a given group. These details include the timepoint at which
      * membership becomes active, and the delay applied to all operation by this user that require this permission
      * level.
+     *
+     * Returns:
+     * [0] Timestamp at which the account membership becomes valid. 0 means role is not granted.
+     * [1] Current execution delay for the account.
+     * [2] Pending execution delay for the account.
+     * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint256 groupId, address account) public view virtual returns (Access memory) {
-        return _groups[groupId].members[account];
+    function getAccess(uint256 groupId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
+        Access storage access = _groups[groupId].members[account];
+
+        uint48 since = access.since;
+        (uint32 oldDelay, uint32 newDelay, uint48 effect) = access.delay.split();
+
+        return effect.isSetAndPast(Time.timestamp()) ? (since, newDelay, 0, 0) : (since, oldDelay, newDelay, effect);
     }
 
     /**
@@ -167,7 +182,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
     function hasGroup(uint256 groupId, address account) public view virtual returns (bool) {
-        return groupId == PUBLIC_GROUP || getAccess(groupId, account).since.isSetAndPast(Time.timestamp());
+        if (groupId == PUBLIC_GROUP) {
+            return true;
+        } else {
+            (uint48 inGroupSince, , , ) = getAccess(groupId, account);
+            return inGroupSince.isSetAndPast(Time.timestamp());
+        }
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================

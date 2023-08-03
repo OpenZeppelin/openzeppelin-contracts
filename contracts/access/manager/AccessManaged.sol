@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority, safeCanCall} from "./IAuthority.sol";
-import {IAccessManager } from "./IAccessManager.sol";
+import {IAccessManager} from "./IAccessManager.sol";
 import {IManaged} from "./IManaged.sol";
 import {Context} from "../../utils/Context.sol";
 
