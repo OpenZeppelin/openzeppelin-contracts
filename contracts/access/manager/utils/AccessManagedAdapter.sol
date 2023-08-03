@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {AccessManaged} from "../AccessManaged.sol";
+import {Address} from "../../../utils/Address.sol";
 
 /**
  * @dev This contract can be used to migrate existing {Ownable} or {AccessControl} contracts into an {AccessManager}
@@ -36,17 +37,6 @@ contract AccessManagedAdapter is AccessManaged {
 
         _checkCanCall(_msgSender(), target, bytes4(data[0:4]));
 
-        (bool success, bytes memory returndata) = target.call{value: msg.value}(data);
-        if (success) {
-            /// @solidity memory-safe-assembly
-            assembly {
-                return(add(32, returndata), mload(returndata))
-            }
-        } else {
-            /// @solidity memory-safe-assembly
-            assembly {
-                revert(add(32, returndata), mload(returndata))
-            }
-        }
+        Address.functionCallWithValue(target, data, msg.value);
     }
 }
