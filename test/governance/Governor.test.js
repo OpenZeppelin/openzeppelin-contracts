@@ -79,7 +79,7 @@ contract('Governor', function (accounts) {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams', 'GovernorCancel']);
+      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
       shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
@@ -305,6 +305,17 @@ contract('Governor', function (accounts) {
               ZERO_BYTES32,
             ]);
           });
+
+          it('if proposer has below threshold votes', async function () {
+            const votes = web3.utils.toWei('10');
+            const threshold = web3.utils.toWei('1000');
+            await this.mock.$_setProposalThreshold(threshold);
+            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorInsufficientProposerVotes', [
+              voter1,
+              votes,
+              threshold,
+            ]);
+          });
         });
 
         describe('on vote', function () {
@@ -424,6 +435,16 @@ contract('Governor', function (accounts) {
               'GovernorInvalidSignature',
               [voteParams.voter],
             );
+          });
+        });
+
+        describe('on queue', function () {
+          it('always', async function () {
+            await this.helper.propose({ from: proposer });
+            await this.helper.waitForSnapshot();
+            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+            await this.helper.waitForDeadline();
+            await expectRevertCustomError(this.helper.queue(), 'GovernorQueueNotImplemented', []);
           });
         });
 
@@ -826,7 +847,9 @@ contract('Governor', function (accounts) {
           });
 
           it('someone else cannot propose', async function () {
-            await expectRevert(this.helper.propose({ from: voter1 }), 'Governor: proposer restricted');
+            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorRestrictedProposer', [
+              voter1,
+            ]);
           });
         });
       });
