@@ -120,7 +120,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
-            return (_relayIdentifier == _relayIdentifier(target, selector), 0);
+            return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
         } else if (target == address(this)) {
             bool allowed = hasGroup(ADMIN_GROUP, caller);
             uint32 delay = _adminDelays[selector].get();
@@ -623,7 +623,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Mark the target and selector as authorised
         bytes32 relayIdentifierBefore = _relayIdentifier;
-        _relayIdentifier = _relayIdentifier(target, selector);
+        _relayIdentifier = _hashRelayIdentifier(target, selector);
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
@@ -703,7 +703,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Hashing function for relay protection
      */
-    function _relayIdentifier(address target, bytes4 selector) private pure returns (bytes32) {
+    function _hashRelayIdentifier(address target, bytes4 selector) private pure returns (bytes32) {
         return keccak256(abi.encode(target, selector));
     }
 
