@@ -576,7 +576,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint48 minWhen = Time.timestamp() + setback;
 
         // If caller is not authorised, revert
-        if (!allowed && (setback == 0 || when != 0 && when < minWhen)) {
+        if (!allowed && (setback == 0 || when.isSetAndPast(minWhen - 1))) {
             revert AccessManagerUnauthorizedCall(caller, target, selector);
         }
 
