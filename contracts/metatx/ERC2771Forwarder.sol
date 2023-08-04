@@ -408,7 +408,7 @@ contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
 
         // if not all value is passed to subcalls.
         if (remaining != 0) {
-            revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
+            revert ERC2771ForwarderMismatchedValue(msg.value - remaining, msg.value);
         }
     }
 }
