@@ -395,19 +395,19 @@ contract ERC2771Forwarder is ERC2771Context(address(this)), EIP712, Nonces {
 
         // This will recover the caller is execution is the result of a relay though the Forwarder (this);
         address caller = _msgSender();
+        uint256 remaining = msg.value;
 
         // relay the subcalls using the caller as the "from"
-        uint256 requestsValue = 0;
         for (uint256 i = 0; i < length; ++i) {
             (bool success, ) = targets[i].call{value: values[i]}(abi.encodePacked(calldatas[i], caller));
             if (!success) {
                 revert Address.FailedInnerCall();
             }
-            requestsValue += values[i];
+            remaining -= values[i];
         }
 
-        // passed value must match the forwarded value
-        if (requestsValue != msg.value) {
+        // if not all value is passed to subcalls.
+        if (remaining != 0) {
             revert ERC2771ForwarderMismatchedValue(requestsValue, msg.value);
         }
     }
