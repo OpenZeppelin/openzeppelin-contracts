@@ -61,9 +61,6 @@ contract('Create2', function (accounts) {
 
       const instance = await VestingWallet.at(offChainComputed);
 
-      // Needs to be accepted
-      await instance.acceptOwnership({ from: other });
-
       expect(await instance.owner()).to.be.equal(other);
     });
 
