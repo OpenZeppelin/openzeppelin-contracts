@@ -59,7 +59,12 @@ contract('Create2', function (accounts) {
         addr: offChainComputed,
       });
 
-      expect(await VestingWallet.at(offChainComputed).then(instance => instance.owner())).to.be.equal(other);
+      const instance = await VestingWallet.at(offChainComputed);
+
+      // Needs to be accepted
+      await instance.acceptOwnership({ from: other });
+
+      expect(await instance.owner()).to.be.equal(other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
