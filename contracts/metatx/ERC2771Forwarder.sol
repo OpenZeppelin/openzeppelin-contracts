@@ -307,47 +307,27 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * {ERC2771Context-isTrustedForwarder} function.
      */
     function _isTrustedByTarget(address target) private view returns (bool) {
-        bytes4 selector = ERC2771Context.isTrustedForwarder.selector;
-
-        // Calldata is always the same, and we can guarantee its length is 36 bytes
-        // - 4 bytes from the selector
-        // - 32 bytes from the abi encoded target address (padded to 32)
-        uint8 calldataLength = 36;
+        bytes memory encodedParams = abi.encodeCall(ERC2771Context.isTrustedForwarder, (address(this)));
 
         bool success;
-        bool returnValue;
+        uint256 returnSize;
+        uint256 returnValue;
         /// @solidity memory-safe-assembly
         assembly {
             // Because the return value is a boolean (requires 1 byte copied to memory) and the
             // calldata length is 24 bytes, we can safely reuse the scratch space in memory (0x00 - 0x3F).
-            // This avoids memory leakage of allocating the encoded calldata in memory during each
-            // `isTrustedForwarder` call.
-            let ptr := 0x00
-
-            // | Location  | Content  | Content (Hex)                                                      |
-            // |-----------|----------|--------------------------------------------------------------------|
-            // |           |          |                                                  selector ↓        |
-            // | 0x00:0x1F | selector | 0x00000000000000000000000000000000000000000000000000000000AAAAAAAA |
-            // |           |          |   ↓ PADDING        target ↓                                        |
-            // | 0x20:0x3F | target   | 0x000000000000000000000000BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB |
-            mstore(ptr, shr(224, selector))
-            mstore(add(ptr, 0x20), address())
 
             // Perform the staticcal and save the result in the scratch space.
             // | Location  | Content  | Content (Hex)                                                      |
             // |-----------|----------|--------------------------------------------------------------------|
             // |           |          |                                                           result ↓ |
             // | 0x00:0x1F | selector | 0x0000000000000000000000000000000000000000000000000000000000000001 |
-            success := staticcall(gas(), target, add(ptr, 0x1c), calldataLength, 0, 0x20)
-
-            // Avoid strange returndatasizes (eg. an EOA)
-            if eq(returndatasize(), 0x20) {
-                // Copy from memory and clean the `returnValue` as a boolean.
-                returnValue := shr(255, shl(255, mload(0)))
-            }
+            success := staticcall(gas(), target, add(encodedParams, 0x20), mload(encodedParams), 0, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0)
         }
 
-        return success && returnValue;
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 
     /**
