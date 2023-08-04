@@ -58,7 +58,7 @@ library Time {
      * [064:111] uint48 for the effect date (timepoint)
      *
      * NOTE: The {get} and {update} function operate using timestamps. Block number based delays should use the
-     * {getAt} and {updateAt} variants of these functions.
+     * {getAt} and {withUpdateAt} variants of these functions.
      */
     type Delay is uint112;
 
@@ -104,7 +104,7 @@ library Time {
     /**
      * @dev Update a Delay object so that a new duration takes effect at a given timepoint.
      */
-    function updateAt(Delay self, uint32 newValue, uint48 effect) internal view returns (Delay) {
+    function withUpdateAt(Delay self, uint32 newValue, uint48 effect) internal view returns (Delay) {
         return pack(self.get(), newValue, effect);
     }
 
@@ -112,10 +112,10 @@ library Time {
      * @dev Update a Delay object so that it takes a new duration after at a timepoint that is automatically computed
      * to enforce the old delay at the moment of the update.
      */
-    function update(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay) {
+    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay) {
         uint32 value = self.get();
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
-        return self.updateAt(newValue, timestamp() + setback);
+        return self.withUpdateAt(newValue, timestamp() + setback);
     }
 
     /**

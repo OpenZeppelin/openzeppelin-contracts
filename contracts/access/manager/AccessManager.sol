@@ -382,7 +382,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
 
-        Time.Delay newDelay = _groups[groupId].members[account].delay.update(newDuration, 0); // TODO: minsetback ?
+        Time.Delay newDelay = _groups[groupId].members[account].delay.withUpdate(newDuration, 0); // TODO: minsetback ?
         _groups[groupId].members[account].delay = newDelay;
 
         (, , uint48 effectPoint) = newDelay.split();
@@ -429,7 +429,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerLockedGroup(groupId);
         }
 
-        Time.Delay updated = _groups[groupId].delay.update(newDelay, 0); // TODO: minsetback ?
+        Time.Delay updated = _groups[groupId].delay.withUpdate(newDelay, 0); // TODO: minsetback ?
         _groups[groupId].delay = updated;
 
         (, , uint48 effect) = updated.split();
@@ -452,7 +452,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits an {AdminDelayUpdated} event
      */
     function _setAdminFunctionDelay(bytes4 selector, uint32 newDelay) internal virtual {
-        Time.Delay updated = _adminDelays[selector].update(newDelay, 0); // TODO: minsetback ?
+        Time.Delay updated = _adminDelays[selector].withUpdate(newDelay, 0); // TODO: minsetback ?
         _adminDelays[selector] = updated;
         (, , uint48 effectPoint) = updated.split();
         emit AdminDelayUpdated(selector, newDelay, effectPoint);
