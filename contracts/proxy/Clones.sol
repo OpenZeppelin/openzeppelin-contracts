@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/Clones.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
@@ -13,8 +13,6 @@ pragma solidity ^0.8.19;
  * The library includes functions to deploy a proxy using either `create` (traditional deployment) or `create2`
  * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the
  * deterministic method.
- *
- * _Available since v3.4._
  */
 library Clones {
     /**

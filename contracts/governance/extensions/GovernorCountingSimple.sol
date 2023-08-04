@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorCountingSimple.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for simple, 3 options, vote counting.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCountingSimple is Governor {
     /**

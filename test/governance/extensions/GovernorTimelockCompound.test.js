@@ -1,27 +1,16 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const RLP = require('rlp');
 
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
-
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
+const { computeCreateAddress } = require('../../helpers/create');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
-
-function makeContractAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(RLP.encode([creator, nonce]))
-      .slice(12)
-      .substring(14),
-  );
-}
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -49,7 +38,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);
-        const predictGovernor = makeContractAddress(deployer, nonce + 1);
+        const predictGovernor = computeCreateAddress(deployer, nonce + 1);
 
         this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
         this.mock = await Governor.new(
@@ -85,8 +74,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           '<proposal description>',
         );
       });
-
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));

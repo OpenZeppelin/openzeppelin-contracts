@@ -61,7 +61,7 @@ contract('ERC721Votes', function (accounts) {
 
           const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
           expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousVotes: '1', newVotes: '0' });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
           expect(
@@ -79,7 +79,7 @@ contract('ERC721Votes', function (accounts) {
 
           const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
           expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousVotes: '0', newVotes: '1' });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
           expect(
@@ -98,8 +98,8 @@ contract('ERC721Votes', function (accounts) {
 
           const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
           expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousVotes: '1', newVotes: '0' });
+          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousVotes: '0', newVotes: '1' });
 
           const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
           expect(

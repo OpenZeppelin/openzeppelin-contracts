@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/utils/SafeERC20.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC20Permit} from "../extensions/IERC20Permit.sol";
@@ -70,8 +70,8 @@ library SafeERC20 {
 
     /**
      * @dev Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
-     * non-reverting calls are assumed to be successful. Compatible with tokens that require the approval to be set to
-     * 0 before setting it to a non-zero value.
+     * non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval
+     * to be set to zero before setting it to a non-zero value, such as USDT.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
         bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));

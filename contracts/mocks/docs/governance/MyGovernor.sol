@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IGovernor, Governor} from "../../../governance/Governor.sol";
-import {GovernorCompatibilityBravo} from "../../../governance/compatibility/GovernorCompatibilityBravo.sol";
+import {GovernorCountingSimple} from "../../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotes} from "../../../governance/extensions/GovernorVotes.sol";
 import {GovernorVotesQuorumFraction} from "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "../../../governance/extensions/GovernorTimelockControl.sol";
@@ -12,7 +12,7 @@ import {IERC165} from "../../../interfaces/IERC165.sol";
 
 contract MyGovernor is
     Governor,
-    GovernorCompatibilityBravo,
+    GovernorCountingSimple,
     GovernorVotes,
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
@@ -36,38 +36,28 @@ contract MyGovernor is
 
     // The functions below are overrides required by Solidity.
 
-    function state(
-        uint256 proposalId
-    ) public view override(Governor, IGovernor, GovernorTimelockControl) returns (ProposalState) {
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description
-    ) public override(Governor, GovernorCompatibilityBravo, IGovernor) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
-    }
-
-    function cancel(
+    function _queueOperations(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public override(Governor, GovernorCompatibilityBravo, IGovernor) returns (uint256) {
-        return super.cancel(targets, values, calldatas, descriptionHash);
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
-    function _execute(
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockControl) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(
@@ -81,11 +71,5 @@ contract MyGovernor is
 
     function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(Governor, IERC165, GovernorTimelockControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }

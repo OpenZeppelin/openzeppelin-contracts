@@ -41,12 +41,14 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
 
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
+
 ### Usage
 
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 

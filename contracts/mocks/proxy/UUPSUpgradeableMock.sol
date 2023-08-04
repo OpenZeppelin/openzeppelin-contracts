@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {UUPSUpgradeable} from "../../proxy/utils/UUPSUpgradeable.sol";
 import {ERC1967Utils} from "../../proxy/ERC1967/ERC1967Utils.sol";
@@ -23,12 +23,8 @@ contract UUPSUpgradeableMock is NonUpgradeableMock, UUPSUpgradeable {
 }
 
 contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
-    function upgradeTo(address newImplementation) public override {
-        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
-    }
-
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
     }
 }
 

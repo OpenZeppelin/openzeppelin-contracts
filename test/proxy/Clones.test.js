@@ -1,7 +1,6 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
-const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
-
+const { computeCreate2Address } = require('../helpers/create');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const shouldBehaveLikeClone = require('./Clones.behaviour');

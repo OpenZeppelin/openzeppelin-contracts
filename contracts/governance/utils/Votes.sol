@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/utils/Votes.sol)
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {Context} from "../../utils/Context.sol";
@@ -27,8 +27,6 @@ import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
  * When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
  * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
  * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
- *
- * _Available since v4.5._
  */
 abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
@@ -38,10 +36,8 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     mapping(address => address) private _delegation;
 
-    /// @custom:oz-retyped-from mapping(address => Checkpoints.History)
     mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
 
-    /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _totalCheckpoints;
 
     /**

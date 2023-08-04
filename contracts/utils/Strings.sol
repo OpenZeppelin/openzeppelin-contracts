@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Math} from "./math/Math.sol";
 import {SignedMath} from "./math/SignedMath.sol";
@@ -10,7 +10,7 @@ import {SignedMath} from "./math/SignedMath.sol";
  * @dev String operations.
  */
 library Strings {
-    bytes16 private constant _SYMBOLS = "0123456789abcdef";
+    bytes16 private constant _HEX_DIGITS = "0123456789abcdef";
     uint8 private constant _ADDRESS_LENGTH = 20;
 
     /**
@@ -34,7 +34,7 @@ library Strings {
                 ptr--;
                 /// @solidity memory-safe-assembly
                 assembly {
-                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
+                    mstore8(ptr, byte(mod(value, 10), _HEX_DIGITS))
                 }
                 value /= 10;
                 if (value == 0) break;
@@ -68,7 +68,7 @@ library Strings {
         buffer[0] = "0";
         buffer[1] = "x";
         for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _SYMBOLS[localValue & 0xf];
+            buffer[i] = _HEX_DIGITS[localValue & 0xf];
             localValue >>= 4;
         }
         if (localValue != 0) {

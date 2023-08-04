@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.2) (token/ERC1155/extensions/ERC1155Pausable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC1155} from "../ERC1155.sol";
 import {Pausable} from "../../../security/Pausable.sol";
@@ -17,9 +17,7 @@ import {Pausable} from "../../../security/Pausable.sol";
  * addition to inheriting this contract, you must define both functions, invoking the
  * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
  * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
- * make the contract unpausable.
- *
- * _Available since v3.1._
+ * make the contract pause mechanism of the contract unreachable, and thus unusable.
  */
 abstract contract ERC1155Pausable is ERC1155, Pausable {
     /**
@@ -33,9 +31,8 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory values
     ) internal virtual override whenNotPaused {
-        super._update(from, to, ids, amounts, data);
+        super._update(from, to, ids, values);
     }
 }

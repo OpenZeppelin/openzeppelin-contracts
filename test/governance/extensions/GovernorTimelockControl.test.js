@@ -2,10 +2,8 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap, timelockSalt } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
-
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorTimelockControlMock');
@@ -86,14 +84,13 @@ contract('GovernorTimelockControl', function (accounts) {
           ],
           '<proposal description>',
         );
+
         this.proposal.timelockid = await this.timelock.hashOperationBatch(
           ...this.proposal.shortProposal.slice(0, 3),
           '0x0',
-          this.proposal.shortProposal[3],
+          timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
         );
       });
-
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));
@@ -159,7 +156,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
@@ -174,7 +171,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
             await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
               this.proposal.timelockid,
-              Enums.OperationState.Ready,
+              proposalStatesToBitMap(Enums.OperationState.Ready),
             ]);
           });
 
@@ -204,7 +201,7 @@ contract('GovernorTimelockControl', function (accounts) {
             await this.timelock.executeBatch(
               ...this.proposal.shortProposal.slice(0, 3),
               '0x0',
-              this.proposal.shortProposal[3],
+              timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
             );
 
             await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Provides tracking nonces for addresses. Nonces will only increment.
@@ -13,7 +13,7 @@ abstract contract Nonces {
     mapping(address => uint256) private _nonces;
 
     /**
-     * @dev Returns an address nonce.
+     * @dev Returns an the next unused nonce for an address.
      */
     function nonces(address owner) public view virtual returns (uint256) {
         return _nonces[owner];

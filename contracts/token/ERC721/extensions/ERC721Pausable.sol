@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.2) (token/ERC721/extensions/ERC721Pausable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC721} from "../ERC721.sol";
 import {Pausable} from "../../../security/Pausable.sol";
@@ -17,7 +17,7 @@ import {Pausable} from "../../../security/Pausable.sol";
  * addition to inheriting this contract, you must define both functions, invoking the
  * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
  * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
- * make the contract unpausable.
+ * make the contract pause mechanism of the contract unreachable, and thus unusable.
  */
 abstract contract ERC721Pausable is ERC721, Pausable {
     /**

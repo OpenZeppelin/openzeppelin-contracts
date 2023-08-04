@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Implementation contract with a payable changeAdmin(address) function made to clash with
@@ -9,7 +9,7 @@ pragma solidity ^0.8.19;
 contract ClashingImplementation {
     event ClashingImplementationCall();
 
-    function upgradeTo(address) external payable {
+    function upgradeToAndCall(address, bytes calldata) external payable {
         emit ClashingImplementationCall();
     }
 
