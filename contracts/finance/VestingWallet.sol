@@ -6,26 +6,20 @@ import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
-import {Ownable2Step, Ownable} from "../access/Ownable2Step.sol";
+import {Ownable} from "../access/Ownable.sol";
 
 /**
- * @title VestingWallet
- * @dev Handles the vesting of native currency and ERC20 tokens for a given beneficiary who gets the ownership of the
- * contract by calling {Ownable2Step-acceptOwnership} to accept a 2-step ownership transfer setup at deployment with
- * {Ownable2Step-transferOwnership}. The initial owner of this contract is the benefactor (`msg.sender`), enabling them
- * to recover any unclaimed tokens.
+ * @dev A vesting wallet is an ownable contract that can receive native currency and ERC20 tokens, and release these
+ * assets to the wallet owner, also referred to as "beneficiary", according to a vesting schedule.
  *
- * Custody of multiple tokens can be given to this contract, which will release the tokens to the beneficiary following
- * a given vesting schedule that is customizable through the {vestedAmount} function.
- *
- * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+ * Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  *
  * By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
  * a beneficiary until a specified time.
  */
-contract VestingWallet is Context, Ownable2Step {
+contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
@@ -43,11 +37,10 @@ contract VestingWallet is Context, Ownable2Step {
      * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
      * vesting duration of the vesting wallet.
      */
-    constructor(address beneficiaryAddress, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(msg.sender) {
-        if (beneficiaryAddress == address(0)) {
+    constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
+        if (beneficiary == address(0)) {
             revert VestingWalletInvalidBeneficiary(address(0));
         }
-        transferOwnership(beneficiaryAddress);
 
         _start = startTimestamp;
         _duration = durationSeconds;
@@ -113,7 +106,7 @@ contract VestingWallet is Context, Ownable2Step {
      *
      * Emits a {EtherReleased} event.
      */
-    function release() public virtual onlyOwner {
+    function release() public virtual {
         uint256 amount = releasable();
         _released += amount;
         emit EtherReleased(amount);
@@ -125,7 +118,7 @@ contract VestingWallet is Context, Ownable2Step {
      *
      * Emits a {ERC20Released} event.
      */
-    function release(address token) public virtual onlyOwner {
+    function release(address token) public virtual {
         uint256 amount = releasable(token);
         _erc20Released[token] += amount;
         emit ERC20Released(token, amount);
