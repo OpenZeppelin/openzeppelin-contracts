@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {IAccessManager} from "./IAccessManager.sol";
-import {IManaged} from "./IManaged.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
@@ -711,7 +711,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      */
-    function updateAuthority(IManaged target, address newAuthority) public virtual onlyDelayedAdmin {
+    function updateAuthority(IAccessManaged target, address newAuthority) public virtual onlyDelayedAdmin {
         // todo set delay or document risks
         target.setAuthority(newAuthority);
     }

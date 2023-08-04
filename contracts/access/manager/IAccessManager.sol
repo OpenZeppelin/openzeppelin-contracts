@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IManaged} from "./IManaged.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 interface IAccessManager {
@@ -120,5 +120,5 @@ interface IAccessManager {
 
     function consumeScheduledOp(address caller, bytes calldata data) external;
 
-    function updateAuthority(IManaged target, address newAuthority) external;
+    function updateAuthority(IAccessManaged target, address newAuthority) external;
 }

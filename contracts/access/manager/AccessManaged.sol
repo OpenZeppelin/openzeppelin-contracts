@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {IAuthority, safeCanCall} from "./IAuthority.sol";
 import {IAccessManager} from "./IAccessManager.sol";
-import {IManaged} from "./IManaged.sol";
+import {IAccessManaged} from "./IAccessManaged.sol";
 import {Context} from "../../utils/Context.sol";
 
 /**
@@ -15,7 +15,7 @@ import {Context} from "../../utils/Context.sol";
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.
  */
-abstract contract AccessManaged is Context, IManaged {
+abstract contract AccessManaged is Context, IAccessManaged {
     address private _authority;
 
     /**

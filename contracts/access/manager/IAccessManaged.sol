@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-interface IManaged {
+interface IAccessManaged {
     event AuthorityUpdated(address authority);
 
     error AccessManagedUnauthorized(address caller);
