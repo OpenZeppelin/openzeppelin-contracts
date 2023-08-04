@@ -18,6 +18,11 @@ import {Ownable} from "../access/Ownable.sol";
  *
  * By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
  * a beneficiary until a specified time.
+ *
+ * NOTE: Since the wallet is ownable, and ownership can be transferred, it is possible to sell unvested tokens.
+ * Preventing this in a smart contract is difficult, considering that: 1) a beneficiary address could be a
+ * counterfactually deployed contract, 2) there is likely to be a migration path for EOAs to become contracts in the
+ * near future.
  */
 contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);
