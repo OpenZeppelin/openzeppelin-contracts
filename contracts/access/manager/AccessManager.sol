@@ -38,7 +38,7 @@ import {Time} from "../../utils/types/Time.sol";
  * the return data are a boolean as expected by that interface.
  *
  * NOTE: Systems that implement other access control mechanisms (for example using {Ownable}) can be paired with an
- * {AccessManager} by transfering permissions (ownership in the case of {Ownable}) directly to the {AccessManager}.
+ * {AccessManager} by transferring permissions (ownership in the case of {Ownable}) directly to the {AccessManager}.
  * Users will be able to interact with these contracts through the {relay} function, following the access rules
  * registered in the {AccessManager}. Keep in mind that in that context, the msg.sender seen by restricted functions
  * will be {AccessManager} itself.
@@ -82,7 +82,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address msgsender = _msgSender();
         (bool allowed, uint32 delay) = canCall(msgsender, address(this), msg.sig);
         if (delay > 0) {
-            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
+            _consumeScheduledOp(_hashOperation(msgsender, address(this), _msgData()));
         } else if (!allowed) {
             revert AccessControlUnauthorizedAccount(msgsender, ADMIN_GROUP);
         }
@@ -120,7 +120,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
-            return (_relayIdentifier == keccak256(abi.encodePacked(target, selector)), 0);
+            return (_relayIdentifier == _relayIdentifier(target, selector), 0);
         } else if (target == address(this)) {
             bool allowed = hasGroup(ADMIN_GROUP, caller);
             uint32 delay = _adminDelays[selector].get();
@@ -138,7 +138,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Expiration delay for scheduled proposals
+     * @dev Expiration delay for scheduled proposals. Defaults to 1 week.
      */
     function expiration() public view virtual returns (uint48) {
         return 1 weeks;
@@ -231,9 +231,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Give permission to an account to execute function restricted to a group. Optionally, a delay can be
-     * enforced for any function call, byt this user, that require this level of permission. This call is only
-     * effective after a grant delay that is specific to the group being granted.
+     * @dev Add `account` to `groupId`. This gives him the authorization to call any function that is restricted to
+     * this group. An optional execution delay (in seconds) can be set. If that delay is non 0, the user is required
+     * to schedule any operation that is restricted to members this group. The user will only be able to execute the
+     * operation after the delay expires. During this delay, admin and guardians can cancel the operation (see
+     * {cancel}).
      *
      * Requirements:
      *
@@ -325,7 +327,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Update the .
+     * @dev Update the delay for granting a `groupId`.
      *
      * Requirements:
      *
@@ -375,7 +377,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setExecuteDelay} without access control.
      *
-     * Emits a {GroupExecutionDelayUpdated} event
+     * Emits a {GroupExecutionDelayUpdated} event.
      */
     function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration) internal virtual {
         if (groupId == PUBLIC_GROUP) {
@@ -621,7 +623,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Mark the target and selector as authorised
         bytes32 relayIdentifierBefore = _relayIdentifier;
-        _relayIdentifier = keccak256(abi.encodePacked(target, selector));
+        _relayIdentifier = _relayIdentifier(target, selector);
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
@@ -696,6 +698,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
+    }
+
+    /**
+     * @dev Hashing function for relay protection
+     */
+    function _relayIdentifier(address target, bytes4 selector) private pure returns (bytes32) {
+        return keccak256(abi.encode(target, selector));
     }
 
     // ==================================================== OTHERS ====================================================
