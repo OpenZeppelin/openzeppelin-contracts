@@ -621,10 +621,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Consume a scheduled operation targetting the caller. If such an operation exists, mark it as consumed
-     * (emit an {Executed} event and clean the state). Otherwize, throw an error.
+     * @dev Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
+     * (emit an {Executed} event and clean the state). Otherwise, throw an error.
      *
-     * This is usefull for contract that want to enforce that calls targetting them were scheduled on the manager,
+     * This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
      * with all the verifications that it implies.
      *
      * Emit a {Executed} event
