@@ -29,7 +29,7 @@ contract('VestingWallet', function (accounts) {
   });
 
   it('check vesting contract', async function () {
-    expect(await this.mock.beneficiary()).to.be.equal(beneficiary);
+    expect(await this.mock.owner()).to.be.equal(beneficiary);
     expect(await this.mock.start()).to.be.bignumber.equal(this.start);
     expect(await this.mock.duration()).to.be.bignumber.equal(duration);
     expect(await this.mock.end()).to.be.bignumber.equal(this.start.add(duration));
