@@ -36,6 +36,16 @@ import {Time} from "../../utils/types/Time.sol";
  * NOTE: This contract implements a form of the {IAuthority} interface, but {canCall} has additional return data so it
  * doesn't inherit `IAuthority`. It is however compatible with the `IAuthority` interface since the first 32 bytes of
  * the return data are a boolean as expected by that interface.
+ *
+ * NOTE: Systems that implement other access control mechanisms (for example using {Ownable}) can be paired with an
+ * {AccessManager} by transfering permissions (ownership in the case of {Ownable}) directly to the {AccessManager}.
+ * Users will be able to interact with these contracts through the {relay} function, following the access rules
+ * registered in the {AccessManager}. Keep in mind that in that context, the msg.sender seen by restricted functions
+ * will be {AccessManager} itself.
+ *
+ * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
+ * mindful of the danger  associated with functions such as {{Ownable-renounceOwnership}} or
+ * {{AccessControl-renounceRole}}.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
