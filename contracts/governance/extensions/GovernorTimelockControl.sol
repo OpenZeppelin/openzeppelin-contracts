@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.20;
 
-import {IGovernorTimelock} from "./IGovernorTimelock.sol";
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
@@ -22,7 +22,7 @@ import {IERC165} from "../../interfaces/IERC165.sol";
  * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
  * executing a Denial of Service attack. This risk will be mitigated in a future release.
  */
-abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
+abstract contract GovernorTimelockControl is Governor {
     TimelockController private _timelock;
     mapping(uint256 => bytes32) private _timelockIds;
 
@@ -39,27 +39,17 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @dev Overridden version of the {Governor-state} function that considers the status reported by the timelock.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, Governor) returns (bool) {
-        return interfaceId == type(IGovernorTimelock).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` state.
-     */
-    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
+    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);
 
-        if (currentState != ProposalState.Succeeded) {
+        if (currentState != ProposalState.Queued) {
             return currentState;
         }
 
-        // core tracks execution, so we just have to check if successful proposal have been queued.
         bytes32 queueid = _timelockIds[proposalId];
-        if (queueid == bytes32(0)) {
-            return currentState;
-        } else if (_timelock.isOperationPending(queueid)) {
+        if (_timelock.isOperationPending(queueid)) {
             return ProposalState.Queued;
         } else if (_timelock.isOperationDone(queueid)) {
             // This can happen if the proposal is executed directly on the timelock.
@@ -73,52 +63,34 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the address of the timelock
      */
-    function timelock() public view virtual override returns (address) {
+    function timelock() public view virtual returns (address) {
         return address(_timelock);
-    }
-
-    /**
-     * @dev Public accessor to check the eta of a queued proposal
-     */
-    function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        uint256 eta = _timelock.getTimestamp(_timelockIds[proposalId]);
-        return eta == 1 ? 0 : eta; // _DONE_TIMESTAMP (1) should be replaced with a 0 value
     }
 
     /**
      * @dev Function to queue a proposal to the timelock.
      */
-    function queue(
+    function _queueOperations(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded)
-            );
-        }
-
+    ) internal virtual override returns (uint48) {
         uint256 delay = _timelock.getMinDelay();
+
         bytes32 salt = _timelockSalt(descriptionHash);
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
         _timelock.scheduleBatch(targets, values, calldatas, 0, salt, delay);
 
-        emit ProposalQueued(proposalId, block.timestamp + delay);
-
-        return proposalId;
+        return SafeCast.toUint48(block.timestamp + delay);
     }
 
     /**
-     * @dev Overridden execute function that run the already queued proposal through the timelock.
+     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal through
+     * the timelock.
      */
-    function _execute(
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
@@ -145,8 +117,8 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
-        bytes32 timelockId = _timelockIds[proposalId];
 
+        bytes32 timelockId = _timelockIds[proposalId];
         if (timelockId != 0) {
             // cancel
             _timelock.cancel(timelockId);

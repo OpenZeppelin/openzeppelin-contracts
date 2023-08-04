@@ -14,17 +14,17 @@ import {ERC1967Utils} from "./ERC1967Utils.sol";
  */
 contract ERC1967Proxy is Proxy {
     /**
-     * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
+     * @dev Initializes the upgradeable proxy with an initial implementation specified by `implementation`.
      *
-     * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
+     * If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an encoded
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
      *
      * Requirements:
      *
      * - If `data` is empty, `msg.value` must be zero.
      */
-    constructor(address _logic, bytes memory _data) payable {
-        ERC1967Utils.upgradeToAndCall(_logic, _data);
+    constructor(address implementation, bytes memory _data) payable {
+        ERC1967Utils.upgradeToAndCall(implementation, _data);
     }
 
     /**
@@ -34,7 +34,7 @@ contract ERC1967Proxy is Proxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
-    function _implementation() internal view virtual override returns (address impl) {
+    function _implementation() internal view virtual override returns (address) {
         return ERC1967Utils.getImplementation();
     }
 }

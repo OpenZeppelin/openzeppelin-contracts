@@ -1,6 +1,6 @@
 const { balance, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
-const { computeCreate2Address } = require('../helpers/create');
 const { expect } = require('chai');
+const { computeCreate2Address } = require('../helpers/create');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const Create2 = artifacts.require('$Create2');

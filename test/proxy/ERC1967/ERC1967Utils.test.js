@@ -9,6 +9,7 @@ const ERC1967Utils = artifacts.require('$ERC1967Utils');
 const V1 = artifacts.require('DummyImplementation');
 const V2 = artifacts.require('CallReceiverMock');
 const UpgradeableBeaconMock = artifacts.require('UpgradeableBeaconMock');
+const UpgradeableBeaconReentrantMock = artifacts.require('UpgradeableBeaconReentrantMock');
 
 contract('ERC1967Utils', function (accounts) {
   const [, admin, anotherAccount] = accounts;
@@ -153,6 +154,17 @@ contract('ERC1967Utils', function (accounts) {
           const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
           const receipt = await this.utils.$upgradeBeaconToAndCall(newBeacon.address, initializeData);
           await expectEvent.inTransaction(receipt.tx, await V2.at(this.utils.address), 'MockFunctionCalled');
+        });
+      });
+
+      describe('reentrant beacon implementation() call', function () {
+        it('sees the new beacon implementation', async function () {
+          const newBeacon = await UpgradeableBeaconReentrantMock.new();
+          await expectRevertCustomError(
+            this.utils.$upgradeBeaconToAndCall(newBeacon.address, '0x'),
+            'BeaconProxyBeaconSlotAddress',
+            [newBeacon.address],
+          );
         });
       });
     });

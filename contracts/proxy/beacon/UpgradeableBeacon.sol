@@ -51,7 +51,6 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      */
     function upgradeTo(address newImplementation) public virtual onlyOwner {
         _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
     }
 
     /**
@@ -66,5 +65,6 @@ contract UpgradeableBeacon is IBeacon, Ownable {
             revert BeaconInvalidImplementation(newImplementation);
         }
         _implementation = newImplementation;
+        emit Upgraded(newImplementation);
     }
 }

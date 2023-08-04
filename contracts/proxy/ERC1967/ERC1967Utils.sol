@@ -31,8 +31,7 @@ library ERC1967Utils {
 
     /**
      * @dev Storage slot with the address of the current implementation.
-     * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
-     * validated in the constructor.
+     * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1.
      */
     // solhint-disable-next-line private-vars-leading-underscore
     bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
@@ -94,8 +93,7 @@ library ERC1967Utils {
 
     /**
      * @dev Storage slot with the admin of the contract.
-     * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1, and is
-     * validated in the constructor.
+     * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1.
      */
     // solhint-disable-next-line private-vars-leading-underscore
     bytes32 internal constant ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
@@ -133,7 +131,7 @@ library ERC1967Utils {
 
     /**
      * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
-     * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1) and is validated in the constructor.
+     * This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
      */
     // solhint-disable-next-line private-vars-leading-underscore
     bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
@@ -153,12 +151,12 @@ library ERC1967Utils {
             revert ERC1967InvalidBeacon(newBeacon);
         }
 
+        StorageSlot.getAddressSlot(BEACON_SLOT).value = newBeacon;
+
         address beaconImplementation = IBeacon(newBeacon).implementation();
         if (beaconImplementation.code.length == 0) {
             revert ERC1967InvalidImplementation(beaconImplementation);
         }
-
-        StorageSlot.getAddressSlot(BEACON_SLOT).value = newBeacon;
     }
 
     /**
@@ -184,7 +182,8 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Reverts if `msg.value` is not zero.
+     * @dev Reverts if `msg.value` is not zero. It can be used to avoid `msg.value` stuck in the contract
+     * if an upgrade doesn't perform an initialization call.
      */
     function _checkNonPayable() private {
         if (msg.value > 0) {
