@@ -70,7 +70,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address msgsender = _msgSender();
         (bool inGroup, ) = hasGroup(groupId, msgsender);
         if (!inGroup) {
-            revert AccessControlUnauthorizedAccount(msgsender, groupId);
+            revert AccessManagerUnauthorizedAccount(msgsender, groupId);
         }
         _;
     }
@@ -85,7 +85,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (delay > 0) {
             _consumeScheduledOp(_hashOperation(msgsender, address(this), _msgData()));
         } else if (!allowed) {
-            revert AccessControlUnauthorizedAccount(msgsender, ADMIN_GROUP);
+            revert AccessManagerUnauthorizedAccount(msgsender, ADMIN_GROUP);
         }
         _;
     }

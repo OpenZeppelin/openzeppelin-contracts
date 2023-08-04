@@ -97,7 +97,7 @@ contract('AccessManager', function (accounts) {
       it('emitting a label is restricted', async function () {
         await expectRevertCustomError(
           this.manager.labelGroup(GROUPS.SOME, 'Invalid label', { from: other }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
       });
@@ -170,7 +170,7 @@ contract('AccessManager', function (accounts) {
         it('grant group is restricted', async function () {
           await expectRevertCustomError(
             this.manager.grantGroup(GROUPS.SOME, user, 0, { from: other }),
-            'AccessControlUnauthorizedAccount',
+            'AccessManagerUnauthorizedAccount',
             [other, GROUPS.SOME_ADMIN],
           );
         });
@@ -269,7 +269,7 @@ contract('AccessManager', function (accounts) {
       it('revoke group is restricted', async function () {
         await expectRevertCustomError(
           this.manager.revokeGroup(GROUPS.SOME, member, { from: other }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [other, GROUPS.SOME_ADMIN],
         );
       });
@@ -338,7 +338,7 @@ contract('AccessManager', function (accounts) {
       it("seeting a group's admin is restricted", async function () {
         await expectRevertCustomError(
           this.manager.setGroupAdmin(GROUPS.SOME, GROUPS.SOME, { from: manager }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [manager, GROUPS.ADMIN],
         );
       });
@@ -357,7 +357,7 @@ contract('AccessManager', function (accounts) {
       it("setting a group's admin is restricted", async function () {
         await expectRevertCustomError(
           this.manager.setGroupGuardian(GROUPS.SOME, GROUPS.SOME, { from: other }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
       });
@@ -449,7 +449,7 @@ contract('AccessManager', function (accounts) {
       it('changing the execution delay is restricted', async function () {
         await expectRevertCustomError(
           this.manager.setExecuteDelay(GROUPS.SOME, member, executeDelay, { from: other }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [GROUPS.SOME_ADMIN, other],
         );
       });
@@ -497,7 +497,7 @@ contract('AccessManager', function (accounts) {
       it('changing the grant delay is restricted', async function () {
         await expectRevertCustomError(
           this.manager.setGrantDelay(GROUPS.SOME, grantDelay, { from: other }),
-          'AccessControlUnauthorizedAccount',
+          'AccessManagerUnauthorizedAccount',
           [GROUPS.ADMIN, other],
         );
       });
@@ -528,7 +528,7 @@ contract('AccessManager', function (accounts) {
         it('is restricted', async function () {
           await expectRevertCustomError(
             this.manager[`setContractMode${modeName}`](this.target.address, { from: other }),
-            'AccessControlUnauthorizedAccount',
+            'AccessManagerUnauthorizedAccount',
             [other, GROUPS.ADMIN],
           );
         });
@@ -581,7 +581,7 @@ contract('AccessManager', function (accounts) {
     it('changing function permissions is restricted', async function () {
       await expectRevertCustomError(
         this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
-        'AccessControlUnauthorizedAccount',
+        'AccessManagerUnauthorizedAccount',
         [other, GROUPS.ADMIN],
       );
     });
@@ -1007,7 +1007,7 @@ contract('AccessManager', function (accounts) {
     it('updateAuthority is restricted on manager', async function () {
       await expectRevertCustomError(
         this.manager.updateAuthority(this.target.address, this.newManager.address, { from: other }),
-        'AccessControlUnauthorizedAccount',
+        'AccessManagerUnauthorizedAccount',
         [other, GROUPS.ADMIN],
       );
     });

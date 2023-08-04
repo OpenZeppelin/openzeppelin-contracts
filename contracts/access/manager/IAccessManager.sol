@@ -68,7 +68,7 @@ interface IAccessManager {
     error AccessManagerAcountAlreadyInGroup(uint64 groupId, address account);
     error AccessManagerAcountNotInGroup(uint64 groupId, address account);
     error AccessManagerBadConfirmation();
-    error AccessControlUnauthorizedAccount(address msgsender, uint64 groupId);
+    error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
     error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
 
