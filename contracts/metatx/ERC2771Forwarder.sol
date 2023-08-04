@@ -94,7 +94,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771ForwarderExpiredRequest(uint48 deadline);
 
     /**
-     * @dev The request targert doesn't trust the `forwarder`.
+     * @dev The request target doesn't trust the `forwarder`.
      */
     error ERC2771UntrustfulTarget(address target, address forwarder);
 
@@ -314,8 +314,6 @@ contract ERC2771Forwarder is EIP712, Nonces {
         uint256 returnValue;
         /// @solidity memory-safe-assembly
         assembly {
-            // Because the return value is a boolean (requires 1 byte copied to memory) and the
-            // calldata length is 24 bytes, we can safely reuse the scratch space in memory (0x00 - 0x3F).
 
             // Perform the staticcal and save the result in the scratch space.
             // | Location  | Content  | Content (Hex)                                                      |
