@@ -63,14 +63,14 @@ library Time {
     type Delay is uint112;
 
     /**
-     * @dev Wrap a Duration into a Delay to add the one-step "update in the future" feature
+     * @dev Wrap a duration into a Delay to add the one-step "update in the future" feature
      */
     function toDelay(uint32 duration) internal pure returns (Delay) {
         return Delay.wrap(duration);
     }
 
     /**
-     * @dev Get the value the Delay will be at a given timepoint
+     * @dev Get the value the Delay will be at a given timepoint.
      */
     function getAt(Delay self, uint48 timepoint) internal pure returns (uint32) {
         (uint32 oldValue, uint32 newValue, uint48 effect) = self.split();
