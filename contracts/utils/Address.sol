@@ -133,10 +133,10 @@ library Address {
      * revert reason or with a default {FailedInnerCall} error.
      */
     function verifyCallResult(bool success, bytes memory returndata) internal pure returns (bytes memory) {
-        if (success) {
-            return returndata;
-        } else {
+        if (!success) {
             _revert(returndata);
+        } else {
+            return returndata;
         }
     }
 
