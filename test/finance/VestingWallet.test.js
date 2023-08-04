@@ -18,6 +18,7 @@ contract('VestingWallet', function (accounts) {
   beforeEach(async function () {
     this.start = (await time.latest()).addn(3600); // in 1 hour
     this.mock = await VestingWallet.new(beneficiary, this.start, duration);
+    await this.mock.acceptOwnership({ from: beneficiary });
   });
 
   it('rejects zero address for beneficiary', async function () {
@@ -28,8 +29,14 @@ contract('VestingWallet', function (accounts) {
     );
   });
 
+  it('sets the initial owner as the sender (benefactor)', async function () {
+    this.mock = await VestingWallet.new(beneficiary, this.start, duration, { from: sender });
+    expect(await this.mock.owner()).to.be.equal(sender);
+    expect(await this.mock.pendingOwner()).to.be.equal(beneficiary);
+  });
+
   it('check vesting contract', async function () {
-    expect(await this.mock.beneficiary()).to.be.equal(beneficiary);
+    expect(await this.mock.owner()).to.be.equal(beneficiary);
     expect(await this.mock.start()).to.be.bignumber.equal(this.start);
     expect(await this.mock.duration()).to.be.bignumber.equal(duration);
     expect(await this.mock.end()).to.be.bignumber.equal(this.start.add(duration));
@@ -50,7 +57,7 @@ contract('VestingWallet', function (accounts) {
         this.checkRelease = () => {};
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting(beneficiary, accounts);
     });
 
     describe('ERC20 vesting', function () {
@@ -63,7 +70,7 @@ contract('VestingWallet', function (accounts) {
         await this.token.$_mint(this.mock.address, amount);
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting(beneficiary, accounts);
     });
   });
 });
