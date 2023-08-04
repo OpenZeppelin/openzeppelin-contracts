@@ -20,21 +20,21 @@ library Time {
     using Time for *;
 
     /**
-     * @dev Get the block timestamp as a Timepoint
+     * @dev Get the block timestamp as a Timepoint.
      */
     function timestamp() internal view returns (uint48) {
         return SafeCast.toUint48(block.timestamp);
     }
 
     /**
-     * @dev Get the block number as a Timepoint
+     * @dev Get the block number as a Timepoint.
      */
     function blockNumber() internal view returns (uint48) {
         return SafeCast.toUint48(block.number);
     }
 
     /**
-     * @dev Check if a timepoint is set, and in the past
+     * @dev Check if a timepoint is set, and in the past.
      */
     function isSetAndPast(uint48 timepoint, uint48 ref) internal pure returns (bool) {
         return timepoint != 0 && timepoint <= ref;
