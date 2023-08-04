@@ -584,7 +584,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = _hashOperation(caller, target, data);
         uint48 timepoint = _schedules[operationId];
         // Cannot reschedule unless the operation has expired
-        if (timepoint != 0 && timepoint + expiration() > Time.timestamp()) {
+        if (timepoint != 0 && timepoint + expiration() >= Time.timestamp()) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
         _schedules[operationId] = when == 0 ? minWhen : when;
