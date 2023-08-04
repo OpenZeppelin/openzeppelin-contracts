@@ -1,10 +1,11 @@
-const { constants } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { AccessMode } = require('../../helpers/enums');
 const { selector } = require('../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Ownable = artifacts.require('$Ownable');
+
+const MAX_UINT64 = web3.utils.toBN((2n ** 64n - 1n).toString());
 
 const groupId = web3.utils.toBN(1);
 
@@ -99,7 +100,7 @@ contract('AccessManager+Ownable', function (accounts) {
         await this.manager.$_setFunctionAllowedGroup(
           this.ownable.address,
           selector('$_checkOwner()'),
-          constants.MAX_UINT256,
+          MAX_UINT64,
         );
       });
 

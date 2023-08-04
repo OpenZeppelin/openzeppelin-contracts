@@ -29,8 +29,8 @@ interface IAccessManager {
     // - the grand delay
     struct Group {
         mapping(address user => Access access) members;
-        uint256 admin;
-        uint256 guardian;
+        uint64 admin;
+        uint64 guardian;
         Time.Delay delay; // delay for granting
     }
 
@@ -49,26 +49,26 @@ interface IAccessManager {
      */
     event Canceled(bytes32 operationId);
 
-    event GroupLabel(uint256 indexed groupId, string label);
-    event GroupGranted(uint256 indexed groupId, address indexed account, uint48 since, uint32 delay);
-    event GroupRevoked(uint256 indexed groupId, address indexed account);
-    event GroupExecutionDelayUpdated(uint256 indexed groupId, address indexed account, uint32 delay, uint48 from);
-    event GroupAdminChanged(uint256 indexed groupId, uint256 indexed admin);
-    event GroupGuardianChanged(uint256 indexed groupId, uint256 indexed guardian);
-    event GroupGrantDelayChanged(uint256 indexed groupId, uint32 delay, uint48 from);
+    event GroupLabel(uint64 indexed groupId, string label);
+    event GroupGranted(uint64 indexed groupId, address indexed account, uint48 since, uint32 delay);
+    event GroupRevoked(uint64 indexed groupId, address indexed account);
+    event GroupExecutionDelayUpdated(uint64 indexed groupId, address indexed account, uint32 delay, uint48 from);
+    event GroupAdminChanged(uint64 indexed groupId, uint64 indexed admin);
+    event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
+    event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 from);
     event AccessModeUpdated(address indexed target, AccessMode mode);
-    event FunctionAllowedGroupUpdated(address indexed target, bytes4 selector, uint256 indexed groupId);
+    event FunctionAllowedGroupUpdated(address indexed target, bytes4 selector, uint64 indexed groupId);
     event AdminDelayUpdated(bytes4 selector, uint32 delay, uint48 from);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
-    error AccessManagerLockedGroup(uint256 groupId);
-    error AccessManagerAcountAlreadyInGroup(uint256 groupId, address account);
-    error AccessManagerAcountNotInGroup(uint256 groupId, address account);
+    error AccessManagerLockedGroup(uint64 groupId);
+    error AccessManagerAcountAlreadyInGroup(uint64 groupId, address account);
+    error AccessManagerAcountNotInGroup(uint64 groupId, address account);
     error AccessManagerBadConfirmation();
-    error AccessControlUnauthorizedAccount(address msgsender, uint256 groupId);
+    error AccessControlUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
     error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
 
@@ -80,31 +80,31 @@ interface IAccessManager {
 
     function getContractMode(address target) external view returns (AccessMode);
 
-    function getFunctionAllowedGroup(address target, bytes4 selector) external view returns (uint256);
+    function getFunctionAllowedGroup(address target, bytes4 selector) external view returns (uint64);
 
-    function getGroupAdmin(uint256 group) external view returns (uint256);
+    function getGroupAdmin(uint64 groupId) external view returns (uint64);
 
-    function getGroupGuardian(uint256 group) external view returns (uint256);
+    function getGroupGuardian(uint64 groupId) external view returns (uint64);
 
-    function getGroupGrantDelay(uint256 groupId) external view returns (uint32);
+    function getGroupGrantDelay(uint64 groupId) external view returns (uint32);
 
-    function getAccess(uint256 group, address account) external view returns (uint48, uint32, uint32, uint48);
+    function getAccess(uint64 groupId, address account) external view returns (uint48, uint32, uint32, uint48);
 
-    function hasGroup(uint256 group, address account) external view returns (bool, uint32);
+    function hasGroup(uint64 groupId, address account) external view returns (bool, uint32);
 
-    function grantGroup(uint256 group, address account, uint32 executionDelay) external;
+    function grantGroup(uint64 groupId, address account, uint32 executionDelay) external;
 
-    function revokeGroup(uint256 group, address account) external;
+    function revokeGroup(uint64 groupId, address account) external;
 
-    function renounceGroup(uint256 group, address callerConfirmation) external;
+    function renounceGroup(uint64 groupId, address callerConfirmation) external;
 
-    function setExecuteDelay(uint256 group, address account, uint32 newDelay) external;
+    function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) external;
 
-    function setGroupAdmin(uint256 group, uint256 admin) external;
+    function setGroupAdmin(uint64 groupId, uint64 admin) external;
 
-    function setGroupGuardian(uint256 group, uint256 guardian) external;
+    function setGroupGuardian(uint64 groupId, uint64 guardian) external;
 
-    function setGrantDelay(uint256 group, uint32 newDelay) external;
+    function setGrantDelay(uint64 groupId, uint32 newDelay) external;
 
     function setContractModeCustom(address target) external;
 

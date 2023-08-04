@@ -1,4 +1,4 @@
-const { expectEvent, constants, time } = require('@openzeppelin/test-helpers');
+const { expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { AccessMode } = require('../../helpers/enums');
 const { selector } = require('../../helpers/methods');
@@ -7,11 +7,13 @@ const { clockFromReceipt } = require('../../helpers/time');
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
 
+const MAX_UINT64 = web3.utils.toBN((2n ** 64n - 1n).toString());
+
 const GROUPS = {
   ADMIN: web3.utils.toBN(0),
   SOME_ADMIN: web3.utils.toBN(17),
   SOME: web3.utils.toBN(42),
-  PUBLIC: constants.MAX_UINT256,
+  PUBLIC: MAX_UINT64,
 };
 Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value]) => [value, key])));
 

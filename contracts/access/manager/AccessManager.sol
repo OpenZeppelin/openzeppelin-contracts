@@ -50,12 +50,12 @@ import {Time} from "../../utils/types/Time.sol";
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
-    uint256 public constant ADMIN_GROUP = type(uint256).min; // 0
-    uint256 public constant PUBLIC_GROUP = type(uint256).max; // 2**256-1
+    uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
+    uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
 
     mapping(address target => AccessMode mode) private _contractMode;
-    mapping(address target => mapping(bytes4 selector => uint256 groupId)) private _allowedGroups;
-    mapping(uint256 groupId => Group) private _groups;
+    mapping(address target => mapping(bytes4 selector => uint64 groupId)) private _allowedGroups;
+    mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => uint48 schedule) private _schedules;
     mapping(bytes4 selector => Time.Delay delay) private _adminDelays;
 
@@ -66,7 +66,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Check that the caller has a given permission level (`groupId`). Note that this does NOT consider execution
      * delays that may be associated to that group.
      */
-    modifier onlyGroup(uint256 groupId) {
+    modifier onlyGroup(uint64 groupId) {
         address msgsender = _msgSender();
         (bool inGroup, ) = hasGroup(groupId, msgsender);
         if (!inGroup) {
@@ -127,7 +127,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             uint32 delay = _adminDelays[selector].get();
             return inGroup ? (delay == 0, delay) : (false, 0);
         } else {
-            uint256 groupId = getFunctionAllowedGroup(target, selector);
+            uint64 groupId = getFunctionAllowedGroup(target, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
             return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
         }
@@ -151,7 +151,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the permission level (group) required to call a function. This only applies for contract that are
      * operating under the `Custom` mode.
      */
-    function getFunctionAllowedGroup(address target, bytes4 selector) public view virtual returns (uint256) {
+    function getFunctionAllowedGroup(address target, bytes4 selector) public view virtual returns (uint64) {
         return _allowedGroups[target][selector];
     }
 
@@ -161,7 +161,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * The admin permission is required to grant the group, revoke the group and update the execution delay to execute
      * an operation that is restricted to this group.
      */
-    function getGroupAdmin(uint256 groupId) public view virtual returns (uint256) {
+    function getGroupAdmin(uint64 groupId) public view virtual returns (uint64) {
         return _groups[groupId].admin;
     }
 
@@ -170,7 +170,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * The guardian permission allows canceling operations that have been scheduled under the group.
      */
-    function getGroupGuardian(uint256 groupId) public view virtual returns (uint256) {
+    function getGroupGuardian(uint64 groupId) public view virtual returns (uint64) {
         return _groups[groupId].guardian;
     }
 
@@ -179,7 +179,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * a call to {setGrantDelay}. Changes to this value, including effect timepoint are notified by the
      * {GroupGrantDelayChanged} event.
      */
-    function getGroupGrantDelay(uint256 groupId) public view virtual returns (uint32) {
+    function getGroupGrantDelay(uint64 groupId) public view virtual returns (uint32) {
         return _groups[groupId].delay.get();
     }
 
@@ -194,7 +194,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint256 groupId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
+    function getAccess(uint64 groupId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
         Access storage access = _groups[groupId].members[account];
 
         uint48 since = access.since;
@@ -207,7 +207,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Check if a given account currently had the permission level corresponding to a given group. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasGroup(uint256 groupId, address account) public view virtual returns (bool, uint32) {
+    function hasGroup(uint64 groupId, address account) public view virtual returns (bool, uint32) {
         if (groupId == PUBLIC_GROUP) {
             return (true, 0);
         } else {
@@ -222,7 +222,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupLabel} event.
      */
-    function labelGroup(uint256 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
+    function labelGroup(uint64 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
         emit GroupLabel(groupId, label);
     }
 
@@ -240,7 +240,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupGranted} event
      */
     function grantGroup(
-        uint256 groupId,
+        uint64 groupId,
         address account,
         uint32 executionDelay
     ) public virtual onlyGroup(getGroupAdmin(groupId)) {
@@ -256,7 +256,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupRevoked} event
      */
-    function revokeGroup(uint256 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
+    function revokeGroup(uint64 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
         _revokeGroup(groupId, account);
     }
 
@@ -269,7 +269,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupRevoked} event
      */
-    function renounceGroup(uint256 groupId, address callerConfirmation) public virtual {
+    function renounceGroup(uint64 groupId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
         }
@@ -289,7 +289,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupExecutionDelayUpdated} event
      */
     function setExecuteDelay(
-        uint256 groupId,
+        uint64 groupId,
         address account,
         uint32 newDelay
     ) public virtual onlyGroup(getGroupAdmin(groupId)) {
@@ -305,7 +305,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupAdminChanged} event
      */
-    function setGroupAdmin(uint256 groupId, uint256 admin) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupAdmin(uint64 groupId, uint64 admin) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupAdmin(groupId, admin);
     }
 
@@ -318,7 +318,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGuardianChanged} event
      */
-    function setGroupGuardian(uint256 groupId, uint256 guardian) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupGuardian(uint64 groupId, uint64 guardian) public virtual onlyGroup(ADMIN_GROUP) {
         _setGroupGuardian(groupId, guardian);
     }
 
@@ -331,7 +331,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGrantDelayChanged} event
      */
-    function setGrantDelay(uint256 groupId, uint32 newDelay) public virtual onlyDelayedAdmin {
+    function setGrantDelay(uint64 groupId, uint32 newDelay) public virtual onlyDelayedAdmin {
         _setGrantDelay(groupId, newDelay);
     }
 
@@ -340,7 +340,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGranted} event
      */
-    function _grantGroup(uint256 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+    function _grantGroup(uint64 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since != 0) {
@@ -358,7 +358,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupRevoked} event
      */
-    function _revokeGroup(uint256 groupId, address account) internal virtual {
+    function _revokeGroup(uint64 groupId, address account) internal virtual {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since == 0) {
@@ -375,7 +375,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupExecutionDelayUpdated} event.
      */
-    function _setExecuteDelay(uint256 groupId, address account, uint32 newDuration) internal virtual {
+    function _setExecuteDelay(uint64 groupId, address account, uint32 newDuration) internal virtual {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since == 0) {
@@ -394,7 +394,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupAdminChanged} event
      */
-    function _setGroupAdmin(uint256 groupId, uint256 admin) internal virtual {
+    function _setGroupAdmin(uint64 groupId, uint64 admin) internal virtual {
         if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         }
@@ -409,7 +409,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGuardianChanged} event
      */
-    function _setGroupGuardian(uint256 groupId, uint256 guardian) internal virtual {
+    function _setGroupGuardian(uint64 groupId, uint64 guardian) internal virtual {
         if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         }
@@ -424,7 +424,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGrantDelayChanged} event
      */
-    function _setGrantDelay(uint256 groupId, uint32 newDelay) internal virtual {
+    function _setGrantDelay(uint64 groupId, uint32 newDelay) internal virtual {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         }
@@ -472,7 +472,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function setFunctionAllowedGroup(
         address target,
         bytes4[] calldata selectors,
-        uint256 groupId
+        uint64 groupId
     ) public virtual onlyDelayedAdmin {
         // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
@@ -485,7 +485,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event
      */
-    function _setFunctionAllowedGroup(address target, bytes4 selector, uint256 groupId) internal virtual {
+    function _setFunctionAllowedGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
         _allowedGroups[target][selector] = groupId;
         emit FunctionAllowedGroupUpdated(target, selector, groupId);
     }
