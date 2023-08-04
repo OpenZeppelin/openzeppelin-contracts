@@ -74,7 +74,7 @@ library Time {
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
     function getFullAt(Delay self, uint48 timepoint) internal pure returns (uint32, uint32, uint48) {
-        (uint32 oldValue, uint32 newValue, uint48 effect) = self.split();
+        (uint32 oldValue, uint32 newValue, uint48 effect) = self.unpack();
         return effect.isSetAndPast(timepoint) ? (newValue, 0, 0) : (oldValue, newValue, effect);
     }
 
@@ -121,7 +121,7 @@ library Time {
     /**
      * @dev Split a delay into its components: oldValue, newValue and effect (transition timepoint).
      */
-    function split(Delay self) internal pure returns (uint32, uint32, uint48) {
+    function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
         uint112 raw = Delay.unwrap(self);
         return (
             uint32(raw), // oldValue
