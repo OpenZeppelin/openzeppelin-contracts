@@ -68,7 +68,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     modifier onlyGroup(uint256 groupId) {
         address msgsender = _msgSender();
-        (bool inGroup,) = hasGroup(groupId, msgsender);
+        (bool inGroup, ) = hasGroup(groupId, msgsender);
         if (!inGroup) {
             revert AccessControlUnauthorizedAccount(msgsender, groupId);
         }
@@ -123,17 +123,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // verify that the call "identifier", which is set during the relay call, is correct.
             return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
         } else if (target == address(this)) {
-            (bool inGroup,) = hasGroup(ADMIN_GROUP, caller);
+            (bool inGroup, ) = hasGroup(ADMIN_GROUP, caller);
             uint32 delay = _adminDelays[selector].get();
-            return inGroup
-                ? (delay == 0, delay)
-                : (false, 0);
+            return inGroup ? (delay == 0, delay) : (false, 0);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
-            return inGroup
-                ? (currentDelay == 0, currentDelay)
-                : (false, 0);
+            return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
         }
     }
 
@@ -682,8 +678,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
-            (bool isAdmin,) = hasGroup(ADMIN_GROUP, msgsender);
-            (bool isGuardian,) = hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender);
+            (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
+            (bool isGuardian, ) = hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
                 revert AccessManagerCannotCancel(msgsender, caller, target, selector);
             }
