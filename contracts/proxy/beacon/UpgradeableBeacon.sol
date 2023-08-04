@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IBeacon} from "./IBeacon.sol";
-import {Ownable} from "../../access/Ownable.sol";
+import {Ownable2Step, Ownable} from "../../access/Ownable2Step.sol";
 
 /**
  * @dev This contract is used in conjunction with one or more instances of {BeaconProxy} to determine their
@@ -12,7 +12,7 @@ import {Ownable} from "../../access/Ownable.sol";
  *
  * An owner is able to change the implementation the beacon points to, thus upgrading the proxies that use this beacon.
  */
-contract UpgradeableBeacon is IBeacon, Ownable {
+contract UpgradeableBeacon is IBeacon, Ownable2Step {
     address private _implementation;
 
     /**
