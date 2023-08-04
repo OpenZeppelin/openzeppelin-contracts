@@ -202,9 +202,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         Access storage access = _groups[groupId].members[account];
 
         uint48 since = access.since;
-        (uint32 oldDelay, uint32 newDelay, uint48 effect) = access.delay.split();
+        (uint32 currentDelay, uint32 pendingDelay, uint48 effect) = access.delay.getFull();
 
-        return effect.isSetAndPast(Time.timestamp()) ? (since, newDelay, 0, 0) : (since, oldDelay, newDelay, effect);
+        return (since, currentDelay, pendingDelay, effect);
     }
 
     /**

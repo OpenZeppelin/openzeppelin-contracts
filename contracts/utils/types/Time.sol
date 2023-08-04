@@ -70,11 +70,28 @@ library Time {
     }
 
     /**
+     * @dev Get the value at a given timepoint plus the pending value and effect timepoint if there is a scheduled
+     * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
+     */
+    function getFullAt(Delay self, uint48 timepoint) internal pure returns (uint32, uint32, uint48) {
+        (uint32 oldValue, uint32 newValue, uint48 effect) = self.split();
+        return effect.isSetAndPast(timepoint) ? (newValue, 0, 0) : (oldValue, newValue, effect);
+    }
+
+    /**
+     * @dev Get the current value plus the pending value and effect timepoint if there is a scheduled change. If the
+     * effect timepoint is 0, then the pending value should not be considered.
+    */
+    function getFull(Delay self) internal view returns (uint32, uint32, uint48) {
+        return self.getFullAt(timestamp());
+    }
+
+    /**
      * @dev Get the value the Delay will be at a given timepoint.
      */
     function getAt(Delay self, uint48 timepoint) internal pure returns (uint32) {
-        (uint32 oldValue, uint32 newValue, uint48 effect) = self.split();
-        return effect.isSetAndPast(timepoint) ? newValue : oldValue;
+        (uint32 delay,,) = getFullAt(self, timepoint);
+        return delay;
     }
 
     /**
@@ -82,15 +99,6 @@ library Time {
      */
     function get(Delay self) internal view returns (uint32) {
         return self.getAt(timestamp());
-    }
-
-    /**
-     * @dev Get the pending value, and effect timepoint. If the effect timepoint is 0, then the pending value should
-     * not be considered.
-     */
-    function getPending(Delay self) internal pure returns (uint32, uint48) {
-        (, uint32 newValue, uint48 effect) = self.split();
-        return (newValue, effect);
     }
 
     /**
