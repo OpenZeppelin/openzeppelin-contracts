@@ -119,12 +119,10 @@ library Address {
         if (!success) {
             _revert(returndata);
         } else {
-            if (returndata.length == 0) {
-                // only check if target is a contract if the call was successful and the return data is empty
-                // otherwise we already know that it was a contract
-                if (target.code.length == 0) {
-                    revert AddressEmptyCode(target);
-                }
+            // only check if target is a contract if the call was successful and the return data is empty
+            // otherwise we already know that it was a contract
+            if (returndata.length == 0 && target.code.length == 0) {
+                revert AddressEmptyCode(target);
             }
             return returndata;
         }
