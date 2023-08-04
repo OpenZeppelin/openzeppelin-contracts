@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IAuthority, safeCanCall} from "./IAuthority.sol";
+import {IAuthority} from "./IAuthority.sol";
+import {AuthorityUtils} from "./AuthorityUtils.sol";
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
 import {Context} from "../../utils/Context.sol";
@@ -89,7 +90,12 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
     function _checkCanCall(address caller, bytes calldata data) internal virtual {
-        (bool allowed, uint32 delay) = safeCanCall(authority(), caller, address(this), bytes4(data));
+        (bool allowed, uint32 delay) = AuthorityUtils.canCallWithDelay(
+            authority(),
+            caller,
+            address(this),
+            bytes4(data)
+        );
         if (!allowed) {
             if (delay > 0) {
                 IAccessManager(authority()).consumeScheduledOp(caller, data);
