@@ -312,14 +312,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 snapshot = clock() + votingDelay();
         uint256 duration = votingPeriod();
 
-        _proposals[proposalId] = ProposalCore({
-            proposer: proposer,
-            voteStart: SafeCast.toUint48(snapshot),
-            voteDuration: SafeCast.toUint32(duration),
-            executed: false,
-            canceled: false,
-            eta: 0
-        });
+        ProposalCore storage proposal = _proposals[proposalId];
+        proposal.proposer = proposer;
+        proposal.voteStart = SafeCast.toUint48(snapshot);
+        proposal.voteDuration = SafeCast.toUint32(duration);
 
         emit ProposalCreated(
             proposalId,
