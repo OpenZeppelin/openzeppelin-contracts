@@ -90,7 +90,7 @@ interface IAccessManager {
 
     function getAccess(uint256 group, address account) external view returns (uint48, uint32, uint32, uint48);
 
-    function hasGroup(uint256 group, address account) external view returns (bool);
+    function hasGroup(uint256 group, address account) external view returns (bool, uint32);
 
     function grantGroup(uint256 group, address account, uint32 executionDelay) external;
 

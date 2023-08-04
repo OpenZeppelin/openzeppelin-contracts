@@ -68,7 +68,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     modifier onlyGroup(uint256 groupId) {
         address msgsender = _msgSender();
-        if (!hasGroup(groupId, msgsender)) {
+        (bool inGroup,) = hasGroup(groupId, msgsender);
+        if (!inGroup) {
             revert AccessControlUnauthorizedAccount(msgsender, groupId);
         }
         _;
@@ -122,18 +123,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // verify that the call "identifier", which is set during the relay call, is correct.
             return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
         } else if (target == address(this)) {
-            bool allowed = hasGroup(ADMIN_GROUP, caller);
+            (bool inGroup,) = hasGroup(ADMIN_GROUP, caller);
             uint32 delay = _adminDelays[selector].get();
-            return (allowed && delay == 0, delay);
+            return inGroup
+                ? (delay == 0, delay)
+                : (false, 0);
         } else {
             uint256 groupId = getFunctionAllowedGroup(target, selector);
-            bool inGroup = hasGroup(groupId, caller);
-            if (!inGroup) {
-                return (false, 0);
-            } else {
-                (, uint32 currentDelay, , ) = getAccess(groupId, caller);
-                return (currentDelay == 0, currentDelay);
-            }
+            (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
+            return inGroup
+                ? (currentDelay == 0, currentDelay)
+                : (false, 0);
         }
     }
 
@@ -211,12 +211,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Check if a given account currently had the permission level corresponding to a given group. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasGroup(uint256 groupId, address account) public view virtual returns (bool) {
+    function hasGroup(uint256 groupId, address account) public view virtual returns (bool, uint32) {
         if (groupId == PUBLIC_GROUP) {
-            return true;
+            return (true, 0);
         } else {
-            (uint48 inGroupSince, , , ) = getAccess(groupId, account);
-            return inGroupSince.isSetAndPast(Time.timestamp());
+            (uint48 inGroupSince, uint32 currentDelay, , ) = getAccess(groupId, account);
+            return (inGroupSince.isSetAndPast(Time.timestamp()), currentDelay);
         }
     }
 
@@ -680,13 +680,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = _hashOperation(caller, target, data);
         if (_schedules[operationId] == 0) {
             revert AccessManagerNotScheduled(operationId);
-        } else if (
-            caller != msgsender &&
-            !hasGroup(ADMIN_GROUP, msgsender) &&
-            !hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender)
-        ) {
+        } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
-            revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+            (bool isAdmin,) = hasGroup(ADMIN_GROUP, msgsender);
+            (bool isGuardian,) = hasGroup(getGroupGuardian(getFunctionAllowedGroup(target, selector)), msgsender);
+            if (!isAdmin && !isGuardian) {
+                revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+            }
         }
 
         delete _schedules[operationId];

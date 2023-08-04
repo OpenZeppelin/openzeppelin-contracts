@@ -18,6 +18,8 @@ Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
+const formatAccess = (access) => [ access[0], access[1].toString()];
+
 contract('AccessManager', function (accounts) {
   const [admin, manager, member, user, other] = accounts;
 
@@ -54,22 +56,22 @@ contract('AccessManager', function (accounts) {
     expect(await this.manager.getGroupGuardian(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.SOME_ADMIN);
     expect(await this.manager.getGroupGuardian(GROUPS.PUBLIC)).to.be.bignumber.equal(GROUPS.ADMIN);
     // group members
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, admin)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, manager)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, member)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, user)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, admin)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, manager)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, member)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, user)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME, admin)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME, manager)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.equal(false);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, admin)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, manager)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, member)).to.be.equal(true);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, user)).to.be.equal(true);
+    expect(await this.manager.hasGroup(GROUPS.ADMIN, admin).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.ADMIN, manager).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.ADMIN, member).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.ADMIN, user).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, admin).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, manager).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, member).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, user).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME, admin).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME, manager).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([ false, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.PUBLIC, admin).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.PUBLIC, manager).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.PUBLIC, member).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
+    expect(await this.manager.hasGroup(GROUPS.PUBLIC, user).then(formatAccess)).to.be.deep.equal([ true, '0' ]);
   });
 
   describe('Groups management', function () {
@@ -102,13 +104,13 @@ contract('AccessManager', function (accounts) {
     describe('grand group', function () {
       describe('without a grant delay', function () {
         it('without an execute delay', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
           const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'GroupGranted', { groupId: GROUPS.SOME, account: user, since: timestamp, delay: '0' });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0' ]);
 
           const access = await this.manager.getAccess(GROUPS.SOME, user);
           expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
@@ -118,7 +120,7 @@ contract('AccessManager', function (accounts) {
         });
 
         it('with an execute delay', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
           const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, executeDelay, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
@@ -129,7 +131,7 @@ contract('AccessManager', function (accounts) {
             delay: executeDelay,
           });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, executeDelay.toString() ]);
 
           const access = await this.manager.getAccess(GROUPS.SOME, user);
           expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
@@ -139,7 +141,7 @@ contract('AccessManager', function (accounts) {
         });
 
         it('to a user that is already in the group', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.true;
+          expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0' ]);
 
           await expectRevertCustomError(
             this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager }),
@@ -151,7 +153,7 @@ contract('AccessManager', function (accounts) {
         it('to a user that is scheduled for joining the group', async function () {
           await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
           await expectRevertCustomError(
             this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
@@ -184,7 +186,7 @@ contract('AccessManager', function (accounts) {
             delay: '0',
           });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
           const access = await this.manager.getAccess(GROUPS.SOME, user);
           expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
@@ -205,7 +207,7 @@ contract('AccessManager', function (accounts) {
 
           await time.increase(grantDelay);
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.true;
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0' ]);
 
           const access = await this.manager.getAccess(GROUPS.SOME, user);
           expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
@@ -218,12 +220,12 @@ contract('AccessManager', function (accounts) {
 
     describe('revoke group', function () {
       it('from a user that is already in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.true;
+        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0' ]);
 
         const { receipt } = await this.manager.revokeGroup(GROUPS.SOME, member, { from: manager });
         expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: member });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const access = await this.manager.getAccess(GROUPS.SOME, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
@@ -235,12 +237,12 @@ contract('AccessManager', function (accounts) {
       it('from a user that is scheduled for joining the group', async function () {
         await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const { receipt } = await this.manager.revokeGroup(GROUPS.SOME, user, { from: manager });
         expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: user });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const access = await this.manager.getAccess(GROUPS.SOME, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
@@ -250,7 +252,7 @@ contract('AccessManager', function (accounts) {
       });
 
       it('from a user that is not in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         await expectRevertCustomError(
           this.manager.revokeGroup(GROUPS.SOME, user, { from: manager }),
@@ -270,12 +272,12 @@ contract('AccessManager', function (accounts) {
 
     describe('renounce group', function () {
       it('for a user that is already in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.true;
+        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0' ]);
 
         const { receipt } = await this.manager.renounceGroup(GROUPS.SOME, member, { from: member });
         expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: member });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, member)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const access = await this.manager.getAccess(GROUPS.SOME, member);
         expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
@@ -287,12 +289,12 @@ contract('AccessManager', function (accounts) {
       it('for a user that is schedule for joining the group', async function () {
         await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const { receipt } = await this.manager.renounceGroup(GROUPS.SOME, user, { from: user });
         expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: user });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user)).to.be.false;
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0' ]);
 
         const access = await this.manager.getAccess(GROUPS.SOME, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince

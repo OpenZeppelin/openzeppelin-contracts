@@ -1,7 +1,7 @@
 const { constants } = require('@openzeppelin/test-helpers');
-const { expectRevertCustomError } = require('../../../helpers/customError');
-const { AccessMode } = require('../../../helpers/enums');
-const { selector } = require('../../../helpers/methods');
+const { expectRevertCustomError } = require('../../helpers/customError');
+const { AccessMode } = require('../../helpers/enums');
+const { selector } = require('../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Ownable = artifacts.require('$Ownable');
