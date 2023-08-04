@@ -280,11 +280,11 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
       ]) {
         describe(`via ${fnName}`, function () {
           const safeTransferFromWithData = function (from, to, tokenId, opts) {
-            return this.token.methods[fnName+'(address,address,uint256,bytes)'](from, to, tokenId, data, opts);
+            return this.token.methods[fnName + '(address,address,uint256,bytes)'](from, to, tokenId, data, opts);
           };
 
           const safeTransferFromWithoutData = function (from, to, tokenId, opts) {
-            return this.token.methods[fnName+'(address,address,uint256)'](from, to, tokenId, opts);
+            return this.token.methods[fnName + '(address,address,uint256)'](from, to, tokenId, opts);
           };
 
           describe('with data', function () {
@@ -299,7 +299,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
             it('reverts', async function () {
               const invalidReceiver = await ERC721ReceiverMock.new('0x42', RevertType.None);
               await expectRevertCustomError(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, invalidReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, invalidReceiver.address, tokenId, {
+                  from: owner,
+                }),
                 'ERC721InvalidReceiver',
                 [invalidReceiver.address],
               );
@@ -308,9 +310,14 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
 
           describe('to a receiver contract that reverts with message', function () {
             it('reverts', async function () {
-              const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.RevertWithMessage);
+              const revertingReceiver = await ERC721ReceiverMock.new(
+                RECEIVER_MAGIC_VALUE,
+                RevertType.RevertWithMessage,
+              );
               await expectRevert(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, revertingReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, revertingReceiver.address, tokenId, {
+                  from: owner,
+                }),
                 'ERC721ReceiverMock: reverting',
               );
             });
@@ -323,7 +330,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
                 RevertType.RevertWithoutMessage,
               );
               await expectRevertCustomError(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, revertingReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, revertingReceiver.address, tokenId, {
+                  from: owner,
+                }),
                 'ERC721InvalidReceiver',
                 [revertingReceiver.address],
               );
@@ -337,7 +346,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
                 RevertType.RevertWithCustomError,
               );
               await expectRevertCustomError(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, revertingReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, revertingReceiver.address, tokenId, {
+                  from: owner,
+                }),
                 'CustomError',
                 [RECEIVER_MAGIC_VALUE],
               );
@@ -348,7 +359,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
             it('reverts', async function () {
               const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.Panic);
               await expectRevert.unspecified(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, revertingReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, revertingReceiver.address, tokenId, {
+                  from: owner,
+                }),
               );
             });
           });
@@ -357,7 +370,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
             it('reverts', async function () {
               const nonReceiver = await NonERC721ReceiverMock.new();
               await expectRevertCustomError(
-                this.token.methods[fnName+'(address,address,uint256)'](owner, nonReceiver.address, tokenId, { from: owner }),
+                this.token.methods[fnName + '(address,address,uint256)'](owner, nonReceiver.address, tokenId, {
+                  from: owner,
+                }),
                 'ERC721InvalidReceiver',
                 [nonReceiver.address],
               );
