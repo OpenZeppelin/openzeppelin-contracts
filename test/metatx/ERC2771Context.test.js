@@ -36,7 +36,11 @@ contract('ERC2771Context', function (accounts) {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.recipient.isTrustedForwarder(this.forwarder.address));
+    expect(await this.recipient.isTrustedForwarder(this.forwarder.address)).to.equal(true);
+  });
+
+  it('returns the trusted forwarder', async function () {
+    expect(await this.recipient.trustedForwarder()).to.equal(this.forwarder.address);
   });
 
   context('when called directly', function () {
