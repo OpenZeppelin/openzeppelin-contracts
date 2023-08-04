@@ -7,14 +7,13 @@ const { constants, expectRevert, expectEvent, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
-const CallReceiverMock = artifacts.require('CallReceiverMock');
+const CallReceiverMockTrustingForwarder = artifacts.require('CallReceiverMockTrustingForwarder');
 
 contract('ERC2771Forwarder', function (accounts) {
   const [, refundReceiver, another] = accounts;
 
   const tamperedValues = {
     from: another,
-    to: another,
     value: web3.utils.toWei('0.5'),
     data: '0x1742',
     deadline: 0xdeadbeef,
@@ -41,7 +40,7 @@ contract('ERC2771Forwarder', function (accounts) {
     this.alice.address = web3.utils.toChecksumAddress(this.alice.getAddressString());
 
     this.timestamp = await time.latest();
-    this.receiver = await CallReceiverMock.new();
+    this.receiver = await CallReceiverMockTrustingForwarder.new(this.forwarder.address);
     this.request = {
       from: this.alice.address,
       to: this.receiver.address,
@@ -96,6 +95,10 @@ contract('ERC2771Forwarder', function (accounts) {
           expect(await this.forwarder.verify(this.forgeData({ [key]: value }).message)).to.be.equal(false);
         });
       }
+
+      it('returns false with an untrustful to', async function () {
+        expect(await this.forwarder.verify(this.forgeData({ to: another }).message)).to.be.equal(false);
+      });
 
       it('returns false with tampered signature', async function () {
         const tamperedsign = web3.utils.hexToBytes(this.requestData.signature);
@@ -168,6 +171,14 @@ contract('ERC2771Forwarder', function (accounts) {
           );
         });
       }
+
+      it('reverts with an untrustful to', async function () {
+        const data = this.forgeData({ to: another });
+        await expectRevertCustomError(this.forwarder.execute(data.message), 'ERC2771UntrustfulTarget', [
+          data.message.to,
+          this.forwarder.address,
+        ]);
+      });
 
       it('reverts with tampered signature', async function () {
         const tamperedSig = web3.utils.hexToBytes(this.requestData.signature);
@@ -359,6 +370,18 @@ contract('ERC2771Forwarder', function (accounts) {
             );
           });
         }
+
+        it('reverts with at least one untrustful to', async function () {
+          const data = this.forgeData({ ...this.requestDatas[this.idx], to: another });
+
+          this.requestDatas[this.idx] = data.message;
+
+          await expectRevertCustomError(
+            this.forwarder.executeBatch(this.requestDatas, this.refundReceiver, { value: this.msgValue }),
+            'ERC2771UntrustfulTarget',
+            [this.requestDatas[this.idx].to, this.forwarder.address],
+          );
+        });
 
         it('reverts with at least one tampered request signature', async function () {
           const tamperedSig = web3.utils.hexToBytes(this.requestDatas[this.idx].signature);

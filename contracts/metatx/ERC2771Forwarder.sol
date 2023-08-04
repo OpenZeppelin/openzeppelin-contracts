@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {ERC2771Context} from "./ERC2771Context.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {Nonces} from "../utils/Nonces.sol";
@@ -93,6 +94,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771ForwarderExpiredRequest(uint48 deadline);
 
     /**
+     * @dev The request targert doesn't trust the `forwarder`.
+     */
+    error ERC2771UntrustfulTarget(address target, address forwarder);
+
+    /**
      * @dev See {EIP712-constructor}.
      */
     constructor(string memory name) EIP712(name, "1") {}
@@ -100,15 +106,15 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block timestamp.
      *
-     * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
-     * matches the `from` parameter of the signed request.
+     * A transaction is considered valid when the target trusts this forwarder, the request hasn't expired
+     * (deadline is not met), and the signer matches the `from` parameter of the signed request.
      *
      * NOTE: A request may return false here but it won't cause {executeBatch} to revert if a refund
      * receiver is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
-        (bool active, bool signerMatch, ) = _validate(request);
-        return active && signerMatch;
+        (bool isTrustedForwarder, bool active, bool signerMatch, ) = _validate(request);
+        return isTrustedForwarder && active && signerMatch;
     }
 
     /**
@@ -196,9 +202,15 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _validate(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool active, bool signerMatch, address signer) {
+    ) internal view virtual returns (bool isTrustedForwarder, bool active, bool signerMatch, address signer) {
         (bool isValid, address recovered) = _recoverForwardRequestSigner(request);
-        return (request.deadline >= block.timestamp, isValid && recovered == request.from, recovered);
+
+        return (
+            _isTrustedByTarget(request.to),
+            request.deadline >= block.timestamp,
+            isValid && recovered == request.from,
+            recovered
+        );
     }
 
     /**
@@ -247,11 +259,15 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         bool requireValidRequest
     ) internal virtual returns (bool success) {
-        (bool active, bool signerMatch, address signer) = _validate(request);
+        (bool isTrustedForwarder, bool active, bool signerMatch, address signer) = _validate(request);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
         if (requireValidRequest) {
+            if (!isTrustedForwarder) {
+                revert ERC2771UntrustfulTarget(request.to, address(this));
+            }
+
             if (!active) {
                 revert ERC2771ForwarderExpiredRequest(request.deadline);
             }
@@ -262,7 +278,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Ignore an invalid request because requireValidRequest = false
-        if (signerMatch && active) {
+        if (isTrustedForwarder && signerMatch && active) {
             // Nonce should be used before the call to prevent reusing by reentrancy
             uint256 currentNonce = _useNonce(signer);
 
@@ -282,6 +298,56 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
             emit ExecutedForwardRequest(signer, currentNonce, success);
         }
+    }
+
+    /**
+     * @dev Returns whether the target trusts this forwarder.
+     *
+     * This function performs a static call to the target contract calling the
+     * {ERC2771Context-isTrustedForwarder} function.
+     */
+    function _isTrustedByTarget(address target) private view returns (bool) {
+        bytes4 selector = ERC2771Context.isTrustedForwarder.selector;
+
+        // Calldata is always the same, and we can guarantee its length is 36 bytes
+        // - 4 bytes from the selector
+        // - 32 bytes from the abi encoded target address (padded to 32)
+        uint8 calldataLength = 36;
+
+        bool success;
+        bool returnValue;
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Because the return value is a boolean (requires 1 byte copied to memory) and the
+            // calldata length is 24 bytes, we can safely reuse the scratch space in memory (0x00 - 0x3F).
+            // This avoids memory leakage of allocating the encoded calldata in memory during each
+            // `isTrustedForwarder` call.
+            let ptr := 0x00
+
+            // | Location  | Content  | Content (Hex)                                                      |
+            // |-----------|----------|--------------------------------------------------------------------|
+            // |           |          |                                                  selector ↓        |
+            // | 0x00:0x1F | selector | 0x00000000000000000000000000000000000000000000000000000000AAAAAAAA |
+            // |           |          |   ↓ PADDING        target ↓                                        |
+            // | 0x20:0x3F | target   | 0x000000000000000000000000BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB |
+            mstore(ptr, shr(224, selector))
+            mstore(add(ptr, 0x20), address())
+
+            // Perform the staticcal and save the result in the scratch space.
+            // | Location  | Content  | Content (Hex)                                                      |
+            // |-----------|----------|--------------------------------------------------------------------|
+            // |           |          |                                                           result ↓ |
+            // | 0x00:0x1F | selector | 0x0000000000000000000000000000000000000000000000000000000000000001 |
+            success := staticcall(gas(), target, add(ptr, 0x1c), calldataLength, 0, 0x20)
+
+            // Avoid strange returndatasizes (eg. an EOA)
+            if eq(returndatasize(), 0x20) {
+                // Copy from memory and clean the `returnValue` as a boolean.
+                returnValue := shr(255, shl(255, mload(0)))
+            }
+        }
+
+        return success && returnValue;
     }
 
     /**
