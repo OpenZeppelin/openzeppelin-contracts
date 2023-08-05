@@ -245,7 +245,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     function _getContractFamilyId(address target) internal view returns (uint64 familyId) {
-        (familyId,) = getContractFamily(target);
+        (familyId, ) = getContractFamily(target);
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
@@ -510,7 +510,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
     // TODO: Do we need to put the familyId on this ? Isn't "withUpdate()" enough?
-    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
+    function setFamilyAdminDelay(
+        uint64 familyId,
+        uint32 newDelay
+    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
         _setFamilyAdminDelay(familyId, newDelay);
     }
 
@@ -536,7 +539,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {ContractFamilyUpdated} event.
      */
-    function setContractFamily(address target, uint64 familyId) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    function setContractFamily(
+        address target,
+        uint64 familyId
+    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
         _setContractFamily(target, familyId);
     }
 
@@ -572,6 +578,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         _contractMode[target].closed = closed;
         emit ContractClosed(target, closed);
     }
+
     // ============================================== DELAYED OPERATIONS ==============================================
     /**
      * @dev Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
@@ -705,7 +712,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
-            (bool isGuardian, ) = hasGroup(getGroupGuardian(getFamilyFunctionGroup(_getContractFamilyId(target), selector)), msgsender);
+            (bool isGuardian, ) = hasGroup(
+                getGroupGuardian(getFamilyFunctionGroup(_getContractFamilyId(target), selector)),
+                msgsender
+            );
             if (!isAdmin && !isGuardian) {
                 revert AccessManagerCannotCancel(msgsender, caller, target, selector);
             }
@@ -737,7 +747,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      */
-    function updateAuthority(address target, address newAuthority) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    function updateAuthority(
+        address target,
+        address newAuthority
+    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
@@ -752,11 +765,16 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    function _canCall(address caller, address target, bytes4 selector, bytes calldata data) internal view returns (bool, uint32) {
+    function _canCall(
+        address caller,
+        address target,
+        bytes4 selector,
+        bytes calldata data
+    ) internal view returns (bool, uint32) {
         if (target == address(this)) {
             (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
             uint32 delay = getFamilyAdminDelay(familyId);
-            (bool inGroup,) = hasGroup(ADMIN_GROUP, caller);
+            (bool inGroup, ) = hasGroup(ADMIN_GROUP, caller);
             return (inGroup && isFamilyOperation && delay == 0, delay);
         } else {
             return canCall(caller, target, selector);

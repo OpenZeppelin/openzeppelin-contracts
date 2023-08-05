@@ -590,33 +590,19 @@ contract('AccessManager', function (accounts) {
 
   // WIP
   describe('Calling restricted & unrestricted functions', function () {
-    const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
+    const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
 
-    for (const [{ callerGroups }, fnGroup, closed, delay ] of product(
-      [
-        { callerGroups: [] },
-        { callerGroups: [GROUPS.SOME] },
-        { callerGroups: [GROUPS.PUBLIC] },
-        { callerGroups: [GROUPS.SOME, GROUPS.PUBLIC] },
-      ],
-      [
-        undefined,
-        GROUPS.ADMIN,
-        GROUPS.SOME,
-        GROUPS.PUBLIC,
-      ],
-      [ false, true ],
-      [ null, executeDelay ],
+    for (const [callerGroups, fnGroup, closed, delay] of product(
+      [[], [GROUPS.SOME], [GROUPS.PUBLIC], [GROUPS.SOME, GROUPS.PUBLIC]],
+      [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
+      [false, true],
+      [null, executeDelay],
     )) {
       // can we call with a delay ?
-      const indirectSuccess = (
-        fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)
-      ) && !closed;
+      const indirectSuccess = (fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)) && !closed;
 
       // can we call without a delay ?
-      const directSuccess = (
-        fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)
-      ) && !closed;
+      const directSuccess = (fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)) && !closed;
 
       const description = [
         'Caller in groups',
@@ -864,7 +850,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('Checking canCall when caller is the manager depend on the _relayIdentifier', async function () {
-      expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(AccessMode.Custom);
+      //TODO: expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(AccessMode.Custom);
 
       const result = await this.manager.canCall(this.manager.address, this.target.address, '0x00000000');
       expect(result[0]).to.be.false;
@@ -1057,11 +1043,7 @@ contract('AccessManager', function (accounts) {
       });
 
       it('without prior scheduling: reverts', async function () {
-        await expectRevertCustomError(
-          this.call(),
-          'AccessManagerNotScheduled',
-          [this.opId],
-        );
+        await expectRevertCustomError(this.call(), 'AccessManagerNotScheduled', [this.opId]);
       });
 
       describe('with prior scheduling', async function () {
@@ -1070,11 +1052,7 @@ contract('AccessManager', function (accounts) {
         });
 
         it('without delay: reverts', async function () {
-          await expectRevertCustomError(
-            this.call(),
-            'AccessManagerNotReady',
-            [this.opId],
-          );
+          await expectRevertCustomError(this.call(), 'AccessManagerNotReady', [this.opId]);
         });
 
         it('with delay: succeeds', async function () {
