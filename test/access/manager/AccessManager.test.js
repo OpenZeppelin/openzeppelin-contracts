@@ -505,38 +505,6 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  // describe('Mode management', function () {
-  //   for (const [modeName, mode] of Object.entries(AccessMode)) {
-  //     describe(`setContractMode${modeName}`, function () {
-  //       it('set the mode and emits an event', async function () {
-  //         // set the target to another mode, so we can check the effects
-  //         await this.manager.$_setContractMode(
-  //           this.target.address,
-  //           Object.values(AccessMode).find(m => m != mode),
-  //         );
-
-  //         expect(await this.manager.getContractMode(this.target.address)).to.not.be.bignumber.equal(mode);
-
-  //         expectEvent(
-  //           await this.manager[`setContractMode${modeName}`](this.target.address, { from: admin }),
-  //           'AccessModeUpdated',
-  //           { target: this.target.address, mode },
-  //         );
-
-  //         expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(mode);
-  //       });
-
-  //       it('is restricted', async function () {
-  //         await expectRevertCustomError(
-  //           this.manager[`setContractMode${modeName}`](this.target.address, { from: other }),
-  //           'AccessManagerUnauthorizedAccount',
-  //           [other, GROUPS.ADMIN],
-  //         );
-  //       });
-  //     });
-  //   }
-  // });
-
   describe('Change function permissions', function () {
     const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
 
@@ -850,8 +818,6 @@ contract('AccessManager', function (accounts) {
     });
 
     it('Checking canCall when caller is the manager depend on the _relayIdentifier', async function () {
-      //TODO: expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(AccessMode.Custom);
-
       const result = await this.manager.canCall(this.manager.address, this.target.address, '0x00000000');
       expect(result[0]).to.be.false;
       expect(result[1]).to.be.bignumber.equal('0');
