@@ -8,5 +8,4 @@ module.exports = {
   VoteType: Enum('Against', 'For', 'Abstain'),
   Rounding: Enum('Floor', 'Ceil', 'Trunc', 'Expand'),
   OperationState: Enum('Unset', 'Waiting', 'Ready', 'Done'),
-  AccessMode: Enum('Custom', 'Closed', 'Open'),
 };

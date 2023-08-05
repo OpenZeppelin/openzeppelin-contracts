@@ -1,6 +1,6 @@
+const { web3 } = require('hardhat');
 const { expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { AccessMode } = require('../../helpers/enums');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
 
@@ -17,6 +17,7 @@ const GROUPS = {
 };
 Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value]) => [value, key])));
 
+const familyId = web3.utils.toBN(1);
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
@@ -504,37 +505,37 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('Mode management', function () {
-    for (const [modeName, mode] of Object.entries(AccessMode)) {
-      describe(`setContractMode${modeName}`, function () {
-        it('set the mode and emits an event', async function () {
-          // set the target to another mode, so we can check the effects
-          await this.manager.$_setContractMode(
-            this.target.address,
-            Object.values(AccessMode).find(m => m != mode),
-          );
+  // describe('Mode management', function () {
+  //   for (const [modeName, mode] of Object.entries(AccessMode)) {
+  //     describe(`setContractMode${modeName}`, function () {
+  //       it('set the mode and emits an event', async function () {
+  //         // set the target to another mode, so we can check the effects
+  //         await this.manager.$_setContractMode(
+  //           this.target.address,
+  //           Object.values(AccessMode).find(m => m != mode),
+  //         );
 
-          expect(await this.manager.getContractMode(this.target.address)).to.not.be.bignumber.equal(mode);
+  //         expect(await this.manager.getContractMode(this.target.address)).to.not.be.bignumber.equal(mode);
 
-          expectEvent(
-            await this.manager[`setContractMode${modeName}`](this.target.address, { from: admin }),
-            'AccessModeUpdated',
-            { target: this.target.address, mode },
-          );
+  //         expectEvent(
+  //           await this.manager[`setContractMode${modeName}`](this.target.address, { from: admin }),
+  //           'AccessModeUpdated',
+  //           { target: this.target.address, mode },
+  //         );
 
-          expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(mode);
-        });
+  //         expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(mode);
+  //       });
 
-        it('is restricted', async function () {
-          await expectRevertCustomError(
-            this.manager[`setContractMode${modeName}`](this.target.address, { from: other }),
-            'AccessManagerUnauthorizedAccount',
-            [other, GROUPS.ADMIN],
-          );
-        });
-      });
-    }
-  });
+  //       it('is restricted', async function () {
+  //         await expectRevertCustomError(
+  //           this.manager[`setContractMode${modeName}`](this.target.address, { from: other }),
+  //           'AccessManagerUnauthorizedAccount',
+  //           [other, GROUPS.ADMIN],
+  //         );
+  //       });
+  //     });
+  //   }
+  // });
 
   describe('Change function permissions', function () {
     const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
@@ -587,75 +588,74 @@ contract('AccessManager', function (accounts) {
     });
   });
 
+  // WIP
   describe('Calling restricted & unrestricted functions', function () {
     const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
-    for (const [callerOpt, targetOpt] of product(
+    for (const [{ callerGroups }, fnGroup, closed, delay ] of product(
       [
-        { groups: [] },
-        { groups: [GROUPS.SOME] },
-        { groups: [GROUPS.SOME], delay: executeDelay },
-        { groups: [GROUPS.SOME, GROUPS.PUBLIC], delay: executeDelay },
+        { callerGroups: [] },
+        { callerGroups: [GROUPS.SOME] },
+        { callerGroups: [GROUPS.PUBLIC] },
+        { callerGroups: [GROUPS.SOME, GROUPS.PUBLIC] },
       ],
       [
-        { mode: AccessMode.Open },
-        { mode: AccessMode.Closed },
-        { mode: AccessMode.Custom, group: GROUPS.ADMIN },
-        { mode: AccessMode.Custom, group: GROUPS.SOME },
-        { mode: AccessMode.Custom, group: GROUPS.PUBLIC },
+        undefined,
+        GROUPS.ADMIN,
+        GROUPS.SOME,
+        GROUPS.PUBLIC,
       ],
+      [ false, true ],
+      [ null, executeDelay ],
     )) {
-      const public =
-        targetOpt.mode == AccessMode.Open || (targetOpt.mode == AccessMode.Custom && targetOpt.group == GROUPS.PUBLIC);
-
       // can we call with a delay ?
-      const indirectSuccess =
-        public || (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group));
+      const indirectSuccess = (
+        fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)
+      ) && !closed;
 
       // can we call without a delay ?
-      const directSuccess =
-        public ||
-        (targetOpt.mode == AccessMode.Custom && callerOpt.groups?.includes(targetOpt.group) && !callerOpt.delay);
+      const directSuccess = (
+        fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)
+      ) && !closed;
 
       const description = [
         'Caller in groups',
-        '[' + (callerOpt.groups ?? []).map(groupId => GROUPS[groupId]).join(', ') + ']',
-        callerOpt.delay ? 'with a delay' : 'without a delay',
+        '[' + (callerGroups ?? []).map(groupId => GROUPS[groupId]).join(', ') + ']',
+        delay ? 'with a delay' : 'without a delay',
         '+',
-        'contract in mode',
-        Object.keys(AccessMode)[targetOpt.mode.toNumber()],
-        targetOpt.mode == AccessMode.Custom ? `(${GROUPS[targetOpt.group]})` : '',
+        'functions open to groups',
+        '[' + (GROUPS[fnGroup] ?? '') + ']',
+        closed ? `(closed)` : '',
       ].join(' ');
 
       describe(description, function () {
         beforeEach(async function () {
           // setup
           await Promise.all([
-            this.manager.$_setContractMode(this.target.address, targetOpt.mode),
-            targetOpt.group &&
-              this.manager.$_setFunctionAllowedGroup(this.target.address, selector('fnRestricted()'), targetOpt.group),
-            targetOpt.group &&
-              this.manager.$_setFunctionAllowedGroup(
-                this.target.address,
-                selector('fnUnrestricted()'),
-                targetOpt.group,
-              ),
-            ...(callerOpt.groups ?? [])
+            this.manager.$_setContractClosed(this.target.address, closed),
+            this.manager.$_setContractFamily(this.target.address, familyId),
+            fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnRestricted()'), fnGroup),
+            fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnUnrestricted()'), fnGroup),
+            ...callerGroups
               .filter(groupId => groupId != GROUPS.PUBLIC)
-              .map(groupId => this.manager.$_grantGroup(groupId, user, 0, callerOpt.delay ?? 0)),
+              .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
           ]);
 
           // post setup checks
-          expect(await this.manager.getContractMode(this.target.address)).to.be.bignumber.equal(targetOpt.mode);
-          if (targetOpt.group) {
+          const result = await this.manager.getContractFamily(this.target.address);
+          expect(result[0]).to.be.bignumber.equal(familyId);
+          expect(result[1]).to.be.equal(closed);
+
+          if (fnGroup) {
             expect(
-              await this.manager.getFunctionAllowedGroup(this.target.address, selector('fnRestricted()')),
-            ).to.be.bignumber.equal(targetOpt.group);
+              await this.manager.getFamilyFunctionGroup(familyId, selector('fnRestricted()')),
+            ).to.be.bignumber.equal(fnGroup);
             expect(
-              await this.manager.getFunctionAllowedGroup(this.target.address, selector('fnUnrestricted()')),
-            ).to.be.bignumber.equal(targetOpt.group);
+              await this.manager.getFamilyFunctionGroup(familyId, selector('fnUnrestricted()')),
+            ).to.be.bignumber.equal(fnGroup);
           }
-          for (const groupId of callerOpt.groups ?? []) {
+
+          for (const groupId of callerGroups) {
             const access = await this.manager.getAccess(groupId, user);
             if (groupId == GROUPS.PUBLIC) {
               expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
@@ -664,7 +664,7 @@ contract('AccessManager', function (accounts) {
               expect(access[3]).to.be.bignumber.equal('0'); // effect
             } else {
               expect(access[0]).to.be.bignumber.gt('0'); // inGroupSince
-              expect(access[1]).to.be.bignumber.eq(String(callerOpt.delay ?? 0)); // currentDelay
+              expect(access[1]).to.be.bignumber.eq(String(delay ?? 0)); // currentDelay
               expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
               expect(access[3]).to.be.bignumber.equal('0'); // effect
             }
@@ -674,7 +674,7 @@ contract('AccessManager', function (accounts) {
         it('canCall', async function () {
           const result = await this.manager.canCall(user, this.target.address, selector('fnRestricted()'));
           expect(result[0]).to.be.equal(directSuccess);
-          expect(result[1]).to.be.bignumber.equal(!directSuccess && indirectSuccess ? callerOpt.delay ?? '0' : '0');
+          expect(result[1]).to.be.bignumber.equal(!directSuccess && indirectSuccess ? delay ?? '0' : '0');
         });
 
         it('Calling a non restricted function never revert', async function () {
@@ -722,7 +722,7 @@ contract('AccessManager', function (accounts) {
 
             // if can call directly, delay should be 0. Otherwize, the delay should be applied
             expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
-              timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay),
+              timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
             );
 
             // execute without wait
@@ -756,11 +756,11 @@ contract('AccessManager', function (accounts) {
 
             // if can call directly, delay should be 0. Otherwize, the delay should be applied
             expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
-              timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay),
+              timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
             );
 
             // wait
-            await time.increase(callerOpt.delay ?? 0);
+            await time.increase(delay ?? 0);
 
             // execute without wait
             if (directSuccess || indirectSuccess) {
@@ -790,7 +790,7 @@ contract('AccessManager', function (accounts) {
             });
 
             // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay);
+            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
             expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
             // execute without wait
@@ -823,11 +823,11 @@ contract('AccessManager', function (accounts) {
             });
 
             // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : callerOpt.delay);
+            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
             expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
             // wait
-            await time.increase(callerOpt.delay ?? 0);
+            await time.increase(delay ?? 0);
 
             // execute without wait
             const promise = await this.direct();
@@ -1022,7 +1022,7 @@ contract('AccessManager', function (accounts) {
   });
 
   // TODO: test all admin functions
-  describe.only('family delays', function () {
+  describe('family delays', function () {
     const familyId = '1';
     const delay = '1000';
 
@@ -1038,6 +1038,9 @@ contract('AccessManager', function (accounts) {
       await this.call();
     });
 
+    // TODO: here we need to check increase and decrease.
+    // - Increasing should have immediate effect
+    // - Decreassing should take time.
     describe('with delay', function () {
       beforeEach('set admin delay', async function () {
         this.tx = await this.manager.setFamilyAdminDelay(familyId, delay, { from: admin });

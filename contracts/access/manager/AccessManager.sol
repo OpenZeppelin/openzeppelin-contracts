@@ -414,11 +414,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAcountNotInGroup(groupId, account);
         }
 
-        Time.Delay newDelay = _groups[groupId].members[account].delay.withUpdate(newDuration, 0); // TODO: minsetback ?
-        _groups[groupId].members[account].delay = newDelay;
+        Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, 0); // TODO: minsetback ?
+        _groups[groupId].members[account].delay = updated;
 
-        (, , uint48 effectPoint) = newDelay.unpack();
-        emit GroupExecutionDelayUpdated(groupId, account, newDuration, effectPoint);
+        (, , uint48 effect) = updated.unpack();
+        emit GroupExecutionDelayUpdated(groupId, account, newDuration, effect);
     }
 
     /**
@@ -500,7 +500,26 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit FamilyFunctionGroupUpdated(familyId, selector, groupId);
     }
 
+    /**
+     * @dev Set the delay for management operations on a given family of contract.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * Emits a {FunctionAllowedGroupUpdated} event per selector
+     */
+    // TODO: Do we need to put the familyId on this ? Isn't "withUpdate()" enough?
     function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
+        _setFamilyAdminDelay(familyId, newDelay);
+    }
+
+    /**
+     * @dev Internal version of {setFamilyAdminDelay} without access control.
+     *
+     * Emits a {FamilyAdminDelayUpdated} event
+     */
+    function _setFamilyAdminDelay(uint64 familyId, uint32 newDelay) internal virtual {
         Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, 0); // TODO: minsetback
         _families[familyId].adminDelay = updated;
         (, , uint48 effect) = updated.unpack();
@@ -509,44 +528,50 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // =============================================== MODE MANAGEMENT ================================================
     /**
-     * @dev Set the operating mode of a contract to Custom. This enables the group mechanism for per-function access
-     * restriction and delay enforcement.
+     * @dev Set the family of a contract.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {AccessModeUpdated} event.
+     * Emits a {ContractFamilyUpdated} event.
      */
     function setContractFamily(address target, uint64 familyId) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
         _setContractFamily(target, familyId);
     }
 
     /**
-     * @dev Set the operating mode of a contract to Close. This prevents anyone from calling any `restricted()`
-     * function.
+     * @dev Set the family of a contract. This is an internal setter with no access restrictions.
      *
-     * Requirements:
-     *
-     * - the caller must be a global admin
-     *
-     * Emits a {AccessModeUpdated} event.
-     */
-    function setContractClosed(address target, bool closed) public virtual onlyGroup(ADMIN_GROUP) {
-        _contractMode[target].closed = closed;
-        emit ContractClosed(target, closed);
-    }
-
-    /**
-     * @dev Set the operating mode of a contract. This is an internal setter with no access restrictions.
-     *
-     * Emits a {AccessModeUpdated} event.
+     * Emits a {ContractFamilyUpdated} event.
      */
     function _setContractFamily(address target, uint64 familyId) internal virtual {
         _contractMode[target].familyId = familyId;
         emit ContractFamilyUpdated(target, familyId);
     }
 
+    /**
+     * @dev Set the closed flag for a contract.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
+     *
+     * Emits a {ContractClosed} event.
+     */
+    function setContractClosed(address target, bool closed) public virtual onlyGroup(ADMIN_GROUP) {
+        _setContractClosed(target, closed);
+    }
+
+    /**
+     * @dev Set the closed flag for a contract. This is an internal setter with no access restrictions.
+     *
+     * Emits a {ContractClosed} event.
+     */
+    function _setContractClosed(address target, bool closed) internal virtual {
+        _contractMode[target].closed = closed;
+        emit ContractClosed(target, closed);
+    }
     // ============================================== DELAYED OPERATIONS ==============================================
     /**
      * @dev Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
