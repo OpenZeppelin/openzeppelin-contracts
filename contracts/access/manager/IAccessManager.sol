@@ -6,34 +6,6 @@ import {IAccessManaged} from "./IAccessManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 interface IAccessManager {
-    enum AccessMode {
-        Custom,
-        Closed,
-        Open
-    }
-
-    // Structure that stores the details for a group/account pair. This structures fit into a single slot.
-    struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
-        // are not available. Should be checked using {Time-isSetAndPast}
-        uint48 since;
-        // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
-        // functions that use the `onlyGroup` modifier.
-        Time.Delay delay;
-    }
-
-    // Structure that stores the details of a group, including:
-    // - the members of the group
-    // - the admin group (that can grant or revoke permissions)
-    // - the guardian group (that can cancel operations targeting functions that need this group
-    // - the grand delay
-    struct Group {
-        mapping(address user => Access access) members;
-        uint64 admin;
-        uint64 guardian;
-        Time.Delay delay; // delay for granting
-    }
-
     /**
      * @dev A delay operation was schedule.
      */
@@ -56,9 +28,12 @@ interface IAccessManager {
     event GroupAdminChanged(uint64 indexed groupId, uint64 indexed admin);
     event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
     event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 from);
-    event AccessModeUpdated(address indexed target, AccessMode mode);
-    event FunctionAllowedGroupUpdated(address indexed target, bytes4 selector, uint64 indexed groupId);
-    event AdminDelayUpdated(bytes4 selector, uint32 delay, uint48 from);
+
+    event ContractFamilyUpdated(address indexed target, uint64 indexed familyId);
+    event ContractClosed(address indexed target, bool closed);
+
+    event FamilyFunctionGroupUpdated(uint64 indexed familyId, bytes4 selector, uint64 indexed groupId);
+    event FamilyAdminDelayUpdated(uint64 indexed familyId, uint32 delay, uint48 from);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
@@ -78,9 +53,13 @@ interface IAccessManager {
         bytes4 selector
     ) external view returns (bool allowed, uint32 delay);
 
-    function getContractMode(address target) external view returns (AccessMode);
+    function expiration() external returns (uint32);
 
-    function getFunctionAllowedGroup(address target, bytes4 selector) external view returns (uint64);
+    function getContractFamily(address target) external view returns (uint64 familyId, bool closed);
+
+    function getFamilyFunctionGroup(uint64 familyId, bytes4 selector) external view returns (uint64);
+
+    function getFamilyAdminDelay(uint64 familyId) external view returns (uint32);
 
     function getGroupAdmin(uint64 groupId) external view returns (uint64);
 
@@ -91,6 +70,8 @@ interface IAccessManager {
     function getAccess(uint64 groupId, address account) external view returns (uint48, uint32, uint32, uint48);
 
     function hasGroup(uint64 groupId, address account) external view returns (bool, uint32);
+
+    function labelGroup(uint64 groupId, string calldata label) external;
 
     function grantGroup(uint64 groupId, address account, uint32 executionDelay) external;
 
@@ -106,19 +87,23 @@ interface IAccessManager {
 
     function setGrantDelay(uint64 groupId, uint32 newDelay) external;
 
-    function setContractModeCustom(address target) external;
+    function setFamilyFunctionGroup(uint64 familyId, bytes4[] calldata selectors, uint64 groupId) external;
 
-    function setContractModeOpen(address target) external;
+    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) external;
 
-    function setContractModeClosed(address target) external;
+    function setContractFamily(address target, uint64 familyId) external;
+
+    function setContractClosed(address target, bool closed) external;
+
+    function getSchedule(bytes32 id) external returns (uint48);
 
     function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32);
 
-    function cancel(address caller, address target, bytes calldata data) external;
-
     function relay(address target, bytes calldata data) external payable;
+
+    function cancel(address caller, address target, bytes calldata data) external;
 
     function consumeScheduledOp(address caller, bytes calldata data) external;
 
-    function updateAuthority(IAccessManaged target, address newAuthority) external;
+    function updateAuthority(address target, address newAuthority) external;
 }

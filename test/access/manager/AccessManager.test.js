@@ -1022,49 +1022,62 @@ contract('AccessManager', function (accounts) {
   });
 
   // TODO: test all admin functions
-  describe('admin delays', function () {
+  describe.only('family delays', function () {
+    const familyId = '1';
     const delay = '1000';
 
-    beforeEach('set admin delay', async function () {
-      this.adminSelector = selector('setContractModeOpen(address)');
+    beforeEach('set contract family', async function () {
+      const newAuthority = this.target.address;
+      this.call = () => this.manager.updateAuthority(this.target.address, newAuthority, { from: admin });
+      this.data = this.manager.contract.methods.updateAuthority(this.target.address, newAuthority).encodeABI();
 
-      this.tx = await this.manager.setAdminFunctionDelay(this.adminSelector, delay, { from: admin });
-
-      this.data = this.manager.contract.methods.setContractModeOpen(this.target.address).encodeABI();
-      this.opId = web3.utils.keccak256(
-        web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
-      );
+      await this.manager.setContractFamily(this.target.address, familyId, { from: admin });
     });
 
-    it('emits event', async function () {
-      const from = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
-      expectEvent(this.tx.receipt, 'AdminDelayUpdated', { selector: this.adminSelector, delay, from });
+    it('without delay: succeeds', async function () {
+      await this.call();
     });
 
-    it('without prior scheduling: reverts', async function () {
-      await expectRevertCustomError(
-        this.manager.setContractModeOpen(this.target.address, { from: admin }),
-        'AccessManagerNotScheduled',
-        [this.opId],
-      );
-    });
-
-    describe('with prior scheduling', async function () {
-      beforeEach('schedule', async function () {
-        await this.manager.schedule(this.manager.address, this.data, 0, { from: admin });
+    describe('with delay', function () {
+      beforeEach('set admin delay', async function () {
+        this.tx = await this.manager.setFamilyAdminDelay(familyId, delay, { from: admin });
+        this.opId = web3.utils.keccak256(
+          web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
+        );
       });
 
-      it('without delay: reverts', async function () {
+      it('emits event and sets delay', async function () {
+        const from = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
+        expectEvent(this.tx.receipt, 'FamilyAdminDelayUpdated', { familyId, delay, from });
+
+        expect(await this.manager.getFamilyAdminDelay(familyId)).to.be.bignumber.equal(delay);
+      });
+
+      it('without prior scheduling: reverts', async function () {
         await expectRevertCustomError(
-          this.manager.setContractModeOpen(this.target.address, { from: admin }),
-          'AccessManagerNotReady',
+          this.call(),
+          'AccessManagerNotScheduled',
           [this.opId],
         );
       });
 
-      it('with delay: succeeds', async function () {
-        await time.increase(delay);
-        await this.manager.setContractModeOpen(this.target.address, { from: admin });
+      describe('with prior scheduling', async function () {
+        beforeEach('schedule', async function () {
+          await this.manager.schedule(this.manager.address, this.data, 0, { from: admin });
+        });
+
+        it('without delay: reverts', async function () {
+          await expectRevertCustomError(
+            this.call(),
+            'AccessManagerNotReady',
+            [this.opId],
+          );
+        });
+
+        it('with delay: succeeds', async function () {
+          await time.increase(delay);
+          await this.call();
+        });
       });
     });
   });
