@@ -99,7 +99,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * delays that may be associated to that group.
      */
     modifier onlyGroup(uint64 groupId) {
-        _checkGroup(groupId, _msgSender());
+        _checkGroup(groupId);
         _;
     }
 
@@ -108,10 +108,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * sufficiently ahead of time, if necessary according to admin delays.
      */
     modifier withFamilyDelay(uint64 familyId) {
-        uint32 delay = getFamilyAdminDelay(familyId);
-        if (delay > 0) {
-            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
-        }
+        _checkFamilyDelay(familyId);
         _;
     }
 
@@ -752,10 +749,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // =================================================== HELPERS ====================================================
-    function _checkGroup(uint64 groupId, address account) internal view virtual {
+    function _checkGroup(uint64 groupId) internal view virtual {
+        address account = _msgSender();
         (bool inGroup, ) = hasGroup(groupId, account);
         if (!inGroup) {
             revert AccessManagerUnauthorizedAccount(account, groupId);
+        }
+    }
+
+    function _checkFamilyDelay(uint64 familyId) internal virtual {
+        uint32 delay = getFamilyAdminDelay(familyId);
+        if (delay > 0) {
+            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
         }
     }
 
