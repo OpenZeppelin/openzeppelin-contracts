@@ -484,7 +484,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes4[] calldata selectors,
         uint64 groupId
     ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
-        // todo set delay or document risks
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFamilyFunctionGroup(familyId, selectors[i], groupId);
         }
@@ -496,6 +495,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {FunctionAllowedGroupUpdated} event
      */
     function _setFamilyFunctionGroup(uint64 familyId, bytes4 selector, uint64 groupId) internal virtual {
+        _checkValidFamilyId(familyId);
         _families[familyId].allowedGroups[selector] = groupId;
         emit FamilyFunctionGroupUpdated(familyId, selector, groupId);
     }
@@ -523,10 +523,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {FamilyAdminDelayUpdated} event
      */
     function _setFamilyAdminDelay(uint64 familyId, uint32 newDelay) internal virtual {
+        _checkValidFamilyId(familyId);
         Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, 0); // TODO: minsetback
         _families[familyId].adminDelay = updated;
         (, , uint48 effect) = updated.unpack();
         emit FamilyAdminDelayUpdated(familyId, newDelay, effect);
+    }
+
+    /**
+     * @dev Reverts if `familyId` is 0.
+     */
+    function _checkValidFamilyId(uint64 familyId) private pure {
+        if (familyId == 0) {
+            revert AccessManagerInvalidFamily(familyId);
+        }
     }
 
     // =============================================== MODE MANAGEMENT ================================================
@@ -672,6 +682,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
+        // TODO: check relay id 
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 

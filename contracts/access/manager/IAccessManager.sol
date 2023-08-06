@@ -40,6 +40,7 @@ interface IAccessManager {
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedGroup(uint64 groupId);
+    error AccessManagerInvalidFamily(uint64 familyId);
     error AccessManagerAcountAlreadyInGroup(uint64 groupId, address account);
     error AccessManagerAcountNotInGroup(uint64 groupId, address account);
     error AccessManagerBadConfirmation();
