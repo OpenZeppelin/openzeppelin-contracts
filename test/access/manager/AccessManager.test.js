@@ -6,6 +6,7 @@ const { clockFromReceipt } = require('../../helpers/time');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
+const Ownable = artifacts.require('$Ownable');
 
 const MAX_UINT64 = web3.utils.toBN((2n ** 64n - 1n).toString());
 
@@ -28,23 +29,12 @@ contract('AccessManager', function (accounts) {
 
   beforeEach(async function () {
     this.manager = await AccessManager.new(admin);
-    this.target = await AccessManagedTarget.new(this.manager.address);
 
     // add member to group
     await this.manager.$_setGroupAdmin(GROUPS.SOME, GROUPS.SOME_ADMIN);
     await this.manager.$_setGroupGuardian(GROUPS.SOME, GROUPS.SOME_ADMIN);
     await this.manager.$_grantGroup(GROUPS.SOME_ADMIN, manager, 0, 0);
     await this.manager.$_grantGroup(GROUPS.SOME, member, 0, 0);
-
-    // helpers for indirect calls
-    this.call = [this.target.address, selector('fnRestricted()')];
-    this.opId = web3.utils.keccak256(
-      web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [user, ...this.call]),
-    );
-    this.direct = (opts = {}) => this.target.fnRestricted({ from: user, ...opts });
-    this.schedule = (opts = {}) => this.manager.schedule(...this.call, 0, { from: user, ...opts });
-    this.relay = (opts = {}) => this.manager.relay(...this.call, { from: user, ...opts });
-    this.cancel = (opts = {}) => this.manager.cancel(user, ...this.call, { from: user, ...opts });
   });
 
   it('groups are correctly initialized', async function () {
@@ -505,431 +495,533 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('Change function permissions', function () {
-    const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
-
-    it('admin can set function allowed group', async function () {
-      for (const sig of sigs) {
-        expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
-          GROUPS.ADMIN,
-        );
-      }
-
-      const { receipt: receipt1 } = await this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, {
-        from: admin,
-      });
-
-      for (const sig of sigs) {
-        expectEvent(receipt1, 'FunctionAllowedGroupUpdated', {
-          target: this.target.address,
-          selector: sig,
-          groupId: GROUPS.SOME,
-        });
-        expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(GROUPS.SOME);
-      }
-
-      const { receipt: receipt2 } = await this.manager.setFunctionAllowedGroup(
-        this.target.address,
-        [sigs[1]],
-        GROUPS.SOME_ADMIN,
-        { from: admin },
+  describe('with AccessManaged target contract', function () {
+    beforeEach('deploy target contract', async function () {
+      this.target = await AccessManagedTarget.new(this.manager.address);
+      // helpers for indirect calls
+      this.call = [this.target.address, selector('fnRestricted()')];
+      this.opId = web3.utils.keccak256(
+        web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [user, ...this.call]),
       );
-      expectEvent(receipt2, 'FunctionAllowedGroupUpdated', {
-        target: this.target.address,
-        selector: sigs[1],
-        groupId: GROUPS.SOME_ADMIN,
-      });
-
-      for (const sig of sigs) {
-        expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
-          sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
-        );
-      }
+      this.direct = (opts = {}) => this.target.fnRestricted({ from: user, ...opts });
+      this.schedule = (opts = {}) => this.manager.schedule(...this.call, 0, { from: user, ...opts });
+      this.relay = (opts = {}) => this.manager.relay(...this.call, { from: user, ...opts });
+      this.cancel = (opts = {}) => this.manager.cancel(user, ...this.call, { from: user, ...opts });
     });
 
-    it('changing function permissions is restricted', async function () {
-      await expectRevertCustomError(
-        this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
-        'AccessManagerUnauthorizedAccount',
-        [other, GROUPS.ADMIN],
-      );
-    });
-  });
+    describe('Change function permissions', function () {
+      const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
 
-  // WIP
-  describe('Calling restricted & unrestricted functions', function () {
-    const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
+      it('admin can set function allowed group', async function () {
+        for (const sig of sigs) {
+          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
+            GROUPS.ADMIN,
+          );
+        }
 
-    for (const [callerGroups, fnGroup, closed, delay] of product(
-      [[], [GROUPS.SOME], [GROUPS.PUBLIC], [GROUPS.SOME, GROUPS.PUBLIC]],
-      [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
-      [false, true],
-      [null, executeDelay],
-    )) {
-      // can we call with a delay ?
-      const indirectSuccess = (fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)) && !closed;
-
-      // can we call without a delay ?
-      const directSuccess = (fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)) && !closed;
-
-      const description = [
-        'Caller in groups',
-        '[' + (callerGroups ?? []).map(groupId => GROUPS[groupId]).join(', ') + ']',
-        delay ? 'with a delay' : 'without a delay',
-        '+',
-        'functions open to groups',
-        '[' + (GROUPS[fnGroup] ?? '') + ']',
-        closed ? `(closed)` : '',
-      ].join(' ');
-
-      describe(description, function () {
-        beforeEach(async function () {
-          // setup
-          await Promise.all([
-            this.manager.$_setContractClosed(this.target.address, closed),
-            this.manager.$_setContractFamily(this.target.address, familyId),
-            fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnRestricted()'), fnGroup),
-            fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnUnrestricted()'), fnGroup),
-            ...callerGroups
-              .filter(groupId => groupId != GROUPS.PUBLIC)
-              .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
-          ]);
-
-          // post setup checks
-          const result = await this.manager.getContractFamily(this.target.address);
-          expect(result[0]).to.be.bignumber.equal(familyId);
-          expect(result[1]).to.be.equal(closed);
-
-          if (fnGroup) {
-            expect(
-              await this.manager.getFamilyFunctionGroup(familyId, selector('fnRestricted()')),
-            ).to.be.bignumber.equal(fnGroup);
-            expect(
-              await this.manager.getFamilyFunctionGroup(familyId, selector('fnUnrestricted()')),
-            ).to.be.bignumber.equal(fnGroup);
-          }
-
-          for (const groupId of callerGroups) {
-            const access = await this.manager.getAccess(groupId, user);
-            if (groupId == GROUPS.PUBLIC) {
-              expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
-              expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-              expect(access[3]).to.be.bignumber.equal('0'); // effect
-            } else {
-              expect(access[0]).to.be.bignumber.gt('0'); // inGroupSince
-              expect(access[1]).to.be.bignumber.eq(String(delay ?? 0)); // currentDelay
-              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-              expect(access[3]).to.be.bignumber.equal('0'); // effect
-            }
-          }
+        const { receipt: receipt1 } = await this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, {
+          from: admin,
         });
 
-        it('canCall', async function () {
-          const result = await this.manager.canCall(user, this.target.address, selector('fnRestricted()'));
-          expect(result[0]).to.be.equal(directSuccess);
-          expect(result[1]).to.be.bignumber.equal(!directSuccess && indirectSuccess ? delay ?? '0' : '0');
-        });
-
-        it('Calling a non restricted function never revert', async function () {
-          expectEvent(await this.target.fnUnrestricted({ from: user }), 'CalledUnrestricted', {
-            caller: user,
+        for (const sig of sigs) {
+          expectEvent(receipt1, 'FunctionAllowedGroupUpdated', {
+            target: this.target.address,
+            selector: sig,
+            groupId: GROUPS.SOME,
           });
+          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(GROUPS.SOME);
+        }
+
+        const { receipt: receipt2 } = await this.manager.setFunctionAllowedGroup(
+          this.target.address,
+          [sigs[1]],
+          GROUPS.SOME_ADMIN,
+          { from: admin },
+        );
+        expectEvent(receipt2, 'FunctionAllowedGroupUpdated', {
+          target: this.target.address,
+          selector: sigs[1],
+          groupId: GROUPS.SOME_ADMIN,
         });
 
-        it(`Calling a restricted function directly should ${directSuccess ? 'succeed' : 'revert'}`, async function () {
-          const promise = this.direct();
-
-          if (directSuccess) {
-            expectEvent(await promise, 'CalledRestricted', { caller: user });
-          } else if (indirectSuccess) {
-            await expectRevertCustomError(promise, 'AccessManagerNotScheduled', [this.opId]);
-          } else {
-            await expectRevertCustomError(promise, 'AccessManagedUnauthorized', [user]);
-          }
-        });
-
-        it('Calling indirectly: only relay', async function () {
-          // relay without schedule
-          if (directSuccess) {
-            const { receipt, tx } = await this.relay();
-            expectEvent.notEmitted(receipt, 'Executed', { operationId: this.opId });
-            await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-          } else if (indirectSuccess) {
-            await expectRevertCustomError(this.relay(), 'AccessManagerNotScheduled', [this.opId]);
-          } else {
-            await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-          }
-        });
-
-        it('Calling indirectly: schedule and relay', async function () {
-          if (directSuccess || indirectSuccess) {
-            const { receipt } = await this.schedule();
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-
-            expectEvent(receipt, 'Scheduled', {
-              operationId: this.opId,
-              caller: user,
-              target: this.call[0],
-              data: this.call[1],
-            });
-
-            // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
-              timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
-            );
-
-            // execute without wait
-            if (directSuccess) {
-              const { receipt, tx } = await this.relay();
-              expectEvent(receipt, 'Executed', { operationId: this.opId });
-              await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-
-              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
-            } else if (indirectSuccess) {
-              await expectRevertCustomError(this.relay(), 'AccessManagerNotReady', [this.opId]);
-            } else {
-              await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-            }
-          } else {
-            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-          }
-        });
-
-        it('Calling indirectly: schedule wait and relay', async function () {
-          if (directSuccess || indirectSuccess) {
-            const { receipt } = await this.schedule();
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-
-            expectEvent(receipt, 'Scheduled', {
-              operationId: this.opId,
-              caller: user,
-              target: this.call[0],
-              data: this.call[1],
-            });
-
-            // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
-              timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
-            );
-
-            // wait
-            await time.increase(delay ?? 0);
-
-            // execute without wait
-            if (directSuccess || indirectSuccess) {
-              const { receipt, tx } = await this.relay();
-              expectEvent(receipt, 'Executed', { operationId: this.opId });
-              await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-
-              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
-            } else {
-              await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-            }
-          } else {
-            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-          }
-        });
-
-        it('Calling directly: schedule and call', async function () {
-          if (directSuccess || indirectSuccess) {
-            const { receipt } = await this.schedule();
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-
-            expectEvent(receipt, 'Scheduled', {
-              operationId: this.opId,
-              caller: user,
-              target: this.call[0],
-              data: this.call[1],
-            });
-
-            // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
-
-            // execute without wait
-            const promise = this.direct();
-            if (directSuccess) {
-              expectEvent(await promise, 'CalledRestricted', { caller: user });
-
-              // schedule is not reset
-              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
-            } else if (indirectSuccess) {
-              await expectRevertCustomError(promise, 'AccessManagerNotReady', [this.opId]);
-            } else {
-              await expectRevertCustomError(promise, 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-            }
-          } else {
-            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-          }
-        });
-
-        it('Calling directly: schedule wait and call', async function () {
-          if (directSuccess || indirectSuccess) {
-            const { receipt } = await this.schedule();
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-
-            expectEvent(receipt, 'Scheduled', {
-              operationId: this.opId,
-              caller: user,
-              target: this.call[0],
-              data: this.call[1],
-            });
-
-            // if can call directly, delay should be 0. Otherwize, the delay should be applied
-            const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
-            expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
-
-            // wait
-            await time.increase(delay ?? 0);
-
-            // execute without wait
-            const promise = await this.direct();
-            if (directSuccess) {
-              expectEvent(await promise, 'CalledRestricted', { caller: user });
-
-              // schedule is not reset
-              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
-            } else if (indirectSuccess) {
-              const receipt = await promise;
-
-              expectEvent(receipt, 'CalledRestricted', { caller: user });
-              await expectEvent.inTransaction(receipt.tx, this.manager, 'Executed', { operationId: this.opId });
-
-              // schedule is reset
-              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
-            } else {
-              await expectRevertCustomError(this.direct(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-            }
-          } else {
-            await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
-          }
-        });
-
-        it('Scheduling for later than needed'); // TODO
+        for (const sig of sigs) {
+          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
+            sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
+          );
+        }
       });
-    }
+
+      it('changing function permissions is restricted', async function () {
+        await expectRevertCustomError(
+          this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
+          'AccessManagerUnauthorizedAccount',
+          [other, GROUPS.ADMIN],
+        );
+      });
+    });
+
+    // WIP
+    describe('Calling restricted & unrestricted functions', function () {
+      const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
+
+      for (const [callerGroups, fnGroup, closed, delay] of product(
+        [[], [GROUPS.SOME], [GROUPS.PUBLIC], [GROUPS.SOME, GROUPS.PUBLIC]],
+        [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
+        [false, true],
+        [null, executeDelay],
+      )) {
+        // can we call with a delay ?
+        const indirectSuccess = (fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)) && !closed;
+
+        // can we call without a delay ?
+        const directSuccess = (fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)) && !closed;
+
+        const description = [
+          'Caller in groups',
+          '[' + (callerGroups ?? []).map(groupId => GROUPS[groupId]).join(', ') + ']',
+          delay ? 'with a delay' : 'without a delay',
+          '+',
+          'functions open to groups',
+          '[' + (GROUPS[fnGroup] ?? '') + ']',
+          closed ? `(closed)` : '',
+        ].join(' ');
+
+        describe(description, function () {
+          beforeEach(async function () {
+            // setup
+            await Promise.all([
+              this.manager.$_setContractClosed(this.target.address, closed),
+              this.manager.$_setContractFamily(this.target.address, familyId),
+              fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnRestricted()'), fnGroup),
+              fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnUnrestricted()'), fnGroup),
+              ...callerGroups
+                .filter(groupId => groupId != GROUPS.PUBLIC)
+                .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
+            ]);
+
+            // post setup checks
+            const result = await this.manager.getContractFamily(this.target.address);
+            expect(result[0]).to.be.bignumber.equal(familyId);
+            expect(result[1]).to.be.equal(closed);
+
+            if (fnGroup) {
+              expect(
+                await this.manager.getFamilyFunctionGroup(familyId, selector('fnRestricted()')),
+              ).to.be.bignumber.equal(fnGroup);
+              expect(
+                await this.manager.getFamilyFunctionGroup(familyId, selector('fnUnrestricted()')),
+              ).to.be.bignumber.equal(fnGroup);
+            }
+
+            for (const groupId of callerGroups) {
+              const access = await this.manager.getAccess(groupId, user);
+              if (groupId == GROUPS.PUBLIC) {
+                expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+                expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                expect(access[3]).to.be.bignumber.equal('0'); // effect
+              } else {
+                expect(access[0]).to.be.bignumber.gt('0'); // inGroupSince
+                expect(access[1]).to.be.bignumber.eq(String(delay ?? 0)); // currentDelay
+                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                expect(access[3]).to.be.bignumber.equal('0'); // effect
+              }
+            }
+          });
+
+          it('canCall', async function () {
+            const result = await this.manager.canCall(user, this.target.address, selector('fnRestricted()'));
+            expect(result[0]).to.be.equal(directSuccess);
+            expect(result[1]).to.be.bignumber.equal(!directSuccess && indirectSuccess ? delay ?? '0' : '0');
+          });
+
+          it('Calling a non restricted function never revert', async function () {
+            expectEvent(await this.target.fnUnrestricted({ from: user }), 'CalledUnrestricted', {
+              caller: user,
+            });
+          });
+
+          it(`Calling a restricted function directly should ${directSuccess ? 'succeed' : 'revert'}`, async function () {
+            const promise = this.direct();
+
+            if (directSuccess) {
+              expectEvent(await promise, 'CalledRestricted', { caller: user });
+            } else if (indirectSuccess) {
+              await expectRevertCustomError(promise, 'AccessManagerNotScheduled', [this.opId]);
+            } else {
+              await expectRevertCustomError(promise, 'AccessManagedUnauthorized', [user]);
+            }
+          });
+
+          it('Calling indirectly: only relay', async function () {
+            // relay without schedule
+            if (directSuccess) {
+              const { receipt, tx } = await this.relay();
+              expectEvent.notEmitted(receipt, 'Executed', { operationId: this.opId });
+              await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
+            } else if (indirectSuccess) {
+              await expectRevertCustomError(this.relay(), 'AccessManagerNotScheduled', [this.opId]);
+            } else {
+              await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          });
+
+          it('Calling indirectly: schedule and relay', async function () {
+            if (directSuccess || indirectSuccess) {
+              const { receipt } = await this.schedule();
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+              expectEvent(receipt, 'Scheduled', {
+                operationId: this.opId,
+                caller: user,
+                target: this.call[0],
+                data: this.call[1],
+              });
+
+              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
+                timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
+              );
+
+              // execute without wait
+              if (directSuccess) {
+                const { receipt, tx } = await this.relay();
+                expectEvent(receipt, 'Executed', { operationId: this.opId });
+                await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
+
+                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+              } else if (indirectSuccess) {
+                await expectRevertCustomError(this.relay(), 'AccessManagerNotReady', [this.opId]);
+              } else {
+                await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+              }
+            } else {
+              await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          });
+
+          it('Calling indirectly: schedule wait and relay', async function () {
+            if (directSuccess || indirectSuccess) {
+              const { receipt } = await this.schedule();
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+              expectEvent(receipt, 'Scheduled', {
+                operationId: this.opId,
+                caller: user,
+                target: this.call[0],
+                data: this.call[1],
+              });
+
+              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
+                timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
+              );
+
+              // wait
+              await time.increase(delay ?? 0);
+
+              // execute without wait
+              if (directSuccess || indirectSuccess) {
+                const { receipt, tx } = await this.relay();
+                expectEvent(receipt, 'Executed', { operationId: this.opId });
+                await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
+
+                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+              } else {
+                await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+              }
+            } else {
+              await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          });
+
+          it('Calling directly: schedule and call', async function () {
+            if (directSuccess || indirectSuccess) {
+              const { receipt } = await this.schedule();
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+              expectEvent(receipt, 'Scheduled', {
+                operationId: this.opId,
+                caller: user,
+                target: this.call[0],
+                data: this.call[1],
+              });
+
+              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+              // execute without wait
+              const promise = this.direct();
+              if (directSuccess) {
+                expectEvent(await promise, 'CalledRestricted', { caller: user });
+
+                // schedule is not reset
+                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+              } else if (indirectSuccess) {
+                await expectRevertCustomError(promise, 'AccessManagerNotReady', [this.opId]);
+              } else {
+                await expectRevertCustomError(promise, 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+              }
+            } else {
+              await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          });
+
+          it('Calling directly: schedule wait and call', async function () {
+            if (directSuccess || indirectSuccess) {
+              const { receipt } = await this.schedule();
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+              expectEvent(receipt, 'Scheduled', {
+                operationId: this.opId,
+                caller: user,
+                target: this.call[0],
+                data: this.call[1],
+              });
+
+              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
+              expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+              // wait
+              await time.increase(delay ?? 0);
+
+              // execute without wait
+              const promise = await this.direct();
+              if (directSuccess) {
+                expectEvent(await promise, 'CalledRestricted', { caller: user });
+
+                // schedule is not reset
+                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+              } else if (indirectSuccess) {
+                const receipt = await promise;
+
+                expectEvent(receipt, 'CalledRestricted', { caller: user });
+                await expectEvent.inTransaction(receipt.tx, this.manager, 'Executed', { operationId: this.opId });
+
+                // schedule is reset
+                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+              } else {
+                await expectRevertCustomError(this.direct(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+              }
+            } else {
+              await expectRevertCustomError(this.schedule(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
+            }
+          });
+
+          it('Scheduling for later than needed'); // TODO
+        });
+      }
+    });
+
+    describe('Indirect execution corner-cases', async function () {
+      beforeEach(async function () {
+        await this.manager.$_setFunctionAllowedGroup(...this.call, GROUPS.SOME);
+        await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
+      });
+
+      it('Checking canCall when caller is the manager depend on the _relayIdentifier', async function () {
+        const result = await this.manager.canCall(this.manager.address, this.target.address, '0x00000000');
+        expect(result[0]).to.be.false;
+        expect(result[1]).to.be.bignumber.equal('0');
+      });
+
+      it('Cannot execute earlier', async function () {
+        const { receipt } = await this.schedule();
+        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+
+        expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp.add(executeDelay));
+
+        // we need to set the clock 2 seconds before the value, because the increaseTo "consumes" the timestamp
+        // and the next transaction will be one after that (see check bellow)
+        await time.increaseTo(timestamp.add(executeDelay).subn(2));
+
+        // too early
+        await expectRevertCustomError(this.relay(), 'AccessManagerNotReady', [this.opId]);
+
+        // the revert happened one second before the execution delay expired
+        expect(await time.latest()).to.be.bignumber.equal(timestamp.add(executeDelay).subn(1));
+
+        // ok
+        await this.relay();
+
+        // the success happened when the delay was reached (earliest possible)
+        expect(await time.latest()).to.be.bignumber.equal(timestamp.add(executeDelay));
+      });
+
+      it('Cannot schedule an already scheduled operation', async function () {
+        const { receipt } = await this.schedule();
+        expectEvent(receipt, 'Scheduled', {
+          operationId: this.opId,
+          caller: user,
+          target: this.call[0],
+          data: this.call[1],
+        });
+
+        await expectRevertCustomError(this.schedule(), 'AccessManagerAlreadyScheduled', [this.opId]);
+      });
+
+      it('Cannot cancel an operation that is not scheduled', async function () {
+        await expectRevertCustomError(this.cancel(), 'AccessManagerNotScheduled', [this.opId]);
+      });
+
+      it('Cannot cancel an operation that is not already relayed', async function () {
+        await this.schedule();
+        await time.increase(executeDelay);
+        await this.relay();
+
+        await expectRevertCustomError(this.cancel(), 'AccessManagerNotScheduled', [this.opId]);
+      });
+
+      it('Scheduler can cancel', async function () {
+        await this.schedule();
+
+        expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
+
+        expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
+
+        expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+      });
+
+      it('Guardian can cancel', async function () {
+        await this.schedule();
+
+        expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
+
+        expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
+
+        expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+      });
+
+      it('Cancel is restricted', async function () {
+        await this.schedule();
+
+        expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
+
+        await expectRevertCustomError(this.cancel({ from: other }), 'AccessManagerCannotCancel', [
+          other,
+          user,
+          ...this.call,
+        ]);
+
+        expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
+      });
+
+      it('Can re-schedule after execution', async function () {
+        await this.schedule();
+        await time.increase(executeDelay);
+        await this.relay();
+
+        // reschedule
+        const { receipt } = await this.schedule();
+        expectEvent(receipt, 'Scheduled', {
+          operationId: this.opId,
+          caller: user,
+          target: this.call[0],
+          data: this.call[1],
+        });
+      });
+
+      it('Can re-schedule after cancel', async function () {
+        await this.schedule();
+        await this.cancel();
+
+        // reschedule
+        const { receipt } = await this.schedule();
+        expectEvent(receipt, 'Scheduled', {
+          operationId: this.opId,
+          caller: user,
+          target: this.call[0],
+          data: this.call[1],
+        });
+      });
+    });
   });
 
-  describe('Indirect execution corner-cases', async function () {
+  describe('with Ownable target contract', function () {
+    const groupId = web3.utils.toBN(1);
+
     beforeEach(async function () {
-      await this.manager.$_setFunctionAllowedGroup(...this.call, GROUPS.SOME);
-      await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
+      this.ownable = await Ownable.new(this.manager.address);
+
+      // add user to group
+      await this.manager.$_grantGroup(groupId, user, 0, 0);
     });
 
-    it('Checking canCall when caller is the manager depend on the _relayIdentifier', async function () {
-      const result = await this.manager.canCall(this.manager.address, this.target.address, '0x00000000');
-      expect(result[0]).to.be.false;
-      expect(result[1]).to.be.bignumber.equal('0');
+    it('initial state', async function () {
+      expect(await this.ownable.owner()).to.be.equal(this.manager.address);
     });
 
-    it('Cannot execute earlier', async function () {
-      const { receipt } = await this.schedule();
-      const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-
-      expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp.add(executeDelay));
-
-      // we need to set the clock 2 seconds before the value, because the increaseTo "consumes" the timestamp
-      // and the next transaction will be one after that (see check bellow)
-      await time.increaseTo(timestamp.add(executeDelay).subn(2));
-
-      // too early
-      await expectRevertCustomError(this.relay(), 'AccessManagerNotReady', [this.opId]);
-
-      // the revert happened one second before the execution delay expired
-      expect(await time.latest()).to.be.bignumber.equal(timestamp.add(executeDelay).subn(1));
-
-      // ok
-      await this.relay();
-
-      // the success happened when the delay was reached (earliest possible)
-      expect(await time.latest()).to.be.bignumber.equal(timestamp.add(executeDelay));
-    });
-
-    it('Cannot schedule an already scheduled operation', async function () {
-      const { receipt } = await this.schedule();
-      expectEvent(receipt, 'Scheduled', {
-        operationId: this.opId,
-        caller: user,
-        target: this.call[0],
-        data: this.call[1],
+    describe('Contract is closed', function () {
+      beforeEach(async function () {
+        await this.manager.$_setContractClosed(this.ownable.address, true);
       });
 
-      await expectRevertCustomError(this.schedule(), 'AccessManagerAlreadyScheduled', [this.opId]);
-    });
+      it('directly call: reverts', async function () {
+        await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
+      });
 
-    it('Cannot cancel an operation that is not scheduled', async function () {
-      await expectRevertCustomError(this.cancel(), 'AccessManagerNotScheduled', [this.opId]);
-    });
+      it('relayed call (with group): reverts', async function () {
+        await expectRevertCustomError(
+          this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user }),
+          'AccessManagerUnauthorizedCall',
+          [user, this.ownable.address, selector('$_checkOwner()')],
+        );
+      });
 
-    it('Cannot cancel an operation that is not already relayed', async function () {
-      await this.schedule();
-      await time.increase(executeDelay);
-      await this.relay();
-
-      await expectRevertCustomError(this.cancel(), 'AccessManagerNotScheduled', [this.opId]);
-    });
-
-    it('Scheduler can cancel', async function () {
-      await this.schedule();
-
-      expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
-
-      expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
-
-      expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
-    });
-
-    it('Guardian can cancel', async function () {
-      await this.schedule();
-
-      expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
-
-      expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
-
-      expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
-    });
-
-    it('Cancel is restricted', async function () {
-      await this.schedule();
-
-      expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
-
-      await expectRevertCustomError(this.cancel({ from: other }), 'AccessManagerCannotCancel', [
-        other,
-        user,
-        ...this.call,
-      ]);
-
-      expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
-    });
-
-    it('Can re-schedule after execution', async function () {
-      await this.schedule();
-      await time.increase(executeDelay);
-      await this.relay();
-
-      // reschedule
-      const { receipt } = await this.schedule();
-      expectEvent(receipt, 'Scheduled', {
-        operationId: this.opId,
-        caller: user,
-        target: this.call[0],
-        data: this.call[1],
+      it('relayed call (without group): reverts', async function () {
+        await expectRevertCustomError(
+          this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
+          'AccessManagerUnauthorizedCall',
+          [other, this.ownable.address, selector('$_checkOwner()')],
+        );
       });
     });
 
-    it('Can re-schedule after cancel', async function () {
-      await this.schedule();
-      await this.cancel();
+    describe('Contract is managed', function () {
+      beforeEach('add contract to family', async function () {
+        await this.manager.$_setContractFamily(this.ownable.address, familyId);
+      });
 
-      // reschedule
-      const { receipt } = await this.schedule();
-      expectEvent(receipt, 'Scheduled', {
-        operationId: this.opId,
-        caller: user,
-        target: this.call[0],
-        data: this.call[1],
+      describe('function is open to specific group', function () {
+        beforeEach(async function () {
+          await this.manager.$_setFamilyFunctionGroup(familyId, selector('$_checkOwner()'), groupId);
+        });
+
+        it('directly call: reverts', async function () {
+          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
+        });
+
+        it('relayed call (with group): success', async function () {
+          await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
+        });
+
+        it('relayed call (without group): reverts', async function () {
+          await expectRevertCustomError(
+            this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other }),
+            'AccessManagerUnauthorizedCall',
+            [other, this.ownable.address, selector('$_checkOwner()')],
+          );
+        });
+      });
+
+      describe('function is open to public group', function () {
+        beforeEach(async function () {
+          await this.manager.$_setFamilyFunctionGroup(familyId, selector('$_checkOwner()'), GROUPS.PUBLIC);
+        });
+
+        it('directly call: reverts', async function () {
+          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
+        });
+
+        it('relayed call (with group): success', async function () {
+          await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: user });
+        });
+
+        it('relayed call (without group): success', async function () {
+          await this.manager.relay(this.ownable.address, selector('$_checkOwner()'), { from: other });
+        });
       });
     });
   });
@@ -937,6 +1029,7 @@ contract('AccessManager', function (accounts) {
   describe('authority update', function () {
     beforeEach(async function () {
       this.newManager = await AccessManager.new(admin);
+      this.target = await AccessManagedTarget.new(this.manager.address);
     });
 
     it('admin can change authority', async function () {
