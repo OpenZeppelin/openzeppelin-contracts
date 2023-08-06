@@ -113,7 +113,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (!allowed) {
             if (delay == 0) {
                 // Here we make the assumption in canCallExtended, all calls to address(this) will be restricted to
-                // the ADMIN_GROUP. If {canCallExtended} is overriden, this error might be inacurate.
+                // the ADMIN_GROUP. If {canCallExtended} is overridden, this error might be inaccurate.
                 revert AccessManagerUnauthorizedAccount(caller, ADMIN_GROUP);
             } else {
                 _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));

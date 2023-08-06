@@ -326,7 +326,7 @@ contract('AccessManager', function (accounts) {
         expect(await this.manager.getGroupAdmin(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.ADMIN);
       });
 
-      it("seeting a group's admin is restricted", async function () {
+      it("setting a group's admin is restricted", async function () {
         await expectRevertCustomError(
           this.manager.setGroupAdmin(GROUPS.SOME, GROUPS.SOME, { from: manager }),
           'AccessManagerUnauthorizedAccount',
@@ -689,7 +689,7 @@ contract('AccessManager', function (accounts) {
                 data: this.call[1],
               });
 
-              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              // if can call directly, delay should be 0. Otherwise, the delay should be applied
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
                 timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
               );
@@ -723,7 +723,7 @@ contract('AccessManager', function (accounts) {
                 data: this.call[1],
               });
 
-              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              // if can call directly, delay should be 0. Otherwise, the delay should be applied
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(
                 timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
               );
@@ -758,7 +758,7 @@ contract('AccessManager', function (accounts) {
                 data: this.call[1],
               });
 
-              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              // if can call directly, delay should be 0. Otherwise, the delay should be applied
               const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
@@ -791,7 +791,7 @@ contract('AccessManager', function (accounts) {
                 data: this.call[1],
               });
 
-              // if can call directly, delay should be 0. Otherwize, the delay should be applied
+              // if can call directly, delay should be 0. Otherwise, the delay should be applied
               const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
@@ -846,7 +846,7 @@ contract('AccessManager', function (accounts) {
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp.add(executeDelay));
 
         // we need to set the clock 2 seconds before the value, because the increaseTo "consumes" the timestamp
-        // and the next transaction will be one after that (see check bellow)
+        // and the next transaction will be one after that (see check below)
         await time.increaseTo(timestamp.add(executeDelay).subn(2));
 
         // too early
