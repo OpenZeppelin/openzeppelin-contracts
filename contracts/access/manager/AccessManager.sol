@@ -509,11 +509,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    // TODO: Do we need to put the familyId on this ? Isn't "withUpdate()" enough?
     function setFamilyAdminDelay(
         uint64 familyId,
         uint32 newDelay
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
+    ) public virtual onlyGroup(ADMIN_GROUP) {
         _setFamilyAdminDelay(familyId, newDelay);
     }
 
