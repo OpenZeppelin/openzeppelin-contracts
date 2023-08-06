@@ -499,7 +499,8 @@ contract('AccessManager', function (accounts) {
     beforeEach('deploy target contract', async function () {
       this.target = await AccessManagedTarget.new(this.manager.address);
       // helpers for indirect calls
-      this.call = [this.target.address, selector('fnRestricted()')];
+      this.callData = selector('fnRestricted()');
+      this.call = [this.target.address, this.callData];
       this.opId = web3.utils.keccak256(
         web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [user, ...this.call]),
       );
@@ -512,48 +513,48 @@ contract('AccessManager', function (accounts) {
     describe('Change function permissions', function () {
       const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
 
-      it('admin can set function allowed group', async function () {
+      it('admin can set function group', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(
             GROUPS.ADMIN,
           );
         }
 
-        const { receipt: receipt1 } = await this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, {
+        const { receipt: receipt1 } = await this.manager.setFamilyFunctionGroup(familyId, sigs, GROUPS.SOME, {
           from: admin,
         });
 
         for (const sig of sigs) {
-          expectEvent(receipt1, 'FunctionAllowedGroupUpdated', {
-            target: this.target.address,
+          expectEvent(receipt1, 'FamilyFunctionGroupUpdated', {
+            familyId,
             selector: sig,
             groupId: GROUPS.SOME,
           });
-          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(GROUPS.SOME);
+          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(GROUPS.SOME);
         }
 
-        const { receipt: receipt2 } = await this.manager.setFunctionAllowedGroup(
-          this.target.address,
+        const { receipt: receipt2 } = await this.manager.setFamilyFunctionGroup(
+          familyId,
           [sigs[1]],
           GROUPS.SOME_ADMIN,
           { from: admin },
         );
-        expectEvent(receipt2, 'FunctionAllowedGroupUpdated', {
-          target: this.target.address,
+        expectEvent(receipt2, 'FamilyFunctionGroupUpdated', {
+          familyId,
           selector: sigs[1],
           groupId: GROUPS.SOME_ADMIN,
         });
 
         for (const sig of sigs) {
-          expect(await this.manager.getFunctionAllowedGroup(this.target.address, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(
             sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
           );
         }
       });
 
-      it('changing function permissions is restricted', async function () {
+      it('non-admin cannot set function group', async function () {
         await expectRevertCustomError(
-          this.manager.setFunctionAllowedGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
+          this.manager.setFamilyFunctionGroup(familyId, sigs, GROUPS.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
@@ -817,7 +818,8 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setFunctionAllowedGroup(...this.call, GROUPS.SOME);
+        await this.manager.$_setContractFamily(this.target.address, familyId);
+        await this.manager.$_setFamilyFunctionGroup(familyId, this.callData, GROUPS.SOME);
         await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
       });
 
@@ -1068,15 +1070,15 @@ contract('AccessManager', function (accounts) {
 
   // TODO: test all admin functions
   describe('family delays', function () {
-    const familyId = '1';
+    const otherFamilyId = '2';
     const delay = '1000';
 
     beforeEach('set contract family', async function () {
-      const newAuthority = this.target.address;
-      this.call = () => this.manager.updateAuthority(this.target.address, newAuthority, { from: admin });
-      this.data = this.manager.contract.methods.updateAuthority(this.target.address, newAuthority).encodeABI();
-
+      this.target = await AccessManagedTarget.new(this.manager.address);
       await this.manager.setContractFamily(this.target.address, familyId, { from: admin });
+
+      this.call = () => this.manager.setContractFamily(this.target.address, otherFamilyId, { from: admin });
+      this.data = this.manager.contract.methods.setContractFamily(this.target.address, otherFamilyId).encodeABI();
     });
 
     it('without delay: succeeds', async function () {
