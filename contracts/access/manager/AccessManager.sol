@@ -99,11 +99,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * delays that may be associated to that group.
      */
     modifier onlyGroup(uint64 groupId) {
-        address msgsender = _msgSender();
-        (bool inGroup, ) = hasGroup(groupId, msgsender);
-        if (!inGroup) {
-            revert AccessManagerUnauthorizedAccount(msgsender, groupId);
-        }
+        _checkGroup(groupId, _msgSender());
         _;
     }
 
@@ -242,10 +238,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (uint48 inGroupSince, uint32 currentDelay, , ) = getAccess(groupId, account);
             return (inGroupSince.isSetAndPast(Time.timestamp()), currentDelay);
         }
-    }
-
-    function _getContractFamilyId(address target) internal view returns (uint64 familyId) {
-        (familyId, ) = getContractFamily(target);
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
@@ -603,16 +595,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32) {
         address caller = _msgSender();
-        bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCall(caller, target, selector, data);
+        (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
 
         // If caller is not authorised, revert
         if (!allowed && (setback == 0 || when.isSetAndPast(minWhen - 1))) {
-            revert AccessManagerUnauthorizedCall(caller, target, selector);
+            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
         // If caller is authorised, schedule operation
@@ -636,14 +627,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
-        bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCall(caller, target, selector, data);
+        (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
 
         // If caller is not authorised, revert
         if (!allowed && setback == 0) {
-            revert AccessManagerUnauthorizedCall(caller, target, selector);
+            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
         }
 
         // If caller is authorised, check operation was scheduled early enough
@@ -658,7 +648,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Mark the target and selector as authorised
         bytes32 relayIdentifierBefore = _relayIdentifier;
-        _relayIdentifier = _hashRelayIdentifier(target, selector);
+        _relayIdentifier = _hashRelayIdentifier(target, bytes4(data));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
@@ -761,6 +751,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
+    // =================================================== HELPERS ====================================================
+    function _checkGroup(uint64 groupId, address account) internal view virtual {
+        (bool inGroup, ) = hasGroup(groupId, account);
+        if (!inGroup) {
+            revert AccessManagerUnauthorizedAccount(account, groupId);
+        }
+    }
+
+    function _getContractFamilyId(address target) internal view returns (uint64 familyId) {
+        (familyId, ) = getContractFamily(target);
+    }
+
     function _parseFamilyOperation(bytes calldata data) private view returns (bool, uint64) {
         bytes4 selector = bytes4(data);
         if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
@@ -772,18 +774,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    function _canCall(
+    function _canCallExtended(
         address caller,
         address target,
-        bytes4 selector,
         bytes calldata data
-    ) internal view returns (bool, uint32) {
+    ) private view returns (bool, uint32) {
         if (target == address(this)) {
             (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
             uint32 delay = getFamilyAdminDelay(familyId);
             (bool inGroup, ) = hasGroup(ADMIN_GROUP, caller);
             return (inGroup && isFamilyOperation && delay == 0, delay);
         } else {
+            bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
         }
     }
