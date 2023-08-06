@@ -99,11 +99,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * delays that may be associated to that group.
      */
     modifier onlyGroup(uint64 groupId) {
-        address msgsender = _msgSender();
-        (bool inGroup, ) = hasGroup(groupId, msgsender);
-        if (!inGroup) {
-            revert AccessManagerUnauthorizedAccount(msgsender, groupId);
-        }
+        _checkGroup(groupId, _msgSender());
         _;
     }
 
@@ -111,10 +107,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Check that the caller is an admin and that the top-level function currently executing has been scheduled
      * sufficiently ahead of time, if necessary according to admin delays.
      */
-    modifier withFamilyDelay(uint64 familyId) {
-        uint32 delay = getFamilyAdminDelay(familyId);
-        if (delay > 0) {
-            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
+    modifier restricted() {
+        address caller = _msgSender();
+        (bool allowed, uint32 delay) = canCallExtended(caller, address(this), _msgData());
+        if (!allowed) {
+            if (delay == 0) {
+                // Here we make the assumption in canCallExtended, all calls to address(this) will be restricted to
+                // the ADMIN_GROUP. If {canCallExtended} is overriden, this error might be inacurate.
+                revert AccessManagerUnauthorizedAccount(caller, ADMIN_GROUP);
+            } else {
+                _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
+            }
         }
         _;
     }
@@ -153,6 +156,34 @@ contract AccessManager is Context, Multicall, IAccessManager {
             uint64 groupId = getFamilyFunctionGroup(familyId, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
             return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
+        }
+    }
+
+    /**
+     * @dev Extended version of can call that uses the entier calldata. This is not checked by most managed contracts,
+     * but is used for some operations on the AccessManager itself that set have different access (and delay) policies
+     * depending on the call arguments.
+     *
+     * This function's return values follow the same design as {canCall}.
+     *
+     * NOTE: Overriding this function should only be done for calls targeting the AccessManager itself. Custom access
+     * policies should implemented by overriding {canCall}.
+     *
+     * NOTE: This function is not part of {IAuthority}, and most access mechanism outside will not consider it.
+     */
+    function canCallExtended(
+        address caller,
+        address target,
+        bytes calldata data
+    ) internal view returns (bool, uint32) {
+        if (target == address(this)) {
+            (bool isAdmin, ) = hasGroup(ADMIN_GROUP, caller);
+            (bool enabled, uint32 delay) = _getDelayForAdminCall(data);
+            return (isAdmin && enabled)
+                ? (delay == 0, delay)
+                : (false, 0);
+        } else {
+            return canCall(caller, target, bytes4(data[0:4]));
         }
     }
 
@@ -242,10 +273,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (uint48 inGroupSince, uint32 currentDelay, , ) = getAccess(groupId, account);
             return (inGroupSince.isSetAndPast(Time.timestamp()), currentDelay);
         }
-    }
-
-    function _getContractFamilyId(address target) internal view returns (uint64 familyId) {
-        (familyId, ) = getContractFamily(target);
     }
 
     // =============================================== GROUP MANAGEMENT ===============================================
@@ -483,7 +510,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint64 familyId,
         bytes4[] calldata selectors,
         uint64 groupId
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
+    ) public virtual restricted() { // _parseFamilyOperation (called by canCallExtended) detects the delay
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFamilyFunctionGroup(familyId, selectors[i], groupId);
         }
@@ -548,7 +575,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function setContractFamily(
         address target,
         uint64 familyId
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    ) public virtual restricted() { // _parseFamilyOperation (called by canCallExtended) detects the delay
         _setContractFamily(target, familyId);
     }
 
@@ -603,16 +630,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32) {
         address caller = _msgSender();
-        bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCall(caller, target, selector, data);
+        (bool allowed, uint32 setback) = canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
 
         // If caller is not authorised, revert
         if (!allowed && (setback == 0 || when.isSetAndPast(minWhen - 1))) {
-            revert AccessManagerUnauthorizedCall(caller, target, selector);
+            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
         // If caller is authorised, schedule operation
@@ -639,7 +665,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes4 selector = bytes4(data[0:4]);
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCall(caller, target, selector, data);
+        (bool allowed, uint32 setback) = canCallExtended(caller, target, data);
 
         // If caller is not authorised, revert
         if (!allowed && setback == 0) {
@@ -718,9 +744,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
+            (uint64 familyId, ) = getContractFamily(target);
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
             (bool isGuardian, ) = hasGroup(
-                getGroupGuardian(getFamilyFunctionGroup(_getContractFamilyId(target), selector)),
+                getGroupGuardian(getFamilyFunctionGroup(familyId, selector)),
                 msgsender
             );
             if (!isAdmin && !isGuardian) {
@@ -757,34 +784,31 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function updateAuthority(
         address target,
         address newAuthority
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    ) public virtual restricted() { // _parseFamilyOperation (called by canCallExtended) detects the delay
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
-    function _parseFamilyOperation(bytes calldata data) private view returns (bool, uint64) {
-        bytes4 selector = bytes4(data);
-        if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
-            return (true, _getContractFamilyId(abi.decode(data[0x04:0x24], (address))));
-        } else if (selector == this.setFamilyFunctionGroup.selector) {
-            return (true, abi.decode(data[0x04:0x24], (uint64)));
-        } else {
-            return (false, 0);
+    // =================================================== HELPERS ====================================================
+    function _checkGroup(uint64 groupId, address account) internal view virtual {
+        (bool inGroup, ) = hasGroup(groupId, account);
+        if (!inGroup) {
+            revert AccessManagerUnauthorizedAccount(account, groupId);
         }
     }
 
-    function _canCall(
-        address caller,
-        address target,
-        bytes4 selector,
-        bytes calldata data
-    ) internal view returns (bool, uint32) {
-        if (target == address(this)) {
-            (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
+    function _getDelayForAdminCall(bytes calldata data) private view returns (bool, uint32) {
+        bytes4 selector = bytes4(data);
+        if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
+            address target = abi.decode(data[0x04:0x24], (address));
+            (uint64 familyId, ) = getContractFamily(target);
             uint32 delay = getFamilyAdminDelay(familyId);
-            (bool inGroup, ) = hasGroup(ADMIN_GROUP, caller);
-            return (inGroup && isFamilyOperation && delay == 0, delay);
+            return (true, delay);
+        } else if (selector == this.setFamilyFunctionGroup.selector) {
+            uint64 familyId = abi.decode(data[0x04:0x24], (uint64));
+            uint32 delay = getFamilyAdminDelay(familyId);
+            return (true, delay);
         } else {
-            return canCall(caller, target, selector);
+            return (false, 0);
         }
     }
 }
