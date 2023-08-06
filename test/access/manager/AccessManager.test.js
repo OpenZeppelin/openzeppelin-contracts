@@ -525,9 +525,7 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function group', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(
-            GROUPS.ADMIN,
-          );
+          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(GROUPS.ADMIN);
         }
 
         const { receipt: receipt1 } = await this.manager.setFamilyFunctionGroup(familyId, sigs, GROUPS.SOME, {
@@ -652,7 +650,9 @@ contract('AccessManager', function (accounts) {
             });
           });
 
-          it(`Calling a restricted function directly should ${directSuccess ? 'succeed' : 'revert'}`, async function () {
+          it(`Calling a restricted function directly should ${
+            directSuccess ? 'succeed' : 'revert'
+          }`, async function () {
             const promise = this.direct();
 
             if (directSuccess) {
@@ -1002,7 +1002,9 @@ contract('AccessManager', function (accounts) {
         });
 
         it('directly call: reverts', async function () {
-          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
+          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [
+            user,
+          ]);
         });
 
         it('relayed call (with group): success', async function () {
@@ -1024,7 +1026,9 @@ contract('AccessManager', function (accounts) {
         });
 
         it('directly call: reverts', async function () {
-          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
+          await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [
+            user,
+          ]);
         });
 
         it('relayed call (with group): success', async function () {

@@ -509,10 +509,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setFamilyAdminDelay(
-        uint64 familyId,
-        uint32 newDelay
-    ) public virtual onlyGroup(ADMIN_GROUP) {
+    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
         _setFamilyAdminDelay(familyId, newDelay);
     }
 
@@ -681,7 +678,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        // TODO: check relay id 
+        // TODO: check relay id
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
