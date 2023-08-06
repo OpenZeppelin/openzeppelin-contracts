@@ -376,7 +376,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since != 0) {
-            revert AccessManagerAcountAlreadyInGroup(groupId, account);
+            revert AccessManagerAccountAlreadyInGroup(groupId, account);
         }
 
         uint48 since = Time.timestamp() + grantDelay;
@@ -394,7 +394,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAcountNotInGroup(groupId, account);
+            revert AccessManagerAccountNotInGroup(groupId, account);
         }
 
         delete _groups[groupId].members[account];
@@ -411,7 +411,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (groupId == PUBLIC_GROUP || groupId == ADMIN_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAcountNotInGroup(groupId, account);
+            revert AccessManagerAccountNotInGroup(groupId, account);
         }
 
         Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, 0); // TODO: minsetback ?

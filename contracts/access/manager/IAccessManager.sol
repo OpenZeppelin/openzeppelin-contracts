@@ -41,8 +41,8 @@ interface IAccessManager {
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedGroup(uint64 groupId);
     error AccessManagerInvalidFamily(uint64 familyId);
-    error AccessManagerAcountAlreadyInGroup(uint64 groupId, address account);
-    error AccessManagerAcountNotInGroup(uint64 groupId, address account);
+    error AccessManagerAccountAlreadyInGroup(uint64 groupId, address account);
+    error AccessManagerAccountNotInGroup(uint64 groupId, address account);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);

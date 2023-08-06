@@ -141,7 +141,7 @@ contract('AccessManager', function (accounts) {
 
           await expectRevertCustomError(
             this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager }),
-            'AccessManagerAcountAlreadyInGroup',
+            'AccessManagerAccountAlreadyInGroup',
             [GROUPS.SOME, member],
           );
         });
@@ -153,7 +153,7 @@ contract('AccessManager', function (accounts) {
 
           await expectRevertCustomError(
             this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
-            'AccessManagerAcountAlreadyInGroup',
+            'AccessManagerAccountAlreadyInGroup',
             [GROUPS.SOME, user],
           );
         });
@@ -252,7 +252,7 @@ contract('AccessManager', function (accounts) {
 
         await expectRevertCustomError(
           this.manager.revokeGroup(GROUPS.SOME, user, { from: manager }),
-          'AccessManagerAcountNotInGroup',
+          'AccessManagerAccountNotInGroup',
           [GROUPS.SOME, user],
         );
       });
@@ -302,7 +302,7 @@ contract('AccessManager', function (accounts) {
       it('for a user that is not in the group', async function () {
         await expectRevertCustomError(
           this.manager.renounceGroup(GROUPS.SOME, user, { from: user }),
-          'AccessManagerAcountNotInGroup',
+          'AccessManagerAccountNotInGroup',
           [GROUPS.SOME, user],
         );
       });
@@ -418,7 +418,7 @@ contract('AccessManager', function (accounts) {
       it('cannot set the delay of a non member', async function () {
         await expectRevertCustomError(
           this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager }),
-          'AccessManagerAcountNotInGroup',
+          'AccessManagerAccountNotInGroup',
           [GROUPS.SOME, other],
         );
       });
