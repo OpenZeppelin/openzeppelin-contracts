@@ -423,6 +423,16 @@ contract('AccessManager', function (accounts) {
         );
       });
 
+      it('cannot set the delay of public and admin groups', async function () {
+        for (const group of [GROUPS.PUBLIC, GROUPS.ADMIN]) {
+          await expectRevertCustomError(
+            this.manager.$_setExecuteDelay(group, other, executeDelay, { from: manager }),
+            'AccessManagerLockedGroup',
+            [group],
+          );
+        }
+      });
+
       it('can set a user execution delay during the grant delay', async function () {
         await this.manager.$_grantGroup(GROUPS.SOME, other, 10, 0);
 

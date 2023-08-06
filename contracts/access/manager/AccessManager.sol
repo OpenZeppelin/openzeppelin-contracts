@@ -408,7 +408,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupExecutionDelayUpdated} event.
      */
     function _setExecuteDelay(uint64 groupId, address account, uint32 newDuration) internal virtual {
-        if (groupId == PUBLIC_GROUP) {
+        if (groupId == PUBLIC_GROUP || groupId == ADMIN_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         } else if (_groups[groupId].members[account].since == 0) {
             revert AccessManagerAcountNotInGroup(groupId, account);
