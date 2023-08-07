@@ -145,7 +145,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else {
             uint64 groupId = getFamilyFunctionGroup(familyId, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
-            return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
+            return (inGroup && currentDelay == 0, currentDelay);
         }
     }
 
