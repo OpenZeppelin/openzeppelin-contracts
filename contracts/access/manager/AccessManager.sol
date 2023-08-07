@@ -737,6 +737,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // ================================================= ADMIN LOGIC ==================================================
+    /**
+     * @dev Check if the current call is authorized according to admin logic.
+     */
     function _checkAuthorized() private {
         address caller = _msgSender();
         (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
@@ -750,6 +753,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
+    /**
+     * @dev Get the admin restrictions of a given function call based on the function and arguments involved.
+     */
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
 
@@ -772,14 +778,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
             selector == this.setFamilyAdminDelay.selector ||
             selector == this.setContractClosed.selector
         ) {
-            // Restricted to ADMIN with no delay becide any execution delay the caller may have
+            // Restricted to ADMIN with no delay beside any execution delay the caller may have
             return (true, ADMIN_GROUP, 0);
         } else if (
             selector == this.grantGroup.selector ||
             selector == this.revokeGroup.selector ||
             selector == this.setExecuteDelay.selector
         ) {
-            // First argument is a groupId. Restricted to that group's admin with no delay becide any execution delay the caller may have.
+            // First argument is a groupId. Restricted to that group's admin with no delay beside any execution delay the caller may have.
             uint64 groupId = abi.decode(data[0x04:0x24], (uint64));
             uint64 groupAdminId = getGroupAdmin(groupId);
             return (true, groupAdminId, 0);
@@ -788,6 +794,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
+    // =================================================== HELPERS ====================================================
+    /**
+     * @dev An extended version of {canCall} for internal use that considers restrictions for admin functions.
+     */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
             (bool enabled, uint64 groupId, uint32 operationDelay) = _getAdminRestrictions(data);
@@ -809,7 +819,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    // =================================================== HELPERS ====================================================
+    /**
+     * @dev Returns true if a schedule timepoint is past its expiration deadline.
+     */
     function _isExpired(uint48 timepoint) private view returns (bool) {
         return timepoint + expiration() <= Time.timestamp();
     }
