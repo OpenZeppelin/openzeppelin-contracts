@@ -19,6 +19,8 @@ import {Context} from "../../utils/Context.sol";
 abstract contract AccessManaged is Context, IAccessManaged {
     address private _authority;
 
+    bool private _consumingSchedule;
+
     /**
      * @dev Initializes the contract connected to an initial authority.
      */
@@ -79,6 +81,15 @@ abstract contract AccessManaged is Context, IAccessManaged {
     }
 
     /**
+     * @dev Returns true only in the context of a delayed restricted call, at the moment that the scheduled operation is
+     * being consumed. Prevents denial of service for delayed restricted calls in the case that the contract performs
+     * attacker controlled calls.
+     */
+    function isConsumingScheduledOp() public view returns (bool) {
+        return _consumingSchedule;
+    }
+
+    /**
      * @dev Transfers control to a new authority. Internal function with no access restriction.
      */
     function _setAuthority(address newAuthority) internal virtual {
@@ -98,7 +109,9 @@ abstract contract AccessManaged is Context, IAccessManaged {
         );
         if (!allowed) {
             if (delay > 0) {
+                _consumingSchedule = true;
                 IAccessManager(authority()).consumeScheduledOp(caller, data);
+                _consumingSchedule = false;
             } else {
                 revert AccessManagedUnauthorized(caller);
             }

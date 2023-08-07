@@ -665,7 +665,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        // TODO: check relay id
+        require(IAccessManaged(target).isConsumingScheduledOp());
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
