@@ -100,16 +100,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * {_getAdminRestrictions}.
      */
     modifier onlyAuthorized() {
-        address caller = _msgSender();
-        (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
-        if (!allowed) {
-            if (delay == 0) {
-                (, uint64 requiredGroup, ) = _getAdminRestrictions(_msgData());
-                revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
-            } else {
-                _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
-            }
-        }
+        _checkAuthorized();
         _;
     }
 
@@ -745,7 +736,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
-    // =================================================== HELPERS ====================================================
+    // ================================================= ADMIN LOGIC ==================================================
+    function _checkAuthorized() private {
+        address caller = _msgSender();
+        (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        if (!allowed) {
+            if (delay == 0) {
+                (, uint64 requiredGroup, ) = _getAdminRestrictions(_msgData());
+                revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
+            } else {
+                _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
+            }
+        }
+    }
+
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
 
