@@ -580,10 +580,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // ============================================== DELAYED OPERATIONS ==============================================
     /**
      * @dev Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
-     * operation is not yet scheduled, was executed or was canceled.
+     * operation is not yet scheduled, has expired, was executed, or was canceled.
      */
     function getSchedule(bytes32 id) public view virtual returns (uint48) {
-        return _schedules[id];
+        uint48 timepoint = _schedules[id];
+        return _isExpired(timepoint) ? 0 : timepoint;
     }
 
     /**
@@ -611,7 +612,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Cannot reschedule unless the operation has expired
         uint48 prevTimepoint = _schedules[operationId];
-        if (prevTimepoint != 0 && prevTimepoint + expiration() > Time.timestamp()) {
+        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
 
@@ -682,7 +683,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerNotScheduled(operationId);
         } else if (timepoint > Time.timestamp()) {
             revert AccessManagerNotReady(operationId);
-        } else if (timepoint + expiration() <= Time.timestamp()) {
+        } else if (_isExpired(timepoint)) {
             revert AccessManagerExpired(operationId);
         }
 
@@ -793,5 +794,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
         }
+    }
+
+    function _isExpired(uint48 timepoint) private view returns (bool) {
+        return timepoint + expiration() <= Time.timestamp();
     }
 }
