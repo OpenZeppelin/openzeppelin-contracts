@@ -96,20 +96,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
     bytes32 private _relayIdentifier;
 
     /**
-     * @dev Check that the caller has a given permission level (`groupId`). Note that this does NOT consider execution
-     * delays that may be associated to that group.
+     * @dev check that the caller is authorized to perform the operation, following the restrictions encoded in
+     * {_getRestrictions}.
      */
-    modifier onlyGroup(uint64 groupId) {
-        _checkGroup(groupId);
-        _;
-    }
-
-    /**
-     * @dev Check that the caller is an admin and that the top-level function currently executing has been scheduled
-     * sufficiently ahead of time, if necessary according to admin delays.
-     */
-    modifier withFamilyDelay(uint64 familyId) {
-        _checkFamilyDelay(familyId);
+    modifier onlyAuthorized() {
+        address caller = _msgSender();
+        (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        if (!allowed) {
+            if (delay == 0) {
+                (,uint64 requiredGroup,) = _getRestrictions(_msgData());
+                revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
+            } else {
+                _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
+            }
+        }
         _;
     }
 
@@ -253,7 +253,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupLabel} event.
      */
-    function labelGroup(uint64 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
+    function labelGroup(uint64 groupId, string calldata label) public virtual onlyAuthorized() {
         if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         }
@@ -277,7 +277,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint64 groupId,
         address account,
         uint32 executionDelay
-    ) public virtual onlyGroup(getGroupAdmin(groupId)) {
+    ) public virtual onlyAuthorized() {
         _grantGroup(groupId, account, getGroupGrantDelay(groupId), executionDelay);
     }
 
@@ -290,7 +290,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupRevoked} event
      */
-    function revokeGroup(uint64 groupId, address account) public virtual onlyGroup(getGroupAdmin(groupId)) {
+    function revokeGroup(uint64 groupId, address account) public virtual onlyAuthorized() {
         _revokeGroup(groupId, account);
     }
 
@@ -326,7 +326,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint64 groupId,
         address account,
         uint32 newDelay
-    ) public virtual onlyGroup(getGroupAdmin(groupId)) {
+    ) public virtual onlyAuthorized() {
         _setExecuteDelay(groupId, account, newDelay);
     }
 
@@ -339,7 +339,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupAdminChanged} event
      */
-    function setGroupAdmin(uint64 groupId, uint64 admin) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupAdmin(uint64 groupId, uint64 admin) public virtual onlyAuthorized() {
         _setGroupAdmin(groupId, admin);
     }
 
@@ -352,7 +352,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGuardianChanged} event
      */
-    function setGroupGuardian(uint64 groupId, uint64 guardian) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGroupGuardian(uint64 groupId, uint64 guardian) public virtual onlyAuthorized() {
         _setGroupGuardian(groupId, guardian);
     }
 
@@ -365,7 +365,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGrantDelayChanged} event
      */
-    function setGrantDelay(uint64 groupId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+    function setGrantDelay(uint64 groupId, uint32 newDelay) public virtual onlyAuthorized() {
         _setGrantDelay(groupId, newDelay);
     }
 
@@ -485,7 +485,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint64 familyId,
         bytes4[] calldata selectors,
         uint64 groupId
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(familyId) {
+    ) public virtual onlyAuthorized() {
         for (uint256 i = 0; i < selectors.length; ++i) {
             _setFamilyFunctionGroup(familyId, selectors[i], groupId);
         }
@@ -511,7 +511,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyGroup(ADMIN_GROUP) {
+    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyAuthorized() {
         _setFamilyAdminDelay(familyId, newDelay);
     }
 
@@ -550,7 +550,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function setContractFamily(
         address target,
         uint64 familyId
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    ) public virtual onlyAuthorized() {
         _setContractFamily(target, familyId);
     }
 
@@ -573,7 +573,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {ContractClosed} event.
      */
-    function setContractClosed(address target, bool closed) public virtual onlyGroup(ADMIN_GROUP) {
+    function setContractClosed(address target, bool closed) public virtual onlyAuthorized() {
         _setContractClosed(target, closed);
     }
 
@@ -719,9 +719,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
+            (uint64 familyId, ) = getContractFamily(target);
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
             (bool isGuardian, ) = hasGroup(
-                getGroupGuardian(getFamilyFunctionGroup(_getContractFamilyId(target), selector)),
+                getGroupGuardian(getFamilyFunctionGroup(familyId, selector)),
                 msgsender
             );
             if (!isAdmin && !isGuardian) {
@@ -759,55 +760,68 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function updateAuthority(
         address target,
         address newAuthority
-    ) public virtual onlyGroup(ADMIN_GROUP) withFamilyDelay(_getContractFamilyId(target)) {
+    ) public virtual onlyAuthorized() {
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
     // =================================================== HELPERS ====================================================
-    function _checkGroup(uint64 groupId) internal view virtual {
-        address account = _msgSender();
-        (bool inGroup, ) = hasGroup(groupId, account);
-        if (!inGroup) {
-            revert AccessManagerUnauthorizedAccount(account, groupId);
-        }
-    }
-
-    function _checkFamilyDelay(uint64 familyId) internal virtual {
-        uint32 delay = getFamilyAdminDelay(familyId);
-        if (delay > 0) {
-            _consumeScheduledOp(_hashOperation(_msgSender(), address(this), _msgData()));
-        }
-    }
-
-    function _getContractFamilyId(address target) private view returns (uint64 familyId) {
-        (familyId, ) = getContractFamily(target);
-    }
-
-    function _parseFamilyOperation(bytes calldata data) private view returns (bool, uint64) {
+    function _getRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
-        if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
-            return (true, _getContractFamilyId(abi.decode(data[0x04:0x24], (address))));
-        } else if (selector == this.setFamilyFunctionGroup.selector) {
-            return (true, abi.decode(data[0x04:0x24], (uint64)));
+
+        if (
+            selector == this.updateAuthority.selector ||
+            selector == this.setContractFamily.selector
+        ) {
+            // First argument is a target. Restricted to ADMIN with the family delay corresponding to the target's family
+            address target = abi.decode(data[0x04:0x24], (address));
+            (uint64 familyId, ) = getContractFamily(target);
+            uint32 delay = getFamilyAdminDelay(familyId);
+            return (true, ADMIN_GROUP, delay);
+        } else if (
+            selector == this.setFamilyFunctionGroup.selector
+        ) {
+            // First argument is a family. Restricted to ADMIN with the family delay corresponding to the family
+            uint64 familyId = abi.decode(data[0x04:0x24], (uint64));
+            uint32 delay = getFamilyAdminDelay(familyId);
+            return (true, ADMIN_GROUP, delay);
+        } else if (
+            selector == this.labelGroup.selector ||
+            selector == this.setGroupAdmin.selector ||
+            selector == this.setGroupGuardian.selector ||
+            selector == this.setGrantDelay.selector ||
+            selector == this.setFamilyAdminDelay.selector ||
+            selector == this.setContractClosed.selector
+        ) {
+            // Restricted to ADMIN with no delay decide any execution delay the caller may have
+            return (true, ADMIN_GROUP, 0);
+        } else if (
+            selector == this.grantGroup.selector ||
+            selector == this.revokeGroup.selector ||
+            selector == this.setExecuteDelay.selector
+        ) {
+            // First argument is a groupId. Restricted to that group's admin with no delay decide any execution delay the caller may have.
+            uint64 groupId = abi.decode(data[0x04:0x24], (uint64));
+            uint64 groupAdminId = getGroupAdmin(groupId);
+            return (true, groupAdminId, 0);
         } else {
-            return (false, 0);
+            return (false, 0, 0);
         }
     }
 
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
-            (bool inGroup, uint32 executionDelay) = hasGroup(ADMIN_GROUP, caller);
+            (bool enabled, uint64 groupId, uint32 operationDelay) = _getRestrictions(data);
+            if (!enabled) {
+                return (false, 0);
+            }
+
+            (bool inGroup, uint32 executionDelay) = hasGroup(groupId, caller);
             if (!inGroup) {
                 return (false, 0);
             }
 
-            (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
-            if (!isFamilyOperation) {
-                return (false, 0);
-            }
-
             // downcast is safe because both options are uint32
-            uint32 delay = uint32(Math.max(executionDelay, getFamilyAdminDelay(familyId)));
+            uint32 delay = uint32(Math.max(operationDelay, executionDelay));
             return (delay == 0, delay);
         } else {
             bytes4 selector = bytes4(data);
