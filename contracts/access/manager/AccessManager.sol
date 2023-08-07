@@ -157,6 +157,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
+     * @dev Minimum setback for delay updates. Defaults to 1 day.
+     */
+    function minSetback() public view virtual returns (uint32) {
+        return 0; // TODO: set to 1 day
+    }
+
+    /**
      * @dev Get the mode under which a contract is operating.
      */
     function getContractFamily(address target) public view virtual returns (uint64, bool) {
@@ -406,7 +413,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAccountNotInGroup(groupId, account);
         }
 
-        Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, 0); // TODO: minsetback ?
+        Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, minSetback());
         _groups[groupId].members[account].delay = updated;
 
         (, , uint48 effect) = updated.unpack();
@@ -453,7 +460,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerLockedGroup(groupId);
         }
 
-        Time.Delay updated = _groups[groupId].delay.withUpdate(newDelay, 0); // TODO: minsetback ?
+        Time.Delay updated = _groups[groupId].delay.withUpdate(newDelay, minSetback());
         _groups[groupId].delay = updated;
 
         (, , uint48 effect) = updated.unpack();
@@ -512,7 +519,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _setFamilyAdminDelay(uint64 familyId, uint32 newDelay) internal virtual {
         _checkValidFamilyId(familyId);
-        Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, 0); // TODO: minsetback
+        Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, minSetback());
         _families[familyId].adminDelay = updated;
         (, , uint48 effect) = updated.unpack();
         emit FamilyAdminDelayUpdated(familyId, newDelay, effect);
