@@ -41,6 +41,7 @@ jobs:
       - name: Check proceduraly generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
+        if: github.base_ref == 'master'
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
