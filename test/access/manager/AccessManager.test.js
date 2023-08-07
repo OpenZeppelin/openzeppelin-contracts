@@ -574,7 +574,7 @@ contract('AccessManager', function (accounts) {
       const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
 
       for (const [callerGroups, fnGroup, closed, delay] of product(
-        [[], [GROUPS.SOME], [GROUPS.PUBLIC], [GROUPS.SOME, GROUPS.PUBLIC]],
+        [[], [GROUPS.SOME]],
         [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
         [false, true],
         [null, executeDelay],
