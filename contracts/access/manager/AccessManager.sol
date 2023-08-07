@@ -764,7 +764,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    function _getContractFamilyId(address target) internal view returns (uint64 familyId) {
+    function _getContractFamilyId(address target) private view returns (uint64 familyId) {
         (familyId, ) = getContractFamily(target);
     }
 
