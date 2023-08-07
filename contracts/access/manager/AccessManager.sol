@@ -782,11 +782,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    function _canCallExtended(
-        address caller,
-        address target,
-        bytes calldata data
-    ) private view returns (bool, uint32) {
+    function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
             (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
             uint32 delay = getFamilyAdminDelay(familyId);

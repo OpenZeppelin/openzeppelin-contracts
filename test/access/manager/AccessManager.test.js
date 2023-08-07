@@ -809,7 +809,9 @@ contract('AccessManager', function (accounts) {
                 const receipt = await promise;
 
                 expectEvent(receipt, 'CalledRestricted', { caller: user });
-                await expectEvent.inTransaction(receipt.tx, this.manager, 'OperationExecuted', { operationId: this.opId });
+                await expectEvent.inTransaction(receipt.tx, this.manager, 'OperationExecuted', {
+                  operationId: this.opId,
+                });
 
                 // schedule is reset
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
