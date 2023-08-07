@@ -1,6 +1,7 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { getDomain, domainType } = require('../helpers/eip712');
+const { MAX_UINT48 } = require('../helpers/constants');
 
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -13,8 +14,6 @@ const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 contract('ERC2771Context', function (accounts) {
   const [, trustedForwarder] = accounts;
-
-  const MAX_UINT48 = web3.utils.toBN(1).shln(48).subn(1).toString();
 
   beforeEach(async function () {
     this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
