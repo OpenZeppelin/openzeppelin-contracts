@@ -94,7 +94,7 @@ contract('AccessManager', function (accounts) {
       });
     });
 
-    describe('grand group', function () {
+    describe('grant group', function () {
       describe('without a grant delay', function () {
         it('without an execute delay', async function () {
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
