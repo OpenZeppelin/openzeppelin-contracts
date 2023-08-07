@@ -244,6 +244,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {GroupLabel} event.
      */
     function labelGroup(uint64 groupId, string calldata label) public virtual onlyGroup(ADMIN_GROUP) {
+        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
+            revert AccessManagerLockedGroup(groupId);
+        }
         emit GroupLabel(groupId, label);
     }
 
