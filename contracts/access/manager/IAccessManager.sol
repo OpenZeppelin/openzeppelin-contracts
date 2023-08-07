@@ -9,17 +9,17 @@ interface IAccessManager {
     /**
      * @dev A delayed operation was scheduled.
      */
-    event OperationScheduled(bytes32 operationId, address caller, address target, bytes data);
+    event OperationScheduled(bytes32 indexed operationId, uint48 schedule, address caller, address target, bytes data);
 
     /**
      * @dev A scheduled operation was executed.
      */
-    event OperationExecuted(bytes32 operationId);
+    event OperationExecuted(bytes32 indexed operationId, uint48 schedule);
 
     /**
      * @dev A scheduled operation was canceled.
      */
-    event OperationCanceled(bytes32 operationId);
+    event OperationCanceled(bytes32 indexed operationId, uint48 schedule);
 
     event GroupLabel(uint64 indexed groupId, string label);
     event GroupGranted(uint64 indexed groupId, address indexed account, uint48 since, uint32 delay);

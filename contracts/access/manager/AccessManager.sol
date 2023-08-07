@@ -608,14 +608,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // If caller is authorised, schedule operation
         bytes32 operationId = _hashOperation(caller, target, data);
-        uint48 timepoint = _schedules[operationId];
+
         // Cannot reschedule unless the operation has expired
-        if (timepoint != 0 && timepoint + expiration() >= Time.timestamp()) {
+        uint48 prevTimepoint = _schedules[operationId];
+        if (prevTimepoint != 0 && prevTimepoint + expiration() > Time.timestamp()) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
-        _schedules[operationId] = when == 0 ? minWhen : when;
 
-        emit OperationScheduled(operationId, caller, target, data);
+        uint48 timepoint = when == 0 ? minWhen : when;
+        _schedules[operationId] = timepoint;
+        emit OperationScheduled(operationId, timepoint, caller, target, data);
+
         return operationId;
     }
 
@@ -641,9 +644,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         if (setback != 0) {
             _consumeScheduledOp(operationId);
-        } else if (_schedules[operationId] != 0) {
-            delete _schedules[operationId];
-            emit Executed(operationId);
         }
 
         // Mark the target and selector as authorised
@@ -687,7 +687,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         delete _schedules[operationId];
-        emit OperationExecuted(operationId);
+        emit OperationExecuted(operationId, timepoint);
     }
 
     /**
@@ -718,8 +718,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
+        uint48 timepoint = _schedules[operationId];
         delete _schedules[operationId];
-        emit OperationCanceled(operationId);
+        emit OperationCanceled(operationId, timepoint);
     }
 
     /**
