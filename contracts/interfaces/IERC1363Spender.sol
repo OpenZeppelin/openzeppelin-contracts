@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (interfaces/IERC1363Spender.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC1363Spender.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Interface for any contract that wants to support {IERC1363-approveAndCall}

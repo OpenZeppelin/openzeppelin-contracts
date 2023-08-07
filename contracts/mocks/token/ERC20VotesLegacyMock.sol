@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../token/ERC20/extensions/ERC20Permit.sol";
-import "../../utils/math/Math.sol";
-import "../../governance/utils/IVotes.sol";
-import "../../utils/math/SafeCast.sol";
-import "../../utils/cryptography/ECDSA.sol";
+import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
+import {Math} from "../../utils/math/Math.sol";
+import {IVotes} from "../../governance/utils/IVotes.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 
 /**
  * @dev Copied from the master branch at commit 86de1e8b6c3fa6b4efa4a5435869d2521be0f5f5
@@ -41,14 +41,14 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Get the address `account` is currently delegating to.
      */
-    function delegates(address account) public view virtual override returns (address) {
+    function delegates(address account) public view virtual returns (address) {
         return _delegates[account];
     }
 
     /**
      * @dev Gets the current votes balance for `account`
      */
-    function getVotes(address account) public view virtual override returns (uint256) {
+    function getVotes(address account) public view virtual returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         unchecked {
             return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
@@ -62,7 +62,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -75,7 +75,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -127,7 +127,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override {
+    function delegate(address delegatee) public virtual {
         _delegate(_msgSender(), delegatee);
     }
 
@@ -141,7 +141,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
+    ) public virtual {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
@@ -161,31 +161,21 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     }
 
     /**
-     * @dev Snapshots the totalSupply after it has been increased.
-     */
-    function _mint(address account, uint256 amount) internal virtual override {
-        super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
-
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
-    }
-
-    /**
-     * @dev Snapshots the totalSupply after it has been decreased.
-     */
-    function _burn(address account, uint256 amount) internal virtual override {
-        super._burn(account, amount);
-
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
-    }
-
-    /**
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        super._afterTokenTransfer(from, to, amount);
+    function _update(address from, address to, uint256 amount) internal virtual override {
+        super._update(from, to, amount);
+
+        if (from == address(0)) {
+            require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+            _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+        }
+
+        if (to == address(0)) {
+            _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+        }
 
         _moveVotingPower(delegates(from), delegates(to), amount);
     }

@@ -7,299 +7,357 @@ const {
   shouldBehaveLikeERC20Transfer,
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
-const ERC20 = artifacts.require('$ERC20');
-const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
+const TOKENS = [
+  { Token: artifacts.require('$ERC20') },
+  { Token: artifacts.require('$ERC20ApprovalMock'), forcedApproval: true },
+];
 
 contract('ERC20', function (accounts) {
-  const [initialHolder, recipient, anotherAccount] = accounts;
+  const [initialHolder, recipient] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
-
   const initialSupply = new BN(100);
 
-  beforeEach(async function () {
-    this.token = await ERC20.new(name, symbol);
-    await this.token.$_mint(initialHolder, initialSupply);
-  });
+  for (const { Token, forcedApproval } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
+      beforeEach(async function () {
+        this.token = await Token.new(name, symbol);
+        await this.token.$_mint(initialHolder, initialSupply);
+      });
 
-  it('has a name', async function () {
-    expect(await this.token.name()).to.equal(name);
-  });
+      shouldBehaveLikeERC20(initialSupply, accounts, { forcedApproval });
 
-  it('has a symbol', async function () {
-    expect(await this.token.symbol()).to.equal(symbol);
-  });
+      it('has a name', async function () {
+        expect(await this.token.name()).to.equal(name);
+      });
 
-  it('has 18 decimals', async function () {
-    expect(await this.token.decimals()).to.be.bignumber.equal('18');
-  });
+      it('has a symbol', async function () {
+        expect(await this.token.symbol()).to.equal(symbol);
+      });
 
-  describe('set decimals', function () {
-    const decimals = new BN(6);
+      it('has 18 decimals', async function () {
+        expect(await this.token.decimals()).to.be.bignumber.equal('18');
+      });
 
-    it('can set decimals during construction', async function () {
-      const token = await ERC20Decimals.new(name, symbol, decimals);
-      expect(await token.decimals()).to.be.bignumber.equal(decimals);
-    });
-  });
+      describe('decrease allowance', function () {
+        describe('when the spender is not the zero address', function () {
+          const spender = recipient;
 
-  shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
+          function shouldDecreaseApproval(value) {
+            describe('when there was no approved value before', function () {
+              it('reverts', async function () {
+                const allowance = await this.token.allowance(initialHolder, spender);
+                await expectRevertCustomError(
+                  this.token.decreaseAllowance(spender, value, { from: initialHolder }),
+                  'ERC20FailedDecreaseAllowance',
+                  [spender, allowance, value],
+                );
+              });
+            });
 
-  describe('decrease allowance', function () {
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
+            describe('when the spender had an approved value', function () {
+              const approvedValue = value;
 
-      function shouldDecreaseApproval(amount) {
-        describe('when there was no approved amount before', function () {
+              beforeEach(async function () {
+                await this.token.approve(spender, approvedValue, { from: initialHolder });
+              });
+
+              it('emits an approval event', async function () {
+                expectEvent(
+                  await this.token.decreaseAllowance(spender, approvedValue, { from: initialHolder }),
+                  'Approval',
+                  { owner: initialHolder, spender: spender, value: new BN(0) },
+                );
+              });
+
+              it('decreases the spender allowance subtracting the requested value', async function () {
+                await this.token.decreaseAllowance(spender, approvedValue.subn(1), { from: initialHolder });
+
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
+              });
+
+              it('sets the allowance to zero when all allowance is removed', async function () {
+                await this.token.decreaseAllowance(spender, approvedValue, { from: initialHolder });
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('0');
+              });
+
+              it('reverts when more than the full allowance is removed', async function () {
+                await expectRevertCustomError(
+                  this.token.decreaseAllowance(spender, approvedValue.addn(1), { from: initialHolder }),
+                  'ERC20FailedDecreaseAllowance',
+                  [spender, approvedValue, approvedValue.addn(1)],
+                );
+              });
+            });
+          }
+
+          describe('when the sender has enough balance', function () {
+            const value = initialSupply;
+
+            shouldDecreaseApproval(value);
+          });
+
+          describe('when the sender does not have enough balance', function () {
+            const value = initialSupply.addn(1);
+
+            shouldDecreaseApproval(value);
+          });
+        });
+
+        describe('when the spender is the zero address', function () {
+          const value = initialSupply;
+          const spender = ZERO_ADDRESS;
+
           it('reverts', async function () {
-            await expectRevert(
-              this.token.decreaseAllowance(spender, amount, { from: initialHolder }),
-              'ERC20: decreased allowance below zero',
+            await expectRevertCustomError(
+              this.token.decreaseAllowance(spender, value, { from: initialHolder }),
+              'ERC20FailedDecreaseAllowance',
+              [spender, 0, value],
             );
           });
         });
+      });
 
-        describe('when the spender had an approved amount', function () {
-          const approvedAmount = amount;
+      describe('increase allowance', function () {
+        const value = initialSupply;
 
-          beforeEach(async function () {
-            await this.token.approve(spender, approvedAmount, { from: initialHolder });
+        describe('when the spender is not the zero address', function () {
+          const spender = recipient;
+
+          describe('when the sender has enough balance', function () {
+            it('emits an approval event', async function () {
+              expectEvent(await this.token.increaseAllowance(spender, value, { from: initialHolder }), 'Approval', {
+                owner: initialHolder,
+                spender: spender,
+                value: value,
+              });
+            });
+
+            describe('when there was no approved value before', function () {
+              it('approves the requested value', async function () {
+                await this.token.increaseAllowance(spender, value, { from: initialHolder });
+
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(value);
+              });
+            });
+
+            describe('when the spender had an approved value', function () {
+              beforeEach(async function () {
+                await this.token.approve(spender, new BN(1), { from: initialHolder });
+              });
+
+              it('increases the spender allowance adding the requested value', async function () {
+                await this.token.increaseAllowance(spender, value, { from: initialHolder });
+
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(value.addn(1));
+              });
+            });
           });
 
-          it('emits an approval event', async function () {
-            expectEvent(
-              await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder }),
-              'Approval',
-              { owner: initialHolder, spender: spender, value: new BN(0) },
+          describe('when the sender does not have enough balance', function () {
+            const value = initialSupply.addn(1);
+
+            it('emits an approval event', async function () {
+              expectEvent(await this.token.increaseAllowance(spender, value, { from: initialHolder }), 'Approval', {
+                owner: initialHolder,
+                spender: spender,
+                value: value,
+              });
+            });
+
+            describe('when there was no approved value before', function () {
+              it('approves the requested value', async function () {
+                await this.token.increaseAllowance(spender, value, { from: initialHolder });
+
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(value);
+              });
+            });
+
+            describe('when the spender had an approved value', function () {
+              beforeEach(async function () {
+                await this.token.approve(spender, new BN(1), { from: initialHolder });
+              });
+
+              it('increases the spender allowance adding the requested value', async function () {
+                await this.token.increaseAllowance(spender, value, { from: initialHolder });
+
+                expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(value.addn(1));
+              });
+            });
+          });
+        });
+
+        describe('when the spender is the zero address', function () {
+          const spender = ZERO_ADDRESS;
+
+          it('reverts', async function () {
+            await expectRevertCustomError(
+              this.token.increaseAllowance(spender, value, { from: initialHolder }),
+              'ERC20InvalidSpender',
+              [ZERO_ADDRESS],
             );
           });
-
-          it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseAllowance(spender, approvedAmount.subn(1), { from: initialHolder });
-
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
-          });
-
-          it('sets the allowance to zero when all allowance is removed', async function () {
-            await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder });
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('0');
-          });
-
-          it('reverts when more than the full allowance is removed', async function () {
-            await expectRevert(
-              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
-              'ERC20: decreased allowance below zero',
-            );
-          });
-        });
-      }
-
-      describe('when the sender has enough balance', function () {
-        const amount = initialSupply;
-
-        shouldDecreaseApproval(amount);
-      });
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = initialSupply.addn(1);
-
-        shouldDecreaseApproval(amount);
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const amount = initialSupply;
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.token.decreaseAllowance(spender, amount, { from: initialHolder }),
-          'ERC20: decreased allowance below zero',
-        );
-      });
-    });
-  });
-
-  describe('increase allowance', function () {
-    const amount = initialSupply;
-
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
-
-      describe('when the sender has enough balance', function () {
-        it('emits an approval event', async function () {
-          expectEvent(await this.token.increaseAllowance(spender, amount, { from: initialHolder }), 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, new BN(1), { from: initialHolder });
-          });
-
-          it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount.addn(1));
-          });
         });
       });
 
-      describe('when the sender does not have enough balance', function () {
-        const amount = initialSupply.addn(1);
-
-        it('emits an approval event', async function () {
-          expectEvent(await this.token.increaseAllowance(spender, amount, { from: initialHolder }), 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
+      describe('_mint', function () {
+        const value = new BN(50);
+        it('rejects a null account', async function () {
+          await expectRevertCustomError(this.token.$_mint(ZERO_ADDRESS, value), 'ERC20InvalidReceiver', [ZERO_ADDRESS]);
         });
 
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
-          });
+        it('rejects overflow', async function () {
+          const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+          await expectRevert(
+            this.token.$_mint(recipient, maxUint256),
+            'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
+          );
         });
 
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, new BN(1), { from: initialHolder });
+        describe('for a non zero account', function () {
+          beforeEach('minting', async function () {
+            this.receipt = await this.token.$_mint(recipient, value);
           });
 
-          it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount.addn(1));
-          });
-        });
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.token.increaseAllowance(spender, amount, { from: initialHolder }),
-          'ERC20: approve to the zero address',
-        );
-      });
-    });
-  });
-
-  describe('_mint', function () {
-    const amount = new BN(50);
-    it('rejects a null account', async function () {
-      await expectRevert(this.token.$_mint(ZERO_ADDRESS, amount), 'ERC20: mint to the zero address');
-    });
-
-    describe('for a non zero account', function () {
-      beforeEach('minting', async function () {
-        this.receipt = await this.token.$_mint(recipient, amount);
-      });
-
-      it('increments totalSupply', async function () {
-        const expectedSupply = initialSupply.add(amount);
-        expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
-      });
-
-      it('increments recipient balance', async function () {
-        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
-      });
-
-      it('emits Transfer event', async function () {
-        const event = expectEvent(this.receipt, 'Transfer', { from: ZERO_ADDRESS, to: recipient });
-
-        expect(event.args.value).to.be.bignumber.equal(amount);
-      });
-    });
-  });
-
-  describe('_burn', function () {
-    it('rejects a null account', async function () {
-      await expectRevert(this.token.$_burn(ZERO_ADDRESS, new BN(1)), 'ERC20: burn from the zero address');
-    });
-
-    describe('for a non zero account', function () {
-      it('rejects burning more than balance', async function () {
-        await expectRevert(
-          this.token.$_burn(initialHolder, initialSupply.addn(1)),
-          'ERC20: burn amount exceeds balance',
-        );
-      });
-
-      const describeBurn = function (description, amount) {
-        describe(description, function () {
-          beforeEach('burning', async function () {
-            this.receipt = await this.token.$_burn(initialHolder, amount);
-          });
-
-          it('decrements totalSupply', async function () {
-            const expectedSupply = initialSupply.sub(amount);
+          it('increments totalSupply', async function () {
+            const expectedSupply = initialSupply.add(value);
             expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
           });
 
-          it('decrements initialHolder balance', async function () {
-            const expectedBalance = initialSupply.sub(amount);
-            expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(expectedBalance);
+          it('increments recipient balance', async function () {
+            expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(value);
           });
 
           it('emits Transfer event', async function () {
-            const event = expectEvent(this.receipt, 'Transfer', { from: initialHolder, to: ZERO_ADDRESS });
+            const event = expectEvent(this.receipt, 'Transfer', { from: ZERO_ADDRESS, to: recipient });
 
-            expect(event.args.value).to.be.bignumber.equal(amount);
+            expect(event.args.value).to.be.bignumber.equal(value);
           });
         });
-      };
+      });
 
-      describeBurn('for entire balance', initialSupply);
-      describeBurn('for less amount than balance', initialSupply.subn(1));
-    });
-  });
+      describe('_burn', function () {
+        it('rejects a null account', async function () {
+          await expectRevertCustomError(this.token.$_burn(ZERO_ADDRESS, new BN(1)), 'ERC20InvalidSender', [
+            ZERO_ADDRESS,
+          ]);
+        });
 
-  describe('_transfer', function () {
-    shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
-      return this.token.$_transfer(from, to, amount);
-    });
+        describe('for a non zero account', function () {
+          it('rejects burning more than balance', async function () {
+            await expectRevertCustomError(
+              this.token.$_burn(initialHolder, initialSupply.addn(1)),
+              'ERC20InsufficientBalance',
+              [initialHolder, initialSupply, initialSupply.addn(1)],
+            );
+          });
 
-    describe('when the sender is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevert(
-          this.token.$_transfer(ZERO_ADDRESS, recipient, initialSupply),
-          'ERC20: transfer from the zero address',
-        );
+          const describeBurn = function (description, value) {
+            describe(description, function () {
+              beforeEach('burning', async function () {
+                this.receipt = await this.token.$_burn(initialHolder, value);
+              });
+
+              it('decrements totalSupply', async function () {
+                const expectedSupply = initialSupply.sub(value);
+                expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
+              });
+
+              it('decrements initialHolder balance', async function () {
+                const expectedBalance = initialSupply.sub(value);
+                expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(expectedBalance);
+              });
+
+              it('emits Transfer event', async function () {
+                const event = expectEvent(this.receipt, 'Transfer', { from: initialHolder, to: ZERO_ADDRESS });
+
+                expect(event.args.value).to.be.bignumber.equal(value);
+              });
+            });
+          };
+
+          describeBurn('for entire balance', initialSupply);
+          describeBurn('for less value than balance', initialSupply.subn(1));
+        });
+      });
+
+      describe('_update', function () {
+        const value = new BN(1);
+
+        it('from is the zero address', async function () {
+          const balanceBefore = await this.token.balanceOf(initialHolder);
+          const totalSupply = await this.token.totalSupply();
+
+          expectEvent(await this.token.$_update(ZERO_ADDRESS, initialHolder, value), 'Transfer', {
+            from: ZERO_ADDRESS,
+            to: initialHolder,
+            value: value,
+          });
+          expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.add(value));
+          expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.add(value));
+        });
+
+        it('to is the zero address', async function () {
+          const balanceBefore = await this.token.balanceOf(initialHolder);
+          const totalSupply = await this.token.totalSupply();
+
+          expectEvent(await this.token.$_update(initialHolder, ZERO_ADDRESS, value), 'Transfer', {
+            from: initialHolder,
+            to: ZERO_ADDRESS,
+            value: value,
+          });
+          expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(value));
+          expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.sub(value));
+        });
+
+        it('from and to are the zero address', async function () {
+          const totalSupply = await this.token.totalSupply();
+
+          await this.token.$_update(ZERO_ADDRESS, ZERO_ADDRESS, value);
+
+          expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply);
+          expectEvent(await this.token.$_update(ZERO_ADDRESS, ZERO_ADDRESS, value), 'Transfer', {
+            from: ZERO_ADDRESS,
+            to: ZERO_ADDRESS,
+            value: value,
+          });
+        });
+      });
+
+      describe('_transfer', function () {
+        shouldBehaveLikeERC20Transfer(initialHolder, recipient, initialSupply, function (from, to, value) {
+          return this.token.$_transfer(from, to, value);
+        });
+
+        describe('when the sender is the zero address', function () {
+          it('reverts', async function () {
+            await expectRevertCustomError(
+              this.token.$_transfer(ZERO_ADDRESS, recipient, initialSupply),
+              'ERC20InvalidSender',
+              [ZERO_ADDRESS],
+            );
+          });
+        });
+      });
+
+      describe('_approve', function () {
+        shouldBehaveLikeERC20Approve(initialHolder, recipient, initialSupply, function (owner, spender, value) {
+          return this.token.$_approve(owner, spender, value);
+        });
+
+        describe('when the owner is the zero address', function () {
+          it('reverts', async function () {
+            await expectRevertCustomError(
+              this.token.$_approve(ZERO_ADDRESS, recipient, initialSupply),
+              'ERC20InvalidApprover',
+              [ZERO_ADDRESS],
+            );
+          });
+        });
       });
     });
-  });
-
-  describe('_approve', function () {
-    shouldBehaveLikeERC20Approve('ERC20', initialHolder, recipient, initialSupply, function (owner, spender, amount) {
-      return this.token.$_approve(owner, spender, amount);
-    });
-
-    describe('when the owner is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevert(
-          this.token.$_approve(ZERO_ADDRESS, recipient, initialSupply),
-          'ERC20: approve from the zero address',
-        );
-      });
-    });
-  });
+  }
 });

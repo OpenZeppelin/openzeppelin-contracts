@@ -9,11 +9,12 @@ The OpenZeppelin Contracts provide a ton of useful utilities that you can use in
 
 xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
-The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#ECDSA-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
+The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
 [source,solidity]
 ----
 using ECDSA for bytes32;
+using MessageHashUtils for bytes32;
 
 function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
     return data
@@ -22,7 +23,7 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 }
 ----
 
-WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
+WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
 
 === Verifying Merkle Proofs
 
@@ -87,9 +88,7 @@ Easy!
 
 Want to split some payments between multiple people? Maybe you have an app that sends 30% of art purchases to the original creator and 70% of the profits to the current owner; you can build that with xref:api:finance.adoc#PaymentSplitter[`PaymentSplitter`]!
 
-In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website. One of the ways to fix reentrancy and stalling problems is, instead of immediately sending Ether to accounts that need it, you can use xref:api:security.adoc#PullPayment[`PullPayment`], which offers an xref:api:security.adoc#PullPayment-_asyncTransfer-address-uint256-[`_asyncTransfer`] function for sending money to something and requesting that they xref:api:security.adoc#PullPayment-withdrawPayments-address-payable-[`withdrawPayments()`] it later.
-
-If you want to Escrow some funds, check out xref:api:utils.adoc#Escrow[`Escrow`] and xref:api:utils.adoc#ConditionalEscrow[`ConditionalEscrow`] for governing the release of some escrowed Ether.
+In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website.
 
 [[collections]]
 == Collections
@@ -99,13 +98,9 @@ If you need support for more powerful collections than Solidity's native arrays 
 [[misc]]
 == Misc
 
-Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Address`] and xref:api:utils.adoc#Address-isContract-address-[`Address.isContract()`].
-
-Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
-
 === Base64
 
-xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation. 
+xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation.
 
 This is especially useful for building URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
 
@@ -116,15 +111,15 @@ Here is an example to send JSON Metadata through a Base64 Data URI using an ERC7
 // contracts/My721Token.sol
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract My721Token is ERC721 {
     using Strings for uint256;
 
     constructor() ERC721("My721Token", "MTK") {}
-    
+
     ...
 
     function tokenURI(uint256 tokenId)
@@ -142,7 +137,7 @@ contract My721Token is ERC721 {
 
         return string(
             abi.encodePacked(
-                "data:application/json;base64,", 
+                "data:application/json;base64,",
                 Base64.encode(dataURI)
             )
         );
@@ -160,7 +155,7 @@ Consider this dummy contract:
 ----
 // contracts/Box.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/utils/Multicall.sol";
 

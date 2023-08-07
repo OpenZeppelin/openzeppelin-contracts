@@ -10,9 +10,9 @@ const TYPES = [
 
 /* eslint-disable max-len */
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./EnumerableSet.sol";
+import {EnumerableSet} from "./EnumerableSet.sol";
 
 /**
  * @dev Library for managing an enumerable variant of Solidity's
@@ -65,6 +65,11 @@ const defaultMap = () => `\
 // the underlying Map.
 // This means that we can only create new EnumerableMaps for types that fit
 // in bytes32.
+
+/**
+ * @dev Query for a nonexistent map key.
+ */
+error EnumerableMapNonexistentKey(bytes32 key);
 
 struct Bytes32ToBytes32Map {
     // Storage of keys
@@ -149,23 +154,9 @@ function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view retu
  */
 function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
     bytes32 value = map._values[key];
-    require(value != 0 || contains(map, key), "EnumerableMap: nonexistent key");
-    return value;
-}
-
-/**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    Bytes32ToBytes32Map storage map,
-    bytes32 key,
-    string memory errorMessage
-) internal view returns (bytes32) {
-    bytes32 value = map._values[key];
-    require(value != 0 || contains(map, key), errorMessage);
+    if(value == 0 && !contains(map, key)) {
+        revert EnumerableMapNonexistentKey(key);
+    }
     return value;
 }
 
@@ -259,20 +250,6 @@ function tryGet(${name} storage map, ${keyType} key) internal view returns (bool
  */
 function get(${name} storage map, ${keyType} key) internal view returns (${valueType}) {
     return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')})`)};
-}
-
-/**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    ${name} storage map,
-    ${keyType} key,
-    string memory errorMessage
-) internal view returns (${valueType}) {
-    return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')}, errorMessage)`)};
 }
 
 /**

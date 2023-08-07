@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../utils/Context.sol";
+import {Context} from "../utils/Context.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -15,6 +15,8 @@ import "../utils/Context.sol";
  * simply including this module, only once the modifiers are put in place.
  */
 abstract contract Pausable is Context {
+    bool private _paused;
+
     /**
      * @dev Emitted when the pause is triggered by `account`.
      */
@@ -25,7 +27,15 @@ abstract contract Pausable is Context {
      */
     event Unpaused(address account);
 
-    bool private _paused;
+    /**
+     * @dev The operation failed because the contract is paused.
+     */
+    error EnforcedPause();
+
+    /**
+     * @dev The operation failed because the contract is not paused.
+     */
+    error ExpectedPause();
 
     /**
      * @dev Initializes the contract in unpaused state.
@@ -69,14 +79,18 @@ abstract contract Pausable is Context {
      * @dev Throws if the contract is paused.
      */
     function _requireNotPaused() internal view virtual {
-        require(!paused(), "Pausable: paused");
+        if (paused()) {
+            revert EnforcedPause();
+        }
     }
 
     /**
      * @dev Throws if the contract is not paused.
      */
     function _requirePaused() internal view virtual {
-        require(paused(), "Pausable: not paused");
+        if (!paused()) {
+            revert ExpectedPause();
+        }
     }
 
     /**

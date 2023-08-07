@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (proxy/Clones.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/Clones.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
@@ -13,10 +13,13 @@ pragma solidity ^0.8.0;
  * The library includes functions to deploy a proxy using either `create` (traditional deployment) or `create2`
  * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the
  * deterministic method.
- *
- * _Available since v3.4._
  */
 library Clones {
+    /**
+     * @dev A clone instance deployment failed.
+     */
+    error ERC1167FailedCreateClone();
+
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
@@ -32,7 +35,9 @@ library Clones {
             mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(0, 0x09, 0x37)
         }
-        require(instance != address(0), "ERC1167: create failed");
+        if (instance == address(0)) {
+            revert ERC1167FailedCreateClone();
+        }
     }
 
     /**
@@ -52,7 +57,9 @@ library Clones {
             mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(0, 0x09, 0x37, salt)
         }
-        require(instance != address(0), "ERC1167: create2 failed");
+        if (instance == address(0)) {
+            revert ERC1167FailedCreateClone();
+        }
     }
 
     /**

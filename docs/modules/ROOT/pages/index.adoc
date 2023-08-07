@@ -26,9 +26,9 @@ Once installed, you can use the contracts in the library by importing them:
 ----
 // contracts/MyNFT.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract MyNFT is ERC721 {
     constructor() ERC721("MyNFT", "MNFT") {
@@ -44,6 +44,8 @@ To keep your system secure, you should **always** use the installed code as-is, 
 == Security
 
 Please report any security issues you find via our https://www.immunefi.com/bounty/openzeppelin[bug bounty program on Immunefi] or directly to security@openzeppelin.org.
+
+The https://contracts.openzeppelin.com/security[Security Center] contains more details about the secure development process.
 
 [[next-steps]]
 == Learn More

@@ -1,37 +1,55 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (finance/VestingWallet.sol)
-pragma solidity ^0.8.0;
+// OpenZeppelin Contracts (last updated v4.9.0) (finance/VestingWallet.sol)
+pragma solidity ^0.8.20;
 
-import "../token/ERC20/utils/SafeERC20.sol";
-import "../utils/Address.sol";
-import "../utils/Context.sol";
+import {IERC20} from "../token/ERC20/IERC20.sol";
+import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
+import {Address} from "../utils/Address.sol";
+import {Context} from "../utils/Context.sol";
+import {Ownable} from "../access/Ownable.sol";
 
 /**
- * @title VestingWallet
- * @dev This contract handles the vesting of Eth and ERC20 tokens for a given beneficiary. Custody of multiple tokens
- * can be given to this contract, which will release the token to the beneficiary following a given vesting schedule.
- * The vesting schedule is customizable through the {vestedAmount} function.
+ * @dev A vesting wallet is an ownable contract that can receive native currency and ERC20 tokens, and release these
+ * assets to the wallet owner, also referred to as "beneficiary", according to a vesting schedule.
  *
- * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+ * Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
+ *
+ * By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
+ * a beneficiary until a specified time.
+ *
+ * NOTE: Since the wallet is {Ownable}, and ownership can be transferred, it is possible to sell unvested tokens.
+ * Preventing this in a smart contract is difficult, considering that: 1) a beneficiary address could be a
+ * counterfactually deployed contract, 2) there is likely to be a migration path for EOAs to become contracts in the
+ * near future.
+ *
+ * NOTE: When using this contract with any token whose balance is adjusted automatically (i.e. a rebase token), make sure
+ * to account the supply/balance adjustment in the vesting schedule to ensure the vested amount is as intended.
  */
-contract VestingWallet is Context {
+contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
+    /**
+     * @dev The `beneficiary` is not a valid account.
+     */
+    error VestingWalletInvalidBeneficiary(address beneficiary);
+
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;
-    address private immutable _beneficiary;
     uint64 private immutable _start;
     uint64 private immutable _duration;
 
     /**
-     * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
+     * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
+     * vesting duration of the vesting wallet.
      */
-    constructor(address beneficiaryAddress, uint64 startTimestamp, uint64 durationSeconds) payable {
-        require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
-        _beneficiary = beneficiaryAddress;
+    constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
+        if (beneficiary == address(0)) {
+            revert VestingWalletInvalidBeneficiary(address(0));
+        }
+
         _start = startTimestamp;
         _duration = durationSeconds;
     }
@@ -40,13 +58,6 @@ contract VestingWallet is Context {
      * @dev The contract should be able to receive Eth.
      */
     receive() external payable virtual {}
-
-    /**
-     * @dev Getter for the beneficiary address.
-     */
-    function beneficiary() public view virtual returns (address) {
-        return _beneficiary;
-    }
 
     /**
      * @dev Getter for the start timestamp.
@@ -60,6 +71,13 @@ contract VestingWallet is Context {
      */
     function duration() public view virtual returns (uint256) {
         return _duration;
+    }
+
+    /**
+     * @dev Getter for the end timestamp.
+     */
+    function end() public view virtual returns (uint256) {
+        return start() + duration();
     }
 
     /**
@@ -100,7 +118,7 @@ contract VestingWallet is Context {
         uint256 amount = releasable();
         _released += amount;
         emit EtherReleased(amount);
-        Address.sendValue(payable(beneficiary()), amount);
+        Address.sendValue(payable(owner()), amount);
     }
 
     /**
@@ -112,7 +130,7 @@ contract VestingWallet is Context {
         uint256 amount = releasable(token);
         _erc20Released[token] += amount;
         emit ERC20Released(token, amount);
-        SafeERC20.safeTransfer(IERC20(token), beneficiary(), amount);
+        SafeERC20.safeTransfer(IERC20(token), owner(), amount);
     }
 
     /**
@@ -136,7 +154,7 @@ contract VestingWallet is Context {
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
-        } else if (timestamp > start() + duration()) {
+        } else if (timestamp >= end()) {
             return totalAllocation;
         } else {
             return (totalAllocation * (timestamp - start())) / duration();

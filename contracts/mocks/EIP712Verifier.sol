@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/EIP712.sol";
+import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../utils/cryptography/EIP712.sol";
 
 abstract contract EIP712Verifier is EIP712 {
     function verify(bytes memory signature, address signer, address mailTo, string memory mailContents) external view {

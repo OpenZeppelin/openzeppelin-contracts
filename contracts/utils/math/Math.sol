@@ -1,16 +1,78 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflowedMulDiv();
+
     enum Rounding {
-        Down, // Toward negative infinity
-        Up, // Toward infinity
-        Zero // Toward zero
+        Floor, // Toward negative infinity
+        Ceil, // Toward positive infinity
+        Trunc, // Toward zero
+        Expand // Away from zero
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
     }
 
     /**
@@ -39,10 +101,15 @@ library Math {
     /**
      * @dev Returns the ceiling of the division of two numbers.
      *
-     * This differs from standard division with `/` in that it rounds up instead
-     * of rounding down.
+     * This differs from standard division with `/` in that it rounds towards infinity instead
+     * of rounding towards zero.
      */
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (b == 0) {
+            // Guarantee the same behavior as in a regular Solidity division.
+            return a / b;
+        }
+
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a == 0 ? 0 : (a - 1) / b + 1;
     }
@@ -57,11 +124,10 @@ library Math {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2^256 + prod0.
-            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
                 let mm := mulmod(x, y, not(0))
-                prod0 := mul(x, y)
                 prod1 := sub(sub(mm, prod0), lt(mm, prod0))
             }
 
@@ -74,7 +140,9 @@ library Math {
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1, "Math: mulDiv overflow");
+            if (denominator <= prod1) {
+                revert MathOverflowedMulDiv();
+            }
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -94,8 +162,7 @@ library Math {
             // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
             // See https://cs.stackexchange.com/q/138556/92363.
 
-            // Does not overflow because the denominator cannot be zero at this stage in the function.
-            uint256 twos = denominator & (~denominator + 1);
+            uint256 twos = denominator & (0 - denominator);
             assembly {
                 // Divide denominator by twos.
                 denominator := div(denominator, twos)
@@ -138,14 +205,15 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
-        if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
+        if (unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0) {
             result += 1;
         }
         return result;
     }
 
     /**
-     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
+     * towards zero.
      *
      * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
@@ -188,12 +256,12 @@ library Math {
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = sqrt(a);
-            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);
+            return result + (unsignedRoundsUp(rounding) && result * result < a ? 1 : 0);
         }
     }
 
     /**
-     * @dev Return the log in base 2, rounded down, of a positive value.
+     * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
     function log2(uint256 value) internal pure returns (uint256) {
@@ -241,12 +309,12 @@ library Math {
     function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log2(value);
-            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);
+            return result + (unsignedRoundsUp(rounding) && 1 << result < value ? 1 : 0);
         }
     }
 
     /**
-     * @dev Return the log in base 10, rounded down, of a positive value.
+     * @dev Return the log in base 10 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
     function log10(uint256 value) internal pure returns (uint256) {
@@ -290,12 +358,12 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
+            return result + (unsignedRoundsUp(rounding) && 10 ** result < value ? 1 : 0);
         }
     }
 
     /**
-     * @dev Return the log in base 256, rounded down, of a positive value.
+     * @dev Return the log in base 256 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      *
      * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
@@ -333,7 +401,14 @@ library Math {
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
+            return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);
         }
+    }
+
+    /**
+     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
+     */
+    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
+        return uint8(rounding) % 2 == 1;
     }
 }

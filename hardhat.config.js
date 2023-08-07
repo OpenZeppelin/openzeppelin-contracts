@@ -3,7 +3,7 @@
 // - COVERAGE:          enable coverage report
 // - ENABLE_GAS_REPORT: enable gas report
 // - COMPILE_MODE:      production modes enables optimizations (default: development)
-// - COMPILE_VERSION:   compiler version
+// - COMPILE_VERSION:   compiler version (default: 0.8.20)
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 
 const fs = require('fs');
@@ -40,7 +40,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.13',
+      default: '0.8.20',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -76,6 +76,10 @@ module.exports = {
     },
   },
   warnings: {
+    'contracts-exposed/**/*': {
+      'code-size': 'off',
+      'initcode-size': 'off',
+    },
     '*': {
       'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
@@ -89,11 +93,8 @@ module.exports = {
     },
   },
   exposed: {
-    exclude: [
-      'vendor/**/*',
-      // overflow clash
-      'utils/Timers.sol',
-    ],
+    initializers: true,
+    exclude: ['vendor/**/*'],
   },
   docgen: require('./docs/config'),
 };

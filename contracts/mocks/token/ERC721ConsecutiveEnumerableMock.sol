@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../token/ERC721/extensions/ERC721Consecutive.sol";
-import "../../token/ERC721/extensions/ERC721Enumerable.sol";
+import {ERC721} from "../../token/ERC721/ERC721.sol";
+import {ERC721Consecutive} from "../../token/ERC721/extensions/ERC721Consecutive.sol";
+import {ERC721Enumerable} from "../../token/ERC721/extensions/ERC721Enumerable.sol";
 
 contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable {
     constructor(

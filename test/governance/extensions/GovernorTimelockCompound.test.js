@@ -1,23 +1,16 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const RLP = require('rlp');
-const Enums = require('../../helpers/enums');
-const { GovernorHelper } = require('../../helpers/governance');
 
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
+const Enums = require('../../helpers/enums');
+const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
+const { expectRevertCustomError } = require('../../helpers/customError');
+const { computeCreateAddress } = require('../../helpers/create');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-
-function makeContractAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(RLP.encode([creator, nonce]))
-      .slice(12)
-      .substring(14),
-  );
-}
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -28,7 +21,7 @@ contract('GovernorTimelockCompound', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
   const name = 'OZ-Governor';
-  // const version = '1';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -41,11 +34,11 @@ contract('GovernorTimelockCompound', function (accounts) {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
-        this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+        this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);
-        const predictGovernor = makeContractAddress(deployer, nonce + 1);
+        const predictGovernor = computeCreateAddress(deployer, nonce + 1);
 
         this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
         this.mock = await Governor.new(
@@ -81,8 +74,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           '<proposal description>',
         );
       });
-
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));
@@ -128,7 +119,11 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
             await this.helper.queue();
-            await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+            await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
+              this.proposal.id,
+              Enums.ProposalState.Queued,
+              proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
+            ]);
           });
 
           it('if proposal contains duplicate calls', async function () {
@@ -136,17 +131,14 @@ contract('GovernorTimelockCompound', function (accounts) {
               target: this.token.address,
               data: this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI(),
             };
-            this.helper.setProposal([action, action], '<proposal description>');
+            const { id } = this.helper.setProposal([action, action], '<proposal description>');
 
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevert(
-              this.helper.queue(),
-              'GovernorTimelockCompound: identical proposal action already queued',
-            );
-            await expectRevert(this.helper.execute(), 'GovernorTimelockCompound: proposal not yet queued');
+            await expectRevertCustomError(this.helper.queue(), 'GovernorAlreadyQueuedProposal', [id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorNotQueuedProposal', [id]);
           });
         });
 
@@ -159,7 +151,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-            await expectRevert(this.helper.execute(), 'GovernorTimelockCompound: proposal not yet queued');
+            await expectRevertCustomError(this.helper.execute(), 'GovernorNotQueuedProposal', [this.proposal.id]);
           });
 
           it('if too early', async function () {
@@ -187,7 +179,11 @@ contract('GovernorTimelockCompound', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
 
-            await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+              this.proposal.id,
+              Enums.ProposalState.Expired,
+              proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+            ]);
           });
 
           it('if already executed', async function () {
@@ -198,7 +194,75 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.queue();
             await this.helper.waitForEta();
             await this.helper.execute();
-            await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+              this.proposal.id,
+              Enums.ProposalState.Executed,
+              proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+            ]);
+          });
+        });
+
+        describe('on safe receive', function () {
+          describe('ERC721', function () {
+            const name = 'Non Fungible Token';
+            const symbol = 'NFT';
+            const tokenId = web3.utils.toBN(1);
+
+            beforeEach(async function () {
+              this.token = await ERC721.new(name, symbol);
+              await this.token.$_mint(owner, tokenId);
+            });
+
+            it("can't receive an ERC721 safeTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeTransferFrom(owner, this.mock.address, tokenId, { from: owner }),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
+          });
+
+          describe('ERC1155', function () {
+            const uri = 'https://token-cdn-domain/{id}.json';
+            const tokenIds = {
+              1: web3.utils.toBN(1000),
+              2: web3.utils.toBN(2000),
+              3: web3.utils.toBN(3000),
+            };
+
+            beforeEach(async function () {
+              this.token = await ERC1155.new(uri);
+              await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+            });
+
+            it("can't receive ERC1155 safeTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeTransferFrom(
+                  owner,
+                  this.mock.address,
+                  ...Object.entries(tokenIds)[0], // id + amount
+                  '0x',
+                  { from: owner },
+                ),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
+
+            it("can't receive ERC1155 safeBatchTransfer", async function () {
+              await expectRevertCustomError(
+                this.token.safeBatchTransferFrom(
+                  owner,
+                  this.mock.address,
+                  Object.keys(tokenIds),
+                  Object.values(tokenIds),
+                  '0x',
+                  { from: owner },
+                ),
+                'GovernorDisabledDeposit',
+                [],
+              );
+            });
           });
         });
       });
@@ -213,7 +277,11 @@ contract('GovernorTimelockCompound', function (accounts) {
           expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+          await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
+            this.proposal.id,
+            Enums.ProposalState.Canceled,
+            proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
+          ]);
         });
 
         it('cancel after queue prevents executing', async function () {
@@ -226,7 +294,11 @@ contract('GovernorTimelockCompound', function (accounts) {
           expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+          await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+            this.proposal.id,
+            Enums.ProposalState.Canceled,
+            proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+          ]);
         });
       });
 
@@ -237,9 +309,12 @@ contract('GovernorTimelockCompound', function (accounts) {
           });
 
           it('is protected', async function () {
-            await expectRevert(
-              this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
-              'Governor: onlyGovernance',
+            await expectRevertCustomError(
+              this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI(), {
+                from: owner,
+              }),
+              'GovernorOnlyExecutor',
+              [owner],
             );
           });
 
@@ -284,7 +359,11 @@ contract('GovernorTimelockCompound', function (accounts) {
           });
 
           it('is protected', async function () {
-            await expectRevert(this.mock.updateTimelock(this.newTimelock.address), 'Governor: onlyGovernance');
+            await expectRevertCustomError(
+              this.mock.updateTimelock(this.newTimelock.address, { from: owner }),
+              'GovernorOnlyExecutor',
+              [owner],
+            );
           });
 
           it('can be executed through governance to', async function () {

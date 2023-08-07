@@ -1,4 +1,6 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent } = require('@openzeppelin/test-helpers');
+const { expectRevertCustomError } = require('../helpers/customError');
+
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
@@ -9,7 +11,7 @@ contract('Ownable', function (accounts) {
   const [owner, other] = accounts;
 
   beforeEach(async function () {
-    this.ownable = await Ownable.new({ from: owner });
+    this.ownable = await Ownable.new(owner);
   });
 
   it('has an owner', async function () {
@@ -25,13 +27,18 @@ contract('Ownable', function (accounts) {
     });
 
     it('prevents non-owners from transferring', async function () {
-      await expectRevert(this.ownable.transferOwnership(other, { from: other }), 'Ownable: caller is not the owner');
+      await expectRevertCustomError(
+        this.ownable.transferOwnership(other, { from: other }),
+        'OwnableUnauthorizedAccount',
+        [other],
+      );
     });
 
     it('guards ownership against stuck state', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.ownable.transferOwnership(ZERO_ADDRESS, { from: owner }),
-        'Ownable: new owner is the zero address',
+        'OwnableInvalidOwner',
+        [ZERO_ADDRESS],
       );
     });
   });
@@ -45,7 +52,9 @@ contract('Ownable', function (accounts) {
     });
 
     it('prevents non-owners from renouncement', async function () {
-      await expectRevert(this.ownable.renounceOwnership({ from: other }), 'Ownable: caller is not the owner');
+      await expectRevertCustomError(this.ownable.renounceOwnership({ from: other }), 'OwnableUnauthorizedAccount', [
+        other,
+      ]);
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {

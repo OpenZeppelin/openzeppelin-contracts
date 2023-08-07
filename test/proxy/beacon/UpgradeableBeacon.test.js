@@ -1,5 +1,7 @@
-const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
 const Implementation1 = artifacts.require('Implementation1');
@@ -9,13 +11,20 @@ contract('UpgradeableBeacon', function (accounts) {
   const [owner, other] = accounts;
 
   it('cannot be created with non-contract implementation', async function () {
-    await expectRevert(UpgradeableBeacon.new(accounts[0]), 'UpgradeableBeacon: implementation is not a contract');
+    await expectRevertCustomError(UpgradeableBeacon.new(other, owner), 'BeaconInvalidImplementation', [other]);
   });
 
   context('once deployed', async function () {
     beforeEach('deploying beacon', async function () {
       this.v1 = await Implementation1.new();
-      this.beacon = await UpgradeableBeacon.new(this.v1.address, { from: owner });
+      this.beacon = await UpgradeableBeacon.new(this.v1.address, owner);
+    });
+
+    it('emits Upgraded event to the first implementation', async function () {
+      const beacon = await UpgradeableBeacon.new(this.v1.address, owner);
+      await expectEvent.inTransaction(beacon.contract.transactionHash, beacon, 'Upgraded', {
+        implementation: this.v1.address,
+      });
     });
 
     it('returns implementation', async function () {
@@ -30,15 +39,16 @@ contract('UpgradeableBeacon', function (accounts) {
     });
 
     it('cannot be upgraded to a non-contract', async function () {
-      await expectRevert(
-        this.beacon.upgradeTo(other, { from: owner }),
-        'UpgradeableBeacon: implementation is not a contract',
-      );
+      await expectRevertCustomError(this.beacon.upgradeTo(other, { from: owner }), 'BeaconInvalidImplementation', [
+        other,
+      ]);
     });
 
     it('cannot be upgraded by other account', async function () {
       const v2 = await Implementation2.new();
-      await expectRevert(this.beacon.upgradeTo(v2.address, { from: other }), 'Ownable: caller is not the owner');
+      await expectRevertCustomError(this.beacon.upgradeTo(v2.address, { from: other }), 'OwnableUnauthorizedAccount', [
+        other,
+      ]);
     });
   });
 });

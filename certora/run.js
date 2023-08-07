@@ -1,42 +1,78 @@
 #!/usr/bin/env node
 
 // USAGE:
-//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
+//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME]* [--all] [--options OPTIONS...] [--specs PATH]
 // EXAMPLES:
+//    node certora/run.js --all
 //    node certora/run.js AccessControl
 //    node certora/run.js AccessControlHarness:AccessControl
-
-const MAX_PARALLEL = 4;
-
-let specs = require(__dirname + '/specs.json');
 
 const proc = require('child_process');
 const { PassThrough } = require('stream');
 const events = require('events');
-const limit = require('p-limit')(MAX_PARALLEL);
 
-let [, , request = '', ...extraOptions] = process.argv;
-if (request.startsWith('-')) {
-  extraOptions.unshift(request);
-  request = '';
+const argv = require('yargs')
+  .env('')
+  .options({
+    all: {
+      alias: 'a',
+      type: 'boolean',
+    },
+    spec: {
+      alias: 's',
+      type: 'string',
+      default: __dirname + '/specs.json',
+    },
+    parallel: {
+      alias: 'p',
+      type: 'number',
+      default: 4,
+    },
+    verbose: {
+      alias: 'v',
+      type: 'count',
+      default: 0,
+    },
+    options: {
+      alias: 'o',
+      type: 'array',
+      default: [],
+    },
+  }).argv;
+
+function match(entry, request) {
+  const [reqSpec, reqContract] = request.split(':').reverse();
+  return entry.spec == reqSpec && (!reqContract || entry.contract == reqContract);
 }
 
-if (request) {
-  const [reqSpec, reqContract] = request.split(':').reverse();
-  specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
-  if (specs.length === 0) {
-    console.error(`Error: Requested spec '${request}' not found in specs.json`);
-    process.exit(1);
+const specs = require(argv.spec).filter(s => argv.all || argv._.some(r => match(s, r)));
+const limit = require('p-limit')(argv.parallel);
+
+if (argv._.length == 0 && !argv.all) {
+  console.error(`Warning: No specs requested. Did you forgot to toggle '--all'?`);
+}
+
+for (const r of argv._) {
+  if (!specs.some(s => match(s, r))) {
+    console.error(`Error: Requested spec '${r}' not found in ${argv.spec}`);
+    process.exitCode = 1;
   }
 }
 
-for (const { spec, contract, files, options = [] } of Object.values(specs)) {
-  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
+if (process.exitCode) {
+  process.exit(process.exitCode);
+}
+
+for (const { spec, contract, files, options = [] } of specs) {
+  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
 }
 
 // Run certora, aggregate the output and print it at the end
 async function runCertora(spec, contract, files, options = []) {
   const args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...options];
+  if (argv.verbose) {
+    console.log('Running:', args.join(' '));
+  }
   const child = proc.spawn('certoraRun', args);
 
   const stream = new PassThrough();
@@ -45,15 +81,18 @@ async function runCertora(spec, contract, files, options = []) {
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
 
-  // as soon as we have a jobStatus link, print it
+  // as soon as we have a job id, print the output link
   stream.on('data', function logStatusUrl(data) {
-    const urls = data.toString('utf8').match(/https?:\S*/g);
-    for (const url of urls ?? []) {
-      if (url.includes('/jobStatus/')) {
-        console.error(`[${spec}] ${url.replace('/jobStatus/', '/output/')}`);
-        stream.off('data', logStatusUrl);
-        break;
-      }
+    const { '-DjobId': jobId, '-DuserId': userId } = Object.fromEntries(
+      data
+        .toString('utf8')
+        .match(/-D\S+=\S+/g)
+        ?.map(s => s.split('=')) || [],
+    );
+
+    if (jobId && userId) {
+      console.error(`[${spec}] https://prover.certora.com/output/${userId}/${jobId}/`);
+      stream.off('data', logStatusUrl);
     }
   });
 
@@ -70,7 +109,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)?.[0]);
+  writeEntry(spec, contract, code || signal, (await output).match(/https:\/\/prover.certora.com\/output\/\S*/)?.[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -108,8 +147,8 @@ function writeEntry(spec, contract, success, url) {
       spec,
       contract,
       success ? ':x:' : ':heavy_check_mark:',
+      url ? `[link](${url?.replace('/output/', '/jobStatus/')})` : 'error',
       url ? `[link](${url})` : 'error',
-      url ? `[link](${url?.replace('/jobStatus/', '/output/')})` : 'error',
     ),
   );
 }

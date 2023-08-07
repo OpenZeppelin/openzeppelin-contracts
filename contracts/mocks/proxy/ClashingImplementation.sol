@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
- * @dev Implementation contract with a payable admin() function made to clash with TransparentUpgradeableProxy's to
- * test correct functioning of the Transparent Proxy feature.
+ * @dev Implementation contract with a payable changeAdmin(address) function made to clash with
+ * TransparentUpgradeableProxy's to test correct functioning of the Transparent Proxy feature.
  */
 contract ClashingImplementation {
-    function admin() external payable returns (address) {
-        return 0x0000000000000000000000000000000011111142;
+    event ClashingImplementationCall();
+
+    function upgradeToAndCall(address, bytes calldata) external payable {
+        emit ClashingImplementationCall();
     }
 
     function delegatedFunction() external pure returns (bool) {

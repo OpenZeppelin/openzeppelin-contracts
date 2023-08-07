@@ -1,10 +1,6 @@
 name: formal verification
 
 on:
-  push:
-    branches:
-      - master
-      - release-v*
   pull_request:
     types:
       - opened
@@ -16,7 +12,7 @@ on:
 env:
   PIP_VERSION: '3.10'
   JAVA_VERSION: '11'
-  SOLC_VERSION: '0.8.19'
+  SOLC_VERSION: '0.8.20'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -33,8 +29,20 @@ jobs:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up environment
         uses: ./.github/actions/setup
+      - name: identify specs that need to be run
+        id: arguments
+        run: |
+          if [[ ${{ github.event_name }} = 'pull_request' ]];
+          then
+            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+          else
+            RESULT='--all'
+          fi
+          echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Install python
         uses: actions/setup-python@v4
         with:
@@ -55,6 +63,6 @@ jobs:
       - name: Verify specification
         run: |
           make -C certora apply
-          node certora/run.js >> "$GITHUB_STEP_SUMMARY"
+          node certora/run.js ${{ steps.arguments.outputs.result }} >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}

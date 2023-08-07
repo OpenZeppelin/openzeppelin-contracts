@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.9.2) (utils/cryptography/MerkleProof.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
@@ -19,6 +19,11 @@ pragma solidity ^0.8.0;
  */
 library MerkleProof {
     /**
+     *@dev The multiproof provided is not valid.
+     */
+    error MerkleProofInvalidMultiproof();
+
+    /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
      * sibling hashes on the branch from the leaf to the root of the tree. Each
@@ -30,8 +35,6 @@ library MerkleProof {
 
     /**
      * @dev Calldata version of {verify}
-     *
-     * _Available since v4.7._
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProofCalldata(proof, leaf) == root;
@@ -42,8 +45,6 @@ library MerkleProof {
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
-     *
-     * _Available since v4.4._
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
@@ -55,8 +56,6 @@ library MerkleProof {
 
     /**
      * @dev Calldata version of {processProof}
-     *
-     * _Available since v4.7._
      */
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
@@ -71,8 +70,6 @@ library MerkleProof {
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
      * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
-     *
-     * _Available since v4.7._
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -87,8 +84,6 @@ library MerkleProof {
      * @dev Calldata version of {multiProofVerify}
      *
      * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
-     *
-     * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
@@ -108,8 +103,6 @@ library MerkleProof {
      * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
-     *
-     * _Available since v4.7._
      */
     function processMultiProof(
         bytes32[] memory proof,
@@ -121,10 +114,13 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        if (leavesLen + proofLen - 1 != totalHashes) {
+            revert MerkleProofInvalidMultiproof();
+        }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -146,6 +142,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
+            if (proofPos != proofLen) {
+                revert MerkleProofInvalidMultiproof();
+            }
             unchecked {
                 return hashes[totalHashes - 1];
             }
@@ -160,8 +159,6 @@ library MerkleProof {
      * @dev Calldata version of {processMultiProof}.
      *
      * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
-     *
-     * _Available since v4.7._
      */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
@@ -173,10 +170,13 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        if (leavesLen + proofLen - 1 != totalHashes) {
+            revert MerkleProofInvalidMultiproof();
+        }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -198,6 +198,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
+            if (proofPos != proofLen) {
+                revert MerkleProofInvalidMultiproof();
+            }
             unchecked {
                 return hashes[totalHashes - 1];
             }

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (interfaces/IERC1363.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC1363.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IERC20.sol";
-import "./IERC165.sol";
+import {IERC20} from "./IERC20.sol";
+import {IERC165} from "./IERC165.sol";
 
 /**
  * @dev Interface of an ERC1363 compliant contract, as defined in the

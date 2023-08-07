@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../governance/extensions/GovernorCountingSimple.sol";
-import "../../governance/extensions/GovernorVotes.sol";
+import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 
 abstract contract GovernorVoteMocks is GovernorVotes, GovernorCountingSimple {
     function quorum(uint256) public pure override returns (uint256) {

@@ -1,28 +1,27 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./GovernorVotes.sol";
-import "../../utils/Checkpoints.sol";
-import "../../utils/math/SafeCast.sol";
+import {GovernorVotes} from "./GovernorVotes.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
  * fraction of the total supply.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-    using SafeCast for *;
     using Checkpoints for Checkpoints.Trace224;
 
-    uint256 private _quorumNumerator; // DEPRECATED in favor of _quorumNumeratorHistory
-
-    /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
+
+    /**
+     * @dev The quorum set is not a valid fraction.
+     */
+    error GovernorInvalidQuorumFraction(uint256 quorumNumerator, uint256 quorumDenominator);
 
     /**
      * @dev Initialize quorum as a fraction of the token's total supply.
@@ -39,7 +38,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the current quorum numerator. See {quorumDenominator}.
      */
     function quorumNumerator() public view virtual returns (uint256) {
-        return _quorumNumeratorHistory._checkpoints.length == 0 ? _quorumNumerator : _quorumNumeratorHistory.latest();
+        return _quorumNumeratorHistory.latest();
     }
 
     /**
@@ -48,9 +47,6 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     function quorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
         // If history is empty, fallback to old storage
         uint256 length = _quorumNumeratorHistory._checkpoints.length;
-        if (length == 0) {
-            return _quorumNumerator;
-        }
 
         // Optimistic search, check the latest checkpoint
         Checkpoints.Checkpoint224 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
@@ -59,7 +55,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookupRecent(timepoint.toUint32());
+        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
     /**
@@ -100,22 +96,13 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * - New numerator must be smaller or equal to the denominator.
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual {
-        require(
-            newQuorumNumerator <= quorumDenominator(),
-            "GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator"
-        );
-
-        uint256 oldQuorumNumerator = quorumNumerator();
-
-        // Make sure we keep track of the original numerator in contracts upgraded from a version without checkpoints.
-        if (oldQuorumNumerator != 0 && _quorumNumeratorHistory._checkpoints.length == 0) {
-            _quorumNumeratorHistory._checkpoints.push(
-                Checkpoints.Checkpoint224({_key: 0, _value: oldQuorumNumerator.toUint224()})
-            );
+        uint256 denominator = quorumDenominator();
+        if (newQuorumNumerator > denominator) {
+            revert GovernorInvalidQuorumFraction(newQuorumNumerator, denominator);
         }
 
-        // Set new quorum for future proposals
-        _quorumNumeratorHistory.push(clock().toUint32(), newQuorumNumerator.toUint224());
+        uint256 oldQuorumNumerator = quorumNumerator();
+        _quorumNumeratorHistory.push(SafeCast.toUint32(clock()), SafeCast.toUint224(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
