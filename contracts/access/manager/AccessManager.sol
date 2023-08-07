@@ -96,15 +96,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
     bytes32 private _relayIdentifier;
 
     /**
-     * @dev check that the caller is authorized to perform the operation, following the restrictions encoded in
-     * {_getRestrictions}.
+     * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
+     * {_getAdminRestrictions}.
      */
     modifier onlyAuthorized() {
         address caller = _msgSender();
         (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
         if (!allowed) {
             if (delay == 0) {
-                (, uint64 requiredGroup, ) = _getRestrictions(_msgData());
+                (, uint64 requiredGroup, ) = _getAdminRestrictions(_msgData());
                 revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
             } else {
                 _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
@@ -746,7 +746,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // =================================================== HELPERS ====================================================
-    function _getRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
+    function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
 
         if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
@@ -786,7 +786,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
-            (bool enabled, uint64 groupId, uint32 operationDelay) = _getRestrictions(data);
+            (bool enabled, uint64 groupId, uint32 operationDelay) = _getAdminRestrictions(data);
             if (!enabled) {
                 return (false, 0);
             }
