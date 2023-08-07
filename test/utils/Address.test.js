@@ -3,7 +3,6 @@ const { expect } = require('chai');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const Address = artifacts.require('$Address');
-const AddressFnPointerMock = artifacts.require('$AddressFnPointerMock');
 const EtherReceiver = artifacts.require('EtherReceiverMock');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 
@@ -12,7 +11,6 @@ contract('Address', function (accounts) {
 
   beforeEach(async function () {
     this.mock = await Address.new();
-    this.mockFnPointer = await AddressFnPointerMock.new();
   });
 
   describe('sendValue', function () {
@@ -141,14 +139,6 @@ contract('Address', function (accounts) {
         await expectRevert.unspecified(this.mock.$functionCall(this.target.address, abiEncodedCall));
       });
 
-      it('bubbles up error if specified', async function () {
-        await expectRevertCustomError(
-          this.mockFnPointer.functionCall(this.target.address, '0x12345678'),
-          'CustomRevert',
-          [],
-        );
-      });
-
       it('reverts when function does not exist', async function () {
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall(
           {
@@ -254,14 +244,6 @@ contract('Address', function (accounts) {
           [],
         );
       });
-
-      it('bubbles up error if specified', async function () {
-        await expectRevertCustomError(
-          this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-          'CustomRevert',
-          [],
-        );
-      });
     });
   });
 
@@ -305,14 +287,6 @@ contract('Address', function (accounts) {
         recipient,
       ]);
     });
-
-    it('bubbles up error if specified', async function () {
-      await expectRevertCustomError(
-        this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-        'CustomRevert',
-        [],
-      );
-    });
   });
 
   describe('functionDelegateCall', function () {
@@ -355,28 +329,12 @@ contract('Address', function (accounts) {
         recipient,
       ]);
     });
-
-    it('bubbles up error if specified', async function () {
-      await expectRevertCustomError(
-        this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-        'CustomRevert',
-        [],
-      );
-    });
   });
 
   describe('verifyCallResult', function () {
     it('returns returndata on success', async function () {
       const returndata = '0x123abc';
-      expect(await this.mockFnPointer.verifyCallResult(true, returndata)).to.equal(returndata);
-    });
-
-    it('reverts with return data and error', async function () {
-      await expectRevertCustomError(this.mockFnPointer.verifyCallResult(false, '0x'), 'CustomRevert', []);
-    });
-
-    it('reverts expecting error if provided onRevert is a non-reverting function', async function () {
-      await expectRevertCustomError(this.mockFnPointer.verifyCallResultVoid(false, '0x'), 'FailedInnerCall', []);
+      expect(await this.mock.$verifyCallResult(true, returndata)).to.equal(returndata);
     });
   });
 });
