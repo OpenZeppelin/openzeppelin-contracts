@@ -809,6 +809,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
+    // =================================================== HELPERS ====================================================
     function _isExpired(uint48 timepoint) private view returns (bool) {
         return timepoint + expiration() <= Time.timestamp();
     }
