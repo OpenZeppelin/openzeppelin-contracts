@@ -591,7 +591,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
      * required for the caller. The special value zero will automatically set the earliest possible time.
      *
-     * Emits a {Scheduled} event.
+     * Emits a {OperationScheduled} event.
      */
     function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32) {
         address caller = _msgSender();
@@ -615,7 +615,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
         _schedules[operationId] = when == 0 ? minWhen : when;
 
-        emit Scheduled(operationId, caller, target, data);
+        emit OperationScheduled(operationId, caller, target, data);
         return operationId;
     }
 
@@ -623,7 +623,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
      * execution delay is 0.
      *
-     * Emits an {Executed} event if the call was scheduled. Unscheduled calls (with no delay) do not emit that event.
+     * Emits an {OperationExecuted} event only if the call was scheduled and delayed.
      */
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
@@ -659,12 +659,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
-     * (emit an {Executed} event and clean the state). Otherwise, throw an error.
+     * (emit an {OperationExecuted} event and clean the state). Otherwise, throw an error.
      *
      * This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
      * with all the verifications that it implies.
      *
-     * Emit a {Executed} event
+     * Emit a {OperationExecuted} event
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
@@ -687,7 +687,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         delete _schedules[operationId];
-        emit Executed(operationId);
+        emit OperationExecuted(operationId);
     }
 
     /**
@@ -697,7 +697,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be the proposer, or a guardian of the targeted function
      *
-     * Emits a {Canceled} event.
+     * Emits a {OperationCanceled} event.
      */
     function cancel(address caller, address target, bytes calldata data) public virtual {
         address msgsender = _msgSender();
@@ -719,7 +719,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         delete _schedules[operationId];
-        emit Canceled(operationId);
+        emit OperationCanceled(operationId);
     }
 
     /**

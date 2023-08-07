@@ -7,19 +7,19 @@ import {Time} from "../../utils/types/Time.sol";
 
 interface IAccessManager {
     /**
-     * @dev A delay operation was schedule.
+     * @dev A delayed operation was scheduled.
      */
-    event Scheduled(bytes32 operationId, address caller, address target, bytes data);
+    event OperationScheduled(bytes32 operationId, address caller, address target, bytes data);
 
     /**
      * @dev A scheduled operation was executed.
      */
-    event Executed(bytes32 operationId);
+    event OperationExecuted(bytes32 operationId);
 
     /**
      * @dev A scheduled operation was canceled.
      */
-    event Canceled(bytes32 operationId);
+    event OperationCanceled(bytes32 operationId);
 
     event GroupLabel(uint64 indexed groupId, string label);
     event GroupGranted(uint64 indexed groupId, address indexed account, uint48 since, uint32 delay);

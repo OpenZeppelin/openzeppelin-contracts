@@ -668,7 +668,7 @@ contract('AccessManager', function (accounts) {
             // relay without schedule
             if (directSuccess) {
               const { receipt, tx } = await this.relay();
-              expectEvent.notEmitted(receipt, 'Executed', { operationId: this.opId });
+              expectEvent.notEmitted(receipt, 'OperationExecuted', { operationId: this.opId });
               await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
             } else if (indirectSuccess) {
               await expectRevertCustomError(this.relay(), 'AccessManagerNotScheduled', [this.opId]);
@@ -682,7 +682,7 @@ contract('AccessManager', function (accounts) {
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-              expectEvent(receipt, 'Scheduled', {
+              expectEvent(receipt, 'OperationScheduled', {
                 operationId: this.opId,
                 caller: user,
                 target: this.call[0],
@@ -697,7 +697,7 @@ contract('AccessManager', function (accounts) {
               // execute without wait
               if (directSuccess) {
                 const { receipt, tx } = await this.relay();
-                expectEvent(receipt, 'Executed', { operationId: this.opId });
+                expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
 
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
@@ -716,7 +716,7 @@ contract('AccessManager', function (accounts) {
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-              expectEvent(receipt, 'Scheduled', {
+              expectEvent(receipt, 'OperationScheduled', {
                 operationId: this.opId,
                 caller: user,
                 target: this.call[0],
@@ -734,7 +734,7 @@ contract('AccessManager', function (accounts) {
               // execute without wait
               if (directSuccess || indirectSuccess) {
                 const { receipt, tx } = await this.relay();
-                expectEvent(receipt, 'Executed', { operationId: this.opId });
+                expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
 
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
@@ -751,7 +751,7 @@ contract('AccessManager', function (accounts) {
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-              expectEvent(receipt, 'Scheduled', {
+              expectEvent(receipt, 'OperationScheduled', {
                 operationId: this.opId,
                 caller: user,
                 target: this.call[0],
@@ -784,7 +784,7 @@ contract('AccessManager', function (accounts) {
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-              expectEvent(receipt, 'Scheduled', {
+              expectEvent(receipt, 'OperationScheduled', {
                 operationId: this.opId,
                 caller: user,
                 target: this.call[0],
@@ -809,7 +809,7 @@ contract('AccessManager', function (accounts) {
                 const receipt = await promise;
 
                 expectEvent(receipt, 'CalledRestricted', { caller: user });
-                await expectEvent.inTransaction(receipt.tx, this.manager, 'Executed', { operationId: this.opId });
+                await expectEvent.inTransaction(receipt.tx, this.manager, 'OperationExecuted', { operationId: this.opId });
 
                 // schedule is reset
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
@@ -864,7 +864,7 @@ contract('AccessManager', function (accounts) {
 
       it('Cannot schedule an already scheduled operation', async function () {
         const { receipt } = await this.schedule();
-        expectEvent(receipt, 'Scheduled', {
+        expectEvent(receipt, 'OperationScheduled', {
           operationId: this.opId,
           caller: user,
           target: this.call[0],
@@ -891,7 +891,7 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
 
-        expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
+        expectEvent(await this.cancel({ from: manager }), 'OperationCanceled', { operationId: this.opId });
 
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
       });
@@ -901,7 +901,7 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
 
-        expectEvent(await this.cancel({ from: manager }), 'Canceled', { operationId: this.opId });
+        expectEvent(await this.cancel({ from: manager }), 'OperationCanceled', { operationId: this.opId });
 
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
       });
@@ -927,7 +927,7 @@ contract('AccessManager', function (accounts) {
 
         // reschedule
         const { receipt } = await this.schedule();
-        expectEvent(receipt, 'Scheduled', {
+        expectEvent(receipt, 'OperationScheduled', {
           operationId: this.opId,
           caller: user,
           target: this.call[0],
@@ -941,7 +941,7 @@ contract('AccessManager', function (accounts) {
 
         // reschedule
         const { receipt } = await this.schedule();
-        expectEvent(receipt, 'Scheduled', {
+        expectEvent(receipt, 'OperationScheduled', {
           operationId: this.opId,
           caller: user,
           target: this.call[0],
