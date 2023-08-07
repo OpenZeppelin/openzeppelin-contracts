@@ -617,6 +617,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits an {OperationExecuted} event only if the call was scheduled and delayed.
      */
+    // Reentrancy is not an issue because permissions are checked on msg.sender. Additionally,
+    // _consumeScheduledOp guarantees a scheduled operation is only executed once.
+    // slither-disable-next-line reentrancy-no-eth
     function relay(address target, bytes calldata data) public payable virtual {
         address caller = _msgSender();
 
