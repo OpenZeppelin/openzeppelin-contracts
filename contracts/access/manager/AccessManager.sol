@@ -7,6 +7,7 @@ import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
+import {Math} from "../../utils/math/Math.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 /**
@@ -145,7 +146,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else {
             uint64 groupId = getFamilyFunctionGroup(familyId, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
-            return (inGroup && currentDelay == 0, currentDelay);
+            return inGroup
+                ? (currentDelay == 0, currentDelay)
+                : (false, 0);
         }
     }
 
@@ -793,10 +796,19 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
+            (bool inGroup, uint32 executionDelay) = hasGroup(ADMIN_GROUP, caller);
+            if (!inGroup) {
+                return (false, 0);
+            }
+
             (bool isFamilyOperation, uint64 familyId) = _parseFamilyOperation(data);
-            uint32 delay = getFamilyAdminDelay(familyId);
-            (bool inGroup, ) = hasGroup(ADMIN_GROUP, caller);
-            return (inGroup && isFamilyOperation && delay == 0, delay);
+            if (!isFamilyOperation) {
+                return (false, 0);
+            }
+
+            // downcast is safe because both options are uint32
+            uint32 delay = uint32(Math.max(executionDelay, getFamilyAdminDelay(familyId)));
+            return (delay == 0, delay);
         } else {
             bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
