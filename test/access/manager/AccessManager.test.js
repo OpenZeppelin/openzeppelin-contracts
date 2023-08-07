@@ -697,10 +697,11 @@ contract('AccessManager', function (accounts) {
               // execute without wait
               if (directSuccess) {
                 const { receipt, tx } = await this.relay();
-                expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-
-                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+                if (delay && fnGroup !== GROUPS.PUBLIC) {
+                  expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
+                  expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+                }
               } else if (indirectSuccess) {
                 await expectRevertCustomError(this.relay(), 'AccessManagerNotReady', [this.opId]);
               } else {
@@ -734,10 +735,11 @@ contract('AccessManager', function (accounts) {
               // execute without wait
               if (directSuccess || indirectSuccess) {
                 const { receipt, tx } = await this.relay();
-                expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-
-                expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+                if (delay && fnGroup !== GROUPS.PUBLIC) {
+                  expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
+                  expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+                }
               } else {
                 await expectRevertCustomError(this.relay(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
               }
