@@ -41,8 +41,8 @@ jobs:
       - name: Check proceduraly generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
-        if: github.base_ref == 'master'
         uses: ./.github/actions/gas-compare
+        if: github.base_ref == 'master'
         with:
           token: ${{ github.token }}
 
@@ -64,6 +64,7 @@ jobs:
         run: npm run test:inheritance
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
+        if: github.base_ref == 'master'
         with:
           token: ${{ github.token }}
 
