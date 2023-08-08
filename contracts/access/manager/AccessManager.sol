@@ -397,7 +397,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAccountNotInGroup(groupId, account);
         }
 
-        (Time.Delay updated, uint48 effect) = _groups[groupId].members[account].delay.withUpdate(newDuration, minSetback());
+        (Time.Delay updated, uint48 effect) = _groups[groupId].members[account].delay.withUpdate(
+            newDuration,
+            minSetback()
+        );
         _groups[groupId].members[account].delay = updated;
 
         emit GroupGranted(groupId, account, newDuration, effect);
