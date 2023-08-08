@@ -110,12 +110,14 @@ library Time {
 
     /**
      * @dev Update a Delay object so that it takes a new duration after at a timepoint that is automatically computed
-     * to enforce the old delay at the moment of the update.
+     * to enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
+     * new delay becomes effective.
      */
-    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay) {
+    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48) {
         uint32 value = self.get();
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
-        return self.withUpdateAt(newValue, timestamp() + setback);
+        uint48 effect = timestamp() + setback;
+        return (self.withUpdateAt(newValue, effect), effect);
     }
 
     /**

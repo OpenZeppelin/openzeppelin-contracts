@@ -397,10 +397,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAccountNotInGroup(groupId, account);
         }
 
-        Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, minSetback());
+        (Time.Delay updated, uint48 effect) = _groups[groupId].members[account].delay.withUpdate(newDuration, minSetback());
         _groups[groupId].members[account].delay = updated;
 
-        (, , uint48 effect) = updated.unpack();
         emit GroupGranted(groupId, account, newDuration, effect);
     }
 
@@ -444,10 +443,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerLockedGroup(groupId);
         }
 
-        Time.Delay updated = _groups[groupId].delay.withUpdate(newDelay, minSetback());
+        (Time.Delay updated, uint48 effect) = _groups[groupId].delay.withUpdate(newDelay, minSetback());
         _groups[groupId].delay = updated;
 
-        (, , uint48 effect) = updated.unpack();
         emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
 
@@ -503,9 +501,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _setFamilyAdminDelay(uint64 familyId, uint32 newDelay) internal virtual {
         _checkValidFamilyId(familyId);
-        Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, minSetback());
+        (Time.Delay updated, uint48 effect) = _families[familyId].adminDelay.withUpdate(newDelay, minSetback());
         _families[familyId].adminDelay = updated;
-        (, , uint48 effect) = updated.unpack();
         emit FamilyAdminDelayUpdated(familyId, newDelay, effect);
     }
 
