@@ -2,53 +2,38 @@
 
 pragma solidity ^0.8.20;
 
-import {IGovernorTimelock} from "./IGovernorTimelock.sol";
 import {IGovernor, Governor} from "../Governor.sol";
-import {IManaged} from "../../access/manager/IManaged.sol";
-import {IAuthority, safeCanCall} from "../../access/manager/IAuthority.sol";
+import {IAuthority} from "../../access/manager/IAuthority.sol";
+import {AuthorityUtils} from "../../access/manager/AuthorityUtils.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
+import {IAccessManaged} from "../../access/manager/IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {Time} from "../../utils/types/Time.sol";
 
 /**
  * @dev TODO
  *
  * _Available since v5.0._
  */
-abstract contract GovernorTimelock is IGovernorTimelock, Governor {
-    struct ExecutionDetail {
-        address authority;
+abstract contract GovernorTimelockAccess is Governor {
+    struct ExecutionPlan {
         uint32 delay;
+        IAccessManager[] managers;
     }
 
-    mapping(uint256 => ExecutionDetail[]) private _executionDetails;
-    mapping(uint256 => uint256) private _proposalEta;
+    mapping(uint256 => ExecutionPlan) private _executionPlan;
+    mapping(address target => address) private _authorityOverride;
 
-    /**
-     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` and `Expired` state.
-     */
-    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
-        ProposalState currentState = super.state(proposalId);
-
-        if (currentState == ProposalState.Succeeded && proposalEta(proposalId) != 0) {
-            return ProposalState.Queued;
-        } else {
-            return currentState;
-        }
-    }
-
-    /**
-     * @dev Public accessor to check the eta of a queued proposal.
-     */
-    function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposalEta[proposalId];
+    constructor(uint32 defaultDelay) {
     }
 
     /**
      * @dev Public accessor to check the execution details.
      */
-    function proposalExecutionDetails(uint256 proposalId) public view returns (ExecutionDetail[] memory) {
-        return _executionDetails[proposalId];
+    function proposalExecutionPlan(uint256 proposalId) public view returns (ExecutionPlan memory) {
+        return _executionPlan[proposalId];
     }
 
     /**
@@ -59,13 +44,21 @@ abstract contract GovernorTimelock is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor) returns (uint256) {
+    ) public virtual override returns (uint256) {
         uint256 proposalId = super.propose(targets, values, calldatas, description);
 
-        ExecutionDetail[] storage details = _executionDetails[proposalId];
+        uint32 maxDelay = 0;
+
+        ExecutionPlan storage plan = _executionPlan[proposalId];
+
         for (uint256 i = 0; i < targets.length; ++i) {
-            details.push(_detectExecutionDetails(targets[i], bytes4(calldatas[i])));
+            (address manager, uint32 delay) = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
+            plan.managers.push(IAccessManager(manager));
+            // downcast is safe because both arguments are uint32
+            maxDelay = uint32(Math.max(delay, maxDelay));
         }
+
+        plan.delay = maxDelay;
 
         return proposalId;
     }
@@ -76,67 +69,38 @@ abstract contract GovernorTimelock is IGovernorTimelock, Governor {
      * NOTE: execution delay is estimated based on the delay information retrieved in {proposal}. This value may be
      * off if the delay were updated during the vote.
      */
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
-        ProposalState currentState = state(proposalId);
-        if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(
-                proposalId,
-                currentState,
-                _encodeStateBitmap(ProposalState.Succeeded)
-            );
-        }
-
-        ExecutionDetail[] storage details = _executionDetails[proposalId];
-        ExecutionDetail memory detail;
-        uint32 setback = 0;
-
-        for (uint256 i = 0; i < targets.length; ++i) {
-            detail = details[i];
-            if (detail.authority != address(0)) {
-                IAccessManager(detail.authority).schedule(targets[i], calldatas[i]);
-            }
-            setback = uint32(Math.max(setback, detail.delay)); // cast is safe, both parameters are uint32
-        }
-
-        uint256 eta = block.timestamp + setback;
-        _proposalEta[proposalId] = eta;
-
-        return eta;
-    }
-
-    /**
-     * @dev See {IGovernor-_execute}
-     */
-    function _execute(
+    function _queueOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 /*descriptionHash*/
-    ) internal virtual override {
-        ExecutionDetail[] storage details = _executionDetails[proposalId];
-        ExecutionDetail memory detail;
+        bytes32 descriptionHash
+    ) internal virtual override returns (uint48) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        // TODO: enforce ETA (might include some _defaultDelaySeconds that are not enforced by any authority)
+        ExecutionPlan storage plan = _executionPlan[proposalId];
+        uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            detail = details[i];
-            if (detail.authority != address(0)) {
-                IAccessManager(detail.authority).relay{value: values[i]}(targets[i], calldatas[i]);
-            } else {
-                (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-                Address.verifyCallResult(success, returndata);
+            IAccessManager manager = plan.managers[i];
+            if (address(manager) != address(0)) {
+                manager.schedule(targets[i], calldatas[i], eta);
             }
         }
 
-        delete _executionDetails[proposalId];
+        return eta;
+    }
+
+    function _executeOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal virtual override {
+        uint256 eta = proposalEta(proposalId);
+        require(block.timestamp >= eta);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -150,17 +114,18 @@ abstract contract GovernorTimelock is IGovernorTimelock, Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        ExecutionDetail[] storage details = _executionDetails[proposalId];
-        ExecutionDetail memory detail;
+        ExecutionPlan storage plan = _executionPlan[proposalId];
+        ExecutionPlan memory detail;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            detail = details[i];
-            if (detail.authority != address(0)) {
-                IAccessManager(detail.authority).cancel(address(this), targets[i], calldatas[i]);
+            IAccessManager manager = plan.managers[i];
+            if (address(manager) != address(0)) {
+                // Attempt to cancel, but allow to revert if a guardian cancelled part of the proposal
+                try manager.cancel(address(this), targets[i], calldatas[i]) {} catch {}
             }
         }
 
-        delete _executionDetails[proposalId];
+        delete _executionPlan[proposalId];
 
         return proposalId;
     }
@@ -182,30 +147,37 @@ abstract contract GovernorTimelock is IGovernorTimelock, Governor {
      *
      * Returns { manager: address(0), delay: _defaultDelaySeconds() } if:
      * - target does not have code
-     * - target does not implement IManaged
+     * - target does not implement IAccessManaged
      * - calling canCall on the target's manager returns a 0 delay
      * - calling canCall on the target's manager reverts
      * Otherwise (calling canCall on the target's manager returns a non 0 delay), return the address of the
      * AccessManager to use, and the delay for this call.
      */
-    function _detectExecutionDetails(address target, bytes4 selector) private view returns (ExecutionDetail memory) {
-        bool success;
-        bytes memory returndata;
+    function _detectExecutionRequirements(address target, bytes4 selector) private view returns (address, uint32) {
+        address authority = _authorityOverride[target];
 
-        // Get authority
-        (success, returndata) = target.staticcall(abi.encodeCall(IManaged.authority, ()));
-        if (success && returndata.length >= 0x20) {
-            address authority = abi.decode(returndata, (address));
+        // Get authority from target contract if there is no override
+        if (authority == address(0)) {
+            bool success;
+            bytes memory returndata;
 
-            // Check if governor can call, and try to detect a delay
-            (bool authorized, uint32 delay) = safeCanCall(authority, address(this), target, selector);
-
-            // If direct call is not authorized, and delayed call is possible
-            if (!authorized && delay > 0) {
-                return ExecutionDetail({authority: authority, delay: delay});
+            (success, returndata) = target.staticcall(abi.encodeCall(IAccessManaged.authority, ()));
+            if (success && returndata.length >= 0x20) {
+                authority = abi.decode(returndata, (address));
             }
         }
 
-        return ExecutionDetail({authority: address(0), delay: _defaultDelaySeconds()});
+        if (authority != address(0)) {
+            // Check if governor can call according to authority, and try to detect a delay
+            (bool authorized, uint32 delay) = AuthorityUtils.canCallWithDelay(authority, address(this), target, selector);
+
+            // If direct call is not authorized, and delayed call is possible
+            if (!authorized && delay > 0) {
+                return (authority, delay);
+            }
+        }
+
+        // Use internal delay mechanism
+        return (address(0), _defaultDelaySeconds());
     }
 }
