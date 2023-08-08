@@ -22,18 +22,17 @@ interface IAccessManager {
     event OperationCanceled(bytes32 indexed operationId, uint48 schedule);
 
     event GroupLabel(uint64 indexed groupId, string label);
-    event GroupGranted(uint64 indexed groupId, address indexed account, uint48 since, uint32 delay);
+    event GroupGranted(uint64 indexed groupId, address indexed account, uint32 delay, uint48 since);
     event GroupRevoked(uint64 indexed groupId, address indexed account);
-    event GroupExecutionDelayUpdated(uint64 indexed groupId, address indexed account, uint32 delay, uint48 from);
     event GroupAdminChanged(uint64 indexed groupId, uint64 indexed admin);
     event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
-    event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 from);
+    event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 since);
 
     event ContractFamilyUpdated(address indexed target, uint64 indexed familyId);
     event ContractClosed(address indexed target, bool closed);
 
     event FamilyFunctionGroupUpdated(uint64 indexed familyId, bytes4 selector, uint64 indexed groupId);
-    event FamilyAdminDelayUpdated(uint64 indexed familyId, uint32 delay, uint48 from);
+    event FamilyAdminDelayUpdated(uint64 indexed familyId, uint32 delay, uint48 since);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);

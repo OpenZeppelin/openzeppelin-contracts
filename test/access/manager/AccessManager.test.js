@@ -371,11 +371,11 @@ contract('AccessManager', function (accounts) {
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
+          since: timestamp,
           delay: newDelay,
-          from: timestamp,
         });
 
         // immediate effect
@@ -401,11 +401,11 @@ contract('AccessManager', function (accounts) {
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
+          since: timestamp.add(oldDelay).sub(newDelay),
           delay: newDelay,
-          from: timestamp.add(oldDelay).sub(newDelay),
         });
 
         // delayed effect
@@ -439,11 +439,11 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: other,
+          since: timestamp,
           delay: executeDelay,
-          from: timestamp,
         });
       });
 
@@ -467,7 +467,7 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, from: timestamp });
+        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, since: timestamp });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
       });
@@ -485,7 +485,7 @@ contract('AccessManager', function (accounts) {
         expectEvent(receipt, 'GroupGrantDelayChanged', {
           groupId: GROUPS.SOME,
           delay: newDelay,
-          from: timestamp.add(oldDelay).sub(newDelay),
+          since: timestamp.add(oldDelay).sub(newDelay),
         });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
@@ -1115,8 +1115,8 @@ contract('AccessManager', function (accounts) {
       });
 
       it('emits event and sets delay', async function () {
-        const from = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
-        expectEvent(this.tx.receipt, 'FamilyAdminDelayUpdated', { familyId, delay, from });
+        const since = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
+        expectEvent(this.tx.receipt, 'FamilyAdminDelayUpdated', { familyId, delay, since });
 
         expect(await this.manager.getFamilyAdminDelay(familyId)).to.be.bignumber.equal(delay);
       });

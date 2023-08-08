@@ -305,7 +305,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be in the group's admins
      *
-     * Emits a {GroupExecutionDelayUpdated} event
+     * Emits a {GroupGranted} event.
      */
     function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) public virtual onlyAuthorized {
         _setExecuteDelay(groupId, account, newDelay);
@@ -365,7 +365,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint48 since = Time.timestamp() + grantDelay;
         _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
 
-        emit GroupGranted(groupId, account, since, executionDelay);
+        emit GroupGranted(groupId, account, executionDelay, since);
     }
 
     /**
@@ -388,7 +388,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setExecuteDelay} without access control.
      *
-     * Emits a {GroupExecutionDelayUpdated} event.
+     * Emits a {GroupGranted} event.
      */
     function _setExecuteDelay(uint64 groupId, address account, uint32 newDuration) internal virtual {
         if (groupId == PUBLIC_GROUP || groupId == ADMIN_GROUP) {
@@ -401,7 +401,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         _groups[groupId].members[account].delay = updated;
 
         (, , uint48 effect) = updated.unpack();
-        emit GroupExecutionDelayUpdated(groupId, account, newDuration, effect);
+        emit GroupGranted(groupId, account, newDuration, effect);
     }
 
     /**
