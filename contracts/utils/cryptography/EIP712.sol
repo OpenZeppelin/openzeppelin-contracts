@@ -6,6 +6,7 @@ pragma solidity ^0.8.20;
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 import {ShortStrings, ShortString} from "../ShortStrings.sol";
 import {IERC5267} from "../../interfaces/IERC5267.sol";
+import {Context} from "../../utils/Context.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
@@ -31,7 +32,7 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
  *
  * @custom:oz-upgrades-unsafe-allow state-variable-immutable
  */
-abstract contract EIP712 is IERC5267 {
+abstract contract EIP712 is Context, IERC5267 {
     using ShortStrings for *;
 
     bytes32 private constant _TYPE_HASH =
