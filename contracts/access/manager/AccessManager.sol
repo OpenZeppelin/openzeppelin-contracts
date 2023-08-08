@@ -250,11 +250,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Add `account` to `groupId`. This gives him the authorization to call any function that is restricted to
-     * this group. An optional execution delay (in seconds) can be set. If that delay is non 0, the user is required
-     * to schedule any operation that is restricted to members this group. The user will only be able to execute the
-     * operation after the delay expires. During this delay, admin and guardians can cancel the operation (see
-     * {cancel}).
+     * @dev Add `account` to `groupId`, or change its execution delay.
+     *
+     * This gives the account the authorization to call any function that is restricted to this group. An optional
+     * execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
+     * that is restricted to members this group. The user will only be able to execute the operation after the delay has
+     * passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
+     *
+     * If the account has already been granted this gorup, the execution delay will be updated. This update is not
+     * immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
+     * called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
+     * operation executed in the 3 hours that follows this update was indeed scheduled before this update.
      *
      * Requirements:
      *
@@ -267,7 +273,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Remove an account for a group, with immediate effect.
+     * @dev Remove an account for a group, with immediate effect. If the sender is not in the group, this call has no
+     * effect.
      *
      * Requirements:
      *
@@ -280,7 +287,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Renounce group permissions for the calling account, with immediate effect.
+     * @dev Renounce group permissions for the calling account, with immediate effect. If the sender is not in
+     * the group, this call has no effect.
      *
      * Requirements:
      *
@@ -293,22 +301,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerBadConfirmation();
         }
         _revokeGroup(groupId, callerConfirmation);
-    }
-
-    /**
-     * @dev Set the execution delay for a given account in a given group. This update is not immediate and follows the
-     * delay rules. For example, If a user currently has a delay of 3 hours, and this is called to reduce that delay to
-     * 1 hour, the new delay will take some time to take effect, enforcing that any operation executed in the 3 hours
-     * that follows this update was indeed scheduled before this update.
-     *
-     * Requirements:
-     *
-     * - the caller must be in the group's admins
-     *
-     * Emits a {GroupGranted} event.
-     */
-    function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) public virtual onlyAuthorized {
-        _setExecuteDelay(groupId, account, newDelay);
     }
 
     /**
@@ -351,59 +343,52 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Internal version of {grantGroup} without access control.
+     * @dev Internal version of {grantGroup} without access control. Returns true if the group was newly granted.
      *
      * Emits a {GroupGranted} event
      */
-    function _grantGroup(uint64 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+    function _grantGroup(uint64 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual returns (bool) {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since != 0) {
-            revert AccessManagerAccountAlreadyInGroup(groupId, account);
         }
 
-        uint48 since = Time.timestamp() + grantDelay;
-        _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+        bool inGroup = _groups[groupId].members[account].since != 0;
+
+        uint48 since;
+
+        if (inGroup) {
+            (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
+                executionDelay,
+                minSetback()
+            );
+        } else {
+            since = Time.timestamp() + grantDelay;
+            _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+        }
 
         emit GroupGranted(groupId, account, executionDelay, since);
+        return !inGroup;
     }
 
     /**
      * @dev Internal version of {revokeGroup} without access control. This logic is also used by {renounceGroup}.
+     * Returns true if the group was previously granted.
      *
      * Emits a {GroupRevoked} event
      */
-    function _revokeGroup(uint64 groupId, address account) internal virtual {
+    function _revokeGroup(uint64 groupId, address account) internal virtual returns (bool) {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAccountNotInGroup(groupId, account);
+        }
+
+        if (_groups[groupId].members[account].since == 0) {
+            return false;
         }
 
         delete _groups[groupId].members[account];
 
         emit GroupRevoked(groupId, account);
-    }
-
-    /**
-     * @dev Internal version of {setExecuteDelay} without access control.
-     *
-     * Emits a {GroupGranted} event.
-     */
-    function _setExecuteDelay(uint64 groupId, address account, uint32 newDuration) internal virtual {
-        if (groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAccountNotInGroup(groupId, account);
-        }
-
-        (Time.Delay updated, uint48 effect) = _groups[groupId].members[account].delay.withUpdate(
-            newDuration,
-            minSetback()
-        );
-        _groups[groupId].members[account].delay = updated;
-
-        emit GroupGranted(groupId, account, newDuration, effect);
+        return true;
     }
 
     /**
@@ -785,8 +770,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (true, ADMIN_GROUP, 0);
         } else if (
             selector == this.grantGroup.selector ||
-            selector == this.revokeGroup.selector ||
-            selector == this.setExecuteDelay.selector
+            selector == this.revokeGroup.selector
         ) {
             // First argument is a groupId. Restricted to that group's admin with no delay beside any execution delay the caller may have.
             uint64 groupId = abi.decode(data[0x04:0x24], (uint64));

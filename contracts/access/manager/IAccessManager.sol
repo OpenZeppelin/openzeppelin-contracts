@@ -40,8 +40,6 @@ interface IAccessManager {
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedGroup(uint64 groupId);
     error AccessManagerInvalidFamily(uint64 familyId);
-    error AccessManagerAccountAlreadyInGroup(uint64 groupId, address account);
-    error AccessManagerAccountNotInGroup(uint64 groupId, address account);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
@@ -78,8 +76,6 @@ interface IAccessManager {
     function revokeGroup(uint64 groupId, address account) external;
 
     function renounceGroup(uint64 groupId, address callerConfirmation) external;
-
-    function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) external;
 
     function setGroupAdmin(uint64 groupId, uint64 admin) external;
 

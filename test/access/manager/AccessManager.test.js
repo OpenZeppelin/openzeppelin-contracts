@@ -138,24 +138,15 @@ contract('AccessManager', function (accounts) {
 
         it('to a user that is already in the group', async function () {
           expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-
-          await expectRevertCustomError(
-            this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager }),
-            'AccessManagerAccountAlreadyInGroup',
-            [GROUPS.SOME, member],
-          );
+          await this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager });
+          expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
         });
 
         it('to a user that is scheduled for joining the group', async function () {
           await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
-
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-
-          await expectRevertCustomError(
-            this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
-            'AccessManagerAccountAlreadyInGroup',
-            [GROUPS.SOME, user],
-          );
+          await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
         });
 
         it('grant group is restricted', async function () {
@@ -212,6 +203,14 @@ contract('AccessManager', function (accounts) {
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
       });
+
+      it('cannot grant public group', async function () {
+        await expectRevertCustomError(
+          this.manager.$_grantGroup(GROUPS.PUBLIC, other, 0, executeDelay, { from: manager }),
+          'AccessManagerLockedGroup',
+          [GROUPS.PUBLIC],
+        );
+      });
     });
 
     describe('revoke group', function () {
@@ -249,12 +248,8 @@ contract('AccessManager', function (accounts) {
 
       it('from a user that is not in the group', async function () {
         expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-
-        await expectRevertCustomError(
-          this.manager.revokeGroup(GROUPS.SOME, user, { from: manager }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, user],
-        );
+        await this.manager.revokeGroup(GROUPS.SOME, user, { from: manager });
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
       });
 
       it('revoke group is restricted', async function () {
@@ -300,11 +295,7 @@ contract('AccessManager', function (accounts) {
       });
 
       it('for a user that is not in the group', async function () {
-        await expectRevertCustomError(
-          this.manager.renounceGroup(GROUPS.SOME, user, { from: user }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, user],
-        );
+        await this.manager.renounceGroup(GROUPS.SOME, user, { from: user });
       });
 
       it('bad user confirmation', async function () {
@@ -359,14 +350,14 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
@@ -389,14 +380,14 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
@@ -415,28 +406,10 @@ contract('AccessManager', function (accounts) {
         expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(oldDelay).sub(newDelay)); // effect
       });
 
-      it('cannot set the delay of a non member', async function () {
-        await expectRevertCustomError(
-          this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, other],
-        );
-      });
-
-      it('cannot set the delay of public and admin groups', async function () {
-        for (const group of [GROUPS.PUBLIC, GROUPS.ADMIN]) {
-          await expectRevertCustomError(
-            this.manager.$_setExecuteDelay(group, other, executeDelay, { from: manager }),
-            'AccessManagerLockedGroup',
-            [group],
-          );
-        }
-      });
-
       it('can set a user execution delay during the grant delay', async function () {
         await this.manager.$_grantGroup(GROUPS.SOME, other, 10, 0);
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager });
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
         expectEvent(receipt, 'GroupGranted', {
@@ -445,14 +418,6 @@ contract('AccessManager', function (accounts) {
           since: timestamp,
           delay: executeDelay,
         });
-      });
-
-      it('changing the execution delay is restricted', async function () {
-        await expectRevertCustomError(
-          this.manager.setExecuteDelay(GROUPS.SOME, member, executeDelay, { from: other }),
-          'AccessManagerUnauthorizedAccount',
-          [GROUPS.SOME_ADMIN, other],
-        );
       });
     });
 
