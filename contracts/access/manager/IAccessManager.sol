@@ -22,27 +22,25 @@ interface IAccessManager {
     event OperationCanceled(bytes32 indexed operationId, uint48 schedule);
 
     event GroupLabel(uint64 indexed groupId, string label);
-    event GroupGranted(uint64 indexed groupId, address indexed account, uint48 since, uint32 delay);
+    event GroupGranted(uint64 indexed groupId, address indexed account, uint32 delay, uint48 since);
     event GroupRevoked(uint64 indexed groupId, address indexed account);
-    event GroupExecutionDelayUpdated(uint64 indexed groupId, address indexed account, uint32 delay, uint48 from);
     event GroupAdminChanged(uint64 indexed groupId, uint64 indexed admin);
     event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
-    event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 from);
+    event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 since);
 
-    event ContractFamilyUpdated(address indexed target, uint64 indexed familyId);
+    event ContractClassUpdated(address indexed target, uint64 indexed classId);
     event ContractClosed(address indexed target, bool closed);
 
-    event FamilyFunctionGroupUpdated(uint64 indexed familyId, bytes4 selector, uint64 indexed groupId);
-    event FamilyAdminDelayUpdated(uint64 indexed familyId, uint32 delay, uint48 from);
+    event ClassFunctionGroupUpdated(uint64 indexed classId, bytes4 selector, uint64 indexed groupId);
+    event ClassAdminDelayUpdated(uint64 indexed classId, uint32 delay, uint48 since);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
+    error AccessManagerLockedAccount(address account);
     error AccessManagerLockedGroup(uint64 groupId);
-    error AccessManagerInvalidFamily(uint64 familyId);
-    error AccessManagerAccountAlreadyInGroup(uint64 groupId, address account);
-    error AccessManagerAccountNotInGroup(uint64 groupId, address account);
+    error AccessManagerInvalidClass(uint64 classId);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
@@ -56,11 +54,11 @@ interface IAccessManager {
 
     function expiration() external returns (uint32);
 
-    function getContractFamily(address target) external view returns (uint64 familyId, bool closed);
+    function getContractClass(address target) external view returns (uint64 classId, bool closed);
 
-    function getFamilyFunctionGroup(uint64 familyId, bytes4 selector) external view returns (uint64);
+    function getClassFunctionGroup(uint64 classId, bytes4 selector) external view returns (uint64);
 
-    function getFamilyAdminDelay(uint64 familyId) external view returns (uint32);
+    function getClassAdminDelay(uint64 classId) external view returns (uint32);
 
     function getGroupAdmin(uint64 groupId) external view returns (uint64);
 
@@ -80,19 +78,17 @@ interface IAccessManager {
 
     function renounceGroup(uint64 groupId, address callerConfirmation) external;
 
-    function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) external;
-
     function setGroupAdmin(uint64 groupId, uint64 admin) external;
 
     function setGroupGuardian(uint64 groupId, uint64 guardian) external;
 
     function setGrantDelay(uint64 groupId, uint32 newDelay) external;
 
-    function setFamilyFunctionGroup(uint64 familyId, bytes4[] calldata selectors, uint64 groupId) external;
+    function setClassFunctionGroup(uint64 classId, bytes4[] calldata selectors, uint64 groupId) external;
 
-    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) external;
+    function setClassAdminDelay(uint64 classId, uint32 newDelay) external;
 
-    function setContractFamily(address target, uint64 familyId) external;
+    function setContractClass(address target, uint64 classId) external;
 
     function setContractClosed(address target, bool closed) external;
 

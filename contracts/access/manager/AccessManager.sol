@@ -52,7 +52,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
     struct AccessMode {
-        uint64 familyId;
+        uint64 classId;
         bool closed;
     }
 
@@ -78,7 +78,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         Time.Delay delay; // delay for granting
     }
 
-    struct Family {
+    struct Class {
         mapping(bytes4 selector => uint64 groupId) allowedGroups;
         Time.Delay adminDelay;
     }
@@ -87,7 +87,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
 
     mapping(address target => AccessMode mode) private _contractMode;
-    mapping(uint64 familyId => Family) private _families;
+    mapping(uint64 classId => Class) private _classes;
     mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => uint48 schedule) private _schedules;
     mapping(bytes4 selector => Time.Delay delay) private _adminDelays;
@@ -127,7 +127,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * to identify the indirect workflow, and will consider call that require a delay to be forbidden.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
-        (uint64 familyId, bool closed) = getContractFamily(target);
+        (uint64 classId, bool closed) = getContractClass(target);
         if (closed) {
             return (false, 0);
         } else if (caller == address(this)) {
@@ -135,7 +135,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // verify that the call "identifier", which is set during the relay call, is correct.
             return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
         } else {
-            uint64 groupId = getFamilyFunctionGroup(familyId, selector);
+            uint64 groupId = getClassFunctionGroup(classId, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
             return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
         }
@@ -158,21 +158,21 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Get the mode under which a contract is operating.
      */
-    function getContractFamily(address target) public view virtual returns (uint64, bool) {
+    function getContractClass(address target) public view virtual returns (uint64, bool) {
         AccessMode storage mode = _contractMode[target];
-        return (mode.familyId, mode.closed);
+        return (mode.classId, mode.closed);
     }
 
     /**
      * @dev Get the permission level (group) required to call a function. This only applies for contract that are
      * operating under the `Custom` mode.
      */
-    function getFamilyFunctionGroup(uint64 familyId, bytes4 selector) public view virtual returns (uint64) {
-        return _families[familyId].allowedGroups[selector];
+    function getClassFunctionGroup(uint64 classId, bytes4 selector) public view virtual returns (uint64) {
+        return _classes[classId].allowedGroups[selector];
     }
 
-    function getFamilyAdminDelay(uint64 familyId) public view virtual returns (uint32) {
-        return _families[familyId].adminDelay.get();
+    function getClassAdminDelay(uint64 classId) public view virtual returns (uint32) {
+        return _classes[classId].adminDelay.get();
     }
 
     /**
@@ -250,11 +250,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Add `account` to `groupId`. This gives him the authorization to call any function that is restricted to
-     * this group. An optional execution delay (in seconds) can be set. If that delay is non 0, the user is required
-     * to schedule any operation that is restricted to members this group. The user will only be able to execute the
-     * operation after the delay expires. During this delay, admin and guardians can cancel the operation (see
-     * {cancel}).
+     * @dev Add `account` to `groupId`, or change its execution delay.
+     *
+     * This gives the account the authorization to call any function that is restricted to this group. An optional
+     * execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
+     * that is restricted to members this group. The user will only be able to execute the operation after the delay has
+     * passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
+     *
+     * If the account has already been granted this group, the execution delay will be updated. This update is not
+     * immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
+     * called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
+     * operation executed in the 3 hours that follows this update was indeed scheduled before this update.
      *
      * Requirements:
      *
@@ -267,7 +273,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Remove an account for a group, with immediate effect.
+     * @dev Remove an account for a group, with immediate effect. If the sender is not in the group, this call has no
+     * effect.
      *
      * Requirements:
      *
@@ -280,7 +287,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Renounce group permissions for the calling account, with immediate effect.
+     * @dev Renounce group permissions for the calling account, with immediate effect. If the sender is not in
+     * the group, this call has no effect.
      *
      * Requirements:
      *
@@ -293,22 +301,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerBadConfirmation();
         }
         _revokeGroup(groupId, callerConfirmation);
-    }
-
-    /**
-     * @dev Set the execution delay for a given account in a given group. This update is not immediate and follows the
-     * delay rules. For example, If a user currently has a delay of 3 hours, and this is called to reduce that delay to
-     * 1 hour, the new delay will take some time to take effect, enforcing that any operation executed in the 3 hours
-     * that follows this update was indeed scheduled before this update.
-     *
-     * Requirements:
-     *
-     * - the caller must be in the group's admins
-     *
-     * Emits a {GroupExecutionDelayUpdated} event
-     */
-    function setExecuteDelay(uint64 groupId, address account, uint32 newDelay) public virtual onlyAuthorized {
-        _setExecuteDelay(groupId, account, newDelay);
     }
 
     /**
@@ -351,57 +343,57 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Internal version of {grantGroup} without access control.
+     * @dev Internal version of {grantGroup} without access control. Returns true if the group was newly granted.
      *
      * Emits a {GroupGranted} event
      */
-    function _grantGroup(uint64 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual {
+    function _grantGroup(
+        uint64 groupId,
+        address account,
+        uint32 grantDelay,
+        uint32 executionDelay
+    ) internal virtual returns (bool) {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since != 0) {
-            revert AccessManagerAccountAlreadyInGroup(groupId, account);
         }
 
-        uint48 since = Time.timestamp() + grantDelay;
-        _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+        bool inGroup = _groups[groupId].members[account].since != 0;
 
-        emit GroupGranted(groupId, account, since, executionDelay);
+        uint48 since;
+
+        if (inGroup) {
+            (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
+                executionDelay,
+                minSetback()
+            );
+        } else {
+            since = Time.timestamp() + grantDelay;
+            _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+        }
+
+        emit GroupGranted(groupId, account, executionDelay, since);
+        return !inGroup;
     }
 
     /**
      * @dev Internal version of {revokeGroup} without access control. This logic is also used by {renounceGroup}.
+     * Returns true if the group was previously granted.
      *
      * Emits a {GroupRevoked} event
      */
-    function _revokeGroup(uint64 groupId, address account) internal virtual {
+    function _revokeGroup(uint64 groupId, address account) internal virtual returns (bool) {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAccountNotInGroup(groupId, account);
+        }
+
+        if (_groups[groupId].members[account].since == 0) {
+            return false;
         }
 
         delete _groups[groupId].members[account];
 
         emit GroupRevoked(groupId, account);
-    }
-
-    /**
-     * @dev Internal version of {setExecuteDelay} without access control.
-     *
-     * Emits a {GroupExecutionDelayUpdated} event.
-     */
-    function _setExecuteDelay(uint64 groupId, address account, uint32 newDuration) internal virtual {
-        if (groupId == PUBLIC_GROUP || groupId == ADMIN_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
-        } else if (_groups[groupId].members[account].since == 0) {
-            revert AccessManagerAccountNotInGroup(groupId, account);
-        }
-
-        Time.Delay updated = _groups[groupId].members[account].delay.withUpdate(newDuration, minSetback());
-        _groups[groupId].members[account].delay = updated;
-
-        (, , uint48 effect) = updated.unpack();
-        emit GroupExecutionDelayUpdated(groupId, account, newDuration, effect);
+        return true;
     }
 
     /**
@@ -444,10 +436,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerLockedGroup(groupId);
         }
 
-        Time.Delay updated = _groups[groupId].delay.withUpdate(newDelay, minSetback());
+        (Time.Delay updated, uint48 effect) = _groups[groupId].delay.withUpdate(newDelay, minSetback());
         _groups[groupId].delay = updated;
 
-        (, , uint48 effect) = updated.unpack();
         emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
 
@@ -462,13 +453,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setFamilyFunctionGroup(
-        uint64 familyId,
+    function setClassFunctionGroup(
+        uint64 classId,
         bytes4[] calldata selectors,
         uint64 groupId
     ) public virtual onlyAuthorized {
         for (uint256 i = 0; i < selectors.length; ++i) {
-            _setFamilyFunctionGroup(familyId, selectors[i], groupId);
+            _setClassFunctionGroup(classId, selectors[i], groupId);
         }
     }
 
@@ -477,14 +468,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event
      */
-    function _setFamilyFunctionGroup(uint64 familyId, bytes4 selector, uint64 groupId) internal virtual {
-        _checkValidFamilyId(familyId);
-        _families[familyId].allowedGroups[selector] = groupId;
-        emit FamilyFunctionGroupUpdated(familyId, selector, groupId);
+    function _setClassFunctionGroup(uint64 classId, bytes4 selector, uint64 groupId) internal virtual {
+        _checkValidClassId(classId);
+        _classes[classId].allowedGroups[selector] = groupId;
+        emit ClassFunctionGroupUpdated(classId, selector, groupId);
     }
 
     /**
-     * @dev Set the delay for management operations on a given family of contract.
+     * @dev Set the delay for management operations on a given class of contract.
      *
      * Requirements:
      *
@@ -492,54 +483,57 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setFamilyAdminDelay(uint64 familyId, uint32 newDelay) public virtual onlyAuthorized {
-        _setFamilyAdminDelay(familyId, newDelay);
+    function setClassAdminDelay(uint64 classId, uint32 newDelay) public virtual onlyAuthorized {
+        _setClassAdminDelay(classId, newDelay);
     }
 
     /**
-     * @dev Internal version of {setFamilyAdminDelay} without access control.
+     * @dev Internal version of {setClassAdminDelay} without access control.
      *
-     * Emits a {FamilyAdminDelayUpdated} event
+     * Emits a {ClassAdminDelayUpdated} event
      */
-    function _setFamilyAdminDelay(uint64 familyId, uint32 newDelay) internal virtual {
-        _checkValidFamilyId(familyId);
-        Time.Delay updated = _families[familyId].adminDelay.withUpdate(newDelay, minSetback());
-        _families[familyId].adminDelay = updated;
-        (, , uint48 effect) = updated.unpack();
-        emit FamilyAdminDelayUpdated(familyId, newDelay, effect);
+    function _setClassAdminDelay(uint64 classId, uint32 newDelay) internal virtual {
+        _checkValidClassId(classId);
+        (Time.Delay updated, uint48 effect) = _classes[classId].adminDelay.withUpdate(newDelay, minSetback());
+        _classes[classId].adminDelay = updated;
+        emit ClassAdminDelayUpdated(classId, newDelay, effect);
     }
 
     /**
-     * @dev Reverts if `familyId` is 0.
+     * @dev Reverts if `classId` is 0. This is the default class id given to contracts and it should not have any
+     * configurations.
      */
-    function _checkValidFamilyId(uint64 familyId) private pure {
-        if (familyId == 0) {
-            revert AccessManagerInvalidFamily(familyId);
+    function _checkValidClassId(uint64 classId) private pure {
+        if (classId == 0) {
+            revert AccessManagerInvalidClass(classId);
         }
     }
 
     // =============================================== MODE MANAGEMENT ================================================
     /**
-     * @dev Set the family of a contract.
+     * @dev Set the class of a contract.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {ContractFamilyUpdated} event.
+     * Emits a {ContractClassUpdated} event.
      */
-    function setContractFamily(address target, uint64 familyId) public virtual onlyAuthorized {
-        _setContractFamily(target, familyId);
+    function setContractClass(address target, uint64 classId) public virtual onlyAuthorized {
+        _setContractClass(target, classId);
     }
 
     /**
-     * @dev Set the family of a contract. This is an internal setter with no access restrictions.
+     * @dev Set the class of a contract. This is an internal setter with no access restrictions.
      *
-     * Emits a {ContractFamilyUpdated} event.
+     * Emits a {ContractClassUpdated} event.
      */
-    function _setContractFamily(address target, uint64 familyId) internal virtual {
-        _contractMode[target].familyId = familyId;
-        emit ContractFamilyUpdated(target, familyId);
+    function _setContractClass(address target, uint64 classId) internal virtual {
+        if (target == address(this)) {
+            revert AccessManagerLockedAccount(target);
+        }
+        _contractMode[target].classId = classId;
+        emit ContractClassUpdated(target, classId);
     }
 
     /**
@@ -561,6 +555,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {ContractClosed} event.
      */
     function _setContractClosed(address target, bool closed) internal virtual {
+        if (target == address(this)) {
+            revert AccessManagerLockedAccount(target);
+        }
         _contractMode[target].closed = closed;
         emit ContractClosed(target, closed);
     }
@@ -700,9 +697,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
-            (uint64 familyId, ) = getContractFamily(target);
+            (uint64 classId, ) = getContractClass(target);
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
-            (bool isGuardian, ) = hasGroup(getGroupGuardian(getFamilyFunctionGroup(familyId, selector)), msgsender);
+            (bool isGuardian, ) = hasGroup(getGroupGuardian(getClassFunctionGroup(classId, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
                 revert AccessManagerCannotCancel(msgsender, caller, target, selector);
             }
@@ -762,32 +759,30 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
 
-        if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
-            // First argument is a target. Restricted to ADMIN with the family delay corresponding to the target's family
+        if (data.length < 4) {
+            return (false, 0, 0);
+        } else if (selector == this.updateAuthority.selector || selector == this.setContractClass.selector) {
+            // First argument is a target. Restricted to ADMIN with the class delay corresponding to the target's class
             address target = abi.decode(data[0x04:0x24], (address));
-            (uint64 familyId, ) = getContractFamily(target);
-            uint32 delay = getFamilyAdminDelay(familyId);
+            (uint64 classId, ) = getContractClass(target);
+            uint32 delay = getClassAdminDelay(classId);
             return (true, ADMIN_GROUP, delay);
-        } else if (selector == this.setFamilyFunctionGroup.selector) {
-            // First argument is a family. Restricted to ADMIN with the family delay corresponding to the family
-            uint64 familyId = abi.decode(data[0x04:0x24], (uint64));
-            uint32 delay = getFamilyAdminDelay(familyId);
+        } else if (selector == this.setClassFunctionGroup.selector) {
+            // First argument is a class. Restricted to ADMIN with the class delay corresponding to the class
+            uint64 classId = abi.decode(data[0x04:0x24], (uint64));
+            uint32 delay = getClassAdminDelay(classId);
             return (true, ADMIN_GROUP, delay);
         } else if (
             selector == this.labelGroup.selector ||
             selector == this.setGroupAdmin.selector ||
             selector == this.setGroupGuardian.selector ||
             selector == this.setGrantDelay.selector ||
-            selector == this.setFamilyAdminDelay.selector ||
+            selector == this.setClassAdminDelay.selector ||
             selector == this.setContractClosed.selector
         ) {
             // Restricted to ADMIN with no delay beside any execution delay the caller may have
             return (true, ADMIN_GROUP, 0);
-        } else if (
-            selector == this.grantGroup.selector ||
-            selector == this.revokeGroup.selector ||
-            selector == this.setExecuteDelay.selector
-        ) {
+        } else if (selector == this.grantGroup.selector || selector == this.revokeGroup.selector) {
             // First argument is a groupId. Restricted to that group's admin with no delay beside any execution delay the caller may have.
             uint64 groupId = abi.decode(data[0x04:0x24], (uint64));
             uint64 groupAdminId = getGroupAdmin(groupId);

@@ -18,7 +18,7 @@ const GROUPS = {
 };
 Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value]) => [value, key])));
 
-const familyId = web3.utils.toBN(1);
+const classId = web3.utils.toBN(1);
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
@@ -138,24 +138,15 @@ contract('AccessManager', function (accounts) {
 
         it('to a user that is already in the group', async function () {
           expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-
-          await expectRevertCustomError(
-            this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager }),
-            'AccessManagerAccountAlreadyInGroup',
-            [GROUPS.SOME, member],
-          );
+          await this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager });
+          expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
         });
 
         it('to a user that is scheduled for joining the group', async function () {
           await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
-
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-
-          await expectRevertCustomError(
-            this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
-            'AccessManagerAccountAlreadyInGroup',
-            [GROUPS.SOME, user],
-          );
+          await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
+          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
         });
 
         it('grant group is restricted', async function () {
@@ -212,6 +203,14 @@ contract('AccessManager', function (accounts) {
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
       });
+
+      it('cannot grant public group', async function () {
+        await expectRevertCustomError(
+          this.manager.$_grantGroup(GROUPS.PUBLIC, other, 0, executeDelay, { from: manager }),
+          'AccessManagerLockedGroup',
+          [GROUPS.PUBLIC],
+        );
+      });
     });
 
     describe('revoke group', function () {
@@ -249,12 +248,8 @@ contract('AccessManager', function (accounts) {
 
       it('from a user that is not in the group', async function () {
         expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-
-        await expectRevertCustomError(
-          this.manager.revokeGroup(GROUPS.SOME, user, { from: manager }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, user],
-        );
+        await this.manager.revokeGroup(GROUPS.SOME, user, { from: manager });
+        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
       });
 
       it('revoke group is restricted', async function () {
@@ -300,11 +295,7 @@ contract('AccessManager', function (accounts) {
       });
 
       it('for a user that is not in the group', async function () {
-        await expectRevertCustomError(
-          this.manager.renounceGroup(GROUPS.SOME, user, { from: user }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, user],
-        );
+        await this.manager.renounceGroup(GROUPS.SOME, user, { from: user });
       });
 
       it('bad user confirmation', async function () {
@@ -355,27 +346,27 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('change execution delay', function () {
-      it('increassing the delay has immediate effect', async function () {
+      it('increasing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
+          since: timestamp,
           delay: newDelay,
-          from: timestamp,
         });
 
         // immediate effect
@@ -385,27 +376,27 @@ contract('AccessManager', function (accounts) {
         expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('decreassing the delay takes time', async function () {
+      it('decreasing the delay takes time', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setExecuteDelay(GROUPS.SOME, member, oldDelay);
+        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
+          since: timestamp.add(oldDelay).sub(newDelay),
           delay: newDelay,
-          from: timestamp.add(oldDelay).sub(newDelay),
         });
 
         // delayed effect
@@ -415,49 +406,23 @@ contract('AccessManager', function (accounts) {
         expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(oldDelay).sub(newDelay)); // effect
       });
 
-      it('cannot set the delay of a non member', async function () {
-        await expectRevertCustomError(
-          this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager }),
-          'AccessManagerAccountNotInGroup',
-          [GROUPS.SOME, other],
-        );
-      });
-
-      it('cannot set the delay of public and admin groups', async function () {
-        for (const group of [GROUPS.PUBLIC, GROUPS.ADMIN]) {
-          await expectRevertCustomError(
-            this.manager.$_setExecuteDelay(group, other, executeDelay, { from: manager }),
-            'AccessManagerLockedGroup',
-            [group],
-          );
-        }
-      });
-
       it('can set a user execution delay during the grant delay', async function () {
         await this.manager.$_grantGroup(GROUPS.SOME, other, 10, 0);
 
-        const { receipt } = await this.manager.setExecuteDelay(GROUPS.SOME, other, executeDelay, { from: manager });
+        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupExecutionDelayUpdated', {
+        expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: other,
+          since: timestamp,
           delay: executeDelay,
-          from: timestamp,
         });
-      });
-
-      it('changing the execution delay is restricted', async function () {
-        await expectRevertCustomError(
-          this.manager.setExecuteDelay(GROUPS.SOME, member, executeDelay, { from: other }),
-          'AccessManagerUnauthorizedAccount',
-          [GROUPS.SOME_ADMIN, other],
-        );
       });
     });
 
     describe('change grant delay', function () {
-      it('increassing the delay has immediate effect', async function () {
+      it('increasing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
         await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
@@ -467,12 +432,12 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, from: timestamp });
+        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, since: timestamp });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
       });
 
-      it('increassing the delay has delay effect', async function () {
+      it('increasing the delay has delay effect', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
         await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
@@ -485,7 +450,7 @@ contract('AccessManager', function (accounts) {
         expectEvent(receipt, 'GroupGrantDelayChanged', {
           groupId: GROUPS.SOME,
           delay: newDelay,
-          from: timestamp.add(oldDelay).sub(newDelay),
+          since: timestamp.add(oldDelay).sub(newDelay),
         });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
@@ -525,36 +490,33 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function group', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(GROUPS.ADMIN);
+          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(GROUPS.ADMIN);
         }
 
-        const { receipt: receipt1 } = await this.manager.setFamilyFunctionGroup(familyId, sigs, GROUPS.SOME, {
+        const { receipt: receipt1 } = await this.manager.setClassFunctionGroup(classId, sigs, GROUPS.SOME, {
           from: admin,
         });
 
         for (const sig of sigs) {
-          expectEvent(receipt1, 'FamilyFunctionGroupUpdated', {
-            familyId,
+          expectEvent(receipt1, 'ClassFunctionGroupUpdated', {
+            classId,
             selector: sig,
             groupId: GROUPS.SOME,
           });
-          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(GROUPS.SOME);
+          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(GROUPS.SOME);
         }
 
-        const { receipt: receipt2 } = await this.manager.setFamilyFunctionGroup(
-          familyId,
-          [sigs[1]],
-          GROUPS.SOME_ADMIN,
-          { from: admin },
-        );
-        expectEvent(receipt2, 'FamilyFunctionGroupUpdated', {
-          familyId,
+        const { receipt: receipt2 } = await this.manager.setClassFunctionGroup(classId, [sigs[1]], GROUPS.SOME_ADMIN, {
+          from: admin,
+        });
+        expectEvent(receipt2, 'ClassFunctionGroupUpdated', {
+          classId,
           selector: sigs[1],
           groupId: GROUPS.SOME_ADMIN,
         });
 
         for (const sig of sigs) {
-          expect(await this.manager.getFamilyFunctionGroup(familyId, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(
             sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
           );
         }
@@ -562,7 +524,7 @@ contract('AccessManager', function (accounts) {
 
       it('non-admin cannot set function group', async function () {
         await expectRevertCustomError(
-          this.manager.setFamilyFunctionGroup(familyId, sigs, GROUPS.SOME, { from: other }),
+          this.manager.setClassFunctionGroup(classId, sigs, GROUPS.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
@@ -600,25 +562,25 @@ contract('AccessManager', function (accounts) {
             // setup
             await Promise.all([
               this.manager.$_setContractClosed(this.target.address, closed),
-              this.manager.$_setContractFamily(this.target.address, familyId),
-              fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnRestricted()'), fnGroup),
-              fnGroup && this.manager.$_setFamilyFunctionGroup(familyId, selector('fnUnrestricted()'), fnGroup),
+              this.manager.$_setContractClass(this.target.address, classId),
+              fnGroup && this.manager.$_setClassFunctionGroup(classId, selector('fnRestricted()'), fnGroup),
+              fnGroup && this.manager.$_setClassFunctionGroup(classId, selector('fnUnrestricted()'), fnGroup),
               ...callerGroups
                 .filter(groupId => groupId != GROUPS.PUBLIC)
                 .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
             ]);
 
             // post setup checks
-            const result = await this.manager.getContractFamily(this.target.address);
-            expect(result[0]).to.be.bignumber.equal(familyId);
+            const result = await this.manager.getContractClass(this.target.address);
+            expect(result[0]).to.be.bignumber.equal(classId);
             expect(result[1]).to.be.equal(closed);
 
             if (fnGroup) {
               expect(
-                await this.manager.getFamilyFunctionGroup(familyId, selector('fnRestricted()')),
+                await this.manager.getClassFunctionGroup(classId, selector('fnRestricted()')),
               ).to.be.bignumber.equal(fnGroup);
               expect(
-                await this.manager.getFamilyFunctionGroup(familyId, selector('fnUnrestricted()')),
+                await this.manager.getClassFunctionGroup(classId, selector('fnUnrestricted()')),
               ).to.be.bignumber.equal(fnGroup);
             }
 
@@ -832,8 +794,8 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setContractFamily(this.target.address, familyId);
-        await this.manager.$_setFamilyFunctionGroup(familyId, this.callData, GROUPS.SOME);
+        await this.manager.$_setContractClass(this.target.address, classId);
+        await this.manager.$_setClassFunctionGroup(classId, this.callData, GROUPS.SOME);
         await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
       });
 
@@ -996,13 +958,13 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('Contract is managed', function () {
-      beforeEach('add contract to family', async function () {
-        await this.manager.$_setContractFamily(this.ownable.address, familyId);
+      beforeEach('add contract to class', async function () {
+        await this.manager.$_setContractClass(this.ownable.address, classId);
       });
 
       describe('function is open to specific group', function () {
         beforeEach(async function () {
-          await this.manager.$_setFamilyFunctionGroup(familyId, selector('$_checkOwner()'), groupId);
+          await this.manager.$_setClassFunctionGroup(classId, selector('$_checkOwner()'), groupId);
         });
 
         it('directly call: reverts', async function () {
@@ -1026,7 +988,7 @@ contract('AccessManager', function (accounts) {
 
       describe('function is open to public group', function () {
         beforeEach(async function () {
-          await this.manager.$_setFamilyFunctionGroup(familyId, selector('$_checkOwner()'), GROUPS.PUBLIC);
+          await this.manager.$_setClassFunctionGroup(classId, selector('$_checkOwner()'), GROUPS.PUBLIC);
         });
 
         it('directly call: reverts', async function () {
@@ -1087,16 +1049,16 @@ contract('AccessManager', function (accounts) {
   });
 
   // TODO: test all admin functions
-  describe('family delays', function () {
-    const otherFamilyId = '2';
+  describe('class delays', function () {
+    const otherClassId = '2';
     const delay = '1000';
 
-    beforeEach('set contract family', async function () {
+    beforeEach('set contract class', async function () {
       this.target = await AccessManagedTarget.new(this.manager.address);
-      await this.manager.setContractFamily(this.target.address, familyId, { from: admin });
+      await this.manager.setContractClass(this.target.address, classId, { from: admin });
 
-      this.call = () => this.manager.setContractFamily(this.target.address, otherFamilyId, { from: admin });
-      this.data = this.manager.contract.methods.setContractFamily(this.target.address, otherFamilyId).encodeABI();
+      this.call = () => this.manager.setContractClass(this.target.address, otherClassId, { from: admin });
+      this.data = this.manager.contract.methods.setContractClass(this.target.address, otherClassId).encodeABI();
     });
 
     it('without delay: succeeds', async function () {
@@ -1105,20 +1067,20 @@ contract('AccessManager', function (accounts) {
 
     // TODO: here we need to check increase and decrease.
     // - Increasing should have immediate effect
-    // - Decreassing should take time.
+    // - Decreasing should take time.
     describe('with delay', function () {
       beforeEach('set admin delay', async function () {
-        this.tx = await this.manager.setFamilyAdminDelay(familyId, delay, { from: admin });
+        this.tx = await this.manager.setClassAdminDelay(classId, delay, { from: admin });
         this.opId = web3.utils.keccak256(
           web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
         );
       });
 
       it('emits event and sets delay', async function () {
-        const from = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
-        expectEvent(this.tx.receipt, 'FamilyAdminDelayUpdated', { familyId, delay, from });
+        const since = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
+        expectEvent(this.tx.receipt, 'ClassAdminDelayUpdated', { classId, delay, since });
 
-        expect(await this.manager.getFamilyAdminDelay(familyId)).to.be.bignumber.equal(delay);
+        expect(await this.manager.getClassAdminDelay(classId)).to.be.bignumber.equal(delay);
       });
 
       it('without prior scheduling: reverts', async function () {
