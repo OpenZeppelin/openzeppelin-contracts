@@ -754,7 +754,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
         bytes4 selector = bytes4(data);
 
-        if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
+        if (data.length < 4) {
+            return (false, 0, 0);
+        } else if (selector == this.updateAuthority.selector || selector == this.setContractFamily.selector) {
             // First argument is a target. Restricted to ADMIN with the family delay corresponding to the target's family
             address target = abi.decode(data[0x04:0x24], (address));
             (uint64 familyId, ) = getContractFamily(target);
