@@ -25,7 +25,7 @@ abstract contract GovernorCountingSimple is Governor {
         mapping(address voter => bool voted) hasVoted;
     }
 
-    mapping(uint256 proposalId => ProposalVote vote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.

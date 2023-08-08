@@ -52,7 +52,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         bytes32 adminRole;
     }
 
-    mapping(bytes32 role => RoleData data) private _roles;
+    mapping(bytes32 role => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
