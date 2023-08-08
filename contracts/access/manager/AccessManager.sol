@@ -495,7 +495,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Reverts if `familyId` is 0.
+     * @dev Reverts if `familyId` is 0. This is the default family id given to contracts and it should not have any
+     * configurations.
      */
     function _checkValidFamilyId(uint64 familyId) private pure {
         if (familyId == 0) {
