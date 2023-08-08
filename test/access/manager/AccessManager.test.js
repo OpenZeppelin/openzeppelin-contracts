@@ -506,12 +506,9 @@ contract('AccessManager', function (accounts) {
           expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(GROUPS.SOME);
         }
 
-        const { receipt: receipt2 } = await this.manager.setClassFunctionGroup(
-          classId,
-          [sigs[1]],
-          GROUPS.SOME_ADMIN,
-          { from: admin },
-        );
+        const { receipt: receipt2 } = await this.manager.setClassFunctionGroup(classId, [sigs[1]], GROUPS.SOME_ADMIN, {
+          from: admin,
+        });
         expectEvent(receipt2, 'ClassFunctionGroupUpdated', {
           classId,
           selector: sigs[1],
