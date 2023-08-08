@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IAccessControl} from "./IAccessControl.sol";
 import {Context} from "../utils/Context.sol";
@@ -58,8 +58,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
-     * with a custom error including the required role.
-     *
+     * with an {AccessControlUnauthorizedAccount} error including the required role.
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role);
@@ -81,15 +80,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revert with a custom error if `_msgSender()` is missing `role`.
-     * Overriding this function changes the behavior of the {onlyRole} modifier.
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());
     }
 
     /**
-     * @dev Revert with a custom error if `account` is missing `role`.
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`
+     * is missing `role`.
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
@@ -174,30 +174,36 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Grants `role` to `account`.
+     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.
      *
      * Internal function without access restriction.
      *
      * May emit a {RoleGranted} event.
      */
-    function _grantRole(bytes32 role, address account) internal virtual {
+    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {
         if (!hasRole(role, account)) {
             _roles[role].members[account] = true;
             emit RoleGranted(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 
     /**
-     * @dev Revokes `role` from `account`.
+     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
      *
      * Internal function without access restriction.
      *
      * May emit a {RoleRevoked} event.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual {
+    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {
         if (hasRole(role, account)) {
             _roles[role].members[account] = false;
             emit RoleRevoked(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 }

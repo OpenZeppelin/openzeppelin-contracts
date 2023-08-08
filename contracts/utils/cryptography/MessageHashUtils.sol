@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Strings} from "../Strings.sol";
 
@@ -46,7 +46,8 @@ library MessageHashUtils {
      * See {ECDSA-recover}.
      */
     function toEthSignedMessageHash(bytes memory message) internal pure returns (bytes32 digest) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(message.length), message));
+        return
+            keccak256(bytes.concat("\x19Ethereum Signed Message:\n", bytes(Strings.toString(message.length)), message));
     }
 
     /**

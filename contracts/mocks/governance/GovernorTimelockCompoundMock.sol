@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IGovernor, Governor} from "../../governance/Governor.sol";
 import {GovernorTimelockCompound} from "../../governance/extensions/GovernorTimelockCompound.sol";
@@ -14,15 +14,7 @@ abstract contract GovernorTimelockCompoundMock is
     GovernorVotesQuorumFraction,
     GovernorCountingSimple
 {
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(Governor, GovernorTimelockCompound) returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
-
-    function quorum(
-        uint256 blockNumber
-    ) public view override(IGovernor, GovernorVotesQuorumFraction) returns (uint256) {
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(blockNumber);
     }
 
@@ -36,23 +28,33 @@ abstract contract GovernorTimelockCompoundMock is
         return super.proposalThreshold();
     }
 
-    function _execute(
+    function _queueOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockCompound) {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
-    ) internal override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
-        return super._cancel(targets, values, calldatas, salt);
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) returns (uint256) {
+        return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
     function _executor() internal view override(Governor, GovernorTimelockCompound) returns (address) {

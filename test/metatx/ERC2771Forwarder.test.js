@@ -7,14 +7,13 @@ const { constants, expectRevert, expectEvent, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
-const CallReceiverMock = artifacts.require('CallReceiverMock');
+const CallReceiverMockTrustingForwarder = artifacts.require('CallReceiverMockTrustingForwarder');
 
 contract('ERC2771Forwarder', function (accounts) {
   const [, refundReceiver, another] = accounts;
 
   const tamperedValues = {
     from: another,
-    to: another,
     value: web3.utils.toWei('0.5'),
     data: '0x1742',
     deadline: 0xdeadbeef,
@@ -41,12 +40,13 @@ contract('ERC2771Forwarder', function (accounts) {
     this.alice.address = web3.utils.toChecksumAddress(this.alice.getAddressString());
 
     this.timestamp = await time.latest();
+    this.receiver = await CallReceiverMockTrustingForwarder.new(this.forwarder.address);
     this.request = {
       from: this.alice.address,
-      to: constants.ZERO_ADDRESS,
+      to: this.receiver.address,
       value: '0',
       gas: '100000',
-      data: '0x',
+      data: this.receiver.contract.methods.mockFunction().encodeABI(),
       deadline: this.timestamp.toNumber() + 60, // 1 minute
     };
     this.requestData = {
@@ -63,6 +63,14 @@ contract('ERC2771Forwarder', function (accounts) {
     this.sign = (privateKey, request) =>
       ethSigUtil.signTypedMessage(privateKey, {
         data: this.forgeData(request),
+      });
+    this.estimateRequest = request =>
+      web3.eth.estimateGas({
+        from: this.forwarder.address,
+        to: request.to,
+        data: web3.utils.encodePacked({ value: request.data, type: 'bytes' }, { value: request.from, type: 'address' }),
+        value: request.value,
+        gas: request.gas,
       });
 
     this.requestData.signature = this.sign(this.alice.getPrivateKey());
@@ -87,6 +95,10 @@ contract('ERC2771Forwarder', function (accounts) {
           expect(await this.forwarder.verify(this.forgeData({ [key]: value }).message)).to.be.equal(false);
         });
       }
+
+      it('returns false with an untrustful to', async function () {
+        expect(await this.forwarder.verify(this.forgeData({ to: another }).message)).to.be.equal(false);
+      });
 
       it('returns false with tampered signature', async function () {
         const tamperedsign = web3.utils.hexToBytes(this.requestData.signature);
@@ -125,7 +137,8 @@ contract('ERC2771Forwarder', function (accounts) {
 
       it('emits an event and consumes nonce for a successful request', async function () {
         const receipt = await this.forwarder.execute(this.requestData);
-        expectEvent(receipt, 'ExecutedForwardRequest', {
+        await expectEvent.inTransaction(receipt.tx, this.receiver, 'MockFunctionCalled');
+        await expectEvent.inTransaction(receipt.tx, this.forwarder, 'ExecutedForwardRequest', {
           signer: this.requestData.from,
           nonce: web3.utils.toBN(this.requestData.nonce),
           success: true,
@@ -136,11 +149,9 @@ contract('ERC2771Forwarder', function (accounts) {
       });
 
       it('reverts with an unsuccessful request', async function () {
-        const receiver = await CallReceiverMock.new();
         const req = {
           ...this.requestData,
-          to: receiver.address,
-          data: receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+          data: this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
         };
         req.signature = this.sign(this.alice.getPrivateKey(), req);
         await expectRevertCustomError(this.forwarder.execute(req), 'FailedInnerCall', []);
@@ -160,6 +171,14 @@ contract('ERC2771Forwarder', function (accounts) {
           );
         });
       }
+
+      it('reverts with an untrustful to', async function () {
+        const data = this.forgeData({ to: another });
+        await expectRevertCustomError(this.forwarder.execute(data.message), 'ERC2771UntrustfulTarget', [
+          data.message.to,
+          this.forwarder.address,
+        ]);
+      });
 
       it('reverts with tampered signature', async function () {
         const tamperedSig = web3.utils.hexToBytes(this.requestData.signature);
@@ -208,19 +227,42 @@ contract('ERC2771Forwarder', function (accounts) {
     });
 
     it('bubbles out of gas', async function () {
-      const receiver = await CallReceiverMock.new();
-      const gasAvailable = 100000;
-      this.requestData.to = receiver.address;
-      this.requestData.data = receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
-      this.requestData.gas = 1000000;
-
+      this.requestData.data = this.receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
+      this.requestData.gas = 1_000_000;
       this.requestData.signature = this.sign(this.alice.getPrivateKey());
 
+      const gasAvailable = 100_000;
       await expectRevert.assertion(this.forwarder.execute(this.requestData, { gas: gasAvailable }));
 
       const { transactions } = await web3.eth.getBlock('latest');
       const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
 
+      expect(gasUsed).to.be.equal(gasAvailable);
+    });
+
+    it('bubbles out of gas forced by the relayer', async function () {
+      // If there's an incentive behind executing requests, a malicious relayer could grief
+      // the forwarder by executing requests and providing a top-level call gas limit that
+      // is too low to successfully finish the request after the 63/64 rule.
+
+      // We set the baseline to the gas limit consumed by a successful request if it was executed
+      // normally. Note this includes the 21000 buffer that also the relayer will be charged to
+      // start a request execution.
+      const estimate = await this.estimateRequest(this.request);
+
+      // Because the relayer call consumes gas until the `CALL` opcode, the gas left after failing
+      // the subcall won't enough to finish the top level call (after testing), so we add a
+      // moderated buffer.
+      const gasAvailable = estimate + 2_000;
+
+      // The subcall out of gas should be caught by the contract and then bubbled up consuming
+      // the available gas with an `invalid` opcode.
+      await expectRevert.outOfGas(this.forwarder.execute(this.requestData, { gas: gasAvailable }));
+
+      const { transactions } = await web3.eth.getBlock('latest');
+      const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
+
+      // We assert that indeed the gas was totally consumed.
       expect(gasUsed).to.be.equal(gasAvailable);
     });
   });
@@ -252,6 +294,14 @@ contract('ERC2771Forwarder', function (accounts) {
       }));
 
       this.msgValue = batchValue(this.requestDatas);
+
+      this.gasUntil = async reqIdx => {
+        const gas = 0;
+        const estimations = await Promise.all(
+          new Array(reqIdx + 1).fill().map((_, idx) => this.estimateRequest(this.requestDatas[idx])),
+        );
+        return estimations.reduce((acc, estimation) => acc + estimation, gas);
+      };
     });
 
     context('with valid requests', function () {
@@ -265,7 +315,8 @@ contract('ERC2771Forwarder', function (accounts) {
 
       it('emits events', async function () {
         for (const request of this.requestDatas) {
-          expectEvent(this.receipt, 'ExecutedForwardRequest', {
+          await expectEvent.inTransaction(this.receipt.tx, this.receiver, 'MockFunctionCalled');
+          await expectEvent.inTransaction(this.receipt.tx, this.forwarder, 'ExecutedForwardRequest', {
             signer: request.from,
             nonce: web3.utils.toBN(request.nonce),
             success: true,
@@ -319,6 +370,18 @@ contract('ERC2771Forwarder', function (accounts) {
             );
           });
         }
+
+        it('reverts with at least one untrustful to', async function () {
+          const data = this.forgeData({ ...this.requestDatas[this.idx], to: another });
+
+          this.requestDatas[this.idx] = data.message;
+
+          await expectRevertCustomError(
+            this.forwarder.executeBatch(this.requestDatas, this.refundReceiver, { value: this.msgValue }),
+            'ERC2771UntrustfulTarget',
+            [this.requestDatas[this.idx].to, this.forwarder.address],
+          );
+        });
 
         it('reverts with at least one tampered request signature', async function () {
           const tamperedSig = web3.utils.hexToBytes(this.requestDatas[this.idx].signature);
@@ -427,6 +490,52 @@ contract('ERC2771Forwarder', function (accounts) {
             web3.utils.toBN(this.initialTamperedRequestNonce),
           );
         });
+      });
+
+      it('bubbles out of gas', async function () {
+        this.requestDatas[this.idx].data = this.receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
+        this.requestDatas[this.idx].gas = 1_000_000;
+        this.requestDatas[this.idx].signature = this.sign(
+          this.signers[this.idx].getPrivateKey(),
+          this.requestDatas[this.idx],
+        );
+
+        const gasAvailable = 300_000;
+        await expectRevert.assertion(
+          this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS, {
+            gas: gasAvailable,
+            value: this.requestDatas.reduce((acc, { value }) => acc + Number(value), 0),
+          }),
+        );
+
+        const { transactions } = await web3.eth.getBlock('latest');
+        const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
+
+        expect(gasUsed).to.be.equal(gasAvailable);
+      });
+
+      it('bubbles out of gas forced by the relayer', async function () {
+        // Similarly to the single execute, a malicious relayer could grief requests.
+
+        // We estimate until the selected request as if they were executed normally
+        const estimate = await this.gasUntil(this.requestDatas, this.idx);
+
+        // We add a Buffer to account for all the gas that's used before the selected call.
+        // Note is slightly bigger because the selected request is not the index 0 and it affects
+        // the buffer needed.
+        const gasAvailable = estimate + 10_000;
+
+        // The subcall out of gas should be caught by the contract and then bubbled up consuming
+        // the available gas with an `invalid` opcode.
+        await expectRevert.outOfGas(
+          this.forwarder.executeBatch(this.requestDatas, constants.ZERO_ADDRESS, { gas: gasAvailable }),
+        );
+
+        const { transactions } = await web3.eth.getBlock('latest');
+        const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
+
+        // We assert that indeed the gas was totally consumed.
+        expect(gasUsed).to.be.equal(gasAvailable);
       });
     });
   });

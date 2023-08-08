@@ -2,10 +2,8 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap, timelockSalt } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
-
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorTimelockControlMock');
@@ -37,9 +35,6 @@ contract('GovernorTimelockControl', function (accounts) {
 
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
-      const timelockSalt = (address, descriptionHash) =>
-        '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
-
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
@@ -96,8 +91,6 @@ contract('GovernorTimelockControl', function (accounts) {
           timelockSalt(this.mock.address, this.proposal.shortProposal[3]),
         );
       });
-
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));
