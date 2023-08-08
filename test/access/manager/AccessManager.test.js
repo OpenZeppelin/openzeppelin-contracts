@@ -355,7 +355,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('change execution delay', function () {
-      it('increassing the delay has immediate effect', async function () {
+      it('increasing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
@@ -385,7 +385,7 @@ contract('AccessManager', function (accounts) {
         expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('decreassing the delay takes time', async function () {
+      it('decreasing the delay takes time', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
@@ -457,7 +457,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('change grant delay', function () {
-      it('increassing the delay has immediate effect', async function () {
+      it('increasing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
         await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
@@ -472,7 +472,7 @@ contract('AccessManager', function (accounts) {
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
       });
 
-      it('increassing the delay has delay effect', async function () {
+      it('increasing the delay has delay effect', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
         await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
@@ -1105,7 +1105,7 @@ contract('AccessManager', function (accounts) {
 
     // TODO: here we need to check increase and decrease.
     // - Increasing should have immediate effect
-    // - Decreassing should take time.
+    // - Decreasing should take time.
     describe('with delay', function () {
       beforeEach('set admin delay', async function () {
         this.tx = await this.manager.setFamilyAdminDelay(familyId, delay, { from: admin });
