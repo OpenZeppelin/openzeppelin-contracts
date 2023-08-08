@@ -145,7 +145,7 @@ contract('AccessManager', function (accounts) {
         it('to a user that is scheduled for joining the group', async function () {
           await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-          await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager }),
+          await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
         });
 

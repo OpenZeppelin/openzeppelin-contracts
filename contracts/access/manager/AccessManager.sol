@@ -347,7 +347,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {GroupGranted} event
      */
-    function _grantGroup(uint64 groupId, address account, uint32 grantDelay, uint32 executionDelay) internal virtual returns (bool) {
+    function _grantGroup(
+        uint64 groupId,
+        address account,
+        uint32 grantDelay,
+        uint32 executionDelay
+    ) internal virtual returns (bool) {
         if (groupId == PUBLIC_GROUP) {
             revert AccessManagerLockedGroup(groupId);
         }
@@ -777,10 +782,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         ) {
             // Restricted to ADMIN with no delay beside any execution delay the caller may have
             return (true, ADMIN_GROUP, 0);
-        } else if (
-            selector == this.grantGroup.selector ||
-            selector == this.revokeGroup.selector
-        ) {
+        } else if (selector == this.grantGroup.selector || selector == this.revokeGroup.selector) {
             // First argument is a groupId. Restricted to that group's admin with no delay beside any execution delay the caller may have.
             uint64 groupId = abi.decode(data[0x04:0x24], (uint64));
             uint64 groupAdminId = getGroupAdmin(groupId);
