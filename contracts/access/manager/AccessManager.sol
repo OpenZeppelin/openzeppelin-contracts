@@ -257,7 +257,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * that is restricted to members this group. The user will only be able to execute the operation after the delay has
      * passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
      *
-     * If the account has already been granted this gorup, the execution delay will be updated. This update is not
+     * If the account has already been granted this group, the execution delay will be updated. This update is not
      * immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
      * called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
      * operation executed in the 3 hours that follows this update was indeed scheduled before this update.
