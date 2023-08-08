@@ -524,6 +524,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {ContractFamilyUpdated} event.
      */
     function _setContractFamily(address target, uint64 familyId) internal virtual {
+        if (target == address(this)) {
+            revert AccessManagerLockedAccount(target);
+        }
         _contractMode[target].familyId = familyId;
         emit ContractFamilyUpdated(target, familyId);
     }
@@ -547,6 +550,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {ContractClosed} event.
      */
     function _setContractClosed(address target, bool closed) internal virtual {
+        if (target == address(this)) {
+            revert AccessManagerLockedAccount(target);
+        }
         _contractMode[target].closed = closed;
         emit ContractClosed(target, closed);
     }
