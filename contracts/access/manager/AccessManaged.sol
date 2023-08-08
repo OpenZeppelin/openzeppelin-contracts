@@ -90,7 +90,8 @@ abstract contract AccessManaged is Context, IAccessManaged {
     }
 
     /**
-     * @dev Transfers control to a new authority. Internal function with no access restriction.
+     * @dev Transfers control to a new authority. Internal function with no access restriction. Allows bypassing the
+     * permissions set by the current authority.
      */
     function _setAuthority(address newAuthority) internal virtual {
         _authority = newAuthority;
