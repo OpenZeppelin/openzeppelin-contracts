@@ -53,9 +53,13 @@ library Time {
      *
      *
      * The `Delay` type is 128 bits long, and packs the following:
-     * [000:031] uint32 for the current value (duration)
-     * [032:063] uint32 for the pending value (duration)
-     * [064:111] uint48 for the effect date (timepoint)
+     *
+     * ```
+     *   | [uint48]: effect date (timepoint)
+     *   |           | [uint32]: current value (duration)
+     *   ↓           ↓       ↓ [uint32]: pending value (duration)
+     * 0xAAAAAAAAAAAABBBBBBBBCCCCCCCC
+     * ```
      *
      * NOTE: The {get} and {update} function operate using timestamps. Block number based delays should use the
      * {getAt} and {withUpdateAt} variants of these functions.
