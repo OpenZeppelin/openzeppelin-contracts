@@ -11,11 +11,25 @@
 [[install]]
 === Installation
 
+==== Hardhat, Truffle (npm)
+
 ```console
 $ npm install @openzeppelin/contracts
 ```
 
-OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means your contracts won't break unexpectedly when upgrading to a newer minor version.
+OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
+
+==== Foundry (git)
+
+WARNING: When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
+
+WARNING: Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+
+```console
+$ forge install OpenZeppelin/openzeppelin-contracts
+```
+
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
 
 [[usage]]
 === Usage
