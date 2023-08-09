@@ -402,6 +402,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         address owner = ownerOf(tokenId);
 
+        // We do not use _isAuthorized because single-token approvals should not be able to call approve
         if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
             revert ERC721InvalidApprover(auth);
         }
