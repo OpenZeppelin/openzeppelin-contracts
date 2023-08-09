@@ -374,6 +374,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * - `tokenId` token must exist and be owned by `from`.
      * - `to` cannot be the zero address.
+     * - `from` cannot be the zero address.
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
