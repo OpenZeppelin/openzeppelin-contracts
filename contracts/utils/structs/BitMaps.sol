@@ -17,7 +17,7 @@ pragma solidity ^0.8.20;
  */
 library BitMaps {
     struct BitMap {
-        mapping(uint256 => uint256) _data;
+        mapping(uint256 bucket => uint256) _data;
     }
 
     /**

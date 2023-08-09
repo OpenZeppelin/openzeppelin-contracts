@@ -20,8 +20,8 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegates;
-    mapping(address => Checkpoint[]) private _checkpoints;
+    mapping(address account => address) private _delegatee;
+    mapping(address delegatee => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
@@ -42,7 +42,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      * @dev Get the address `account` is currently delegating to.
      */
     function delegates(address account) public view virtual returns (address) {
-        return _delegates[account];
+        return _delegatee[account];
     }
 
     /**
@@ -188,7 +188,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
-        _delegates[delegator] = delegatee;
+        _delegatee[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
 

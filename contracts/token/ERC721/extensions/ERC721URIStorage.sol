@@ -15,7 +15,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     using Strings for uint256;
 
     // Optional mapping for token URIs
-    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 tokenId => string) private _tokenURIs;
 
     /**
      * @dev See {IERC165-supportsInterface}

@@ -74,7 +74,7 @@ error EnumerableMapNonexistentKey(bytes32 key);
 struct Bytes32ToBytes32Map {
     // Storage of keys
     EnumerableSet.Bytes32Set _keys;
-    mapping(bytes32 => bytes32) _values;
+    mapping(bytes32 key => bytes32) _values;
 }
 
 /**
