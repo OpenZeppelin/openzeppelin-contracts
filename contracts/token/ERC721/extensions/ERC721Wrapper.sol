@@ -50,7 +50,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
-            // Setting an "auth" arguments enables the `_isApproved` check which verifies that the token exists
+            // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
             // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
             _update(address(0), tokenId, _msgSender());
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
