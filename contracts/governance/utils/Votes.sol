@@ -36,7 +36,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     mapping(address account => address) private _delegatee;
 
-    mapping(address delegatee => Checkpoints.Trace224 checkpoints) private _delegateCheckpoints;
+    mapping(address delegatee => Checkpoints.Trace224) private _delegateCheckpoints;
 
     Checkpoints.Trace224 private _totalCheckpoints;
 

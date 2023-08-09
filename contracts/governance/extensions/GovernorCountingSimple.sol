@@ -22,7 +22,7 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address voter => bool voted) hasVoted;
+        mapping(address voter => bool) hasVoted;
     }
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;

@@ -25,11 +25,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     // Token symbol
     string private _symbol;
 
-    mapping(uint256 tokenId => address owner) private _owners;
+    mapping(uint256 tokenId => address) private _owners;
 
-    mapping(address owner => uint256 balance) private _balances;
+    mapping(address owner => uint256) private _balances;
 
-    mapping(uint256 tokenId => address operator) private _tokenApprovals;
+    mapping(uint256 tokenId => address) private _tokenApprovals;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
