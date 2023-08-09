@@ -96,7 +96,7 @@ function shouldBehaveLikeERC721(owner, newOwner, operator, other) {
         });
 
         it('adjusts owners tokens by index', async function () {
-          if (!this.token.tokenOfOwnerByIndex) return;
+          if (!this.token.tokenOfOwnerByIndex) this.skip();
 
           expect(await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).to.be.bignumber.equal(tokenId);
 
@@ -160,7 +160,8 @@ function shouldBehaveLikeERC721(owner, newOwner, operator, other) {
           });
 
           it('keeps same tokens by index', async function () {
-            if (!this.token.tokenOfOwnerByIndex) return;
+            if (!this.token.tokenOfOwnerByIndex) this.skip();
+
             const tokensListed = await Promise.all([0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i)));
             expect(tokensListed.map(t => t.toNumber())).to.have.members([
               firstTokenId.toNumber(),
