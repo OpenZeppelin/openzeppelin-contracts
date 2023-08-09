@@ -17,7 +17,7 @@
 $ npm install @openzeppelin/contracts
 ```
 
-OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
+OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
 
 ==== Foundry (git)
 
