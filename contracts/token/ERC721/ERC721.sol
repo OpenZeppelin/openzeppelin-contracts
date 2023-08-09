@@ -108,8 +108,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev See {IERC721-approve}.
      */
-    function approve(address to, uint256 tokenId) public virtual {
-        _approve(to, tokenId, _msgSender());
+    function approve(address operator, uint256 tokenId) public virtual {
+        _approve(operator, tokenId, _msgSender());
     }
 
     /**
@@ -396,7 +396,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits an {Approval} event.
      */
-    function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
+    function _approve(address operator, uint256 tokenId, address auth) internal virtual returns (address) {
         address owner = ownerOf(tokenId);
 
         // We do not use _isAuthorized because single-token approvals should not be able to call approve
@@ -404,8 +404,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             revert ERC721InvalidApprover(auth);
         }
 
-        _tokenApprovals[tokenId] = to;
-        emit Approval(owner, to, tokenId);
+        _tokenApprovals[tokenId] = operator;
+        emit Approval(owner, operator, tokenId);
 
         return owner;
     }
