@@ -507,7 +507,6 @@ function shouldBehaveLikeERC721(owner, newOwner, operator, other) {
         itEmitsApprovalEvent(address);
       };
 
-
       context('when clearing approval', function () {
         context('when there was no prior approval', function () {
           beforeEach(async function () {
