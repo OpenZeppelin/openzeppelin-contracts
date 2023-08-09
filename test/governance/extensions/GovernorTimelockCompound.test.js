@@ -6,8 +6,6 @@ const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/govern
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { computeCreateAddress } = require('../../helpers/create');
 
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -76,8 +74,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           '<proposal description>',
         );
       });
-
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
 
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));

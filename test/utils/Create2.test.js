@@ -1,6 +1,6 @@
 const { balance, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
-const { computeCreate2Address } = require('../helpers/create');
 const { expect } = require('chai');
+const { computeCreate2Address } = require('../helpers/create');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const Create2 = artifacts.require('$Create2');
@@ -59,7 +59,9 @@ contract('Create2', function (accounts) {
         addr: offChainComputed,
       });
 
-      expect(await VestingWallet.at(offChainComputed).then(instance => instance.beneficiary())).to.be.equal(other);
+      const instance = await VestingWallet.at(offChainComputed);
+
+      expect(await instance.owner()).to.be.equal(other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
