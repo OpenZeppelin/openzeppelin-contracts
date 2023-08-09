@@ -108,7 +108,7 @@ interface IERC721 is IERC165 {
      *
      * Requirements:
      *
-     * - The `operator` cannot be the caller.
+     * - The `operator` cannot be the address zero.
      *
      * Emits an {ApprovalForAll} event.
      */
