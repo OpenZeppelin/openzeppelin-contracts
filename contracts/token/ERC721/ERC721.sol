@@ -192,7 +192,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
      * particular (ignoring whether it is owned by `owner`).
      *
-     * WARNING: This function doesn't check that `owner` is the actual owner of `tokenId`.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not
+     * verify this assumption.
      */
     function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return
