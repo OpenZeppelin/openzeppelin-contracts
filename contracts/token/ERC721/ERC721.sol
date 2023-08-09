@@ -344,7 +344,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Requirements:
      *
      * - `to` cannot be the zero address.
-     * - `tokenId` token must exists and be owned by `from`.
+     * - `tokenId` token must be owned by `from`.
      *
      * Emits a {Transfer} event.
      */
