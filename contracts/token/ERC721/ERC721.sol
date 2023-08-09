@@ -31,7 +31,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     mapping(uint256 tokenId => address operator) private _tokenApprovals;
 
-    mapping(address owner => mapping(address operator => bool approved)) private _operatorApprovals;
+    mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.

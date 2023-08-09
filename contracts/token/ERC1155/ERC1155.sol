@@ -20,9 +20,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     using Arrays for uint256[];
     using Arrays for address[];
 
-    mapping(uint256 id => mapping(address account => uint256 balance)) private _balances;
+    mapping(uint256 id => mapping(address account => uint256)) private _balances;
 
-    mapping(address account => mapping(address operator => bool approved)) private _operatorApprovals;
+    mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
 
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;

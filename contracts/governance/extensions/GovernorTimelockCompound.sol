@@ -22,8 +22,6 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
 
-    mapping(uint256 proposalId => uint256 eta) private _proposalTimelocks;
-
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
      */
