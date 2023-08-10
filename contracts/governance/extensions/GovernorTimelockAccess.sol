@@ -26,7 +26,41 @@ abstract contract GovernorTimelockAccess is Governor {
     mapping(uint256 => ExecutionPlan) private _executionPlan;
     mapping(address target => address) private _authorityOverride;
 
-    constructor(uint32 defaultDelay) {
+    uint32 _baseDelay;
+
+    error GovernorUnmetDelay(uint256 proposalId, uint256 neededTimestamp);
+
+    event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
+
+    constructor(uint32 initialBaseDelay) {
+        _baseDelay = initialBaseDelay;
+    }
+
+    /**
+     * @dev Base delay that will be applied to all function calls. Some may be further delayed by their associated
+     * `AccessManager` authority; in this case the final delay will be the maximum of the base delay and the one
+     * demanded by the authority.
+     *
+     * NOTE: Execution delays are processed by the `AccessManager` contracts, and according to that contract are
+     * expressed in seconds. Therefore, the base delay is also in seconds, regardless of the governor's clock mode.
+     */
+    function baseDelaySeconds() public view virtual returns (uint32) {
+        return _baseDelay;
+    }
+
+    /**
+     * @dev Change the value of {baseDelaySeconds}. This operation can only be invoked through a governance proposal.
+     */
+    function setBaseDelaySeconds(uint32 newBaseDelay) public virtual onlyGovernance {
+        _setBaseDelaySeconds(newBaseDelay);
+    }
+
+    /**
+     * @dev Change the value of {baseDelaySeconds}. Internal function without access control.
+     */
+    function _setBaseDelaySeconds(uint32 newBaseDelay) internal virtual {
+        emit BaseDelaySet(_baseDelay, newBaseDelay);
+        _baseDelay = newBaseDelay;
     }
 
     /**
@@ -47,7 +81,7 @@ abstract contract GovernorTimelockAccess is Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = super.propose(targets, values, calldatas, description);
 
-        uint32 maxDelay = 0;
+        uint32 maxDelay = baseDelaySeconds();
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
@@ -72,12 +106,10 @@ abstract contract GovernorTimelockAccess is Governor {
     function _queueOperations(
         uint256 proposalId,
         address[] memory targets,
-        uint256[] memory values,
+        uint256[] memory /* values */,
         bytes[] memory calldatas,
-        bytes32 descriptionHash
+        bytes32 /* descriptionHash */
     ) internal virtual override returns (uint48) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-
         ExecutionPlan storage plan = _executionPlan[proposalId];
         uint48 eta = Time.timestamp() + plan.delay;
 
@@ -99,7 +131,9 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes32 descriptionHash
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
-        require(block.timestamp >= eta);
+        if (block.timestamp < eta) {
+            revert GovernorUnmetDelay(proposalId, eta);
+        }
         super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
     }
 
@@ -115,7 +149,6 @@ abstract contract GovernorTimelockAccess is Governor {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
-        ExecutionPlan memory detail;
 
         for (uint256 i = 0; i < targets.length; ++i) {
             IAccessManager manager = plan.managers[i];
@@ -131,21 +164,10 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev Default delay to apply to function calls that are not (scheduled and) executed through an AccessManager.
-     *
-     * NOTE: execution delays are processed by the AccessManager contracts. We expect these to always be in seconds.
-     * Therefore, the default delay that is enforced for calls that don't go through an access manager is also in
-     * seconds, regardless of the Governor's clock mode.
-     */
-    function _defaultDelaySeconds() internal view virtual returns (uint32) {
-        return 0;
-    }
-
-    /**
      * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
      * applied to this call.
      *
-     * Returns { manager: address(0), delay: _defaultDelaySeconds() } if:
+     * Returns { manager: address(0), delay: _baseDelaySeconds() } if:
      * - target does not have code
      * - target does not implement IAccessManaged
      * - calling canCall on the target's manager returns a 0 delay
@@ -178,6 +200,6 @@ abstract contract GovernorTimelockAccess is Governor {
         }
 
         // Use internal delay mechanism
-        return (address(0), _defaultDelaySeconds());
+        return (address(0), 0);
     }
 }
