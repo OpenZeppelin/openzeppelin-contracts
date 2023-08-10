@@ -14,8 +14,6 @@ import {Time} from "../../utils/types/Time.sol";
 
 /**
  * @dev TODO
- *
- * _Available since v5.0._
  */
 abstract contract GovernorTimelockAccess is Governor {
     struct ExecutionPlan {
