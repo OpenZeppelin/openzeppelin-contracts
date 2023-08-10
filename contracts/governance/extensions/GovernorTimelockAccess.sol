@@ -132,7 +132,20 @@ abstract contract GovernorTimelockAccess is Governor {
         if (block.timestamp < eta) {
             revert GovernorUnmetDelay(proposalId, eta);
         }
-        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
+
+        ExecutionPlan storage plan = _executionPlan[proposalId];
+
+        for (uint256 i = 0; i < targets.length; ++i) {
+            IAccessManager manager = plan.managers[i];
+            if (address(manager) != address(0)) {
+                manager.relay{value: values[i]}(targets[i], calldatas[i]);
+            } else {
+                (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
+                Address.verifyCallResult(success, returndata);
+            }
+        }
+
+        delete _executionPlan[proposalId];
     }
 
     /**
