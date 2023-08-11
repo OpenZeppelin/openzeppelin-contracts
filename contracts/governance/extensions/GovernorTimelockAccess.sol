@@ -31,7 +31,7 @@ abstract contract GovernorTimelockAccess is Governor {
     event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
 
     constructor(uint32 initialBaseDelay) {
-        _baseDelay = initialBaseDelay;
+        _setBaseDelaySeconds(initialBaseDelay);
     }
 
     /**
