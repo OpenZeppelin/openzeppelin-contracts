@@ -79,7 +79,7 @@ abstract contract GovernorTimelockAccess is Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = super.propose(targets, values, calldatas, description);
 
-        uint32 maxDelay = baseDelaySeconds();
+        uint32 neededDelay = baseDelaySeconds();
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
@@ -87,10 +87,10 @@ abstract contract GovernorTimelockAccess is Governor {
             (address manager, uint32 delay) = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
             plan.managers.push(IAccessManager(manager));
             // downcast is safe because both arguments are uint32
-            maxDelay = uint32(Math.max(delay, maxDelay));
+            neededDelay = uint32(Math.max(delay, neededDelay));
         }
 
-        plan.delay = maxDelay;
+        plan.delay = neededDelay;
 
         return proposalId;
     }
