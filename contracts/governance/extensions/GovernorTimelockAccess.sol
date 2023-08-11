@@ -178,7 +178,7 @@ abstract contract GovernorTimelockAccess is Governor {
      * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
      * applied to this call.
      *
-     * Returns { manager: address(0), delay: _baseDelaySeconds() } if:
+     * Returns { manager: address(0), delay: 0 } if:
      * - target does not have code
      * - target does not implement IAccessManaged
      * - calling canCall on the target's manager returns a 0 delay
