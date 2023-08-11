@@ -1,0 +1,10 @@
+--- utils/structs/DoubleEndedQueue.sol	2023-08-09 11:45:05
++++ utils/structs/DoubleEndedQueue.sol	2023-08-10 23:15:17
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: MIT
+ // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/DoubleEndedQueue.sol)
+-pragma solidity ^0.8.20;
++pragma solidity ^0.8.19;
+ 
+ /**
+  * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of
