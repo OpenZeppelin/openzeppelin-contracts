@@ -284,7 +284,7 @@ rule beginDefaultAdminTransfer(env e, address newAdmin) {
   // effect
   assert success => pendingDefaultAdmin_() == newAdmin,
     "pending default admin is set";
-  assert success => pendingDefaultAdminSchedule_() == assert_uint48(e.block.timestamp + defaultAdminDelay(e)),
+  assert success => to_mathint(pendingDefaultAdminSchedule_()) == e.block.timestamp + defaultAdminDelay(e),
     "pending default admin delay is set";
 }
 
@@ -309,7 +309,7 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
   // change can only happen towards the newAdmin, with the delay
   assert adminAfter != adminBefore => (
     adminAfter == newAdmin &&
-    e2.block.timestamp >= assert_uint256(e1.block.timestamp + delayBefore)
+    to_mathint(e2.block.timestamp) >= e1.block.timestamp + assert_uint256(delayBefore)
   ),
     "The admin can only change after the enforced delay and to the previously scheduled new admin";
 }
@@ -395,7 +395,7 @@ rule changeDefaultAdminDelay(env e, uint48 newDelay) {
     "pending delay is set";
 
   assert success => (
-    pendingDelaySchedule_(e) > assert_uint48(e.block.timestamp) ||
+    assert_uint256(pendingDelaySchedule_(e)) > e.block.timestamp ||
     delayBefore == newDelay || // Interpreted as decreasing, x - x = 0
     defaultAdminDelayIncreaseWait() == 0
   ),
@@ -421,7 +421,7 @@ rule pendingDelayWaitEnforced(env e1, env e2, method f, calldataarg args, uint48
 
   assert delayAfter != delayBefore => (
     delayAfter == newDelay &&
-    e2.block.timestamp >= assert_uint256(delayWait)
+    to_mathint(e2.block.timestamp) >= delayWait
   ),
     "A delay can only change after the applied schedule";
 }
@@ -435,9 +435,9 @@ rule pendingDelayWait(env e, uint48 newDelay) {
   uint48 oldDelay = defaultAdminDelay(e);
   changeDefaultAdminDelay(e, newDelay);
 
-  assert newDelay > oldDelay => pendingDelaySchedule_(e) == assert_uint48(increasingDelaySchedule(e, newDelay)),
+  assert newDelay > oldDelay => to_mathint(pendingDelaySchedule_(e)) == increasingDelaySchedule(e, newDelay),
     "Delay wait is the minimum between the new delay and a threshold when the delay is increased";
-  assert newDelay <= oldDelay => pendingDelaySchedule_(e) == assert_uint48(decreasingDelaySchedule(e, newDelay)),
+  assert newDelay <= oldDelay => to_mathint(pendingDelaySchedule_(e)) == decreasingDelaySchedule(e, newDelay),
     "Delay wait is the difference between the current and the new delay when the delay is decreased";
 }
 
