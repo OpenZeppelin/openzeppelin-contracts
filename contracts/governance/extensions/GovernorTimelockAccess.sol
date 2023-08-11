@@ -18,7 +18,12 @@ import {Time} from "../../utils/types/Time.sol";
 abstract contract GovernorTimelockAccess is Governor {
     struct ExecutionPlan {
         uint32 delay;
-        IAccessManager[] managers;
+        OperationDetails[] operations;
+    }
+
+    struct OperationDetails {
+        IAccessManager manager;
+        bytes32 id;
     }
 
     mapping(uint256 => ExecutionPlan) private _executionPlan;
@@ -85,7 +90,8 @@ abstract contract GovernorTimelockAccess is Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             (address manager, uint32 delay) = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
-            plan.managers.push(IAccessManager(manager));
+            plan.operations.push();
+            plan.operations[i].manager = IAccessManager(manager);
             // downcast is safe because both arguments are uint32
             neededDelay = uint32(Math.max(delay, neededDelay));
         }
@@ -112,9 +118,9 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            IAccessManager manager = plan.managers[i];
+            IAccessManager manager = plan.operations[i].manager;
             if (address(manager) != address(0)) {
-                manager.schedule(targets[i], calldatas[i], eta);
+                plan.operations[i].id = manager.schedule(targets[i], calldatas[i], eta);
             }
         }
 
@@ -128,7 +134,7 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes[] memory calldatas,
         bytes32 /* descriptionHash */
     ) internal virtual override {
-        uint256 eta = proposalEta(proposalId);
+        uint48 eta = SafeCast.toUint48(proposalEta(proposalId));
         if (block.timestamp < eta) {
             revert GovernorUnmetDelay(proposalId, eta);
         }
@@ -136,8 +142,15 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            IAccessManager manager = plan.managers[i];
+            IAccessManager manager = plan.operations[i].manager;
             if (address(manager) != address(0)) {
+                bytes32 operationId = plan.operations[i].id;
+
+                uint48 schedule = manager.getSchedule(operationId);
+                if (schedule != eta) {
+                    revert GovernorNotQueuedProposal(proposalId);
+                }
+
                 manager.relay{value: values[i]}(targets[i], calldatas[i]);
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
@@ -159,13 +172,22 @@ abstract contract GovernorTimelockAccess is Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
+        uint48 eta = SafeCast.toUint48(proposalEta(proposalId));
+
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
-        for (uint256 i = 0; i < targets.length; ++i) {
-            IAccessManager manager = plan.managers[i];
-            if (address(manager) != address(0)) {
-                // Attempt to cancel, but allow to revert if a guardian cancelled part of the proposal
-                try manager.cancel(address(this), targets[i], calldatas[i]) {} catch {}
+        // If the proposal has been scheduled it will have an ETA and we have to externally cancel
+        if (eta != 0) {
+            for (uint256 i = 0; i < targets.length; ++i) {
+                IAccessManager manager = plan.operations[i].manager;
+                if (address(manager) != address(0)) {
+                    bytes32 operationId = plan.operations[i].id;
+                    // Attempt to cancel considering the operation could have been cancelled and rescheduled already
+                    uint48 schedule = manager.getSchedule(operationId);
+                    if (schedule == eta) {
+                        manager.cancel(address(this), targets[i], calldatas[i]);
+                    }
+                }
             }
         }
 
