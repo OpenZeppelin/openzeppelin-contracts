@@ -1,0 +1,11 @@
+--- access/AccessControl.sol	2023-08-10 22:02:18
++++ access/AccessControl.sol	2023-08-10 22:11:07
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: MIT
+ // OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
+ 
+-pragma solidity ^0.8.20;
++pragma solidity ^0.8.19;
+ 
+ import {IAccessControl} from "./IAccessControl.sol";
+ import {Context} from "../utils/Context.sol";
