@@ -89,7 +89,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(address target => AccessMode mode) private _contractMode;
     mapping(uint64 classId => Class) private _classes;
     mapping(uint64 groupId => Group) private _groups;
-    mapping(bytes32 operationId => uint48 schedule) private _schedules;
+
+    struct Schedule {
+        uint48 timepoint;
+        uint32 nonce;
+    }
+
+    mapping(bytes32 operationId => Schedule) private _schedules;
+
     mapping(bytes4 selector => Time.Delay delay) private _adminDelays;
 
     // This should be transcient storage when supported by the EVM.
@@ -568,8 +575,16 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * operation is not yet scheduled, has expired, was executed, or was canceled.
      */
     function getSchedule(bytes32 id) public view virtual returns (uint48) {
-        uint48 timepoint = _schedules[id];
+        uint48 timepoint = _schedules[id].timepoint;
         return _isExpired(timepoint) ? 0 : timepoint;
+    }
+
+    /**
+     * @dev Return the nonce for the latest scheduled operation with a given id. Returns 0 if the operation has never
+     * been scheduled.
+     */
+    function getNonce(bytes32 id) public view virtual returns (uint32) {
+        return _schedules[id].nonce;
     }
 
     /**
@@ -579,7 +594,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {OperationScheduled} event.
      */
-    function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32) {
+    function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32 operationId, uint32 nonce) {
         address caller = _msgSender();
 
         // Fetch restriction to that apply to the caller on the targeted function
@@ -587,25 +602,30 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         uint48 minWhen = Time.timestamp() + setback;
 
+        if (when == 0) {
+            when = minWhen;
+        }
+
         // If caller is not authorised, revert
-        if (!allowed && (setback == 0 || when.isSetAndPast(minWhen - 1))) {
+        if (!allowed && (setback == 0 || when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
         // If caller is authorised, schedule operation
-        bytes32 operationId = _hashOperation(caller, target, data);
+        operationId = _hashOperation(caller, target, data);
 
         // Cannot reschedule unless the operation has expired
-        uint48 prevTimepoint = _schedules[operationId];
+        uint48 prevTimepoint = _schedules[operationId].timepoint;
         if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
             revert AccessManagerAlreadyScheduled(operationId);
         }
 
-        uint48 timepoint = when == 0 ? minWhen : when;
-        _schedules[operationId] = timepoint;
-        emit OperationScheduled(operationId, timepoint, caller, target, data);
+        nonce = _schedules[operationId].nonce + 1;
+        _schedules[operationId].timepoint = when;
+        _schedules[operationId].nonce = nonce;
+        emit OperationScheduled(operationId, nonce, when, caller, target, data);
 
-        return operationId;
+        // Using named return values because otherwise we get stack too deep
     }
 
     /**
@@ -617,7 +637,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // Reentrancy is not an issue because permissions are checked on msg.sender. Additionally,
     // _consumeScheduledOp guarantees a scheduled operation is only executed once.
     // slither-disable-next-line reentrancy-no-eth
-    function relay(address target, bytes calldata data) public payable virtual {
+    function relay(address target, bytes calldata data) public payable virtual returns (uint32) {
         address caller = _msgSender();
 
         // Fetch restriction to that apply to the caller on the targeted function
@@ -630,9 +650,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // If caller is authorised, check operation was scheduled early enough
         bytes32 operationId = _hashOperation(caller, target, data);
+        uint32 nonce;
 
         if (setback != 0) {
-            _consumeScheduledOp(operationId);
+            nonce = _consumeScheduledOp(operationId);
         }
 
         // Mark the target and selector as authorised
@@ -644,6 +665,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Reset relay identifier
         _relayIdentifier = relayIdentifierBefore;
+
+        return nonce;
     }
 
     /**
@@ -664,8 +687,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal variant of {consumeScheduledOp} that operates on bytes32 operationId.
      */
-    function _consumeScheduledOp(bytes32 operationId) internal virtual {
-        uint48 timepoint = _schedules[operationId];
+    function _consumeScheduledOp(bytes32 operationId) internal virtual returns (uint32) {
+        uint48 timepoint = _schedules[operationId].timepoint;
+        uint32 nonce = _schedules[operationId].nonce;
 
         if (timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
@@ -676,7 +700,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         delete _schedules[operationId];
-        emit OperationExecuted(operationId, timepoint);
+        emit OperationExecuted(operationId, nonce, timepoint);
+
+        return nonce;
     }
 
     /**
@@ -688,12 +714,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {OperationCanceled} event.
      */
-    function cancel(address caller, address target, bytes calldata data) public virtual {
+    function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
         address msgsender = _msgSender();
         bytes4 selector = bytes4(data[0:4]);
 
         bytes32 operationId = _hashOperation(caller, target, data);
-        if (_schedules[operationId] == 0) {
+        if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
@@ -705,15 +731,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
-        uint48 timepoint = _schedules[operationId];
-        delete _schedules[operationId];
-        emit OperationCanceled(operationId, timepoint);
+        uint32 nonce = _schedules[operationId].nonce;
+        uint48 timepoint = _schedules[operationId].timepoint;
+        delete _schedules[operationId].timepoint;
+        emit OperationCanceled(operationId, nonce, timepoint);
+
+        return nonce;
     }
 
     /**
      * @dev Hashing function for delayed operations
      */
-    function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
+    function _hashOperation(address caller, address target, bytes calldata data) internal pure virtual returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 
