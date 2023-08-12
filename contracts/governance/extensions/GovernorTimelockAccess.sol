@@ -22,7 +22,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     struct OperationDetails {
-        IAccessManager manager;
+        bool delayed;
         bytes32 id;
     }
 
@@ -31,12 +31,22 @@ abstract contract GovernorTimelockAccess is Governor {
 
     uint32 _baseDelay;
 
+    IAccessManager immutable private _manager;
+
     error GovernorUnmetDelay(uint256 proposalId, uint256 neededTimestamp);
 
     event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
 
-    constructor(uint32 initialBaseDelay) {
+    constructor(address manager, uint32 initialBaseDelay) {
+        _manager = IAccessManager(manager);
         _setBaseDelaySeconds(initialBaseDelay);
+    }
+
+    /**
+     * @dev Returns the {AccessManager} instance associated to this governor.
+     */
+    function accessManager() public view virtual returns (IAccessManager) {
+        return _manager;
     }
 
     /**
@@ -89,9 +99,11 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (address manager, uint32 delay) = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
             plan.operations.push();
-            plan.operations[i].manager = IAccessManager(manager);
+            uint32 delay = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
+            if (delay > 0) {
+                plan.operations[i].delayed = true;
+            }
             // downcast is safe because both arguments are uint32
             neededDelay = uint32(Math.max(delay, neededDelay));
         }
@@ -118,9 +130,8 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            IAccessManager manager = plan.operations[i].manager;
-            if (address(manager) != address(0)) {
-                plan.operations[i].id = manager.schedule(targets[i], calldatas[i], eta);
+            if (plan.operations[i].delayed) {
+                plan.operations[i].id = _manager.schedule(targets[i], calldatas[i], eta);
             }
         }
 
@@ -142,16 +153,15 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            IAccessManager manager = plan.operations[i].manager;
-            if (address(manager) != address(0)) {
+            if (plan.operations[i].delayed) {
                 bytes32 operationId = plan.operations[i].id;
 
-                uint48 schedule = manager.getSchedule(operationId);
+                uint48 schedule = _manager.getSchedule(operationId);
                 if (schedule != eta) {
                     revert GovernorNotQueuedProposal(proposalId);
                 }
 
-                manager.relay{value: values[i]}(targets[i], calldatas[i]);
+                _manager.relay{value: values[i]}(targets[i], calldatas[i]);
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
                 Address.verifyCallResult(success, returndata);
@@ -179,13 +189,12 @@ abstract contract GovernorTimelockAccess is Governor {
         // If the proposal has been scheduled it will have an ETA and we have to externally cancel
         if (eta != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
-                IAccessManager manager = plan.operations[i].manager;
-                if (address(manager) != address(0)) {
+                if (plan.operations[i].delayed) {
                     bytes32 operationId = plan.operations[i].id;
                     // Attempt to cancel considering the operation could have been cancelled and rescheduled already
-                    uint48 schedule = manager.getSchedule(operationId);
+                    uint48 schedule = _manager.getSchedule(operationId);
                     if (schedule == eta) {
-                        manager.cancel(address(this), targets[i], calldatas[i]);
+                        _manager.cancel(address(this), targets[i], calldatas[i]);
                     }
                 }
             }
@@ -208,31 +217,7 @@ abstract contract GovernorTimelockAccess is Governor {
      * Otherwise (calling canCall on the target's manager returns a non 0 delay), return the address of the
      * AccessManager to use, and the delay for this call.
      */
-    function _detectExecutionRequirements(address target, bytes4 selector) private view returns (address, uint32) {
-        address authority = _authorityOverride[target];
-
-        // Get authority from target contract if there is no override
-        if (authority == address(0)) {
-            bool success;
-            bytes memory returndata;
-
-            (success, returndata) = target.staticcall(abi.encodeCall(IAccessManaged.authority, ()));
-            if (success && returndata.length >= 0x20) {
-                authority = abi.decode(returndata, (address));
-            }
-        }
-
-        if (authority != address(0)) {
-            // Check if governor can call according to authority, and try to detect a delay
-            (bool authorized, uint32 delay) = AuthorityUtils.canCallWithDelay(authority, address(this), target, selector);
-
-            // If direct call is not authorized, and delayed call is possible
-            if (!authorized && delay > 0) {
-                return (authority, delay);
-            }
-        }
-
-        // Use internal delay mechanism
-        return (address(0), 0);
+    function _detectExecutionRequirements(address target, bytes4 selector) private view returns (uint32 delay) {
+        (, delay) = AuthorityUtils.canCallWithDelay(address(_manager), address(this), target, selector);
     }
 }
