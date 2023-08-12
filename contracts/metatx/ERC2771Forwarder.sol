@@ -27,10 +27,6 @@ import {Address} from "../utils/Address.sol";
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
  *
- * WARNING: Do not approve this contract to spend tokens. Anyone can use this forwarder
- * to execute calls with an arbitrary calldata to any address. Any form of approval may
- * result in a loss of funds for the approving party.
- *
  * NOTE: Batching requests includes an optional refund for unused `msg.value` that is achieved by
  * performing a call with empty calldata. While this is within the bounds of ERC-2771 compliance,
  * if the refund receiver happens to consider the forwarder a trusted forwarder, it MUST properly

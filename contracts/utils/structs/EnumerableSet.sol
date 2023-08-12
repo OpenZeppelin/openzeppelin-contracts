@@ -53,7 +53,7 @@ library EnumerableSet {
         bytes32[] _values;
         // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
-        mapping(bytes32 => uint256) _indexes;
+        mapping(bytes32 value => uint256) _indexes;
     }
 
     /**

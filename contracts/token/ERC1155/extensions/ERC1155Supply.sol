@@ -19,7 +19,7 @@ import {ERC1155} from "../ERC1155.sol";
  * CAUTION: This extension should not be added in an upgrade to an already deployed contract.
  */
 abstract contract ERC1155Supply is ERC1155 {
-    mapping(uint256 => uint256) private _totalSupply;
+    mapping(uint256 id => uint256) private _totalSupply;
     uint256 private _totalSupplyAll;
 
     /**

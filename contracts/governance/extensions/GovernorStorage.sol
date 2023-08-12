@@ -21,7 +21,7 @@ abstract contract GovernorStorage is Governor {
     }
 
     uint256[] private _proposalIds;
-    mapping(uint256 => ProposalDetails) private _proposalDetails;
+    mapping(uint256 proposalId => ProposalDetails) private _proposalDetails;
 
     /**
      * @dev Hook into the proposing mechanism
