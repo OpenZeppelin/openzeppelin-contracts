@@ -1,15 +1,15 @@
-import "helpers/helpers.spec"
-import "methods/IERC20.spec"
-import "methods/IERC2612.spec"
+import "helpers/helpers.spec";
+import "methods/IERC20.spec";
+import "methods/IERC2612.spec";
 
 methods {
     // non standard ERC20 functions
-    increaseAllowance(address,uint256) returns (bool)
-    decreaseAllowance(address,uint256) returns (bool)
+    function increaseAllowance(address,uint256) external returns (bool);
+    function decreaseAllowance(address,uint256) external returns (bool);
 
     // exposed for FV
-    mint(address,uint256)
-    burn(address,uint256)
+    function mint(address,uint256) external;
+    function burn(address,uint256) external;
 }
 
 /*
@@ -17,7 +17,7 @@ methods {
 │ Ghost & hooks: sum of all balances                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost sumOfBalances() returns uint256 {
+ghost sumOfBalances() returns mathint {
   init_state axiom sumOfBalances() == 0;
 }
 
@@ -31,7 +31,7 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSumOfBalances()
-    totalSupply() == sumOfBalances()
+    to_mathint(totalSupply()) == sumOfBalances();
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -39,7 +39,7 @@ invariant totalSupplyIsSumOfBalances()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant zeroAddressNoBalance()
-    balanceOf(0) == 0
+    balanceOf(0) == 0;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -56,8 +56,8 @@ rule noChangeTotalSupply(env e) {
     f(e, args);
     uint256 totalSupplyAfter = totalSupply();
 
-    assert totalSupplyAfter > totalSupplyBefore => f.selector == mint(address,uint256).selector;
-    assert totalSupplyAfter < totalSupplyBefore => f.selector == burn(address,uint256).selector;
+    assert totalSupplyAfter > totalSupplyBefore => f.selector == sig:mint(address,uint256).selector;
+    assert totalSupplyAfter < totalSupplyBefore => f.selector == sig:burn(address,uint256).selector;
 }
 
 /*
@@ -80,9 +80,9 @@ rule onlyAuthorizedCanTransfer(env e) {
     assert (
         balanceAfter < balanceBefore
     ) => (
-        f.selector == burn(address,uint256).selector ||
+        f.selector == sig:burn(address,uint256).selector ||
         e.msg.sender == account ||
-        balanceBefore - balanceAfter <= allowanceBefore
+        balanceBefore - balanceAfter <= to_mathint(allowanceBefore)
     );
 }
 
@@ -106,18 +106,18 @@ rule onlyHolderOfSpenderCanChangeAllowance(env e) {
     assert (
         allowanceAfter > allowanceBefore
     ) => (
-        (f.selector == approve(address,uint256).selector           && e.msg.sender == holder) ||
-        (f.selector == increaseAllowance(address,uint256).selector && e.msg.sender == holder) ||
-        (f.selector == permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
+        (f.selector == sig:approve(address,uint256).selector           && e.msg.sender == holder) ||
+        (f.selector == sig:increaseAllowance(address,uint256).selector && e.msg.sender == holder) ||
+        (f.selector == sig:permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
     );
 
     assert (
         allowanceAfter < allowanceBefore
     ) => (
-        (f.selector == transferFrom(address,address,uint256).selector && e.msg.sender == spender) ||
-        (f.selector == approve(address,uint256).selector              && e.msg.sender == holder ) ||
-        (f.selector == decreaseAllowance(address,uint256).selector    && e.msg.sender == holder ) ||
-        (f.selector == permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
+        (f.selector == sig:transferFrom(address,address,uint256).selector && e.msg.sender == spender) ||
+        (f.selector == sig:approve(address,uint256).selector              && e.msg.sender == holder ) ||
+        (f.selector == sig:decreaseAllowance(address,uint256).selector    && e.msg.sender == holder ) ||
+        (f.selector == sig:permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
     );
 }
 
@@ -147,8 +147,8 @@ rule mint(env e) {
         assert to == 0 || totalSupplyBefore + amount > max_uint256;
     } else {
         // updates balance and totalSupply
-        assert balanceOf(to) == toBalanceBefore   + amount;
-        assert totalSupply() == totalSupplyBefore + amount;
+        assert to_mathint(balanceOf(to)) == toBalanceBefore   + amount;
+        assert to_mathint(totalSupply()) == totalSupplyBefore + amount;
 
         // no other balance is modified
         assert balanceOf(other) != otherBalanceBefore => other == to;
@@ -181,8 +181,8 @@ rule burn(env e) {
         assert from == 0 || fromBalanceBefore < amount;
     } else {
         // updates balance and totalSupply
-        assert balanceOf(from) == fromBalanceBefore   - amount;
-        assert totalSupply()   == totalSupplyBefore - amount;
+        assert to_mathint(balanceOf(from)) == fromBalanceBefore   - amount;
+        assert to_mathint(totalSupply())   == totalSupplyBefore - amount;
 
         // no other balance is modified
         assert balanceOf(other) != otherBalanceBefore => other == from;
@@ -216,8 +216,8 @@ rule transfer(env e) {
         assert holder == 0 || recipient == 0 || amount > holderBalanceBefore;
     } else {
         // balances of holder and recipient are updated
-        assert balanceOf(holder)    == holderBalanceBefore    - (holder == recipient ? 0 : amount);
-        assert balanceOf(recipient) == recipientBalanceBefore + (holder == recipient ? 0 : amount);
+        assert to_mathint(balanceOf(holder))    == holderBalanceBefore    - (holder == recipient ? 0 : amount);
+        assert to_mathint(balanceOf(recipient)) == recipientBalanceBefore + (holder == recipient ? 0 : amount);
 
         // no other balance is modified
         assert balanceOf(other) != otherBalanceBefore => (other == holder || other == recipient);
@@ -254,11 +254,11 @@ rule transferFrom(env e) {
     } else {
         // allowance is valid & updated
         assert allowanceBefore            >= amount;
-        assert allowance(holder, spender) == (allowanceBefore == max_uint256 ? to_uint256(max_uint256) : allowanceBefore - amount);
+        assert to_mathint(allowance(holder, spender)) == (allowanceBefore == max_uint256 ? max_uint256 : allowanceBefore - amount);
 
         // balances of holder and recipient are updated
-        assert balanceOf(holder)    == holderBalanceBefore    - (holder == recipient ? 0 : amount);
-        assert balanceOf(recipient) == recipientBalanceBefore + (holder == recipient ? 0 : amount);
+        assert to_mathint(balanceOf(holder))    == holderBalanceBefore    - (holder == recipient ? 0 : amount);
+        assert to_mathint(balanceOf(recipient)) == recipientBalanceBefore + (holder == recipient ? 0 : amount);
 
         // no other balance is modified
         assert balanceOf(other) != otherBalanceBefore => (other == holder || other == recipient);
@@ -323,7 +323,7 @@ rule increaseAllowance(env e) {
         assert holder == 0 || spender == 0 || allowanceBefore + amount > max_uint256;
     } else {
         // allowance is updated
-        assert allowance(holder, spender) == allowanceBefore + amount;
+        assert to_mathint(allowance(holder, spender)) == allowanceBefore + amount;
 
         // other allowances are untouched
         assert allowance(otherHolder, otherSpender) != otherAllowanceBefore => (otherHolder == holder && otherSpender == spender);
@@ -356,7 +356,7 @@ rule decreaseAllowance(env e) {
         assert holder == 0 || spender == 0 || allowanceBefore < amount;
     } else {
         // allowance is updated
-        assert allowance(holder, spender) == allowanceBefore - amount;
+        assert to_mathint(allowance(holder, spender)) == allowanceBefore - amount;
 
         // other allowances are untouched
         assert allowance(otherHolder, otherSpender) != otherAllowanceBefore => (otherHolder == holder && otherSpender == spender);
@@ -402,7 +402,7 @@ rule permit(env e) {
     } else {
         // allowance and nonce are updated
         assert allowance(holder, spender) == amount;
-        assert nonces(holder) == nonceBefore + 1;
+        assert to_mathint(nonces(holder)) == nonceBefore + 1;
 
         // deadline was respected
         assert deadline >= e.block.timestamp;
