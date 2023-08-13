@@ -1,6 +1,6 @@
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
-import "../patched/governance/TimelockController.sol";
+import {TimelockController} from "../patched/governance/TimelockController.sol";
 
 contract TimelockControllerHarness is TimelockController {
     constructor(

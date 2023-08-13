@@ -12,8 +12,6 @@ use rule onlyGrantCanGrant filtered {
 │ Definitions                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition defaultAdminRole() returns bytes32 = to_bytes32(0);
-
 definition timeSanity(env e) returns bool =
   e.block.timestamp > 0 && e.block.timestamp + defaultAdminDelay(e) < max_uint48;
 
@@ -38,7 +36,7 @@ definition decreasingDelaySchedule(env e, uint48 newDelay) returns mathint =
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant defaultAdminConsistency(address account)
-  (account == defaultAdmin() && account != 0) <=> hasRole(defaultAdminRole(), account)
+  (account == defaultAdmin() && account != 0) <=> hasRole(DEFAULT_ADMIN_ROLE(), account)
   {
     preserved with (env e) {
       require nonzerosender(e);
@@ -51,7 +49,7 @@ invariant defaultAdminConsistency(address account)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant singleDefaultAdmin(address account, address another)
-  hasRole(defaultAdminRole(), account) && hasRole(defaultAdminRole(), another) => another == account
+  hasRole(DEFAULT_ADMIN_ROLE(), account) && hasRole(DEFAULT_ADMIN_ROLE(), another) => another == account
   {
     preserved {
       requireInvariant defaultAdminConsistency(account);
@@ -65,7 +63,7 @@ invariant singleDefaultAdmin(address account, address another)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant defaultAdminRoleAdminConsistency()
-  getRoleAdmin(defaultAdminRole()) == defaultAdminRole();
+  getRoleAdmin(DEFAULT_ADMIN_ROLE()) == DEFAULT_ADMIN_ROLE();
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -96,7 +94,7 @@ rule revokeRoleEffect(env e, bytes32 role) {
     bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
 
     // liveness
-    assert success <=> isCallerAdmin && role != defaultAdminRole(),
+    assert success <=> isCallerAdmin && role != DEFAULT_ADMIN_ROLE(),
       "roles can only be revoked by their owner except for the default admin role";
 
     // effect
@@ -137,7 +135,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
     assert success <=> (
       account == e.msg.sender &&
       (
-        role    != defaultAdminRole() ||
+        role    != DEFAULT_ADMIN_ROLE() ||
         account != adminBefore        ||
         (
           pendingAdminBefore == 0 &&
@@ -154,7 +152,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
 
     assert success => (
       (
-        role    == defaultAdminRole() &&
+        role    == DEFAULT_ADMIN_ROLE() &&
         account == adminBefore
       ) ? (
         adminAfter        == 0 &&

@@ -1,28 +1,27 @@
-import "helpers/helpers.spec"
-import "methods/IAccessControl.spec"
+import "helpers/helpers.spec";
+import "methods/IAccessControl.spec";
 
 methods {
-    TIMELOCK_ADMIN_ROLE()       returns (bytes32) envfree
-    PROPOSER_ROLE()             returns (bytes32) envfree
-    EXECUTOR_ROLE()             returns (bytes32) envfree
-    CANCELLER_ROLE()            returns (bytes32) envfree
-    isOperation(bytes32)        returns (bool)    envfree
-    isOperationPending(bytes32) returns (bool)    envfree
-    isOperationReady(bytes32)   returns (bool)
-    isOperationDone(bytes32)    returns (bool)    envfree
-    getTimestamp(bytes32)       returns (uint256) envfree
-    getMinDelay()               returns (uint256) envfree
+    function PROPOSER_ROLE()             returns (bytes32) envfree
+    function EXECUTOR_ROLE()             returns (bytes32) envfree
+    function CANCELLER_ROLE()            returns (bytes32) envfree
+    function isOperation(bytes32)        external returns (bool)    envfree;
+    function isOperationPending(bytes32) external returns (bool)    envfree;
+    function isOperationReady(bytes32)   external returns (bool);
+    function isOperationDone(bytes32)    external returns (bool)    envfree;
+    function getTimestamp(bytes32)       external returns (uint256) envfree;
+    function getMinDelay()               external returns (uint256) envfree;
 
-    hashOperation(address, uint256, bytes, bytes32, bytes32)            returns(bytes32) envfree
-    hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) returns(bytes32) envfree
+    function hashOperation(address, uint256, bytes, bytes32, bytes32)            external returns(bytes32) envfree;
+    function hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) external returns(bytes32) envfree;
 
-    schedule(address, uint256, bytes, bytes32, bytes32, uint256)
-    scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256)
-    execute(address, uint256, bytes, bytes32, bytes32)
-    executeBatch(address[], uint256[], bytes[], bytes32, bytes32)
-    cancel(bytes32)
+    function schedule(address, uint256, bytes, bytes32, bytes32, uint256) external;
+    function scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256) external;
+    function execute(address, uint256, bytes, bytes32, bytes32) external;
+    function executeBatch(address[], uint256[], bytes[], bytes32, bytes32) external;
+    function cancel(bytes32) external;
 
-    updateDelay(uint256)
+    function updateDelay(uint256) external;
 }
 
 /*
@@ -32,11 +31,11 @@ methods {
 */
 // Uniformly handle scheduling of batched and non-batched operations.
 function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
-    if (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
+    if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
         address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
         schedule@withrevert(e, target, value, data, predecessor, salt, delay);
-    } else if (f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
+    } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
@@ -48,11 +47,11 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
 
 // Uniformly handle execution of batched and non-batched operations.
 function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) {
-    if (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
+    if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
         address target; uint256 value; bytes data; bytes32 salt;
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
         execute@withrevert(e, target, value, data, predecessor, salt);
-    } else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+    } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
@@ -133,19 +132,19 @@ rule stateTransition(bytes32 id, env e, method f, calldataarg args) {
 
     // UNSET → PENDING: schedule or scheduleBatch
     assert stateBefore == UNSET() && stateAfter == PENDING() => (
-        f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
-        f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
+        f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
+        f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
     );
 
     // PENDING → UNSET: cancel
     assert stateBefore == PENDING() && stateAfter == UNSET() => (
-        f.selector == cancel(bytes32).selector
+        f.selector == sig:cancel(bytes32).selector
     );
 
     // PENDING → DONE: execute or executeBatch
     assert stateBefore == PENDING() && stateAfter == DONE() => (
-        f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector ||
-        f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+        f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector ||
+        f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
     );
 
     // DONE is final
@@ -163,7 +162,7 @@ rule minDelayOnlyChange(env e) {
     method f; calldataarg args;
     f(e, args);
 
-    assert delayBefore != getMinDelay() => (e.msg.sender == currentContract && f.selector == updateDelay(uint256).selector), "Unauthorized delay update";
+    assert delayBefore != getMinDelay() => (e.msg.sender == currentContract && f.selector == sig:updateDelay(uint256).selector), "Unauthorized delay update";
 }
 
 /*
@@ -172,8 +171,8 @@ rule minDelayOnlyChange(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
-    f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
-    f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
+    f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
+    f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
 } {
     require nonpayable(e);
 
@@ -212,8 +211,8 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
-    f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector ||
-    f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+    f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector ||
+    f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
