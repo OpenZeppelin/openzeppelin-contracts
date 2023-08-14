@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import "../patched/token/ERC721/ERC721.sol";
+import {ERC721} from "../patched/token/ERC721/ERC721.sol";
 
 contract ERC721Harness is ERC721 {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
@@ -24,7 +24,7 @@ contract ERC721Harness is ERC721 {
     }
 
     function tokenExists(uint256 tokenId) external view returns (bool) {
-        return _exists(tokenId);
+        return _ownerOf(tokenId) != address(0);
     }
 
     function unsafeOwnerOf(uint256 tokenId) external view returns (address) {
