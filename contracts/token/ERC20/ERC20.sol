@@ -36,7 +36,7 @@ import {IERC20Errors} from "../../interfaces/draft-IERC6093.sol";
  * allowances. See {IERC20-approve}.
  */
 abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
-    mapping(address account => uint256) private _balances;
+    mapping(address account => uint256) internal _balances;
 
     mapping(address account => mapping(address spender => uint256)) private _allowances;
 
