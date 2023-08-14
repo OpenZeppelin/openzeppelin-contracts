@@ -17,12 +17,16 @@ methods {
 │ Ghost & hooks: sum of all balances                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost sumOfBalances() returns mathint {
-  init_state axiom sumOfBalances() == 0;
+ghost mathint sumOfBalances {
+    init_state axiom sumOfBalances == 0;
+}
+
+hook Sload uint256 balance _balances[KEY address addr] STORAGE {
+    require sumOfBalances >= to_mathint(balance);
 }
 
 hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
-    havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newValue - oldValue;
+    sumOfBalances = sumOfBalances - oldValue + newValue;
 }
 
 /*
@@ -31,7 +35,7 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSumOfBalances()
-    to_mathint(totalSupply()) == sumOfBalances();
+    to_mathint(totalSupply()) == sumOfBalances;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
