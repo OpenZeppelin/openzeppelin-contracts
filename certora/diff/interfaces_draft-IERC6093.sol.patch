@@ -1,9 +1,0 @@
---- interfaces/draft-IERC6093.sol	2023-08-11 20:33:54
-+++ interfaces/draft-IERC6093.sol	2023-08-13 09:56:16
-@@ -1,5 +1,5 @@
- // SPDX-License-Identifier: MIT
--pragma solidity ^0.8.20;
-+pragma solidity ^0.8.19;
- 
- /**
-  * @dev Standard ERC20 Errors
