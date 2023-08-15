@@ -22,7 +22,7 @@ import {Time} from "../../utils/types/Time.sol";
  * {AccessManager-relay} function.
  *
  * Note that some operations may be cancelable in the {AccessManager} by the admin or a set of guardians, depending on
- * the restricted operation being invoked. Since proposals are atomic, the cancelation by a guardian of a single
+ * the restricted operation being invoked. Since proposals are atomic, the cancellation by a guardian of a single
  * operation in a proposal will cause all of it to become unable to execute.
  */
 abstract contract GovernorTimelockAccess is Governor {
