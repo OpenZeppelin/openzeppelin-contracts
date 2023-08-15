@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap, timelockSalt } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorTimelockControlMock');
@@ -33,13 +34,15 @@ contract('GovernorTimelockControl', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
+  const delay = 3600;
+
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
         this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
-        this.timelock = await Timelock.new(3600, [], [], deployer);
+        this.timelock = await Timelock.new(delay, [], [], deployer);
         this.mock = await Governor.new(
           name,
           votingDelay,
@@ -107,6 +110,9 @@ contract('GovernorTimelockControl', function (accounts) {
       });
 
       it('nominal', async function () {
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -116,6 +122,11 @@ contract('GovernorTimelockControl', function (accounts) {
         await this.helper.waitForDeadline();
         const txQueue = await this.helper.queue();
         await this.helper.waitForEta();
+
+        const eta = web3.utils.toBN(await clockFromReceipt.timestamp(txQueue.receipt)).addn(delay);
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal(eta);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         const txExecute = await this.helper.execute();
 
         expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
@@ -352,11 +363,10 @@ contract('GovernorTimelockControl', function (accounts) {
             const data = this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI();
             const predecessor = constants.ZERO_BYTES32;
             const salt = constants.ZERO_BYTES32;
-            const delay = 3600;
 
             await this.timelock.schedule(target, value, data, predecessor, salt, delay, { from: owner });
 
-            await time.increase(3600);
+            await time.increase(delay);
 
             await expectRevertCustomError(
               this.timelock.execute(target, value, data, predecessor, salt, { from: owner }),
@@ -369,7 +379,7 @@ contract('GovernorTimelockControl', function (accounts) {
         describe('updateTimelock', function () {
           beforeEach(async function () {
             this.newTimelock = await Timelock.new(
-              3600,
+              delay,
               [this.mock.address],
               [this.mock.address],
               constants.ZERO_ADDRESS,

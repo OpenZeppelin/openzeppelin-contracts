@@ -100,6 +100,9 @@ contract('Governor', function (accounts) {
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
         expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
 
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
+
         // Run proposal
         const txPropose = await this.helper.propose({ from: proposer });
 
@@ -164,6 +167,9 @@ contract('Governor', function (accounts) {
         expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
         expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
+
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
       });
 
       it('send ethers', async function () {
