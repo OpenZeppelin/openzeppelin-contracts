@@ -2,11 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import {IGovernor, Governor} from "../Governor.sol";
-import {IAuthority} from "../../access/manager/IAuthority.sol";
+import {Governor} from "../Governor.sol";
 import {AuthorityUtils} from "../../access/manager/AuthorityUtils.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
-import {IAccessManaged} from "../../access/manager/IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
