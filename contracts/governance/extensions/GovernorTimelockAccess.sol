@@ -13,9 +13,23 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 /**
- * @dev TODO
+ * @dev This module connects a {Governor} instance to an {AccessManager} instance, allowing the governor to make calls
+ * that are delay-restricted by the manager using the normal {queue} workflow. An optional base delay is applied to
+ * operations that are not delayed externally by the manager. Execution of a proposal will be delayed as much as
+ * necessary to meet the required delays of all of its operations.
+ *
+ * This extension allows the governor to hold and use its own assets and permissions, unlike {GovernorTimelockControl}
+ * and {GovernorTimelockCompound}, where the timelock is a separate contract that must be the one to hold assets and
+ * permissions. Operations that are delay-restricted by the manager, however, will be executed through the
+ * {AccessManager-relay} function.
+ *
+ * Note that some operations may be cancelable in the {AccessManager} by the admin or a set of guardians, depending on
+ * the restricted operation being invoked. Since proposals are atomic, the cancelation by a guardian of a single
+ * operation in a proposal will cause all of it to become unable to execute.
  */
 abstract contract GovernorTimelockAccess is Governor {
+    // An execution plan is produced at the moment a proposal is created, in order to fix at that point the exact
+    // execution semantics of the proposal, namely whether a call will go through {AccessManager-relay}.
     struct ExecutionPlan {
         uint16 length;
         uint32 delay;
@@ -37,6 +51,9 @@ abstract contract GovernorTimelockAccess is Governor {
 
     event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
 
+    /**
+     * @dev Initialize the governor with an {AccessManager} and initial base delay.
+     */
     constructor(address manager, uint32 initialBaseDelay) {
         _manager = IAccessManager(manager);
         _setBaseDelaySeconds(initialBaseDelay);
@@ -133,10 +150,10 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock.
+     * @dev Mechanism to queue a proposal, potentially scheduling some of its operations in the AccessManager.
      *
-     * NOTE: execution delay is estimated based on the delay information retrieved in {proposal}. This value may be
-     * off if the delay was updated during the vote.
+     * NOTE: The execution delay is chosen based on the delay information retrieved in {propose}. This value may be
+     * off if the delay was updated since proposal creation. In this case, the proposal needs to be recreated.
      */
     function _queueOperations(
         uint256 proposalId,
@@ -159,6 +176,9 @@ abstract contract GovernorTimelockAccess is Governor {
         return eta;
     }
 
+    /**
+     * @dev Mechanism to execute a proposal, potentially going through {AccessManager-relay} for delayed operations.
+     */
     function _executeOperations(
         uint256 proposalId,
         address[] memory targets,
