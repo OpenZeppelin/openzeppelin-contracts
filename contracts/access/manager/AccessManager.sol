@@ -742,7 +742,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Hashing function for delayed operations
      */
-    function _hashOperation(address caller, address target, bytes calldata data) internal pure virtual returns (bytes32) {
+    function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 
