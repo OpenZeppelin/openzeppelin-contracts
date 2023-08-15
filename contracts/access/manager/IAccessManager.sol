@@ -14,12 +14,12 @@ interface IAccessManager {
     /**
      * @dev A scheduled operation was executed.
      */
-    event OperationExecuted(bytes32 indexed operationId, uint32 indexed nonce, uint48 schedule);
+    event OperationExecuted(bytes32 indexed operationId, uint32 indexed nonce);
 
     /**
      * @dev A scheduled operation was canceled.
      */
-    event OperationCanceled(bytes32 indexed operationId, uint32 indexed nonce, uint48 schedule);
+    event OperationCanceled(bytes32 indexed operationId, uint32 indexed nonce);
 
     event GroupLabel(uint64 indexed groupId, string label);
     event GroupGranted(uint64 indexed groupId, address indexed account, uint32 delay, uint48 since);

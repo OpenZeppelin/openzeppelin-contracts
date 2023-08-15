@@ -712,7 +712,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         delete _schedules[operationId];
-        emit OperationExecuted(operationId, nonce, timepoint);
+        emit OperationExecuted(operationId, nonce);
 
         return nonce;
     }
@@ -744,10 +744,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
-        uint32 nonce = _schedules[operationId].nonce;
-        uint48 timepoint = _schedules[operationId].timepoint;
         delete _schedules[operationId].timepoint;
-        emit OperationCanceled(operationId, nonce, timepoint);
+        uint32 nonce = _schedules[operationId].nonce;
+        emit OperationCanceled(operationId, nonce);
 
         return nonce;
     }
