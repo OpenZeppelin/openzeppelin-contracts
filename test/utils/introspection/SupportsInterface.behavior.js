@@ -61,6 +61,7 @@ const INTERFACES = {
     'proposalDeadline(uint256)',
     'proposalProposer(uint256)',
     'proposalEta(uint256)',
+    'proposalNeedsQueuing(uint256)',
     'votingDelay()',
     'votingPeriod()',
     'quorum(uint256)',

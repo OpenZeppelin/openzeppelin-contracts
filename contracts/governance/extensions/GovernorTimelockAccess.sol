@@ -97,6 +97,14 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
+     * @dev See {IGovernor-proposalEta}.
+     */
+    function proposalNeedsQueuing(uint256 proposalId) public view virtual override returns (bool) {
+        return _executionPlan[proposalId].delay > 0;
+    }
+
+
+    /**
      * @dev See {IGovernor-propose}
      */
     function propose(
