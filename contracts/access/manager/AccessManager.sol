@@ -624,7 +624,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerAlreadyScheduled(operationId);
         }
 
-        nonce = _schedules[operationId].nonce + 1;
+        unchecked {
+            // It's not feasible to overflow the nonce in less than 1000 years
+            nonce = _schedules[operationId].nonce + 1;
+        }
         _schedules[operationId].timepoint = when;
         _schedules[operationId].nonce = nonce;
         emit OperationScheduled(operationId, nonce, when, caller, target, data);
