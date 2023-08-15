@@ -130,7 +130,7 @@ abstract contract GovernorTimelockAccess is Governor {
      * @dev Function to queue a proposal to the timelock.
      *
      * NOTE: execution delay is estimated based on the delay information retrieved in {proposal}. This value may be
-     * off if the delay were updated during the vote.
+     * off if the delay was updated during the vote.
      */
     function _queueOperations(
         uint256 proposalId,
