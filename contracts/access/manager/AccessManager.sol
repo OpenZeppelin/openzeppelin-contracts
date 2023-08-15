@@ -592,6 +592,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
      * required for the caller. The special value zero will automatically set the earliest possible time.
      *
+     * Returns the `operationId` that was scheduled. Since this value is a hash of the parameters, it can reoccur when
+     * the same parameters are used; if this is relevant, the returned `nonce` can be used to uniquely identify this
+     * scheduled operation from other occurences of the same `operationId` in invocations of {relay} and {cancel}.
+     *
      * Emits a {OperationScheduled} event.
      */
     function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32 operationId, uint32 nonce) {
@@ -631,6 +635,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
      * execution delay is 0.
+     *
+     * Returns the nonce that identifies the previously scheduled operation that is relayed, or 0 if the
+     * operation wasn't previously scheduled (if the caller doesn't have an execution delay).
      *
      * Emits an {OperationExecuted} event only if the call was scheduled and delayed.
      */
@@ -686,6 +693,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Internal variant of {consumeScheduledOp} that operates on bytes32 operationId.
+     *
+     * Returns the nonce of the scheduled operation that is consumed.
      */
     function _consumeScheduledOp(bytes32 operationId) internal virtual returns (uint32) {
         uint48 timepoint = _schedules[operationId].timepoint;
@@ -706,7 +715,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Cancel a scheduled (delayed) operation.
+     * @dev Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
+     * operation that is cancelled.
      *
      * Requirements:
      *
