@@ -598,7 +598,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {OperationScheduled} event.
      */
-    function schedule(address target, bytes calldata data, uint48 when) public virtual returns (bytes32 operationId, uint32 nonce) {
+    function schedule(
+        address target,
+        bytes calldata data,
+        uint48 when
+    ) public virtual returns (bytes32 operationId, uint32 nonce) {
         address caller = _msgSender();
 
         // Fetch restriction to that apply to the caller on the targeted function

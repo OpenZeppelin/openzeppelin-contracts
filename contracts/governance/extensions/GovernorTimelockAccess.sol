@@ -36,14 +36,14 @@ abstract contract GovernorTimelockAccess is Governor {
         // We pack 8 operations' data in each bucket. Each uint32 value is set to 1 upon proposal creation if it has to
         // be scheduled and relayed through the manager. Upon queuing, the value is set to nonce + 1, where the nonce is
         // that which we get back from the manager when scheduling the operation.
-        mapping (uint256 operationBucket => uint32[8]) managerData;
+        mapping(uint256 operationBucket => uint32[8]) managerData;
     }
 
     mapping(uint256 proposalId => ExecutionPlan) private _executionPlan;
 
     uint32 _baseDelay;
 
-    IAccessManager immutable private _manager;
+    IAccessManager private immutable _manager;
 
     error GovernorUnmetDelay(uint256 proposalId, uint256 neededTimestamp);
 
@@ -116,7 +116,6 @@ abstract contract GovernorTimelockAccess is Governor {
         return _executionPlan[proposalId].delay > 0;
     }
 
-
     /**
      * @dev See {IGovernor-propose}
      */
@@ -164,7 +163,7 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool delayed,) = _getManagerData(plan, i);
+            (bool delayed, ) = _getManagerData(plan, i);
             if (delayed) {
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], eta);
                 _setManagerData(plan, i, nonce);
@@ -282,7 +281,7 @@ abstract contract GovernorTimelockAccess is Governor {
      * @dev Returns bucket and subindex for reading manager data from the packed array mapping.
      */
     function _getManagerDataIndices(uint256 index) private pure returns (uint256 bucket, uint256 subindex) {
-        bucket = index >> 3;  // index / 8
+        bucket = index >> 3; // index / 8
         subindex = index & 7; // index % 8
     }
 }
