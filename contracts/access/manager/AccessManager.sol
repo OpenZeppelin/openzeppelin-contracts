@@ -594,7 +594,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Returns the `operationId` that was scheduled. Since this value is a hash of the parameters, it can reoccur when
      * the same parameters are used; if this is relevant, the returned `nonce` can be used to uniquely identify this
-     * scheduled operation from other occurences of the same `operationId` in invocations of {relay} and {cancel}.
+     * scheduled operation from other occurrences of the same `operationId` in invocations of {relay} and {cancel}.
      *
      * Emits a {OperationScheduled} event.
      */
