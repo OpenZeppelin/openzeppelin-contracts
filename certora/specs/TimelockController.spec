@@ -2,13 +2,13 @@ import "helpers/helpers.spec";
 import "methods/IAccessControl.spec";
 
 methods {
-    function PROPOSER_ROLE()             returns (bytes32) envfree
-    function EXECUTOR_ROLE()             returns (bytes32) envfree
-    function CANCELLER_ROLE()            returns (bytes32) envfree
-    function isOperation(bytes32)        external returns (bool)    envfree;
-    function isOperationPending(bytes32) external returns (bool)    envfree;
+    function PROPOSER_ROLE()             external returns (bytes32) envfree;
+    function EXECUTOR_ROLE()             external returns (bytes32) envfree;
+    function CANCELLER_ROLE()            external returns (bytes32) envfree;
+    function isOperation(bytes32)        external returns (bool);
+    function isOperationPending(bytes32) external returns (bool);
     function isOperationReady(bytes32)   external returns (bool);
-    function isOperationDone(bytes32)    external returns (bool)    envfree;
+    function isOperationDone(bytes32)    external returns (bool);
     function getTimestamp(bytes32)       external returns (uint256) envfree;
     function getMinDelay()               external returns (uint256) envfree;
 
@@ -71,30 +71,30 @@ definition UNSET()               returns uint8   = 0x1;
 definition PENDING()             returns uint8   = 0x2;
 definition DONE()                returns uint8   = 0x4;
 
-definition isUnset(bytes32 id)   returns bool    = !isOperation(id);
-definition isPending(bytes32 id) returns bool    = isOperationPending(id);
-definition isDone(bytes32 id)    returns bool    = isOperationDone(id);
-definition state(bytes32 id)     returns uint8   = (isUnset(id) ? UNSET() : 0) | (isPending(id) ? PENDING() : 0) | (isDone(id) ? DONE() : 0);
+definition isUnset(env e, bytes32 id)   returns bool  = !isOperation(e, id);
+definition isPending(env e, bytes32 id) returns bool  = isOperationPending(e, id);
+definition isDone(env e, bytes32 id)    returns bool  = isOperationDone(e, id);
+definition state(env e, bytes32 id)     returns uint8 = (isUnset(e, id) ? UNSET() : 0) | (isPending(e, id) ? PENDING() : 0) | (isDone(e, id) ? DONE() : 0);
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariants: consistency of accessors                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant isOperationCheck(bytes32 id)
-    isOperation(id) <=> getTimestamp(id) > 0
+invariant isOperationCheck(env e, bytes32 id)
+    isOperation(e, id) <=> getTimestamp(id) > 0
     filtered { f -> !f.isView }
 
-invariant isOperationPendingCheck(bytes32 id)
-    isOperationPending(id) <=> getTimestamp(id) > DONE_TIMESTAMP()
+invariant isOperationPendingCheck(env e, bytes32 id)
+    isOperationPending(e, id) <=> getTimestamp(id) > DONE_TIMESTAMP()
     filtered { f -> !f.isView }
 
-invariant isOperationDoneCheck(bytes32 id)
-    isOperationDone(id) <=> getTimestamp(id) == DONE_TIMESTAMP()
+invariant isOperationDoneCheck(env e, bytes32 id)
+    isOperationDone(e, id) <=> getTimestamp(id) == DONE_TIMESTAMP()
     filtered { f -> !f.isView }
 
 invariant isOperationReadyCheck(env e, bytes32 id)
-    isOperationReady(e, id) <=> (isOperationPending(id) && getTimestamp(id) <= e.block.timestamp)
+    isOperationReady(e, id) <=> (isOperationPending(e, id) && getTimestamp(id) <= e.block.timestamp)
     filtered { f -> !f.isView }
 
 /*
@@ -104,15 +104,15 @@ invariant isOperationReadyCheck(env e, bytes32 id)
 */
 invariant stateConsistency(bytes32 id, env e)
     // Check states are mutually exclusive
-    (isUnset(id)   <=> (!isPending(id) && !isDone(id)   )) &&
-    (isPending(id) <=> (!isUnset(id)   && !isDone(id)   )) &&
-    (isDone(id)    <=> (!isUnset(id)   && !isPending(id))) &&
+    (isUnset(e, id)   <=> (!isPending(e, id) && !isDone(e, id)   )) &&
+    (isPending(e, id) <=> (!isUnset(e, id)   && !isDone(e, id)   )) &&
+    (isDone(e, id)    <=> (!isUnset(e, id)   && !isPending(e, id))) &&
     // Check that the state helper behaves as expected:
-    (isUnset(id)   <=> state(id) == UNSET()              ) &&
-    (isPending(id) <=> state(id) == PENDING()            ) &&
-    (isDone(id)    <=> state(id) == DONE()               ) &&
+    (isUnset(e, id)   <=> state(e, id) == UNSET()              ) &&
+    (isPending(e, id) <=> state(e, id) == PENDING()            ) &&
+    (isDone(e, id)    <=> state(e, id) == DONE()               ) &&
     // Check substate
-    isOperationReady(e, id) => isPending(id)
+    isOperationReady(e, id) => isPending(e, id)
     filtered { f -> !f.isView }
 
 /*
@@ -123,9 +123,9 @@ invariant stateConsistency(bytes32 id, env e)
 rule stateTransition(bytes32 id, env e, method f, calldataarg args) {
     require e.block.timestamp > 1; // Sanity
 
-    uint8 stateBefore = state(id);
+    uint8 stateBefore = state(e, id);
     f(e, args);
-    uint8 stateAfter = state(id);
+    uint8 stateAfter = state(e, id);
 
     // Cannot jump from UNSET to DONE
     assert stateBefore == UNSET() => stateAfter != DONE();
@@ -183,7 +183,7 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
 
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    uint8 stateBefore       = state(id);
+    uint8 stateBefore       = state(e, id);
     bool  isDelaySufficient = delay >= getMinDelay();
     bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
 
@@ -198,8 +198,8 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     );
 
     // effect
-    assert success => state(id) == PENDING(), "State transition violation";
-    assert success => getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
+    assert success => state(e, id) == PENDING(), "State transition violation";
+    assert success => getTimestamp(id) == require_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
 
     // no side effect
     assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
@@ -216,10 +216,10 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
 } {
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    uint8 stateBefore            = state(id);
+    uint8 stateBefore            = state(e, id);
     bool  isOperationReadyBefore = isOperationReady(e, id);
     bool  isExecutorOrOpen       = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
-    bool  predecessorDependency  = predecessor == 0 || isDone(predecessor);
+    bool  predecessorDependency  = predecessor == to_bytes32(0) || isDone(e, predecessor);
 
     helperExecuteWithRevert(e, f, id, predecessor);
     bool success = !lastReverted;
@@ -238,7 +238,7 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     );
 
     // effect
-    assert success => state(id) == DONE(), "State transition violation";
+    assert success => state(e, id) == DONE(), "State transition violation";
 
     // no side effect
     assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
@@ -254,7 +254,7 @@ rule cancel(env e, bytes32 id) {
 
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    uint8 stateBefore = state(id);
+    uint8 stateBefore = state(e, id);
     bool  isCanceller = hasRole(CANCELLER_ROLE(), e.msg.sender);
 
     cancel@withrevert(e, id);
@@ -267,7 +267,7 @@ rule cancel(env e, bytes32 id) {
     );
 
     // effect
-    assert success => state(id) == UNSET(), "State transition violation";
+    assert success => state(e, id) == UNSET(), "State transition violation";
 
     // no side effect
     assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
