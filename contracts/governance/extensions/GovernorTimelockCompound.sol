@@ -55,7 +55,7 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
-     * @dev See {IGovernor-proposalEta}.
+     * @dev See {IGovernor-proposalNeedsQueuing}.
      */
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
