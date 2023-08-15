@@ -209,7 +209,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev See {IGovernor-proposalEta}.
+     * @dev See {IGovernor-proposalNeedsQueuing}.
      */
     function proposalNeedsQueuing(uint256) public view virtual returns (bool) {
         return false;
