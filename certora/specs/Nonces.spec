@@ -86,5 +86,5 @@ rule nonceOnlyIncrements(env e, address account) {
 
     mathint nonceAfter = nonces(account);
 
-    assert nonceAfter >= nonceBefore, "only revert if empty or out of bounds";
+    assert nonceAfter >= nonceBefore, "nonce only increments";
 }
