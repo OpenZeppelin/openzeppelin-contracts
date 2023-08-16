@@ -1,36 +1,25 @@
-const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper, proposalStatesToBitMap, timelockSalt } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { clockFromReceipt } = require('../../helpers/time');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Governor = artifacts.require('$GovernorTimelockAccessMock');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
-const ERC721 = artifacts.require('$ERC721');
-const ERC1155 = artifacts.require('$ERC1155');
 
 const TOKENS = [
   // { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 
-const hashOperation = (caller, target, data) => web3.utils.keccak256(
-  web3.eth.abi.encodeParameters(
-    ['address', 'address', 'bytes'],
-    [caller, target, data],
-  )
-);
+const hashOperation = (caller, target, data) =>
+  web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
 
 contract('GovernorTimelockAccess', function (accounts) {
-  const [admin, voter1, voter2, voter3, voter4, other] = accounts;
-
-  const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
-  const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
-  const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
-  const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
+  const [admin, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
   const version = '1';
@@ -44,8 +33,6 @@ contract('GovernorTimelockAccess', function (accounts) {
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
-        const [deployer] = await web3.eth.getAccounts();
-
         this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
         this.manager = await AccessManager.new(admin);
         this.mock = await Governor.new(
@@ -191,7 +178,10 @@ contract('GovernorTimelockAccess', function (accounts) {
         await this.manager.setClassFunctionGroup(classId, [this.restricted.selector], groupId, { from: admin });
         await this.manager.grantGroup(groupId, this.mock.address, managerDelay, { from: admin });
 
-        this.proposal = await this.helper.setProposal([this.restricted.operation, this.unrestricted.operation], 'descr');
+        this.proposal = await this.helper.setProposal(
+          [this.restricted.operation, this.unrestricted.operation],
+          'descr',
+        );
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -235,7 +225,7 @@ contract('GovernorTimelockAccess', function (accounts) {
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline();
-        const txQueue = await this.helper.queue();
+        await this.helper.queue();
 
         const txCancel = await this.helper.cancel('internal');
         expectEvent(txCancel, 'ProposalCanceled', { proposalId: this.proposal.id });
@@ -248,9 +238,7 @@ contract('GovernorTimelockAccess', function (accounts) {
         await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
           this.proposal.id,
           Enums.ProposalState.Canceled,
-          proposalStatesToBitMap(
-            [Enums.ProposalState.Succeeded, Enums.ProposalState.Queued],
-          ),
+          proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
         ]);
       });
     });

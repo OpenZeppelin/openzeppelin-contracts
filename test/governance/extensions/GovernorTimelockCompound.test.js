@@ -5,6 +5,7 @@ const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { computeCreateAddress } = require('../../helpers/create');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
