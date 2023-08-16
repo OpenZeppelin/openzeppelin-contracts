@@ -27,13 +27,6 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
 abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
-    bytes32 public constant BALLOT_TYPEHASH =
-        keccak256("Ballot(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
-    bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256(
-            "ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)"
-        );
-
     struct ProposalCore {
         address proposer;
         uint48 voteStart;
@@ -43,7 +36,14 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint48 eta;
     }
 
+    bytes32 public constant BALLOT_TYPEHASH =
+        keccak256("Ballot(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
+    bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
+        keccak256(
+            "ExtendedBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason,bytes params)"
+        );
     bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
+
     string private _name;
 
     mapping(uint256 proposalId => ProposalCore) private _proposals;
