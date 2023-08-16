@@ -41,7 +41,7 @@ abstract contract GovernorTimelockAccess is Governor {
 
     mapping(uint256 proposalId => ExecutionPlan) private _executionPlan;
 
-    uint32 _baseDelay;
+    uint32 private _baseDelay;
 
     IAccessManager private immutable _manager;
 
