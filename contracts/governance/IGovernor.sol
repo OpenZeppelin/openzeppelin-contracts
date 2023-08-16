@@ -246,6 +246,12 @@ interface IGovernor is IERC165, IERC6372 {
     function proposalEta(uint256 proposalId) external view returns (uint256);
 
     /**
+     * @notice module:core
+     * @dev Whether a proposal needs to be queued before execution.
+     */
+    function proposalNeedsQueuing(uint256 proposalId) external view returns (bool);
+
+    /**
      * @notice module:user-config
      * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
      * on the clock (see EIP-6372) this contract uses.

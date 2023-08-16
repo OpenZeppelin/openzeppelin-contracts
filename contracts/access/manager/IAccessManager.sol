@@ -9,17 +9,24 @@ interface IAccessManager {
     /**
      * @dev A delayed operation was scheduled.
      */
-    event OperationScheduled(bytes32 indexed operationId, uint48 schedule, address caller, address target, bytes data);
+    event OperationScheduled(
+        bytes32 indexed operationId,
+        uint32 indexed nonce,
+        uint48 schedule,
+        address caller,
+        address target,
+        bytes data
+    );
 
     /**
      * @dev A scheduled operation was executed.
      */
-    event OperationExecuted(bytes32 indexed operationId, uint48 schedule);
+    event OperationExecuted(bytes32 indexed operationId, uint32 indexed nonce);
 
     /**
      * @dev A scheduled operation was canceled.
      */
-    event OperationCanceled(bytes32 indexed operationId, uint48 schedule);
+    event OperationCanceled(bytes32 indexed operationId, uint32 indexed nonce);
 
     event GroupLabel(uint64 indexed groupId, string label);
     event GroupGranted(uint64 indexed groupId, address indexed account, uint32 delay, uint48 since);
@@ -94,11 +101,13 @@ interface IAccessManager {
 
     function getSchedule(bytes32 id) external returns (uint48);
 
-    function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32);
+    function getNonce(bytes32 id) external returns (uint32);
 
-    function relay(address target, bytes calldata data) external payable;
+    function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
 
-    function cancel(address caller, address target, bytes calldata data) external;
+    function relay(address target, bytes calldata data) external payable returns (uint32);
+
+    function cancel(address caller, address target, bytes calldata data) external returns (uint32);
 
     function consumeScheduledOp(address caller, bytes calldata data) external;
 
