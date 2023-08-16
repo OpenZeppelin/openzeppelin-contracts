@@ -36,7 +36,7 @@ These removals were implemented in the following PRs: [#3637](https://github.com
 
 These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the new `_update` function instead.
 
-Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
+Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_transfer`, `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
 
 For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
 
@@ -52,6 +52,18 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
 +     super._update(from, to, amount);
   }
 ```
+
+### More about ERC721
+
+In the case of `ERC721`, the `_update` function does not include a `from` parameter, as the sender is implicitly the previous owner of the `tokenId`. The address of
+this previous owner is returned by the `_update` function, so it can be used for a posteriori checks. In addition to `to` and `tokenId`, a third parameter (`auth`) is
+present in this function. This parameter enabled an optional check that the caller/spender is approved to do the transfer. This check cannot be performed after the transfer (because the transfer resets the approval), and doing it before `_update` would require a duplicate call to `_ownerOf`.
+
+In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was removed in favor of a new `_isAuthorized` function. Overrides that used to target the
+`_isApprovedOrOwner` should now be performed on the `_isAuthorized` function. Calls to `_isApprovedOrOwner` that preceded a call to `_transfer`, `_burn` or `_approve`
+should be removed in favor of using the `auth` argument in `_update` and `_approve`. This is showcased in `ERC721Burnable.burn` and in `ERC721Wrapper.withdrawTo`.
+
+The `_exists` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
 
 #### ERC165Storage
 

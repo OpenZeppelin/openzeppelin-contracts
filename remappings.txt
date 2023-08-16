@@ -1,1 +1,1 @@
-openzeppelin/=contracts/
+@openzeppelin/contracts/=contracts/

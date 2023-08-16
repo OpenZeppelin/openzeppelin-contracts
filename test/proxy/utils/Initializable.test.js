@@ -1,6 +1,7 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { expectRevertCustomError } = require('../../helpers/customError');
+const { MAX_UINT64 } = require('../../helpers/constants');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
@@ -213,7 +214,7 @@ contract('Initializable', function () {
     it('old and new patterns in good sequence', async function () {
       const ok = await DisableOk.new();
       await expectEvent.inConstruction(ok, 'Initialized', { version: '1' });
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '255' });
+      await expectEvent.inConstruction(ok, 'Initialized', { version: MAX_UINT64 });
     });
   });
 });

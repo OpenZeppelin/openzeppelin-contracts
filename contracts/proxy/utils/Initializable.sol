@@ -55,14 +55,27 @@ pragma solidity ^0.8.20;
  */
 abstract contract Initializable {
     /**
-     * @dev Indicates that the contract has been initialized.
+     * @dev Storage of the initializable contract.
+     *
+     * It's implemented on a custom ERC-7201 namespace to reduce the risk of storage collisions
+     * when using with upgradeable contracts.
+     *
+     * @custom:storage-location erc7201:openzeppelin.storage.Initializable
      */
-    uint8 private _initialized;
+    struct InitializableStorage {
+        /**
+         * @dev Indicates that the contract has been initialized.
+         */
+        uint64 _initialized;
+        /**
+         * @dev Indicates that the contract is in the process of being initialized.
+         */
+        bool _initializing;
+    }
 
-    /**
-     * @dev Indicates that the contract is in the process of being initialized.
-     */
-    bool private _initializing;
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.Initializable")) - 1))
+    bytes32 private constant _INITIALIZABLE_STORAGE =
+        0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e;
 
     /**
      * @dev The contract is already initialized.
@@ -77,7 +90,7 @@ abstract contract Initializable {
     /**
      * @dev Triggered when the contract has been initialized or reinitialized.
      */
-    event Initialized(uint8 version);
+    event Initialized(uint64 version);
 
     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
@@ -89,17 +102,20 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier initializer() {
-        bool isTopLevelCall = !_initializing;
-        if (!(isTopLevelCall && _initialized < 1) && !(address(this).code.length == 0 && _initialized == 1)) {
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        bool isTopLevelCall = !$._initializing;
+        if (!(isTopLevelCall && $._initialized < 1) && !(address(this).code.length == 0 && $._initialized == 1)) {
             revert AlreadyInitialized();
         }
-        _initialized = 1;
+        $._initialized = 1;
         if (isTopLevelCall) {
-            _initializing = true;
+            $._initializing = true;
         }
         _;
         if (isTopLevelCall) {
-            _initializing = false;
+            $._initializing = false;
             emit Initialized(1);
         }
     }
@@ -122,14 +138,17 @@ abstract contract Initializable {
      *
      * Emits an {Initialized} event.
      */
-    modifier reinitializer(uint8 version) {
-        if (_initializing || _initialized >= version) {
+    modifier reinitializer(uint64 version) {
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        if ($._initializing || $._initialized >= version) {
             revert AlreadyInitialized();
         }
-        _initialized = version;
-        _initializing = true;
+        $._initialized = version;
+        $._initializing = true;
         _;
-        _initializing = false;
+        $._initializing = false;
         emit Initialized(version);
     }
 
@@ -146,7 +165,7 @@ abstract contract Initializable {
      * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.
      */
     function _checkInitializing() internal view virtual {
-        if (!_initializing) {
+        if (!_isInitializing()) {
             revert NotInitializing();
         }
     }
@@ -160,26 +179,39 @@ abstract contract Initializable {
      * Emits an {Initialized} event the first time it is successfully executed.
      */
     function _disableInitializers() internal virtual {
-        if (_initializing) {
+        // solhint-disable-next-line var-name-mixedcase
+        InitializableStorage storage $ = _getInitializableStorage();
+
+        if ($._initializing) {
             revert AlreadyInitialized();
         }
-        if (_initialized != type(uint8).max) {
-            _initialized = type(uint8).max;
-            emit Initialized(type(uint8).max);
+        if ($._initialized != type(uint64).max) {
+            $._initialized = type(uint64).max;
+            emit Initialized(type(uint64).max);
         }
     }
 
     /**
      * @dev Returns the highest version that has been initialized. See {reinitializer}.
      */
-    function _getInitializedVersion() internal view returns (uint8) {
-        return _initialized;
+    function _getInitializedVersion() internal view returns (uint64) {
+        return _getInitializableStorage()._initialized;
     }
 
     /**
      * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
     function _isInitializing() internal view returns (bool) {
-        return _initializing;
+        return _getInitializableStorage()._initializing;
+    }
+
+    /**
+     * @dev Returns a pointer to the storage namespace.
+     */
+    // solhint-disable-next-line var-name-mixedcase
+    function _getInitializableStorage() private pure returns (InitializableStorage storage $) {
+        assembly {
+            $.slot := _INITIALIZABLE_STORAGE
+        }
     }
 }

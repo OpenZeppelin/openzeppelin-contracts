@@ -39,7 +39,7 @@ contract StorageSlotMock {
         return slot.getUint256Slot().value;
     }
 
-    mapping(uint256 => string) public stringMap;
+    mapping(uint256 key => string) public stringMap;
 
     function setString(bytes32 slot, string calldata value) public {
         slot.getStringSlot().value = value;
@@ -57,7 +57,7 @@ contract StorageSlotMock {
         return stringMap[key].getStringSlot().value;
     }
 
-    mapping(uint256 => bytes) public bytesMap;
+    mapping(uint256 key => bytes) public bytesMap;
 
     function setBytes(bytes32 slot, bytes calldata value) public {
         slot.getBytesSlot().value = value;

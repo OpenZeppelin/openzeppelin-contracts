@@ -3,8 +3,8 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {ERC2771Forwarder} from "contracts/metatx/ERC2771Forwarder.sol";
-import {CallReceiverMockTrustingForwarder, CallReceiverMock} from "contracts/mocks/CallReceiverMock.sol";
+import {ERC2771Forwarder} from "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
+import {CallReceiverMockTrustingForwarder, CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 
 struct ForwardRequest {
     address from;

@@ -86,7 +86,6 @@ contract('ERC721URIStorage', function (accounts) {
     it('tokens without URI can be burnt ', async function () {
       await this.token.$_burn(firstTokenId, { from: owner });
 
-      expect(await this.token.$_exists(firstTokenId)).to.equal(false);
       await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
 
@@ -95,7 +94,6 @@ contract('ERC721URIStorage', function (accounts) {
 
       await this.token.$_burn(firstTokenId, { from: owner });
 
-      expect(await this.token.$_exists(firstTokenId)).to.equal(false);
       await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
   });

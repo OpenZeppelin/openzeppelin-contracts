@@ -103,7 +103,7 @@ contract('ERC721Consecutive', function (accounts) {
         it('simple minting is possible after construction', async function () {
           const tokenId = sum(...batches.map(b => b.amount)) + offset;
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(false);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           expectEvent(await this.token.$_mint(user1, tokenId), 'Transfer', {
             from: constants.ZERO_ADDRESS,
@@ -115,7 +115,7 @@ contract('ERC721Consecutive', function (accounts) {
         it('cannot mint a token that has been batched minted', async function () {
           const tokenId = sum(...batches.map(b => b.amount)) + offset - 1;
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(true);
+          expect(await this.token.ownerOf(tokenId)).to.be.not.equal(constants.ZERO_ADDRESS);
 
           await expectRevertCustomError(this.token.$_mint(user1, tokenId), 'ERC721InvalidSender', [ZERO_ADDRESS]);
         });
@@ -151,13 +151,11 @@ contract('ERC721Consecutive', function (accounts) {
         it('tokens can be burned and re-minted #2', async function () {
           const tokenId = web3.utils.toBN(sum(...batches.map(({ amount }) => amount)) + offset);
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(false);
           await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // mint
           await this.token.$_mint(user1, tokenId);
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user1);
 
           // burn
@@ -167,7 +165,6 @@ contract('ERC721Consecutive', function (accounts) {
             tokenId,
           });
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(false);
           await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // re-mint
@@ -177,19 +174,7 @@ contract('ERC721Consecutive', function (accounts) {
             tokenId,
           });
 
-          expect(await this.token.$_exists(tokenId)).to.be.equal(true);
           expect(await this.token.ownerOf(tokenId), user2);
-        });
-
-        it('reverts burning batches of size != 1', async function () {
-          const tokenId = batches[0].amount + offset;
-          const receiver = batches[0].receiver;
-
-          await expectRevertCustomError(
-            this.token.$_afterTokenTransfer(receiver, ZERO_ADDRESS, tokenId, 2),
-            'ERC721ForbiddenBatchBurn',
-            [],
-          );
         });
       });
     });
