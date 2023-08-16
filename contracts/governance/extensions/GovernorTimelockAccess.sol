@@ -46,6 +46,7 @@ abstract contract GovernorTimelockAccess is Governor {
     IAccessManager private immutable _manager;
 
     error GovernorUnmetDelay(uint256 proposalId, uint256 neededTimestamp);
+    error GovernorMismatchedNonce(uint256 proposalId, uint256 expectedNonce, uint256 actualNonce);
 
     event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
 
@@ -195,8 +196,7 @@ abstract contract GovernorTimelockAccess is Governor {
             if (delayed) {
                 uint32 relayedNonce = _manager.relay{value: values[i]}(targets[i], calldatas[i]);
                 if (relayedNonce != nonce) {
-                    // TODO: custom error
-                    revert();
+                    revert GovernorMismatchedNonce(proposalId, nonce, relayedNonce);
                 }
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
@@ -230,8 +230,7 @@ abstract contract GovernorTimelockAccess is Governor {
                     // Attempt to cancel considering the operation could have been cancelled and rescheduled already
                     uint32 canceledNonce = _manager.cancel(address(this), targets[i], calldatas[i]);
                     if (canceledNonce != nonce) {
-                        // TODO: custom error
-                        revert();
+                        revert GovernorMismatchedNonce(proposalId, nonce, canceledNonce);
                     }
                 }
             }
