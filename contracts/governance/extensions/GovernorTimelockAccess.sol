@@ -203,8 +203,6 @@ abstract contract GovernorTimelockAccess is Governor {
                 Address.verifyCallResult(success, returndata);
             }
         }
-
-        delete _executionPlan[proposalId];
     }
 
     /**
@@ -235,8 +233,6 @@ abstract contract GovernorTimelockAccess is Governor {
                 }
             }
         }
-
-        delete _executionPlan[proposalId];
 
         return proposalId;
     }
