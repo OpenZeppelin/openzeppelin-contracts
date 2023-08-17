@@ -46,10 +46,7 @@ contract VestingWallet is Context, Ownable {
      * vesting duration of the vesting wallet.
      */
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
-        if (beneficiary == address(0)) {
-            revert VestingWalletInvalidBeneficiary(address(0));
-        }
-
+        
         _start = startTimestamp;
         _duration = durationSeconds;
     }
