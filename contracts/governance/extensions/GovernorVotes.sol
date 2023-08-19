@@ -12,8 +12,10 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
  */
 abstract contract GovernorVotes is Governor {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     IERC5805 public immutable token;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IVotes tokenAddress) {
         token = IERC5805(address(tokenAddress));
     }
