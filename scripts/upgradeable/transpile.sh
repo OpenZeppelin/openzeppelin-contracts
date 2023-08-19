@@ -22,6 +22,8 @@ fi
 # -i: use included Initializable
 # -x: exclude proxy-related contracts with a few exceptions
 # -p: emit public initializer
+# -n: use namespaces
+# -N: exclude from namespaces transformation
 npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
@@ -32,7 +34,9 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \
   -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
-  -p 'contracts/**/presets/**/*'
+  -p 'contracts/**/presets/**/*' \
+  -n \
+  -N 'contracts/mocks/**/*'
 
 # delete compilation artifacts of vanilla code
 npm run clean
