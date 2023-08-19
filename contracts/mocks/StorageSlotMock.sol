@@ -7,10 +7,6 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 contract StorageSlotMock {
     using StorageSlot for *;
 
-    mapping(uint256 key => string) public stringMap;
-
-    mapping(uint256 key => bytes) public bytesMap;
-
     function setBoolean(bytes32 slot, bool value) public {
         slot.getBooleanSlot().value = value;
     }
@@ -43,6 +39,8 @@ contract StorageSlotMock {
         return slot.getUint256Slot().value;
     }
 
+    mapping(uint256 key => string) public stringMap;
+
     function setString(bytes32 slot, string calldata value) public {
         slot.getStringSlot().value = value;
     }
@@ -58,6 +56,8 @@ contract StorageSlotMock {
     function getStringStorage(uint256 key) public view returns (string memory) {
         return stringMap[key].getStringSlot().value;
     }
+
+    mapping(uint256 key => bytes) public bytesMap;
 
     function setBytes(bytes32 slot, bytes calldata value) public {
         slot.getBytesSlot().value = value;
