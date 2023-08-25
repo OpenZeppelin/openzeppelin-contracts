@@ -99,7 +99,7 @@ library Checkpoints {
         if (pos == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint224 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint224 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -127,20 +127,22 @@ library Checkpoints {
 
         if (pos > 0) {
             // Copying to memory is important here.
-            Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
+            Checkpoint224 storage last = _unsafeAccess(self, pos - 1);
+            uint32 lastKey = last._key;
+            uint224 lastValue = last._value;
 
             // Checkpoint keys must be non-decreasing.
-            if (last._key > key) {
+            if (lastKey > key) {
                 revert CheckpointUnorderedInsertion();
             }
 
             // Update or push new checkpoint
-            if (last._key == key) {
+            if (lastKey == key) {
                 _unsafeAccess(self, pos - 1)._value = value;
             } else {
                 self.push(Checkpoint224({_key: key, _value: value}));
             }
-            return (last._value, value);
+            return (lastValue, value);
         } else {
             self.push(Checkpoint224({_key: key, _value: value}));
             return (0, value);
@@ -286,7 +288,7 @@ library Checkpoints {
         if (pos == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint160 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint160 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -314,20 +316,22 @@ library Checkpoints {
 
         if (pos > 0) {
             // Copying to memory is important here.
-            Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
+            Checkpoint160 storage last = _unsafeAccess(self, pos - 1);
+            uint96 lastKey = last._key;
+            uint160 lastValue = last._value;
 
             // Checkpoint keys must be non-decreasing.
-            if (last._key > key) {
+            if (lastKey > key) {
                 revert CheckpointUnorderedInsertion();
             }
 
             // Update or push new checkpoint
-            if (last._key == key) {
+            if (lastKey == key) {
                 _unsafeAccess(self, pos - 1)._value = value;
             } else {
                 self.push(Checkpoint160({_key: key, _value: value}));
             }
-            return (last._value, value);
+            return (lastValue, value);
         } else {
             self.push(Checkpoint160({_key: key, _value: value}));
             return (0, value);
