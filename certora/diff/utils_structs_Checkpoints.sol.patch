@@ -1,13 +1,15 @@
 --- utils/structs/Checkpoints.sol	2023-08-21 16:07:18.151395512 +0200
-+++ utils/structs/Checkpoints.sol	2023-08-25 10:43:19.822052443 +0200
-@@ -200,10 +200,11 @@
++++ utils/structs/Checkpoints.sol	2023-08-25 10:51:17.586593500 +0200
+@@ -199,11 +199,12 @@
+     function _unsafeAccess(
          Checkpoint224[] storage self,
          uint256 pos
-     ) private pure returns (Checkpoint224 storage result) {
+-    ) private pure returns (Checkpoint224 storage result) {
 -        assembly {
 -            mstore(0, self.slot)
 -            result.slot := add(keccak256(0, 0x20), pos)
 -        }
++    ) private view returns (Checkpoint224 storage result) {
 +        return self[pos]; // explicit (safe) for formal verification hooking
 +        // assembly {
 +        //     mstore(0, self.slot)
@@ -16,14 +18,16 @@
      }
  
      struct Trace160 {
-@@ -387,9 +388,10 @@
+@@ -386,10 +387,11 @@
+     function _unsafeAccess(
          Checkpoint160[] storage self,
          uint256 pos
-     ) private pure returns (Checkpoint160 storage result) {
+-    ) private pure returns (Checkpoint160 storage result) {
 -        assembly {
 -            mstore(0, self.slot)
 -            result.slot := add(keccak256(0, 0x20), pos)
 -        }
++    ) private view returns (Checkpoint160 storage result) {
 +        return self[pos]; // explicit (safe) for formal verification hooking
 +        // assembly {
 +        //     mstore(0, self.slot)

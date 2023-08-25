@@ -1,0 +1,26 @@
+--- governance/utils/Votes.sol	2023-08-21 16:07:18.144728664 +0200
++++ governance/utils/Votes.sol	2023-08-25 10:52:12.904396821 +0200
+@@ -217,6 +217,10 @@
+         return SafeCast.toUint32(_delegateCheckpoints[account].length());
+     }
+ 
++    function _numCheckpointsTotalSupply() internal view virtual returns (uint32) {
++        return SafeCast.toUint32(_totalCheckpoints[account].length());
++    }
++
+     /**
+      * @dev Get the `pos`-th checkpoint for `account`.
+      */
+@@ -227,6 +231,12 @@
+         return _delegateCheckpoints[account].at(pos);
+     }
+ 
++    function _checkpointsTotalSupply(
++        uint32 pos
++    ) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
++        return _totalCheckpoints.at(pos);
++    }
++
+     function _push(
+         Checkpoints.Trace224 storage store,
+         function(uint224, uint224) view returns (uint224) op,

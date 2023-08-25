@@ -4,99 +4,83 @@ import "methods/IERC5805.spec";
 import "methods/IERC6372.spec";
 
 methods {
-    function numCheckpoints(address)          external returns (uint32)  envfree;
-    function ckptFromBlock(address, uint32)   external returns (uint32)  envfree;
-    function ckptVotes(address, uint32)       external returns (uint224) envfree;
-    function numCheckpointsTotalSupply()      external returns (uint32)  envfree;
-    function ckptFromBlockTotalSupply(uint32) external returns (uint32)  envfree;
-    function ckptVotesTotalSupply(uint32)     external returns (uint224) envfree;
-    function maxSupply()                      external returns (uint224) envfree;
+    function numCheckpoints(address)      external returns (uint32)  envfree;
+    function ckptClock(address, uint32)   external returns (uint32)  envfree;
+    function ckptVotes(address, uint32)   external returns (uint224) envfree;
+    function numCheckpointsTotalSupply()  external returns (uint32)  envfree;
+    function ckptClockTotalSupply(uint32) external returns (uint32)  envfree;
+    function ckptVotesTotalSupply(uint32) external returns (uint224) envfree;
+    function maxSupply()                  external returns (uint224) envfree;
 }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost & hooks: total delegated                                                                                      │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-//      // copied from ERC20.spec (can't be imported because of hook conflicts)
-//      ghost mathint sumOfBalances {
-//          init_state axiom sumOfBalances == 0;
-//      }
-//
-//      ghost mapping(address => uint256) balanceOf {
-//          init_state axiom forall address a. balanceOf[a] == 0;
-//      }
-//
-//      ghost mapping(address => address) delegates {
-//          init_state axiom forall address a. delegates[a] == 0;
-//      }
-//
-//      ghost mapping(address => uint256) getVotes {
-//          init_state axiom forall address a. getVotes[a] == 0;
-//      }
-//
-//      hook Sstore _balances[KEY address account] uint256 newAmount (uint256 oldAmount) STORAGE {
-//          // copied from ERC20.spec (can't be imported because of hook conflicts)
-//          havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newAmount - oldAmount;
-//
-//          balanceOf[account] = newAmount;
-//          getVotes[delegates[account]] = getVotes[delegates[account]] + newAmount - oldAmount;
-//      }
-//
-//      hook Sstore _delegates[KEY address account] address newDelegate (address oldDelegate) STORAGE {
-//          delegates[account] = newDelegate;
-//          getVotes[oldDelegate] = getVotes[oldDelegate] - balanceOf[account];
-//          getVotes[newDelegate] = getVotes[newDelegate] + balanceOf[account];
-//      }
-//
-//      // all votes (total supply) minus the votes balances delegated to 0
-//      definition totalVotes() returns uint256 = sumOfBalances() - getVotes[0];
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: copied from ERC20.spec (can't be imported because of hook conflicts)                                     │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-// invariant totalSupplyIsSumOfBalances()
-//     totalSupply() == sumOfBalances() &&
-//     totalSupply() <= max_uint256
-
-
-
-
-
-
-
-
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: clock                                                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+function clockSanity(env e) returns bool {
+    return clock(e) <= max_uint32;
+}
+
 invariant clockMode(env e)
-    clock(e) == e.block.number || clock(e) == e.block.timestamp;
+    assert_uint256(clock(e)) == e.block.number || assert_uint256(clock(e)) == e.block.timestamp;
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Ghost & hooks: total delegated                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// copied from ERC20.spec (can't be imported because of hook conflicts)
+ghost mathint sumOfBalances {
+    init_state axiom sumOfBalances == 0;
+}
 
+ghost mapping(address => mathint) balance {
+    init_state axiom forall address a. balance[a] == 0;
+}
 
+ghost mapping(address => address) delegate {
+    init_state axiom forall address a. delegate[a] == 0;
+}
 
+ghost mapping(address => mathint) votes {
+    init_state axiom forall address a. votes[a] == 0;
+}
 
+hook Sload uint256 balance _balances[KEY address addr] STORAGE {
+    require sumOfBalances >= to_mathint(balance);
+}
 
+hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
+    balance[addr] = newValue;
+    sumOfBalances = sumOfBalances - oldValue + newValue;
+    votes[delegate[addr]] = votes[delegate[addr]] + newValue - oldValue;
+}
 
+hook Sstore _delegatee[KEY address addr] address newDelegate (address oldDelegate) STORAGE {
+    delegate[addr] = newDelegate;
+    votes[oldDelegate] = votes[oldDelegate] - balance[addr];
+    votes[newDelegate] = votes[newDelegate] + balance[addr];
+}
 
+// all votes (total supply) minus the votes balances delegated to 0
+definition totalVotes() returns mathint = sumOfBalances - votes[0];
 
-
-
-
-
-
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: copied from ERC20.spec (can't be imported because of hook conflicts)                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant totalSupplyIsSumOfBalances()
+    to_mathint(totalSupply()) == sumOfBalances;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: zero address has no delegate, no votes and no checkpoints                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant zeroConsistency()
+invariant zeroAddressConsistency()
+    balanceOf(0) == 0 &&
     delegates(0) == 0 &&
     getVotes(0) == 0 &&
     numCheckpoints(0) == 0
@@ -107,6 +91,120 @@ invariant zeroConsistency()
         }
     }
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: hook correctly track latest checkpoint                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// TODO: forall address a.
+invariant balanceDelegateAndVoteConsistency(address a)
+    delegates(a) == delegate[a] &&
+    to_mathint(balanceOf(a)) == balance[a] &&
+    a != 0 => to_mathint(getVotes(a)) == votes[a];
+
+// TODO: forall address a.
+invariant voteBiggerThanDelegatedBalances(address a)
+    getVotes(delegates(a)) >= balanceOf(a)
+    {
+        preserved {
+            requireInvariant zeroAddressConsistency();
+        }
+    }
+
+// TODO: forall address a.
+invariant userVotesLessTotalVotes(address a)
+    votes[a] <= totalVotes()
+    {
+        preserved {
+            requireInvariant totalSupplyIsSumOfBalances;
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Checkpoints: number, ordering and consistency with clock                                                            │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// TODO: forall address a.
+invariant checkpointInThePast(env e, address a)
+    forall uint32 i.
+    numCheckpoints(a) > i => to_mathint(ckptClock(a, i)) <= to_mathint(clock(e))
+    {
+        preserved with (env e2) {
+            require clock(e2) <= clock(e);
+        }
+    }
+
+invariant totalCheckpointInThePast(env e)
+    forall uint32 i.
+    numCheckpointsTotalSupply() > i => to_mathint(ckptClockTotalSupply(i)) <= to_mathint(clock(e))
+    {
+        preserved with (env e2) {
+            require clock(e2) <= clock(e);
+        }
+    }
+
+// TODO: forall address a.
+invariant checkpointClockIncreassing(address a)
+    forall uint32 i.
+    forall uint32 j.
+    (i < j && j < numCheckpoints(a)) => ckptClock(a, i) < ckptClock(a, j)
+    {
+        preserved with (env e) {
+            requireInvariant checkpointInThePast(e, a);
+        }
+    }
+
+invariant totalCheckpointClockIncreassing()
+    forall uint32 i.
+    forall uint32 j.
+    (i < j && j < numCheckpointsTotalSupply()) => ckptClockTotalSupply(i) < ckptClockTotalSupply(j)
+    {
+        preserved with (env e) {
+            requireInvariant totalCheckpointInThePast(e);
+        }
+    }
+
+// TODO: forall address a.
+invariant checkpointCountLowerThanClock(env e, address a)
+    numCheckpoints(a) <= assert_uint32(clock(e))
+    {
+        preserved {
+            require clockSanity(e);
+            requireInvariant checkpointInThePast(e, a);
+        }
+    }
+
+invariant totalCheckpointCountLowerThanClock(env e)
+    numCheckpointsTotalSupply() <= assert_uint32(clock(e))
+    {
+        preserved {
+            require clockSanity(e);
+            requireInvariant totalCheckpointInThePast(e);
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: totalSupply is checkpointed                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant totalSupplyTracked()
+    totalSupply() > 0 => numCheckpointsTotalSupply() > 0;
+
+invariant totalSupplyLatest()
+    numCheckpointsTotalSupply() > 0 => totalSupply() == assert_uint256(ckptVotesTotalSupply(require_uint32(numCheckpointsTotalSupply() - 1)))
+    {
+        preserved {
+            requireInvariant totalSupplyTracked();
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: Delegate must have a checkpoint                                                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 // WIP
 // invariant delegateHasCheckpoint(address a)
 //     (balanceOf(a) > 0 && delegates(a) != 0) => numCheckpoints(delegates(a)) > 0
@@ -121,202 +219,104 @@ invariant zeroConsistency()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: hook correctly track latest checkpoint                                                                   │
+│ Invariant: Checkpoints are immutables                                                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-// invariant balanceAndDelegationConsistency(address a)
-//     balanceOf(a) == balanceOf[a] &&
-//     delegates(a) == delegates[a]
-
-// WIP
-// invariant votesConsistency(address a)
-//     a != 0 => getVotes(a) == getVotes[a]
-
-// WIP
-// invariant voteBiggerThanDelegatedBalances(address a)
-//     getVotes(delegates(a)) >= balanceOf(a)
-//     {
-//         preserved {
-//             requireInvariant zeroConsistency();
-//         }
-//     }
-
-// WIP
-// invariant userVotesLessTotalVotes(address a)
-//     numCheckpoints(a) > 0 => getVotes(a) <= totalVotes()
-//     {
-//         preserved {
-//             requireInvariant totalSupplyIsSumOfBalances;
-//         }
-//     }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: totalSupply is checkpointed                                                                              │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant totalSupplyTracked()
-    totalSupply() > 0 => numCheckpointsTotalSupply() > 0;
-
-invariant totalSupplyLatest()
-    numCheckpointsTotalSupply() > 0 => ckptVotesTotalSupply(numCheckpointsTotalSupply() - 1) == totalSupply();
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: checkpoint is not in the future                                                                          │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-// invariant checkpointInThePast(env e, address a)
-//     numCheckpoints(a) > 0 => ckptFromBlock(a, numCheckpoints(a) - 1) <= clock(e)
-//     {
-//         preserved with (env e2) {
-//             require clock(e2) <= clock(e);
-//         }
-//     }
-
-// invariant totalCheckpointInThePast(env e)
-//     numCheckpointsTotalSupply() > 0 => ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 1) <= clock(e)
-//     {
-//         preserved with (env e2) {
-//             require clock(e2) <= clock(e);
-//         }
-//     }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: checkpoint clock is strictly increassing (implies no duplicate)                                          │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-// invariant checkpointClockIncreassing(address a)
-//     numCheckpoints(a) > 1 => ckptFromBlock(a, numCheckpoints(a) - 2) < ckptFromBlock(a, numCheckpoints(a) - 1)
-//     {
-//         preserved with (env e) {
-//             requireInvariant checkpointInThePast(e, a);
-//         }
-//     }
-
-// invariant totalCheckpointClockIncreassing()
-//     numCheckpointsTotalSupply() > 1 => ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 2) < ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 1)
-//     {
-//         preserved with (env e) {
-//             requireInvariant totalCheckpointInThePast(e);
-//         }
-//     }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Don't track votes delegated to address 0                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-/*
 rule checkpointsImmutable(env e, method f)
     filtered { f -> !f.isView }
 {
     address account;
     uint32  index;
 
-    require index < numCheckpoints(account);
+    require clockSanity(e);
+    requireInvariant checkpointCountLowerThanClock(e, account);
+
     uint224 valueBefore = ckptVotes(account, index);
-    uint32  clockBefore = ckptFromBlock(account, index);
+    uint32  clockBefore = ckptClock(account, index);
 
     calldataarg args; f(e, args);
 
     uint224 valueAfter = ckptVotes@withrevert(account, index);
     assert !lastReverted;
-    uint32  clockAfter = ckptFromBlock@withrevert(account, index);
+    uint32  clockAfter = ckptClock@withrevert(account, index);
     assert !lastReverted;
 
     assert clockAfter == clockBefore;
-    assert valueAfter != valueBefore => clockBefore == clock(e);
+    assert valueAfter != valueBefore => clockBefore == assert_uint32(clock(e));
 }
 
 rule totalCheckpointsImmutable(env e, method f)
     filtered { f -> !f.isView }
 {
-    uint32  index;
+    uint32 index;
 
-    require index < numCheckpointsTotalSupply();
+    require clockSanity(e);
+    requireInvariant totalCheckpointCountLowerThanClock(e);
+
     uint224 valueBefore = ckptVotesTotalSupply(index);
-    uint32  clockBefore = ckptFromBlockTotalSupply(index);
+    uint32  clockBefore = ckptClockTotalSupply(index);
 
     calldataarg args; f(e, args);
 
     uint224 valueAfter = ckptVotesTotalSupply@withrevert(index);
     assert !lastReverted;
-    uint32  clockAfter = ckptFromBlockTotalSupply@withrevert(index);
+    uint32  clockAfter = ckptClockTotalSupply@withrevert(index);
     assert !lastReverted;
 
     assert clockAfter == clockBefore;
-    assert valueAfter != valueBefore => clockBefore == clock(e);
+    assert valueAfter != valueBefore => clockBefore == assert_uint32(clock(e));
 }
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rules: what function can lead to state changes                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-/*
 rule changes(env e, method f)
     filtered { f -> !f.isView }
 {
     address account;
-    calldataarg args;
+
+    require clockSanity(e);
 
     uint32  ckptsBefore     = numCheckpoints(account);
     uint256 votesBefore     = getVotes(account);
     address delegatesBefore = delegates(account);
 
-    f(e, args);
+    calldataarg args; f(e, args);
 
     uint32  ckptsAfter     = numCheckpoints(account);
     uint256 votesAfter     = getVotes(account);
     address delegatesAfter = delegates(account);
 
     assert ckptsAfter != ckptsBefore => (
-        ckptsAfter == ckptsBefore + 1 &&
-        ckptFromBlock(account, ckptsAfter - 1) == clock(e) &&
+        ckptsAfter == assert_uint32(ckptsBefore + 1) &&
+        ckptClock(account, ckptsBefore) == assert_uint32(clock(e)) &&
         (
-            f.selector == mint(address,uint256).selector ||
-            f.selector == burn(address,uint256).selector ||
-            f.selector == transfer(address,uint256).selector ||
-            f.selector == transferFrom(address,address,uint256).selector ||
-            f.selector == delegate(address).selector ||
-            f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+            f.selector == sig:mint(address,uint256).selector ||
+            f.selector == sig:burn(address,uint256).selector ||
+            f.selector == sig:transfer(address,uint256).selector ||
+            f.selector == sig:transferFrom(address,address,uint256).selector ||
+            f.selector == sig:delegate(address).selector ||
+            f.selector == sig:delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
         )
     );
 
     assert votesAfter != votesBefore => (
-        f.selector == mint(address,uint256).selector ||
-        f.selector == burn(address,uint256).selector ||
-        f.selector == transfer(address,uint256).selector ||
-        f.selector == transferFrom(address,address,uint256).selector ||
-        f.selector == delegate(address).selector ||
-        f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+        f.selector == sig:mint(address,uint256).selector ||
+        f.selector == sig:burn(address,uint256).selector ||
+        f.selector == sig:transfer(address,uint256).selector ||
+        f.selector == sig:transferFrom(address,address,uint256).selector ||
+        f.selector == sig:delegate(address).selector ||
+        f.selector == sig:delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
     );
 
     assert delegatesAfter != delegatesBefore => (
-        f.selector == delegate(address).selector ||
-        f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+        f.selector == sig:delegate(address).selector ||
+        f.selector == sig:delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
     );
 }
-*/
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rules: mint updates votes                                                                                           │
