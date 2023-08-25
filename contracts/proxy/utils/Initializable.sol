@@ -106,7 +106,8 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         bool isTopLevelCall = !$._initializing;
-        if (!(isTopLevelCall && $._initialized < 1) && !(address(this).code.length == 0 && $._initialized == 1)) {
+        uint64 initialized = $._initialized;
+        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {
             revert AlreadyInitialized();
         }
         $._initialized = 1;
