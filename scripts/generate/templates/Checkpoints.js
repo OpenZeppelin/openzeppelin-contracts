@@ -116,7 +116,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self)
     if (pos == 0) {
         return (false, 0, 0);
     } else {
-        ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        ${opts.checkpointTypeName} storage ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
         return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
     }
 }
@@ -147,21 +147,22 @@ function _insert(
     uint256 pos = self.length;
 
     if (pos > 0) {
-        // Copying to memory is important here.
-        ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
+        ${opts.checkpointTypeName} storage last = _unsafeAccess(self, pos - 1);
+        ${opts.keyTypeName} lastKey = last._key;
+        ${opts.valueTypeName} lastValue = last._value;
 
         // Checkpoint keys must be non-decreasing.
-        if(last.${opts.keyFieldName} > key) {
+        if (lastKey > key) {
             revert CheckpointUnorderedInsertion();
         }
 
         // Update or push new checkpoint
-        if (last.${opts.keyFieldName} == key) {
+        if (lastKey == key) {
             _unsafeAccess(self, pos - 1).${opts.valueFieldName} = value;
         } else {
             self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         }
-        return (last.${opts.valueFieldName}, value);
+        return (lastValue, value);
     } else {
         self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         return (0, value);
