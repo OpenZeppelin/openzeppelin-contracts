@@ -1,0 +1,33 @@
+--- utils/structs/Checkpoints.sol	2023-08-21 16:07:18.151395512 +0200
++++ utils/structs/Checkpoints.sol	2023-08-25 10:43:19.822052443 +0200
+@@ -200,10 +200,11 @@
+         Checkpoint224[] storage self,
+         uint256 pos
+     ) private pure returns (Checkpoint224 storage result) {
+-        assembly {
+-            mstore(0, self.slot)
+-            result.slot := add(keccak256(0, 0x20), pos)
+-        }
++        return self[pos]; // explicit (safe) for formal verification hooking
++        // assembly {
++        //     mstore(0, self.slot)
++        //     result.slot := add(keccak256(0, 0x20), pos)
++        // }
+     }
+ 
+     struct Trace160 {
+@@ -387,9 +388,10 @@
+         Checkpoint160[] storage self,
+         uint256 pos
+     ) private pure returns (Checkpoint160 storage result) {
+-        assembly {
+-            mstore(0, self.slot)
+-            result.slot := add(keccak256(0, 0x20), pos)
+-        }
++        return self[pos]; // explicit (safe) for formal verification hooking
++        // assembly {
++        //     mstore(0, self.slot)
++        //     result.slot := add(keccak256(0, 0x20), pos)
++        // }
+     }
+ }
