@@ -9,7 +9,7 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
- * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
+ * and supports token supply up to 2^208^ - 1, while COMP is limited to 2^96^ - 1.
  *
  * NOTE: This contract does not provide interface compatibility with Compound's COMP token.
  *
@@ -27,10 +27,10 @@ abstract contract ERC20Votes is ERC20, Votes {
     error ERC20ExceededSafeSupply(uint256 increasedSupply, uint256 cap);
 
     /**
-     * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
+     * @dev Maximum token supply. Defaults to `type(uint208).max` (2^208^ - 1).
      */
-    function _maxSupply() internal view virtual returns (uint224) {
-        return type(uint224).max;
+    function _maxSupply() internal view virtual returns (uint256) {
+        return type(uint208).max;
     }
 
     /**
@@ -70,7 +70,7 @@ abstract contract ERC20Votes is ERC20, Votes {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint224 memory) {
+    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint208 memory) {
         return _checkpoints(account, pos);
     }
 }
