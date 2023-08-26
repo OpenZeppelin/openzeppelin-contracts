@@ -14,7 +14,7 @@ import {IERC165} from "./IERC165.sol";
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
-    bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
+    bytes4 private constant INTERFACE_ID_INVALID = 0xffffffff;
 
     /**
      * @dev Returns true if `account` supports the {IERC165} interface.
@@ -24,7 +24,7 @@ library ERC165Checker {
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
         return
             supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId) &&
-            !supportsERC165InterfaceUnchecked(account, _INTERFACE_ID_INVALID);
+            !supportsERC165InterfaceUnchecked(account, INTERFACE_ID_INVALID);
     }
 
     /**
