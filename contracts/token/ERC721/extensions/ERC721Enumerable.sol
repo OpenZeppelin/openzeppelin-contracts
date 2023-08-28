@@ -122,7 +122,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         uint256 lastTokenIndex = balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
-        mapping(uint256 index => uint256) storage _ownedTokensByOwner =  _ownedTokens[from];
+        mapping(uint256 index => uint256) storage _ownedTokensByOwner = _ownedTokens[from];
 
         // When the token to delete is the last token, the swap operation is unnecessary
         if (tokenIndex != lastTokenIndex) {
