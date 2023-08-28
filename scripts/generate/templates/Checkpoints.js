@@ -148,8 +148,8 @@ function _insert(
 
     if (pos > 0) {
         ${opts.checkpointTypeName} storage last = _unsafeAccess(self, pos - 1);
-        ${opts.keyTypeName} lastKey = last._key;
-        ${opts.valueTypeName} lastValue = last._value;
+        ${opts.keyTypeName} lastKey = last.${opts.keyFieldName};
+        ${opts.valueTypeName} lastValue = last.${opts.valueFieldName};
 
         // Checkpoint keys must be non-decreasing.
         if (lastKey > key) {
