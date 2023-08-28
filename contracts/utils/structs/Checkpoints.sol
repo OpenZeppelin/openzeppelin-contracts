@@ -126,7 +126,6 @@ library Checkpoints {
         uint256 pos = self.length;
 
         if (pos > 0) {
-            // Copying to memory is important here.
             Checkpoint224 storage last = _unsafeAccess(self, pos - 1);
             uint32 lastKey = last._key;
             uint224 lastValue = last._value;
@@ -315,7 +314,6 @@ library Checkpoints {
         uint256 pos = self.length;
 
         if (pos > 0) {
-            // Copying to memory is important here.
             Checkpoint160 storage last = _unsafeAccess(self, pos - 1);
             uint96 lastKey = last._key;
             uint160 lastValue = last._value;
