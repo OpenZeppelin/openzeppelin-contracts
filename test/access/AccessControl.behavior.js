@@ -242,6 +242,8 @@ function shouldBehaveLikeAccessControlEnumerable(admin, authorized, other, other
       }
 
       expect(bearers).to.have.members([authorized, otherAuthorized]);
+
+      expect(await this.accessControl.getRoleMembers(ROLE)).to.be.deep.equal([authorized, otherAuthorized]);
     });
     it('role enumeration should be in sync after renounceRole call', async function () {
       expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('0');
