@@ -24,7 +24,7 @@ fi
 # -p: emit public initializer
 # -n: use namespaces
 # -N: exclude from namespaces transformation
-npx @openzeppelin/upgrade-safe-transpiler@next -D \
+npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
