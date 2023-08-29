@@ -109,7 +109,7 @@ library Time {
      * @dev Update a Delay object so that a new duration takes effect at a given timepoint.
      */
     function withUpdateAt(Delay self, uint32 newValue, uint48 effect) internal view returns (Delay) {
-        return pack(self.get(), newValue, effect);
+        return effect == 0 ? pack(newValue, 0, 0) : pack(self.get(), newValue, effect);
     }
 
     /**

@@ -130,11 +130,9 @@ contract('Time', function () {
 
           expect(delay).to.be.bignumber.equal(
             String(
-              packDelay({
-                oldValue: setAndPast ? newValue : oldValue,
-                newValue: newNewValue,
-                effect: when,
-              }),
+              when == 0n
+                ? packDelay({ oldValue: newNewValue })
+                : packDelay({ oldValue: setAndPast ? newValue : oldValue, newValue: newNewValue, effect: when }),
             ),
           );
         }
