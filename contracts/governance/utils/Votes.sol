@@ -31,7 +31,7 @@ import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
 
-    bytes32 private constant _DELEGATION_TYPEHASH =
+    bytes32 private constant DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address account => address) private _delegatee;
@@ -150,7 +150,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
             revert VotesExpiredSignature(expiry);
         }
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s

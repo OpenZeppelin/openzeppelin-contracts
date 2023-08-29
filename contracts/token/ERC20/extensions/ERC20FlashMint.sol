@@ -19,7 +19,7 @@ import {ERC20} from "../ERC20.sol";
  * overriding {maxFlashLoan} so that it correctly reflects the supply cap.
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
-    bytes32 private constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 private constant RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
      * @dev The loan token is not valid.
@@ -118,7 +118,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         }
         uint256 fee = flashFee(token, value);
         _mint(address(receiver), value);
-        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != _RETURN_VALUE) {
+        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != RETURN_VALUE) {
             revert ERC3156InvalidReceiver(address(receiver));
         }
         address flashFeeReceiver = _flashFeeReceiver();
