@@ -18,16 +18,15 @@ function main() {
       console.log(output, '\n');
     }
   }
-  
+
   if (reports.length > 0) process.exitCode = 1;
 
   if (!process.exitCode) {
     console.log('No duplicate custom errors found.');
-  }  
+  }
 }
 
 function processArtifacts(artifacts) {
-
   const filesContainingCustomError = {};
 
   for (const artifact of artifacts) {
