@@ -49,7 +49,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         uint256 length = _quorumNumeratorHistory._checkpoints.length;
 
         // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint208 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        Checkpoints.Checkpoint208 storage latest = _quorumNumeratorHistory._checkpoints[length - 1];
         uint48 latestKey = latest._key;
         uint208 latestValue = latest._value;
         if (latestKey <= timepoint) {
