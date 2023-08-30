@@ -30,10 +30,10 @@ abstract contract ERC20Votes is ERC20, Votes {
      * @dev Maximum token supply. Defaults to `type(uint208).max` (2^208^ - 1).
      *
      * This maximum is enforced in {_update}. It limits the total supply of the token, which is otherwise a uint256,
-     * so that checkpoints can be stored in the Trace208 structure used by {{Votes}}. Increasing this value will not 
-     * remove the underlying limitation, and will cause {_update} to fail because of a math overflow in 
-     * {_transferVotingUnits}. An override could be used to further restrict the total supply (to a lower value) if 
-     * additional logic requires it. When resolving override conflicts on this function, the minimum should be 
+     * so that checkpoints can be stored in the Trace208 structure used by {{Votes}}. Increasing this value will not
+     * remove the underlying limitation, and will cause {_update} to fail because of a math overflow in
+     * {_transferVotingUnits}. An override could be used to further restrict the total supply (to a lower value) if
+     * additional logic requires it. When resolving override conflicts on this function, the minimum should be
      * returned.
      */
     function _maxSupply() internal view virtual returns (uint256) {
