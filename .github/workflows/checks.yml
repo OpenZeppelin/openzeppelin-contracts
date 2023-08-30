@@ -63,6 +63,7 @@ jobs:
         run: npm run test:inheritance
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
+        continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
         with:
           token: ${{ github.token }}
 

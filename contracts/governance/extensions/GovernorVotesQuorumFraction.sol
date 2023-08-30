@@ -12,9 +12,9 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
  * fraction of the total supply.
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-    using Checkpoints for Checkpoints.Trace224;
+    using Checkpoints for Checkpoints.Trace208;
 
-    Checkpoints.Trace224 private _quorumNumeratorHistory;
+    Checkpoints.Trace208 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
 
@@ -49,15 +49,15 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         uint256 length = _quorumNumeratorHistory._checkpoints.length;
 
         // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint224 storage latest = _quorumNumeratorHistory._checkpoints[length - 1];
-        uint32 latestKey = latest._key;
-        uint224 latestValue = latest._value;
+        Checkpoints.Checkpoint208 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        uint48 latestKey = latest._key;
+        uint208 latestValue = latest._value;
         if (latestKey <= timepoint) {
             return latestValue;
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint32(timepoint));
+        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 
     /**
@@ -104,7 +104,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         uint256 oldQuorumNumerator = quorumNumerator();
-        _quorumNumeratorHistory.push(SafeCast.toUint32(clock()), SafeCast.toUint224(newQuorumNumerator));
+        _quorumNumeratorHistory.push(clock(), SafeCast.toUint208(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
