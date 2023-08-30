@@ -97,7 +97,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
 * Functions should be declared virtual, with few exceptions listed below. The
   contract logic should be written considering that these functions may be
-  overriden by developers, e.g. getting a value using an internal getter rather
+  overridden by developers, e.g. getting a value using an internal getter rather
   than reading directly from a state variable.
 
   If function A is an "alias" of function B, i.e. it invokes function B without
