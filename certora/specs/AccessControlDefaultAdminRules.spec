@@ -307,7 +307,7 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
   // change can only happen towards the newAdmin, with the delay
   assert adminAfter != adminBefore => (
     adminAfter == newAdmin &&
-    to_mathint(e2.block.timestamp) >= e1.block.timestamp + assert_uint256(delayBefore)
+    to_mathint(e2.block.timestamp) >= e1.block.timestamp + delayBefore
   ),
     "The admin can only change after the enforced delay and to the previously scheduled new admin";
 }

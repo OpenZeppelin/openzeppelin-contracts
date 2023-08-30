@@ -20,9 +20,7 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
-function authSanity(env e) returns bool {
-    return e.msg.sender != 0;
-}
+definition authSanity(env e) returns bool = e.msg.sender != 0;
 
 // Could be broken in theory, but not in practice
 function balanceLimited(address account) returns bool {

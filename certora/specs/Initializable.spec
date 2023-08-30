@@ -2,18 +2,18 @@ import "helpers/helpers.spec";
 
 methods {
     // initialize, reinitialize, disable
-    function initialize()        external envfree;
+    function initialize()         external envfree;
     function reinitialize(uint64) external envfree;
-    function disable()           external envfree;
+    function disable()            external envfree;
 
-    function nested_init_init()            external envfree;
-    function nested_init_reinit(uint64)       external envfree;
-    function nested_reinit_init(uint64)       external envfree;
+    function nested_init_init()                  external envfree;
+    function nested_init_reinit(uint64)          external envfree;
+    function nested_reinit_init(uint64)          external envfree;
     function nested_reinit_reinit(uint64,uint64) external envfree;
 
     // view
     function version()      external returns uint64 envfree;
-    function initializing() external returns bool  envfree;
+    function initializing() external returns bool   envfree;
 }
 
 /*

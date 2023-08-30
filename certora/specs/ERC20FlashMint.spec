@@ -1,6 +1,7 @@
 import "helpers/helpers.spec";
 import "methods/IERC20.spec";
-import "methods/IERC3156.spec";
+import "methods/IERC3156FlashLender.spec";
+import "methods/IERC3156FlashBorrower.spec";
 
 methods {
     // non standard ERC3156 functions
@@ -37,12 +38,12 @@ rule checkMintAndBurn(env e) {
     uint256 amount;
     bytes data;
 
-    mathint fees = flashFee(token, amount);
+    uint256 fees = flashFee(token, amount);
     address recipient = flashFeeReceiver();
 
     flashLoan(e, receiver, token, amount, data);
 
     assert trackedMintAmount[receiver] == to_mathint(amount);
     assert trackedBurnAmount[receiver] == amount + to_mathint(recipient == 0 ? fees : 0);
-    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == fees;
+    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == to_mathint(fees);
 }
