@@ -241,14 +241,14 @@ library Math {
             //      abs(sqrt(x) - result) <= 2^{e-2}.
             uint256 aAux = a;
             uint256 result = 1;
-            if (aAux >= (1 << 128)) { aAux >>= 128; result <<= 64; }
+            if (aAux >= (1 << 128)) { aAux >>= 128; result = 1 << 64; }
             if (aAux >= (1 << 64 )) { aAux >>= 64;  result <<= 32; }
             if (aAux >= (1 << 32 )) { aAux >>= 32;  result <<= 16; }
             if (aAux >= (1 << 16 )) { aAux >>= 16;  result <<= 8;  }
             if (aAux >= (1 << 8  )) { aAux >>= 8;   result <<= 4;  }
             if (aAux >= (1 << 4  )) { aAux >>= 4;   result <<= 2;  }
             if (aAux >= (1 << 2  )) {               result <<= 1;  }
-            result += (result >> 1);
+            result = (3 * result) >> 1;
 
             // Perform the 6 required Newton iterations
             result = (result + a / result) >> 1;
