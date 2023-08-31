@@ -16,11 +16,11 @@ contract MathTest is Test {
         if (result == 0) {
             assertEq(a, 0);
         } else {
-            uint256 ans = a / b;
-            if (ans * b < a) {
-                ans += 1;
+            uint256 expect = a / b;
+            if (expect * b < a) {
+                expect += 1;
             }
-            assertEq(result, ans);
+            assertEq(result, expect);
         }
     }
 
