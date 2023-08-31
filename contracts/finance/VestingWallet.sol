@@ -31,11 +31,6 @@ contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
-    /**
-     * @dev The `beneficiary` is not a valid account.
-     */
-    error VestingWalletInvalidBeneficiary(address beneficiary);
-
     uint256 private _released;
     mapping(address token => uint256) private _erc20Released;
     uint64 private immutable _start;
