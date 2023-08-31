@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-moved beneficiay zero address check to Ownable
+`Ownable`: prevent using address(0) as the initial owner.
