@@ -16,10 +16,11 @@ contract MathTest is Test {
         if (result == 0) {
             assertEq(a, 0);
         } else {
-            uint256 maxdiv = UINT256_MAX / b;
-            bool overflow = maxdiv * b < a;
-            assertTrue(a > b * (result - 1));
-            assertTrue(overflow ? result == maxdiv + 1 : a <= b * result);
+            uint256 ans = a / b;
+            if (ans * b < a) {
+                ans += 1;
+            }
+            assertEq(result, ans);
         }
     }
 
