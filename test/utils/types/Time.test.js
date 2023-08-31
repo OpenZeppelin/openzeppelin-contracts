@@ -6,14 +6,14 @@ const { clock } = require('../../helpers/time');
 const Time = artifacts.require('$Time');
 
 const unpackDelay = delay => ({
-  oldValue: (BigInt(delay) >> 0n) % (1n << 32n),
-  newValue: (BigInt(delay) >> 32n) % (1n << 32n),
+  valueBefore: (BigInt(delay) >> 32n) % (1n << 32n),
+  valueAfter: (BigInt(delay) >> 0n) % (1n << 32n),
   effect: (BigInt(delay) >> 64n) % (1n << 48n),
 });
 
-const packDelay = ({ oldValue, newValue = 0n, effect = 0n }) =>
-  (BigInt(oldValue) % (1n << 32n) << 0n) +
-  (BigInt(newValue) % (1n << 32n) << 32n) +
+const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
+  (BigInt(valueAfter) % (1n << 32n) << 0n) +
+  (BigInt(valueBefore) % (1n << 32n) << 32n) +
   (BigInt(effect) % (1n << 48n) << 64n);
 
 const max = (first, ...values) => values.reduce((x, y) => (x > y ? x : y), first);
@@ -45,122 +45,100 @@ contract('Time', function () {
 
   describe('Delay', function () {
     describe('helpers', function () {
-      const oldValue = 17n;
-      const newValue = 42n;
+      const valueBefore = 17n;
+      const valueAfter = 42n;
       const effect = 69n;
-      const delay = 1272825341266347687953n;
+      const delay = 1272825341158973505578n;
 
       it('pack', async function () {
-        const packed = await this.mock.$pack(oldValue, newValue, effect);
+        const packed = await this.mock.$pack(valueBefore, valueAfter, effect);
         expect(packed).to.be.bignumber.equal(delay.toString());
 
-        const packed2 = packDelay({ oldValue, newValue, effect });
+        const packed2 = packDelay({ valueBefore, valueAfter, effect });
         expect(packed2).to.be.equal(delay);
       });
 
       it('unpack', async function () {
         const unpacked = await this.mock.$unpack(delay);
-        expect(unpacked[0]).to.be.bignumber.equal(oldValue.toString());
-        expect(unpacked[1]).to.be.bignumber.equal(newValue.toString());
+        expect(unpacked[0]).to.be.bignumber.equal(valueBefore.toString());
+        expect(unpacked[1]).to.be.bignumber.equal(valueAfter.toString());
         expect(unpacked[2]).to.be.bignumber.equal(effect.toString());
 
         const unpacked2 = unpackDelay(delay);
-        expect(unpacked2).to.be.deep.equal({ oldValue, newValue, effect });
+        expect(unpacked2).to.be.deep.equal({ valueBefore, valueAfter, effect });
       });
     });
 
     it('toDelay', async function () {
       for (const value of [0n, 1n, 2n, 17n, 42n, MAX_UINT32]) {
         const delay = await this.mock.$toDelay(value).then(unpackDelay);
-        expect(delay).to.be.deep.equal({ oldValue: value, newValue: 0n, effect: 0n });
+        expect(delay).to.be.deep.equal({ valueBefore: 0n, valueAfter: value, effect: 0n });
       }
     });
 
     it('getAt & getFullAt', async function () {
-      const oldValue = 24194n;
-      const newValue = 4214143n;
+      const valueBefore = 24194n;
+      const valueAfter = 4214143n;
 
       for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48])
         for (const timepoint of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48]) {
-          const setAndPast = effect != 0 && effect <= timepoint;
+          const isPast = effect <= timepoint;
 
-          const delay = packDelay({ oldValue, newValue, effect });
+          const delay = packDelay({ valueBefore, valueAfter, effect });
 
           expect(await this.mock.$getAt(delay, timepoint)).to.be.bignumber.equal(
-            String(setAndPast ? newValue : oldValue),
+            String(isPast ? valueAfter : valueBefore),
           );
 
           const getFullAt = await this.mock.$getFullAt(delay, timepoint);
-          expect(getFullAt[0]).to.be.bignumber.equal(String(setAndPast ? newValue : oldValue));
-          expect(getFullAt[1]).to.be.bignumber.equal(String(setAndPast ? 0n : newValue));
-          expect(getFullAt[2]).to.be.bignumber.equal(String(setAndPast ? 0n : effect));
+          expect(getFullAt[0]).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
+          expect(getFullAt[1]).to.be.bignumber.equal(String(isPast ? 0n : valueAfter));
+          expect(getFullAt[2]).to.be.bignumber.equal(String(isPast ? 0n : effect));
         }
     });
 
     it('get & getFull', async function () {
       const timepoint = await clock.timestamp().then(BigInt);
-      const oldValue = 24194n;
-      const newValue = 4214143n;
+      const valueBefore = 24194n;
+      const valueAfter = 4214143n;
 
       for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48]) {
-        const setAndPast = effect != 0 && effect <= timepoint;
+        const isPast = effect <= timepoint;
 
-        const delay = packDelay({ oldValue, newValue, effect });
+        const delay = packDelay({ valueBefore, valueAfter, effect });
 
-        expect(await this.mock.$get(delay)).to.be.bignumber.equal(String(setAndPast ? newValue : oldValue));
+        expect(await this.mock.$get(delay)).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
 
         const result = await this.mock.$getFull(delay);
-        expect(result[0]).to.be.bignumber.equal(String(setAndPast ? newValue : oldValue));
-        expect(result[1]).to.be.bignumber.equal(String(setAndPast ? 0n : newValue));
-        expect(result[2]).to.be.bignumber.equal(String(setAndPast ? 0n : effect));
+        expect(result[0]).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
+        expect(result[1]).to.be.bignumber.equal(String(isPast ? 0n : valueAfter));
+        expect(result[2]).to.be.bignumber.equal(String(isPast ? 0n : effect));
       }
-    });
-
-    it('withUpdateAt', async function () {
-      const timepoint = await clock.timestamp().then(BigInt);
-      const oldValue = 24194n;
-      const newValue = 4214143n;
-      const newNewValue = 94716n;
-
-      for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48])
-        for (const when of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48]) {
-          const setAndPast = effect != 0 && effect <= timepoint;
-
-          const delay = await this.mock.$withUpdateAt(packDelay({ oldValue, newValue, effect }), newNewValue, when);
-
-          expect(delay).to.be.bignumber.equal(
-            String(
-              when == 0n
-                ? packDelay({ oldValue: newNewValue })
-                : packDelay({ oldValue: setAndPast ? newValue : oldValue, newValue: newNewValue, effect: when }),
-            ),
-          );
-        }
     });
 
     it('withUpdate', async function () {
       const timepoint = await clock.timestamp().then(BigInt);
-      const oldValue = 24194n;
-      const newValue = 4214143n;
-      const newNewValue = 94716n;
+      const valueBefore = 24194n;
+      const valueAfter = 4214143n;
+      const newvalueAfter = 94716n;
 
       for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT32])
         for (const minSetback of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT32]) {
-          const setAndPast = effect != 0 && effect <= timepoint;
-          const expectedOldValue = setAndPast ? newValue : oldValue;
-          const expectedSetback = max(minSetback, expectedOldValue - newNewValue, 0n);
+          const isPast = effect <= timepoint;
+          const expectedvalueBefore = isPast ? valueAfter : valueBefore;
+          const expectedSetback = max(minSetback, expectedvalueBefore - newvalueAfter, 0n);
 
           const result = await this.mock.$withUpdate(
-            packDelay({ oldValue, newValue, effect }),
-            newNewValue,
+            packDelay({ valueBefore, valueAfter, effect }),
+            newvalueAfter,
             minSetback,
           );
 
           expect(result[0]).to.be.bignumber.equal(
             String(
               packDelay({
-                oldValue: expectedOldValue,
-                newValue: newNewValue,
+                valueBefore: expectedvalueBefore,
+                valueAfter: newvalueAfter,
                 effect: timepoint + expectedSetback,
               }),
             ),
