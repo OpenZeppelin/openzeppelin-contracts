@@ -508,7 +508,11 @@ contract('AccessManager', function (accounts) {
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'GroupGrantDelayChanged', { groupId: GROUPS.SOME, delay: newDelay, since: timestamp.add(setback) });
+        expectEvent(receipt, 'GroupGrantDelayChanged', {
+          groupId: GROUPS.SOME,
+          delay: newDelay,
+          since: timestamp.add(setback),
+        });
 
         expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
