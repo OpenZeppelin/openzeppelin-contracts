@@ -7,7 +7,7 @@ const { expectRevertCustomError } = require('../../../helpers/customError');
 const ERC721URIStorageMock = artifacts.require('$ERC721URIStorageMock');
 
 contract('ERC721URIStorage', function (accounts) {
-  const [owner] = accounts;
+  const [owner, other] = accounts;
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
@@ -84,7 +84,7 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('tokens without URI can be burnt ', async function () {
-      await this.token.$_burn(firstTokenId, { from: owner });
+      await this.token.$_burn(firstTokenId);
 
       await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
@@ -92,9 +92,19 @@ contract('ERC721URIStorage', function (accounts) {
     it('tokens with URI can be burnt ', async function () {
       await this.token.$_setTokenURI(firstTokenId, sampleUri);
 
-      await this.token.$_burn(firstTokenId, { from: owner });
+      await this.token.$_burn(firstTokenId);
 
       await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
+    });
+
+    it('tokens URI is kept if token is burnt and reminted ', async function () {
+      await this.token.$_setTokenURI(firstTokenId, sampleUri);
+
+      await this.token.$_burn(firstTokenId);
+      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
+
+      await this.token.$_mint(owner, firstTokenId);
+      expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
     });
   });
 });

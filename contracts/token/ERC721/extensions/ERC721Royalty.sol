@@ -24,17 +24,4 @@ abstract contract ERC721Royalty is ERC2981, ERC721 {
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
-
-    /**
-     * @dev See {ERC721-_update}. When burning, this override will additionally clear the royalty information for the token.
-     */
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
-        address previousOwner = super._update(to, tokenId, auth);
-
-        if (to == address(0)) {
-            _resetTokenRoyalty(tokenId);
-        }
-
-        return previousOwner;
-    }
 }
