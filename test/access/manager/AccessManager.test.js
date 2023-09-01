@@ -22,7 +22,7 @@ const classId = web3.utils.toBN(1);
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
-const MINSETBACK = time.duration.days(1);
+const MINSETBACK = time.duration.days(3);
 
 const formatAccess = access => [access[0], access[1].toString()];
 
@@ -353,13 +353,12 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('change execution delay', function () {
-      it('increasing the delay is affect by the min setback', async function () {
+      it('increasing the delay has immediate effect', async function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
         // group is already granted (with no delay) in the initial setup. this update takes time.
         await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
-        await time.increase(MINSETBACK);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
@@ -370,37 +369,27 @@ contract('AccessManager', function (accounts) {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
-        expect(setback).to.be.bignumber.eq(MINSETBACK);
         expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
-          since: timestamp.add(setback),
+          since: timestamp,
           delay: newDelay,
         });
 
-        // no immediate effect
+        // immediate effect
         const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(accessAfter[1]).to.be.bignumber.equal(oldDelay); // currentDelay
-        expect(accessAfter[2]).to.be.bignumber.equal(newDelay); // pendingDelay
-        expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(setback)); // effect
-
-        // delayed effect
-        await time.increase(setback);
-        const accessAfterSetback = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(accessAfterSetback[1]).to.be.bignumber.equal(newDelay); // currentDelay
-        expect(accessAfterSetback[2]).to.be.bignumber.equal('0'); // pendingDelay
-        expect(accessAfterSetback[3]).to.be.bignumber.equal('0'); // effect
+        expect(accessAfter[1]).to.be.bignumber.equal(newDelay); // currentDelay
+        expect(accessAfter[2]).to.be.bignumber.equal('0'); // pendingDelay
+        expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('decreasing the delay takes time #1', async function () {
+      it('decreasing the delay takes time', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
         // group is already granted (with no delay) in the initial setup. this update takes time.
         await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
-        await time.increase(MINSETBACK);
 
         const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
@@ -411,50 +400,8 @@ contract('AccessManager', function (accounts) {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
+        const setback = oldDelay.sub(newDelay);
 
-        expect(setback).to.be.bignumber.eq(MINSETBACK);
-        expectEvent(receipt, 'GroupGranted', {
-          groupId: GROUPS.SOME,
-          account: member,
-          since: timestamp.add(setback),
-          delay: newDelay,
-        });
-
-        // no immediate effect
-        const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(accessAfter[1]).to.be.bignumber.equal(oldDelay); // currentDelay
-        expect(accessAfter[2]).to.be.bignumber.equal(newDelay); // pendingDelay
-        expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(setback)); // effect
-
-        // delayed effect
-        await time.increase(setback);
-        const accessAfterSetback = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(accessAfterSetback[1]).to.be.bignumber.equal(newDelay); // currentDelay
-        expect(accessAfterSetback[2]).to.be.bignumber.equal('0'); // pendingDelay
-        expect(accessAfterSetback[3]).to.be.bignumber.equal('0'); // effect
-      });
-
-      it('decreasing the delay takes time #2', async function () {
-        const oldDelay = time.duration.days(30); // more than the minsetback
-        const newDelay = web3.utils.toBN(10);
-
-        // group is already granted (with no delay) in the initial setup. this update takes time.
-        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
-        await time.increase(MINSETBACK);
-
-        const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
-        expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
-        expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
-
-        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
-          from: manager,
-        });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.gt(MINSETBACK);
         expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: member,
@@ -483,11 +430,11 @@ contract('AccessManager', function (accounts) {
         const { receipt } = await this.manager.grantGroup(GROUPS.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        // increasing the execution delay from 0 to executeDelay is subject to the minsetback.
+        // increasing the execution delay from 0 to executeDelay is immediate
         expectEvent(receipt, 'GroupGranted', {
           groupId: GROUPS.SOME,
           account: other,
-          since: timestamp.add(MINSETBACK),
+          since: timestamp,
           delay: executeDelay,
         });
       });
