@@ -371,7 +371,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (inGroup) {
             // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
             // any change to the execution delay within the duration of the group admin delay.
-            (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(executionDelay, 0);
+            (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
+                executionDelay,
+                0
+            );
         } else {
             since = Time.timestamp() + grantDelay;
             _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
