@@ -53,7 +53,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     struct AccessMode {
         mapping(bytes4 selector => uint64 groupId) allowedGroups;
-
         Time.Delay adminDelay;
         bool closed;
     }
