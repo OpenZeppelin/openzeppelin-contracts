@@ -159,7 +159,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Minimum setback for delay updates. Defaults to 1 day.
      */
     function minSetback() public view virtual returns (uint32) {
-        return 0; // TODO: set to 1 day
+        return 1 days;
     }
 
     /**
