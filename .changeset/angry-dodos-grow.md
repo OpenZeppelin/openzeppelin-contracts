@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Math`: Optimized gas costs in `ceilDiv`.
+`Math`: Optimized gas cost of `ceilDiv` by using `unchecked`.

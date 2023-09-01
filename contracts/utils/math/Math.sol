@@ -111,7 +111,7 @@ library Math {
         }
 
         // The following calculation ensures accurate ceiling division without overflow.
-        // Since a is non-zero, (a - 1) / b will not underflow.
+        // Since a is non-zero, (a - 1) / b will not overflow.
         // The largest possible result occurs when (a - 1) / b is type(uint256).max,
         // but the largest value we can obtain is type(uint256).max - 1, which happens
         // when a = type(uint256).max and b = 1.
