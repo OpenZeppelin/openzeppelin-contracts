@@ -778,7 +778,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (true, ADMIN_GROUP, 0);
         }
 
-        // Restricted to ADMIN with the delay corresponding to the target
+        // Restricted to ADMIN with the admin delay corresponding to the target
         if (
             selector == this.updateAuthority.selector ||
             selector == this.setContractClosed.selector ||
