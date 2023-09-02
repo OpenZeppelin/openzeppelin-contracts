@@ -58,19 +58,4 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
         _tokenURIs[tokenId] = _tokenURI;
         emit MetadataUpdate(tokenId);
     }
-
-    /**
-     * @dev See {ERC721-_update}. When burning, this override will additionally check if a
-     * token-specific URI was set for the token, and if so, it deletes the token URI from
-     * the storage mapping.
-     */
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
-        address previousOwner = super._update(to, tokenId, auth);
-
-        if (to == address(0) && bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
-        }
-
-        return previousOwner;
-    }
 }
