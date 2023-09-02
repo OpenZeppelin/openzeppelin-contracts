@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-`ERC721URIStorage`: Allow setting the tokenURI prior to minting.
+`ERC721URIStorage`: Allow setting the token URI prior to minting.
