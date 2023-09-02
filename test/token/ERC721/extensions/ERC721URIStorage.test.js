@@ -7,7 +7,7 @@ const { expectRevertCustomError } = require('../../../helpers/customError');
 const ERC721URIStorageMock = artifacts.require('$ERC721URIStorageMock');
 
 contract('ERC721URIStorage', function (accounts) {
-  const [owner, other] = accounts;
+  const [owner] = accounts;
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';

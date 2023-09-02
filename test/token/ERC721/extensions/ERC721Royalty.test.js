@@ -5,7 +5,7 @@ const { shouldBehaveLikeERC2981 } = require('../../common/ERC2981.behavior');
 const ERC721Royalty = artifacts.require('$ERC721Royalty');
 
 contract('ERC721Royalty', function (accounts) {
-  const [account1, account2, recipient]  = accounts;
+  const [account1, account2, recipient] = accounts;
   const tokenId1 = web3.utils.toBN('1');
   const tokenId2 = web3.utils.toBN('2');
   const royalty = web3.utils.toBN('200');
@@ -40,7 +40,6 @@ contract('ERC721Royalty', function (accounts) {
       const tokenInfoB = await this.token.royaltyInfo(tokenId1, salePrice);
       expect(tokenInfoB[0]).to.be.equal(recipient);
       expect(tokenInfoB[1]).to.be.bignumber.equal(salePrice.mul(royalty).divn(1e4));
-
     });
   });
 
