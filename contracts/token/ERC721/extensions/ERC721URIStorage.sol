@@ -32,7 +32,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         string memory _tokenURI = _tokenURIs[tokenId];
         string memory base = _baseURI();
