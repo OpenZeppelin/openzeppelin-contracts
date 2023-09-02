@@ -50,10 +50,14 @@ contract('ERC721URIStorage', function (accounts) {
       });
     });
 
-    it('reverts when setting for non existent token id', async function () {
-      await expectRevertCustomError(this.token.$_setTokenURI(nonExistentTokenId, sampleUri), 'ERC721NonexistentToken', [
-        nonExistentTokenId,
-      ]);
+    it('setting the uri for non existent token id is allowed', async function () {
+      expectEvent(await this.token.$_setTokenURI(nonExistentTokenId, sampleUri), 'MetadataUpdate', {
+        _tokenId: nonExistentTokenId,
+      });
+
+      // value will be accessible after mint
+      await this.token.$_mint(owner, nonExistentTokenId);
+      expect(await this.token.tokenURI(nonExistentTokenId)).to.be.equal(sampleUri);
     });
 
     it('base URI can be set', async function () {

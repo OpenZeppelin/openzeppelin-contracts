@@ -49,17 +49,9 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
      * Emits {MetadataUpdate}.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        if (_ownerOf(tokenId) == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
         _tokenURIs[tokenId] = _tokenURI;
-
         emit MetadataUpdate(tokenId);
     }
 
