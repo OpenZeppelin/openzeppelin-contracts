@@ -14,6 +14,10 @@ import {IERC165} from "../../../interfaces/IERC165.sol";
 abstract contract ERC721URIStorage is IERC4906, ERC721 {
     using Strings for uint256;
 
+    // Interface ID as defined in ERC-4906. This does not correspond to a traditional interface ID as ERC-4906 only
+    // defines events and does not include any external function.
+    bytes4 private constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
+
     // Optional mapping for token URIs
     mapping(uint256 tokenId => string) private _tokenURIs;
 
@@ -21,7 +25,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * @dev See {IERC165-supportsInterface}
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
-        return interfaceId == bytes4(0x49064906) || super.supportsInterface(interfaceId);
+        return interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(interfaceId);
     }
 
     /**
