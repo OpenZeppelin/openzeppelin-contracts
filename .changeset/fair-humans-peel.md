@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-`ERC721Royalty`: Do not reset token-specific royalties when burning.
+`ERC721URIStorage`, `ERC721Royalty`: Stop resetting token-specific URI and royalties when burning.
