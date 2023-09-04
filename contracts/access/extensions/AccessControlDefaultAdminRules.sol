@@ -190,7 +190,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function pendingDefaultAdminDelay() public view virtual returns (uint48, uint48) {
-        schedule = _pendingDelaySchedule;
+        uint48 schedule = _pendingDelaySchedule;
         return (_isScheduleSet(schedule) && !_hasSchedulePassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
     }
 
