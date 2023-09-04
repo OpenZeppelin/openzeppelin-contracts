@@ -33,7 +33,9 @@ const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
 const effectForTimepoint = timepoint => [
   0n,
   timepoint,
-  ...product([-1n, 1n], [1n, 2n, 17n, 42n]).map(([ sign, shift ]) => timepoint + sign * shift).filter(effect => effect > 0n && effect <= MAX_UINT48),
+  ...product([-1n, 1n], [1n, 2n, 17n, 42n])
+    .map(([sign, shift]) => timepoint + sign * shift)
+    .filter(effect => effect > 0n && effect <= MAX_UINT48),
   MAX_UINT48,
 ];
 
