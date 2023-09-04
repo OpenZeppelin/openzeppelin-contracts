@@ -101,7 +101,13 @@ contract('AccessManager', function (accounts) {
 
           const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', { groupId: GROUPS.SOME, account: user, since: timestamp, delay: '0', isUpdate: false });
+          expectEvent(receipt, 'GroupGranted', {
+            groupId: GROUPS.SOME,
+            account: user,
+            since: timestamp,
+            delay: '0',
+            isUpdate: false,
+          });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
