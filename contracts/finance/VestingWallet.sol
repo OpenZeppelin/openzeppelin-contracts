@@ -31,11 +31,6 @@ contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
-    /**
-     * @dev The `beneficiary` is not a valid account.
-     */
-    error VestingWalletInvalidBeneficiary(address beneficiary);
-
     uint256 private _released;
     mapping(address token => uint256) private _erc20Released;
     uint64 private immutable _start;
@@ -46,10 +41,6 @@ contract VestingWallet is Context, Ownable {
      * vesting duration of the vesting wallet.
      */
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
-        if (beneficiary == address(0)) {
-            revert VestingWalletInvalidBeneficiary(address(0));
-        }
-
         _start = startTimestamp;
         _duration = durationSeconds;
     }
