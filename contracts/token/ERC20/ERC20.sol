@@ -313,13 +313,15 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      *
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
+     *
+     * Overrides to this logic should be done to the variant with an additional `bool emitEvent` argument.
      */
-    function _approve(address owner, address spender, uint256 value) internal virtual {
+    function _approve(address owner, address spender, uint256 value) internal {
         _approve(owner, spender, value, true);
     }
 
     /**
-     * @dev Alternative version of {_approve} with an optional flag that can enable or disable the Approval event.
+     * @dev Variant of {_approve} with an optional flag to enable or disable the {Approval} event.
      *
      * By default (when calling {_approve}) the flag is set to true. On the other hand, approval changes made by
      * `_spendAllowance` during the `transferFrom` operation set the flag to false. This saves gas by not emitting any

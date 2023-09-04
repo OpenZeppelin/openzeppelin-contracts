@@ -43,7 +43,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint48 eta;
     }
 
-    bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
+    bytes32 private constant ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
     string private _name;
 
     mapping(uint256 proposalId => ProposalCore) private _proposals;
@@ -486,7 +486,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         _validateStateBitmap(
             proposalId,
-            _ALL_PROPOSAL_STATES_BITMAP ^
+            ALL_PROPOSAL_STATES_BITMAP ^
                 _encodeStateBitmap(ProposalState.Canceled) ^
                 _encodeStateBitmap(ProposalState.Expired) ^
                 _encodeStateBitmap(ProposalState.Executed)
