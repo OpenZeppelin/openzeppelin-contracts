@@ -133,6 +133,6 @@ library Time {
      * @dev pack the components into a Delay object.
      */
     function pack(uint32 valueBefore, uint32 valueAfter, uint48 effect) internal pure returns (Delay) {
-        return Delay.wrap((uint112(valueBefore) << 32) | uint112(valueAfter) | (uint112(effect) << 64));
+        return Delay.wrap((uint112(effect) << 64) | (uint112(valueBefore) << 32) | uint112(valueAfter));
     }
 }
