@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import "../patched/security/Pausable.sol";
+import "../patched/utils/Pausable.sol";
 
 contract PausableHarness is Pausable {
     function pause() external {

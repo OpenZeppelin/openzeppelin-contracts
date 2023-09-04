@@ -95,8 +95,18 @@ In addition to the official Solidity Style Guide we have a number of other conve
   }
   ```
 
-* Events should be emitted immediately after the state change that they
-  represent, and should be named in the past tense.
+* Functions should be declared virtual, with few exceptions listed below. The
+  contract logic should be written considering that these functions may be
+  overridden by developers, e.g. getting a value using an internal getter rather
+  than reading directly from a state variable.
+
+  If function A is an "alias" of function B, i.e. it invokes function B without
+  significant additional logic, then function A should not be virtual so that
+  any user overrides are implemented on B, preventing inconsistencies.
+
+* Events should generally be emitted immediately after the state change that they
+  represent, and should be named in the past tense. Some exceptions may be made for gas
+  efficiency if the result doesn't affect observable ordering of events.
 
   ```solidity
   function _burn(address who, uint256 value) internal {

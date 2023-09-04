@@ -10,8 +10,8 @@ import {SignedMath} from "./math/SignedMath.sol";
  * @dev String operations.
  */
 library Strings {
-    bytes16 private constant _HEX_DIGITS = "0123456789abcdef";
-    uint8 private constant _ADDRESS_LENGTH = 20;
+    bytes16 private constant HEX_DIGITS = "0123456789abcdef";
+    uint8 private constant ADDRESS_LENGTH = 20;
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -34,7 +34,7 @@ library Strings {
                 ptr--;
                 /// @solidity memory-safe-assembly
                 assembly {
-                    mstore8(ptr, byte(mod(value, 10), _HEX_DIGITS))
+                    mstore8(ptr, byte(mod(value, 10), HEX_DIGITS))
                 }
                 value /= 10;
                 if (value == 0) break;
@@ -68,7 +68,7 @@ library Strings {
         buffer[0] = "0";
         buffer[1] = "x";
         for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _HEX_DIGITS[localValue & 0xf];
+            buffer[i] = HEX_DIGITS[localValue & 0xf];
             localValue >>= 4;
         }
         if (localValue != 0) {
@@ -81,7 +81,7 @@ library Strings {
      * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
      */
     function toHexString(address addr) internal pure returns (string memory) {
-        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
+        return toHexString(uint256(uint160(addr)), ADDRESS_LENGTH);
     }
 
     /**
