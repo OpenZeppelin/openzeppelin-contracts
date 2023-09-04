@@ -59,7 +59,7 @@ interface IAccessManager {
         bytes4 selector
     ) external view returns (bool allowed, uint32 delay);
 
-    function expiration() external returns (uint32);
+    function expiration() external view returns (uint32);
 
     function getContractClass(address target) external view returns (uint64 classId, bool closed);
 
@@ -99,9 +99,9 @@ interface IAccessManager {
 
     function setContractClosed(address target, bool closed) external;
 
-    function getSchedule(bytes32 id) external returns (uint48);
+    function getSchedule(bytes32 id) external view returns (uint48);
 
-    function getNonce(bytes32 id) external returns (uint32);
+    function getNonce(bytes32 id) external view returns (uint32);
 
     function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
 

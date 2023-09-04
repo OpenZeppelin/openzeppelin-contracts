@@ -30,16 +30,16 @@ import {Time} from "../../utils/types/Time.sol";
  * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
  */
 abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
-    using Checkpoints for Checkpoints.Trace224;
+    using Checkpoints for Checkpoints.Trace208;
 
-    bytes32 private constant _DELEGATION_TYPEHASH =
+    bytes32 private constant DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address account => address) private _delegatee;
 
-    mapping(address delegatee => Checkpoints.Trace224) private _delegateCheckpoints;
+    mapping(address delegatee => Checkpoints.Trace208) private _delegateCheckpoints;
 
-    Checkpoints.Trace224 private _totalCheckpoints;
+    Checkpoints.Trace208 private _totalCheckpoints;
 
     /**
      * @dev The clock was incorrectly modified.
@@ -91,7 +91,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
+        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 
     /**
@@ -111,7 +111,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
+        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 
     /**
@@ -151,7 +151,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
             revert VotesExpiredSignature(expiry);
         }
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
@@ -179,10 +179,10 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
-            _push(_totalCheckpoints, _add, SafeCast.toUint224(amount));
+            _push(_totalCheckpoints, _add, SafeCast.toUint208(amount));
         }
         if (to == address(0)) {
-            _push(_totalCheckpoints, _subtract, SafeCast.toUint224(amount));
+            _push(_totalCheckpoints, _subtract, SafeCast.toUint208(amount));
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -196,7 +196,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
                 (uint256 oldValue, uint256 newValue) = _push(
                     _delegateCheckpoints[from],
                     _subtract,
-                    SafeCast.toUint224(amount)
+                    SafeCast.toUint208(amount)
                 );
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
@@ -204,7 +204,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
                 (uint256 oldValue, uint256 newValue) = _push(
                     _delegateCheckpoints[to],
                     _add,
-                    SafeCast.toUint224(amount)
+                    SafeCast.toUint208(amount)
                 );
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
@@ -224,23 +224,23 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     function _checkpoints(
         address account,
         uint32 pos
-    ) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
+    ) internal view virtual returns (Checkpoints.Checkpoint208 memory) {
         return _delegateCheckpoints[account].at(pos);
     }
 
     function _push(
-        Checkpoints.Trace224 storage store,
-        function(uint224, uint224) view returns (uint224) op,
-        uint224 delta
-    ) private returns (uint224, uint224) {
-        return store.push(SafeCast.toUint32(clock()), op(store.latest(), delta));
+        Checkpoints.Trace208 storage store,
+        function(uint208, uint208) view returns (uint208) op,
+        uint208 delta
+    ) private returns (uint208, uint208) {
+        return store.push(clock(), op(store.latest(), delta));
     }
 
-    function _add(uint224 a, uint224 b) private pure returns (uint224) {
+    function _add(uint208 a, uint208 b) private pure returns (uint208) {
         return a + b;
     }
 
-    function _subtract(uint224 a, uint224 b) private pure returns (uint224) {
+    function _subtract(uint208 a, uint208 b) private pure returns (uint208) {
         return a - b;
     }
 

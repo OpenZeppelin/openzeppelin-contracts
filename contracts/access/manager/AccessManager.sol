@@ -97,8 +97,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     mapping(bytes32 operationId => Schedule) private _schedules;
 
-    mapping(bytes4 selector => Time.Delay delay) private _adminDelays;
-
     // This should be transcient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
 
