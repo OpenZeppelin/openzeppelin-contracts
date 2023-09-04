@@ -130,12 +130,12 @@ contract('GovernorTimelockAccess', function (accounts) {
 
       it('single operation with access manager delay', async function () {
         const delay = 1000;
-        const groupId = '1';
+        const roleId = '1';
 
-        await this.manager.setTargetFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
           from: admin,
         });
-        await this.manager.grantGroup(groupId, this.mock.address, delay, { from: admin });
+        await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
 
         this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
 
@@ -167,16 +167,16 @@ contract('GovernorTimelockAccess', function (accounts) {
 
       it('bundle of varied operations', async function () {
         const managerDelay = 1000;
-        const groupId = '1';
+        const roleId = '1';
 
         const baseDelay = managerDelay * 2;
 
         await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-        await this.manager.setTargetFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
           from: admin,
         });
-        await this.manager.grantGroup(groupId, this.mock.address, managerDelay, { from: admin });
+        await this.manager.grantRole(roleId, this.mock.address, managerDelay, { from: admin });
 
         this.proposal = await this.helper.setProposal(
           [this.restricted.operation, this.unrestricted.operation],
@@ -212,12 +212,12 @@ contract('GovernorTimelockAccess', function (accounts) {
 
       it('cancellation after queue (internal)', async function () {
         const delay = 1000;
-        const groupId = '1';
+        const roleId = '1';
 
-        await this.manager.setTargetFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
           from: admin,
         });
-        await this.manager.grantGroup(groupId, this.mock.address, delay, { from: admin });
+        await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
 
         this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
 
