@@ -132,7 +132,9 @@ contract('GovernorTimelockAccess', function (accounts) {
         const delay = 1000;
         const groupId = '1';
 
-        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, { from: admin });
+        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+          from: admin,
+        });
         await this.manager.grantGroup(groupId, this.mock.address, delay, { from: admin });
 
         this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
@@ -171,7 +173,9 @@ contract('GovernorTimelockAccess', function (accounts) {
 
         await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, { from: admin });
+        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+          from: admin,
+        });
         await this.manager.grantGroup(groupId, this.mock.address, managerDelay, { from: admin });
 
         this.proposal = await this.helper.setProposal(
@@ -210,7 +214,9 @@ contract('GovernorTimelockAccess', function (accounts) {
         const delay = 1000;
         const groupId = '1';
 
-        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, { from: admin });
+        await this.manager.setContractFunctionGroup(this.receiver.address, [this.restricted.selector], groupId, {
+          from: admin,
+        });
         await this.manager.grantGroup(groupId, this.mock.address, delay, { from: admin });
 
         this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
