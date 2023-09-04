@@ -174,7 +174,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function pendingDefaultAdmin() public view virtual returns (address newAdmin, uint48 schedule) {
+    function pendingDefaultAdmin() public view virtual returns (address, uint48) {
         return (_pendingDefaultAdmin, _pendingDefaultAdminSchedule);
     }
 
@@ -189,7 +189,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
+    function pendingDefaultAdminDelay() public view virtual returns (uint48, uint48) {
         schedule = _pendingDelaySchedule;
         return (_isScheduleSet(schedule) && !_hasSchedulePassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
     }
