@@ -118,21 +118,22 @@ library Time {
     }
 
     /**
-     * @dev Split a delay into its components: oldValue, newValue and effect (transition timepoint).
+     * @dev Split a delay into its components: valueBefore, valueAfter and effect (transition timepoint).
      */
     function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
         uint112 raw = Delay.unwrap(self);
-        return (
-            uint32(raw >> 32), // valueBefore
-            uint32(raw), // valueAfter
-            uint48(raw >> 64) // effect
-        );
+
+        uint32 valueAfter  = uint32(raw);
+        uint32 valueBefore = uint32(raw >> 32);
+        uint48 effect      = uint48(raw >> 64);
+
+        return (valueBefore, valueAfter, effect);
     }
 
     /**
      * @dev pack the components into a Delay object.
      */
     function pack(uint32 valueBefore, uint32 valueAfter, uint48 effect) internal pure returns (Delay) {
-        return Delay.wrap((uint112(valueBefore) << 32) | uint112(valueAfter) | (uint112(effect) << 64));
+        return Delay.wrap(uint112(valueAfter) | (uint112(valueBefore) << 32) | (uint112(effect) << 64));
     }
 }
