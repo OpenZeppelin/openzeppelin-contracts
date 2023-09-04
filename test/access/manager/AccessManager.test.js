@@ -22,7 +22,7 @@ const classId = web3.utils.toBN(1);
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
-const MINSETBACK = time.duration.days(3);
+const MINSETBACK = time.duration.days(5);
 
 const formatAccess = access => [access[0], access[1].toString()];
 
