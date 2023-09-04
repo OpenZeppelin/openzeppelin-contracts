@@ -995,11 +995,7 @@ contract('AccessManager', function (accounts) {
 
       describe('function is open to public group', function () {
         beforeEach(async function () {
-          await this.manager.$_setTargetFunctionGroup(
-            this.ownable.address,
-            selector('$_checkOwner()'),
-            GROUPS.PUBLIC,
-          );
+          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), GROUPS.PUBLIC);
         });
 
         it('directly call: reverts', async function () {
