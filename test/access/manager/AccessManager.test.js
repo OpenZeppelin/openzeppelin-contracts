@@ -38,11 +38,9 @@ contract('AccessManager', function (accounts) {
   });
 
   it('rejects zero address for initialAdmin', async function () {
-    await expectRevertCustomError(
-      AccessManager.new(constants.ZERO_ADDRESS),
-      'AccessManagerInvalidInitialAdmin',
-      [constants.ZERO_ADDRESS],
-    );
+    await expectRevertCustomError(AccessManager.new(constants.ZERO_ADDRESS), 'AccessManagerInvalidInitialAdmin', [
+      constants.ZERO_ADDRESS,
+    ]);
   });
 
   it('groups are correctly initialized', async function () {
