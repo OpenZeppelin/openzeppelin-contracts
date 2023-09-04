@@ -603,7 +603,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     ) public virtual returns (bytes32 operationId, uint32 nonce) {
         address caller = _msgSender();
 
-        // Fetch restriction that apply to the caller on the targeted function
+        // Fetch restrictions that apply to the caller on the targeted function
         (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
