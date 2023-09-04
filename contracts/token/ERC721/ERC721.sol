@@ -65,11 +65,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        address owner = _ownerOf(tokenId);
-        if (owner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
-        return owner;
+        return _requireOwned(tokenId);
     }
 
     /**
@@ -90,7 +86,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
@@ -116,7 +112,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-getApproved}.
      */
     function getApproved(uint256 tokenId) public view virtual returns (address) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         return _getApproved(tokenId);
     }
@@ -397,7 +393,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {Approval} event.
      */
     function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
-        address owner = ownerOf(tokenId);
+        address owner = _requireOwned(tokenId);
 
         // We do not use _isAuthorized because single-token approvals should not be able to call approve
         if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
@@ -427,12 +423,17 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Reverts if the `tokenId` has not been minted yet.
+     * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+     * Returns the owner.
+     *
+     * Overrides to ownership logic should be done to {_ownerOf}.
      */
-    function _requireMinted(uint256 tokenId) internal view virtual {
-        if (_ownerOf(tokenId) == address(0)) {
+    function _requireOwned(uint256 tokenId) internal view returns (address) {
+        address owner = _ownerOf(tokenId);
+        if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
+        return owner;
     }
 
     /**
