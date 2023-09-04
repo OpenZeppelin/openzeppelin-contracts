@@ -116,9 +116,9 @@ library Time {
     function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
         uint112 raw = Delay.unwrap(self);
 
-        uint32 valueAfter  = uint32(raw);
+        uint32 valueAfter = uint32(raw);
         uint32 valueBefore = uint32(raw >> 32);
-        uint48 effect      = uint48(raw >> 64);
+        uint48 effect = uint48(raw >> 64);
 
         return (valueBefore, valueAfter, effect);
     }

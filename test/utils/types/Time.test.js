@@ -14,7 +14,7 @@ const asUint = (value, size) => {
     throw new Error(`value is not a valid uint${size}`);
   }
   return value;
-}
+};
 
 const unpackDelay = delay => ({
   valueBefore: (asUint(delay, 112) >> 32n) % (1n << 32n),
@@ -23,9 +23,7 @@ const unpackDelay = delay => ({
 });
 
 const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
-  (asUint(valueAfter, 32) << 0n) +
-  (asUint(valueBefore, 32) << 32n) +
-  (asUint(effect, 48) << 64n);
+  (asUint(valueAfter, 32) << 0n) + (asUint(valueBefore, 32) << 32n) + (asUint(effect, 48) << 64n);
 
 const max = (first, ...values) => values.reduce((x, y) => (x > y ? x : y), first);
 
