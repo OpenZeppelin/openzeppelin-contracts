@@ -76,7 +76,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         mapping(address user => Access access) members;
         uint64 admin;
         uint64 guardian;
-        Time.Delay delay; // delay for granting
+        Time.Delay grantDelay;
     }
 
     struct Schedule {
@@ -197,7 +197,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * {GroupGrantDelayChanged} event.
      */
     function getGroupGrantDelay(uint64 groupId) public view virtual returns (uint32) {
-        return _groups[groupId].delay.get();
+        return _groups[groupId].grantDelay.get();
     }
 
     /**
@@ -433,8 +433,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerLockedGroup(groupId);
         }
 
-        (Time.Delay updated, uint48 effect) = _groups[groupId].delay.withUpdate(newDelay, minSetback());
-        _groups[groupId].delay = updated;
+        uint48 effect;
+        (_groups[groupId].grantDelay, effect) = _groups[groupId].grantDelay.withUpdate(newDelay, minSetback());
 
         emit GroupGrantDelayChanged(groupId, newDelay, effect);
     }
@@ -489,8 +489,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {ClassAdminDelayUpdated} event
      */
     function _setContractAdminDelay(address target, uint32 newDelay) internal virtual {
-        (Time.Delay updated, uint48 effect) = _contracts[target].adminDelay.withUpdate(newDelay, minSetback());
-        _contracts[target].adminDelay = updated;
+        uint48 effect;
+        (_contracts[target].adminDelay, effect) = _contracts[target].adminDelay.withUpdate(newDelay, minSetback());
+
         emit ContractAdminDelayUpdated(target, newDelay, effect);
     }
 
@@ -558,7 +559,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address caller = _msgSender();
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
+        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
 
@@ -567,7 +568,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // If caller is not authorised, revert
-        if (!allowed && (setback == 0 || when < minWhen)) {
+        if (!immediate && (setback == 0 || when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
@@ -607,10 +608,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address caller = _msgSender();
 
         // Fetch restriction to that apply to the caller on the targeted function
-        (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
+        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
         // If caller is not authorised, revert
-        if (!allowed && setback == 0) {
+        if (!immediate && setback == 0) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
         }
 
@@ -738,8 +739,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool allowed, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
-        if (!allowed) {
+        (bool immediate, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredGroup, ) = _getAdminRestrictions(_msgData());
                 revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
