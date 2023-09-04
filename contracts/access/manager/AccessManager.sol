@@ -652,7 +652,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function relay(address target, bytes calldata data) public payable virtual returns (uint32) {
         address caller = _msgSender();
 
-        // Fetch restriction that apply to the caller on the targeted function
+        // Fetch restrictions that apply to the caller on the targeted function
         (bool allowed, uint32 setback) = _canCallExtended(caller, target, data);
 
         // If caller is not authorised, revert
