@@ -51,7 +51,7 @@ import {Time} from "../../utils/types/Time.sol";
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
-    struct ContractConfig {
+    struct TargetConfig {
         mapping(bytes4 selector => uint64 groupId) allowedGroups;
         Time.Delay adminDelay;
         bool closed;
@@ -87,7 +87,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
     uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
 
-    mapping(address target => ContractConfig mode) private _contracts;
+    mapping(address target => TargetConfig mode) private _contracts;
     mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
@@ -126,14 +126,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * to identify the indirect workflow, and will consider call that require a delay to be forbidden.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
-        if (isContractClosed(target)) {
+        if (isTargetClosed(target)) {
             return (false, 0);
         } else if (caller == address(this)) {
             // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
             // verify that the call "identifier", which is set during the relay call, is correct.
             return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
         } else {
-            uint64 groupId = getContractFunctionGroup(target, selector);
+            uint64 groupId = getTargetFunctionGroup(target, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
             return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
         }
@@ -156,7 +156,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Get the mode under which a contract is operating.
      */
-    function isContractClosed(address target) public view virtual returns (bool) {
+    function isTargetClosed(address target) public view virtual returns (bool) {
         return _contracts[target].closed;
     }
 
@@ -164,11 +164,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the permission level (group) required to call a function. This only applies for contract that are
      * operating under the `Custom` mode.
      */
-    function getContractFunctionGroup(address target, bytes4 selector) public view virtual returns (uint64) {
+    function getTargetFunctionGroup(address target, bytes4 selector) public view virtual returns (uint64) {
         return _contracts[target].allowedGroups[selector];
     }
 
-    function getContractAdminDelay(address target) public view virtual returns (uint32) {
+    function getTargetAdminDelay(address target) public view virtual returns (uint32) {
         return _contracts[target].adminDelay.get();
     }
 
@@ -450,13 +450,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setContractFunctionGroup(
+    function setTargetFunctionGroup(
         address target,
         bytes4[] calldata selectors,
         uint64 groupId
     ) public virtual onlyAuthorized {
         for (uint256 i = 0; i < selectors.length; ++i) {
-            _setContractFunctionGroup(target, selectors[i], groupId);
+            _setTargetFunctionGroup(target, selectors[i], groupId);
         }
     }
 
@@ -465,9 +465,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event
      */
-    function _setContractFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
+    function _setTargetFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
         _contracts[target].allowedGroups[selector] = groupId;
-        emit ContractFunctionGroupUpdated(target, selector, groupId);
+        emit TargetFunctionGroupUpdated(target, selector, groupId);
     }
 
     /**
@@ -479,8 +479,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {FunctionAllowedGroupUpdated} event per selector
      */
-    function setContractAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
-        _setContractAdminDelay(target, newDelay);
+    function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
+        _setTargetAdminDelay(target, newDelay);
     }
 
     /**
@@ -488,11 +488,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {ClassAdminDelayUpdated} event
      */
-    function _setContractAdminDelay(address target, uint32 newDelay) internal virtual {
+    function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
         (_contracts[target].adminDelay, effect) = _contracts[target].adminDelay.withUpdate(newDelay, minSetback());
 
-        emit ContractAdminDelayUpdated(target, newDelay, effect);
+        emit TargetAdminDelayUpdated(target, newDelay, effect);
     }
 
     // =============================================== MODE MANAGEMENT ================================================
@@ -503,23 +503,23 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {ContractClosed} event.
+     * Emits a {TargetClosed} event.
      */
-    function setContractClosed(address target, bool closed) public virtual onlyAuthorized {
-        _setContractClosed(target, closed);
+    function setTargetClosed(address target, bool closed) public virtual onlyAuthorized {
+        _setTargetClosed(target, closed);
     }
 
     /**
      * @dev Set the closed flag for a contract. This is an internal setter with no access restrictions.
      *
-     * Emits a {ContractClosed} event.
+     * Emits a {TargetClosed} event.
      */
-    function _setContractClosed(address target, bool closed) internal virtual {
+    function _setTargetClosed(address target, bool closed) internal virtual {
         if (target == address(this)) {
             revert AccessManagerLockedAccount(target);
         }
         _contracts[target].closed = closed;
-        emit ContractClosed(target, closed);
+        emit TargetClosed(target, closed);
     }
 
     // ============================================== DELAYED OPERATIONS ==============================================
@@ -694,7 +694,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
-            (bool isGuardian, ) = hasGroup(getGroupGuardian(getContractFunctionGroup(target, selector)), msgsender);
+            (bool isGuardian, ) = hasGroup(getGroupGuardian(getTargetFunctionGroup(target, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
                 revert AccessManagerCannotCancel(msgsender, caller, target, selector);
             }
@@ -771,7 +771,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             selector == this.setGroupAdmin.selector ||
             selector == this.setGroupGuardian.selector ||
             selector == this.setGrantDelay.selector ||
-            selector == this.setContractAdminDelay.selector
+            selector == this.setTargetAdminDelay.selector
         ) {
             return (true, ADMIN_GROUP, 0);
         }
@@ -779,12 +779,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // Restricted to ADMIN with the admin delay corresponding to the target
         if (
             selector == this.updateAuthority.selector ||
-            selector == this.setContractClosed.selector ||
-            selector == this.setContractFunctionGroup.selector
+            selector == this.setTargetClosed.selector ||
+            selector == this.setTargetFunctionGroup.selector
         ) {
             // First argument is a target.
             address target = abi.decode(data[0x04:0x24], (address));
-            uint32 delay = getContractAdminDelay(target);
+            uint32 delay = getTargetAdminDelay(target);
             return (true, ADMIN_GROUP, delay);
         }
 

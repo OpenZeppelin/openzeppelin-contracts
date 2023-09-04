@@ -35,9 +35,9 @@ interface IAccessManager {
     event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
     event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 since);
 
-    event ContractClosed(address indexed target, bool closed);
-    event ContractFunctionGroupUpdated(address indexed target, bytes4 selector, uint64 indexed groupId);
-    event ContractAdminDelayUpdated(address indexed target, uint32 delay, uint48 since);
+    event TargetClosed(address indexed target, bool closed);
+    event TargetFunctionGroupUpdated(address indexed target, bytes4 selector, uint64 indexed groupId);
+    event TargetAdminDelayUpdated(address indexed target, uint32 delay, uint48 since);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
@@ -58,11 +58,11 @@ interface IAccessManager {
 
     function expiration() external view returns (uint32);
 
-    function isContractClosed(address target) external view returns (bool);
+    function isTargetClosed(address target) external view returns (bool);
 
-    function getContractFunctionGroup(address target, bytes4 selector) external view returns (uint64);
+    function getTargetFunctionGroup(address target, bytes4 selector) external view returns (uint64);
 
-    function getContractAdminDelay(address target) external view returns (uint32);
+    function getTargetAdminDelay(address target) external view returns (uint32);
 
     function getGroupAdmin(uint64 groupId) external view returns (uint64);
 
@@ -88,11 +88,11 @@ interface IAccessManager {
 
     function setGrantDelay(uint64 groupId, uint32 newDelay) external;
 
-    function setContractFunctionGroup(address target, bytes4[] calldata selectors, uint64 groupId) external;
+    function setTargetFunctionGroup(address target, bytes4[] calldata selectors, uint64 groupId) external;
 
-    function setContractAdminDelay(address target, uint32 newDelay) external;
+    function setTargetAdminDelay(address target, uint32 newDelay) external;
 
-    function setContractClosed(address target, bool closed) external;
+    function setTargetClosed(address target, bool closed) external;
 
     function getSchedule(bytes32 id) external view returns (uint48);
 

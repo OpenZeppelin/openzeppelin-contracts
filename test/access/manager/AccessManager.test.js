@@ -489,12 +489,12 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function group', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getContractFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
             GROUPS.ADMIN,
           );
         }
 
-        const { receipt: receipt1 } = await this.manager.setContractFunctionGroup(
+        const { receipt: receipt1 } = await this.manager.setTargetFunctionGroup(
           this.target.address,
           sigs,
           GROUPS.SOME,
@@ -504,17 +504,17 @@ contract('AccessManager', function (accounts) {
         );
 
         for (const sig of sigs) {
-          expectEvent(receipt1, 'ContractFunctionGroupUpdated', {
+          expectEvent(receipt1, 'TargetFunctionGroupUpdated', {
             target: this.target.address,
             selector: sig,
             groupId: GROUPS.SOME,
           });
-          expect(await this.manager.getContractFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
             GROUPS.SOME,
           );
         }
 
-        const { receipt: receipt2 } = await this.manager.setContractFunctionGroup(
+        const { receipt: receipt2 } = await this.manager.setTargetFunctionGroup(
           this.target.address,
           [sigs[1]],
           GROUPS.SOME_ADMIN,
@@ -522,14 +522,14 @@ contract('AccessManager', function (accounts) {
             from: admin,
           },
         );
-        expectEvent(receipt2, 'ContractFunctionGroupUpdated', {
+        expectEvent(receipt2, 'TargetFunctionGroupUpdated', {
           target: this.target.address,
           selector: sigs[1],
           groupId: GROUPS.SOME_ADMIN,
         });
 
         for (const sig of sigs) {
-          expect(await this.manager.getContractFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
             sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
           );
         }
@@ -537,7 +537,7 @@ contract('AccessManager', function (accounts) {
 
       it('non-admin cannot set function group', async function () {
         await expectRevertCustomError(
-          this.manager.setContractFunctionGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
+          this.manager.setTargetFunctionGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
@@ -574,25 +574,25 @@ contract('AccessManager', function (accounts) {
           beforeEach(async function () {
             // setup
             await Promise.all([
-              this.manager.$_setContractClosed(this.target.address, closed),
+              this.manager.$_setTargetClosed(this.target.address, closed),
               fnGroup &&
-                this.manager.$_setContractFunctionGroup(this.target.address, selector('fnRestricted()'), fnGroup),
+                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnRestricted()'), fnGroup),
               fnGroup &&
-                this.manager.$_setContractFunctionGroup(this.target.address, selector('fnUnrestricted()'), fnGroup),
+                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnUnrestricted()'), fnGroup),
               ...callerGroups
                 .filter(groupId => groupId != GROUPS.PUBLIC)
                 .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
             ]);
 
             // post setup checks
-            expect(await this.manager.isContractClosed(this.target.address)).to.be.equal(closed);
+            expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(closed);
 
             if (fnGroup) {
               expect(
-                await this.manager.getContractFunctionGroup(this.target.address, selector('fnRestricted()')),
+                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnRestricted()')),
               ).to.be.bignumber.equal(fnGroup);
               expect(
-                await this.manager.getContractFunctionGroup(this.target.address, selector('fnUnrestricted()')),
+                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnUnrestricted()')),
               ).to.be.bignumber.equal(fnGroup);
             }
 
@@ -806,7 +806,7 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setContractFunctionGroup(this.target.address, this.callData, GROUPS.SOME);
+        await this.manager.$_setTargetFunctionGroup(this.target.address, this.callData, GROUPS.SOME);
         await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
       });
 
@@ -944,7 +944,7 @@ contract('AccessManager', function (accounts) {
 
     describe('Contract is closed', function () {
       beforeEach(async function () {
-        await this.manager.$_setContractClosed(this.ownable.address, true);
+        await this.manager.$_setTargetClosed(this.ownable.address, true);
       });
 
       it('directly call: reverts', async function () {
@@ -971,7 +971,7 @@ contract('AccessManager', function (accounts) {
     describe('Contract is managed', function () {
       describe('function is open to specific group', function () {
         beforeEach(async function () {
-          await this.manager.$_setContractFunctionGroup(this.ownable.address, selector('$_checkOwner()'), groupId);
+          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), groupId);
         });
 
         it('directly call: reverts', async function () {
@@ -995,7 +995,7 @@ contract('AccessManager', function (accounts) {
 
       describe('function is open to public group', function () {
         beforeEach(async function () {
-          await this.manager.$_setContractFunctionGroup(
+          await this.manager.$_setTargetFunctionGroup(
             this.ownable.address,
             selector('$_checkOwner()'),
             GROUPS.PUBLIC,
