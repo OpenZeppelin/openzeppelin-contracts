@@ -51,7 +51,7 @@ import {Time} from "../../utils/types/Time.sol";
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
-    struct AccessMode {
+    struct ContractConfig {
         mapping(bytes4 selector => uint64 groupId) allowedGroups;
         Time.Delay adminDelay;
         bool closed;
@@ -79,17 +79,16 @@ contract AccessManager is Context, Multicall, IAccessManager {
         Time.Delay delay; // delay for granting
     }
 
-    uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
-    uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
-
-    mapping(address target => AccessMode mode) private _contractMode;
-    mapping(uint64 groupId => Group) private _groups;
-
     struct Schedule {
         uint48 timepoint;
         uint32 nonce;
     }
 
+    uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
+    uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
+
+    mapping(address target => ContractConfig mode) private _contracts;
+    mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // This should be transcient storage when supported by the EVM.
@@ -158,7 +157,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the mode under which a contract is operating.
      */
     function isContractClosed(address target) public view virtual returns (bool) {
-        return _contractMode[target].closed;
+        return _contracts[target].closed;
     }
 
     /**
@@ -166,11 +165,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * operating under the `Custom` mode.
      */
     function getContractFunctionGroup(address target, bytes4 selector) public view virtual returns (uint64) {
-        return _contractMode[target].allowedGroups[selector];
+        return _contracts[target].allowedGroups[selector];
     }
 
     function getContractAdminDelay(address target) public view virtual returns (uint32) {
-        return _contractMode[target].adminDelay.get();
+        return _contracts[target].adminDelay.get();
     }
 
     /**
@@ -467,7 +466,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {FunctionAllowedGroupUpdated} event
      */
     function _setContractFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
-        _contractMode[target].allowedGroups[selector] = groupId;
+        _contracts[target].allowedGroups[selector] = groupId;
         emit ContractFunctionGroupUpdated(target, selector, groupId);
     }
 
@@ -490,8 +489,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {ClassAdminDelayUpdated} event
      */
     function _setContractAdminDelay(address target, uint32 newDelay) internal virtual {
-        (Time.Delay updated, uint48 effect) = _contractMode[target].adminDelay.withUpdate(newDelay, minSetback());
-        _contractMode[target].adminDelay = updated;
+        (Time.Delay updated, uint48 effect) = _contracts[target].adminDelay.withUpdate(newDelay, minSetback());
+        _contracts[target].adminDelay = updated;
         emit ContractAdminDelayUpdated(target, newDelay, effect);
     }
 
@@ -518,7 +517,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (target == address(this)) {
             revert AccessManagerLockedAccount(target);
         }
-        _contractMode[target].closed = closed;
+        _contracts[target].closed = closed;
         emit ContractClosed(target, closed);
     }
 
