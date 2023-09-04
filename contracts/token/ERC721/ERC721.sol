@@ -425,8 +425,10 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
      * Returns the owner.
+     *
+     * Overrides to ownership logic should be done to {_ownerOf}.
      */
-    function _requireOwned(uint256 tokenId) internal view virtual returns (address) {
+    function _requireOwned(uint256 tokenId) internal view returns (address) {
         address owner = _ownerOf(tokenId);
         if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
