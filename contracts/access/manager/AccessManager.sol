@@ -154,10 +154,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Minimum setback for delay updates. Defaults to 1 day.
+     * @dev Minimum setback for all delay updates, with the exception of execution delays, which
+     * can be increased without setback (and in the event of an accidental increase can be reset
+     * via {revokeGroup}). Defaults to 5 days.
      */
     function minSetback() public view virtual returns (uint32) {
-        return 0; // TODO: set to 1 day
+        return 5 days;
     }
 
     /**
@@ -367,9 +369,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint48 since;
 
         if (inGroup) {
+            // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
+            // any change to the execution delay within the duration of the group admin delay.
             (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
                 executionDelay,
-                minSetback()
+                0
             );
         } else {
             since = Time.timestamp() + grantDelay;
