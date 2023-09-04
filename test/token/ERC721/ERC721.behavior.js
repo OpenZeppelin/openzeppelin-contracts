@@ -87,8 +87,9 @@ function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, oper
           expectEvent(receipt, 'Transfer', { from: owner, to: this.toWhom, tokenId: tokenId });
         });
 
-        it('clears the approval for the token ID', async function () {
+        it('clears the approval for the token ID with no event', async function () {
           expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
+          expectEvent.notEmitted(receipt, 'Approval');
         });
 
         it('adjusts owners balances', async function () {

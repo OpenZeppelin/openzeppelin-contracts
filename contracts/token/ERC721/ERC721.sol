@@ -247,7 +247,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
         // Execute the update
         if (from != address(0)) {
-            delete _tokenApprovals[tokenId];
+            // Clear approval. No need to re-authorize or emit the Approval event
+            _approve(address(0), tokenId, address(0), false);
+
             unchecked {
                 _balances[from] -= 1;
             }
@@ -391,19 +393,33 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * either the owner of the token, or approved to operate on all tokens held by this owner.
      *
      * Emits an {Approval} event.
+     *
+     * Overrides to this logic should be done to the variant with an additional `bool emitEvent` argument.
      */
-    function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
-        address owner = _requireOwned(tokenId);
+    function _approve(address to, uint256 tokenId, address auth) internal {
+        _approve(to, tokenId, auth, true);
+    }
 
-        // We do not use _isAuthorized because single-token approvals should not be able to call approve
-        if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
-            revert ERC721InvalidApprover(auth);
+    /**
+     * @dev Variant of `_approve` with an optional flag to enable or disable the {Approval} event. The event is not
+     * emitted in the context of transfers.
+     */
+    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
+        // Avoid reading the owner unless necessary
+        if (emitEvent || auth != address(0)) {
+            address owner = _requireOwned(tokenId);
+
+            // We do not use _isAuthorized because single-token approvals should not be able to call approve
+            if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
+                revert ERC721InvalidApprover(auth);
+            }
+
+            if (emitEvent) {
+                emit Approval(owner, to, tokenId);
+            }
         }
 
         _tokenApprovals[tokenId] = to;
-        emit Approval(owner, to, tokenId);
-
-        return owner;
     }
 
     /**
