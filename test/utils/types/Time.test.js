@@ -2,8 +2,13 @@ require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 const { clock } = require('../../helpers/time');
+const { product, max } = require('../../helpers/iterate');
 
 const Time = artifacts.require('$Time');
+
+const MAX_UINT32 = 1n << (32n - 1n);
+const MAX_UINT48 = 1n << (48n - 1n);
+const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 const asUint = (value, size) => {
   if (typeof value != 'bigint') {
@@ -25,11 +30,12 @@ const unpackDelay = delay => ({
 const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
   (asUint(valueAfter, 32) << 0n) + (asUint(valueBefore, 32) << 32n) + (asUint(effect, 48) << 64n);
 
-const max = (first, ...values) => values.reduce((x, y) => (x > y ? x : y), first);
-
-const MAX_UINT32 = 1n << (32n - 1n);
-const MAX_UINT48 = 1n << (48n - 1n);
-const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
+const effectForTimepoint = timepoint => [
+  0n,
+  timepoint,
+  ...product([-1n, 1n], [1n, 2n, 17n, 42n]).map(([ sign, shift ]) => timepoint + sign * shift).filter(effect => effect > 0n && effect <= MAX_UINT48),
+  MAX_UINT48,
+];
 
 contract('Time', function () {
   beforeEach(async function () {
@@ -83,8 +89,8 @@ contract('Time', function () {
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
-      for (const effect of [...SOME_VALUES, MAX_UINT48])
-        for (const timepoint of [...SOME_VALUES, MAX_UINT48]) {
+      for (const timepoint of [...SOME_VALUES, MAX_UINT48])
+        for (const effect of effectForTimepoint(timepoint)) {
           const isPast = effect <= timepoint;
 
           const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -105,7 +111,7 @@ contract('Time', function () {
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
-      for (const effect of [...SOME_VALUES, MAX_UINT48]) {
+      for (const effect of effectForTimepoint(timepoint)) {
         const isPast = effect <= timepoint;
 
         const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -125,7 +131,7 @@ contract('Time', function () {
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;
 
-      for (const effect of [...SOME_VALUES, MAX_UINT32])
+      for (const effect of effectForTimepoint(timepoint))
         for (const minSetback of [...SOME_VALUES, MAX_UINT32]) {
           const isPast = effect <= timepoint;
           const expectedvalueBefore = isPast ? valueAfter : valueBefore;

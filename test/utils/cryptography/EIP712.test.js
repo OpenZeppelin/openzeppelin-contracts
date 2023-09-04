@@ -3,7 +3,7 @@ const Wallet = require('ethereumjs-wallet').default;
 
 const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
-const { mapValues } = require('../../helpers/map-values');
+const { mapValues } = require('../../helpers/iterate');
 
 const EIP712Verifier = artifacts.require('$EIP712Verifier');
 const Clones = artifacts.require('$Clones');
