@@ -33,13 +33,6 @@ library Time {
         return SafeCast.toUint48(block.number);
     }
 
-    /**
-     * @dev Check if a timepoint is set, and in the past.
-     */
-    function isSetAndPast(uint48 timepoint, uint48 ref) internal pure returns (bool) {
-        return timepoint != 0 && timepoint <= ref;
-    }
-
     // ==================================================== Delay =====================================================
     /**
      * @dev A `Delay` is a uint32 duration that can be programmed to change value automatically at a given point in the

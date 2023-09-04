@@ -59,7 +59,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // Structure that stores the details for a group/account pair. This structures fit into a single slot.
     struct Access {
         // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
-        // are not available. Should be checked using {Time-isSetAndPast}
+        // are not available.
         uint48 since;
         // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
         // functions that use the `onlyGroup` modifier.
@@ -239,7 +239,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (true, 0);
         } else {
             (uint48 inGroupSince, uint32 currentDelay, , ) = getAccess(groupId, account);
-            return (inGroupSince.isSetAndPast(Time.timestamp()), currentDelay);
+            return (inGroupSince != 0 && inGroupSince <= Time.timestamp(), currentDelay);
         }
     }
 

@@ -5,21 +5,33 @@ const { clock } = require('../../helpers/time');
 
 const Time = artifacts.require('$Time');
 
+const asUint = (value, size) => {
+  if (typeof value != 'bigint') {
+    value = BigInt(value);
+  }
+  // chai does not support bigint :/
+  if (value < 0 || value >= 1n << BigInt(size)) {
+    throw new Error(`value is not a valid uint${size}`);
+  }
+  return value;
+}
+
 const unpackDelay = delay => ({
-  valueBefore: (BigInt(delay) >> 32n) % (1n << 32n),
-  valueAfter: (BigInt(delay) >> 0n) % (1n << 32n),
-  effect: (BigInt(delay) >> 64n) % (1n << 48n),
+  valueBefore: (asUint(delay, 112) >> 32n) % (1n << 32n),
+  valueAfter: (asUint(delay, 112) >> 0n) % (1n << 32n),
+  effect: (asUint(delay, 112) >> 64n) % (1n << 48n),
 });
 
 const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
-  (BigInt(valueAfter) % (1n << 32n) << 0n) +
-  (BigInt(valueBefore) % (1n << 32n) << 32n) +
-  (BigInt(effect) % (1n << 48n) << 64n);
+  (asUint(valueAfter, 32) << 0n) +
+  (asUint(valueBefore, 32) << 32n) +
+  (asUint(effect, 48) << 64n);
 
 const max = (first, ...values) => values.reduce((x, y) => (x > y ? x : y), first);
 
 const MAX_UINT32 = 1n << (32n - 1n);
 const MAX_UINT48 = 1n << (48n - 1n);
+const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 contract('Time', function () {
   beforeEach(async function () {
@@ -36,15 +48,8 @@ contract('Time', function () {
     });
   });
 
-  it('isSetAndPast', async function () {
-    for (const timepoint of [0n, 1n, 2n, 17n, 42n, MAX_UINT48])
-      for (const ref of [0n, 1n, 2n, 17n, 42n, MAX_UINT48]) {
-        expect(await this.mock.$isSetAndPast(timepoint, ref)).to.be.equal(timepoint != 0 && timepoint <= ref);
-      }
-  });
-
   describe('Delay', function () {
-    describe('helpers', function () {
+    describe('packing and unpacking', function () {
       const valueBefore = 17n;
       const valueAfter = 42n;
       const effect = 69n;
@@ -70,7 +75,7 @@ contract('Time', function () {
     });
 
     it('toDelay', async function () {
-      for (const value of [0n, 1n, 2n, 17n, 42n, MAX_UINT32]) {
+      for (const value of [...SOME_VALUES, MAX_UINT32]) {
         const delay = await this.mock.$toDelay(value).then(unpackDelay);
         expect(delay).to.be.deep.equal({ valueBefore: 0n, valueAfter: value, effect: 0n });
       }
@@ -80,8 +85,8 @@ contract('Time', function () {
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
-      for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48])
-        for (const timepoint of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48]) {
+      for (const effect of [...SOME_VALUES, MAX_UINT48])
+        for (const timepoint of [...SOME_VALUES, MAX_UINT48]) {
           const isPast = effect <= timepoint;
 
           const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -102,7 +107,7 @@ contract('Time', function () {
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
-      for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT48]) {
+      for (const effect of [...SOME_VALUES, MAX_UINT48]) {
         const isPast = effect <= timepoint;
 
         const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -122,8 +127,8 @@ contract('Time', function () {
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;
 
-      for (const effect of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT32])
-        for (const minSetback of [0n, 1n, 15n, 16n, 17n, 42n, MAX_UINT32]) {
+      for (const effect of [...SOME_VALUES, MAX_UINT32])
+        for (const minSetback of [...SOME_VALUES, MAX_UINT32]) {
           const isPast = effect <= timepoint;
           const expectedvalueBefore = isPast ? valueAfter : valueBefore;
           const expectedSetback = max(minSetback, expectedvalueBefore - newvalueAfter, 0n);
