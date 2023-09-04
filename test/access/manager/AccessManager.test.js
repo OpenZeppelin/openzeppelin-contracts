@@ -101,7 +101,7 @@ contract('AccessManager', function (accounts) {
 
           const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', { groupId: GROUPS.SOME, account: user, since: timestamp, delay: '0' });
+          expectEvent(receipt, 'GroupGranted', { groupId: GROUPS.SOME, account: user, since: timestamp, delay: '0', isUpdate: false });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
@@ -122,6 +122,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp,
             delay: executeDelay,
+            isUpdate: false,
           });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([
@@ -163,7 +164,7 @@ contract('AccessManager', function (accounts) {
           await this.manager.$_setGrantDelay(GROUPS.SOME, grantDelay);
         });
 
-        it('granted group is not active immediatly', async function () {
+        it('granted group is not active immediately', async function () {
           const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'GroupGranted', {
@@ -171,6 +172,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
+            isUpdate: false,
           });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
@@ -190,6 +192,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
+            isUpdate: false,
           });
 
           await time.increase(grantDelay);
@@ -367,6 +370,7 @@ contract('AccessManager', function (accounts) {
           account: member,
           since: timestamp,
           delay: newDelay,
+          isUpdate: true,
         });
 
         // immediate effect
@@ -397,6 +401,7 @@ contract('AccessManager', function (accounts) {
           account: member,
           since: timestamp.add(oldDelay).sub(newDelay),
           delay: newDelay,
+          isUpdate: true,
         });
 
         // delayed effect
@@ -417,6 +422,7 @@ contract('AccessManager', function (accounts) {
           account: other,
           since: timestamp,
           delay: executeDelay,
+          isUpdate: true,
         });
       });
     });
