@@ -118,7 +118,7 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proofLen - 1 != totalHashes) {
+        if (leavesLen + proofLen != totalHashes + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 
@@ -174,7 +174,7 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proofLen - 1 != totalHashes) {
+        if (leavesLen + proofLen != totalHashes + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 

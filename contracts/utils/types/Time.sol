@@ -44,9 +44,9 @@ library Time {
     /**
      * @dev A `Delay` is a uint32 duration that can be programmed to change value automatically at a given point in the
      * future. The "effect" timepoint describes when the transitions happens from the "old" value to the "new" value.
-     * This allows updating the delay applied to some operation while keeping so guarantees.
+     * This allows updating the delay applied to some operation while keeping some guarantees.
      *
-     * In particular, the {update} function guarantees that is the delay is reduced, the old delay still applies for
+     * In particular, the {update} function guarantees that if the delay is reduced, the old delay still applies for
      * some time. For example if the delay is currently 7 days to do an upgrade, the admin should not be able to set
      * the delay to 0 and upgrade immediately. If the admin wants to reduce the delay, the old delay (7 days) should
      * still apply for some time.
@@ -113,8 +113,8 @@ library Time {
     }
 
     /**
-     * @dev Update a Delay object so that it takes a new duration after at a timepoint that is automatically computed
-     * to enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
+     * @dev Update a Delay object so that it takes a new duration after a timepoint that is automatically computed to
+     * enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
      * new delay becomes effective.
      */
     function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48) {

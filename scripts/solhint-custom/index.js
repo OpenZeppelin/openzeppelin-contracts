@@ -48,9 +48,9 @@ module.exports = [
 
     VariableDeclaration(node) {
       if (node.isDeclaredConst) {
-        if (/^_/.test(node.name)) {
-          // TODO: re-enable and fix
-          // this.error(node, 'Constant variables should not have leading underscore');
+        // TODO: expand visibility and fix
+        if (node.visibility === 'private' && /^_/.test(node.name)) {
+          this.error(node, 'Constant variables should not have leading underscore');
         }
       } else if (node.visibility === 'private' && !/^_/.test(node.name)) {
         this.error(node, 'Non-constant private variables must have leading underscore');
