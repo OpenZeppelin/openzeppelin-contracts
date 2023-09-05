@@ -73,9 +73,8 @@ abstract contract Initializable {
         bool _initializing;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.Initializable")) - 1))
-    bytes32 private constant _INITIALIZABLE_STORAGE =
-        0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e;
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.Initializable")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant INITIALIZABLE_STORAGE = 0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00;
 
     /**
      * @dev The contract is already initialized.
@@ -106,7 +105,8 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         bool isTopLevelCall = !$._initializing;
-        if (!(isTopLevelCall && $._initialized < 1) && !(address(this).code.length == 0 && $._initialized == 1)) {
+        uint64 initialized = $._initialized;
+        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {
             revert AlreadyInitialized();
         }
         $._initialized = 1;
@@ -211,7 +211,7 @@ abstract contract Initializable {
     // solhint-disable-next-line var-name-mixedcase
     function _getInitializableStorage() private pure returns (InitializableStorage storage $) {
         assembly {
-            $.slot := _INITIALIZABLE_STORAGE
+            $.slot := INITIALIZABLE_STORAGE
         }
     }
 }
