@@ -1,5 +1,5 @@
 const { web3 } = require('hardhat');
-const { expectEvent, time } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
@@ -36,6 +36,12 @@ contract('AccessManager', function (accounts) {
     await this.manager.$_setGroupGuardian(GROUPS.SOME, GROUPS.SOME_ADMIN);
     await this.manager.$_grantGroup(GROUPS.SOME_ADMIN, manager, 0, 0);
     await this.manager.$_grantGroup(GROUPS.SOME, member, 0, 0);
+  });
+
+  it('rejects zero address for initialAdmin', async function () {
+    await expectRevertCustomError(AccessManager.new(constants.ZERO_ADDRESS), 'AccessManagerInvalidInitialAdmin', [
+      constants.ZERO_ADDRESS,
+    ]);
   });
 
   it('default minsetback is 1 day', async function () {

@@ -49,6 +49,7 @@ interface IAccessManager {
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
     error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
+    error AccessManagerInvalidInitialAdmin(address initialAdmin);
 
     function canCall(
         address caller,

@@ -104,6 +104,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     constructor(address initialAdmin) {
+        if (initialAdmin == address(0)) {
+            revert AccessManagerInvalidInitialAdmin(address(0));
+        }
+
         // admin is active immediately and without any execution delay.
         _grantGroup(ADMIN_GROUP, initialAdmin, 0, 0);
     }
