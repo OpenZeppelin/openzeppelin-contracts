@@ -87,7 +87,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
     uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
 
-    mapping(address target => TargetConfig mode) private _contracts;
+    mapping(address target => TargetConfig mode) private _targets;
     mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
@@ -159,7 +159,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the mode under which a contract is operating.
      */
     function isTargetClosed(address target) public view virtual returns (bool) {
-        return _contracts[target].closed;
+        return _targets[target].closed;
     }
 
     /**
@@ -167,11 +167,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * operating under the `Custom` mode.
      */
     function getTargetFunctionGroup(address target, bytes4 selector) public view virtual returns (uint64) {
-        return _contracts[target].allowedGroups[selector];
+        return _targets[target].allowedGroups[selector];
     }
 
     function getTargetAdminDelay(address target) public view virtual returns (uint32) {
-        return _contracts[target].adminDelay.get();
+        return _targets[target].adminDelay.get();
     }
 
     /**
@@ -470,7 +470,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {FunctionAllowedGroupUpdated} event
      */
     function _setTargetFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
-        _contracts[target].allowedGroups[selector] = groupId;
+        _targets[target].allowedGroups[selector] = groupId;
         emit TargetFunctionGroupUpdated(target, selector, groupId);
     }
 
@@ -494,7 +494,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
-        (_contracts[target].adminDelay, effect) = _contracts[target].adminDelay.withUpdate(newDelay, minSetback());
+        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(newDelay, minSetback());
 
         emit TargetAdminDelayUpdated(target, newDelay, effect);
     }
@@ -522,7 +522,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (target == address(this)) {
             revert AccessManagerLockedAccount(target);
         }
-        _contracts[target].closed = closed;
+        _targets[target].closed = closed;
         emit TargetClosed(target, closed);
     }
 
@@ -758,7 +758,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Get the admin restrictions of a given function call based on the function and arguments involved.
      *
      * Returns:
-     * - bool enabled: does this data match a restricted operation
+     * - bool restricted: does this data match a restricted operation
      * - uint64: which group is this operation restricted to
      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
      */
