@@ -13,5 +13,5 @@ interface IAccessManaged {
 
     function setAuthority(address) external;
 
-    function isConsumingScheduledOp() external view returns (bool);
+    function isConsumingScheduledOp() external view returns (bytes4);
 }

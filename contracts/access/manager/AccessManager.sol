@@ -696,7 +696,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        require(IAccessManaged(target).isConsumingScheduledOp());
+        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
+            revert AccessManagerNotConsumingScheduledOp(target);
+        }
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
