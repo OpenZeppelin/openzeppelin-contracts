@@ -45,7 +45,7 @@ library Time {
      * still apply for some time.
      *
      *
-     * The `Delay` type is 128 bits long, and packs the following:
+     * The `Delay` type is 112 bits long, and packs the following:
      *
      * ```
      *   | [uint48]: effect date (timepoint)
