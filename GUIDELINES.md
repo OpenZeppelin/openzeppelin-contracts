@@ -146,3 +146,5 @@ In addition to the official Solidity Style Guide we have a number of other conve
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+
+* Functions with multiple return values should use named return values for clarity, even if the function uses an explicit `return` statement.
