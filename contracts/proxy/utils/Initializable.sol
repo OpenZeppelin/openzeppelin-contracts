@@ -116,7 +116,7 @@ abstract contract Initializable {
         bool initialSetup = initialized == 0 && isTopLevelCall;
         bool construction = initialized == 1 && address(this).code.length == 0;
 
-        if (!firstCall && !construction) {
+        if (!initialSetup && !construction) {
             revert AlreadyInitialized();
         }
         $._initialized = 1;
