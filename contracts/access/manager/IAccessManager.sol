@@ -51,8 +51,8 @@ interface IAccessManager {
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
+    error AccessManagerUnauthorizedConsume(address target);
     error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
-    error AccessManagerNotConsumingScheduledOp(address msgsender);
 
     function canCall(
         address caller,
