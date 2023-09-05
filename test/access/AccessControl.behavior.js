@@ -1,14 +1,17 @@
+const { network } = require('hardhat');
+const { time } = require('@nomicfoundation/hardhat-network-helpers');
 const { expectEvent, constants, BN } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../helpers/customError');
 const { expect } = require('chai');
 
-const { time } = require('@nomicfoundation/hardhat-network-helpers');
-
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { network } = require('hardhat');
-const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
-const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
+// keys for dereferencing results from pendingDefaultAdmin() and pendingDefaultAdminDelay()
+const NEWADMIN = 0;
+const NEWDELAY = 0;
+const SCHEDULE = 1;
+
+const DEFAULT_ADMIN_ROLE = constants.ZERO_BYTES32;
 const ROLE = web3.utils.soliditySha3('ROLE');
 const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 const ZERO = web3.utils.toBN(0);
@@ -281,8 +284,8 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('pendingDefaultAdmin()', function () {
     it('returns 0 if no pending default admin transfer', async function () {
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.eq(ZERO_ADDRESS);
+      const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.eq(constants.ZERO_ADDRESS);
       expect(schedule).to.be.bignumber.eq(ZERO);
     });
 
@@ -298,11 +301,11 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       ]) {
         it(`returns pending admin and schedule ${tag} it passes if not accepted`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
+          const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
           await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+          const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
           expect(newAdmin).to.eq(newDefaultAdmin);
           expect(schedule).to.be.bignumber.eq(firstSchedule);
         });
@@ -310,14 +313,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
       it('returns 0 after schedule passes and the transfer was accepted', async function () {
         // Wait after schedule
-        const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
+        const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
         await time.setNextBlockTimestamp(firstSchedule.addn(1));
 
         // Accepts
         await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
 
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.eq(ZERO_ADDRESS);
+        const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.eq(constants.ZERO_ADDRESS);
         expect(schedule).to.be.bignumber.eq(ZERO);
       });
     });
@@ -342,7 +345,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       ]) {
         it(`returns ${delayTag} delay ${tag} delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
           await time.setNextBlockTimestamp(schedule.toNumber() + fromSchedule);
           await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
@@ -355,7 +358,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('pendingDefaultAdminDelay()', function () {
     it('returns 0 if not set', async function () {
-      const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+      const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
       expect(newDelay).to.be.bignumber.eq(ZERO);
       expect(schedule).to.be.bignumber.eq(ZERO);
     });
@@ -374,11 +377,11 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       ]) {
         it(`returns ${delayTag} delay ${tag} delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
           await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
           expect(newDelay).to.be.bignumber.eq(expectedDelay);
           expect(schedule).to.be.bignumber.eq(expectZeroSchedule ? ZERO : firstSchedule);
         });
@@ -445,7 +448,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       });
 
       it('should set pending default admin and schedule', async function () {
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
         expect(newAdmin).to.equal(newDefaultAdmin);
         expect(schedule).to.be.bignumber.equal(acceptSchedule);
         expectEvent(receipt, 'DefaultAdminTransferScheduled', {
@@ -473,7 +476,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
           // defaultAdmin changes its mind and begin again to another address
           const receipt = await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
           const newSchedule = web3.utils.toBN(await time.latest()).add(delay);
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+          const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
           expect(newAdmin).to.equal(other);
           expect(schedule).to.be.bignumber.equal(newSchedule);
 
@@ -499,8 +502,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
       beforeEach('schedule a delay change', async function () {
         await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
-        const pendingDefaultAdminDelay = await this.accessControl.pendingDefaultAdminDelay();
-        acceptSchedule = pendingDefaultAdminDelay.schedule;
+        ({ [SCHEDULE]: acceptSchedule } = await this.accessControl.pendingDefaultAdminDelay());
       });
 
       for (const [fromSchedule, schedulePassed, expectedDelay, delayTag] of [
@@ -517,7 +519,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
           const expectedAcceptSchedule = web3.utils.toBN(await time.latest()).add(expectedDelay);
 
           // Check that the schedule corresponds with the new delay
-          const { newAdmin, schedule: transferSchedule } = await this.accessControl.pendingDefaultAdmin();
+          const { [NEWADMIN]: newAdmin, [SCHEDULE]: transferSchedule } = await this.accessControl.pendingDefaultAdmin();
           expect(newAdmin).to.equal(newDefaultAdmin);
           expect(transferSchedule).to.be.bignumber.equal(expectedAcceptSchedule);
 
@@ -571,7 +573,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
         });
 
         // Resets pending default admin and schedule
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
         expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
         expect(schedule).to.be.bignumber.equal(ZERO);
       });
@@ -622,7 +624,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
           const receipt = await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
 
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+          const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
           expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
           expect(schedule).to.be.bignumber.equal(ZERO);
 
@@ -649,7 +651,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       it('should succeed without changes', async function () {
         const receipt = await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
 
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
         expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
         expect(schedule).to.be.bignumber.equal(ZERO);
 
@@ -683,7 +685,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       await time.setNextBlockTimestamp(delayPassed);
       await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
 
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
       expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
       expect(schedule).to.be.bignumber.equal(expectedSchedule);
     });
@@ -709,8 +711,8 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
         account: defaultAdmin,
       });
       expect(await this.accessControl.owner()).to.equal(constants.ZERO_ADDRESS);
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.eq(ZERO_ADDRESS);
+      const { [NEWADMIN]: newAdmin, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.eq(constants.ZERO_ADDRESS);
       expect(schedule).to.be.bignumber.eq(ZERO);
     });
 
@@ -774,7 +776,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
           const effectSchedule = timestamp.add(changeDelay);
 
           // Assert
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
           expect(newDelay).to.be.bignumber.eq(newDefaultAdminDelay);
           expect(schedule).to.be.bignumber.eq(effectSchedule);
           expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
@@ -797,7 +799,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
             it(`succeeds ${tag} the delay schedule passes`, async function () {
               // Wait until schedule + fromSchedule
-              const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+              const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
               await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
               // Default admin changes its mind and begins another delay change
@@ -812,7 +814,8 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
               const effectSchedule = timestamp.add(BN.min(cap, anotherNewDefaultAdminDelay));
 
               // Assert
-              const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+              const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } =
+                await this.accessControl.pendingDefaultAdminDelay();
               expect(newDelay).to.be.bignumber.eq(anotherNewDefaultAdminDelay);
               expect(schedule).to.be.bignumber.eq(effectSchedule);
               expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
@@ -824,7 +827,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
             const emit = passed ? 'not emit' : 'emit';
             it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
               // Wait until schedule + fromSchedule
-              const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+              const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
               await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
               // Default admin changes its mind and begins another delay change
@@ -865,12 +868,12 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
         it(`resets pending delay and schedule ${tag} delay change schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
           await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
 
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
           expect(newDelay).to.be.bignumber.eq(ZERO);
           expect(schedule).to.be.bignumber.eq(ZERO);
         });
@@ -878,7 +881,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
         const emit = passed ? 'not emit' : 'emit';
         it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+          const { [SCHEDULE]: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
           const receipt = await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
@@ -893,7 +896,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       it('succeeds without changes', async function () {
         await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
 
-        const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+        const { [NEWDELAY]: newDelay, [SCHEDULE]: schedule } = await this.accessControl.pendingDefaultAdminDelay();
         expect(newDelay).to.be.bignumber.eq(ZERO);
         expect(schedule).to.be.bignumber.eq(ZERO);
       });
