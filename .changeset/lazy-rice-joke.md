@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Initializable`: introduce intermediate variable to improve readability
+`Initializable`: Use intermediate variables to improve readability.
