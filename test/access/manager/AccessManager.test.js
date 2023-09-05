@@ -1111,75 +1111,9 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-<<<<<<< HEAD
   // TODO:
   // - check opening/closing a contract
   // - check updating the contract delay
   // - check the delay applies to admin function
   describe.skip('contract modes', function () {});
-=======
-  // TODO: test all admin functions
-  describe('class delays', function () {
-    const otherClassId = web3.utils.toBN(2);
-    const delay = web3.utils.toBN(1000);
-
-    beforeEach('set contract class', async function () {
-      this.target = await AccessManagedTarget.new(this.manager.address);
-      await this.manager.setContractClass(this.target.address, classId, { from: admin });
-
-      this.call = () => this.manager.setContractClass(this.target.address, otherClassId, { from: admin });
-      this.data = this.manager.contract.methods.setContractClass(this.target.address, otherClassId).encodeABI();
-    });
-
-    it('without delay: succeeds', async function () {
-      await this.call();
-    });
-
-    // TODO: here we need to check increase and decrease. Both should have be affected by the minsetback.
-    describe('with delay', function () {
-      beforeEach('set admin delay', async function () {
-        this.tx = await this.manager.setClassAdminDelay(classId, delay, { from: admin });
-        this.opId = web3.utils.keccak256(
-          web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
-        );
-      });
-
-      it('emits event and sets delay', async function () {
-        const timepoint = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
-
-        expectEvent(this.tx.receipt, 'ClassAdminDelayUpdated', { classId, delay, since: timepoint.add(MINSETBACK) });
-
-        // wait for delay to become active
-        expect(await this.manager.getClassAdminDelay(classId)).to.be.bignumber.equal('0');
-        await time.increase(MINSETBACK);
-        expect(await this.manager.getClassAdminDelay(classId)).to.be.bignumber.equal(delay);
-      });
-
-      describe('after setback', function () {
-        beforeEach('wait', async function () {
-          await time.increase(MINSETBACK);
-        });
-
-        it('without prior scheduling: reverts', async function () {
-          await expectRevertCustomError(this.call(), 'AccessManagerNotScheduled', [this.opId]);
-        });
-
-        describe('with prior scheduling', async function () {
-          beforeEach('schedule', async function () {
-            await this.manager.schedule(this.manager.address, this.data, 0, { from: admin });
-          });
-
-          it('without delay: reverts', async function () {
-            await expectRevertCustomError(this.call(), 'AccessManagerNotReady', [this.opId]);
-          });
-
-          it('with delay: succeeds', async function () {
-            await time.increase(delay);
-            await this.call();
-          });
-        });
-      });
-    });
-  });
->>>>>>> audit/wip/2a-2b
 });
