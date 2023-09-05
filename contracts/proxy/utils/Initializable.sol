@@ -104,9 +104,19 @@ abstract contract Initializable {
         // solhint-disable-next-line var-name-mixedcase
         InitializableStorage storage $ = _getInitializableStorage();
 
+        // Cache values to avoid duplicated sloads
         bool isTopLevelCall = !$._initializing;
         uint64 initialized = $._initialized;
-        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {
+
+        // Are allowed:
+        // - "initialSetup" calls: the contract is not in the initializing state and no previous version was
+        //                         initialized
+        // - "construction" calls: the contract is already initialized at step 1 (no reininitialization) and the
+        //                         current contract is not yet constructed.
+        bool initialSetup = initialized == 0 && isTopLevelCall;
+        bool construction = initialized == 1 && address(this).code.length == 0;
+
+        if (!firstCall && !construction) {
             revert AlreadyInitialized();
         }
         $._initialized = 1;
