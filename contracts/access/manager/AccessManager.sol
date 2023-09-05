@@ -45,7 +45,7 @@ import {Time} from "../../utils/types/Time.sol";
  * will be {AccessManager} itself.
  *
  * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
- * mindful of the danger  associated with functions such as {{Ownable-renounceOwnership}} or
+ * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
  * {{AccessControl-renounceRole}}.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
@@ -57,10 +57,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bool closed;
     }
 
-    // Structure that stores the details for a group/account pair. This structures fit into a single slot.
+    // Structure that stores the details for a group/account pair. This structure fits into a single slot.
     struct Access {
         // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
-        // are not available. Should be checked using {Time-isSetAndPast}
+        // is not available. Should be checked using {Time-isSetAndPast}
         uint48 since;
         // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
         // functions that use the `onlyGroup` modifier.
@@ -71,7 +71,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // - the members of the group
     // - the admin group (that can grant or revoke permissions)
     // - the guardian group (that can cancel operations targeting functions that need this group
-    // - the grand delay
+    // - the grant delay
     struct Group {
         mapping(address user => Access access) members;
         uint64 admin;
@@ -91,7 +91,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(uint64 groupId => Group) private _groups;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
-    // This should be transcient storage when supported by the EVM.
+    // This should be transient storage when supported by the EVM.
     bytes32 private _relayIdentifier;
 
     /**
@@ -122,8 +122,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * the schedule, leaving the possibility of multiple executions. Maybe this function should not be view?
      *
      * NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
-     * is backward compatible. Some contract may thus ignore the second return argument. In that case they will fail
-     * to identify the indirect workflow, and will consider call that require a delay to be forbidden.
+     * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
+     * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
         if (isTargetClosed(target)) {
@@ -147,10 +147,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Minimum setback for delay updates. Defaults to 1 day.
+     * @dev Minimum setback for all delay updates, with the exception of execution delays, which
+     * can be increased without setback (and in the event of an accidental increase can be reset
+     * via {revokeGroup}). Defaults to 5 days.
      */
     function minSetback() public view virtual returns (uint32) {
-        return 0; // TODO: set to 1 day
+        return 5 days;
     }
 
     /**
@@ -202,7 +204,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Get the access details for a given account in a given group. These details include the timepoint at which
-     * membership becomes active, and the delay applied to all operation by this user that require this permission
+     * membership becomes active, and the delay applied to all operation by this user that requires this permission
      * level.
      *
      * Returns:
@@ -359,9 +361,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint48 since;
 
         if (inGroup) {
+            // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
+            // any change to the execution delay within the duration of the group admin delay.
             (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
                 executionDelay,
-                minSetback()
+                0
             );
         } else {
             since = Time.timestamp() + grantDelay;
@@ -558,7 +562,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     ) public virtual returns (bytes32 operationId, uint32 nonce) {
         address caller = _msgSender();
 
-        // Fetch restriction to that apply to the caller on the targeted function
+        // Fetch restrictions that apply to the caller on the targeted function
         (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
@@ -607,7 +611,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function relay(address target, bytes calldata data) public payable virtual returns (uint32) {
         address caller = _msgSender();
 
-        // Fetch restriction to that apply to the caller on the targeted function
+        // Fetch restrictions that apply to the caller on the targeted function
         (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
         // If caller is not authorised, revert
