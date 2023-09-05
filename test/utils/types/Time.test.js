@@ -30,7 +30,7 @@ const unpackDelay = delay => ({
 const packDelay = ({ valueBefore, valueAfter = 0n, effect = 0n }) =>
   (asUint(valueAfter, 32) << 0n) + (asUint(valueBefore, 32) << 32n) + (asUint(effect, 48) << 64n);
 
-const effectForTimepoint = timepoint => [
+const effectSamplesForTimepoint = timepoint => [
   0n,
   timepoint,
   ...product([-1n, 1n], [1n, 2n, 17n, 42n])
@@ -92,7 +92,7 @@ contract('Time', function () {
       const valueAfter = 4214143n;
 
       for (const timepoint of [...SOME_VALUES, MAX_UINT48])
-        for (const effect of effectForTimepoint(timepoint)) {
+        for (const effect of effectSamplesForTimepoint(timepoint)) {
           const isPast = effect <= timepoint;
 
           const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -113,7 +113,7 @@ contract('Time', function () {
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
-      for (const effect of effectForTimepoint(timepoint)) {
+      for (const effect of effectSamplesForTimepoint(timepoint)) {
         const isPast = effect <= timepoint;
 
         const delay = packDelay({ valueBefore, valueAfter, effect });
@@ -133,7 +133,7 @@ contract('Time', function () {
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;
 
-      for (const effect of effectForTimepoint(timepoint))
+      for (const effect of effectSamplesForTimepoint(timepoint))
         for (const minSetback of [...SOME_VALUES, MAX_UINT32]) {
           const isPast = effect <= timepoint;
           const expectedvalueBefore = isPast ? valueAfter : valueBefore;
