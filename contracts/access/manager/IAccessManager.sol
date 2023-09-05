@@ -35,11 +35,9 @@ interface IAccessManager {
     event GroupGuardianChanged(uint64 indexed groupId, uint64 indexed guardian);
     event GroupGrantDelayChanged(uint64 indexed groupId, uint32 delay, uint48 since);
 
-    event ContractClassUpdated(address indexed target, uint64 indexed classId);
-    event ContractClosed(address indexed target, bool closed);
-
-    event ClassFunctionGroupUpdated(uint64 indexed classId, bytes4 selector, uint64 indexed groupId);
-    event ClassAdminDelayUpdated(uint64 indexed classId, uint32 delay, uint48 since);
+    event TargetClosed(address indexed target, bool closed);
+    event TargetFunctionGroupUpdated(address indexed target, bytes4 selector, uint64 indexed groupId);
+    event TargetAdminDelayUpdated(address indexed target, uint32 delay, uint48 since);
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
@@ -47,7 +45,6 @@ interface IAccessManager {
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedAccount(address account);
     error AccessManagerLockedGroup(uint64 groupId);
-    error AccessManagerInvalidClass(uint64 classId);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
@@ -61,11 +58,11 @@ interface IAccessManager {
 
     function expiration() external view returns (uint32);
 
-    function getContractClass(address target) external view returns (uint64 classId, bool closed);
+    function isTargetClosed(address target) external view returns (bool);
 
-    function getClassFunctionGroup(uint64 classId, bytes4 selector) external view returns (uint64);
+    function getTargetFunctionGroup(address target, bytes4 selector) external view returns (uint64);
 
-    function getClassAdminDelay(uint64 classId) external view returns (uint32);
+    function getTargetAdminDelay(address target) external view returns (uint32);
 
     function getGroupAdmin(uint64 groupId) external view returns (uint64);
 
@@ -91,13 +88,11 @@ interface IAccessManager {
 
     function setGrantDelay(uint64 groupId, uint32 newDelay) external;
 
-    function setClassFunctionGroup(uint64 classId, bytes4[] calldata selectors, uint64 groupId) external;
+    function setTargetFunctionGroup(address target, bytes4[] calldata selectors, uint64 groupId) external;
 
-    function setClassAdminDelay(uint64 classId, uint32 newDelay) external;
+    function setTargetAdminDelay(address target, uint32 newDelay) external;
 
-    function setContractClass(address target, uint64 classId) external;
-
-    function setContractClosed(address target, bool closed) external;
+    function setTargetClosed(address target, bool closed) external;
 
     function getSchedule(bytes32 id) external view returns (uint48);
 

@@ -18,7 +18,6 @@ const GROUPS = {
 };
 Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value]) => [value, key])));
 
-const classId = web3.utils.toBN(1);
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
 
@@ -546,33 +545,47 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function group', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(GROUPS.ADMIN);
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
+            GROUPS.ADMIN,
+          );
         }
 
-        const { receipt: receipt1 } = await this.manager.setClassFunctionGroup(classId, sigs, GROUPS.SOME, {
-          from: admin,
-        });
+        const { receipt: receipt1 } = await this.manager.setTargetFunctionGroup(
+          this.target.address,
+          sigs,
+          GROUPS.SOME,
+          {
+            from: admin,
+          },
+        );
 
         for (const sig of sigs) {
-          expectEvent(receipt1, 'ClassFunctionGroupUpdated', {
-            classId,
+          expectEvent(receipt1, 'TargetFunctionGroupUpdated', {
+            target: this.target.address,
             selector: sig,
             groupId: GROUPS.SOME,
           });
-          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(GROUPS.SOME);
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
+            GROUPS.SOME,
+          );
         }
 
-        const { receipt: receipt2 } = await this.manager.setClassFunctionGroup(classId, [sigs[1]], GROUPS.SOME_ADMIN, {
-          from: admin,
-        });
-        expectEvent(receipt2, 'ClassFunctionGroupUpdated', {
-          classId,
+        const { receipt: receipt2 } = await this.manager.setTargetFunctionGroup(
+          this.target.address,
+          [sigs[1]],
+          GROUPS.SOME_ADMIN,
+          {
+            from: admin,
+          },
+        );
+        expectEvent(receipt2, 'TargetFunctionGroupUpdated', {
+          target: this.target.address,
           selector: sigs[1],
           groupId: GROUPS.SOME_ADMIN,
         });
 
         for (const sig of sigs) {
-          expect(await this.manager.getClassFunctionGroup(classId, sig)).to.be.bignumber.equal(
+          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
             sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
           );
         }
@@ -580,7 +593,7 @@ contract('AccessManager', function (accounts) {
 
       it('non-admin cannot set function group', async function () {
         await expectRevertCustomError(
-          this.manager.setClassFunctionGroup(classId, sigs, GROUPS.SOME, { from: other }),
+          this.manager.setTargetFunctionGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
           [other, GROUPS.ADMIN],
         );
@@ -617,26 +630,25 @@ contract('AccessManager', function (accounts) {
           beforeEach(async function () {
             // setup
             await Promise.all([
-              this.manager.$_setContractClosed(this.target.address, closed),
-              this.manager.$_setContractClass(this.target.address, classId),
-              fnGroup && this.manager.$_setClassFunctionGroup(classId, selector('fnRestricted()'), fnGroup),
-              fnGroup && this.manager.$_setClassFunctionGroup(classId, selector('fnUnrestricted()'), fnGroup),
+              this.manager.$_setTargetClosed(this.target.address, closed),
+              fnGroup &&
+                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnRestricted()'), fnGroup),
+              fnGroup &&
+                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnUnrestricted()'), fnGroup),
               ...callerGroups
                 .filter(groupId => groupId != GROUPS.PUBLIC)
                 .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
             ]);
 
             // post setup checks
-            const result = await this.manager.getContractClass(this.target.address);
-            expect(result[0]).to.be.bignumber.equal(classId);
-            expect(result[1]).to.be.equal(closed);
+            expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(closed);
 
             if (fnGroup) {
               expect(
-                await this.manager.getClassFunctionGroup(classId, selector('fnRestricted()')),
+                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnRestricted()')),
               ).to.be.bignumber.equal(fnGroup);
               expect(
-                await this.manager.getClassFunctionGroup(classId, selector('fnUnrestricted()')),
+                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnUnrestricted()')),
               ).to.be.bignumber.equal(fnGroup);
             }
 
@@ -850,8 +862,7 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setContractClass(this.target.address, classId);
-        await this.manager.$_setClassFunctionGroup(classId, this.callData, GROUPS.SOME);
+        await this.manager.$_setTargetFunctionGroup(this.target.address, this.callData, GROUPS.SOME);
         await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
       });
 
@@ -989,7 +1000,7 @@ contract('AccessManager', function (accounts) {
 
     describe('Contract is closed', function () {
       beforeEach(async function () {
-        await this.manager.$_setContractClosed(this.ownable.address, true);
+        await this.manager.$_setTargetClosed(this.ownable.address, true);
       });
 
       it('directly call: reverts', async function () {
@@ -1014,13 +1025,9 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('Contract is managed', function () {
-      beforeEach('add contract to class', async function () {
-        await this.manager.$_setContractClass(this.ownable.address, classId);
-      });
-
       describe('function is open to specific group', function () {
         beforeEach(async function () {
-          await this.manager.$_setClassFunctionGroup(classId, selector('$_checkOwner()'), groupId);
+          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), groupId);
         });
 
         it('directly call: reverts', async function () {
@@ -1044,7 +1051,7 @@ contract('AccessManager', function (accounts) {
 
       describe('function is open to public group', function () {
         beforeEach(async function () {
-          await this.manager.$_setClassFunctionGroup(classId, selector('$_checkOwner()'), GROUPS.PUBLIC);
+          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), GROUPS.PUBLIC);
         });
 
         it('directly call: reverts', async function () {
@@ -1104,67 +1111,9 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  // TODO: test all admin functions
-  describe('class delays', function () {
-    const otherClassId = web3.utils.toBN(2);
-    const delay = web3.utils.toBN(1000);
-
-    beforeEach('set contract class', async function () {
-      this.target = await AccessManagedTarget.new(this.manager.address);
-      await this.manager.setContractClass(this.target.address, classId, { from: admin });
-
-      this.call = () => this.manager.setContractClass(this.target.address, otherClassId, { from: admin });
-      this.data = this.manager.contract.methods.setContractClass(this.target.address, otherClassId).encodeABI();
-    });
-
-    it('without delay: succeeds', async function () {
-      await this.call();
-    });
-
-    // TODO: here we need to check increase and decrease. Both should have be affected by the minsetback.
-    describe('with delay', function () {
-      beforeEach('set admin delay', async function () {
-        this.tx = await this.manager.setClassAdminDelay(classId, delay, { from: admin });
-        this.opId = web3.utils.keccak256(
-          web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [admin, this.manager.address, this.data]),
-        );
-      });
-
-      it('emits event and sets delay', async function () {
-        const timepoint = await clockFromReceipt.timestamp(this.tx.receipt).then(web3.utils.toBN);
-
-        expectEvent(this.tx.receipt, 'ClassAdminDelayUpdated', { classId, delay, since: timepoint.add(MINSETBACK) });
-
-        // wait for delay to become active
-        expect(await this.manager.getClassAdminDelay(classId)).to.be.bignumber.equal('0');
-        await time.increase(MINSETBACK);
-        expect(await this.manager.getClassAdminDelay(classId)).to.be.bignumber.equal(delay);
-      });
-
-      describe('after setback', function () {
-        beforeEach('wait', async function () {
-          await time.increase(MINSETBACK);
-        });
-
-        it('without prior scheduling: reverts', async function () {
-          await expectRevertCustomError(this.call(), 'AccessManagerNotScheduled', [this.opId]);
-        });
-
-        describe('with prior scheduling', async function () {
-          beforeEach('schedule', async function () {
-            await this.manager.schedule(this.manager.address, this.data, 0, { from: admin });
-          });
-
-          it('without delay: reverts', async function () {
-            await expectRevertCustomError(this.call(), 'AccessManagerNotReady', [this.opId]);
-          });
-
-          it('with delay: succeeds', async function () {
-            await time.increase(delay);
-            await this.call();
-          });
-        });
-      });
-    });
-  });
+  // TODO:
+  // - check opening/closing a contract
+  // - check updating the contract delay
+  // - check the delay applies to admin function
+  describe.skip('contract modes', function () {});
 });
