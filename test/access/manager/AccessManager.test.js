@@ -106,7 +106,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp,
             delay: '0',
-            isUpdate: false,
+            newMember: true,
           });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
@@ -128,7 +128,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp,
             delay: executeDelay,
-            isUpdate: false,
+            newMember: true,
           });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([
@@ -178,7 +178,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
-            isUpdate: false,
+            newMember: true,
           });
 
           expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
@@ -198,7 +198,7 @@ contract('AccessManager', function (accounts) {
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
-            isUpdate: false,
+            newMember: true,
           });
 
           await time.increase(grantDelay);
@@ -376,7 +376,7 @@ contract('AccessManager', function (accounts) {
           account: member,
           since: timestamp,
           delay: newDelay,
-          isUpdate: true,
+          newMember: false,
         });
 
         // immediate effect
@@ -407,7 +407,7 @@ contract('AccessManager', function (accounts) {
           account: member,
           since: timestamp.add(oldDelay).sub(newDelay),
           delay: newDelay,
-          isUpdate: true,
+          newMember: false,
         });
 
         // delayed effect
@@ -428,7 +428,7 @@ contract('AccessManager', function (accounts) {
           account: other,
           since: timestamp,
           delay: executeDelay,
-          isUpdate: true,
+          newMember: false,
         });
       });
     });
