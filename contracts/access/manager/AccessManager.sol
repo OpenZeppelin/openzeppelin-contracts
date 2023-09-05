@@ -372,7 +372,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
         }
 
-        emit GroupGranted(groupId, account, executionDelay, since);
+        emit GroupGranted(groupId, account, executionDelay, since, !inGroup);
         return !inGroup;
     }
 
