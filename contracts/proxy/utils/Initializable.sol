@@ -108,11 +108,11 @@ abstract contract Initializable {
         bool isTopLevelCall = !$._initializing;
         uint64 initialized = $._initialized;
 
-        // Are allowed:
-        // - "initialSetup" calls: the contract is not in the initializing state and no previous version was
-        //                         initialized
-        // - "construction" calls: the contract is already initialized at step 1 (no reininitialization) and the
-        //                         current contract is not yet constructed.
+        // Allowed calls:
+        // - initialSetup: the contract is not in the initializing state and no previous version was
+        //                 initialized
+        // - construction: the contract is initialized at version 1 (no reininitialization) and the
+        //                 current contract is just being deployed
         bool initialSetup = initialized == 0 && isTopLevelCall;
         bool construction = initialized == 1 && address(this).code.length == 0;
 
