@@ -51,8 +51,8 @@ library EnumerableSet {
     struct Set {
         // Storage of set values
         bytes32[] _values;
-        // Position of the value in the `values` array, plus 1 because position 0
-        // means a value is not in the set.
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
         mapping(bytes32 value => uint256) _positions;
     }
 
