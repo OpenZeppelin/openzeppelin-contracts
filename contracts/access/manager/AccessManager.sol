@@ -748,7 +748,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
             (bool isGuardian, ) = hasGroup(getGroupGuardian(getClassFunctionGroup(classId, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
-                revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
             }
         }
 
