@@ -33,13 +33,6 @@ library Time {
         return SafeCast.toUint48(block.number);
     }
 
-    /**
-     * @dev Check if a timepoint is set, and in the past.
-     */
-    function isSetAndPast(uint48 timepoint, uint48 ref) internal pure returns (bool) {
-        return timepoint != 0 && timepoint <= ref;
-    }
-
     // ==================================================== Delay =====================================================
     /**
      * @dev A `Delay` is a uint32 duration that can be programmed to change value automatically at a given point in the
@@ -52,12 +45,12 @@ library Time {
      * still apply for some time.
      *
      *
-     * The `Delay` type is 128 bits long, and packs the following:
+     * The `Delay` type is 112 bits long, and packs the following:
      *
      * ```
      *   | [uint48]: effect date (timepoint)
-     *   |           | [uint32]: current value (duration)
-     *   ↓           ↓       ↓ [uint32]: pending value (duration)
+     *   |           | [uint32]: value before (duration)
+     *   ↓           ↓       ↓ [uint32]: value after (duration)
      * 0xAAAAAAAAAAAABBBBBBBBCCCCCCCC
      * ```
      *
@@ -78,8 +71,8 @@ library Time {
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
     function getFullAt(Delay self, uint48 timepoint) internal pure returns (uint32, uint32, uint48) {
-        (uint32 oldValue, uint32 newValue, uint48 effect) = self.unpack();
-        return effect.isSetAndPast(timepoint) ? (newValue, 0, 0) : (oldValue, newValue, effect);
+        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = self.unpack();
+        return effect <= timepoint ? (valueAfter, 0, 0) : (valueBefore, valueAfter, effect);
     }
 
     /**
@@ -106,13 +99,6 @@ library Time {
     }
 
     /**
-     * @dev Update a Delay object so that a new duration takes effect at a given timepoint.
-     */
-    function withUpdateAt(Delay self, uint32 newValue, uint48 effect) internal view returns (Delay) {
-        return pack(self.get(), newValue, effect);
-    }
-
-    /**
      * @dev Update a Delay object so that it takes a new duration after a timepoint that is automatically computed to
      * enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
      * new delay becomes effective.
@@ -121,25 +107,26 @@ library Time {
         uint32 value = self.get();
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
         uint48 effect = timestamp() + setback;
-        return (self.withUpdateAt(newValue, effect), effect);
+        return (pack(value, newValue, effect), effect);
     }
 
     /**
-     * @dev Split a delay into its components: oldValue, newValue and effect (transition timepoint).
+     * @dev Split a delay into its components: valueBefore, valueAfter and effect (transition timepoint).
      */
     function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
         uint112 raw = Delay.unwrap(self);
-        return (
-            uint32(raw), // oldValue
-            uint32(raw >> 32), // newValue
-            uint48(raw >> 64) // effect
-        );
+
+        uint32 valueAfter = uint32(raw);
+        uint32 valueBefore = uint32(raw >> 32);
+        uint48 effect = uint48(raw >> 64);
+
+        return (valueBefore, valueAfter, effect);
     }
 
     /**
      * @dev pack the components into a Delay object.
      */
-    function pack(uint32 oldValue, uint32 newValue, uint48 effect) internal pure returns (Delay) {
-        return Delay.wrap(uint112(oldValue) | (uint112(newValue) << 32) | (uint112(effect) << 64));
+    function pack(uint32 valueBefore, uint32 valueAfter, uint48 effect) internal pure returns (Delay) {
+        return Delay.wrap((uint112(effect) << 64) | (uint112(valueBefore) << 32) | uint112(valueAfter));
     }
 }
