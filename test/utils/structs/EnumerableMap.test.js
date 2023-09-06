@@ -1,5 +1,5 @@
 const { BN, constants } = require('@openzeppelin/test-helpers');
-const { mapValues } = require('../../helpers/map-values');
+const { mapValues } = require('../../helpers/iterate');
 
 const EnumerableMap = artifacts.require('$EnumerableMap');
 

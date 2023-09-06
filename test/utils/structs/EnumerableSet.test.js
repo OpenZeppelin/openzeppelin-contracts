@@ -1,5 +1,5 @@
 const EnumerableSet = artifacts.require('$EnumerableSet');
-const { mapValues } = require('../../helpers/map-values');
+const { mapValues } = require('../../helpers/iterate');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 

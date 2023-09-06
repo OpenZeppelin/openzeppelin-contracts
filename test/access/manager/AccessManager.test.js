@@ -3,6 +3,7 @@ const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
+const { product } = require('../../helpers/iterate');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
@@ -620,8 +621,6 @@ contract('AccessManager', function (accounts) {
 
     // WIP
     describe('Calling restricted & unrestricted functions', function () {
-      const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
-
       for (const [callerGroups, fnGroup, closed, delay] of product(
         [[], [GROUPS.SOME]],
         [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
