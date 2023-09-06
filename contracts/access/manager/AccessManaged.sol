@@ -102,13 +102,13 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
     function _checkCanCall(address caller, bytes calldata data) internal virtual {
-        (bool allowed, uint32 delay) = AuthorityUtils.canCallWithDelay(
+        (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
             authority(),
             caller,
             address(this),
             bytes4(data)
         );
-        if (!allowed) {
+        if (!immediate) {
             if (delay > 0) {
                 _consumingSchedule = true;
                 IAccessManager(authority()).consumeScheduledOp(caller, data);
