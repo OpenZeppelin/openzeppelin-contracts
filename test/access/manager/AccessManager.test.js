@@ -563,19 +563,12 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function role', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
-            ROLES.ADMIN,
-          );
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.ADMIN);
         }
 
-        const { receipt: receipt1 } = await this.manager.setTargetFunctionRole(
-          this.target.address,
-          sigs,
-          ROLES.SOME,
-          {
-            from: admin,
-          },
-        );
+        const { receipt: receipt1 } = await this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME, {
+          from: admin,
+        });
 
         for (const sig of sigs) {
           expectEvent(receipt1, 'TargetFunctionRoleUpdated', {
@@ -583,9 +576,7 @@ contract('AccessManager', function (accounts) {
             selector: sig,
             roleId: ROLES.SOME,
           });
-          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
-            ROLES.SOME,
-          );
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.SOME);
         }
 
         const { receipt: receipt2 } = await this.manager.setTargetFunctionRole(
@@ -647,10 +638,8 @@ contract('AccessManager', function (accounts) {
             // setup
             await Promise.all([
               this.manager.$_setTargetClosed(this.target.address, closed),
-              fnRole &&
-                this.manager.$_setTargetFunctionRole(this.target.address, selector('fnRestricted()'), fnRole),
-              fnRole &&
-                this.manager.$_setTargetFunctionRole(this.target.address, selector('fnUnrestricted()'), fnRole),
+              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnRestricted()'), fnRole),
+              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnUnrestricted()'), fnRole),
               ...callerRoles
                 .filter(roleId => roleId != ROLES.PUBLIC)
                 .map(roleId => this.manager.$_grantRole(roleId, user, 0, delay ?? 0)),
