@@ -655,7 +655,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        require(IAccessManaged(target).isConsumingScheduledOp());
+        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
+            revert AccessManagerUnauthorizedConsume(target);
+        }
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
@@ -704,7 +706,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
             (bool isGuardian, ) = hasGroup(getGroupGuardian(getTargetFunctionGroup(target, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
-                revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
             }
         }
 

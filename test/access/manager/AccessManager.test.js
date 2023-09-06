@@ -961,7 +961,7 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
 
-        await expectRevertCustomError(this.cancel({ from: other }), 'AccessManagerCannotCancel', [
+        await expectRevertCustomError(this.cancel({ from: other }), 'AccessManagerUnauthorizedCancel', [
           other,
           user,
           ...this.call,
