@@ -27,9 +27,9 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * There is a special group defined by default named "public" which all accounts automatically have.
  *
- * Contracts where functions are mapped to groups are said to be in a "custom" mode, but contracts can also be
- * configured in two special modes: 1) the "open" mode, where all functions are allowed to the "public" group, and 2)
- * the "closed" mode, where no function is allowed to any group.
+ * In addition to the access rules defined by each target's functions being assigned to roles, then entire target can
+ * be "closed". This "closed" mode is set/unset by the admin using {setTargetClosed} and can be used to lock a contract
+ * while permissions are being (re-)configured.
  *
  * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
  * they will be highly secured (e.g., a multisig or a well-configured DAO).
@@ -59,11 +59,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // Structure that stores the details for a group/account pair. This structure fits into a single slot.
     struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
-        // is not available.
+        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group
+        // permission is not available.
         uint48 since;
-        // delay for execution. Only applies to restricted() / relay() calls. This does not restrict access to
-        // functions that use the `onlyGroup` modifier.
+        // Delay for execution. Only applies to restricted() / relay() calls.
         Time.Delay delay;
     }
 
@@ -810,6 +809,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // =================================================== HELPERS ====================================================
     /**
      * @dev An extended version of {canCall} for internal use that considers restrictions for admin functions.
+     *
+     * Returns:
+     * - bool immediate: weither the operation can be executed immediatly (with no delay)
+     * - uint32 delay: the execution delay
+     *
+     * If immediate is true, the delay can be disregarded and the operation can be immediatly executed.
+     * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
