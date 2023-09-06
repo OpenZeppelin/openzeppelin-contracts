@@ -195,7 +195,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved
+     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
      * the `spender` for the specific `tokenId`.
      *
      * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
