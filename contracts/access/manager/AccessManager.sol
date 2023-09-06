@@ -816,7 +816,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * - bool immediate: whether the operation can be executed immediately (with no delay)
      * - uint32 delay: the execution delay
      *
-     * If immediate is true, the delay can be disregarded and the operation can be immediatly executed.
+     * If immediate is true, the delay can be disregarded and the operation can be immediately executed.
      * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
