@@ -813,7 +813,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev An extended version of {canCall} for internal use that considers restrictions for admin functions.
      *
      * Returns:
-     * - bool immediate: weither the operation can be executed immediatly (with no delay)
+     * - bool immediate: whether the operation can be executed immediately (with no delay)
      * - uint32 delay: the execution delay
      *
      * If immediate is true, the delay can be disregarded and the operation can be immediatly executed.
