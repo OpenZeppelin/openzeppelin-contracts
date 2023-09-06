@@ -51,6 +51,7 @@ import {Time} from "../../utils/types/Time.sol";
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
+    // Structure that stores the details for a target contract.
     struct TargetConfig {
         mapping(bytes4 selector => uint64 groupId) allowedGroups;
         Time.Delay adminDelay;
@@ -78,6 +79,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         Time.Delay grantDelay;
     }
 
+    // Structure that stores the details for a scheduled operation. This structure fits into a single slot.
     struct Schedule {
         uint48 timepoint;
         uint32 nonce;
@@ -455,7 +457,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedGroupUpdated} event per selector
+     * Emits a {TargetFunctionGroupUpdated} event per selector
      */
     function setTargetFunctionGroup(
         address target,
@@ -470,7 +472,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setFunctionAllowedGroup} without access control.
      *
-     * Emits a {FunctionAllowedGroupUpdated} event
+     * Emits a {TargetFunctionGroupUpdated} event
      */
     function _setTargetFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
         _targets[target].allowedGroups[selector] = groupId;
@@ -484,7 +486,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedGroupUpdated} event per selector
+     * Emits a {TargetAdminDelayUpdated} event per selector
      */
     function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
@@ -493,7 +495,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setClassAdminDelay} without access control.
      *
-     * Emits a {ClassAdminDelayUpdated} event
+     * Emits a {TargetAdminDelayUpdated} event
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
@@ -687,7 +689,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Requirements:
      *
-     * - the caller must be the proposer, or a guardian of the targeted function
+     * - the caller must be the proposer, a guardian of the targeted function, or a global admin
      *
      * Emits a {OperationCanceled} event.
      */
