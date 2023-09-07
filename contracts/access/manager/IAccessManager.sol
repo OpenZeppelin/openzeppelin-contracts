@@ -102,7 +102,7 @@ interface IAccessManager {
 
     function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
 
-    function relay(address target, bytes calldata data) external payable returns (uint32);
+    function execute(address target, bytes calldata data) external payable returns (uint32);
 
     function cancel(address caller, address target, bytes calldata data) external returns (uint32);
 

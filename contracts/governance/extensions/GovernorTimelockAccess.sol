@@ -19,7 +19,7 @@ import {Time} from "../../utils/types/Time.sol";
  * This extension allows the governor to hold and use its own assets and permissions, unlike {GovernorTimelockControl}
  * and {GovernorTimelockCompound}, where the timelock is a separate contract that must be the one to hold assets and
  * permissions. Operations that are delay-restricted by the manager, however, will be executed through the
- * {AccessManager-relay} function.
+ * {AccessManager-execute} function.
  *
  * Note that some operations may be cancelable in the {AccessManager} by the admin or a set of guardians, depending on
  * the restricted operation being invoked. Since proposals are atomic, the cancellation by a guardian of a single
@@ -27,15 +27,15 @@ import {Time} from "../../utils/types/Time.sol";
  */
 abstract contract GovernorTimelockAccess is Governor {
     // An execution plan is produced at the moment a proposal is created, in order to fix at that point the exact
-    // execution semantics of the proposal, namely whether a call will go through {AccessManager-relay}.
+    // execution semantics of the proposal, namely whether a call will go through {AccessManager-execute}.
     struct ExecutionPlan {
         uint16 length;
         uint32 delay;
-        // We use mappings instead of arrays because it allows us to pack values in storage more tightly without storing
-        // the length redundantly.
-        // We pack 8 operations' data in each bucket. Each uint32 value is set to 1 upon proposal creation if it has to
-        // be scheduled and relayed through the manager. Upon queuing, the value is set to nonce + 1, where the nonce is
-        // that which we get back from the manager when scheduling the operation.
+        // We use mappings instead of arrays because it allows us to pack values in storage more tightly without
+        // storing the length redundantly.
+        // We pack 8 operations' data in each bucket. Each uint32 value is set to 1 upon proposal creation if it has
+        // to be scheduled and executed through the manager. Upon queuing, the value is set to nonce + 1, where the
+        // nonce is that which we get back from the manager when scheduling the operation.
         mapping(uint256 operationBucket => uint32[8]) managerData;
     }
 
@@ -175,7 +175,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev Mechanism to execute a proposal, potentially going through {AccessManager-relay} for delayed operations.
+     * @dev Mechanism to execute a proposal, potentially going through {AccessManager-execute} for delayed operations.
      */
     function _executeOperations(
         uint256 proposalId,
@@ -194,9 +194,9 @@ abstract contract GovernorTimelockAccess is Governor {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool delayed, uint32 nonce) = _getManagerData(plan, i);
             if (delayed) {
-                uint32 relayedNonce = _manager.relay{value: values[i]}(targets[i], calldatas[i]);
-                if (relayedNonce != nonce) {
-                    revert GovernorMismatchedNonce(proposalId, nonce, relayedNonce);
+                uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
+                if (executedNonce != nonce) {
+                    revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
                 }
             } else {
                 (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
