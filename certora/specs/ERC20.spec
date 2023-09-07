@@ -3,10 +3,6 @@ import "methods/IERC20.spec"
 import "methods/IERC2612.spec"
 
 methods {
-    // non standard ERC20 functions
-    increaseAllowance(address,uint256) returns (bool)
-    decreaseAllowance(address,uint256) returns (bool)
-
     // exposed for FV
     mint(address,uint256)
     burn(address,uint256)
@@ -107,7 +103,6 @@ rule onlyHolderOfSpenderCanChangeAllowance(env e) {
         allowanceAfter > allowanceBefore
     ) => (
         (f.selector == approve(address,uint256).selector           && e.msg.sender == holder) ||
-        (f.selector == increaseAllowance(address,uint256).selector && e.msg.sender == holder) ||
         (f.selector == permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
     );
 
@@ -116,7 +111,6 @@ rule onlyHolderOfSpenderCanChangeAllowance(env e) {
     ) => (
         (f.selector == transferFrom(address,address,uint256).selector && e.msg.sender == spender) ||
         (f.selector == approve(address,uint256).selector              && e.msg.sender == holder ) ||
-        (f.selector == decreaseAllowance(address,uint256).selector    && e.msg.sender == holder ) ||
         (f.selector == permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector)
     );
 }
@@ -291,72 +285,6 @@ rule approve(env e) {
     } else {
         // allowance is updated
         assert allowance(holder, spender) == amount;
-
-        // other allowances are untouched
-        assert allowance(otherHolder, otherSpender) != otherAllowanceBefore => (otherHolder == holder && otherSpender == spender);
-    }
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: increaseAllowance behavior and side effects                                                                   │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule increaseAllowance(env e) {
-    require nonpayable(e);
-
-    address holder = e.msg.sender;
-    address spender;
-    address otherHolder;
-    address otherSpender;
-    uint256 amount;
-
-    // cache state
-    uint256 allowanceBefore      = allowance(holder, spender);
-    uint256 otherAllowanceBefore = allowance(otherHolder, otherSpender);
-
-    // run transaction
-    increaseAllowance@withrevert(e, spender, amount);
-
-    // check outcome
-    if (lastReverted) {
-        assert holder == 0 || spender == 0 || allowanceBefore + amount > max_uint256;
-    } else {
-        // allowance is updated
-        assert allowance(holder, spender) == allowanceBefore + amount;
-
-        // other allowances are untouched
-        assert allowance(otherHolder, otherSpender) != otherAllowanceBefore => (otherHolder == holder && otherSpender == spender);
-    }
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: decreaseAllowance behavior and side effects                                                                   │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule decreaseAllowance(env e) {
-    require nonpayable(e);
-
-    address holder = e.msg.sender;
-    address spender;
-    address otherHolder;
-    address otherSpender;
-    uint256 amount;
-
-    // cache state
-    uint256 allowanceBefore      = allowance(holder, spender);
-    uint256 otherAllowanceBefore = allowance(otherHolder, otherSpender);
-
-    // run transaction
-    decreaseAllowance@withrevert(e, spender, amount);
-
-    // check outcome
-    if (lastReverted) {
-        assert holder == 0 || spender == 0 || allowanceBefore < amount;
-    } else {
-        // allowance is updated
-        assert allowance(holder, spender) == allowanceBefore - amount;
 
         // other allowances are untouched
         assert allowance(otherHolder, otherSpender) != otherAllowanceBefore => (otherHolder == holder && otherSpender == spender);
