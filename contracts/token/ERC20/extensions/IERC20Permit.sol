@@ -32,6 +32,9 @@ interface IERC20Permit {
      * For more information on the signature format, see the
      * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
      * section].
+     *
+     * WARNING: relying on {permit} for user authentication is a bad practice.
+     * See xref:utilities.adoc#authentication-using-permit[this].
      */
     function permit(
         address owner,
