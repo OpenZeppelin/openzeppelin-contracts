@@ -11,17 +11,16 @@ const Ownable = artifacts.require('$Ownable');
 
 const MAX_UINT64 = web3.utils.toBN((2n ** 64n - 1n).toString());
 
-const GROUPS = {
+const ROLES = {
   ADMIN: web3.utils.toBN(0),
   SOME_ADMIN: web3.utils.toBN(17),
   SOME: web3.utils.toBN(42),
   PUBLIC: MAX_UINT64,
 };
-Object.assign(GROUPS, Object.fromEntries(Object.entries(GROUPS).map(([key, value]) => [value, key])));
+Object.assign(ROLES, Object.fromEntries(Object.entries(ROLES).map(([key, value]) => [value, key])));
 
 const executeDelay = web3.utils.toBN(10);
 const grantDelay = web3.utils.toBN(10);
-
 const MINSETBACK = time.duration.days(5);
 
 const formatAccess = access => [access[0], access[1].toString()];
@@ -32,11 +31,11 @@ contract('AccessManager', function (accounts) {
   beforeEach(async function () {
     this.manager = await AccessManager.new(admin);
 
-    // add member to group
-    await this.manager.$_setGroupAdmin(GROUPS.SOME, GROUPS.SOME_ADMIN);
-    await this.manager.$_setGroupGuardian(GROUPS.SOME, GROUPS.SOME_ADMIN);
-    await this.manager.$_grantGroup(GROUPS.SOME_ADMIN, manager, 0, 0);
-    await this.manager.$_grantGroup(GROUPS.SOME, member, 0, 0);
+    // add member to role
+    await this.manager.$_setRoleAdmin(ROLES.SOME, ROLES.SOME_ADMIN);
+    await this.manager.$_setRoleGuardian(ROLES.SOME, ROLES.SOME_ADMIN);
+    await this.manager.$_grantRole(ROLES.SOME_ADMIN, manager, 0, 0);
+    await this.manager.$_grantRole(ROLES.SOME, member, 0, 0);
   });
 
   it('rejects zero address for initialAdmin', async function () {
@@ -49,165 +48,165 @@ contract('AccessManager', function (accounts) {
     expect(await this.manager.minSetback()).to.be.bignumber.equal(MINSETBACK);
   });
 
-  it('groups are correctly initialized', async function () {
-    // group admin
-    expect(await this.manager.getGroupAdmin(GROUPS.ADMIN)).to.be.bignumber.equal(GROUPS.ADMIN);
-    expect(await this.manager.getGroupAdmin(GROUPS.SOME_ADMIN)).to.be.bignumber.equal(GROUPS.ADMIN);
-    expect(await this.manager.getGroupAdmin(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.SOME_ADMIN);
-    expect(await this.manager.getGroupAdmin(GROUPS.PUBLIC)).to.be.bignumber.equal(GROUPS.ADMIN);
-    // group guardian
-    expect(await this.manager.getGroupGuardian(GROUPS.ADMIN)).to.be.bignumber.equal(GROUPS.ADMIN);
-    expect(await this.manager.getGroupGuardian(GROUPS.SOME_ADMIN)).to.be.bignumber.equal(GROUPS.ADMIN);
-    expect(await this.manager.getGroupGuardian(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.SOME_ADMIN);
-    expect(await this.manager.getGroupGuardian(GROUPS.PUBLIC)).to.be.bignumber.equal(GROUPS.ADMIN);
-    // group members
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME_ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasGroup(GROUPS.PUBLIC, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+  it('roles are correctly initialized', async function () {
+    // role admin
+    expect(await this.manager.getRoleAdmin(ROLES.ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
+    expect(await this.manager.getRoleAdmin(ROLES.SOME_ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
+    expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
+    expect(await this.manager.getRoleAdmin(ROLES.PUBLIC)).to.be.bignumber.equal(ROLES.ADMIN);
+    // role guardian
+    expect(await this.manager.getRoleGuardian(ROLES.ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
+    expect(await this.manager.getRoleGuardian(ROLES.SOME_ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
+    expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
+    expect(await this.manager.getRoleGuardian(ROLES.PUBLIC)).to.be.bignumber.equal(ROLES.ADMIN);
+    // role members
+    expect(await this.manager.hasRole(ROLES.ADMIN, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.ADMIN, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+    expect(await this.manager.hasRole(ROLES.PUBLIC, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.PUBLIC, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.PUBLIC, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+    expect(await this.manager.hasRole(ROLES.PUBLIC, user).then(formatAccess)).to.be.deep.equal([true, '0']);
   });
 
-  describe('Groups management', function () {
-    describe('label group', function () {
+  describe('Roles management', function () {
+    describe('label role', function () {
       it('admin can emit a label event', async function () {
-        expectEvent(await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin }), 'GroupLabel', {
-          groupId: GROUPS.SOME,
+        expectEvent(await this.manager.labelRole(ROLES.SOME, 'Some label', { from: admin }), 'RoleLabel', {
+          roleId: ROLES.SOME,
           label: 'Some label',
         });
       });
 
       it('admin can re-emit a label event', async function () {
-        await this.manager.labelGroup(GROUPS.SOME, 'Some label', { from: admin });
+        await this.manager.labelRole(ROLES.SOME, 'Some label', { from: admin });
 
-        expectEvent(await this.manager.labelGroup(GROUPS.SOME, 'Updated label', { from: admin }), 'GroupLabel', {
-          groupId: GROUPS.SOME,
+        expectEvent(await this.manager.labelRole(ROLES.SOME, 'Updated label', { from: admin }), 'RoleLabel', {
+          roleId: ROLES.SOME,
           label: 'Updated label',
         });
       });
 
       it('emitting a label is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.labelGroup(GROUPS.SOME, 'Invalid label', { from: other }),
+          this.manager.labelRole(ROLES.SOME, 'Invalid label', { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, GROUPS.ADMIN],
+          [other, ROLES.ADMIN],
         );
       });
     });
 
-    describe('grant group', function () {
+    describe('grant role', function () {
       describe('without a grant delay', function () {
         it('without an execute delay', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', {
-            groupId: GROUPS.SOME,
+          expectEvent(receipt, 'RoleGranted', {
+            roleId: ROLES.SOME,
             account: user,
             since: timestamp,
             delay: '0',
             newMember: true,
           });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-          const access = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
+          const access = await this.manager.getAccess(ROLES.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
         it('with an execute delay', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, executeDelay, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, executeDelay, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', {
-            groupId: GROUPS.SOME,
+          expectEvent(receipt, 'RoleGranted', {
+            roleId: ROLES.SOME,
             account: user,
             since: timestamp,
             delay: executeDelay,
             newMember: true,
           });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([
             true,
             executeDelay.toString(),
           ]);
 
-          const access = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(access[0]).to.be.bignumber.equal(timestamp); // inGroupSince
+          const access = await this.manager.getAccess(ROLES.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp); // inRoleSince
           expect(access[1]).to.be.bignumber.equal(executeDelay); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
-        it('to a user that is already in the group', async function () {
-          expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-          await this.manager.grantGroup(GROUPS.SOME, member, 0, { from: manager });
-          expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+        it('to a user that is already in the role', async function () {
+          expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+          await this.manager.grantRole(ROLES.SOME, member, 0, { from: manager });
+          expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
         });
 
-        it('to a user that is scheduled for joining the group', async function () {
-          await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-          await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        it('to a user that is scheduled for joining the role', async function () {
+          await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
         });
 
-        it('grant group is restricted', async function () {
+        it('grant role is restricted', async function () {
           await expectRevertCustomError(
-            this.manager.grantGroup(GROUPS.SOME, user, 0, { from: other }),
+            this.manager.grantRole(ROLES.SOME, user, 0, { from: other }),
             'AccessManagerUnauthorizedAccount',
-            [other, GROUPS.SOME_ADMIN],
+            [other, ROLES.SOME_ADMIN],
           );
         });
       });
 
       describe('with a grant delay', function () {
         beforeEach(async function () {
-          await this.manager.$_setGrantDelay(GROUPS.SOME, grantDelay);
+          await this.manager.$_setGrantDelay(ROLES.SOME, grantDelay);
           await time.increase(MINSETBACK);
         });
 
-        it('granted group is not active immediately', async function () {
-          const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
+        it('granted role is not active immediately', async function () {
+          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', {
-            groupId: GROUPS.SOME,
+          expectEvent(receipt, 'RoleGranted', {
+            roleId: ROLES.SOME,
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
             newMember: true,
           });
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const access = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
+          const access = await this.manager.getAccess(ROLES.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
 
-        it('granted group is active after the delay', async function () {
-          const { receipt } = await this.manager.grantGroup(GROUPS.SOME, user, 0, { from: manager });
+        it('granted role is active after the delay', async function () {
+          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'GroupGranted', {
-            groupId: GROUPS.SOME,
+          expectEvent(receipt, 'RoleGranted', {
+            roleId: ROLES.SOME,
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
@@ -216,153 +215,153 @@ contract('AccessManager', function (accounts) {
 
           await time.increase(grantDelay);
 
-          expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-          const access = await this.manager.getAccess(GROUPS.SOME, user);
-          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inGroupSince
+          const access = await this.manager.getAccess(ROLES.SOME, user);
+          expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
           expect(access[3]).to.be.bignumber.equal('0'); // effect
         });
       });
 
-      it('cannot grant public group', async function () {
+      it('cannot grant public role', async function () {
         await expectRevertCustomError(
-          this.manager.$_grantGroup(GROUPS.PUBLIC, other, 0, executeDelay, { from: manager }),
-          'AccessManagerLockedGroup',
-          [GROUPS.PUBLIC],
+          this.manager.$_grantRole(ROLES.PUBLIC, other, 0, executeDelay, { from: manager }),
+          'AccessManagerLockedRole',
+          [ROLES.PUBLIC],
         );
       });
     });
 
-    describe('revoke group', function () {
-      it('from a user that is already in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+    describe('revoke role', function () {
+      it('from a user that is already in the role', async function () {
+        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-        const { receipt } = await this.manager.revokeGroup(GROUPS.SOME, member, { from: manager });
-        expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: member });
+        const { receipt } = await this.manager.revokeRole(ROLES.SOME, member, { from: manager });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: member });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        const access = await this.manager.getAccess(ROLES.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('from a user that is scheduled for joining the group', async function () {
-        await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
+      it('from a user that is scheduled for joining the role', async function () {
+        await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const { receipt } = await this.manager.revokeGroup(GROUPS.SOME, user, { from: manager });
-        expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: user });
+        const { receipt } = await this.manager.revokeRole(ROLES.SOME, user, { from: manager });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: user });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        const access = await this.manager.getAccess(ROLES.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('from a user that is not in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-        await this.manager.revokeGroup(GROUPS.SOME, user, { from: manager });
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+      it('from a user that is not in the role', async function () {
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        await this.manager.revokeRole(ROLES.SOME, user, { from: manager });
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
       });
 
-      it('revoke group is restricted', async function () {
+      it('revoke role is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.revokeGroup(GROUPS.SOME, member, { from: other }),
+          this.manager.revokeRole(ROLES.SOME, member, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, GROUPS.SOME_ADMIN],
+          [other, ROLES.SOME_ADMIN],
         );
       });
     });
 
-    describe('renounce group', function () {
-      it('for a user that is already in the group', async function () {
-        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+    describe('renounce role', function () {
+      it('for a user that is already in the role', async function () {
+        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-        const { receipt } = await this.manager.renounceGroup(GROUPS.SOME, member, { from: member });
-        expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: member });
+        const { receipt } = await this.manager.renounceRole(ROLES.SOME, member, { from: member });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: member });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(GROUPS.SOME, member);
-        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        const access = await this.manager.getAccess(ROLES.SOME, member);
+        expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('for a user that is schedule for joining the group', async function () {
-        await this.manager.$_grantGroup(GROUPS.SOME, user, 10, 0); // grant delay 10
+      it('for a user that is schedule for joining the role', async function () {
+        await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const { receipt } = await this.manager.renounceGroup(GROUPS.SOME, user, { from: user });
-        expectEvent(receipt, 'GroupRevoked', { groupId: GROUPS.SOME, account: user });
+        const { receipt } = await this.manager.renounceRole(ROLES.SOME, user, { from: user });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: user });
 
-        expect(await this.manager.hasGroup(GROUPS.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(GROUPS.SOME, user);
-        expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+        const access = await this.manager.getAccess(ROLES.SOME, user);
+        expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(access[3]).to.be.bignumber.equal('0'); // effect
       });
 
-      it('for a user that is not in the group', async function () {
-        await this.manager.renounceGroup(GROUPS.SOME, user, { from: user });
+      it('for a user that is not in the role', async function () {
+        await this.manager.renounceRole(ROLES.SOME, user, { from: user });
       });
 
       it('bad user confirmation', async function () {
         await expectRevertCustomError(
-          this.manager.renounceGroup(GROUPS.SOME, member, { from: user }),
+          this.manager.renounceRole(ROLES.SOME, member, { from: user }),
           'AccessManagerBadConfirmation',
           [],
         );
       });
     });
 
-    describe('change group admin', function () {
-      it("admin can set any group's admin", async function () {
-        expect(await this.manager.getGroupAdmin(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.SOME_ADMIN);
+    describe('change role admin', function () {
+      it("admin can set any role's admin", async function () {
+        expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
 
-        const { receipt } = await this.manager.setGroupAdmin(GROUPS.SOME, GROUPS.ADMIN, { from: admin });
-        expectEvent(receipt, 'GroupAdminChanged', { groupId: GROUPS.SOME, admin: GROUPS.ADMIN });
+        const { receipt } = await this.manager.setRoleAdmin(ROLES.SOME, ROLES.ADMIN, { from: admin });
+        expectEvent(receipt, 'RoleAdminChanged', { roleId: ROLES.SOME, admin: ROLES.ADMIN });
 
-        expect(await this.manager.getGroupAdmin(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.ADMIN);
+        expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.ADMIN);
       });
 
-      it("setting a group's admin is restricted", async function () {
+      it("setting a role's admin is restricted", async function () {
         await expectRevertCustomError(
-          this.manager.setGroupAdmin(GROUPS.SOME, GROUPS.SOME, { from: manager }),
+          this.manager.setRoleAdmin(ROLES.SOME, ROLES.SOME, { from: manager }),
           'AccessManagerUnauthorizedAccount',
-          [manager, GROUPS.ADMIN],
+          [manager, ROLES.ADMIN],
         );
       });
     });
 
-    describe('change group guardian', function () {
-      it("admin can set any group's admin", async function () {
-        expect(await this.manager.getGroupGuardian(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.SOME_ADMIN);
+    describe('change role guardian', function () {
+      it("admin can set any role's admin", async function () {
+        expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
 
-        const { receipt } = await this.manager.setGroupGuardian(GROUPS.SOME, GROUPS.ADMIN, { from: admin });
-        expectEvent(receipt, 'GroupGuardianChanged', { groupId: GROUPS.SOME, guardian: GROUPS.ADMIN });
+        const { receipt } = await this.manager.setRoleGuardian(ROLES.SOME, ROLES.ADMIN, { from: admin });
+        expectEvent(receipt, 'RoleGuardianChanged', { roleId: ROLES.SOME, guardian: ROLES.ADMIN });
 
-        expect(await this.manager.getGroupGuardian(GROUPS.SOME)).to.be.bignumber.equal(GROUPS.ADMIN);
+        expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.ADMIN);
       });
 
-      it("setting a group's admin is restricted", async function () {
+      it("setting a role's admin is restricted", async function () {
         await expectRevertCustomError(
-          this.manager.setGroupGuardian(GROUPS.SOME, GROUPS.SOME, { from: other }),
+          this.manager.setRoleGuardian(ROLES.SOME, ROLES.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, GROUPS.ADMIN],
+          [other, ROLES.ADMIN],
         );
       });
     });
@@ -372,21 +371,21 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        // group is already granted (with no delay) in the initial setup. this update takes time.
-        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
+        // role is already granted (with no delay) in the initial setup. this update takes time.
+        await this.manager.$_grantRole(ROLES.SOME, member, 0, oldDelay);
 
-        const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
+        const accessBefore = await this.manager.getAccess(ROLES.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantRole(ROLES.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
-        expectEvent(receipt, 'GroupGranted', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGranted', {
+          roleId: ROLES.SOME,
           account: member,
           since: timestamp,
           delay: newDelay,
@@ -394,7 +393,7 @@ contract('AccessManager', function (accounts) {
         });
 
         // immediate effect
-        const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
+        const accessAfter = await this.manager.getAccess(ROLES.SOME, member);
         expect(accessAfter[1]).to.be.bignumber.equal(newDelay); // currentDelay
         expect(accessAfter[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
@@ -404,22 +403,22 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        // group is already granted (with no delay) in the initial setup. this update takes time.
-        await this.manager.$_grantGroup(GROUPS.SOME, member, 0, oldDelay);
+        // role is already granted (with no delay) in the initial setup. this update takes time.
+        await this.manager.$_grantRole(ROLES.SOME, member, 0, oldDelay);
 
-        const accessBefore = await this.manager.getAccess(GROUPS.SOME, member);
+        const accessBefore = await this.manager.getAccess(ROLES.SOME, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantRole(ROLES.SOME, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = oldDelay.sub(newDelay);
 
-        expectEvent(receipt, 'GroupGranted', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGranted', {
+          roleId: ROLES.SOME,
           account: member,
           since: timestamp.add(setback),
           delay: newDelay,
@@ -427,29 +426,29 @@ contract('AccessManager', function (accounts) {
         });
 
         // no immediate effect
-        const accessAfter = await this.manager.getAccess(GROUPS.SOME, member);
+        const accessAfter = await this.manager.getAccess(ROLES.SOME, member);
         expect(accessAfter[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessAfter[2]).to.be.bignumber.equal(newDelay); // pendingDelay
         expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(setback)); // effect
 
         // delayed effect
         await time.increase(setback);
-        const accessAfterSetback = await this.manager.getAccess(GROUPS.SOME, member);
+        const accessAfterSetback = await this.manager.getAccess(ROLES.SOME, member);
         expect(accessAfterSetback[1]).to.be.bignumber.equal(newDelay); // currentDelay
         expect(accessAfterSetback[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessAfterSetback[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('can set a user execution delay during the grant delay', async function () {
-        await this.manager.$_grantGroup(GROUPS.SOME, other, 10, 0);
-        // here: "other" is pending to get the group, but doesn't yet have it.
+        await this.manager.$_grantRole(ROLES.SOME, other, 10, 0);
+        // here: "other" is pending to get the role, but doesn't yet have it.
 
-        const { receipt } = await this.manager.grantGroup(GROUPS.SOME, other, executeDelay, { from: manager });
+        const { receipt } = await this.manager.grantRole(ROLES.SOME, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
         // increasing the execution delay from 0 to executeDelay is immediate
-        expectEvent(receipt, 'GroupGranted', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGranted', {
+          roleId: ROLES.SOME,
           account: other,
           since: timestamp,
           delay: executeDelay,
@@ -463,82 +462,82 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'GroupGrantDelayChanged', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGrantDelayChanged', {
+          roleId: ROLES.SOME,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
       });
 
       it('increasing the delay has delay effect #1', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'GroupGrantDelayChanged', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGrantDelayChanged', {
+          roleId: ROLES.SOME,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
       });
 
       it('increasing the delay has delay effect #2', async function () {
         const oldDelay = time.duration.days(30); // more than the minsetback
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setGrantDelay(GROUPS.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(GROUPS.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.gt(MINSETBACK);
-        expectEvent(receipt, 'GroupGrantDelayChanged', {
-          groupId: GROUPS.SOME,
+        expectEvent(receipt, 'RoleGrantDelayChanged', {
+          roleId: ROLES.SOME,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getGroupGrantDelay(GROUPS.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
       });
 
       it('changing the grant delay is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.setGrantDelay(GROUPS.SOME, grantDelay, { from: other }),
+          this.manager.setGrantDelay(ROLES.SOME, grantDelay, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [GROUPS.ADMIN, other],
+          [ROLES.ADMIN, other],
         );
       });
     });
@@ -562,84 +561,75 @@ contract('AccessManager', function (accounts) {
     describe('Change function permissions', function () {
       const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
 
-      it('admin can set function group', async function () {
+      it('admin can set function role', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
-            GROUPS.ADMIN,
-          );
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.ADMIN);
         }
 
-        const { receipt: receipt1 } = await this.manager.setTargetFunctionGroup(
-          this.target.address,
-          sigs,
-          GROUPS.SOME,
-          {
-            from: admin,
-          },
-        );
-
-        for (const sig of sigs) {
-          expectEvent(receipt1, 'TargetFunctionGroupUpdated', {
-            target: this.target.address,
-            selector: sig,
-            groupId: GROUPS.SOME,
-          });
-          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
-            GROUPS.SOME,
-          );
-        }
-
-        const { receipt: receipt2 } = await this.manager.setTargetFunctionGroup(
-          this.target.address,
-          [sigs[1]],
-          GROUPS.SOME_ADMIN,
-          {
-            from: admin,
-          },
-        );
-        expectEvent(receipt2, 'TargetFunctionGroupUpdated', {
-          target: this.target.address,
-          selector: sigs[1],
-          groupId: GROUPS.SOME_ADMIN,
+        const { receipt: receipt1 } = await this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME, {
+          from: admin,
         });
 
         for (const sig of sigs) {
-          expect(await this.manager.getTargetFunctionGroup(this.target.address, sig)).to.be.bignumber.equal(
-            sig == sigs[1] ? GROUPS.SOME_ADMIN : GROUPS.SOME,
+          expectEvent(receipt1, 'TargetFunctionRoleUpdated', {
+            target: this.target.address,
+            selector: sig,
+            roleId: ROLES.SOME,
+          });
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.SOME);
+        }
+
+        const { receipt: receipt2 } = await this.manager.setTargetFunctionRole(
+          this.target.address,
+          [sigs[1]],
+          ROLES.SOME_ADMIN,
+          {
+            from: admin,
+          },
+        );
+        expectEvent(receipt2, 'TargetFunctionRoleUpdated', {
+          target: this.target.address,
+          selector: sigs[1],
+          roleId: ROLES.SOME_ADMIN,
+        });
+
+        for (const sig of sigs) {
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
+            sig == sigs[1] ? ROLES.SOME_ADMIN : ROLES.SOME,
           );
         }
       });
 
-      it('non-admin cannot set function group', async function () {
+      it('non-admin cannot set function role', async function () {
         await expectRevertCustomError(
-          this.manager.setTargetFunctionGroup(this.target.address, sigs, GROUPS.SOME, { from: other }),
+          this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, GROUPS.ADMIN],
+          [other, ROLES.ADMIN],
         );
       });
     });
 
     // WIP
     describe('Calling restricted & unrestricted functions', function () {
-      for (const [callerGroups, fnGroup, closed, delay] of product(
-        [[], [GROUPS.SOME]],
-        [undefined, GROUPS.ADMIN, GROUPS.SOME, GROUPS.PUBLIC],
+      for (const [callerRoles, fnRole, closed, delay] of product(
+        [[], [ROLES.SOME]],
+        [undefined, ROLES.ADMIN, ROLES.SOME, ROLES.PUBLIC],
         [false, true],
         [null, executeDelay],
       )) {
         // can we call with a delay ?
-        const indirectSuccess = (fnGroup == GROUPS.PUBLIC || callerGroups.includes(fnGroup)) && !closed;
+        const indirectSuccess = (fnRole == ROLES.PUBLIC || callerRoles.includes(fnRole)) && !closed;
 
         // can we call without a delay ?
-        const directSuccess = (fnGroup == GROUPS.PUBLIC || (callerGroups.includes(fnGroup) && !delay)) && !closed;
+        const directSuccess = (fnRole == ROLES.PUBLIC || (callerRoles.includes(fnRole) && !delay)) && !closed;
 
         const description = [
-          'Caller in groups',
-          '[' + (callerGroups ?? []).map(groupId => GROUPS[groupId]).join(', ') + ']',
+          'Caller in roles',
+          '[' + (callerRoles ?? []).map(roleId => ROLES[roleId]).join(', ') + ']',
           delay ? 'with a delay' : 'without a delay',
           '+',
-          'functions open to groups',
-          '[' + (GROUPS[fnGroup] ?? '') + ']',
+          'functions open to roles',
+          '[' + (ROLES[fnRole] ?? '') + ']',
           closed ? `(closed)` : '',
         ].join(' ');
 
@@ -648,36 +638,34 @@ contract('AccessManager', function (accounts) {
             // setup
             await Promise.all([
               this.manager.$_setTargetClosed(this.target.address, closed),
-              fnGroup &&
-                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnRestricted()'), fnGroup),
-              fnGroup &&
-                this.manager.$_setTargetFunctionGroup(this.target.address, selector('fnUnrestricted()'), fnGroup),
-              ...callerGroups
-                .filter(groupId => groupId != GROUPS.PUBLIC)
-                .map(groupId => this.manager.$_grantGroup(groupId, user, 0, delay ?? 0)),
+              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnRestricted()'), fnRole),
+              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnUnrestricted()'), fnRole),
+              ...callerRoles
+                .filter(roleId => roleId != ROLES.PUBLIC)
+                .map(roleId => this.manager.$_grantRole(roleId, user, 0, delay ?? 0)),
             ]);
 
             // post setup checks
             expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(closed);
 
-            if (fnGroup) {
+            if (fnRole) {
               expect(
-                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnRestricted()')),
-              ).to.be.bignumber.equal(fnGroup);
+                await this.manager.getTargetFunctionRole(this.target.address, selector('fnRestricted()')),
+              ).to.be.bignumber.equal(fnRole);
               expect(
-                await this.manager.getTargetFunctionGroup(this.target.address, selector('fnUnrestricted()')),
-              ).to.be.bignumber.equal(fnGroup);
+                await this.manager.getTargetFunctionRole(this.target.address, selector('fnUnrestricted()')),
+              ).to.be.bignumber.equal(fnRole);
             }
 
-            for (const groupId of callerGroups) {
-              const access = await this.manager.getAccess(groupId, user);
-              if (groupId == GROUPS.PUBLIC) {
-                expect(access[0]).to.be.bignumber.equal('0'); // inGroupSince
+            for (const roleId of callerRoles) {
+              const access = await this.manager.getAccess(roleId, user);
+              if (roleId == ROLES.PUBLIC) {
+                expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
                 expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
                 expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
                 expect(access[3]).to.be.bignumber.equal('0'); // effect
               } else {
-                expect(access[0]).to.be.bignumber.gt('0'); // inGroupSince
+                expect(access[0]).to.be.bignumber.gt('0'); // inRoleSince
                 expect(access[1]).to.be.bignumber.eq(String(delay ?? 0)); // currentDelay
                 expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
                 expect(access[3]).to.be.bignumber.equal('0'); // effect
@@ -745,7 +733,7 @@ contract('AccessManager', function (accounts) {
               if (directSuccess) {
                 const { receipt, tx } = await this.execute();
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-                if (delay && fnGroup !== GROUPS.PUBLIC) {
+                if (delay && fnRole !== ROLES.PUBLIC) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
@@ -783,7 +771,7 @@ contract('AccessManager', function (accounts) {
               if (directSuccess || indirectSuccess) {
                 const { receipt, tx } = await this.execute();
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-                if (delay && fnGroup !== GROUPS.PUBLIC) {
+                if (delay && fnRole !== ROLES.PUBLIC) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
@@ -879,8 +867,8 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setTargetFunctionGroup(this.target.address, this.callData, GROUPS.SOME);
-        await this.manager.$_grantGroup(GROUPS.SOME, user, 0, executeDelay);
+        await this.manager.$_setTargetFunctionRole(this.target.address, this.callData, ROLES.SOME);
+        await this.manager.$_grantRole(ROLES.SOME, user, 0, executeDelay);
       });
 
       it('Checking canCall when caller is the manager depend on the _executionId', async function () {
@@ -1002,13 +990,13 @@ contract('AccessManager', function (accounts) {
   });
 
   describe('with Ownable target contract', function () {
-    const groupId = web3.utils.toBN(1);
+    const roleId = web3.utils.toBN(1);
 
     beforeEach(async function () {
       this.ownable = await Ownable.new(this.manager.address);
 
-      // add user to group
-      await this.manager.$_grantGroup(groupId, user, 0, 0);
+      // add user to role
+      await this.manager.$_grantRole(roleId, user, 0, 0);
     });
 
     it('initial state', async function () {
@@ -1024,7 +1012,7 @@ contract('AccessManager', function (accounts) {
         await expectRevertCustomError(this.ownable.$_checkOwner({ from: user }), 'OwnableUnauthorizedAccount', [user]);
       });
 
-      it('relayed call (with group): reverts', async function () {
+      it('relayed call (with role): reverts', async function () {
         await expectRevertCustomError(
           this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: user }),
           'AccessManagerUnauthorizedCall',
@@ -1032,7 +1020,7 @@ contract('AccessManager', function (accounts) {
         );
       });
 
-      it('relayed call (without group): reverts', async function () {
+      it('relayed call (without role): reverts', async function () {
         await expectRevertCustomError(
           this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: other }),
           'AccessManagerUnauthorizedCall',
@@ -1042,9 +1030,9 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('Contract is managed', function () {
-      describe('function is open to specific group', function () {
+      describe('function is open to specific role', function () {
         beforeEach(async function () {
-          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), groupId);
+          await this.manager.$_setTargetFunctionRole(this.ownable.address, selector('$_checkOwner()'), roleId);
         });
 
         it('directly call: reverts', async function () {
@@ -1053,11 +1041,11 @@ contract('AccessManager', function (accounts) {
           ]);
         });
 
-        it('relayed call (with group): success', async function () {
+        it('relayed call (with role): success', async function () {
           await this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: user });
         });
 
-        it('relayed call (without group): reverts', async function () {
+        it('relayed call (without role): reverts', async function () {
           await expectRevertCustomError(
             this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: other }),
             'AccessManagerUnauthorizedCall',
@@ -1066,9 +1054,9 @@ contract('AccessManager', function (accounts) {
         });
       });
 
-      describe('function is open to public group', function () {
+      describe('function is open to public role', function () {
         beforeEach(async function () {
-          await this.manager.$_setTargetFunctionGroup(this.ownable.address, selector('$_checkOwner()'), GROUPS.PUBLIC);
+          await this.manager.$_setTargetFunctionRole(this.ownable.address, selector('$_checkOwner()'), ROLES.PUBLIC);
         });
 
         it('directly call: reverts', async function () {
@@ -1077,11 +1065,11 @@ contract('AccessManager', function (accounts) {
           ]);
         });
 
-        it('relayed call (with group): success', async function () {
+        it('relayed call (with role): success', async function () {
           await this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: user });
         });
 
-        it('relayed call (without group): success', async function () {
+        it('relayed call (without role): success', async function () {
           await this.manager.execute(this.ownable.address, selector('$_checkOwner()'), { from: other });
         });
       });
@@ -1115,7 +1103,7 @@ contract('AccessManager', function (accounts) {
       await expectRevertCustomError(
         this.manager.updateAuthority(this.target.address, this.newManager.address, { from: other }),
         'AccessManagerUnauthorizedAccount',
-        [other, GROUPS.ADMIN],
+        [other, ROLES.ADMIN],
       );
     });
 

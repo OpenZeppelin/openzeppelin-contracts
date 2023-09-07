@@ -15,21 +15,21 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * The smart contracts under the control of an AccessManager instance will have a set of "restricted" functions, and the
  * exact details of how access is restricted for each of those functions is configurable by the admins of the instance.
- * These restrictions are expressed in terms of "groups".
+ * These restrictions are expressed in terms of "roles".
  *
- * An AccessManager instance will define a set of groups. Accounts can be added into any number of these groups. Each of
+ * An AccessManager instance will define a set of roles. Accounts can be added into any number of these roles. Each of
  * them defines a role, and may confer access to some of the restricted functions in the system, as configured by admins
- * through the use of {setFunctionAllowedGroup}.
+ * through the use of {setFunctionAllowedRoles}.
  *
  * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
  * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
  * `restricted` modifier.
  *
- * There is a special group defined by default named "public" which all accounts automatically have.
+ * There is a special role defined by default named "public" which all accounts automatically have.
  *
- * Contracts where functions are mapped to groups are said to be in a "custom" mode, but contracts can also be
- * configured in two special modes: 1) the "open" mode, where all functions are allowed to the "public" group, and 2)
- * the "closed" mode, where no function is allowed to any group.
+ * Contracts where functions are mapped to roles are said to be in a "custom" mode, but contracts can also be
+ * configured in two special modes: 1) the "open" mode, where all functions are allowed to the "public" role, and 2)
+ * the "closed" mode, where no function is allowed to any role.
  *
  * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
  * they will be highly secured (e.g., a multisig or a well-configured DAO).
@@ -52,27 +52,26 @@ contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
     struct TargetConfig {
-        mapping(bytes4 selector => uint64 groupId) allowedGroups;
+        mapping(bytes4 selector => uint64 roleId) allowedRoles;
         Time.Delay adminDelay;
         bool closed;
     }
 
-    // Structure that stores the details for a group/account pair. This structure fits into a single slot.
+    // Structure that stores the details for a role/account pair. This structures fit into a single slot.
     struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group permission
+        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the role permission
         // is not available.
         uint48 since;
-        // delay for execution. Only applies to restricted() / execute() calls. This does not restrict access to
-        // functions that use the `onlyGroup` modifier.
+        // delay for execution. Only applies to restricted() / execute() calls.
         Time.Delay delay;
     }
 
-    // Structure that stores the details of a group, including:
-    // - the members of the group
-    // - the admin group (that can grant or revoke permissions)
-    // - the guardian group (that can cancel operations targeting functions that need this group
-    // - the grant delay
-    struct Group {
+    // Structure that stores the details of a role, including:
+    // - the members of the role
+    // - the admin role (that can grant or revoke permissions)
+    // - the guardian role (that can cancel operations targeting functions that need this role)
+    // - the grand delay
+    struct Role {
         mapping(address user => Access access) members;
         uint64 admin;
         uint64 guardian;
@@ -84,11 +83,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 nonce;
     }
 
-    uint64 public constant ADMIN_GROUP = type(uint64).min; // 0
-    uint64 public constant PUBLIC_GROUP = type(uint64).max; // 2**64-1
+    uint64 public constant ADMIN_ROLE = type(uint64).min; // 0
+    uint64 public constant PUBLIC_ROLE = type(uint64).max; // 2**64-1
 
     mapping(address target => TargetConfig mode) private _targets;
-    mapping(uint64 groupId => Group) private _groups;
+    mapping(uint64 roleId => Role) private _roles;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // This should be transient storage when supported by the EVM.
@@ -109,7 +108,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // admin is active immediately and without any execution delay.
-        _grantGroup(ADMIN_GROUP, initialAdmin, 0, 0);
+        _grantRole(ADMIN_ROLE, initialAdmin, 0, 0);
     }
 
     // =================================================== GETTERS ====================================================
@@ -137,9 +136,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_executionId == _hashExecutionId(target, selector), 0);
         } else {
-            uint64 groupId = getTargetFunctionGroup(target, selector);
-            (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
-            return inGroup ? (currentDelay == 0, currentDelay) : (false, 0);
+            uint64 roleId = getTargetFunctionRole(target, selector);
+            (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
+            return isMember ? (currentDelay == 0, currentDelay) : (false, 0);
         }
     }
 
@@ -153,7 +152,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Minimum setback for all delay updates, with the exception of execution delays, which
      * can be increased without setback (and in the event of an accidental increase can be reset
-     * via {revokeGroup}). Defaults to 5 days.
+     * via {revokeRole}). Defaults to 5 days.
      */
     function minSetback() public view virtual returns (uint32) {
         return 5 days;
@@ -167,11 +166,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the permission level (group) required to call a function. This only applies for contract that are
+     * @dev Get the permission level (role) required to call a function. This only applies for contract that are
      * operating under the `Custom` mode.
      */
-    function getTargetFunctionGroup(address target, bytes4 selector) public view virtual returns (uint64) {
-        return _targets[target].allowedGroups[selector];
+    function getTargetFunctionRole(address target, bytes4 selector) public view virtual returns (uint64) {
+        return _targets[target].allowedRoles[selector];
     }
 
     function getTargetAdminDelay(address target) public view virtual returns (uint32) {
@@ -179,35 +178,35 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the id of the group that acts as an admin for given group.
+     * @dev Get the id of the role that acts as an admin for given role.
      *
-     * The admin permission is required to grant the group, revoke the group and update the execution delay to execute
-     * an operation that is restricted to this group.
+     * The admin permission is required to grant the role, revoke the role and update the execution delay to execute
+     * an operation that is restricted to this role.
      */
-    function getGroupAdmin(uint64 groupId) public view virtual returns (uint64) {
-        return _groups[groupId].admin;
+    function getRoleAdmin(uint64 roleId) public view virtual returns (uint64) {
+        return _roles[roleId].admin;
     }
 
     /**
-     * @dev Get the group that acts as a guardian for a given group.
+     * @dev Get the role that acts as a guardian for a given role.
      *
-     * The guardian permission allows canceling operations that have been scheduled under the group.
+     * The guardian permission allows canceling operations that have been scheduled under the role.
      */
-    function getGroupGuardian(uint64 groupId) public view virtual returns (uint64) {
-        return _groups[groupId].guardian;
+    function getRoleGuardian(uint64 roleId) public view virtual returns (uint64) {
+        return _roles[roleId].guardian;
     }
 
     /**
-     * @dev Get the group current grant delay, that value may change at any point, without an event emitted, following
+     * @dev Get the role current grant delay, that value may change at any point, without an event emitted, following
      * a call to {setGrantDelay}. Changes to this value, including effect timepoint are notified by the
-     * {GroupGrantDelayChanged} event.
+     * {RoleGrantDelayChanged} event.
      */
-    function getGroupGrantDelay(uint64 groupId) public view virtual returns (uint32) {
-        return _groups[groupId].grantDelay.get();
+    function getRoleGrantDelay(uint64 roleId) public view virtual returns (uint32) {
+        return _roles[roleId].grantDelay.get();
     }
 
     /**
-     * @dev Get the access details for a given account in a given group. These details include the timepoint at which
+     * @dev Get the access details for a given account in a given role. These details include the timepoint at which
      * membership becomes active, and the delay applied to all operation by this user that requires this permission
      * level.
      *
@@ -217,8 +216,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint64 groupId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
-        Access storage access = _groups[groupId].members[account];
+    function getAccess(uint64 roleId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
+        Access storage access = _roles[roleId].members[account];
 
         uint48 since = access.since;
         (uint32 currentDelay, uint32 pendingDelay, uint48 effect) = access.delay.getFull();
@@ -227,255 +226,254 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Check if a given account currently had the permission level corresponding to a given group. Note that this
+     * @dev Check if a given account currently had the permission level corresponding to a given role. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasGroup(uint64 groupId, address account) public view virtual returns (bool, uint32) {
-        if (groupId == PUBLIC_GROUP) {
+    function hasRole(uint64 roleId, address account) public view virtual returns (bool, uint32) {
+        if (roleId == PUBLIC_ROLE) {
             return (true, 0);
         } else {
-            (uint48 inGroupSince, uint32 currentDelay, , ) = getAccess(groupId, account);
-            return (inGroupSince != 0 && inGroupSince <= Time.timestamp(), currentDelay);
+            (uint48 hasRoleSince, uint32 currentDelay, , ) = getAccess(roleId, account);
+            return (hasRoleSince != 0 && hasRoleSince <= Time.timestamp(), currentDelay);
         }
     }
 
-    // =============================================== GROUP MANAGEMENT ===============================================
+    // =============================================== ROLE MANAGEMENT ===============================================
     /**
-     * @dev Give a label to a group, for improved group discoverabily by UIs.
+     * @dev Give a label to a role, for improved role discoverabily by UIs.
      *
-     * Emits a {GroupLabel} event.
+     * Emits a {RoleLabel} event.
      */
-    function labelGroup(uint64 groupId, string calldata label) public virtual onlyAuthorized {
-        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+    function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
+        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
-        emit GroupLabel(groupId, label);
+        emit RoleLabel(roleId, label);
     }
 
     /**
-     * @dev Add `account` to `groupId`, or change its execution delay.
+     * @dev Add `account` to `roleId`, or change its execution delay.
      *
-     * This gives the account the authorization to call any function that is restricted to this group. An optional
+     * This gives the account the authorization to call any function that is restricted to this role. An optional
      * execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
-     * that is restricted to members this group. The user will only be able to execute the operation after the delay has
+     * that is restricted to members this role. The user will only be able to execute the operation after the delay has
      * passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
      *
-     * If the account has already been granted this group, the execution delay will be updated. This update is not
+     * If the account has already been granted this role, the execution delay will be updated. This update is not
      * immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
      * called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
      * operation executed in the 3 hours that follows this update was indeed scheduled before this update.
      *
      * Requirements:
      *
-     * - the caller must be in the group's admins
+     * - the caller must be in the role's admins
      *
-     * Emits a {GroupGranted} event
+     * Emits a {RoleGranted} event
      */
-    function grantGroup(uint64 groupId, address account, uint32 executionDelay) public virtual onlyAuthorized {
-        _grantGroup(groupId, account, getGroupGrantDelay(groupId), executionDelay);
+    function grantRole(uint64 roleId, address account, uint32 executionDelay) public virtual onlyAuthorized {
+        _grantRole(roleId, account, getRoleGrantDelay(roleId), executionDelay);
     }
 
     /**
-     * @dev Remove an account for a group, with immediate effect. If the sender is not in the group, this call has no
+     * @dev Remove an account for a role, with immediate effect. If the sender is not in the role, this call has no
      * effect.
      *
      * Requirements:
      *
-     * - the caller must be in the group's admins
+     * - the caller must be in the role's admins
      *
-     * Emits a {GroupRevoked} event
+     * Emits a {RoleRevoked} event
      */
-    function revokeGroup(uint64 groupId, address account) public virtual onlyAuthorized {
-        _revokeGroup(groupId, account);
+    function revokeRole(uint64 roleId, address account) public virtual onlyAuthorized {
+        _revokeRole(roleId, account);
     }
 
     /**
-     * @dev Renounce group permissions for the calling account, with immediate effect. If the sender is not in
-     * the group, this call has no effect.
+     * @dev Renounce role permissions for the calling account, with immediate effect. If the sender is not in
+     * the role, this call has no effect.
      *
      * Requirements:
      *
      * - the caller must be `callerConfirmation`.
      *
-     * Emits a {GroupRevoked} event
+     * Emits a {RoleRevoked} event
      */
-    function renounceGroup(uint64 groupId, address callerConfirmation) public virtual {
+    function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
         }
-        _revokeGroup(groupId, callerConfirmation);
+        _revokeRole(roleId, callerConfirmation);
     }
 
     /**
-     * @dev Change admin group for a given group.
+     * @dev Change admin role for a given role.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {GroupAdminChanged} event
+     * Emits a {RoleAdminChanged} event
      */
-    function setGroupAdmin(uint64 groupId, uint64 admin) public virtual onlyAuthorized {
-        _setGroupAdmin(groupId, admin);
+    function setRoleAdmin(uint64 roleId, uint64 admin) public virtual onlyAuthorized {
+        _setRoleAdmin(roleId, admin);
     }
 
     /**
-     * @dev Change guardian group for a given group.
+     * @dev Change guardian role for a given role.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {GroupGuardianChanged} event
+     * Emits a {RoleGuardianChanged} event
      */
-    function setGroupGuardian(uint64 groupId, uint64 guardian) public virtual onlyAuthorized {
-        _setGroupGuardian(groupId, guardian);
+    function setRoleGuardian(uint64 roleId, uint64 guardian) public virtual onlyAuthorized {
+        _setRoleGuardian(roleId, guardian);
     }
 
     /**
-     * @dev Update the delay for granting a `groupId`.
+     * @dev Update the delay for granting a `roleId`.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {GroupGrantDelayChanged} event
+     * Emits a {RoleGrantDelayChanged} event
      */
-    function setGrantDelay(uint64 groupId, uint32 newDelay) public virtual onlyAuthorized {
-        _setGrantDelay(groupId, newDelay);
+    function setGrantDelay(uint64 roleId, uint32 newDelay) public virtual onlyAuthorized {
+        _setGrantDelay(roleId, newDelay);
     }
 
     /**
-     * @dev Internal version of {grantGroup} without access control. Returns true if the group was newly granted.
+     * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
      *
-     * Emits a {GroupGranted} event
+     * Emits a {RoleGranted} event
      */
-    function _grantGroup(
-        uint64 groupId,
+    function _grantRole(
+        uint64 roleId,
         address account,
         uint32 grantDelay,
         uint32 executionDelay
     ) internal virtual returns (bool) {
-        if (groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+        if (roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
 
-        bool inGroup = _groups[groupId].members[account].since != 0;
-
+        bool newMember = _roles[roleId].members[account].since == 0;
         uint48 since;
 
-        if (inGroup) {
+        if (newMember) {
+            since = Time.timestamp() + grantDelay;
+            _roles[roleId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+        } else {
             // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
-            // any change to the execution delay within the duration of the group admin delay.
-            (_groups[groupId].members[account].delay, since) = _groups[groupId].members[account].delay.withUpdate(
+            // any change to the execution delay within the duration of the role admin delay.
+            (_roles[roleId].members[account].delay, since) = _roles[roleId].members[account].delay.withUpdate(
                 executionDelay,
                 0
             );
-        } else {
-            since = Time.timestamp() + grantDelay;
-            _groups[groupId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
         }
 
-        emit GroupGranted(groupId, account, executionDelay, since, !inGroup);
-        return !inGroup;
+        emit RoleGranted(roleId, account, executionDelay, since, newMember);
+        return newMember;
     }
 
     /**
-     * @dev Internal version of {revokeGroup} without access control. This logic is also used by {renounceGroup}.
-     * Returns true if the group was previously granted.
+     * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
+     * Returns true if the role was previously granted.
      *
-     * Emits a {GroupRevoked} event
+     * Emits a {RoleRevoked} event
      */
-    function _revokeGroup(uint64 groupId, address account) internal virtual returns (bool) {
-        if (groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+    function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
+        if (roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
 
-        if (_groups[groupId].members[account].since == 0) {
+        if (_roles[roleId].members[account].since == 0) {
             return false;
         }
 
-        delete _groups[groupId].members[account];
+        delete _roles[roleId].members[account];
 
-        emit GroupRevoked(groupId, account);
+        emit RoleRevoked(roleId, account);
         return true;
     }
 
     /**
-     * @dev Internal version of {setGroupAdmin} without access control.
+     * @dev Internal version of {setRoleAdmin} without access control.
      *
-     * Emits a {GroupAdminChanged} event
+     * Emits a {RoleAdminChanged} event
      */
-    function _setGroupAdmin(uint64 groupId, uint64 admin) internal virtual {
-        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+    function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
+        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
 
-        _groups[groupId].admin = admin;
+        _roles[roleId].admin = admin;
 
-        emit GroupAdminChanged(groupId, admin);
+        emit RoleAdminChanged(roleId, admin);
     }
 
     /**
-     * @dev Internal version of {setGroupGuardian} without access control.
+     * @dev Internal version of {setRoleGuardian} without access control.
      *
-     * Emits a {GroupGuardianChanged} event
+     * Emits a {RoleGuardianChanged} event
      */
-    function _setGroupGuardian(uint64 groupId, uint64 guardian) internal virtual {
-        if (groupId == ADMIN_GROUP || groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+    function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
+        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
 
-        _groups[groupId].guardian = guardian;
+        _roles[roleId].guardian = guardian;
 
-        emit GroupGuardianChanged(groupId, guardian);
+        emit RoleGuardianChanged(roleId, guardian);
     }
 
     /**
      * @dev Internal version of {setGrantDelay} without access control.
      *
-     * Emits a {GroupGrantDelayChanged} event
+     * Emits a {RoleGrantDelayChanged} event
      */
-    function _setGrantDelay(uint64 groupId, uint32 newDelay) internal virtual {
-        if (groupId == PUBLIC_GROUP) {
-            revert AccessManagerLockedGroup(groupId);
+    function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
+        if (roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
         }
 
         uint48 effect;
-        (_groups[groupId].grantDelay, effect) = _groups[groupId].grantDelay.withUpdate(newDelay, minSetback());
+        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
 
-        emit GroupGrantDelayChanged(groupId, newDelay, effect);
+        emit RoleGrantDelayChanged(roleId, newDelay, effect);
     }
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
     /**
-     * @dev Set the level of permission (`group`) required to call functions identified by the `selectors` in the
+     * @dev Set the level of permission (`role`) required to call functions identified by the `selectors` in the
      * `target` contract.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedGroupUpdated} event per selector
+     * Emits a {FunctionAllowedRoleUpdated} event per selector
      */
-    function setTargetFunctionGroup(
+    function setTargetFunctionRole(
         address target,
         bytes4[] calldata selectors,
-        uint64 groupId
+        uint64 roleId
     ) public virtual onlyAuthorized {
         for (uint256 i = 0; i < selectors.length; ++i) {
-            _setTargetFunctionGroup(target, selectors[i], groupId);
+            _setTargetFunctionRole(target, selectors[i], roleId);
         }
     }
 
     /**
-     * @dev Internal version of {setFunctionAllowedGroup} without access control.
+     * @dev Internal version of {setFunctionAllowedRole} without access control.
      *
-     * Emits a {FunctionAllowedGroupUpdated} event
+     * Emits a {FunctionAllowedRoleUpdated} event
      */
-    function _setTargetFunctionGroup(address target, bytes4 selector, uint64 groupId) internal virtual {
-        _targets[target].allowedGroups[selector] = groupId;
-        emit TargetFunctionGroupUpdated(target, selector, groupId);
+    function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
+        _targets[target].allowedRoles[selector] = roleId;
+        emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
 
     /**
@@ -485,7 +483,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedGroupUpdated} event per selector
+     * Emits a {FunctionAllowedRoleUpdated} event per selector
      */
     function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
@@ -702,9 +700,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
-            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required group.
-            (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
-            (bool isGuardian, ) = hasGroup(getGroupGuardian(getTargetFunctionGroup(target, selector)), msgsender);
+            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required role.
+            (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
+            (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
                 revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
             }
@@ -752,8 +750,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         (bool immediate, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
         if (!immediate) {
             if (delay == 0) {
-                (, uint64 requiredGroup, ) = _getAdminRestrictions(_msgData());
-                revert AccessManagerUnauthorizedAccount(caller, requiredGroup);
+                (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
+                revert AccessManagerUnauthorizedAccount(caller, requiredRole);
             } else {
                 _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
             }
@@ -765,7 +763,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Returns:
      * - bool restricted: does this data match a restricted operation
-     * - uint64: which group is this operation restricted to
+     * - uint64: which role is this operation restricted to
      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
      */
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
@@ -777,33 +775,33 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Restricted to ADMIN with no delay beside any execution delay the caller may have
         if (
-            selector == this.labelGroup.selector ||
-            selector == this.setGroupAdmin.selector ||
-            selector == this.setGroupGuardian.selector ||
+            selector == this.labelRole.selector ||
+            selector == this.setRoleAdmin.selector ||
+            selector == this.setRoleGuardian.selector ||
             selector == this.setGrantDelay.selector ||
             selector == this.setTargetAdminDelay.selector
         ) {
-            return (true, ADMIN_GROUP, 0);
+            return (true, ADMIN_ROLE, 0);
         }
 
         // Restricted to ADMIN with the admin delay corresponding to the target
         if (
             selector == this.updateAuthority.selector ||
             selector == this.setTargetClosed.selector ||
-            selector == this.setTargetFunctionGroup.selector
+            selector == this.setTargetFunctionRole.selector
         ) {
             // First argument is a target.
             address target = abi.decode(data[0x04:0x24], (address));
             uint32 delay = getTargetAdminDelay(target);
-            return (true, ADMIN_GROUP, delay);
+            return (true, ADMIN_ROLE, delay);
         }
 
-        // Restricted to that group's admin with no delay beside any execution delay the caller may have.
-        if (selector == this.grantGroup.selector || selector == this.revokeGroup.selector) {
-            // First argument is a groupId.
-            uint64 groupId = abi.decode(data[0x04:0x24], (uint64));
-            uint64 groupAdminId = getGroupAdmin(groupId);
-            return (true, groupAdminId, 0);
+        // Restricted to that role's admin with no delay beside any execution delay the caller may have.
+        if (selector == this.grantRole.selector || selector == this.revokeRole.selector) {
+            // First argument is a roleId.
+            uint64 roleId = abi.decode(data[0x04:0x24], (uint64));
+            uint64 roleAdminId = getRoleAdmin(roleId);
+            return (true, roleAdminId, 0);
         }
 
         return (false, 0, 0);
@@ -815,13 +813,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
-            (bool enabled, uint64 groupId, uint32 operationDelay) = _getAdminRestrictions(data);
+            (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
             if (!enabled) {
                 return (false, 0);
             }
 
-            (bool inGroup, uint32 executionDelay) = hasGroup(groupId, caller);
-            if (!inGroup) {
+            (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
+            if (!inRole) {
                 return (false, 0);
             }
 
