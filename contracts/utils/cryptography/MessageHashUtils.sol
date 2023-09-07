@@ -20,7 +20,7 @@ library MessageHashUtils {
      * `"\x19Ethereum Signed Message:\n32"` and hashing the result. It corresponds with the
      * hash signed when using the https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`] JSON-RPC method.
      *
-     * NOTE: The `hash` parameter is intended to be the result of hashing a raw message with
+     * NOTE: The `messageHash` parameter is intended to be the result of hashing a raw message with
      * keccak256, although any bytes32 value can be safely used because the final digest will
      * be re-hashed.
      *
