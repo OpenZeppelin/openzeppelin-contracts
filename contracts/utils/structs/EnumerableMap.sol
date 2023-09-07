@@ -50,7 +50,7 @@ library EnumerableMap {
 
     // To implement this library for multiple types with as little code repetition as possible, we write it in
     // terms of a generic Map type with bytes32 keys and values. The Map implementation uses private functions,
-    // and user-facing implementations (such as UintToAddressMap) are just wrappers around the underlying Map.
+    // and user-facing implementations such as `UintToAddressMap` are just wrappers around the underlying Map.
     // This means that we can only create new EnumerableMaps for types that fit in bytes32.
 
     /**
