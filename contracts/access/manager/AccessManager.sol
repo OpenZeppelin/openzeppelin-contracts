@@ -133,8 +133,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (isTargetClosed(target)) {
             return (false, 0);
         } else if (caller == address(this)) {
-            // Caller is AccessManager => call was relayed. In that case {execute} already checked permissions. We
-            // verify that the call "identifier", which is set during {execute}, is correct.
+            // Caller is AccessManager, this means the call was sent through {execute} and it already checked
+            // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_executionId == _hashExecutionId(target, selector), 0);
         } else {
             uint64 groupId = getTargetFunctionGroup(target, selector);
