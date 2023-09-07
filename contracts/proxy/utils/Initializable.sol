@@ -95,8 +95,9 @@ abstract contract Initializable {
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
      * `onlyInitializing` functions can be used to initialize parent contracts.
      *
-     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a
-     * constructor.
+     * Similar to `reinitializer(1)`, except that in the context of a constructor an `initializer` may be invoked any
+     * number of times. This behavior in the constructor can be useful during testing and is not expected to be used in
+     * production.
      *
      * Emits an {Initialized} event.
      */
