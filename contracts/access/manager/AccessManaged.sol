@@ -85,8 +85,8 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * being consumed. Prevents denial of service for delayed restricted calls in the case that the contract performs
      * attacker controlled calls.
      */
-    function isConsumingScheduledOp() public view returns (bool) {
-        return _consumingSchedule;
+    function isConsumingScheduledOp() public view returns (bytes4) {
+        return _consumingSchedule ? this.isConsumingScheduledOp.selector : bytes4(0);
     }
 
     /**

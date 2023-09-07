@@ -40,7 +40,7 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * NOTE: Systems that implement other access control mechanisms (for example using {Ownable}) can be paired with an
  * {AccessManager} by transferring permissions (ownership in the case of {Ownable}) directly to the {AccessManager}.
- * Users will be able to interact with these contracts through the {relay} function, following the access rules
+ * Users will be able to interact with these contracts through the {execute} function, following the access rules
  * registered in the {AccessManager}. Keep in mind that in that context, the msg.sender seen by restricted functions
  * will be {AccessManager} itself.
  *
@@ -63,7 +63,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // Timepoint at which the user gets the permission. If this is either 0, or in the future, the group
         // permission is not available.
         uint48 since;
-        // Delay for execution. Only applies to restricted() / relay() calls.
+        // Delay for execution. Only applies to restricted() / execute() calls.
         Time.Delay delay;
     }
 
@@ -93,7 +93,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(bytes32 operationId => Schedule) private _schedules;
 
     // This should be transient storage when supported by the EVM.
-    bytes32 private _relayIdentifier;
+    bytes32 private _executionId;
 
     /**
      * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
@@ -117,7 +117,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Check if an address (`caller`) is authorised to call a given function on a given contract directly (with
      * no restriction). Additionally, it returns the delay needed to perform the call indirectly through the {schedule}
-     * & {relay} workflow.
+     * & {execute} workflow.
      *
      * This function is usually called by the targeted contract to control immediate execution of restricted functions.
      * Therefore we only return true is the call can be performed without any delay. If the call is subject to a delay,
@@ -134,9 +134,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (isTargetClosed(target)) {
             return (false, 0);
         } else if (caller == address(this)) {
-            // Caller is AccessManager => call was relayed. In that case the relay already checked permissions. We
-            // verify that the call "identifier", which is set during the relay call, is correct.
-            return (_relayIdentifier == _hashRelayIdentifier(target, selector), 0);
+            // Caller is AccessManager, this means the call was sent through {execute} and it already checked
+            // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
+            return (_executionId == _hashExecutionId(target, selector), 0);
         } else {
             uint64 groupId = getTargetFunctionGroup(target, selector);
             (bool inGroup, uint32 currentDelay) = hasGroup(groupId, caller);
@@ -556,7 +556,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Returns the `operationId` that was scheduled. Since this value is a hash of the parameters, it can reoccur when
      * the same parameters are used; if this is relevant, the returned `nonce` can be used to uniquely identify this
-     * scheduled operation from other occurrences of the same `operationId` in invocations of {relay} and {cancel}.
+     * scheduled operation from other occurrences of the same `operationId` in invocations of {execute} and {cancel}.
      *
      * Emits a {OperationScheduled} event.
      */
@@ -605,7 +605,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
      * execution delay is 0.
      *
-     * Returns the nonce that identifies the previously scheduled operation that is relayed, or 0 if the
+     * Returns the nonce that identifies the previously scheduled operation that is executed, or 0 if the
      * operation wasn't previously scheduled (if the caller doesn't have an execution delay).
      *
      * Emits an {OperationExecuted} event only if the call was scheduled and delayed.
@@ -613,7 +613,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // Reentrancy is not an issue because permissions are checked on msg.sender. Additionally,
     // _consumeScheduledOp guarantees a scheduled operation is only executed once.
     // slither-disable-next-line reentrancy-no-eth
-    function relay(address target, bytes calldata data) public payable virtual returns (uint32) {
+    function execute(address target, bytes calldata data) public payable virtual returns (uint32) {
         address caller = _msgSender();
 
         // Fetch restrictions that apply to the caller on the targeted function
@@ -633,14 +633,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        bytes32 relayIdentifierBefore = _relayIdentifier;
-        _relayIdentifier = _hashRelayIdentifier(target, bytes4(data));
+        bytes32 executionIdBefore = _executionId;
+        _executionId = _hashExecutionId(target, bytes4(data));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
 
-        // Reset relay identifier
-        _relayIdentifier = relayIdentifierBefore;
+        // Reset execute identifier
+        _executionId = executionIdBefore;
 
         return nonce;
     }
@@ -656,7 +656,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
-        require(IAccessManaged(target).isConsumingScheduledOp());
+        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
+            revert AccessManagerUnauthorizedConsume(target);
+        }
         _consumeScheduledOp(_hashOperation(caller, target, data));
     }
 
@@ -705,7 +707,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             (bool isAdmin, ) = hasGroup(ADMIN_GROUP, msgsender);
             (bool isGuardian, ) = hasGroup(getGroupGuardian(getTargetFunctionGroup(target, selector)), msgsender);
             if (!isAdmin && !isGuardian) {
-                revert AccessManagerCannotCancel(msgsender, caller, target, selector);
+                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
             }
         }
 
@@ -724,9 +726,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Hashing function for relay protection
+     * @dev Hashing function for execute protection
      */
-    function _hashRelayIdentifier(address target, bytes4 selector) private pure returns (bytes32) {
+    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
         return keccak256(abi.encode(target, selector));
     }
 

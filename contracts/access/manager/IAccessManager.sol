@@ -48,7 +48,8 @@ interface IAccessManager {
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 groupId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
-    error AccessManagerCannotCancel(address msgsender, address caller, address target, bytes4 selector);
+    error AccessManagerUnauthorizedConsume(address target);
+    error AccessManagerUnauthorizedCancel(address msgsender, address caller, address target, bytes4 selector);
     error AccessManagerInvalidInitialAdmin(address initialAdmin);
 
     function canCall(
@@ -101,7 +102,7 @@ interface IAccessManager {
 
     function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
 
-    function relay(address target, bytes calldata data) external payable returns (uint32);
+    function execute(address target, bytes calldata data) external payable returns (uint32);
 
     function cancel(address caller, address target, bytes calldata data) external returns (uint32);
 
