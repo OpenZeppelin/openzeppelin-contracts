@@ -480,7 +480,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Set the delay for management operations on a given class of contract.
+     * @dev Set the delay for management operations on a given target contract.
      *
      * Requirements:
      *
@@ -493,7 +493,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Internal version of {setClassAdminDelay} without access control.
+     * @dev Internal version of {setTargetAdminDelay} without access control.
      *
      * Emits a {TargetAdminDelayUpdated} event
      */
