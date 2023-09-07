@@ -105,7 +105,7 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it has already
      * been queued.
      */
     function _cancel(
