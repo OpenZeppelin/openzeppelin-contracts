@@ -127,16 +127,16 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-    bytes32 key = map._keys.at(index);
-    return (key, map._values[key]);
+function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+    key = map._keys.at(index);
+    value = map._values[key];
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
+function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool isMember, bytes32 value) {
     bytes32 value = map._values[key];
     if (value == bytes32(0)) {
         return (contains(map, key), bytes32(0));
@@ -227,18 +227,18 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(${name} storage map, uint256 index) internal view returns (${keyType}, ${valueType}) {
-    (bytes32 key, bytes32 value) = at(map._inner, index);
-    return (${fromBytes32(keyType, 'key')}, ${fromBytes32(valueType, 'value')});
+function at(${name} storage map, uint256 index) internal view returns (${keyType} key, ${valueType} value) {
+    (bytes32 rawKey, bytes32 rawValue) = at(map._inner, index);
+    return (${fromBytes32(keyType, 'rawKey')}, ${fromBytes32(valueType, 'rawValue')});
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(${name} storage map, ${keyType} key) internal view returns (bool, ${valueType}) {
-    (bool success, bytes32 value) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
-    return (success, ${fromBytes32(valueType, 'value')});
+function tryGet(${name} storage map, ${keyType} key) internal view returns (bool isMember, ${valueType} value) {
+    (bool isMember, bytes32 rawValue) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
+    return (isMember, ${fromBytes32(valueType, 'rawValue')});
 }
 
 /**

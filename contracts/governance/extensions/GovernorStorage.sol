@@ -100,14 +100,19 @@ abstract contract GovernorStorage is Governor {
      */
     function proposalDetailsAt(
         uint256 index
-    ) public view virtual returns (uint256, address[] memory, uint256[] memory, bytes[] memory, bytes32) {
-        uint256 proposalId = _proposalIds[index];
-        (
+    )
+        public
+        view
+        virtual
+        returns (
+            uint256 proposalId,
             address[] memory targets,
             uint256[] memory values,
             bytes[] memory calldatas,
             bytes32 descriptionHash
-        ) = proposalDetails(proposalId);
-        return (proposalId, targets, values, calldatas, descriptionHash);
+        )
+    {
+        proposalId = _proposalIds[index];
+        (targets, values, calldatas, descriptionHash) = proposalDetails(proposalId);
     }
 }
