@@ -6,12 +6,7 @@ const ERC20ReturnTrueMock = artifacts.require('$ERC20'); // default implementati
 const ERC20NoReturnMock = artifacts.require('$ERC20NoReturnMock');
 const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
 
-const { getDomain, domainType } = require('../../../helpers/eip712');
 const { expectRevertCustomError } = require('../../../helpers/customError');
-
-const { fromRpcSig } = require('ethereumjs-util');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
