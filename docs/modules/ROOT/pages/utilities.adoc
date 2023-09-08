@@ -25,18 +25,6 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 
 WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
 
-[[authentication-using-permit]]
-==== On the use of ERC-2612 for authentication
-
-Some people have been tempted to rely on ERC-2612 (also known as `ERC20Permit`) to authenticate users using the `permit` function. This is not practice is not recommended for the following reasons:
-
-- A valid `permit` signature expresses an allowance. It should not be assumed to convey additional meaning. In particular, it should not be considered as an intention to spend the approval in any specific way.
-- Some ERC-2612 implementations do not revert if the provided signature is invalid. They will just not set the allowance (and not increase the nonce). Detecting that a signature is invalid is not obvious to do. Checking that the allowance has the right value might not be enough, as it could be the result of another previous approval. One could check that the nonce was updated, as this would only happen if the provided signature was valid.
-- Because of the built-in replay protection, any logic that requires a valid ERC-2616 signature to authenticate a user is subject to DOS. The user-provided signature can be extracted from the transaction in the mempool, and could be submitted by anyone to the ERC-2616 token (front-running). This would set the allowance, and increase the nonce, resulting in the initial transaction failing to perform the permit operation.
-- Smart contract wallets (such as Argent or Gnosis Safe) would not be able to authenticate as ERC-2612 often does not come with ERC-1271 support.
-
-For all these reasons, we strongly recommend NOT relying on signed permits of user authentication.
-
 === Verifying Merkle Proofs
 
 xref:api:utils.adoc#MerkleProof[`MerkleProof`] provides:

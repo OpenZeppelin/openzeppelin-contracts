@@ -10,6 +10,26 @@ pragma solidity ^0.8.20;
  * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
  * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
+ *
+ * ==== Security Considerations
+ *
+ * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
+ * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
+ * considered as an intention to spend the approval in any specific way. The second is that because permits have
+ * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a good pattern that can
+ * be generally recommended is:
+ *
+ * ```
+ * try token.permit(msg.sender, spender, value, deadline, v, r, s) {} catch {}
+ * ```
+ *
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
+ * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. In general, `address(this)` would
+ * be used as the `spender` parameter.
+ *
+ * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
+ * contracts should have entry points that don't rely on permit.
  */
 interface IERC20Permit {
     /**
