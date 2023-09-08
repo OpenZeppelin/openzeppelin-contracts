@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-`SafeERC20`: Removed `safePermit` in favor of documenting the recommended `permit` usage pattern.
+`SafeERC20`: Removed `safePermit` in favor of documentation-only `permit` recommendations.
