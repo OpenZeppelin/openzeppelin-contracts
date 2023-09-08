@@ -97,17 +97,18 @@ abstract contract GovernorTimelockAccess is Governor {
      * delayed since queuing, and an array indicating which of the proposal actions will be executed indirectly through
      * the associated {AccessManager}.
      */
-    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32, bool[2][] memory) {
+    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32 delay, bool[] memory indirect, bool[] memory withDelay) {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
-        uint32 delay = plan.delay;
         uint32 length = plan.length;
-        bool[2][] memory indirect = new bool[2][](length);
+        delay = plan.delay;
+        indirect = new bool[](length);
+        withDelay = new bool[](length);
         for (uint256 i = 0; i < length; ++i) {
-            (indirect[i][0], indirect[i][1], ) = _getManagerData(plan, i);
+            (indirect[i], withDelay[i], ) = _getManagerData(plan, i);
         }
 
-        return (delay, indirect);
+        return (delay, indirect, withDelay);
     }
 
     /**
