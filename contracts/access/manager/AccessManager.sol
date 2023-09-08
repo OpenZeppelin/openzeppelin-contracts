@@ -277,14 +277,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Remove an account for a role, with immediate effect. If the sender is not in the role, this call has no
-     * effect.
+     * @dev Remove an account from a role, with immediate effect. If the account is not in the role, this call
+     * has no effect.
      *
      * Requirements:
      *
      * - the caller must be in the role's admins
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account was in the role.
      */
     function revokeRole(uint64 roleId, address account) public virtual onlyAuthorized {
         _revokeRole(roleId, account);
@@ -298,7 +298,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be `callerConfirmation`.
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account was in the role.
      */
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
@@ -384,7 +384,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
      * Returns true if the role was previously granted.
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account was in the role.
      */
     function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
         if (roleId == PUBLIC_ROLE) {
