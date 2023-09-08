@@ -184,8 +184,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
      * particular (ignoring whether it is owned by `owner`).
      *
-     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not
-     * verify this assumption.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return
@@ -195,10 +195,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
+     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
+     * the `spender` for the specific `tokenId`.
      *
-     * WARNING: This function relies on {_isAuthorized}, so it doesn't check whether `owner` is the
-     * actual owner of `tokenId`.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isAuthorized(owner, spender, tokenId)) {

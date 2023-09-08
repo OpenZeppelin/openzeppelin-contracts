@@ -27,9 +27,9 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * There is a special role defined by default named "public" which all accounts automatically have.
  *
- * Contracts where functions are mapped to roles are said to be in a "custom" mode, but contracts can also be
- * configured in two special modes: 1) the "open" mode, where all functions are allowed to the "public" role, and 2)
- * the "closed" mode, where no function is allowed to any role.
+ * In addition to the access rules defined by each target's functions being assigned to roles, then entire target can
+ * be "closed". This "closed" mode is set/unset by the admin using {setTargetClosed} and can be used to lock a contract
+ * while permissions are being (re-)configured.
  *
  * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
  * they will be highly secured (e.g., a multisig or a well-configured DAO).
@@ -51,6 +51,7 @@ import {Time} from "../../utils/types/Time.sol";
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
 
+    // Structure that stores the details for a target contract.
     struct TargetConfig {
         mapping(bytes4 selector => uint64 roleId) allowedRoles;
         Time.Delay adminDelay;
@@ -59,10 +60,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // Structure that stores the details for a role/account pair. This structures fit into a single slot.
     struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the role permission
-        // is not available.
+        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the role
+        // permission is not available.
         uint48 since;
-        // delay for execution. Only applies to restricted() / execute() calls.
+        // Delay for execution. Only applies to restricted() / execute() calls.
         Time.Delay delay;
     }
 
@@ -78,6 +79,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         Time.Delay grantDelay;
     }
 
+    // Structure that stores the details for a scheduled operation. This structure fits into a single slot.
     struct Schedule {
         uint48 timepoint;
         uint32 nonce;
@@ -454,7 +456,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedRoleUpdated} event per selector
+     * Emits a {TargetFunctionRoleUpdated} event per selector
      */
     function setTargetFunctionRole(
         address target,
@@ -469,7 +471,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setFunctionAllowedRole} without access control.
      *
-     * Emits a {FunctionAllowedRoleUpdated} event
+     * Emits a {TargetFunctionRoleUpdated} event
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
         _targets[target].allowedRoles[selector] = roleId;
@@ -477,22 +479,22 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Set the delay for management operations on a given class of contract.
+     * @dev Set the delay for management operations on a given target contract.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {FunctionAllowedRoleUpdated} event per selector
+     * Emits a {TargetAdminDelayUpdated} event per selector
      */
     function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
     }
 
     /**
-     * @dev Internal version of {setClassAdminDelay} without access control.
+     * @dev Internal version of {setTargetAdminDelay} without access control.
      *
-     * Emits a {ClassAdminDelayUpdated} event
+     * Emits a {TargetAdminDelayUpdated} event
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
@@ -688,7 +690,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Requirements:
      *
-     * - the caller must be the proposer, or a guardian of the targeted function
+     * - the caller must be the proposer, a guardian of the targeted function, or a global admin
      *
      * Emits a {OperationCanceled} event.
      */
@@ -810,6 +812,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // =================================================== HELPERS ====================================================
     /**
      * @dev An extended version of {canCall} for internal use that considers restrictions for admin functions.
+     *
+     * Returns:
+     * - bool immediate: whether the operation can be executed immediately (with no delay)
+     * - uint32 delay: the execution delay
+     *
+     * If immediate is true, the delay can be disregarded and the operation can be immediately executed.
+     * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
