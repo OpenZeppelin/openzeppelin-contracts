@@ -53,8 +53,7 @@ interface IERC20Permit {
      * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
      * section].
      *
-     * WARNING: relying on {permit} for user authentication is a bad practice.
-     * See xref:utilities.adoc#authentication-using-permit[this].
+     * CAUTION: See Security Considerations above.
      */
     function permit(
         address owner,
