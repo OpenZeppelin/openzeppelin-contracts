@@ -134,7 +134,12 @@ abstract contract GovernorTimelockAccess is Governor {
         plan.length = SafeCast.toUint16(targets.length);
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(address(_manager), address(this), targets[i], bytes4(calldatas[i]));
+            (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
+                address(_manager),
+                address(this),
+                targets[i],
+                bytes4(calldatas[i])
+            );
             if (immediate || delay > 0) {
                 _setManagerData(plan, i, 0);
             }

@@ -215,7 +215,9 @@ contract('GovernorTimelockAccess', function (accounts) {
         const roleId = '1';
 
         beforeEach(async function () {
-          await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, { from: admin });
+          await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+            from: admin,
+          });
           await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
         });
 
@@ -244,16 +246,16 @@ contract('GovernorTimelockAccess', function (accounts) {
         });
 
         it('cancel calls already canceled by guardian', async function () {
-          const operationA = { target: this.receiver.address, data: this.restricted.selector + '00'};
-          const operationB = { target: this.receiver.address, data: this.restricted.selector + '01'};
-          const operationC = { target: this.receiver.address, data: this.restricted.selector + '02'};
+          const operationA = { target: this.receiver.address, data: this.restricted.selector + '00' };
+          const operationB = { target: this.receiver.address, data: this.restricted.selector + '01' };
+          const operationC = { target: this.receiver.address, data: this.restricted.selector + '02' };
           const operationAId = hashOperation(this.mock.address, operationA.target, operationA.data);
           const operationBId = hashOperation(this.mock.address, operationB.target, operationB.data);
 
           const proposal1 = new GovernorHelper(this.mock, mode);
           const proposal2 = new GovernorHelper(this.mock, mode);
-          proposal1.setProposal([ operationA, operationB ], 'proposal A+B');
-          proposal2.setProposal([ operationA, operationC ], 'proposal A+C');
+          proposal1.setProposal([operationA, operationB], 'proposal A+B');
+          proposal2.setProposal([operationA, operationC], 'proposal A+C');
 
           for (const p of [proposal1, proposal2]) {
             await p.propose();
@@ -266,18 +268,18 @@ contract('GovernorTimelockAccess', function (accounts) {
           await proposal1.queue();
 
           // Cannot queue the second proposal: operation A already scheduled with delay
-          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [ operationAId ]);
+          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [operationAId]);
 
           // Admin cancels operation B on the manager
           await this.manager.cancel(this.mock.address, operationB.target, operationB.data, { from: admin });
 
           // Still cannot queue the second proposal: operation A already scheduled with delay
-          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [ operationAId ]);
+          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [operationAId]);
 
           await proposal1.waitForEta();
 
           // Cannot execute first proposal: operation B has been canceled
-          await expectRevertCustomError(proposal1.execute(), 'AccessManagerNotScheduled', [ operationBId ]);
+          await expectRevertCustomError(proposal1.execute(), 'AccessManagerNotScheduled', [operationBId]);
 
           // Cancel the first proposal to release operation A
           await proposal1.cancel('internal');
@@ -288,7 +290,7 @@ contract('GovernorTimelockAccess', function (accounts) {
           await proposal2.waitForEta();
 
           // Can execute second proposal
-          await proposal2.execute()
+          await proposal2.execute();
         });
       });
     });
