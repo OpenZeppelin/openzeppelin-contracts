@@ -42,8 +42,7 @@ contract('Nonces', function (accounts) {
       const currentNonce = await this.nonces.nonces(sender);
       expect(currentNonce).to.be.bignumber.equal('0');
 
-      const { receipt } = await this.nonces.$_useCheckedNonce(sender, currentNonce);
-      expectEvent(receipt, 'return$_useCheckedNonce', [currentNonce]);
+      await this.nonces.$_useCheckedNonce(sender, currentNonce);
 
       expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
     });
