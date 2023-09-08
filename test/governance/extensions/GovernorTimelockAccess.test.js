@@ -210,36 +210,86 @@ contract('GovernorTimelockAccess', function (accounts) {
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'CalledUnrestricted');
       });
 
-      it('cancellation after queue (internal)', async function () {
+      describe('cancel', function () {
         const delay = 1000;
         const roleId = '1';
 
-        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
-          from: admin,
-        });
-        await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
-
-        this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
-
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-
-        const txCancel = await this.helper.cancel('internal');
-        expectEvent(txCancel, 'ProposalCanceled', { proposalId: this.proposal.id });
-        await expectEvent.inTransaction(txCancel.tx, this.manager, 'OperationCanceled', {
-          operationId: this.restricted.operationId,
-          nonce: '1',
+        beforeEach(async function () {
+          await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, { from: admin });
+          await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
         });
 
-        await this.helper.waitForEta();
-        await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
-          this.proposal.id,
-          Enums.ProposalState.Canceled,
-          proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
-        ]);
+        it('cancellation after queue (internal)', async function () {
+          this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
+
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+
+          const txCancel = await this.helper.cancel('internal');
+          expectEvent(txCancel, 'ProposalCanceled', { proposalId: this.proposal.id });
+          await expectEvent.inTransaction(txCancel.tx, this.manager, 'OperationCanceled', {
+            operationId: this.restricted.operationId,
+            nonce: '1',
+          });
+
+          await this.helper.waitForEta();
+          await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+            this.proposal.id,
+            Enums.ProposalState.Canceled,
+            proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+          ]);
+        });
+
+        it('cancel calls already canceled by guardian', async function () {
+          const operationA = { target: this.receiver.address, data: this.restricted.selector + '00'};
+          const operationB = { target: this.receiver.address, data: this.restricted.selector + '01'};
+          const operationC = { target: this.receiver.address, data: this.restricted.selector + '02'};
+          const operationAId = hashOperation(this.mock.address, operationA.target, operationA.data);
+          const operationBId = hashOperation(this.mock.address, operationB.target, operationB.data);
+
+          const proposal1 = new GovernorHelper(this.mock, mode);
+          const proposal2 = new GovernorHelper(this.mock, mode);
+          proposal1.setProposal([ operationA, operationB ], 'proposal A+B');
+          proposal2.setProposal([ operationA, operationC ], 'proposal A+C');
+
+          for (const p of [proposal1, proposal2]) {
+            await p.propose();
+            await p.waitForSnapshot();
+            await p.vote({ support: Enums.VoteType.For }, { from: voter1 });
+            await p.waitForDeadline();
+          }
+
+          // Can queue the first proposal
+          await proposal1.queue();
+
+          // Cannot queue the second proposal: operation A already scheduled with delay
+          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [ operationAId ]);
+
+          // Admin cancels operation B on the manager
+          await this.manager.cancel(this.mock.address, operationB.target, operationB.data, { from: admin });
+
+          // Still cannot queue the second proposal: operation A already scheduled with delay
+          await expectRevertCustomError(proposal2.queue(), 'AccessManagerAlreadyScheduled', [ operationAId ]);
+
+          await proposal1.waitForEta();
+
+          // Cannot execute first proposal: operation B has been canceled
+          await expectRevertCustomError(proposal1.execute(), 'AccessManagerNotScheduled', [ operationBId ]);
+
+          // Cancel the first proposal to release operation A
+          await proposal1.cancel('internal');
+
+          // can finally queue the second proposal
+          await proposal2.queue();
+
+          await proposal2.waitForEta();
+
+          // Can execute second proposal
+          await proposal2.execute()
+        });
       });
     });
   }

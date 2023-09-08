@@ -134,8 +134,8 @@ abstract contract GovernorTimelockAccess is Governor {
         plan.length = SafeCast.toUint16(targets.length);
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            uint32 delay = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
-            if (delay > 0) {
+            (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(address(_manager), address(this), targets[i], bytes4(calldatas[i]));
+            if (immediate || delay > 0) {
                 _setManagerData(plan, i, 0);
             }
             // downcast is safe because both arguments are uint32
@@ -226,31 +226,16 @@ abstract contract GovernorTimelockAccess is Governor {
                 (bool delayed, uint32 nonce) = _getManagerData(plan, i);
                 if (delayed) {
                     // Attempt to cancel considering the operation could have been cancelled and rescheduled already
-                    uint32 canceledNonce = _manager.cancel(address(this), targets[i], calldatas[i]);
-                    if (canceledNonce != nonce) {
-                        revert GovernorMismatchedNonce(proposalId, nonce, canceledNonce);
-                    }
+                    try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32 canceledNonce) {
+                        if (canceledNonce != nonce) {
+                            revert GovernorMismatchedNonce(proposalId, nonce, canceledNonce);
+                        }
+                    } catch {}
                 }
             }
         }
 
         return proposalId;
-    }
-
-    /**
-     * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
-     * applied to this call.
-     *
-     * Returns { manager: address(0), delay: 0 } if:
-     * - target does not have code
-     * - target does not implement IAccessManaged
-     * - calling canCall on the target's manager returns a 0 delay
-     * - calling canCall on the target's manager reverts
-     * Otherwise (calling canCall on the target's manager returns a non 0 delay), return the address of the
-     * AccessManager to use, and the delay for this call.
-     */
-    function _detectExecutionRequirements(address target, bytes4 selector) private view returns (uint32 delay) {
-        (, delay) = AuthorityUtils.canCallWithDelay(address(_manager), address(this), target, selector);
     }
 
     /**
