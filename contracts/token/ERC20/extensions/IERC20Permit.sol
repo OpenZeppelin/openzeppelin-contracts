@@ -20,8 +20,11 @@ pragma solidity ^0.8.20;
  * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a good pattern that can
  * be generally recommended is:
  *
- * ```
- * try token.permit(msg.sender, spender, value, deadline, v, r, s) {} catch {}
+ * ```solidity
+ * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) {
+ *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
+ *     doThing(..., value); // will use token.transferFrom
+ * }
  * ```
  *
  * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
