@@ -79,7 +79,7 @@ abstract contract Initializable {
     /**
      * @dev The contract is already initialized.
      */
-    error AlreadyInitialized();
+    error InvalidInitialization();
 
     /**
      * @dev The contract is not initializing.
@@ -118,7 +118,7 @@ abstract contract Initializable {
         bool construction = initialized == 1 && address(this).code.length == 0;
 
         if (!initialSetup && !construction) {
-            revert AlreadyInitialized();
+            revert InvalidInitialization();
         }
         $._initialized = 1;
         if (isTopLevelCall) {
@@ -154,7 +154,7 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         if ($._initializing || $._initialized >= version) {
-            revert AlreadyInitialized();
+            revert InvalidInitialization();
         }
         $._initialized = version;
         $._initializing = true;
@@ -194,7 +194,7 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         if ($._initializing) {
-            revert AlreadyInitialized();
+            revert InvalidInitialization();
         }
         if ($._initialized != type(uint64).max) {
             $._initialized = type(uint64).max;
