@@ -48,7 +48,7 @@ contract('ERC20Votes', function (accounts) {
       });
 
       it('minting restriction', async function () {
-        const value = web3.utils.toBN(1).shln(224);
+        const value = web3.utils.toBN(1).shln(208);
         await expectRevertCustomError(this.token.$_mint(holder, value), 'ERC20ExceededSafeSupply', [
           value,
           value.subn(1),

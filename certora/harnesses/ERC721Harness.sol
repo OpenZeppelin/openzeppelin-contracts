@@ -23,10 +23,6 @@ contract ERC721Harness is ERC721 {
         _burn(tokenId);
     }
 
-    function tokenExists(uint256 tokenId) external view returns (bool) {
-        return _ownerOf(tokenId) != address(0);
-    }
-
     function unsafeOwnerOf(uint256 tokenId) external view returns (address) {
         return _ownerOf(tokenId);
     }

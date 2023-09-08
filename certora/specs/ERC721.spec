@@ -9,7 +9,6 @@ methods {
     function safeMint(address,uint256,bytes) external;
     function burn(uint256) external;
 
-    function tokenExists(uint256) external returns (bool) envfree;
     function unsafeOwnerOf(uint256) external returns (address) envfree;
     function unsafeGetApproved(uint256) external returns (address) envfree;
 }
@@ -20,14 +19,10 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
-function authSanity(env e) returns bool {
-    return e.msg.sender != 0;
-}
+definition authSanity(env e) returns bool = e.msg.sender != 0;
 
 // Could be broken in theory, but not in practice
-function balanceLimited(address account) returns bool {
-    return balanceOf(account) < max_uint256;
-}
+definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
 function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) {
     if (f.selector == sig:transferFrom(address,address,uint256).selector) {
@@ -58,24 +53,70 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
     }
 }
 
+function helperSoundFnCall(env e, method f) {
+    if (f.selector == sig:mint(address,uint256).selector) {
+        address to; uint256 tokenId;
+        require balanceLimited(to);
+        requireInvariant notMintedUnset(tokenId);
+        mint(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256).selector) {
+        address to; uint256 tokenId;
+        require balanceLimited(to);
+        requireInvariant notMintedUnset(tokenId);
+        safeMint(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
+        address to; uint256 tokenId; bytes data;
+        require data.length < 0xffff;
+        require balanceLimited(to);
+        requireInvariant notMintedUnset(tokenId);
+        safeMint(e, to, tokenId, data);
+    } else if (f.selector == sig:burn(uint256).selector) {
+        uint256 tokenId;
+        requireInvariant ownerHasBalance(tokenId);
+        requireInvariant notMintedUnset(tokenId);
+        burn(e, tokenId);
+    } else if (f.selector == sig:transferFrom(address,address,uint256).selector) {
+        address from; address to; uint256 tokenId;
+        require balanceLimited(to);
+        requireInvariant ownerHasBalance(tokenId);
+        requireInvariant notMintedUnset(tokenId);
+        transferFrom(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
+        address from; address to; uint256 tokenId;
+        require balanceLimited(to);
+        requireInvariant ownerHasBalance(tokenId);
+        requireInvariant notMintedUnset(tokenId);
+        safeTransferFrom(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
+        address from; address to; uint256 tokenId; bytes data;
+        require data.length < 0xffff;
+        require balanceLimited(to);
+        requireInvariant ownerHasBalance(tokenId);
+        requireInvariant notMintedUnset(tokenId);
+        safeTransferFrom(e, from, to, tokenId, data);
+    } else {
+        calldataarg args;
+        f(e, args);
+    }
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Ghost & hooks: ownership count                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost mathint ownedTotal {
-    init_state axiom ownedTotal == 0;
+ghost mathint _ownedTotal {
+    init_state axiom _ownedTotal == 0;
 }
 
-ghost mapping(address => mathint) ownedByUser {
-    init_state axiom forall address a. ownedByUser[a] == 0;
+ghost mapping(address => mathint) _ownedByUser {
+    init_state axiom forall address a. _ownedByUser[a] == 0;
 }
 
 hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STORAGE {
-    ownedByUser[newOwner] = ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
-    ownedByUser[oldOwner] = ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
-
-    ownedTotal = ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
+    _ownedByUser[newOwner] = _ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
+    _ownedByUser[oldOwner] = _ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
+    _ownedTotal = _ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
 }
 
 /*
@@ -83,29 +124,64 @@ hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STO
 │ Ghost & hooks: sum of all balances                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost mathint sumOfBalances {
-    init_state axiom sumOfBalances == 0;
+ghost mathint _supply {
+    init_state axiom _supply == 0;
+}
+
+ghost mapping(address => mathint) _balances {
+    init_state axiom forall address a. _balances[a] == 0;
 }
 
 hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
-    sumOfBalances = sumOfBalances - oldValue + newValue;
+    _supply = _supply - oldValue + newValue;
 }
 
-ghost mapping(address => mathint) ghostBalanceOf {
-    init_state axiom forall address a. ghostBalanceOf[a] == 0;
-}
-
+// TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
+// many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
 hook Sload uint256 value _balances[KEY address user] STORAGE {
-    require ghostBalanceOf[user] == to_mathint(value);
+    require _balances[user] == to_mathint(value);
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: ownedTotal is the sum of all balances                                                                    │
+│ Invariant: number of owned tokens is the sum of all balances                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownedTotalIsSumOfBalances()
-    ownedTotal == sumOfBalances;
+    _ownedTotal == _supply
+    {
+        preserved mint(address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+        }
+        preserved safeMint(address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+        }
+        preserved safeMint(address to, uint256 tokenId, bytes data) with (env e) {
+            require balanceLimited(to);
+        }
+        preserved burn(uint256 tokenId) with (env e) {
+            requireInvariant ownerHasBalance(tokenId);
+            requireInvariant balanceOfConsistency(ownerOf(tokenId));
+        }
+        preserved transferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 tokenId, bytes data) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -113,8 +189,8 @@ invariant ownedTotalIsSumOfBalances()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
-    to_mathint(balanceOf(user)) == ownedByUser[user] &&
-    to_mathint(balanceOf(user)) == ghostBalanceOf[user]
+    to_mathint(balanceOf(user)) == _ownedByUser[user] &&
+    to_mathint(balanceOf(user)) == _balances[user]
     {
         preserved {
             require balanceLimited(user);
@@ -137,47 +213,6 @@ invariant ownerHasBalance(uint256 tokenId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: tokens that do not exist are not owned and not approved                                                  │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant notMintedUnset(uint256 tokenId)
-    (!tokenExists(tokenId) <=> unsafeOwnerOf(tokenId) == 0) &&
-    (!tokenExists(tokenId) => unsafeGetApproved(tokenId) == 0);
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: ownerOf and getApproved revert if token does not exist                                                        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule notMintedRevert(uint256 tokenId) {
-    requireInvariant notMintedUnset(tokenId);
-
-    bool e = tokenExists(tokenId);
-
-    address owner = ownerOf@withrevert(tokenId);
-    assert e <=> !lastReverted;
-    assert e => owner == unsafeOwnerOf(tokenId); // notMintedUnset tells us this is non-zero
-
-    address approved = getApproved@withrevert(tokenId);
-    assert e <=> !lastReverted;
-    assert e => approved == unsafeGetApproved(tokenId);
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: unsafeOwnerOf and unsafeGetApproved don't revert                                                              │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule unsafeDontRevert(uint256 tokenId) {
-    unsafeOwnerOf@withrevert(tokenId);
-    assert !lastReverted;
-
-    unsafeGetApproved@withrevert(tokenId);
-    assert !lastReverted;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: balance of address(0) is 0                                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -188,13 +223,60 @@ rule zeroAddressBalanceRevert() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: address(0) has no authorized operator                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant zeroAddressHasNoApprovedOperator(address a)
+    !isApprovedForAll(0, a)
+    {
+        preserved with (env e) {
+            require nonzerosender(e);
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: tokens that do not exist are not owned and not approved                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant notMintedUnset(uint256 tokenId)
+    unsafeOwnerOf(tokenId) == 0 => unsafeGetApproved(tokenId) == 0;
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: unsafeOwnerOf and unsafeGetApproved don't revert + ownerOf and getApproved revert if token does not exist     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule notMintedRevert(uint256 tokenId) {
+    requireInvariant notMintedUnset(tokenId);
+
+    address _owner = unsafeOwnerOf@withrevert(tokenId);
+    assert !lastReverted;
+
+    address _approved = unsafeGetApproved@withrevert(tokenId);
+    assert !lastReverted;
+
+    address owner = ownerOf@withrevert(tokenId);
+    assert lastReverted <=> _owner == 0;
+    assert !lastReverted => _owner == owner;
+
+    address approved = getApproved@withrevert(tokenId);
+    assert lastReverted <=> _owner == 0;
+    assert !lastReverted => _approved == approved;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rules: total supply can only change through mint and burn                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule supplyChange(env e) {
-    mathint supplyBefore = ownedTotal;
-    method f; calldataarg args; f(e, args);
-    mathint supplyAfter = ownedTotal;
+    require nonzerosender(e);
+    requireInvariant zeroAddressHasNoApprovedOperator(e.msg.sender);
+
+    mathint supplyBefore = _supply;
+    method f; helperSoundFnCall(e, f);
+    mathint supplyAfter = _supply;
 
     assert supplyAfter > supplyBefore => (
         supplyAfter == supplyBefore + 1 &&
@@ -220,7 +302,7 @@ rule balanceChange(env e, address account) {
     require balanceLimited(account);
 
     mathint balanceBefore = balanceOf(account);
-    method f; calldataarg args; f(e, args);
+    method f; helperSoundFnCall(e, f);
     mathint balanceAfter  = balanceOf(account);
 
     // balance can change by at most 1
@@ -247,8 +329,11 @@ rule balanceChange(env e, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule ownershipChange(env e, uint256 tokenId) {
+    require nonzerosender(e);
+    requireInvariant zeroAddressHasNoApprovedOperator(e.msg.sender);
+
     address ownerBefore = unsafeOwnerOf(tokenId);
-    method f; calldataarg args; f(e, args);
+    method f; helperSoundFnCall(e, f);
     address ownerAfter  = unsafeOwnerOf(tokenId);
 
     assert ownerBefore == 0 && ownerAfter != 0 => (
@@ -275,7 +360,7 @@ rule ownershipChange(env e, uint256 tokenId) {
 */
 rule approvalChange(env e, uint256 tokenId) {
     address approvalBefore = unsafeGetApproved(tokenId);
-    method f; calldataarg args; f(e, args);
+    method f; helperSoundFnCall(e, f);
     address approvalAfter  = unsafeGetApproved(tokenId);
 
     // approve can set any value, other functions reset
@@ -299,7 +384,7 @@ rule approvalChange(env e, uint256 tokenId) {
 */
 rule approvedForAllChange(env e, address owner, address spender) {
     bool approvedForAllBefore = isApprovedForAll(owner, spender);
-    method f; calldataarg args; f(e, args);
+    method f; helperSoundFnCall(e, f);
     bool approvedForAllAfter  = isApprovedForAll(owner, spender);
 
     assert approvedForAllBefore != approvedForAllAfter => f.selector == sig:setApprovalForAll(address,bool).selector;
@@ -419,7 +504,7 @@ rule mint(env e, address to, uint256 tokenId) {
 
     require balanceLimited(to);
 
-    mathint supplyBefore         = ownedTotal;
+    mathint supplyBefore         = _supply;
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -436,9 +521,9 @@ rule mint(env e, address to, uint256 tokenId) {
 
     // effect
     assert success => (
-        ownedTotal                  == supplyBefore + 1 &&
-        to_mathint(balanceOf(to))   == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)      == to
+        _supply                   == supplyBefore + 1 &&
+        to_mathint(balanceOf(to)) == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)    == to
     );
 
     // no side effect
@@ -463,7 +548,7 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
 
     require balanceLimited(to);
 
-    mathint supplyBefore         = ownedTotal;
+    mathint supplyBefore         = _supply;
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -479,9 +564,9 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
-        ownedTotal                  == supplyBefore + 1 &&
-        to_mathint(balanceOf(to))   == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)      == to
+        _supply                   == supplyBefore + 1 &&
+        to_mathint(balanceOf(to)) == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)    == to
     );
 
     // no side effect
@@ -503,7 +588,7 @@ rule burn(env e, uint256 tokenId) {
 
     requireInvariant ownerHasBalance(tokenId);
 
-    mathint supplyBefore         = ownedTotal;
+    mathint supplyBefore         = _supply;
     uint256 balanceOfFromBefore  = balanceOf(from);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -520,7 +605,7 @@ rule burn(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        ownedTotal                  == supplyBefore - 1 &&
+        _supply                     == supplyBefore - 1 &&
         to_mathint(balanceOf(from)) == balanceOfFromBefore - 1 &&
         unsafeOwnerOf(tokenId)      == 0 &&
         unsafeGetApproved(tokenId)  == 0

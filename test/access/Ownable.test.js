@@ -14,6 +14,10 @@ contract('Ownable', function (accounts) {
     this.ownable = await Ownable.new(owner);
   });
 
+  it('rejects zero address for initialOwner', async function () {
+    await expectRevertCustomError(Ownable.new(constants.ZERO_ADDRESS), 'OwnableInvalidOwner', [constants.ZERO_ADDRESS]);
+  });
+
   it('has an owner', async function () {
     expect(await this.ownable.owner()).to.equal(owner);
   });

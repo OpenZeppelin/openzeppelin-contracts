@@ -19,13 +19,11 @@ use invariant totalSupplyIsSumOfBalances;
 │ Helper: consequence of `totalSupplyIsSumOfBalances` applied to underlying                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-function underlyingBalancesLowerThanUnderlyingSupply(address a) returns bool {
-    return underlyingBalanceOf(a) <= underlyingTotalSupply();
-}
+definition underlyingBalancesLowerThanUnderlyingSupply(address a) returns bool =
+    underlyingBalanceOf(a) <= underlyingTotalSupply();
 
-function sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) returns bool {
-    return a != b => underlyingBalanceOf(a) + underlyingBalanceOf(b) <= to_mathint(underlyingTotalSupply());
-}
+definition sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) returns bool =
+    a != b => underlyingBalanceOf(a) + underlyingBalanceOf(b) <= to_mathint(underlyingTotalSupply());
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
