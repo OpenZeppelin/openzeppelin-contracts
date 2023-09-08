@@ -17,8 +17,8 @@ pragma solidity ^0.8.20;
  * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
  * considered as an intention to spend the approval in any specific way. The second is that because permits have
  * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
- * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a good pattern that may
- * be generally recommended is shown below:
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
+ * generally recommended is:
  *
  * ```solidity
  * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
