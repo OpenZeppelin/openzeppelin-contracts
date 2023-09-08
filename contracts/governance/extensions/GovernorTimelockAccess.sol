@@ -97,14 +97,14 @@ abstract contract GovernorTimelockAccess is Governor {
      * delayed since queuing, and an array indicating which of the proposal actions will be executed indirectly through
      * the associated {AccessManager}.
      */
-    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32, bool[] memory) {
+    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32, bool[2][] memory) {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         uint32 delay = plan.delay;
         uint32 length = plan.length;
-        bool[] memory indirect = new bool[](length);
+        bool[2][] memory indirect = new bool[2][](length);
         for (uint256 i = 0; i < length; ++i) {
-            (indirect[i], ) = _getManagerData(plan, i);
+            (indirect[i][0], indirect[i][1], ) = _getManagerData(plan, i);
         }
 
         return (delay, indirect);
@@ -140,12 +140,8 @@ abstract contract GovernorTimelockAccess is Governor {
                 targets[i],
                 bytes4(calldatas[i])
             );
-            // After proposal, the values are:
-            // - 0: for calls that do not go through the AccessManager
-            // - 1: for calls that go through the AccessManager without scheduling
-            // - 2: for calls that go through the AccessManager with scheduling
             if (immediate || delay > 0) {
-                _setManagerData(plan, i, immediate ? 1 : 2);
+                _setManagerData(plan, i, !immediate, 0);
             }
             // downcast is safe because both arguments are uint32
             neededDelay = uint32(Math.max(delay, neededDelay));
@@ -173,14 +169,10 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            // After queuing, the values stored are:
-            // - 0: for calls that do not go through the AccessManager (same as before)
-            // - 1: for calls that go through the AccessManager without scheduling (same as before)
-            // - *: nonce + 2, where the nonce was obtained when scheduling the call
-            uint32 value = _getManagerData(plan, i);
-            if (value > 1) {
+            (, bool withDelay, ) = _getManagerData(plan, i);
+            if (withDelay) {
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], eta);
-                _setManagerData(plan, i, nonce + 2);
+                _setManagerData(plan, i, true, nonce);
             }
         }
 
@@ -205,14 +197,10 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            // At this stage (we are after queuing), the values stored are:
-            // - 0: for calls that do not go through the AccessManager
-            // - 1: for calls that go through the AccessManager without scheduling
-            // - *: nonce + 2, where the nonce was obtained when scheduling the call
-            uint32 value = _getManagerData(plan, i);
-            if (value > 0) {
+            (bool controlled, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
+            if (controlled) {
                 uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
-                if (value > 1 && executedNonce != value - 2) {
+                if (withDelay && executedNonce != nonce) {
                     revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
                 }
             } else {
@@ -240,9 +228,8 @@ abstract contract GovernorTimelockAccess is Governor {
         // If the proposal has been scheduled it will have an ETA and we have to externally cancel
         if (eta != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
-                uint32 value = _getManagerData(plan, i);
-                if (value > 1) {
-                    uint32 nonce = value - 2;
+                (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
+                if (withDelay) {
                     // Attempt to cancel considering the operation could have been cancelled and rescheduled already
                     try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32 canceledNonce) {
                         if (canceledNonce != nonce) {
@@ -259,17 +246,21 @@ abstract contract GovernorTimelockAccess is Governor {
     /**
      * @dev Returns whether the operation at an index is delayed by the manager, and its scheduling nonce once queued.
      */
-    function _getManagerData(ExecutionPlan storage plan, uint256 index) private view returns (uint32) {
+    function _getManagerData(
+        ExecutionPlan storage plan,
+        uint256 index
+    ) private view returns (bool controlled, bool withDelay, uint32 nonce) {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        return plan.managerData[bucket][subindex];
+        uint32 value = plan.managerData[bucket][subindex];
+        return (value > 0, value > 1, value > 1 ? value - 2 : 0);
     }
 
     /**
      * @dev Marks an operation at an index as delayed by the manager, and sets its scheduling nonce.
      */
-    function _setManagerData(ExecutionPlan storage plan, uint256 index, uint32 value) private {
+    function _setManagerData(ExecutionPlan storage plan, uint256 index, bool withDelay, uint32 nonce) private {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        plan.managerData[bucket][subindex] = value;
+        plan.managerData[bucket][subindex] = withDelay ? nonce + 2 : 1;
     }
 
     /**
