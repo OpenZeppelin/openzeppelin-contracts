@@ -17,19 +17,24 @@ pragma solidity ^0.8.20;
  * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
  * considered as an intention to spend the approval in any specific way. The second is that because permits have
  * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
- * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a good pattern that can
- * be generally recommended is:
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a good pattern that may
+ * be generally recommended is shown below:
  *
  * ```solidity
- * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) {
+ * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
  *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
- *     doThing(..., value); // will use token.transferFrom
+ *     doThing(..., value);
+ * }
+ *
+ * function doThing(..., uint256 value) public {
+ *     token.safeTransferFrom(msg.sender, address(this), value);
+ *     ...
  * }
  * ```
  *
- * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
- * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. In general, `address(this)` would
- * be used as the `spender` parameter.
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, 2) the use of
+ * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
+ * {SafeERC20-safeTransferFrom}).
  *
  * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
  * contracts should have entry points that don't rely on permit.
