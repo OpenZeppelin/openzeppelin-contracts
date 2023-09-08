@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
-import {IERC165} from "../../interfaces/IERC165.sol";
 import {Address} from "../../utils/Address.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
