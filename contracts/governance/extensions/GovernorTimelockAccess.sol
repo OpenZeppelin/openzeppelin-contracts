@@ -97,7 +97,9 @@ abstract contract GovernorTimelockAccess is Governor {
      * delayed since queuing, and an array indicating which of the proposal actions will be executed indirectly through
      * the associated {AccessManager}.
      */
-    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32 delay, bool[] memory indirect, bool[] memory withDelay) {
+    function proposalExecutionPlan(
+        uint256 proposalId
+    ) public view returns (uint32 delay, bool[] memory indirect, bool[] memory withDelay) {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         uint32 length = plan.length;
@@ -231,12 +233,11 @@ abstract contract GovernorTimelockAccess is Governor {
             for (uint256 i = 0; i < targets.length; ++i) {
                 (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
                 if (withDelay) {
-                    // Attempt to cancel considering the operation could have been cancelled and rescheduled already
-                    try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32 canceledNonce) {
-                        if (canceledNonce != nonce) {
-                            revert GovernorMismatchedNonce(proposalId, nonce, canceledNonce);
-                        }
-                    } catch {}
+                    bytes32 operationId = keccak256(abi.encode(address(this), targets[i], calldatas[i]));
+                    if (nonce == _manager.getNonce(operationId)) {
+                        // Attempt to cancel considering the operation could have been cancelled and rescheduled already
+                        try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32) {} catch {}
+                    }
                 }
             }
         }
