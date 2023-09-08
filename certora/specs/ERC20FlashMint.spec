@@ -8,9 +8,7 @@ methods {
     function flashFeeReceiver() external returns (address) envfree;
 
     // function summaries below
-    function _._mint(address account, uint256 amount)              internal => specMint(account, amount)        expect void ALL;
-    function _._burn(address account, uint256 amount)              internal => specBurn(account, amount)        expect void ALL;
-    function _._transfer(address from, address to, uint256 amount) internal => specTransfer(from, to, amount)   expect void ALL;
+    function _._update(address from, address to, uint256 amount) internal => specUpdate(from, to, amount) expect void ALL;
 }
 
 /*
@@ -22,9 +20,17 @@ ghost mapping(address => mathint)                     trackedMintAmount;
 ghost mapping(address => mathint)                     trackedBurnAmount;
 ghost mapping(address => mapping(address => mathint)) trackedTransferedAmount;
 
-function specMint(address account, uint256 amount)              { trackedMintAmount[account] = amount;        }
-function specBurn(address account, uint256 amount)              { trackedBurnAmount[account] = amount;        }
-function specTransfer(address from, address to, uint256 amount) { trackedTransferedAmount[from][to] = amount; }
+function specUpdate(address from, address to, uint256 amount) {
+    if (from == 0 && to == 0) { assert(false); } // defensive
+
+    if (from == 0) {
+        trackedMintAmount[to] = amount;
+    } else if (to == 0) {
+        trackedBurnAmount[from] = amount;
+    } else {
+        trackedTransferedAmount[from][to] = amount;
+    }
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
