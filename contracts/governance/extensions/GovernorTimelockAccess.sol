@@ -140,8 +140,12 @@ abstract contract GovernorTimelockAccess is Governor {
                 targets[i],
                 bytes4(calldatas[i])
             );
+            // After proposal, the values are:
+            // - 0: for calls that do not go through the AccessManager
+            // - 1: for calls that go through the AccessManager without scheduling
+            // - 2: for calls that go through the AccessManager with scheduling
             if (immediate || delay > 0) {
-                _setManagerData(plan, i, 0);
+                _setManagerData(plan, i, immediate ? 1 : 2);
             }
             // downcast is safe because both arguments are uint32
             neededDelay = uint32(Math.max(delay, neededDelay));
@@ -169,10 +173,14 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool delayed, ) = _getManagerData(plan, i);
-            if (delayed) {
+            // After queuing, the values stored are:
+            // - 0: for calls that do not go through the AccessManager (same as before)
+            // - 1: for calls that go through the AccessManager without scheduling (same as before)
+            // - *: nonce + 2, where the nonce was obtained when scheduling the call
+            uint32 value = _getManagerData(plan, i);
+            if (value > 1) {
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], eta);
-                _setManagerData(plan, i, nonce);
+                _setManagerData(plan, i, nonce + 2);
             }
         }
 
@@ -197,10 +205,14 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool delayed, uint32 nonce) = _getManagerData(plan, i);
-            if (delayed) {
+            // At this stage (we are after queuing), the values stored are:
+            // - 0: for calls that do not go through the AccessManager
+            // - 1: for calls that go through the AccessManager without scheduling
+            // - *: nonce + 2, where the nonce was obtained when scheduling the call
+            uint32 value = _getManagerData(plan, i);
+            if (value > 0) {
                 uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
-                if (executedNonce != nonce) {
+                if (value > 1 && executedNonce != value - 2) {
                     revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
                 }
             } else {
@@ -228,8 +240,9 @@ abstract contract GovernorTimelockAccess is Governor {
         // If the proposal has been scheduled it will have an ETA and we have to externally cancel
         if (eta != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
-                (bool delayed, uint32 nonce) = _getManagerData(plan, i);
-                if (delayed) {
+                uint32 value = _getManagerData(plan, i);
+                if (value > 1) {
+                    uint32 nonce = value - 2;
                     // Attempt to cancel considering the operation could have been cancelled and rescheduled already
                     try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32 canceledNonce) {
                         if (canceledNonce != nonce) {
@@ -246,20 +259,17 @@ abstract contract GovernorTimelockAccess is Governor {
     /**
      * @dev Returns whether the operation at an index is delayed by the manager, and its scheduling nonce once queued.
      */
-    function _getManagerData(ExecutionPlan storage plan, uint256 index) private view returns (bool, uint32) {
+    function _getManagerData(ExecutionPlan storage plan, uint256 index) private view returns (uint32) {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        uint32 nonce = plan.managerData[bucket][subindex];
-        unchecked {
-            return nonce > 0 ? (true, nonce - 1) : (false, 0);
-        }
+        return plan.managerData[bucket][subindex];
     }
 
     /**
      * @dev Marks an operation at an index as delayed by the manager, and sets its scheduling nonce.
      */
-    function _setManagerData(ExecutionPlan storage plan, uint256 index, uint32 nonce) private {
+    function _setManagerData(ExecutionPlan storage plan, uint256 index, uint32 value) private {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        plan.managerData[bucket][subindex] = nonce + 1;
+        plan.managerData[bucket][subindex] = value;
     }
 
     /**
