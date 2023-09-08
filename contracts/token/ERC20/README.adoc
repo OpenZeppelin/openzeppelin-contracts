@@ -15,10 +15,10 @@ There are a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 
+* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
-* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
@@ -44,13 +44,15 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
+{{IERC20Permit}}
+
+{{ERC20Permit}}
+
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
 
 {{ERC20Pausable}}
-
-{{ERC20Permit}}
 
 {{ERC20Votes}}
 
