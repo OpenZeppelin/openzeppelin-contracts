@@ -17,10 +17,10 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
  *
- * WARNING: Setting up the TimelockController to have additional proposers besides the governor is very risky, as it
- * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
- * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
- * executing a Denial of Service attack. This risk will be mitigated in a future release.
+ * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
+ * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
+ * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
+ * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
  */
 abstract contract GovernorTimelockControl is Governor {
     TimelockController private _timelock;

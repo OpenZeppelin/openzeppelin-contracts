@@ -16,7 +16,7 @@ import {Nonces} from "../utils/Nonces.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
- * @dev Core of the governance system, designed to be extended though various modules.
+ * @dev Core of the governance system, designed to be extended through various modules.
  *
  * This contract is abstract and requires several functions to be implemented in various modules:
  *

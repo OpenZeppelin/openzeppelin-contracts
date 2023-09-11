@@ -164,7 +164,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns whether an id correspond to a registered operation. This
+     * @dev Returns whether an id corresponds to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view returns (bool) {
