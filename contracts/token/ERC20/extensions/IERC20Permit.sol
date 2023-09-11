@@ -15,7 +15,7 @@ pragma solidity ^0.8.20;
  *
  * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
  * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
- * considered as an intention to spend the approval in any specific way. The second is that because permits have
+ * considered as an intention to spend the allowance in any specific way. The second is that because permits have
  * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
  * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
  * generally recommended is:
@@ -32,7 +32,7 @@ pragma solidity ^0.8.20;
  * }
  * ```
  *
- * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, 2) the use of
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
  * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
  * {SafeERC20-safeTransferFrom}).
  *
