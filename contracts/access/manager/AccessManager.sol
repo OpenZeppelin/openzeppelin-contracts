@@ -168,13 +168,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the permission level (role) required to call a function. This only applies for contract that are
-     * operating under the `Custom` mode.
+     * @dev Get the role required to call a function.
      */
     function getTargetFunctionRole(address target, bytes4 selector) public view virtual returns (uint64) {
         return _targets[target].allowedRoles[selector];
     }
 
+    /**
+     * @dev Get the admin delay for a target contract. Changes to contract configuration are subject to this delay.
+     */
     function getTargetAdminDelay(address target) public view virtual returns (uint32) {
         return _targets[target].adminDelay.get();
     }
@@ -208,7 +210,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the access details for a given account in a given role. These details include the timepoint at which
+     * @dev Get the access details for a given account for a given role. These details include the timepoint at which
      * membership becomes active, and the delay applied to all operation by this user that requires this permission
      * level.
      *
@@ -268,7 +270,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Requirements:
      *
-     * - the caller must be in the role's admins
+     * - the caller must be an admin for the role (see {getRoleAdmin})
      *
      * Emits a {RoleGranted} event
      */
@@ -277,14 +279,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Remove an account for a role, with immediate effect. If the sender is not in the role, this call has no
-     * effect.
+     * @dev Remove an account from a role, with immediate effect. If the account does not have the role, this call has
+     * no effect.
      *
      * Requirements:
      *
-     * - the caller must be in the role's admins
+     * - the caller must be an admin for the role (see {getRoleAdmin})
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account had the role.
      */
     function revokeRole(uint64 roleId, address account) public virtual onlyAuthorized {
         _revokeRole(roleId, account);
@@ -298,7 +300,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be `callerConfirmation`.
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account had the role.
      */
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
@@ -340,7 +342,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {RoleGrantDelayChanged} event
+     * Emits a {RoleGrantDelayChanged} event.
      */
     function setGrantDelay(uint64 roleId, uint32 newDelay) public virtual onlyAuthorized {
         _setGrantDelay(roleId, newDelay);
@@ -349,7 +351,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
      *
-     * Emits a {RoleGranted} event
+     * Emits a {RoleGranted} event.
      */
     function _grantRole(
         uint64 roleId,
@@ -384,7 +386,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
      * Returns true if the role was previously granted.
      *
-     * Emits a {RoleRevoked} event
+     * Emits a {RoleRevoked} event if the account had the role.
      */
     function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
         if (roleId == PUBLIC_ROLE) {
@@ -449,14 +451,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
     /**
-     * @dev Set the level of permission (`role`) required to call functions identified by the `selectors` in the
-     * `target` contract.
+     * @dev Set the role required to call functions identified by the `selectors` in the `target` contract.
      *
      * Requirements:
      *
      * - the caller must be a global admin
      *
-     * Emits a {TargetFunctionRoleUpdated} event per selector
+     * Emits a {TargetFunctionRoleUpdated} event per selector.
      */
     function setTargetFunctionRole(
         address target,
@@ -479,7 +480,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Set the delay for management operations on a given target contract.
+     * @dev Set the delay for changing the configuration of a given target contract.
      *
      * Requirements:
      *
