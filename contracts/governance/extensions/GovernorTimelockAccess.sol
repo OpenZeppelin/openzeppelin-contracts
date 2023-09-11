@@ -35,7 +35,7 @@ abstract contract GovernorTimelockAccess is Governor {
         // storing the length redundantly.
         // We pack 8 operations' data in each bucket. Each uint32 value is set to 1 upon proposal creation if it has
         // to be scheduled and executed through the manager. Upon queuing, the value is set to nonce + 1, where the
-        // nonce is that which we get back from the manager when scheduling the operation.
+        // nonce is received from the manager when scheduling the operation.
         mapping(uint256 operationBucket => uint32[8]) managerData;
     }
 
