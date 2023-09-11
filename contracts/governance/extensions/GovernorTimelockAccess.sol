@@ -255,11 +255,14 @@ abstract contract GovernorTimelockAccess is Governor {
     ) private view returns (bool controlled, bool withDelay, uint32 nonce) {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
         uint32 value = plan.managerData[bucket][subindex];
-        return (value > 0, value > 1, value > 1 ? value - 2 : 0);
+        unchecked {
+            return (value > 0, value > 1, value > 1 ? value - 2 : 0);
+        }
     }
 
     /**
-     * @dev Marks an operation at an index as delayed by the manager, and sets its scheduling nonce.
+     * @dev Marks an operation at an index as permissioned by the manager, potentially delayed, and
+     * when delayed sets its scheduling nonce.
      */
     function _setManagerData(ExecutionPlan storage plan, uint256 index, bool withDelay, uint32 nonce) private {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
