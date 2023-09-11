@@ -4,6 +4,7 @@ const { expectRevertCustomError } = require('../../helpers/customError');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
 const { product } = require('../../helpers/iterate');
+const helpers = require('@nomicfoundation/hardhat-network-helpers');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
@@ -883,17 +884,15 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(timestamp.add(executeDelay));
 
-        // we need to set the clock 2 seconds before the value, because the increaseTo "consumes" the timestamp
-        // and the next transaction will be one after that (see check below)
-        await time.increaseTo(timestamp.add(executeDelay).subn(2));
-
         // too early
+        await helpers.time.setNextBlockTimestamp(timestamp.add(executeDelay).subn(1));
         await expectRevertCustomError(this.execute(), 'AccessManagerNotReady', [this.opId]);
 
         // the revert happened one second before the execution delay expired
         expect(await time.latest()).to.be.bignumber.equal(timestamp.add(executeDelay).subn(1));
 
         // ok
+        await helpers.time.setNextBlockTimestamp(timestamp.add(executeDelay));
         await this.execute();
 
         // the success happened when the delay was reached (earliest possible)
