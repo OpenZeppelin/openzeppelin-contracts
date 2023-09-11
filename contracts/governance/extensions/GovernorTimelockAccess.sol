@@ -234,7 +234,7 @@ abstract contract GovernorTimelockAccess is Governor {
             for (uint256 i = 0; i < targets.length; ++i) {
                 (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
                 if (withDelay) {
-                    bytes32 operationId = keccak256(abi.encode(address(this), targets[i], calldatas[i]));
+                    bytes32 operationId = _manager.hashOperation(address(this), targets[i], calldatas[i]);
                     if (nonce == _manager.getNonce(operationId)) {
                         // Attempt to cancel considering the operation could have been cancelled and rescheduled already
                         try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32) {} catch {}
