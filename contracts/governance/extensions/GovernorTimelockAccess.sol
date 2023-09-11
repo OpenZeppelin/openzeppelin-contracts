@@ -94,8 +94,9 @@ abstract contract GovernorTimelockAccess is Governor {
 
     /**
      * @dev Public accessor to check the execution plan, including the number of seconds that the proposal will be
-     * delayed since queuing, and an array indicating which of the proposal actions will be executed indirectly through
-     * the associated {AccessManager}.
+     * delayed since queuing, an array indicating which of the proposal actions will be executed indirectly through
+     * the associated {AccessManager}, and another indicating which will be scheduled in {queue}. Note that
+     * those that must be scheduled are cancellable by `AccessManager` guardians.
      */
     function proposalExecutionPlan(
         uint256 proposalId
