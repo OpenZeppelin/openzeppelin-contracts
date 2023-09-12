@@ -44,7 +44,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     constructor(string memory name) EIP712(name, "1") {}
 
     /**
-     * @dev See {IERC20Permit-permit}.
+     * @inheritdoc IERC20Permit
      */
     function permit(
         address owner,
@@ -68,14 +68,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     }
 
     /**
-     * @dev See {IERC20Permit-nonces}.
+     * @inheritdoc IERC20Permit
      */
     function nonces(address owner) public view virtual override returns (uint256) {
         return _nonces[owner].current();
     }
 
     /**
-     * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
+     * @inheritdoc IERC20Permit
      */
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view override returns (bytes32) {

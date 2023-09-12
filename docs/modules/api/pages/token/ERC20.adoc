@@ -2,11 +2,11 @@
 :IERC20: pass:normal[xref:token/ERC20.adoc#IERC20[`IERC20`]]
 :IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
+:ERC20Permit: pass:normal[xref:token/ERC20.adoc#ERC20Permit[`ERC20Permit`]]
 :ERC20Burnable: pass:normal[xref:token/ERC20.adoc#ERC20Burnable[`ERC20Burnable`]]
 :ERC20Capped: pass:normal[xref:token/ERC20.adoc#ERC20Capped[`ERC20Capped`]]
 :ERC20Pausable: pass:normal[xref:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`]]
 :ERC20Snapshot: pass:normal[xref:token/ERC20.adoc#ERC20Snapshot[`ERC20Snapshot`]]
-:ERC20Permit: pass:normal[xref:token/ERC20.adoc#ERC20Permit[`ERC20Permit`]]
 :ERC20FlashMint: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint[`ERC20FlashMint`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :ERC20VotesComp: pass:normal[xref:token/ERC20.adoc#ERC20VotesComp[`ERC20VotesComp`]]
@@ -70,6 +70,48 @@
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
 :IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
 :IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:IERC20-allowance: pass:normal[xref:token/ERC20.adoc#IERC20-allowance-address-address-[`IERC20.allowance`]]
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:SafeERC20-safeTransferFrom: pass:normal[xref:token/ERC20.adoc#SafeERC20-safeTransferFrom-contract-IERC20-address-address-uint256-[`SafeERC20.safeTransferFrom`]]
+:xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-IERC20Permit-nonces-address-: xref:token/ERC20.adoc#IERC20Permit-nonces-address-
+:xref-IERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
+:IERC20-allowance: pass:normal[xref:token/ERC20.adoc#IERC20-allowance-address-address-[`IERC20.allowance`]]
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:xref-ERC20Permit-constructor-string-: xref:token/ERC20.adoc#ERC20Permit-constructor-string-
+:xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-ERC20Permit-nonces-address-: xref:token/ERC20.adoc#ERC20Permit-nonces-address-
+:xref-ERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#ERC20Permit-DOMAIN_SEPARATOR--
+:xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
+:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
+:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
+:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
+:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
+:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
+:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
+:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
+:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
+:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
+:xref-ERC20-increaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-increaseAllowance-address-uint256-
+:xref-ERC20-decreaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-decreaseAllowance-address-uint256-
+:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
+:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
+:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
+:xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
+:xref-ERC20-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
 :xref-ERC20Burnable-burn-uint256-: xref:token/ERC20.adoc#ERC20Burnable-burn-uint256-
 :xref-ERC20Burnable-burnFrom-address-uint256-: xref:token/ERC20.adoc#ERC20Burnable-burnFrom-address-uint256-
@@ -152,41 +194,6 @@
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :ERC20-_beforeTokenTransfer: pass:normal[xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20._beforeTokenTransfer`]]
-:IERC20-allowance: pass:normal[xref:token/ERC20.adoc#IERC20-allowance-address-address-[`IERC20.allowance`]]
-:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
-:xref-ERC20Permit-constructor-string-: xref:token/ERC20.adoc#ERC20Permit-constructor-string-
-:xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
-:xref-ERC20Permit-nonces-address-: xref:token/ERC20.adoc#ERC20Permit-nonces-address-
-:xref-ERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#ERC20Permit-DOMAIN_SEPARATOR--
-:xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
-:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
-:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
-:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
-:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
-:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
-:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
-:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
-:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
-:xref-ERC20-increaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-increaseAllowance-address-uint256-
-:xref-ERC20-decreaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-decreaseAllowance-address-uint256-
-:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
-:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
-:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
-:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
-:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
-:xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
-:xref-ERC20-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-
-:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
-:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
-:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
-:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
-:IERC20Permit-permit: pass:normal[xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`IERC20Permit.permit`]]
-:IERC20Permit-nonces: pass:normal[xref:token/ERC20.adoc#IERC20Permit-nonces-address-[`IERC20Permit.nonces`]]
-:IERC20Permit-DOMAIN_SEPARATOR: pass:normal[xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--[`IERC20Permit.DOMAIN_SEPARATOR`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :xref-ERC20Snapshot-_snapshot--: xref:token/ERC20.adoc#ERC20Snapshot-_snapshot--
 :xref-ERC20Snapshot-_getCurrentSnapshotId--: xref:token/ERC20.adoc#ERC20Snapshot-_getCurrentSnapshotId--
@@ -533,11 +540,11 @@ There are a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 
+* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
-* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
@@ -1073,6 +1080,264 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 == Extensions
 
+:permit: pass:normal[xref:#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++permit++`]]
+:nonces: pass:normal[xref:#IERC20Permit-nonces-address-[`++nonces++`]]
+:DOMAIN_SEPARATOR: pass:normal[xref:#IERC20Permit-DOMAIN_SEPARATOR--[`++DOMAIN_SEPARATOR++`]]
+
+[.contract]
+[[IERC20Permit]]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
+```
+
+Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+
+Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
+need to send a transaction, and thus is not required to hold Ether at all.
+
+==== Security Considerations
+
+There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
+expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
+considered as an intention to spend the allowance in any specific way. The second is that because permits have
+built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
+take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
+generally recommended is:
+
+```solidity
+function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+    try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
+    doThing(..., value);
+}
+
+function doThing(..., uint256 value) public {
+    token.safeTransferFrom(msg.sender, address(this), value);
+    ...
+}
+```
+
+Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
+`try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
+{SafeERC20-safeTransferFrom}).
+
+Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
+contracts should have entry points that don't rely on permit.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
+* {xref-IERC20Permit-nonces-address-}[`++nonces(owner)++`]
+* {xref-IERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
+
+--
+
+[.contract-item]
+[[IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++permit++#++(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#external#
+
+Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+given ``owner``'s signed approval.
+
+IMPORTANT: The same issues {IERC20-approve} has related to transaction
+ordering also apply here.
+
+Emits an {Approval} event.
+
+Requirements:
+
+- `spender` cannot be the zero address.
+- `deadline` must be a timestamp in the future.
+- `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
+over the EIP712-formatted function arguments.
+- the signature must use ``owner``'s current nonce (see {nonces}).
+
+For more information on the signature format, see the
+https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
+section].
+
+CAUTION: See Security Considerations above.
+
+[.contract-item]
+[[IERC20Permit-nonces-address-]]
+==== `[.contract-item-name]#++nonces++#++(address owner) → uint256++` [.item-kind]#external#
+
+Returns the current nonce for `owner`. This value must be
+included whenever a signature is generated for {permit}.
+
+Every successful call to {permit} increases ``owner``'s nonce by one. This
+prevents a signature from being used multiple times.
+
+[.contract-item]
+[[IERC20Permit-DOMAIN_SEPARATOR--]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → bytes32++` [.item-kind]#external#
+
+Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+
+:constructor: pass:normal[xref:#ERC20Permit-constructor-string-[`++constructor++`]]
+:permit: pass:normal[xref:#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++permit++`]]
+:nonces: pass:normal[xref:#ERC20Permit-nonces-address-[`++nonces++`]]
+:DOMAIN_SEPARATOR: pass:normal[xref:#ERC20Permit-DOMAIN_SEPARATOR--[`++DOMAIN_SEPARATOR++`]]
+:_useNonce: pass:normal[xref:#ERC20Permit-_useNonce-address-[`++_useNonce++`]]
+
+[.contract]
+[[ERC20Permit]]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+```
+
+Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+
+Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
+need to send a transaction, and thus is not required to hold Ether at all.
+
+_Available since v3.4._
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC20Permit-constructor-string-}[`++constructor(name)++`]
+* {xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
+* {xref-ERC20Permit-nonces-address-}[`++nonces(owner)++`]
+* {xref-ERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
+* {xref-ERC20Permit-_useNonce-address-}[`++_useNonce(owner)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.IERC20Permit
+
+[.contract-subindex-inherited]
+.ERC20
+* {xref-ERC20-name--}[`++name()++`]
+* {xref-ERC20-symbol--}[`++symbol()++`]
+* {xref-ERC20-decimals--}[`++decimals()++`]
+* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, amount)++`]
+* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-ERC20-approve-address-uint256-}[`++approve(spender, amount)++`]
+* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, amount)++`]
+* {xref-ERC20-increaseAllowance-address-uint256-}[`++increaseAllowance(spender, addedValue)++`]
+* {xref-ERC20-decreaseAllowance-address-uint256-}[`++decreaseAllowance(spender, subtractedValue)++`]
+* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, amount)++`]
+* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, amount)++`]
+* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, amount)++`]
+* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, amount)++`]
+* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, amount)++`]
+* {xref-ERC20-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, amount)++`]
+* {xref-ERC20-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.IERC20Permit
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-item]
+[[ERC20Permit-constructor-string-]]
+==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#internal#
+
+Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
+
+It's a good idea to use the same `name` that is defined as the ERC20 token name.
+
+[.contract-item]
+[[ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++permit++#++(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
+
+Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+given ``owner``'s signed approval.
+
+IMPORTANT: The same issues {IERC20-approve} has related to transaction
+ordering also apply here.
+
+Emits an {Approval} event.
+
+Requirements:
+
+- `spender` cannot be the zero address.
+- `deadline` must be a timestamp in the future.
+- `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
+over the EIP712-formatted function arguments.
+- the signature must use ``owner``'s current nonce (see {nonces}).
+
+For more information on the signature format, see the
+https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
+section].
+
+CAUTION: See Security Considerations above.
+
+[.contract-item]
+[[ERC20Permit-nonces-address-]]
+==== `[.contract-item-name]#++nonces++#++(address owner) → uint256++` [.item-kind]#public#
+
+Returns the current nonce for `owner`. This value must be
+included whenever a signature is generated for {permit}.
+
+Every successful call to {permit} increases ``owner``'s nonce by one. This
+prevents a signature from being used multiple times.
+
+[.contract-item]
+[[ERC20Permit-DOMAIN_SEPARATOR--]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → bytes32++` [.item-kind]#external#
+
+Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+
+[.contract-item]
+[[ERC20Permit-_useNonce-address-]]
+==== `[.contract-item-name]#++_useNonce++#++(address owner) → uint256 current++` [.item-kind]#internal#
+
+"Consume a nonce": return the current value and increment.
+
+_Available since v4.1._
+
 :burn: pass:normal[xref:#ERC20Burnable-burn-uint256-[`++burn++`]]
 :burnFrom: pass:normal[xref:#ERC20Burnable-burnFrom-address-uint256-[`++burnFrom++`]]
 
@@ -1344,141 +1609,6 @@ See {ERC20-_beforeTokenTransfer}.
 Requirements:
 
 - the contract must not be paused.
-
-:constructor: pass:normal[xref:#ERC20Permit-constructor-string-[`++constructor++`]]
-:permit: pass:normal[xref:#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++permit++`]]
-:nonces: pass:normal[xref:#ERC20Permit-nonces-address-[`++nonces++`]]
-:DOMAIN_SEPARATOR: pass:normal[xref:#ERC20Permit-DOMAIN_SEPARATOR--[`++DOMAIN_SEPARATOR++`]]
-:_useNonce: pass:normal[xref:#ERC20Permit-_useNonce-address-[`++_useNonce++`]]
-
-[.contract]
-[[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.3/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
-
-[.hljs-theme-light.nopadding]
-```solidity
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-```
-
-Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
-https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
-
-Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
-presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
-need to send a transaction, and thus is not required to hold Ether at all.
-
-_Available since v3.4._
-
-[.contract-index]
-.Functions
---
-* {xref-ERC20Permit-constructor-string-}[`++constructor(name)++`]
-* {xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
-* {xref-ERC20Permit-nonces-address-}[`++nonces(owner)++`]
-* {xref-ERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
-* {xref-ERC20Permit-_useNonce-address-}[`++_useNonce(owner)++`]
-
-[.contract-subindex-inherited]
-.EIP712
-* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
-* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
-* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
-
-[.contract-subindex-inherited]
-.IERC5267
-
-[.contract-subindex-inherited]
-.IERC20Permit
-
-[.contract-subindex-inherited]
-.ERC20
-* {xref-ERC20-name--}[`++name()++`]
-* {xref-ERC20-symbol--}[`++symbol()++`]
-* {xref-ERC20-decimals--}[`++decimals()++`]
-* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
-* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
-* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, amount)++`]
-* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
-* {xref-ERC20-approve-address-uint256-}[`++approve(spender, amount)++`]
-* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, amount)++`]
-* {xref-ERC20-increaseAllowance-address-uint256-}[`++increaseAllowance(spender, addedValue)++`]
-* {xref-ERC20-decreaseAllowance-address-uint256-}[`++decreaseAllowance(spender, subtractedValue)++`]
-* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, amount)++`]
-* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, amount)++`]
-* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, amount)++`]
-* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, amount)++`]
-* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, amount)++`]
-* {xref-ERC20-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, amount)++`]
-* {xref-ERC20-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
-
-[.contract-subindex-inherited]
-.IERC20Metadata
-
-[.contract-subindex-inherited]
-.IERC20
-
---
-
-[.contract-index]
-.Events
---
-
-[.contract-subindex-inherited]
-.EIP712
-
-[.contract-subindex-inherited]
-.IERC5267
-* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
-
-[.contract-subindex-inherited]
-.IERC20Permit
-
-[.contract-subindex-inherited]
-.ERC20
-
-[.contract-subindex-inherited]
-.IERC20Metadata
-
-[.contract-subindex-inherited]
-.IERC20
-* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
-* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
-
---
-
-[.contract-item]
-[[ERC20Permit-constructor-string-]]
-==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#internal#
-
-Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
-
-It's a good idea to use the same `name` that is defined as the ERC20 token name.
-
-[.contract-item]
-[[ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
-==== `[.contract-item-name]#++permit++#++(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
-
-See {IERC20Permit-permit}.
-
-[.contract-item]
-[[ERC20Permit-nonces-address-]]
-==== `[.contract-item-name]#++nonces++#++(address owner) → uint256++` [.item-kind]#public#
-
-See {IERC20Permit-nonces}.
-
-[.contract-item]
-[[ERC20Permit-DOMAIN_SEPARATOR--]]
-==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → bytes32++` [.item-kind]#external#
-
-See {IERC20Permit-DOMAIN_SEPARATOR}.
-
-[.contract-item]
-[[ERC20Permit-_useNonce-address-]]
-==== `[.contract-item-name]#++_useNonce++#++(address owner) → uint256 current++` [.item-kind]#internal#
-
-"Consume a nonce": return the current value and increment.
-
-_Available since v4.1._
 
 :Snapshots: pass:normal[xref:#ERC20Snapshot-Snapshots[`++Snapshots++`]]
 :Snapshot: pass:normal[xref:#ERC20Snapshot-Snapshot-uint256-[`++Snapshot++`]]
