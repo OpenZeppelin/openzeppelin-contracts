@@ -299,8 +299,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         string memory description,
         address proposer
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+    ) internal virtual returns (uint256 proposalId) {
+        proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
@@ -329,7 +329,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             description
         );
 
-        return proposalId;
+        // Using a named return variable to avoid stack too deep errors
     }
 
     /**

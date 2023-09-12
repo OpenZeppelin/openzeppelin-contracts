@@ -1,8 +1,8 @@
-import "helpers/helpers.spec"
-import "methods/IOwnable2Step.spec"
+import "helpers/helpers.spec";
+import "methods/IOwnable2Step.spec";
 
 methods {
-    restricted()
+    function restricted() external;
 }
 
 /*
@@ -95,14 +95,14 @@ rule ownerOrPendingOwnerChange(env e, method f) {
 
     // If owner changes, must be either acceptOwnership or renounceOwnership
     assert oldCurrent != newCurrent => (
-        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == acceptOwnership().selector) ||
-        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == renounceOwnership().selector)
+        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == sig:acceptOwnership().selector) ||
+        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == sig:renounceOwnership().selector)
     );
 
     // If pending changes, must be either acceptance or reset
     assert oldPending != newPending => (
-        (e.msg.sender == oldCurrent && newCurrent == oldCurrent &&                    f.selector == transferOwnership(address).selector) ||
-        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == acceptOwnership().selector) ||
-        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == renounceOwnership().selector)
+        (e.msg.sender == oldCurrent && newCurrent == oldCurrent &&                    f.selector == sig:transferOwnership(address).selector) ||
+        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == sig:acceptOwnership().selector) ||
+        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == sig:renounceOwnership().selector)
     );
 }
