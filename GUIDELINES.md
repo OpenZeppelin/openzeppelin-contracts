@@ -147,4 +147,4 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
 
-* Functions with multiple return values should use named return values for clarity, even if the function uses an explicit `return` statement.
+* Functions with multiple return values should use named return values for clarity, even if the function uses an explicit `return` statement. Although named variables can be used, the `return` statement is preferred for clarity.
