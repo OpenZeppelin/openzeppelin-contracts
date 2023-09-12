@@ -86,7 +86,12 @@ abstract contract GovernorStorage is Governor {
      */
     function proposalDetails(
         uint256 proposalId
-    ) public view virtual returns (address[] memory, uint256[] memory, bytes[] memory, bytes32) {
+    )
+        public
+        view
+        virtual
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+    {
         // here, using memory is more efficient than storage
         ProposalDetails memory details = _proposalDetails[proposalId];
         if (details.descriptionHash == 0) {
