@@ -52,7 +52,7 @@ abstract contract GovernorTimelockAccess is Governor {
     // The meaning of the "toggle" set to true depends on the target contract.
     // If target == address(this), the manager is ignored by default, and a true toggle means it won't be ignored.
     // For all other target contracts, the manager is used by default, and a true toggle means it will be ignored.
-    mapping(address target => mapping (bytes4 selector => bool)) private _ignoreToggle;
+    mapping(address target => mapping(bytes4 selector => bool)) private _ignoreToggle;
 
     mapping(uint256 proposalId => ExecutionPlan) private _executionPlan;
 
@@ -123,7 +123,11 @@ abstract contract GovernorTimelockAccess is Governor {
      * @dev Configure whether restrictions from the associated {AccessManager} are ignored for a target function.
      * See Security Considerations above.
      */
-    function setAccessManagerIgnored(address target, bytes4[] calldata selectors, bool ignored) public virtual onlyGovernance {
+    function setAccessManagerIgnored(
+        address target,
+        bytes4[] calldata selectors,
+        bool ignored
+    ) public virtual onlyGovernance {
         for (uint256 i = 0; i < selectors.length; ++i) {
             bytes4 selector = selectors[i];
             _setAccessManagerIgnored(target, selector, ignored);
