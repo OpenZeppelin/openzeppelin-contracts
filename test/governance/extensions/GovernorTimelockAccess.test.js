@@ -297,7 +297,9 @@ contract('GovernorTimelockAccess', function (accounts) {
 
       describe('ignore AccessManager', function () {
         it('defaults', async function () {
-          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(false);
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(
+            false,
+          );
           expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x12341234')).to.equal(true);
         });
 
@@ -314,20 +316,28 @@ contract('GovernorTimelockAccess', function (accounts) {
         });
 
         it('external setter', async function () {
-          const setAccessManagerIgnored = (...args) => this.mock.contract.methods.setAccessManagerIgnored(...args).encodeABI();
+          const setAccessManagerIgnored = (...args) =>
+            this.mock.contract.methods.setAccessManagerIgnored(...args).encodeABI();
 
-          await this.helper.setProposal([
-            {
-              target: this.mock.address,
-              data: setAccessManagerIgnored(this.receiver.address, [this.restricted.selector, this.unrestricted.selector], true),
-              value: '0',
-            },
-            {
-              target: this.mock.address,
-              data: setAccessManagerIgnored(this.mock.address, ['0x12341234', '0x67896789'], false),
-              value: '0',
-            },
-          ], 'descr');
+          await this.helper.setProposal(
+            [
+              {
+                target: this.mock.address,
+                data: setAccessManagerIgnored(
+                  this.receiver.address,
+                  [this.restricted.selector, this.unrestricted.selector],
+                  true,
+                ),
+                value: '0',
+              },
+              {
+                target: this.mock.address,
+                data: setAccessManagerIgnored(this.mock.address, ['0x12341234', '0x67896789'], false),
+                value: '0',
+              },
+            ],
+            'descr',
+          );
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
@@ -337,8 +347,12 @@ contract('GovernorTimelockAccess', function (accounts) {
 
           expectEvent(tx, 'AccessManagerIgnoredSet');
 
-          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(true);
-          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.unrestricted.selector)).to.equal(true);
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(
+            true,
+          );
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.unrestricted.selector)).to.equal(
+            true,
+          );
 
           expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x12341234')).to.equal(false);
           expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x67896789')).to.equal(false);
