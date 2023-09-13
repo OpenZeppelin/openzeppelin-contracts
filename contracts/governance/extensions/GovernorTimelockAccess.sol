@@ -293,7 +293,7 @@ abstract contract GovernorTimelockAccess is Governor {
                 if (withDelay) {
                     bytes32 operationId = _manager.hashOperation(address(this), targets[i], calldatas[i]);
                     // Check first if the current operation nonce is the one that we observed previously. It could
-                    // aready have been cancelled and rescheduled. We don't want to cancel unless it is exactly the
+                    // already have been cancelled and rescheduled. We don't want to cancel unless it is exactly the
                     // instance that we previously scheduled.
                     if (nonce == _manager.getNonce(operationId)) {
                         // Attempt to cancel but allow to fail for any reason
