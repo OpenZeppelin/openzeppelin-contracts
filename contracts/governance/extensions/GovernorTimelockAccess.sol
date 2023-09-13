@@ -281,15 +281,19 @@ abstract contract GovernorTimelockAccess is Governor {
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
-        // If the proposal has been scheduled it will have an ETA and we have to externally cancel
+        // If the proposal has been scheduled it will have an ETA and we may have to externally cancel
         if (eta != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
+                // Only attempt to cancel if the execution plan included a delay
                 if (withDelay) {
                     bytes32 operationId = _manager.hashOperation(address(this), targets[i], calldatas[i]);
+                    // Check first if the current operation nonce is the one that we observed previously. It could
+                    // aready have been cancelled and rescheduled. We don't want to cancel unless it is exactly the
+                    // instance that we previously scheduled.
                     if (nonce == _manager.getNonce(operationId)) {
-                        // Attempt to cancel considering the operation could have been cancelled and rescheduled already
-                        try _manager.cancel(address(this), targets[i], calldatas[i]) returns (uint32) {} catch {}
+                        // Attempt to cancel but allow to fail for any reason
+                        try _manager.cancel(address(this), targets[i], calldatas[i]) {} catch {}
                     }
                 }
             }
