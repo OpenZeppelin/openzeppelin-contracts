@@ -583,11 +583,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // If caller is authorised, schedule operation
         operationId = hashOperation(caller, target, data);
 
-        // Cannot reschedule unless the operation has expired
-        uint48 prevTimepoint = _schedules[operationId].timepoint;
-        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
-            revert AccessManagerAlreadyScheduled(operationId);
-        }
+        _checkNotScheduled(operationId);
 
         unchecked {
             // It's not feasible to overflow the nonce in less than 1000 years
@@ -598,6 +594,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit OperationScheduled(operationId, nonce, when, caller, target, data);
 
         // Using named return values because otherwise we get stack too deep
+    }
+
+    /**
+     * @dev Reverts if the operation is currently scheduled and has not expired.
+     * (Note: This function was introduced due to stack too deep errors in schedule.)
+     */
+    function _checkNotScheduled(bytes32 operationId) private view {
+        uint48 prevTimepoint = _schedules[operationId].timepoint;
+        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
+            revert AccessManagerAlreadyScheduled(operationId);
+        }
     }
 
     /**
