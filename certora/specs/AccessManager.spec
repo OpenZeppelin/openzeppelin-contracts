@@ -129,20 +129,12 @@ rule canCall(env e) {
     assert immediate => delay == 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-rule getAccessTimeChange() {
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transition: access can change as a result of time passing or through a function call                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getAccessChangeWait() {
     env e1;
     env e2;
     uint64 roleId;
@@ -181,8 +173,7 @@ rule getAccessTimeChange() {
     );
 }
 
-
-rule hasRoleFnChange() {
+rule getAccessChangeCall() {
     env e;
     address account;
     uint64 roleId;
@@ -215,19 +206,9 @@ rule hasRoleFnChange() {
     );
 }
 
-
-
-
-
-
-
-
-
-
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Functions: restricted functions                                                                                     │
+│ Functions: restricted functions can only be called by owner                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule restrictedFunctions(env e) {
@@ -254,32 +235,32 @@ rule restrictedFunctions(env e) {
     );
 }
 
-
-
-
-
-/*
-rule grantRoleRestrictions(env e) {
+rule restrictedFunctionsGrantRole(env e) {
     require nonpayable(e);
     require envsanity(e);
 
-    grantRole@withrevert(e);
+    uint64 roleId;
+    address account;
+    uint32 executionDelay;
+
+    grantRole@withrevert(e, roleId, account, executionDelay);
     bool success = !lastReverted;
 
-    // TODO
-    assert false => !success;
+    assert !success || hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
 }
-rule revokeRoleRestrictions(env e) {
+
+rule restrictedFunctionsRevokeRole(env e) {
     require nonpayable(e);
     require envsanity(e);
 
-    revokeRole@withrevert(e);
+    uint64 roleId;
+    address account;
+
+    revokeRole@withrevert(e, roleId, account);
     bool success = !lastReverted;
 
-    // TODO
-    assert false => !success;
+    assert !success || hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
 }
-*/
 
 
 
