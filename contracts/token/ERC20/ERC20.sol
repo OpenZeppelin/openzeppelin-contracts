@@ -356,7 +356,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
      *
-     * Won't emit an {Approval} event.
+     * Does not emit an {Approval} event.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
