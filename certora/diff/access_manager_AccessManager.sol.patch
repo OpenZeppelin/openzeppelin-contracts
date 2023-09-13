@@ -1,0 +1,29 @@
+--- access/manager/AccessManager.sol	2023-09-13 17:02:44.571409105 +0200
++++ access/manager/AccessManager.sol	2023-09-13 17:02:54.041484102 +0200
+@@ -48,7 +48,7 @@
+  * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
+  * {{AccessControl-renounceRole}}.
+  */
+-contract AccessManager is Context, Multicall, IAccessManager {
++contract AccessManager is Context, IAccessManager {
+     using Time for *;
+ 
+     // Structure that stores the details for a target contract.
+@@ -93,7 +93,7 @@
+     mapping(bytes32 operationId => Schedule) private _schedules;
+ 
+     // This should be transient storage when supported by the EVM.
+-    bytes32 private _executionId;
++    bytes32 internal _executionId;
+ 
+     /**
+      * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
+@@ -728,7 +728,7 @@
+     /**
+      * @dev Hashing function for execute protection
+      */
+-    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
++    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) {
+         return keccak256(abi.encode(target, selector));
+     }
+ 
