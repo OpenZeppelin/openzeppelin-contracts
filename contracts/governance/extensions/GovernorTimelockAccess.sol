@@ -21,9 +21,19 @@ import {Time} from "../../utils/types/Time.sol";
  * permissions. Operations that are delay-restricted by the manager, however, will be executed through the
  * {AccessManager-execute} function.
  *
- * Note that some operations may be cancelable in the {AccessManager} by the admin or a set of guardians, depending on
- * the restricted operation being invoked. Since proposals are atomic, the cancellation by a guardian of a single
- * operation in a proposal will cause all of it to become unable to execute.
+ * ==== Security Considerations
+ *
+ * Some operations may be cancelable in the `AccessManager` by the admin or a set of guardians, depending on the
+ * restricted function being invoked. Since proposals are atomic, the cancellation by a guardian of a single operation
+ * in a proposal will cause all of the proposal to become unable to execute. Consider proposing cancellable operations
+ * separately.
+ *
+ * By default, function calls will be routed through the associated `AccessManager` whenever it claims the target
+ * function to be restricted by it. However, admins may configure the manager to make that claim for functions that a
+ * governor would want to call directly (e.g., token transfers) in an attempt to deny it access to those functions. To
+ * mitigate this attack vector, the governor is able to ignore the restrictions claimed by the `AccessManager` using
+ * {setAccessManagerIgnored}. While permanent denial of service is mitigated, temporary DoS may still be technically
+ * possible. All of the governor's own functions (e.g., {setBaseDelaySeconds}) ignore the `AccessManager` by default.
  */
 abstract contract GovernorTimelockAccess is Governor {
     // An execution plan is produced at the moment a proposal is created, in order to fix at that point the exact
@@ -39,6 +49,11 @@ abstract contract GovernorTimelockAccess is Governor {
         mapping(uint256 operationBucket => uint32[8]) managerData;
     }
 
+    // The meaning of the "toggle" set to true depends on the target contract.
+    // If target == address(this), the manager is ignored by default, and a true toggle means it won't be ignored.
+    // For all other target contracts, the manager is used by default, and a true toggle means it will be ignored.
+    mapping(address target => mapping(bytes4 selector => bool)) private _ignoreToggle;
+
     mapping(uint256 proposalId => ExecutionPlan) private _executionPlan;
 
     uint32 private _baseDelay;
@@ -47,8 +62,10 @@ abstract contract GovernorTimelockAccess is Governor {
 
     error GovernorUnmetDelay(uint256 proposalId, uint256 neededTimestamp);
     error GovernorMismatchedNonce(uint256 proposalId, uint256 expectedNonce, uint256 actualNonce);
+    error GovernorLockedIgnore();
 
     event BaseDelaySet(uint32 oldBaseDelaySeconds, uint32 newBaseDelaySeconds);
+    event AccessManagerIgnoredSet(address target, bytes4 selector, bool ignored);
 
     /**
      * @dev Initialize the governor with an {AccessManager} and initial base delay.
@@ -93,21 +110,61 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev Public accessor to check the execution plan, including the number of seconds that the proposal will be
-     * delayed since queuing, and an array indicating which of the proposal actions will be executed indirectly through
-     * the associated {AccessManager}.
+     * @dev Check if restrictions from the associated {AccessManager} are ignored for a target function. Returns true
+     * when the target function will be invoked directly regardless of `AccessManager` settings for the function.
+     * See {setAccessManagerIgnored} and Security Considerations above.
      */
-    function proposalExecutionPlan(uint256 proposalId) public view returns (uint32, bool[] memory) {
+    function isAccessManagerIgnored(address target, bytes4 selector) public view virtual returns (bool) {
+        bool isGovernor = target == address(this);
+        return _ignoreToggle[target][selector] != isGovernor; // equivalent to: isGovernor ? !toggle : toggle
+    }
+
+    /**
+     * @dev Configure whether restrictions from the associated {AccessManager} are ignored for a target function.
+     * See Security Considerations above.
+     */
+    function setAccessManagerIgnored(
+        address target,
+        bytes4[] calldata selectors,
+        bool ignored
+    ) public virtual onlyGovernance {
+        for (uint256 i = 0; i < selectors.length; ++i) {
+            _setAccessManagerIgnored(target, selectors[i], ignored);
+        }
+    }
+
+    /**
+     * @dev Internal version of {setAccessManagerIgnored} without access restriction.
+     */
+    function _setAccessManagerIgnored(address target, bytes4 selector, bool ignored) internal virtual {
+        bool isGovernor = target == address(this);
+        if (isGovernor && selector == this.setAccessManagerIgnored.selector) {
+            revert GovernorLockedIgnore();
+        }
+        _ignoreToggle[target][selector] = ignored != isGovernor; // equivalent to: isGovernor ? !ignored : ignored
+        emit AccessManagerIgnoredSet(target, selector, ignored);
+    }
+
+    /**
+     * @dev Public accessor to check the execution plan, including the number of seconds that the proposal will be
+     * delayed since queuing, an array indicating which of the proposal actions will be executed indirectly through
+     * the associated {AccessManager}, and another indicating which will be scheduled in {queue}. Note that
+     * those that must be scheduled are cancellable by `AccessManager` guardians.
+     */
+    function proposalExecutionPlan(
+        uint256 proposalId
+    ) public view returns (uint32 delay, bool[] memory indirect, bool[] memory withDelay) {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
-        uint32 delay = plan.delay;
         uint32 length = plan.length;
-        bool[] memory indirect = new bool[](length);
+        delay = plan.delay;
+        indirect = new bool[](length);
+        withDelay = new bool[](length);
         for (uint256 i = 0; i < length; ++i) {
-            (indirect[i], ) = _getManagerData(plan, i);
+            (indirect[i], withDelay[i], ) = _getManagerData(plan, i);
         }
 
-        return (delay, indirect);
+        return (delay, indirect, withDelay);
     }
 
     /**
@@ -134,12 +191,19 @@ abstract contract GovernorTimelockAccess is Governor {
         plan.length = SafeCast.toUint16(targets.length);
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            uint32 delay = _detectExecutionRequirements(targets[i], bytes4(calldatas[i]));
-            if (delay > 0) {
-                _setManagerData(plan, i, 0);
+            address target = targets[i];
+            bytes4 selector = bytes4(calldatas[i]);
+            (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
+                address(_manager),
+                address(this),
+                target,
+                selector
+            );
+            if ((immediate || delay > 0) && !isAccessManagerIgnored(target, selector)) {
+                _setManagerData(plan, i, !immediate, 0);
+                // downcast is safe because both arguments are uint32
+                neededDelay = uint32(Math.max(delay, neededDelay));
             }
-            // downcast is safe because both arguments are uint32
-            neededDelay = uint32(Math.max(delay, neededDelay));
         }
 
         plan.delay = neededDelay;
@@ -164,10 +228,10 @@ abstract contract GovernorTimelockAccess is Governor {
         uint48 eta = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool delayed, ) = _getManagerData(plan, i);
-            if (delayed) {
+            (, bool withDelay, ) = _getManagerData(plan, i);
+            if (withDelay) {
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], eta);
-                _setManagerData(plan, i, nonce);
+                _setManagerData(plan, i, true, nonce);
             }
         }
 
@@ -192,10 +256,10 @@ abstract contract GovernorTimelockAccess is Governor {
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool delayed, uint32 nonce) = _getManagerData(plan, i);
-            if (delayed) {
+            (bool controlled, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
+            if (controlled) {
                 uint32 executedNonce = _manager.execute{value: values[i]}(targets[i], calldatas[i]);
-                if (executedNonce != nonce) {
+                if (withDelay && executedNonce != nonce) {
                     revert GovernorMismatchedNonce(proposalId, nonce, executedNonce);
                 }
             } else {
@@ -220,15 +284,23 @@ abstract contract GovernorTimelockAccess is Governor {
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
-        // If the proposal has been scheduled it will have an ETA and we have to externally cancel
+        // If the proposal has been scheduled it will have an ETA and we may have to externally cancel
         if (eta != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
-                (bool delayed, uint32 nonce) = _getManagerData(plan, i);
-                if (delayed) {
-                    // Attempt to cancel considering the operation could have been cancelled and rescheduled already
-                    uint32 canceledNonce = _manager.cancel(address(this), targets[i], calldatas[i]);
-                    if (canceledNonce != nonce) {
-                        revert GovernorMismatchedNonce(proposalId, nonce, canceledNonce);
+                (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
+                // Only attempt to cancel if the execution plan included a delay
+                if (withDelay) {
+                    bytes32 operationId = _manager.hashOperation(address(this), targets[i], calldatas[i]);
+                    // Check first if the current operation nonce is the one that we observed previously. It could
+                    // already have been cancelled and rescheduled. We don't want to cancel unless it is exactly the
+                    // instance that we previously scheduled.
+                    if (nonce == _manager.getNonce(operationId)) {
+                        // It is important that all calls have an opportunity to be cancelled. We chose to ignore
+                        // potential failures of some of the cancel operations to give the other operations a chance to
+                        // be properly cancelled. In particular cancel might fail if the operation was already cancelled
+                        // by guardians previously. We don't match on the revert reason to avoid encoding assumptions
+                        // about specific errors.
+                        try _manager.cancel(address(this), targets[i], calldatas[i]) {} catch {}
                     }
                 }
             }
@@ -238,38 +310,26 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev Check if the execution of a call needs to be performed through an AccessManager and what delay should be
-     * applied to this call.
-     *
-     * Returns { manager: address(0), delay: 0 } if:
-     * - target does not have code
-     * - target does not implement IAccessManaged
-     * - calling canCall on the target's manager returns a 0 delay
-     * - calling canCall on the target's manager reverts
-     * Otherwise (calling canCall on the target's manager returns a non 0 delay), return the address of the
-     * AccessManager to use, and the delay for this call.
-     */
-    function _detectExecutionRequirements(address target, bytes4 selector) private view returns (uint32 delay) {
-        (, delay) = AuthorityUtils.canCallWithDelay(address(_manager), address(this), target, selector);
-    }
-
-    /**
      * @dev Returns whether the operation at an index is delayed by the manager, and its scheduling nonce once queued.
      */
-    function _getManagerData(ExecutionPlan storage plan, uint256 index) private view returns (bool, uint32) {
+    function _getManagerData(
+        ExecutionPlan storage plan,
+        uint256 index
+    ) private view returns (bool controlled, bool withDelay, uint32 nonce) {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        uint32 nonce = plan.managerData[bucket][subindex];
+        uint32 value = plan.managerData[bucket][subindex];
         unchecked {
-            return nonce > 0 ? (true, nonce - 1) : (false, 0);
+            return (value > 0, value > 1, value > 1 ? value - 2 : 0);
         }
     }
 
     /**
-     * @dev Marks an operation at an index as delayed by the manager, and sets its scheduling nonce.
+     * @dev Marks an operation at an index as permissioned by the manager, potentially delayed, and
+     * when delayed sets its scheduling nonce.
      */
-    function _setManagerData(ExecutionPlan storage plan, uint256 index, uint32 nonce) private {
+    function _setManagerData(ExecutionPlan storage plan, uint256 index, bool withDelay, uint32 nonce) private {
         (uint256 bucket, uint256 subindex) = _getManagerDataIndices(index);
-        plan.managerData[bucket][subindex] = nonce + 1;
+        plan.managerData[bucket][subindex] = withDelay ? nonce + 2 : 1;
     }
 
     /**

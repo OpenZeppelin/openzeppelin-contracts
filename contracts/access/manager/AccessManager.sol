@@ -582,13 +582,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // If caller is authorised, schedule operation
-        operationId = _hashOperation(caller, target, data);
+        operationId = hashOperation(caller, target, data);
 
-        // Cannot reschedule unless the operation has expired
-        uint48 prevTimepoint = _schedules[operationId].timepoint;
-        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
-            revert AccessManagerAlreadyScheduled(operationId);
-        }
+        _checkNotScheduled(operationId);
 
         unchecked {
             // It's not feasible to overflow the nonce in less than 1000 years
@@ -599,6 +595,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit OperationScheduled(operationId, nonce, when, caller, target, data);
 
         // Using named return values because otherwise we get stack too deep
+    }
+
+    /**
+     * @dev Reverts if the operation is currently scheduled and has not expired.
+     * (Note: This function was introduced due to stack too deep errors in schedule.)
+     */
+    function _checkNotScheduled(bytes32 operationId) private view {
+        uint48 prevTimepoint = _schedules[operationId].timepoint;
+        if (prevTimepoint != 0 && !_isExpired(prevTimepoint)) {
+            revert AccessManagerAlreadyScheduled(operationId);
+        }
     }
 
     /**
@@ -625,7 +632,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // If caller is authorised, check operation was scheduled early enough
-        bytes32 operationId = _hashOperation(caller, target, data);
+        bytes32 operationId = hashOperation(caller, target, data);
         uint32 nonce;
 
         if (setback != 0) {
@@ -659,7 +666,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
             revert AccessManagerUnauthorizedConsume(target);
         }
-        _consumeScheduledOp(_hashOperation(caller, target, data));
+        _consumeScheduledOp(hashOperation(caller, target, data));
     }
 
     /**
@@ -699,7 +706,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address msgsender = _msgSender();
         bytes4 selector = bytes4(data[0:4]);
 
-        bytes32 operationId = _hashOperation(caller, target, data);
+        bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
         } else if (caller != msgsender) {
@@ -721,7 +728,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Hashing function for delayed operations
      */
-    function _hashOperation(address caller, address target, bytes calldata data) private pure returns (bytes32) {
+    function hashOperation(address caller, address target, bytes calldata data) public view virtual returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 
@@ -756,7 +763,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
                 revert AccessManagerUnauthorizedAccount(caller, requiredRole);
             } else {
-                _consumeScheduledOp(_hashOperation(caller, address(this), _msgData()));
+                _consumeScheduledOp(hashOperation(caller, address(this), _msgData()));
             }
         }
     }

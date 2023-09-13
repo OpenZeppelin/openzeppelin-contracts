@@ -57,6 +57,8 @@ interface IAccessManager {
         bytes4 selector
     ) external view returns (bool allowed, uint32 delay);
 
+    function hashOperation(address caller, address target, bytes calldata data) external view returns (bytes32);
+
     function expiration() external view returns (uint32);
 
     function isTargetClosed(address target) external view returns (bool);
