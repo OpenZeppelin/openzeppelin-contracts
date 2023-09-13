@@ -64,7 +64,13 @@ if (process.exitCode) {
 }
 
 for (const { spec, contract, files, options = [] } of specs) {
-  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
+  limit(
+    runCertora,
+    spec,
+    contract,
+    files,
+    [...options, ...argv.options].flatMap(opt => opt.split(' ')),
+  );
 }
 
 // Run certora, aggregate the output and print it at the end

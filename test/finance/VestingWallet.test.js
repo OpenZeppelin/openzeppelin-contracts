@@ -23,7 +23,7 @@ contract('VestingWallet', function (accounts) {
   it('rejects zero address for beneficiary', async function () {
     await expectRevertCustomError(
       VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'VestingWalletInvalidBeneficiary',
+      'OwnableInvalidOwner',
       [constants.ZERO_ADDRESS],
     );
   });

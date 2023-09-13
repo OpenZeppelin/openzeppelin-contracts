@@ -1,19 +1,19 @@
-import "helpers/helpers.spec"
+import "helpers/helpers.spec";
 
 methods {
     // library
-    set(bytes32,bytes32)     returns (bool)    envfree
-    remove(bytes32)          returns (bool)    envfree
-    contains(bytes32)        returns (bool)    envfree
-    length()                 returns (uint256) envfree
-    key_at(uint256)          returns (bytes32) envfree
-    value_at(uint256)        returns (bytes32) envfree
-    tryGet_contains(bytes32) returns (bool)    envfree
-    tryGet_value(bytes32)    returns (bytes32) envfree
-    get(bytes32)             returns (bytes32) envfree
+    function set(bytes32,bytes32)     external returns (bool)    envfree;
+    function remove(bytes32)          external returns (bool)    envfree;
+    function contains(bytes32)        external returns (bool)    envfree;
+    function length()                 external returns (uint256) envfree;
+    function key_at(uint256)          external returns (bytes32) envfree;
+    function value_at(uint256)        external returns (bytes32) envfree;
+    function tryGet_contains(bytes32) external returns (bool)    envfree;
+    function tryGet_value(bytes32)    external returns (bytes32) envfree;
+    function get(bytes32)             external returns (bytes32) envfree;
 
     // FV
-    _indexOf(bytes32) returns (uint256) envfree
+    function _indexOf(bytes32) external returns (uint256) envfree;
 }
 
 /*
@@ -21,9 +21,8 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-function sanity() returns bool {
-    return length() < max_uint256;
-}
+definition sanity() returns bool =
+    length() < max_uint256;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +30,7 @@ function sanity() returns bool {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant noValueIfNotContained(bytes32 key)
-    !contains(key) => tryGet_value(key) == 0
+    !contains(key) => tryGet_value(key) == to_bytes32(0)
     {
         preserved set(bytes32 otherKey, bytes32 someValue) {
             require sanity();
@@ -48,7 +47,7 @@ invariant indexedContained(uint256 index)
     {
         preserved {
             requireInvariant consistencyIndex(index);
-            requireInvariant consistencyIndex(to_uint256(length() - 1));
+            requireInvariant consistencyIndex(require_uint256(length() - 1));
         }
     }
 
@@ -61,8 +60,8 @@ invariant atUniqueness(uint256 index1, uint256 index2)
     index1 == index2 <=> key_at(index1) == key_at(index2)
     {
         preserved remove(bytes32 key) {
-            requireInvariant atUniqueness(index1, to_uint256(length() - 1));
-            requireInvariant atUniqueness(index2, to_uint256(length() - 1));
+            requireInvariant atUniqueness(index1, require_uint256(length() - 1));
+            requireInvariant atUniqueness(index2, require_uint256(length() - 1));
         }
     }
 
@@ -76,10 +75,10 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() => _indexOf(key_at(index)) == index + 1
+    index < length() => to_mathint(_indexOf(key_at(index))) == index + 1
     {
         preserved remove(bytes32 key) {
-            requireInvariant consistencyIndex(to_uint256(length() - 1));
+            requireInvariant consistencyIndex(require_uint256(length() - 1));
         }
     }
 
@@ -87,14 +86,14 @@ invariant consistencyKey(bytes32 key)
     contains(key) => (
         _indexOf(key) > 0 &&
         _indexOf(key) <= length() &&
-        key_at(to_uint256(_indexOf(key) - 1)) == key
+        key_at(require_uint256(_indexOf(key) - 1)) == key
     )
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
-                to_uint256(_indexOf(key) - 1),
-                to_uint256(_indexOf(otherKey) - 1)
+                require_uint256(_indexOf(key) - 1),
+                require_uint256(_indexOf(otherKey) - 1)
             );
         }
     }
@@ -121,18 +120,18 @@ rule stateChange(env e, bytes32 key) {
     bytes32 valueAfter    = tryGet_value(key);
 
     assert lengthBefore != lengthAfter => (
-        (f.selector == set(bytes32,bytes32).selector && lengthAfter == lengthBefore + 1) ||
-        (f.selector == remove(bytes32).selector      && lengthAfter == lengthBefore - 1)
+        (f.selector == sig:set(bytes32,bytes32).selector && to_mathint(lengthAfter) == lengthBefore + 1) ||
+        (f.selector == sig:remove(bytes32).selector      && to_mathint(lengthAfter) == lengthBefore - 1)
     );
 
     assert containsBefore != containsAfter => (
-        (f.selector == set(bytes32,bytes32).selector && containsAfter) ||
-        (f.selector == remove(bytes32).selector      && !containsAfter)
+        (f.selector == sig:set(bytes32,bytes32).selector && containsAfter) ||
+        (f.selector == sig:remove(bytes32).selector      && !containsAfter)
     );
 
     assert valueBefore != valueAfter => (
-        (f.selector == set(bytes32,bytes32).selector && containsAfter) ||
-        (f.selector == remove(bytes32).selector      && !containsAfter && valueAfter == 0)
+        (f.selector == sig:set(bytes32,bytes32).selector && containsAfter) ||
+        (f.selector == sig:remove(bytes32).selector      && !containsAfter && valueAfter == to_bytes32(0))
     );
 }
 
@@ -192,7 +191,7 @@ rule getAndTryGet(bytes32 key) {
 
     assert contained == tryContained;
     assert contained => tryValue == value;
-    assert !contained => tryValue == 0;
+    assert !contained => tryValue == to_bytes32(0);
 }
 
 /*
@@ -217,7 +216,7 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
     assert added <=> !containsBefore,
         "return value: added iff not contained";
 
-    assert length() == lengthBefore + to_mathint(added ? 1 : 0),
+    assert to_mathint(length()) == lengthBefore + to_mathint(added ? 1 : 0),
         "effect: length increases iff added";
 
     assert added => (key_at(lengthBefore) == key && value_at(lengthBefore) == value),
@@ -253,7 +252,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
     assert removed <=> containsBefore,
         "return value: removed iff contained";
 
-    assert length() == lengthBefore - to_mathint(removed ? 1 : 0),
+    assert to_mathint(length()) == lengthBefore - to_mathint(removed ? 1 : 0),
         "effect: length decreases iff removed";
 
     assert containsOtherBefore != contains(otherKey) => (removed && key == otherKey),
@@ -295,7 +294,7 @@ rule setEnumerability(bytes32 key, bytes32 value, uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule removeEnumerability(bytes32 key, uint256 index) {
-    uint256 last = length() - 1;
+    uint256 last = require_uint256(length() - 1);
 
     requireInvariant consistencyKey(key);
     requireInvariant consistencyIndex(index);
