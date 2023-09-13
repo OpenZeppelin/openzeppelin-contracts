@@ -197,7 +197,7 @@ abstract contract GovernorTimelockAccess is Governor {
             (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
                 address(_manager),
                 address(this),
-                targets[i],
+                target,
                 selector
             );
             if ((immediate || delay > 0) && !isAccessManagerIgnored(target, selector)) {
