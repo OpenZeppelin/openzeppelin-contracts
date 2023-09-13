@@ -5,6 +5,7 @@ const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { clockFromReceipt } = require('../../helpers/time');
+const { selector } = require('../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Governor = artifacts.require('$GovernorTimelockAccessMock');
@@ -291,6 +292,100 @@ contract('GovernorTimelockAccess', function (accounts) {
 
           // Can execute second proposal
           await proposal2.execute();
+        });
+      });
+
+      describe('ignore AccessManager', function () {
+        it('defaults', async function () {
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(false);
+          expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x12341234')).to.equal(true);
+        });
+
+        it('internal setter', async function () {
+          const p1 = { target: this.receiver.address, selector: this.restricted.selector, ignored: true };
+          const tx1 = await this.mock.$_setAccessManagerIgnored(p1.target, p1.selector, p1.ignored);
+          expect(await this.mock.isAccessManagerIgnored(p1.target, p1.selector)).to.equal(p1.ignored);
+          expectEvent(tx1, 'AccessManagerIgnoredSet', p1);
+
+          const p2 = { target: this.mock.address, selector: '0x12341234', ignored: false };
+          const tx2 = await this.mock.$_setAccessManagerIgnored(p2.target, p2.selector, p2.ignored);
+          expect(await this.mock.isAccessManagerIgnored(p2.target, p2.selector)).to.equal(p2.ignored);
+          expectEvent(tx2, 'AccessManagerIgnoredSet', p2);
+        });
+
+        it('external setter', async function () {
+          const setAccessManagerIgnored = (...args) => this.mock.contract.methods.setAccessManagerIgnored(...args).encodeABI();
+
+          await this.helper.setProposal([
+            {
+              target: this.mock.address,
+              data: setAccessManagerIgnored(this.receiver.address, [this.restricted.selector, this.unrestricted.selector], true),
+              value: '0',
+            },
+            {
+              target: this.mock.address,
+              data: setAccessManagerIgnored(this.mock.address, ['0x12341234', '0x67896789'], false),
+              value: '0',
+            },
+          ], 'descr');
+
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          const tx = await this.helper.execute();
+
+          expectEvent(tx, 'AccessManagerIgnoredSet');
+
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.restricted.selector)).to.equal(true);
+          expect(await this.mock.isAccessManagerIgnored(this.receiver.address, this.unrestricted.selector)).to.equal(true);
+
+          expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x12341234')).to.equal(false);
+          expect(await this.mock.isAccessManagerIgnored(this.mock.address, '0x67896789')).to.equal(false);
+        });
+
+        it('locked function', async function () {
+          const setAccessManagerIgnored = selector('setAccessManagerIgnored(address,bytes4[],bool)');
+          await expectRevertCustomError(
+            this.mock.$_setAccessManagerIgnored(this.mock.address, setAccessManagerIgnored, true),
+            'GovernorLockedIgnore',
+            [],
+          );
+          await this.mock.$_setAccessManagerIgnored(this.receiver.address, setAccessManagerIgnored, true);
+        });
+
+        it('ignores access manager', async function () {
+          const amount = 100;
+
+          const target = this.token.address;
+          const data = this.token.contract.methods.transfer(voter4, amount).encodeABI();
+          const selector = data.slice(0, 10);
+          await this.token.$_mint(this.mock.address, amount);
+
+          const roleId = '1';
+          await this.manager.setTargetFunctionRole(target, [selector], roleId, { from: admin });
+          await this.manager.grantRole(roleId, this.mock.address, 0, { from: admin });
+
+          await this.helper.setProposal([{ target, data, value: '0' }], '1');
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await expectRevertCustomError(this.helper.execute(), 'ERC20InsufficientBalance', [
+            this.manager.address,
+            0,
+            amount,
+          ]);
+
+          await this.mock.$_setAccessManagerIgnored(target, selector, true);
+
+          await this.helper.setProposal([{ target, data, value: '0' }], '2');
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          const tx = await this.helper.execute();
+          expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.mock.address });
         });
       });
     });
