@@ -295,7 +295,9 @@ abstract contract GovernorTimelockAccess is Governor {
                     // already have been cancelled and rescheduled. We don't want to cancel unless it is exactly the
                     // instance that we previously scheduled.
                     if (nonce == _manager.getNonce(operationId)) {
-                        // Attempt to cancel but allow to fail for any reason
+                        // Cancel might fail if the operation was cancelled by guardians previously.
+                        // We allow the function call to fail for any reason to avoid encoding assumptions about
+                        // specific errors.
                         try _manager.cancel(address(this), targets[i], calldatas[i]) {} catch {}
                     }
                 }
