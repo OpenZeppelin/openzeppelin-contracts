@@ -20,7 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
@@ -31,7 +31,7 @@ jobs:
       FORCE_COLOR: 1
       GAS: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests and generate gas report
@@ -51,7 +51,7 @@ jobs:
     env:
       FORCE_COLOR: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
@@ -72,7 +72,7 @@ jobs:
   tests-foundry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install Foundry
@@ -85,7 +85,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run coverage
@@ -96,7 +96,7 @@ jobs:
   slither:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: rm foundry.toml
@@ -107,7 +107,7 @@ jobs:
   codespell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run CodeSpell
         uses: codespell-project/actions-codespell@v2.0
         with:

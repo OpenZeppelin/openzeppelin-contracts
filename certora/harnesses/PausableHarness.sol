@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.20;
 
-import "../patched/utils/Pausable.sol";
+import {Pausable} from "../patched/utils/Pausable.sol";
 
 contract PausableHarness is Pausable {
     function pause() external {
