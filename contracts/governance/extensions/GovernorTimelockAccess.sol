@@ -129,8 +129,7 @@ abstract contract GovernorTimelockAccess is Governor {
         bool ignored
     ) public virtual onlyGovernance {
         for (uint256 i = 0; i < selectors.length; ++i) {
-            bytes4 selector = selectors[i];
-            _setAccessManagerIgnored(target, selector, ignored);
+            _setAccessManagerIgnored(target, selectors[i], ignored);
         }
     }
 
