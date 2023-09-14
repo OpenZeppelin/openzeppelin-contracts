@@ -88,7 +88,8 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
         //
         // Initially we check if the block is recent to narrow the search range.
         // During the loop, the index of the wanted checkpoint remains in the range [low-1, high).
-        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
+        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the
+        // invariant.
         // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
         // - If the middle checkpoint is before or equal to `blockNumber`, we look in [mid+1, high)
         // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not

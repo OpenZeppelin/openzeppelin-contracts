@@ -133,7 +133,7 @@ library DoubleEndedQueue {
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
         if (index >= length(deque)) revert QueueOutOfBounds();
-        // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128.
+        // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
         unchecked {
             return deque._data[deque._begin + uint128(index)];
         }

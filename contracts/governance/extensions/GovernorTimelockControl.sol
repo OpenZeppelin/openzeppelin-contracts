@@ -94,8 +94,8 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal through
-     * the timelock.
+     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal
+     * through the timelock.
      */
     function _executeOperations(
         uint256 proposalId,
