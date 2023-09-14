@@ -15,12 +15,15 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
- * inaccessible.
+ * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
  * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
  * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
  * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
  * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
+ *
+ * NOTE: `AccessManager` does not support scheduling more than one operation with the same target and calldata at
+ * the same time. See {AccessManager-schedule} for a workaround.
  */
 abstract contract GovernorTimelockControl is Governor {
     TimelockController private _timelock;
