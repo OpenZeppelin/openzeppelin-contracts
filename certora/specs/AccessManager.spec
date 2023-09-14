@@ -413,7 +413,7 @@ rule getNonceChangeCall(bytes32 operationId) {
     mathint nonceBefore = getNonce(operationId);
 
     // reasonable assumption
-    assert nonceBefore < max_uint32;
+    require nonceBefore < max_uint32;
 
     // arbitrary function call
     env e; method f; calldataarg args; f(e, args);
