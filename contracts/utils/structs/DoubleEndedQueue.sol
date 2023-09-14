@@ -48,7 +48,7 @@ library DoubleEndedQueue {
     /**
      * @dev Inserts an item at the end of the queue.
      *
-     * Reverts with `QueueFull` if the queue is full.
+     * Reverts with {QueueFull} if the queue is full.
      */
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
@@ -62,7 +62,7 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with `QueueEmpty` if the queue is empty.
+     * Reverts with {QueueEmpty} if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
@@ -78,7 +78,7 @@ library DoubleEndedQueue {
     /**
      * @dev Inserts an item at the beginning of the queue.
      *
-     * Reverts with `QueueFull` if the queue is full.
+     * Reverts with {QueueFull} if the queue is full.
      */
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
