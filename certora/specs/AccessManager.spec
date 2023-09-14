@@ -26,6 +26,18 @@ definition envsanity(env e) returns bool =
 definition isSetAndPast(env e, uint48 timepoint) returns bool =
     timepoint != 0 && to_mathint(timepoint) <= to_mathint(e.block.timestamp);
 
+definition isOnlyAuthorized(method f) returns bool =
+    f.selector == sig:labelRole(uint64,string).selector                       ||
+    f.selector == sig:setRoleAdmin(uint64,uint64).selector                    ||
+    f.selector == sig:setRoleGuardian(uint64,uint64).selector                 ||
+    f.selector == sig:setGrantDelay(uint64,uint32).selector                   ||
+    f.selector == sig:setTargetAdminDelay(address,uint32).selector            ||
+    f.selector == sig:updateAuthority(address,address).selector               ||
+    f.selector == sig:setTargetClosed(address,bool).selector                  ||
+    f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector ||
+    f.selector == sig:grantRole(uint64,address,uint32).selector               ||
+    f.selector == sig:revokeRole(uint64,address).selector;
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: executionId must be clean when not in the middle of a call                                               │
@@ -131,29 +143,27 @@ rule canCall(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ State transition: access can change as a result of time passing or through a function call                          │
+│ State transitions: getAccess                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule getAccessChangeWait() {
+rule getAccessChangeWait(uint64 roleId, address account) {
     env e1;
     env e2;
-    uint64 roleId;
-    address account;
 
     // values before
-    uint48 getAccess1Before = getAccess_1(e1, roleId, account);
-    uint32 getAccess2Before = getAccess_2(e1, roleId, account);
-    uint32 getAccess3Before = getAccess_3(e1, roleId, account);
-    uint48 getAccess4Before = getAccess_4(e1, roleId, account);
+    mathint getAccess1Before = getAccess_1(e1, roleId, account);
+    mathint getAccess2Before = getAccess_2(e1, roleId, account);
+    mathint getAccess3Before = getAccess_3(e1, roleId, account);
+    mathint getAccess4Before = getAccess_4(e1, roleId, account);
 
     // time pass: e1 → e2
     require e1.block.timestamp <= e2.block.timestamp;
 
     // values after
-    uint48 getAccess1After  = getAccess_1(e2, roleId, account);
-    uint32 getAccess2After  = getAccess_2(e2, roleId, account);
-    uint32 getAccess3After  = getAccess_3(e2, roleId, account);
-    uint48 getAccess4After  = getAccess_4(e2, roleId, account);
+    mathint getAccess1After  = getAccess_1(e2, roleId, account);
+    mathint getAccess2After  = getAccess_2(e2, roleId, account);
+    mathint getAccess3After  = getAccess_3(e2, roleId, account);
+    mathint getAccess4After  = getAccess_4(e2, roleId, account);
 
     // member "since" cannot change as a consequence of time passing
     assert getAccess1Before == getAccess1After;
@@ -165,33 +175,31 @@ rule getAccessChangeWait() {
         getAccess4Before != getAccess4After
     ) => (
         getAccess4Before != 0 &&
-        to_mathint(getAccess4Before) > to_mathint(e1.block.timestamp) &&
-        to_mathint(getAccess4Before) <= to_mathint(e2.block.timestamp) &&
-        getAccess2After == getAccess3Before &&
-        getAccess3After == 0 &&
-        getAccess4After == 0
+        getAccess4Before >  e1.block.timestamp + 0 &&
+        getAccess4Before <= e2.block.timestamp + 0 &&
+        getAccess2After  == getAccess3Before &&
+        getAccess3After  == 0 &&
+        getAccess4After  == 0
     );
 }
 
-rule getAccessChangeCall() {
+rule getAccessChangeCall(uint64 roleId, address account) {
     env e;
-    address account;
-    uint64 roleId;
 
     // values before
-    uint48 getAccess1Before = getAccess_1(e, roleId, account);
-    uint32 getAccess2Before = getAccess_2(e, roleId, account);
-    uint32 getAccess3Before = getAccess_3(e, roleId, account);
-    uint48 getAccess4Before = getAccess_4(e, roleId, account);
+    mathint getAccess1Before = getAccess_1(e, roleId, account);
+    mathint getAccess2Before = getAccess_2(e, roleId, account);
+    mathint getAccess3Before = getAccess_3(e, roleId, account);
+    mathint getAccess4Before = getAccess_4(e, roleId, account);
 
     // arbitrary function call
     method f; calldataarg args; f(e, args);
 
     // values before
-    uint48 getAccess1After = getAccess_1(e, roleId, account);
-    uint32 getAccess2After = getAccess_2(e, roleId, account);
-    uint32 getAccess3After = getAccess_3(e, roleId, account);
-    uint48 getAccess4After = getAccess_4(e, roleId, account);
+    mathint getAccess1After = getAccess_1(e, roleId, account);
+    mathint getAccess2After = getAccess_2(e, roleId, account);
+    mathint getAccess3After = getAccess_3(e, roleId, account);
+    mathint getAccess4After = getAccess_4(e, roleId, account);
 
     // transitions
     assert (
@@ -208,6 +216,264 @@ rule getAccessChangeCall() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: isTargetClosed                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule isTargetClosedChangeTime(address target) {
+    env e1;
+    env e2;
+
+    // values before
+    bool isClosedBefore = isTargetClosed(e1, target);
+
+    // time pass: e1 → e2
+    require e1.block.timestamp <= e2.block.timestamp;
+
+    // values after
+    bool isClosedAfter = isTargetClosed(e2, target);
+
+    // transitions
+    assert isClosedBefore == isClosedAfter;
+}
+
+rule isTargetClosedChangeCall(address target) {
+    env e;
+
+    // values before
+    bool isClosedBefore = isTargetClosed(e, target);
+
+    // arbitrary function call
+    method f; calldataarg args; f(e, args);
+
+    // values after
+    bool isClosedAfter = isTargetClosed(e, target);
+
+    // transitions
+    assert isClosedBefore != isClosedAfter => f.selector == sig:setTargetClosed(address,bool).selector;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getTargetFunctionRole                                                                            │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getTargetFunctionRoleChangeTime(address target, bytes4 selector) {
+    env e1;
+    env e2;
+
+    // values before
+    mathint roleIdBefore = getTargetFunctionRole(e1, target, selector);
+
+    // time pass: e1 → e2
+    require e1.block.timestamp <= e2.block.timestamp;
+
+    // values after
+    mathint roleIdAfter = getTargetFunctionRole(e2, target, selector);
+
+    // transitions
+    assert roleIdBefore == roleIdAfter;
+}
+
+rule getTargetFunctionRoleChangeCall(address target, bytes4 selector) {
+    env e;
+
+    // values before
+    mathint roleIdBefore = getTargetFunctionRole(e, target, selector);
+
+    // arbitrary function call
+    method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint roleIdAfter = getTargetFunctionRole(e, target, selector);
+
+    // transitions
+    assert roleIdBefore != roleIdAfter => f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getTargetAdminDelay                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getTargetAdminDelayChangeTime(address target) {
+    env e1;
+    env e2;
+
+    // values before
+    mathint delayBefore = getTargetAdminDelay(e1, target);
+
+    // time pass: e1 → e2
+    require e1.block.timestamp <= e2.block.timestamp;
+
+    // values after
+    mathint delayAfter = getTargetAdminDelay(e2, target);
+
+    // TODO: AdminDelay changes are scheduled and happen spontaneously when the effect timestamp is reached.
+    // Unfortunately we don't have an accessor to check that we indeed reach the effect, and that the new value
+    // is the one that was scheduled.
+    assert delayBefore != delayAfter => true;
+}
+
+rule getTargetAdminDelayChangeCall(address target) {
+    env e;
+
+    // values before
+    mathint delayBefore = getTargetAdminDelay(e, target);
+
+    // arbitrary function call
+    method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint delayAfter = getTargetAdminDelay(e, target);
+
+    // transitions
+    assert delayBefore != delayAfter => f.selector == sig:setTargetAdminDelay(address,uint32).selector;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getRoleGrantDelay                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getRoleGrantDelayChangeTime(uint64 roleId) {
+    env e1;
+    env e2;
+
+    // values before
+    mathint delayBefore = getRoleGrantDelay(e1, roleId);
+
+    // time pass: e1 → e2
+    require e1.block.timestamp <= e2.block.timestamp;
+
+    // values after
+    mathint delayAfter = getRoleGrantDelay(e2, roleId);
+
+    // TODO: GrandDelay changes are scheduled and happen spontaneously when the effect timestamp is reached.
+    // Unfortunately we don't have an accessor to check that we indeed reach the effect, and that the new value
+    // is the one that was scheduled.
+    assert delayBefore != delayAfter => true;
+}
+
+rule getRoleGrantDelayChangeCall(uint64 roleId) {
+    env e;
+
+    // values before
+    mathint delayBefore = getRoleGrantDelay(e, roleId);
+
+    // arbitrary function call
+    method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint delayAfter = getRoleGrantDelay(e, roleId);
+
+    // transitions
+    assert delayBefore != delayAfter => f.selector == sig:setGrantDelay(uint64,uint32).selector;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getRoleAdmin & getRoleGuardian                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getRoleAdminChangeCall(uint64 roleId) {
+    // values before
+    mathint adminIdBefore = getRoleAdmin(roleId);
+
+    // arbitrary function call
+    env e; method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint adminIdAfter = getRoleAdmin(roleId);
+
+    // transitions
+    assert adminIdBefore != adminIdAfter => f.selector == sig:setRoleAdmin(uint64,uint64).selector;
+}
+
+rule getRoleGuardianChangeCall(uint64 roleId) {
+    // values before
+    mathint guardianIdBefore = getRoleGuardian(roleId);
+
+    // arbitrary function call
+    env e; method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint guardianIdAfter = getRoleGuardian(roleId);
+
+    // transitions
+    assert guardianIdBefore != guardianIdAfter => f.selector == sig:setRoleGuardian(uint64,uint64).selector;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getNonce                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getNonceChangeCall(bytes32 operationId) {
+    // values before
+    mathint nonceBefore = getNonce(operationId);
+
+    // arbitrary function call
+    env e; method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint nonceAfter = getNonce(operationId);
+
+    // transitions
+    assert nonceBefore != nonceAfter => (
+        f.selector == sig:schedule(address,bytes,uint48).selector &&
+        nonceAfter == nonceBefore + 1
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ State transitions: getSchedule                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getScheduleChangeTime(bytes32 operationId) {
+    env e1;
+    env e2;
+
+    // values before
+    mathint scheduleBefore = getSchedule(e1, operationId);
+
+    // time pass: e1 → e2
+    require e1.block.timestamp <= e2.block.timestamp;
+
+    // values after
+    mathint scheduleAfter = getSchedule(e2, operationId);
+
+    // transition
+    assert scheduleBefore != scheduleAfter => (
+        scheduleBefore + expiration() >  e1.block.timestamp + 0 && // +0 cast to mathint
+        scheduleBefore + expiration() <= e2.block.timestamp + 0 && // +0 cast to mathint
+        scheduleAfter == 0
+    );
+}
+
+rule getScheduleChangeCall(bytes32 operationId) {
+    env e;
+
+    // values before
+    mathint scheduleBefore = getSchedule(e, operationId);
+
+    // arbitrary function call
+    method f; calldataarg args; f(e, args);
+
+    // values after
+    mathint scheduleAfter = getSchedule(e, operationId);
+
+    // transitions
+    assert scheduleBefore != scheduleAfter => (
+        (f.selector == sig:schedule(address,bytes,uint48).selector && scheduleAfter >= e.block.timestamp + 0) ||
+        (f.selector == sig:execute(address,bytes).selector         && scheduleAfter == 0                    ) ||
+        (f.selector == sig:cancel(address,address,bytes).selector  && scheduleAfter == 0                    ) ||
+        (isOnlyAuthorized(f)                                       && scheduleAfter == 0                    )
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Functions: restricted functions can only be called by owner                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -218,8 +484,7 @@ rule restrictedFunctions(env e) {
     method f;
     calldataarg args;
 
-    f@withrevert(e,args);
-    bool success = !lastReverted;
+    f(e,args);
 
     assert (
         f.selector == sig:labelRole(uint64,string).selector ||
@@ -231,7 +496,7 @@ rule restrictedFunctions(env e) {
         f.selector == sig:setTargetClosed(address,bool).selector ||
         f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector
     ) => (
-        !success || hasRole_1(e, ADMIN_ROLE(), e.msg.sender)
+        hasRole_1(e, ADMIN_ROLE(), e.msg.sender)
     );
 }
 
@@ -243,10 +508,12 @@ rule restrictedFunctionsGrantRole(env e) {
     address account;
     uint32 executionDelay;
 
-    grantRole@withrevert(e, roleId, account, executionDelay);
-    bool success = !lastReverted;
+    // We want to check that the caller has the admin role before we possibly grant it.
+    bool hasAdminRoleBefore = hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
 
-    assert !success || hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
+    grantRole(e, roleId, account, executionDelay);
+
+    assert hasAdminRoleBefore;
 }
 
 rule restrictedFunctionsRevokeRole(env e) {
@@ -256,27 +523,11 @@ rule restrictedFunctionsRevokeRole(env e) {
     uint64 roleId;
     address account;
 
-    revokeRole@withrevert(e, roleId, account);
-    bool success = !lastReverted;
+    // This is needed if roleId is self-administered, the `revokeRole` call could target
+    // e.msg.sender and remove the bery role that is necessary authorizing the call.
+    bool hasAdminRoleBefore = hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
 
-    assert !success || hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
+    revokeRole(e, roleId, account);
+
+    assert hasAdminRoleBefore;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// target open/closed
-// target function role change
-
-// schedule
-// execute
-// cancel
-// nonce
