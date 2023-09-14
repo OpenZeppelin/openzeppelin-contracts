@@ -716,7 +716,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
-        delete _schedules[operationId].timepoint;
+        delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
         uint32 nonce = _schedules[operationId].nonce;
         emit OperationCanceled(operationId, nonce);
 
