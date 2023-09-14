@@ -48,9 +48,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
     mapping(uint256 proposalId => ProposalCore) private _proposals;
 
-    // This queue keeps track of the governor operating on itself. Calls to functions protected by the
-    // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
-    // consumed by the {onlyGovernance} modifier and eventually reset in {_afterExecute}. This ensures that the
+    // This queue keeps track of the governor operating on itself. Calls to functions protected by the {onlyGovernance}
+    // modifier needs to be whitelisted in this queue. Whitelisting is set in {execute}, consumed by the
+    // {onlyGovernance} modifier and eventually reset after {_executeOperations} completes. This ensures that the
     // execution of {onlyGovernance} protected calls can only be achieved through successful proposals.
     DoubleEndedQueue.Bytes32Deque private _governanceCall;
 
@@ -135,7 +135,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual returns (ProposalState) {
-        // ProposalCore is just one slot. We can load it from storage to stack with a single sload
+        // We read the struct fields into the stack at once so Solidity emits a single SLOAD
         ProposalCore storage proposal = _proposals[proposalId];
         bool proposalExecuted = proposal.executed;
         bool proposalCanceled = proposal.canceled;
@@ -375,7 +375,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * will revert.
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, or emit the
-     * `ProposalQueued` event. Queuing a proposal should be done using {queue} or {_queue}.
+     * `ProposalQueued` event. Queuing a proposal should be done using {queue}.
      */
     function _queueOperations(
         uint256 /*proposalId*/,

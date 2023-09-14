@@ -559,6 +559,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * scheduled operation from other occurrences of the same `operationId` in invocations of {execute} and {cancel}.
      *
      * Emits a {OperationScheduled} event.
+     *
+     * NOTE: It is not possible to concurrently schedule more than one operation with the same `target` and `data`. If
+     * this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
+     * contract if it is using standard Solidity ABI encoding.
      */
     function schedule(
         address target,

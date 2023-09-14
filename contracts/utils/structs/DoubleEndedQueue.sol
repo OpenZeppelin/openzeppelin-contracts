@@ -31,16 +31,13 @@ library DoubleEndedQueue {
     error QueueOutOfBounds();
 
     /**
-     * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end
-     * are packed in a single storage slot for efficient access. Since the items are added one at a time we can safely
-     * assume that these 128-bit indices will not overflow, and use unchecked arithmetic.
+     * @dev Indices are 128 bits so begin and end are packed in a single storage slot for efficient access.
      *
      * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
      * lead to unexpected behavior.
      *
-     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item is at
-     * data[end - 1].
+     * The first item is at data[begin] and the last item is at data[end - 1]. This range can wrap around.
      */
     struct Bytes32Deque {
         uint128 _begin;
@@ -50,6 +47,8 @@ library DoubleEndedQueue {
 
     /**
      * @dev Inserts an item at the end of the queue.
+     *
+     * Reverts with {QueueFull} if the queue is full.
      */
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
@@ -63,7 +62,7 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with `QueueEmpty` if the queue is empty.
+     * Reverts with {QueueEmpty} if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
@@ -78,6 +77,8 @@ library DoubleEndedQueue {
 
     /**
      * @dev Inserts an item at the beginning of the queue.
+     *
+     * Reverts with {QueueFull} if the queue is full.
      */
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
