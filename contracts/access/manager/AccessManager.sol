@@ -572,7 +572,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         uint48 minWhen = Time.timestamp() + setback;
 
-        // if call is not authorized, or if requested timing is sooner than
+        // if call is not authorized, or if requested timing is too soon
         if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
