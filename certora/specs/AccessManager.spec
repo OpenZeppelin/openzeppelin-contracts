@@ -412,6 +412,9 @@ rule getNonceChangeCall(bytes32 operationId) {
     // values before
     mathint nonceBefore = getNonce(operationId);
 
+    // reasonable assumption
+    assert nonceBefore < max_uint32;
+
     // arbitrary function call
     env e; method f; calldataarg args; f(e, args);
 
@@ -465,10 +468,11 @@ rule getScheduleChangeCall(bytes32 operationId) {
 
     // transitions
     assert scheduleBefore != scheduleAfter => (
-        (f.selector == sig:schedule(address,bytes,uint48).selector && scheduleAfter >= e.block.timestamp + 0) ||
-        (f.selector == sig:execute(address,bytes).selector         && scheduleAfter == 0                    ) ||
-        (f.selector == sig:cancel(address,address,bytes).selector  && scheduleAfter == 0                    ) ||
-        (isOnlyAuthorized(f)                                       && scheduleAfter == 0                    )
+        (f.selector == sig:schedule(address,bytes,uint48).selector    && scheduleAfter >= e.block.timestamp + 0) ||
+        (f.selector == sig:execute(address,bytes).selector            && scheduleAfter == 0                    ) ||
+        (f.selector == sig:cancel(address,address,bytes).selector     && scheduleAfter == 0                    ) ||
+        (f.selector == sig:consumeScheduledOp(address,bytes).selector && scheduleAfter == 0                    ) ||
+        (isOnlyAuthorized(f)                                          && scheduleAfter == 0                    )
     );
 }
 
