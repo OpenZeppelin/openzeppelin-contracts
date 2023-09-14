@@ -572,14 +572,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         uint48 minWhen = Time.timestamp() + setback;
 
-        if (when == 0) {
-            when = minWhen;
-        }
-
-        // If caller is not authorised, revert
-        if (!immediate && (setback == 0 || when < minWhen)) {
+        // if call is not authorized, or if requested timing is too soon
+        if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
+
+        // Reuse variable due to stack too deep
+        when = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
 
         // If caller is authorised, schedule operation
         operationId = hashOperation(caller, target, data);
@@ -686,7 +685,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerExpired(operationId);
         }
 
-        delete _schedules[operationId];
+        delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
         emit OperationExecuted(operationId, nonce);
 
         return nonce;
@@ -718,7 +717,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
-        delete _schedules[operationId].timepoint;
+        delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
         uint32 nonce = _schedules[operationId].nonce;
         emit OperationCanceled(operationId, nonce);
 

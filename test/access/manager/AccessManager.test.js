@@ -703,9 +703,14 @@ contract('AccessManager', function (accounts) {
           it('Calling indirectly: only execute', async function () {
             // execute without schedule
             if (directSuccess) {
+              const nonceBefore = await this.manager.getNonce(this.opId);
               const { receipt, tx } = await this.execute();
+
               expectEvent.notEmitted(receipt, 'OperationExecuted', { operationId: this.opId });
               await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
+
+              // nonce is not modified
+              expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore);
             } else if (indirectSuccess) {
               await expectRevertCustomError(this.execute(), 'AccessManagerNotScheduled', [this.opId]);
             } else {
@@ -715,6 +720,7 @@ contract('AccessManager', function (accounts) {
 
           it('Calling indirectly: schedule and execute', async function () {
             if (directSuccess || indirectSuccess) {
+              const nonceBefore = await this.manager.getNonce(this.opId);
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
@@ -730,14 +736,21 @@ contract('AccessManager', function (accounts) {
                 timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
               );
 
+              // nonce is incremented
+              expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
+
               // execute without wait
               if (directSuccess) {
                 const { receipt, tx } = await this.execute();
+
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
                 if (delay && fnRole !== ROLES.PUBLIC) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
+
+                // nonce is not modified by execute
+                expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
               } else if (indirectSuccess) {
                 await expectRevertCustomError(this.execute(), 'AccessManagerNotReady', [this.opId]);
               } else {
@@ -750,6 +763,7 @@ contract('AccessManager', function (accounts) {
 
           it('Calling indirectly: schedule wait and execute', async function () {
             if (directSuccess || indirectSuccess) {
+              const nonceBefore = await this.manager.getNonce(this.opId);
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
@@ -765,17 +779,24 @@ contract('AccessManager', function (accounts) {
                 timestamp.add(directSuccess ? web3.utils.toBN(0) : delay),
               );
 
+              // nonce is incremented
+              expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
+
               // wait
               await time.increase(delay ?? 0);
 
               // execute without wait
               if (directSuccess || indirectSuccess) {
                 const { receipt, tx } = await this.execute();
+
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
                 if (delay && fnRole !== ROLES.PUBLIC) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
+
+                // nonce is not modified by execute
+                expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
               } else {
                 await expectRevertCustomError(this.execute(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
               }
@@ -786,6 +807,7 @@ contract('AccessManager', function (accounts) {
 
           it('Calling directly: schedule and call', async function () {
             if (directSuccess || indirectSuccess) {
+              const nonceBefore = await this.manager.getNonce(this.opId);
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
@@ -800,6 +822,9 @@ contract('AccessManager', function (accounts) {
               const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
+              // nonce is incremented
+              expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
+
               // execute without wait
               const promise = this.direct();
               if (directSuccess) {
@@ -807,6 +832,9 @@ contract('AccessManager', function (accounts) {
 
                 // schedule is not reset
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+                // nonce is not modified by execute
+                expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
               } else if (indirectSuccess) {
                 await expectRevertCustomError(promise, 'AccessManagerNotReady', [this.opId]);
               } else {
@@ -819,6 +847,7 @@ contract('AccessManager', function (accounts) {
 
           it('Calling directly: schedule wait and call', async function () {
             if (directSuccess || indirectSuccess) {
+              const nonceBefore = await this.manager.getNonce(this.opId);
               const { receipt } = await this.schedule();
               const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
@@ -833,6 +862,9 @@ contract('AccessManager', function (accounts) {
               const schedule = timestamp.add(directSuccess ? web3.utils.toBN(0) : delay);
               expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
 
+              // nonce is incremented
+              expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
+
               // wait
               await time.increase(delay ?? 0);
 
@@ -843,6 +875,9 @@ contract('AccessManager', function (accounts) {
 
                 // schedule is not reset
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal(schedule);
+
+                // nonce is not modified by execute
+                expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
               } else if (indirectSuccess) {
                 const receipt = await promise;
 
@@ -853,6 +888,9 @@ contract('AccessManager', function (accounts) {
 
                 // schedule is reset
                 expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
+
+                // nonce is not modified by execute
+                expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore.addn(1));
               } else {
                 await expectRevertCustomError(this.direct(), 'AccessManagerUnauthorizedCall', [user, ...this.call]);
               }
