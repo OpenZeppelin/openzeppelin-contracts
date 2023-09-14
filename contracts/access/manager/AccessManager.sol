@@ -577,7 +577,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
-        uint48 timepoint = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
+        // Reuse variable due to stack too deep
+        when = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
 
         // If caller is authorised, schedule operation
         operationId = hashOperation(caller, target, data);
@@ -588,9 +589,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // It's not feasible to overflow the nonce in less than 1000 years
             nonce = _schedules[operationId].nonce + 1;
         }
-        _schedules[operationId].timepoint = timepoint;
+        _schedules[operationId].timepoint = when;
         _schedules[operationId].nonce = nonce;
-        emit OperationScheduled(operationId, nonce, timepoint, caller, target, data);
+        emit OperationScheduled(operationId, nonce, when, caller, target, data);
 
         // Using named return values because otherwise we get stack too deep
     }
