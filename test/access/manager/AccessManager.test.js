@@ -709,7 +709,7 @@ contract('AccessManager', function (accounts) {
               expectEvent.notEmitted(receipt, 'OperationExecuted', { operationId: this.opId });
               await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
 
-              // nonce is note modified
+              // nonce is not modified
               expect(await this.manager.getNonce(this.opId)).to.be.bignumber.equal(nonceBefore);
             } else if (indirectSuccess) {
               await expectRevertCustomError(this.execute(), 'AccessManagerNotScheduled', [this.opId]);
