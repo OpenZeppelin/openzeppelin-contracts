@@ -679,7 +679,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerExpired(operationId);
         }
 
-        delete _schedules[operationId];
+        delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
         emit OperationExecuted(operationId, nonce);
 
         return nonce;
