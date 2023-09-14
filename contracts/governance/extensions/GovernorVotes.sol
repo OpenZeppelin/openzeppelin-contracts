@@ -11,7 +11,7 @@ import {Time} from "../../utils/types/Time.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes}
-* token.
+ * token.
  */
 abstract contract GovernorVotes is Governor {
     IERC5805 private immutable _token;
