@@ -40,7 +40,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint32 voteDuration;
         bool executed;
         bool canceled;
-        uint48 eta;
+        uint48 etaSeconds;
     }
 
     bytes32 private constant ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
@@ -205,7 +205,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev See {IGovernor-proposalEta}.
      */
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
-        return _proposals[proposalId].eta;
+        return _proposals[proposalId].etaSeconds;
     }
 
     /**
@@ -352,11 +352,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
-        uint48 eta = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+        uint48 etaSeconds = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
 
-        if (eta != 0) {
-            _proposals[proposalId].eta = eta;
-            emit ProposalQueued(proposalId, eta);
+        if (etaSeconds != 0) {
+            _proposals[proposalId].etaSeconds = etaSeconds;
+            emit ProposalQueued(proposalId, etaSeconds);
         } else {
             revert GovernorQueueNotImplemented();
         }
@@ -370,7 +370,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      *
      * This is empty by default, and must be overridden to implement queuing.
      *
-     * This function returns a timestamp that describes the expected eta for execution. If the returned value is 0
+     * This function returns a timestamp that describes the expected ETA for execution. If the returned value is 0
      * (which is the default value), the core will consider queueing did not succeed, and the public {queue} function
      * will revert.
      *

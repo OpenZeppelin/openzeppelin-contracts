@@ -70,16 +70,18 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override returns (uint48) {
-        uint48 eta = SafeCast.toUint48(block.timestamp + _timelock.delay());
+        uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
+            if (
+                _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
+            ) {
                 revert GovernorAlreadyQueuedProposal(proposalId);
             }
-            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 
-        return eta;
+        return etaSeconds;
     }
 
     /**
@@ -93,13 +95,13 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override {
-        uint256 eta = proposalEta(proposalId);
-        if (eta == 0) {
+        uint256 etaSeconds = proposalEta(proposalId);
+        if (etaSeconds == 0) {
             revert GovernorNotQueuedProposal(proposalId);
         }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
     }
 
@@ -115,11 +117,11 @@ abstract contract GovernorTimelockCompound is Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        uint256 eta = proposalEta(proposalId);
-        if (eta > 0) {
+        uint256 etaSeconds = proposalEta(proposalId);
+        if (etaSeconds > 0) {
             // do external call later
             for (uint256 i = 0; i < targets.length; ++i) {
-                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
+                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
             }
         }
 
