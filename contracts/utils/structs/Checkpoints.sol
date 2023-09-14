@@ -33,8 +33,8 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max`
-     * key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the
+     * library.
      */
     function push(Trace224 storage self, uint32 key, uint224 value) internal returns (uint224, uint224) {
         return _insert(self._checkpoints, key, value);
@@ -227,8 +227,8 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max`
-     * key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max` key set will disable the
+     * library.
      */
     function push(Trace208 storage self, uint48 key, uint208 value) internal returns (uint208, uint208) {
         return _insert(self._checkpoints, key, value);
@@ -421,8 +421,8 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max`
-     * key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the
+     * library.
      */
     function push(Trace160 storage self, uint96 key, uint160 value) internal returns (uint160, uint160) {
         return _insert(self._checkpoints, key, value);

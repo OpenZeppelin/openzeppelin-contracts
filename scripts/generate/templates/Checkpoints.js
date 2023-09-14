@@ -38,8 +38,8 @@ struct ${opts.checkpointTypeName} {
  *
  * Returns previous value and new value.
  * 
- * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\`
- * key set will disable the library.
+ * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
+ * library.
  */
 function push(
     ${opts.historyTypeName} storage self,
