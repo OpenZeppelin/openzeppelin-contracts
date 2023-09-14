@@ -225,17 +225,17 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes32 /* descriptionHash */
     ) internal virtual override returns (uint48) {
         ExecutionPlan storage plan = _executionPlan[proposalId];
-        uint48 eta = Time.timestamp() + plan.delay;
+        uint48 etaSeconds = Time.timestamp() + plan.delay;
 
         for (uint256 i = 0; i < targets.length; ++i) {
             (, bool withDelay, ) = _getManagerData(plan, i);
             if (withDelay) {
-                (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], eta);
+                (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], etaSeconds);
                 _setManagerData(plan, i, true, nonce);
             }
         }
 
-        return eta;
+        return etaSeconds;
     }
 
     /**
@@ -248,9 +248,9 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes[] memory calldatas,
         bytes32 /* descriptionHash */
     ) internal virtual override {
-        uint48 eta = SafeCast.toUint48(proposalEta(proposalId));
-        if (block.timestamp < eta) {
-            revert GovernorUnmetDelay(proposalId, eta);
+        uint48 etaSeconds = SafeCast.toUint48(proposalEta(proposalId));
+        if (block.timestamp < etaSeconds) {
+            revert GovernorUnmetDelay(proposalId, etaSeconds);
         }
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
@@ -280,12 +280,12 @@ abstract contract GovernorTimelockAccess is Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        uint48 eta = SafeCast.toUint48(proposalEta(proposalId));
+        uint48 etaSeconds = SafeCast.toUint48(proposalEta(proposalId));
 
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         // If the proposal has been scheduled it will have an ETA and we may have to externally cancel
-        if (eta != 0) {
+        if (etaSeconds != 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 (, bool withDelay, uint32 nonce) = _getManagerData(plan, i);
                 // Only attempt to cancel if the execution plan included a delay
