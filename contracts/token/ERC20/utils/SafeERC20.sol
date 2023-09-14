@@ -55,8 +55,8 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no value,
-     * non-reverting calls are assumed to be successful.
+     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no
+     * value, non-reverting calls are assumed to be successful.
      */
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
         unchecked {

@@ -10,7 +10,8 @@ import {Governor} from "../Governor.sol";
  *
  * Use cases for this module include:
  * - UIs that explore the proposal state without relying on event indexing.
- * - Using only the proposalId as an argument in the {Governor-queue} and {Governor-execute} functions for L2 chains where storage is cheap compared to calldata.
+ * - Using only the proposalId as an argument in the {Governor-queue} and {Governor-execute} functions for L2 chains
+ *   where storage is cheap compared to calldata.
  */
 abstract contract GovernorStorage is Governor {
     struct ProposalDetails {

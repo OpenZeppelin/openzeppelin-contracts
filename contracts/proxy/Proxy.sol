@@ -45,8 +45,8 @@ abstract contract Proxy {
     }
 
     /**
-     * @dev This is a virtual function that should be overridden so it returns the address to which the fallback function
-     * and {_fallback} should delegate.
+     * @dev This is a virtual function that should be overridden so it returns the address to which the fallback
+     * function and {_fallback} should delegate.
      */
     function _implementation() internal view virtual returns (address);
 
