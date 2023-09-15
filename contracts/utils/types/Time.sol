@@ -54,8 +54,8 @@ library Time {
      * 0xAAAAAAAAAAAABBBBBBBBCCCCCCCC
      * ```
      *
-     * NOTE: The {get} and {update} function operate using timestamps. Block number based delays should use the
-     * {getAt} and {withUpdateAt} variants of these functions.
+     * NOTE: The {get} and {withUpdate} functions operate using timestamps. Block number based delays are not currently
+     * supported.
      */
     type Delay is uint112;
 
@@ -70,7 +70,7 @@ library Time {
      * @dev Get the value at a given timepoint plus the pending value and effect timepoint if there is a scheduled
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
-    function getFullAt(Delay self, uint48 timepoint) internal pure returns (uint32, uint32, uint48) {
+    function _getFullAt(Delay self, uint48 timepoint) private pure returns (uint32, uint32, uint48) {
         (uint32 valueBefore, uint32 valueAfter, uint48 effect) = self.unpack();
         return effect <= timepoint ? (valueAfter, 0, 0) : (valueBefore, valueAfter, effect);
     }
@@ -80,22 +80,15 @@ library Time {
      * effect timepoint is 0, then the pending value should not be considered.
      */
     function getFull(Delay self) internal view returns (uint32, uint32, uint48) {
-        return self.getFullAt(timestamp());
-    }
-
-    /**
-     * @dev Get the value the Delay will be at a given timepoint.
-     */
-    function getAt(Delay self, uint48 timepoint) internal pure returns (uint32) {
-        (uint32 delay, , ) = getFullAt(self, timepoint);
-        return delay;
+        return _getFullAt(self, timestamp());
     }
 
     /**
      * @dev Get the current value.
      */
     function get(Delay self) internal view returns (uint32) {
-        return self.getAt(timestamp());
+        (uint32 delay, , ) = self.getFull();
+        return delay;
     }
 
     /**
