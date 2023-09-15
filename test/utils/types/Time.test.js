@@ -8,7 +8,7 @@ const Time = artifacts.require('$Time');
 
 const MAX_UINT32 = 1n << (32n - 1n);
 const MAX_UINT48 = 1n << (48n - 1n);
-const SOME_VALUES = [0n, 1n, 15n, 16n, 17n];
+const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 const asUint = (value, size) => {
   if (typeof value != 'bigint') {
@@ -87,27 +87,6 @@ contract('Time', function () {
       }
     });
 
-    it('getAt & getFullAt', async function () {
-      const valueBefore = 24194n;
-      const valueAfter = 4214143n;
-
-      for (const timepoint of [...SOME_VALUES, MAX_UINT48])
-        for (const effect of effectSamplesForTimepoint(timepoint)) {
-          const isPast = effect <= timepoint;
-
-          const delay = packDelay({ valueBefore, valueAfter, effect });
-
-          expect(await this.mock.$getAt(delay, timepoint)).to.be.bignumber.equal(
-            String(isPast ? valueAfter : valueBefore),
-          );
-
-          const getFullAt = await this.mock.$getFullAt(delay, timepoint);
-          expect(getFullAt[0]).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
-          expect(getFullAt[1]).to.be.bignumber.equal(String(isPast ? 0n : valueAfter));
-          expect(getFullAt[2]).to.be.bignumber.equal(String(isPast ? 0n : effect));
-        }
-    });
-
     it('get & getFull', async function () {
       const timepoint = await clock.timestamp().then(BigInt);
       const valueBefore = 24194n;
@@ -128,35 +107,34 @@ contract('Time', function () {
     });
 
     it('withUpdate', async function () {
+      const timepoint = await clock.timestamp().then(BigInt);
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;
 
-      for (const timepoint of [...SOME_VALUES, MAX_UINT48])
-        for (const effect of effectSamplesForTimepoint(timepoint))
-          for (const minSetback of [...SOME_VALUES, MAX_UINT32]) {
-            const isPast = effect <= timepoint;
-            const expectedvalueBefore = isPast ? valueAfter : valueBefore;
-            const expectedSetback = max(minSetback, expectedvalueBefore - newvalueAfter, 0n);
+      for (const effect of effectSamplesForTimepoint(timepoint))
+        for (const minSetback of [...SOME_VALUES, MAX_UINT32]) {
+          const isPast = effect <= timepoint;
+          const expectedvalueBefore = isPast ? valueAfter : valueBefore;
+          const expectedSetback = max(minSetback, expectedvalueBefore - newvalueAfter, 0n);
 
-            const result = await this.mock.$withUpdate(
-              packDelay({ valueBefore, valueAfter, effect }),
-              timepoint,
-              newvalueAfter,
-              minSetback,
-            );
+          const result = await this.mock.$withUpdate(
+            packDelay({ valueBefore, valueAfter, effect }),
+            newvalueAfter,
+            minSetback,
+          );
 
-            expect(result[0]).to.be.bignumber.equal(
-              String(
-                packDelay({
-                  valueBefore: expectedvalueBefore,
-                  valueAfter: newvalueAfter,
-                  effect: timepoint + expectedSetback,
-                }),
-              ),
-            );
-            expect(result[1]).to.be.bignumber.equal(String(timepoint + expectedSetback));
-          }
+          expect(result[0]).to.be.bignumber.equal(
+            String(
+              packDelay({
+                valueBefore: expectedvalueBefore,
+                valueAfter: newvalueAfter,
+                effect: timepoint + expectedSetback,
+              }),
+            ),
+          );
+          expect(result[1]).to.be.bignumber.equal(String(timepoint + expectedSetback));
+        }
     });
   });
 });
