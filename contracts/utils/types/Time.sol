@@ -103,10 +103,15 @@ library Time {
      * enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
      * new delay becomes effective.
      */
-    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48) {
-        uint32 value = self.get();
+    function withUpdate(
+        Delay self,
+        uint48 clock,
+        uint32 newValue,
+        uint32 minSetback
+    ) internal pure returns (Delay, uint48) {
+        uint32 value = self.getAt(clock);
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
-        uint48 effect = timestamp() + setback;
+        uint48 effect = clock + setback;
         return (pack(value, newValue, effect), effect);
     }
 

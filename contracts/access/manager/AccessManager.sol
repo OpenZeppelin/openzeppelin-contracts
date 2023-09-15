@@ -373,6 +373,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
             // any change to the execution delay within the duration of the role admin delay.
             (_roles[roleId].members[account].delay, since) = _roles[roleId].members[account].delay.withUpdate(
+                Time.timestamp(),
                 executionDelay,
                 0
             );
@@ -444,7 +445,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         uint48 effect;
-        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
+        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(
+            Time.timestamp(),
+            newDelay,
+            minSetback()
+        );
 
         emit RoleGrantDelayChanged(roleId, newDelay, effect);
     }
@@ -499,7 +504,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
-        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(newDelay, minSetback());
+        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(
+            Time.timestamp(),
+            newDelay,
+            minSetback()
+        );
 
         emit TargetAdminDelayUpdated(target, newDelay, effect);
     }
