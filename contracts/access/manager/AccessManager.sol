@@ -13,7 +13,7 @@ import {Time} from "../../utils/types/Time.sol";
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.
  *
- * A smart contract under the control of an AccessManager instance is known as a target and will inherit from the
+ * A smart contract under the control of an AccessManager instance is known as a target, and will inherit from the
  * {AccessManaged} contract, be connected to this contract as its manager and implement the {AccessManaged-restricted} 
  * modifier on a set of functions selected to be permissioned. Note that any function without this setup won't be
  * effectively restricted.
@@ -31,10 +31,10 @@ import {Time} from "../../utils/types/Time.sol";
  * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
  * Additonally, each role has the following configuration options restricted to this manager's admins:
  *
- * * The role's admin role via {setRoleAdmin} who can grant or revoke roles.
- * * The role's guardian role via {setRoleGuardian} who's allowed to cancel operations.
- * * The delay in which a role takes effect after being granted through {setGrantDelay}.
- * * The delay of any target's admin action via {setTargetAdminDelay}.
+ * * A role's admin role via {setRoleAdmin} who can grant or revoke roles.
+ * * A role's guardian role via {setRoleGuardian} who's allowed to cancel operations.
+ * * A delay in which a role takes effect after being granted through {setGrantDelay}.
+ * * A delay of any target's admin action via {setTargetAdminDelay}.
  * * A role label for discoverability purposes with {labelRole}.
  *
  * Any account can be added and removed into any number of these roles by using the {grantRole} and {revokeRole} functions
