@@ -54,8 +54,8 @@ library Time {
      * 0xAAAAAAAAAAAABBBBBBBBCCCCCCCC
      * ```
      *
-     * NOTE: The {get} and {update} function operate using timestamps. Block number based delays should use the
-     * {getAt} and {withUpdateAt} variants of these functions.
+     * NOTE: The {get} and {withUpdate} functions operate using timestamps. Block number based delays are not currently
+     * supported.
      */
     type Delay is uint112;
 
