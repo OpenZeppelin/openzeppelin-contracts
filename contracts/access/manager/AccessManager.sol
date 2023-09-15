@@ -444,10 +444,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         uint48 effect;
-        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(
-            newDelay,
-            minSetback()
-        );
+        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
 
         emit RoleGrantDelayChanged(roleId, newDelay, effect);
     }
@@ -502,10 +499,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
-        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(
-            newDelay,
-            minSetback()
-        );
+        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(newDelay, minSetback());
 
         emit TargetAdminDelayUpdated(target, newDelay, effect);
     }
