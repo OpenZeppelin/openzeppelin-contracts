@@ -31,8 +31,8 @@ import {Time} from "../../utils/types/Time.sol";
  * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
  * Additonally, each role has the following configuration options restricted to this manager's admins:
  *
- * * The admin role via {setRoleAdmin} who can grant or revoke roles.
- * * The guardian role via {setRoleGuardian} who's allowed to cancel operations.
+ * * The role's admin role via {setRoleAdmin} who can grant or revoke roles.
+ * * The role's guardian role via {setRoleGuardian} who's allowed to cancel operations.
  * * The delay in which a role takes effect after being granted through {setGrantDelay}.
  * * The delay of any target's admin action via {setTargetAdminDelay}.
  * * A role label for discoverability purposes with {labelRole}.
