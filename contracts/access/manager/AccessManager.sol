@@ -14,7 +14,7 @@ import {Time} from "../../utils/types/Time.sol";
  * @dev AccessManager is a central contract to store the permissions of a system.
  *
  * A smart contract under the control of an AccessManager instance is known as a target, and will inherit from the
- * {AccessManaged} contract, be connected to this contract as its manager and implement the {AccessManaged-restricted} 
+ * {AccessManaged} contract, be connected to this contract as its manager and implement the {AccessManaged-restricted}
  * modifier on a set of functions selected to be permissioned. Note that any function without this setup won't be
  * effectively restricted.
  *
@@ -144,7 +144,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      *
      * NOTE: This function doesn't not report the permissions of this manager itself. These are defined by the
-     * {_canCallExtended} function instead.
+     * {_canCallAdmin} function instead.
      */
     function canCall(
         address caller,
@@ -225,7 +225,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Get the role current grant delay.
-     * 
+     *
      * Its value may change at any point without an event emitted following a call to {setGrantDelay}.
      * Changes to this value, including effect timepoint are notified in advance by the {RoleGrantDelayChanged} event.
      */
@@ -792,7 +792,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        (bool immediate, uint32 delay) = _canCallAdmin(caller, _msgData());
         if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
@@ -855,7 +855,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // =================================================== HELPERS ====================================================
     /**
-     * @dev An extended version of {canCall} for internal use that considers restrictions for admin functions.
+     * @dev An extended version of {canCall} for internal usage that checks {_canCallAdmin}
+     * when the target is this contract.
      *
      * Returns:
      * - bool immediate: whether the operation can be executed immediately (with no delay)
@@ -867,23 +868,34 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes calldata data
     ) private view returns (bool immediate, uint32 delay) {
         if (target == address(this)) {
-            (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
-            if (!enabled) {
-                return (false, 0);
-            }
-
-            (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
-            if (!inRole) {
-                return (false, 0);
-            }
-
-            // downcast is safe because both options are uint32
-            delay = uint32(Math.max(operationDelay, executionDelay));
-            return (delay == 0, delay);
+            return _canCallAdmin(caller, data);
         } else {
             bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
         }
+    }
+
+    /**
+     * @dev A version of {canCall} that checks for admin restructions in this contract.
+     *
+     * Returns:
+     * - bool immediate: whether the operation can be executed immediately (with no delay)
+     * - uint32 delay: the execution delay
+     */
+    function _canCallAdmin(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
+        if (!enabled) {
+            return (false, 0);
+        }
+
+        (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
+        if (!inRole) {
+            return (false, 0);
+        }
+
+        // downcast is safe because both options are uint32
+        delay = uint32(Math.max(operationDelay, executionDelay));
+        return (delay == 0, delay);
     }
 
     /**
