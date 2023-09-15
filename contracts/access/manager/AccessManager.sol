@@ -13,23 +13,32 @@ import {Time} from "../../utils/types/Time.sol";
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.
  *
- * The smart contracts under the control of an AccessManager instance will have a set of "restricted" functions, and the
- * exact details of how access is restricted for each of those functions is configurable by the admins of the instance.
- * These restrictions are expressed in terms of "roles".
+ * A smart contract under the control of an AccessManager instance is known as a target and will inherit from the
+ * {AccessManaged} contract, be connected to this contract as its manager and implement the {AccessManaged-restricted} 
+ * modifier on a set of functions selected to be permissioned. Note that any function without this setup won't be
+ * effectively restricted.
  *
- * An AccessManager instance will define a set of roles. Accounts can be added into any number of these roles. Each of
- * them defines a role, and may confer access to some of the restricted functions in the system, as configured by admins
- * through the use of {setFunctionAllowedRoles}.
+ * The restriction rules for such functions are defined in terms of "roles" identified by an `uint64` and scoped
+ * by target (`address`) and function selectors (`bytes4`). These roles are stored in this contract and can be
+ * configured by each target's admins (`ADMIN_ROLE` members) after a delay (see {getTargetAdminDelay}).
  *
- * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
- * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
- * `restricted` modifier.
+ * A target admin can configure the following:
  *
- * There is a special role defined by default named "public" which all accounts automatically have.
+ * * The target's {AccessManaged-authority} via {updateAuthority}.
+ * * Close or open a target via {setTargetClosed} keeping the permissions intact.
+ * * Each role's permissions through {setTargetFunctionRole}.
  *
- * In addition to the access rules defined by each target's functions being assigned to roles, then entire target can
- * be "closed". This "closed" mode is set/unset by the admin using {setTargetClosed} and can be used to lock a contract
- * while permissions are being (re-)configured.
+ * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
+ * Additonally, each role has the following configuration options restricted to this manager's admins:
+ *
+ * * The admin role via {setRoleAdmin} who can grant or revoke roles.
+ * * The guardian role via {setRoleGuardian} who's allowed to cancel operations.
+ * * The delay in which a role takes effect after being granted through {setGrantDelay}.
+ * * The delay of any target's admin action via {setTargetAdminDelay}.
+ * * A role label for discoverability purposes with {labelRole}.
+ *
+ * Any account can be added and removed into any number of these roles by using the {grantRole} and {revokeRole} functions
+ * restricted to each role's admin (see {getRoleAdmin}).
  *
  * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
  * they will be highly secured (e.g., a multisig or a well-configured DAO).
@@ -60,28 +69,30 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // Structure that stores the details for a role/account pair. This structures fit into a single slot.
     struct Access {
-        // Timepoint at which the user gets the permission. If this is either 0, or in the future, the role
-        // permission is not available.
+        // Timepoint at which the user gets the permission.
+        // If this is either 0 or in the future, then the role permission is not available.
         uint48 since;
         // Delay for execution. Only applies to restricted() / execute() calls.
         Time.Delay delay;
     }
 
-    // Structure that stores the details of a role, including:
-    // - the members of the role
-    // - the admin role (that can grant or revoke permissions)
-    // - the guardian role (that can cancel operations targeting functions that need this role)
-    // - the grand delay
+    // Structure that stores the details of a role.
     struct Role {
+        // Members of the role.
         mapping(address user => Access access) members;
+        // Admin who can grant or revoke permissions.
         uint64 admin;
+        // Guardian who can cancel operations targeting functions that need this role.
         uint64 guardian;
+        // Delay in which the role takes effect after being granted.
         Time.Delay grantDelay;
     }
 
     // Structure that stores the details for a scheduled operation. This structure fits into a single slot.
     struct Schedule {
+        // Moment at which the operation can be executed.
         uint48 timepoint;
+        // Operation nonce to allow third-party contracts to identify the operation.
         uint32 nonce;
     }
 
@@ -92,6 +103,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(uint64 roleId => Role) private _roles;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
+    // Used to identify operations that are currently being executed via {execute}.
     // This should be transient storage when supported by the EVM.
     bytes32 private _executionId;
 
@@ -120,17 +132,25 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * & {execute} workflow.
      *
      * This function is usually called by the targeted contract to control immediate execution of restricted functions.
-     * Therefore we only return true is the call can be performed without any delay. If the call is subject to a delay,
-     * then the function should return false, and the caller should schedule the operation for future execution.
+     * Therefore we only return true if the call can be performed without any delay. If the call is subject to a
+     * previously set delay (not zero), then the function should return false and the caller should schedule the operation
+     * for future execution.
      *
-     * We may be able to hash the operation, and check if the call was scheduled, but we would not be able to cleanup
-     * the schedule, leaving the possibility of multiple executions. Maybe this function should not be view?
+     * If `immediate` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
+     * the operation can be executed if and only if delay is greater than 0.
      *
      * NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
      * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
+     *
+     * NOTE: This function doesn't not report the permissions of this manager itself. These are defined by the
+     * {_canCallExtended} function instead.
      */
-    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool, uint32) {
+    function canCall(
+        address caller,
+        address target,
+        bytes4 selector
+    ) public view virtual returns (bool immediate, uint32 delay) {
         if (isTargetClosed(target)) {
             return (false, 0);
         } else if (caller == address(this)) {
@@ -139,20 +159,23 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (_executionId == _hashExecutionId(target, selector), 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
-            (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
-            return isMember ? (currentDelay == 0, currentDelay) : (false, 0);
+            (immediate, delay) = hasRole(roleId, caller);
+            return immediate ? (delay == 0, delay) : (false, 0);
         }
     }
 
     /**
      * @dev Expiration delay for scheduled proposals. Defaults to 1 week.
+     *
+     * IMPORTANT: Avoid overriding the expiration with 0. Otherwise every contract proposal will be expired immediately,
+     * disabling any scheduling usage.
      */
     function expiration() public view virtual returns (uint32) {
         return 1 weeks;
     }
 
     /**
-     * @dev Minimum setback for all delay updates, with the exception of execution delays, which
+     * @dev Minimum setback for all delay updates, with the exception of execution delays. It
      * can be increased without setback (and in the event of an accidental increase can be reset
      * via {revokeRole}). Defaults to 5 days.
      */
@@ -161,7 +184,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the mode under which a contract is operating.
+     * @dev Get whether the contract is closed disabling any access. Otherwise role permissions are applied.
      */
     function isTargetClosed(address target) public view virtual returns (bool) {
         return _targets[target].closed;
@@ -182,7 +205,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the id of the role that acts as an admin for given role.
+     * @dev Get the id of the role that acts as an admin for the given role.
      *
      * The admin permission is required to grant the role, revoke the role and update the execution delay to execute
      * an operation that is restricted to this role.
@@ -201,9 +224,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Get the role current grant delay, that value may change at any point, without an event emitted, following
-     * a call to {setGrantDelay}. Changes to this value, including effect timepoint are notified by the
-     * {RoleGrantDelayChanged} event.
+     * @dev Get the role current grant delay.
+     * 
+     * Its value may change at any point without an event emitted following a call to {setGrantDelay}.
+     * Changes to this value, including effect timepoint are notified in advance by the {RoleGrantDelayChanged} event.
      */
     function getRoleGrantDelay(uint64 roleId) public view virtual returns (uint32) {
         return _roles[roleId].grantDelay.get();
@@ -220,20 +244,26 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint64 roleId, address account) public view virtual returns (uint48, uint32, uint32, uint48) {
+    function getAccess(
+        uint64 roleId,
+        address account
+    ) public view virtual returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect) {
         Access storage access = _roles[roleId].members[account];
 
-        uint48 since = access.since;
-        (uint32 currentDelay, uint32 pendingDelay, uint48 effect) = access.delay.getFull();
+        since = access.since;
+        (currentDelay, pendingDelay, effect) = access.delay.getFull();
 
         return (since, currentDelay, pendingDelay, effect);
     }
 
     /**
-     * @dev Check if a given account currently had the permission level corresponding to a given role. Note that this
-     * permission might be associated with a delay. {getAccess} can provide more details.
+     * @dev Check if a given account currently has the permission level corresponding to a given role. Note that this
+     * permission might be associated with an execution delay. {getAccess} can provide more details.
      */
-    function hasRole(uint64 roleId, address account) public view virtual returns (bool, uint32) {
+    function hasRole(
+        uint64 roleId,
+        address account
+    ) public view virtual returns (bool isMember, uint32 executionDelay) {
         if (roleId == PUBLIC_ROLE) {
             return (true, 0);
         } else {
@@ -245,6 +275,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // =============================================== ROLE MANAGEMENT ===============================================
     /**
      * @dev Give a label to a role, for improved role discoverabily by UIs.
+     *
+     * Requirements:
+     *
+     * - the caller must be a global admin
      *
      * Emits a {RoleLabel} event.
      */
@@ -260,17 +294,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * This gives the account the authorization to call any function that is restricted to this role. An optional
      * execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
-     * that is restricted to members this role. The user will only be able to execute the operation after the delay has
+     * that is restricted to members of this role. The user will only be able to execute the operation after the delay has
      * passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
      *
      * If the account has already been granted this role, the execution delay will be updated. This update is not
-     * immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
+     * immediate and follows the delay rules. For example, if a user currently has a delay of 3 hours, and this is
      * called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
      * operation executed in the 3 hours that follows this update was indeed scheduled before this update.
      *
      * Requirements:
      *
      * - the caller must be an admin for the role (see {getRoleAdmin})
+     * - granted role must not be the `PUBLIC_ROLE`
      *
      * Emits a {RoleGranted} event
      */
@@ -285,6 +320,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Requirements:
      *
      * - the caller must be an admin for the role (see {getRoleAdmin})
+     * - revoked role must not be the `PUBLIC_ROLE`
      *
      * Emits a {RoleRevoked} event if the account had the role.
      */
@@ -293,8 +329,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Renounce role permissions for the calling account, with immediate effect. If the sender is not in
-     * the role, this call has no effect.
+     * @dev Renounce role permissions for the calling account with immediate effect. If the sender is not in
+     * the role this call has no effect.
      *
      * Requirements:
      *
@@ -406,7 +442,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setRoleAdmin} without access control.
      *
-     * Emits a {RoleAdminChanged} event
+     * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
@@ -421,7 +457,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setRoleGuardian} without access control.
      *
-     * Emits a {RoleGuardianChanged} event
+     * Emits a {RoleGuardianChanged} event.
      */
     function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
@@ -436,13 +472,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setGrantDelay} without access control.
      *
-     * Emits a {RoleGrantDelayChanged} event
+     * Emits a {RoleGrantDelayChanged} event.
      */
     function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
-        if (roleId == PUBLIC_ROLE) {
-            revert AccessManagerLockedRole(roleId);
-        }
-
         uint48 effect;
         (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
 
@@ -472,7 +504,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setFunctionAllowedRole} without access control.
      *
-     * Emits a {TargetFunctionRoleUpdated} event
+     * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
         _targets[target].allowedRoles[selector] = roleId;
@@ -486,7 +518,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * - the caller must be a global admin
      *
-     * Emits a {TargetAdminDelayUpdated} event per selector
+     * Emits a {TargetAdminDelayUpdated} event.
      */
     function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
@@ -495,7 +527,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Internal version of {setTargetAdminDelay} without access control.
      *
-     * Emits a {TargetAdminDelayUpdated} event
+     * Emits a {TargetAdminDelayUpdated} event.
      */
     function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
         uint48 effect;
@@ -662,7 +694,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
      * with all the verifications that it implies.
      *
-     * Emit a {OperationExecuted} event
+     * Emit a {OperationExecuted} event.
      */
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
@@ -779,7 +811,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * - uint64: which role is this operation restricted to
      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
      */
-    function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
+    function _getAdminRestrictions(
+        bytes calldata data
+    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
         bytes4 selector = bytes4(data);
 
         if (data.length < 4) {
@@ -813,8 +847,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (selector == this.grantRole.selector || selector == this.revokeRole.selector) {
             // First argument is a roleId.
             uint64 roleId = abi.decode(data[0x04:0x24], (uint64));
-            uint64 roleAdminId = getRoleAdmin(roleId);
-            return (true, roleAdminId, 0);
+            return (true, getRoleAdmin(roleId), 0);
         }
 
         return (false, 0, 0);
@@ -827,11 +860,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Returns:
      * - bool immediate: whether the operation can be executed immediately (with no delay)
      * - uint32 delay: the execution delay
-     *
-     * If immediate is true, the delay can be disregarded and the operation can be immediately executed.
-     * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
-    function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
+    function _canCallExtended(
+        address caller,
+        address target,
+        bytes calldata data
+    ) private view returns (bool immediate, uint32 delay) {
         if (target == address(this)) {
             (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
             if (!enabled) {
@@ -844,7 +878,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
 
             // downcast is safe because both options are uint32
-            uint32 delay = uint32(Math.max(operationDelay, executionDelay));
+            delay = uint32(Math.max(operationDelay, executionDelay));
             return (delay == 0, delay);
         } else {
             bytes4 selector = bytes4(data);

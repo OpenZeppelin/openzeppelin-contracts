@@ -53,9 +53,6 @@ library Time {
      *   ↓           ↓       ↓ [uint32]: value after (duration)
      * 0xAAAAAAAAAAAABBBBBBBBCCCCCCCC
      * ```
-     *
-     * NOTE: The {get} and {update} function operate using timestamps. Block number based delays should use the
-     * {getAt} and {withUpdateAt} variants of these functions.
      */
     type Delay is uint112;
 
@@ -70,8 +67,11 @@ library Time {
      * @dev Get the value at a given timepoint plus the pending value and effect timepoint if there is a scheduled
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
-    function getFullAt(Delay self, uint48 timepoint) internal pure returns (uint32, uint32, uint48) {
-        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = self.unpack();
+    function getFullAt(
+        Delay self,
+        uint48 timepoint
+    ) internal pure returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
+        (valueBefore, valueAfter, effect) = self.unpack();
         return effect <= timepoint ? (valueAfter, 0, 0) : (valueBefore, valueAfter, effect);
     }
 
@@ -79,7 +79,7 @@ library Time {
      * @dev Get the current value plus the pending value and effect timepoint if there is a scheduled change. If the
      * effect timepoint is 0, then the pending value should not be considered.
      */
-    function getFull(Delay self) internal view returns (uint32, uint32, uint48) {
+    function getFull(Delay self) internal view returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
         return self.getFullAt(timestamp());
     }
 
@@ -103,22 +103,22 @@ library Time {
      * enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
      * new delay becomes effective.
      */
-    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48) {
+    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48 effect) {
         uint32 value = self.get();
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
-        uint48 effect = timestamp() + setback;
+        effect = timestamp() + setback;
         return (pack(value, newValue, effect), effect);
     }
 
     /**
      * @dev Split a delay into its components: valueBefore, valueAfter and effect (transition timepoint).
      */
-    function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
+    function unpack(Delay self) internal pure returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
         uint112 raw = Delay.unwrap(self);
 
-        uint32 valueAfter = uint32(raw);
-        uint32 valueBefore = uint32(raw >> 32);
-        uint48 effect = uint48(raw >> 64);
+        valueAfter = uint32(raw);
+        valueBefore = uint32(raw >> 32);
+        effect = uint48(raw >> 64);
 
         return (valueBefore, valueAfter, effect);
     }
