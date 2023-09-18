@@ -29,7 +29,7 @@ import {Time} from "../../utils/types/Time.sol";
  * * Each role's permissions through {setTargetFunctionRole}.
  *
  * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
- * Additonally, each role has the following configuration options restricted to this manager's admins:
+ * Additionally, each role has the following configuration options restricted to this manager's admins:
  *
  * * A role's admin role via {setRoleAdmin} who can grant or revoke roles.
  * * A role's guardian role via {setRoleGuardian} who's allowed to cancel operations.
