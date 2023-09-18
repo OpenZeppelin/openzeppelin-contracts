@@ -144,7 +144,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      *
      * NOTE: This function doesn't not report the permissions of this manager itself. These are defined by the
-     * {_canCallAdmin} function instead.
+     * {_canCallSelf} function instead.
      */
     function canCall(
         address caller,
@@ -156,11 +156,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
-            return (_executionId == _hashExecutionId(target, selector), 0);
+            return _canCallExecuting(target, selector);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
-            (immediate, delay) = hasRole(roleId, caller);
-            return immediate ? (delay == 0, delay) : (false, 0);
+            bool inRole;
+            (inRole, delay) = hasRole(roleId, caller);
+            return inRole ? (delay == 0, delay) : (false, 0);
         }
     }
 
@@ -443,6 +444,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Internal version of {setRoleAdmin} without access control.
      *
      * Emits a {RoleAdminChanged} event.
+     *
+     * NOTE: Setting the admin role as the `PUBLIC_ROLE` is allowed, but it will effectively allow
+     * anyone to set grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
@@ -458,6 +462,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Internal version of {setRoleGuardian} without access control.
      *
      * Emits a {RoleGuardianChanged} event.
+     *
+     * NOTE: Setting the guardian role as the `PUBLIC_ROLE` is allowed, but it will effectively allow
+     * anyone to cancel any scheduled operation for such role.
      */
     function _setRoleGuardian(uint64 roleId, uint64 guardian) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
@@ -502,7 +509,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Internal version of {setFunctionAllowedRole} without access control.
+     * @dev Internal version of {setTargetFunctionRole} without access control.
      *
      * Emits a {TargetFunctionRoleUpdated} event.
      */
@@ -792,7 +799,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallAdmin(caller, _msgData());
+        (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
         if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
@@ -809,7 +816,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Returns:
      * - bool restricted: does this data match a restricted operation
      * - uint64: which role is this operation restricted to
-     * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
+     * - uint32: minimum delay to enforce for that operation (max between operation's delay and admin's execution delay)
      */
     function _getAdminRestrictions(
         bytes calldata data
@@ -855,7 +862,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // =================================================== HELPERS ====================================================
     /**
-     * @dev An extended version of {canCall} for internal usage that checks {_canCallAdmin}
+     * @dev An extended version of {canCall} for internal usage that checks {_canCallSelf}
      * when the target is this contract.
      *
      * Returns:
@@ -868,7 +875,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes calldata data
     ) private view returns (bool immediate, uint32 delay) {
         if (target == address(this)) {
-            return _canCallAdmin(caller, data);
+            return _canCallSelf(caller, data);
         } else {
             bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
@@ -877,12 +884,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev A version of {canCall} that checks for admin restructions in this contract.
-     *
-     * Returns:
-     * - bool immediate: whether the operation can be executed immediately (with no delay)
-     * - uint32 delay: the execution delay
      */
-    function _canCallAdmin(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+    function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+        if (caller == address(this)) {
+            return _canCallExecuting(address(this), bytes4(data));
+        }
+
         (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
         if (!enabled) {
             return (false, 0);
@@ -896,6 +903,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // downcast is safe because both options are uint32
         delay = uint32(Math.max(operationDelay, executionDelay));
         return (delay == 0, delay);
+    }
+
+    /**
+     * @dev A version of {canCall} that only checks if the current call is being executed via {executed}.
+     */
+    function _canCallExecuting(address target, bytes4 selector) private view returns (bool immediate, uint32 delay) {
+        return (_executionId == _hashExecutionId(target, selector), 0);
     }
 
     /**
