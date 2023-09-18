@@ -10,33 +10,82 @@ const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
 const Ownable = artifacts.require('$Ownable');
 
-const MAX_UINT64 = web3.utils.toBN((2n ** 64n - 1n).toString());
+const { MAX_UINT64 } = require('../../helpers/constants');
 
-const ROLES = {
-  ADMIN: web3.utils.toBN(0),
-  SOME_ADMIN: web3.utils.toBN(17),
-  SOME: web3.utils.toBN(42),
-  PUBLIC: MAX_UINT64,
-};
-Object.assign(ROLES, Object.fromEntries(Object.entries(ROLES).map(([key, value]) => [value, key])));
-
+const grantDelay = web3.utils.toBN(15);
 const executeDelay = web3.utils.toBN(10);
-const grantDelay = web3.utils.toBN(10);
 const MINSETBACK = time.duration.days(5);
 
 const formatAccess = access => [access[0], access[1].toString()];
 
+// Source of truth
+const ROLES = {
+  ADMIN: {
+    id: web3.utils.toBN(0),
+  },
+  SOME_ADMIN: {
+    id: web3.utils.toBN(17),
+  },
+  SOME_GUARDIAN: {
+    id: web3.utils.toBN(35),
+  },
+  SOME: {
+    id: web3.utils.toBN(42),
+  },
+  PUBLIC: {
+    id: MAX_UINT64,
+  },
+};
+
+// Names
+Object.assign(ROLES, Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, { ...v, name: k }])));
+
+// Admins
+ROLES.ADMIN.admin = ROLES.ADMIN;
+ROLES.SOME_ADMIN.admin = ROLES.ADMIN;
+ROLES.SOME_GUARDIAN.admin = ROLES.ADMIN;
+ROLES.SOME.admin = ROLES.SOME_ADMIN;
+ROLES.PUBLIC.admin = ROLES.ADMIN;
+
+// Guardians
+ROLES.ADMIN.guardian = ROLES.ADMIN;
+ROLES.SOME_ADMIN.guardian = ROLES.ADMIN;
+ROLES.SOME_GUARDIAN.guardian = ROLES.ADMIN;
+ROLES.SOME.guardian = ROLES.SOME_GUARDIAN;
+ROLES.PUBLIC.guardian = ROLES.ADMIN;
+
 contract('AccessManager', function (accounts) {
-  const [admin, manager, member, user, other] = accounts;
+  const [admin, manager, guardian, member, user, other] = accounts;
+
+  // Members
+  ROLES.ADMIN.members = [admin];
+  ROLES.SOME_ADMIN.members = [manager];
+  ROLES.SOME_GUARDIAN.members = [guardian];
+  ROLES.SOME.members = [member];
+  ROLES.PUBLIC.members = [admin, manager, guardian, member, user, other];
 
   beforeEach(async function () {
     this.manager = await AccessManager.new(admin);
 
-    // add member to role
-    await this.manager.$_setRoleAdmin(ROLES.SOME, ROLES.SOME_ADMIN);
-    await this.manager.$_setRoleGuardian(ROLES.SOME, ROLES.SOME_ADMIN);
-    await this.manager.$_grantRole(ROLES.SOME_ADMIN, manager, 0, 0);
-    await this.manager.$_grantRole(ROLES.SOME, member, 0, 0);
+    for (const { id: roleId, admin, guardian, members } of Object.values(ROLES)) {
+      if (roleId === ROLES.PUBLIC.id) continue; // Every address belong to public and is locked
+      if (roleId === ROLES.ADMIN.id) continue; // Admin set during construction and is locked
+
+      // Set admin role avoiding default
+      if (admin.id !== ROLES.ADMIN.id) {
+        await this.manager.$_setRoleAdmin(roleId, admin.id);
+      }
+
+      // Set guardian role avoiding default
+      if (guardian.id !== ROLES.ADMIN.id) {
+        await this.manager.$_setRoleGuardian(roleId, guardian.id);
+      }
+
+      // Grant role to members
+      for (const member of members) {
+        await this.manager.$_grantRole(roleId, member, 0, 0);
+      }
+    }
   });
 
   it('rejects zero address for initialAdmin', async function () {
@@ -45,63 +94,46 @@ contract('AccessManager', function (accounts) {
     ]);
   });
 
-  it('default minsetback is 1 day', async function () {
+  it('default minsetback is 5 days', async function () {
     expect(await this.manager.minSetback()).to.be.bignumber.equal(MINSETBACK);
   });
 
   it('roles are correctly initialized', async function () {
-    // role admin
-    expect(await this.manager.getRoleAdmin(ROLES.ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
-    expect(await this.manager.getRoleAdmin(ROLES.SOME_ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
-    expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
-    expect(await this.manager.getRoleAdmin(ROLES.PUBLIC)).to.be.bignumber.equal(ROLES.ADMIN);
-    // role guardian
-    expect(await this.manager.getRoleGuardian(ROLES.ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
-    expect(await this.manager.getRoleGuardian(ROLES.SOME_ADMIN)).to.be.bignumber.equal(ROLES.ADMIN);
-    expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
-    expect(await this.manager.getRoleGuardian(ROLES.PUBLIC)).to.be.bignumber.equal(ROLES.ADMIN);
-    // role members
-    expect(await this.manager.hasRole(ROLES.ADMIN, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.ADMIN, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, member).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME_ADMIN, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME, admin).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME, manager).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-    expect(await this.manager.hasRole(ROLES.PUBLIC, admin).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.PUBLIC, manager).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.PUBLIC, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-    expect(await this.manager.hasRole(ROLES.PUBLIC, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+    for (const { id: roleId, admin, guardian, members } of Object.values(ROLES)) {
+      expect(await this.manager.getRoleAdmin(roleId)).to.be.bignumber.equal(admin.id);
+      expect(await this.manager.getRoleGuardian(roleId)).to.be.bignumber.equal(guardian.id);
+
+      const isMember = Object.fromEntries(members.map(member => [member, true]));
+
+      for (const user of ROLES.PUBLIC.members) {
+        expect(await this.manager.hasRole(roleId, user).then(formatAccess)).to.be.deep.equal([!!isMember[user], '0']);
+      }
+    }
   });
 
   describe('Roles management', function () {
     describe('label role', function () {
       it('admin can emit a label event', async function () {
-        expectEvent(await this.manager.labelRole(ROLES.SOME, 'Some label', { from: admin }), 'RoleLabel', {
-          roleId: ROLES.SOME,
+        expectEvent(await this.manager.labelRole(ROLES.SOME.id, 'Some label', { from: admin }), 'RoleLabel', {
+          roleId: ROLES.SOME.id,
           label: 'Some label',
         });
       });
 
       it('admin can re-emit a label event', async function () {
-        await this.manager.labelRole(ROLES.SOME, 'Some label', { from: admin });
+        await this.manager.labelRole(ROLES.SOME.id, 'Some label', { from: admin });
 
-        expectEvent(await this.manager.labelRole(ROLES.SOME, 'Updated label', { from: admin }), 'RoleLabel', {
-          roleId: ROLES.SOME,
+        expectEvent(await this.manager.labelRole(ROLES.SOME.id, 'Updated label', { from: admin }), 'RoleLabel', {
+          roleId: ROLES.SOME.id,
           label: 'Updated label',
         });
       });
 
       it('emitting a label is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.labelRole(ROLES.SOME, 'Invalid label', { from: other }),
+          this.manager.labelRole(ROLES.SOME.id, 'Invalid label', { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, ROLES.ADMIN],
+          [other, ROLES.ADMIN.id],
         );
       });
     });
@@ -109,21 +141,21 @@ contract('AccessManager', function (accounts) {
     describe('grant role', function () {
       describe('without a grant delay', function () {
         it('without an execute delay', async function () {
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME.id, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'RoleGranted', {
-            roleId: ROLES.SOME,
+            roleId: ROLES.SOME.id,
             account: user,
             since: timestamp,
             delay: '0',
             newMember: true,
           });
 
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-          const access = await this.manager.getAccess(ROLES.SOME, user);
+          const access = await this.manager.getAccess(ROLES.SOME.id, user);
           expect(access[0]).to.be.bignumber.equal(timestamp); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -131,24 +163,24 @@ contract('AccessManager', function (accounts) {
         });
 
         it('with an execute delay', async function () {
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, executeDelay, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME.id, user, executeDelay, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'RoleGranted', {
-            roleId: ROLES.SOME,
+            roleId: ROLES.SOME.id,
             account: user,
             since: timestamp,
             delay: executeDelay,
             newMember: true,
           });
 
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([
             true,
             executeDelay.toString(),
           ]);
 
-          const access = await this.manager.getAccess(ROLES.SOME, user);
+          const access = await this.manager.getAccess(ROLES.SOME.id, user);
           expect(access[0]).to.be.bignumber.equal(timestamp); // inRoleSince
           expect(access[1]).to.be.bignumber.equal(executeDelay); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -156,47 +188,47 @@ contract('AccessManager', function (accounts) {
         });
 
         it('to a user that is already in the role', async function () {
-          expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
-          await this.manager.grantRole(ROLES.SOME, member, 0, { from: manager });
-          expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+          await this.manager.grantRole(ROLES.SOME.id, member, 0, { from: manager });
+          expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([true, '0']);
         });
 
         it('to a user that is scheduled for joining the role', async function () {
-          await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-          await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          await this.manager.$_grantRole(ROLES.SOME.id, user, 10, 0); // grant delay 10
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          await this.manager.grantRole(ROLES.SOME.id, user, 0, { from: manager });
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
         });
 
         it('grant role is restricted', async function () {
           await expectRevertCustomError(
-            this.manager.grantRole(ROLES.SOME, user, 0, { from: other }),
+            this.manager.grantRole(ROLES.SOME.id, user, 0, { from: other }),
             'AccessManagerUnauthorizedAccount',
-            [other, ROLES.SOME_ADMIN],
+            [other, ROLES.SOME_ADMIN.id],
           );
         });
       });
 
       describe('with a grant delay', function () {
         beforeEach(async function () {
-          await this.manager.$_setGrantDelay(ROLES.SOME, grantDelay);
+          await this.manager.$_setGrantDelay(ROLES.SOME.id, grantDelay);
           await time.increase(MINSETBACK);
         });
 
         it('granted role is not active immediately', async function () {
-          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME.id, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'RoleGranted', {
-            roleId: ROLES.SOME,
+            roleId: ROLES.SOME.id,
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
             newMember: true,
           });
 
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-          const access = await this.manager.getAccess(ROLES.SOME, user);
+          const access = await this.manager.getAccess(ROLES.SOME.id, user);
           expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -204,10 +236,10 @@ contract('AccessManager', function (accounts) {
         });
 
         it('granted role is active after the delay', async function () {
-          const { receipt } = await this.manager.grantRole(ROLES.SOME, user, 0, { from: manager });
+          const { receipt } = await this.manager.grantRole(ROLES.SOME.id, user, 0, { from: manager });
           const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
           expectEvent(receipt, 'RoleGranted', {
-            roleId: ROLES.SOME,
+            roleId: ROLES.SOME.id,
             account: user,
             since: timestamp.add(grantDelay),
             delay: '0',
@@ -216,9 +248,9 @@ contract('AccessManager', function (accounts) {
 
           await time.increase(grantDelay);
 
-          expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([true, '0']);
+          expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-          const access = await this.manager.getAccess(ROLES.SOME, user);
+          const access = await this.manager.getAccess(ROLES.SOME.id, user);
           expect(access[0]).to.be.bignumber.equal(timestamp.add(grantDelay)); // inRoleSince
           expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
           expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -228,23 +260,23 @@ contract('AccessManager', function (accounts) {
 
       it('cannot grant public role', async function () {
         await expectRevertCustomError(
-          this.manager.$_grantRole(ROLES.PUBLIC, other, 0, executeDelay, { from: manager }),
+          this.manager.$_grantRole(ROLES.PUBLIC.id, other, 0, executeDelay, { from: manager }),
           'AccessManagerLockedRole',
-          [ROLES.PUBLIC],
+          [ROLES.PUBLIC.id],
         );
       });
     });
 
     describe('revoke role', function () {
       it('from a user that is already in the role', async function () {
-        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-        const { receipt } = await this.manager.revokeRole(ROLES.SOME, member, { from: manager });
-        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: member });
+        const { receipt } = await this.manager.revokeRole(ROLES.SOME.id, member, { from: manager });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME.id, account: member });
 
-        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(ROLES.SOME, user);
+        const access = await this.manager.getAccess(ROLES.SOME.id, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -252,16 +284,16 @@ contract('AccessManager', function (accounts) {
       });
 
       it('from a user that is scheduled for joining the role', async function () {
-        await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
+        await this.manager.$_grantRole(ROLES.SOME.id, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const { receipt } = await this.manager.revokeRole(ROLES.SOME, user, { from: manager });
-        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: user });
+        const { receipt } = await this.manager.revokeRole(ROLES.SOME.id, user, { from: manager });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME.id, account: user });
 
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(ROLES.SOME, user);
+        const access = await this.manager.getAccess(ROLES.SOME.id, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -269,30 +301,30 @@ contract('AccessManager', function (accounts) {
       });
 
       it('from a user that is not in the role', async function () {
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
-        await this.manager.revokeRole(ROLES.SOME, user, { from: manager });
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        await this.manager.revokeRole(ROLES.SOME.id, user, { from: manager });
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
       });
 
       it('revoke role is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.revokeRole(ROLES.SOME, member, { from: other }),
+          this.manager.revokeRole(ROLES.SOME.id, member, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, ROLES.SOME_ADMIN],
+          [other, ROLES.SOME_ADMIN.id],
         );
       });
     });
 
     describe('renounce role', function () {
       it('for a user that is already in the role', async function () {
-        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([true, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([true, '0']);
 
-        const { receipt } = await this.manager.renounceRole(ROLES.SOME, member, { from: member });
-        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: member });
+        const { receipt } = await this.manager.renounceRole(ROLES.SOME.id, member, { from: member });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME.id, account: member });
 
-        expect(await this.manager.hasRole(ROLES.SOME, member).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, member).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(ROLES.SOME, member);
+        const access = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -300,16 +332,16 @@ contract('AccessManager', function (accounts) {
       });
 
       it('for a user that is schedule for joining the role', async function () {
-        await this.manager.$_grantRole(ROLES.SOME, user, 10, 0); // grant delay 10
+        await this.manager.$_grantRole(ROLES.SOME.id, user, 10, 0); // grant delay 10
 
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const { receipt } = await this.manager.renounceRole(ROLES.SOME, user, { from: user });
-        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME, account: user });
+        const { receipt } = await this.manager.renounceRole(ROLES.SOME.id, user, { from: user });
+        expectEvent(receipt, 'RoleRevoked', { roleId: ROLES.SOME.id, account: user });
 
-        expect(await this.manager.hasRole(ROLES.SOME, user).then(formatAccess)).to.be.deep.equal([false, '0']);
+        expect(await this.manager.hasRole(ROLES.SOME.id, user).then(formatAccess)).to.be.deep.equal([false, '0']);
 
-        const access = await this.manager.getAccess(ROLES.SOME, user);
+        const access = await this.manager.getAccess(ROLES.SOME.id, user);
         expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
         expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
         expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
@@ -317,12 +349,12 @@ contract('AccessManager', function (accounts) {
       });
 
       it('for a user that is not in the role', async function () {
-        await this.manager.renounceRole(ROLES.SOME, user, { from: user });
+        await this.manager.renounceRole(ROLES.SOME.id, user, { from: user });
       });
 
       it('bad user confirmation', async function () {
         await expectRevertCustomError(
-          this.manager.renounceRole(ROLES.SOME, member, { from: user }),
+          this.manager.renounceRole(ROLES.SOME.id, member, { from: user }),
           'AccessManagerBadConfirmation',
           [],
         );
@@ -331,38 +363,38 @@ contract('AccessManager', function (accounts) {
 
     describe('change role admin', function () {
       it("admin can set any role's admin", async function () {
-        expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
+        expect(await this.manager.getRoleAdmin(ROLES.SOME.id)).to.be.bignumber.equal(ROLES.SOME_ADMIN.id);
 
-        const { receipt } = await this.manager.setRoleAdmin(ROLES.SOME, ROLES.ADMIN, { from: admin });
-        expectEvent(receipt, 'RoleAdminChanged', { roleId: ROLES.SOME, admin: ROLES.ADMIN });
+        const { receipt } = await this.manager.setRoleAdmin(ROLES.SOME.id, ROLES.ADMIN.id, { from: admin });
+        expectEvent(receipt, 'RoleAdminChanged', { roleId: ROLES.SOME.id, admin: ROLES.ADMIN.id });
 
-        expect(await this.manager.getRoleAdmin(ROLES.SOME)).to.be.bignumber.equal(ROLES.ADMIN);
+        expect(await this.manager.getRoleAdmin(ROLES.SOME.id)).to.be.bignumber.equal(ROLES.ADMIN.id);
       });
 
       it("setting a role's admin is restricted", async function () {
         await expectRevertCustomError(
-          this.manager.setRoleAdmin(ROLES.SOME, ROLES.SOME, { from: manager }),
+          this.manager.setRoleAdmin(ROLES.SOME.id, ROLES.SOME.id, { from: manager }),
           'AccessManagerUnauthorizedAccount',
-          [manager, ROLES.ADMIN],
+          [manager, ROLES.ADMIN.id],
         );
       });
     });
 
     describe('change role guardian', function () {
       it("admin can set any role's admin", async function () {
-        expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.SOME_ADMIN);
+        expect(await this.manager.getRoleGuardian(ROLES.SOME.id)).to.be.bignumber.equal(ROLES.SOME_GUARDIAN.id);
 
-        const { receipt } = await this.manager.setRoleGuardian(ROLES.SOME, ROLES.ADMIN, { from: admin });
-        expectEvent(receipt, 'RoleGuardianChanged', { roleId: ROLES.SOME, guardian: ROLES.ADMIN });
+        const { receipt } = await this.manager.setRoleGuardian(ROLES.SOME.id, ROLES.ADMIN.id, { from: admin });
+        expectEvent(receipt, 'RoleGuardianChanged', { roleId: ROLES.SOME.id, guardian: ROLES.ADMIN.id });
 
-        expect(await this.manager.getRoleGuardian(ROLES.SOME)).to.be.bignumber.equal(ROLES.ADMIN);
+        expect(await this.manager.getRoleGuardian(ROLES.SOME.id)).to.be.bignumber.equal(ROLES.ADMIN.id);
       });
 
       it("setting a role's admin is restricted", async function () {
         await expectRevertCustomError(
-          this.manager.setRoleGuardian(ROLES.SOME, ROLES.SOME, { from: other }),
+          this.manager.setRoleGuardian(ROLES.SOME.id, ROLES.SOME.id, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, ROLES.ADMIN],
+          [other, ROLES.ADMIN.id],
         );
       });
     });
@@ -373,20 +405,20 @@ contract('AccessManager', function (accounts) {
         const newDelay = web3.utils.toBN(100);
 
         // role is already granted (with no delay) in the initial setup. this update takes time.
-        await this.manager.$_grantRole(ROLES.SOME, member, 0, oldDelay);
+        await this.manager.$_grantRole(ROLES.SOME.id, member, 0, oldDelay);
 
-        const accessBefore = await this.manager.getAccess(ROLES.SOME, member);
+        const accessBefore = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.grantRole(ROLES.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantRole(ROLES.SOME.id, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
         expectEvent(receipt, 'RoleGranted', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           account: member,
           since: timestamp,
           delay: newDelay,
@@ -394,7 +426,7 @@ contract('AccessManager', function (accounts) {
         });
 
         // immediate effect
-        const accessAfter = await this.manager.getAccess(ROLES.SOME, member);
+        const accessAfter = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(accessAfter[1]).to.be.bignumber.equal(newDelay); // currentDelay
         expect(accessAfter[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessAfter[3]).to.be.bignumber.equal('0'); // effect
@@ -405,21 +437,21 @@ contract('AccessManager', function (accounts) {
         const newDelay = web3.utils.toBN(10);
 
         // role is already granted (with no delay) in the initial setup. this update takes time.
-        await this.manager.$_grantRole(ROLES.SOME, member, 0, oldDelay);
+        await this.manager.$_grantRole(ROLES.SOME.id, member, 0, oldDelay);
 
-        const accessBefore = await this.manager.getAccess(ROLES.SOME, member);
+        const accessBefore = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(accessBefore[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessBefore[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessBefore[3]).to.be.bignumber.equal('0'); // effect
 
-        const { receipt } = await this.manager.grantRole(ROLES.SOME, member, newDelay, {
+        const { receipt } = await this.manager.grantRole(ROLES.SOME.id, member, newDelay, {
           from: manager,
         });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = oldDelay.sub(newDelay);
 
         expectEvent(receipt, 'RoleGranted', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           account: member,
           since: timestamp.add(setback),
           delay: newDelay,
@@ -427,29 +459,29 @@ contract('AccessManager', function (accounts) {
         });
 
         // no immediate effect
-        const accessAfter = await this.manager.getAccess(ROLES.SOME, member);
+        const accessAfter = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(accessAfter[1]).to.be.bignumber.equal(oldDelay); // currentDelay
         expect(accessAfter[2]).to.be.bignumber.equal(newDelay); // pendingDelay
         expect(accessAfter[3]).to.be.bignumber.equal(timestamp.add(setback)); // effect
 
         // delayed effect
         await time.increase(setback);
-        const accessAfterSetback = await this.manager.getAccess(ROLES.SOME, member);
+        const accessAfterSetback = await this.manager.getAccess(ROLES.SOME.id, member);
         expect(accessAfterSetback[1]).to.be.bignumber.equal(newDelay); // currentDelay
         expect(accessAfterSetback[2]).to.be.bignumber.equal('0'); // pendingDelay
         expect(accessAfterSetback[3]).to.be.bignumber.equal('0'); // effect
       });
 
       it('can set a user execution delay during the grant delay', async function () {
-        await this.manager.$_grantRole(ROLES.SOME, other, 10, 0);
+        await this.manager.$_grantRole(ROLES.SOME.id, other, 10, 0);
         // here: "other" is pending to get the role, but doesn't yet have it.
 
-        const { receipt } = await this.manager.grantRole(ROLES.SOME, other, executeDelay, { from: manager });
+        const { receipt } = await this.manager.grantRole(ROLES.SOME.id, other, executeDelay, { from: manager });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
         // increasing the execution delay from 0 to executeDelay is immediate
         expectEvent(receipt, 'RoleGranted', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           account: other,
           since: timestamp,
           delay: executeDelay,
@@ -463,82 +495,82 @@ contract('AccessManager', function (accounts) {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME.id, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME.id, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.equal(MINSETBACK);
         expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(newDelay);
       });
 
       it('increasing the delay has delay effect #1', async function () {
         const oldDelay = web3.utils.toBN(100);
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME.id, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME.id, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.equal(MINSETBACK);
         expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(newDelay);
       });
 
       it('increasing the delay has delay effect #2', async function () {
         const oldDelay = time.duration.days(30); // more than the minsetback
         const newDelay = web3.utils.toBN(10);
 
-        await this.manager.$_setGrantDelay(ROLES.SOME, oldDelay);
+        await this.manager.$_setGrantDelay(ROLES.SOME.id, oldDelay);
         await time.increase(MINSETBACK);
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
 
-        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME, newDelay, { from: admin });
+        const { receipt } = await this.manager.setGrantDelay(ROLES.SOME.id, newDelay, { from: admin });
         const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
         const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
 
         expect(setback).to.be.bignumber.gt(MINSETBACK);
         expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: ROLES.SOME,
+          roleId: ROLES.SOME.id,
           delay: newDelay,
           since: timestamp.add(setback),
         });
 
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(oldDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(oldDelay);
         await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(ROLES.SOME)).to.be.bignumber.equal(newDelay);
+        expect(await this.manager.getRoleGrantDelay(ROLES.SOME.id)).to.be.bignumber.equal(newDelay);
       });
 
       it('changing the grant delay is restricted', async function () {
         await expectRevertCustomError(
-          this.manager.setGrantDelay(ROLES.SOME, grantDelay, { from: other }),
+          this.manager.setGrantDelay(ROLES.SOME.id, grantDelay, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [ROLES.ADMIN, other],
+          [ROLES.ADMIN.id, other],
         );
       });
     });
@@ -564,26 +596,35 @@ contract('AccessManager', function (accounts) {
 
       it('admin can set function role', async function () {
         for (const sig of sigs) {
-          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.ADMIN);
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
+            ROLES.ADMIN.id,
+          );
         }
 
-        const { receipt: receipt1 } = await this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME, {
-          from: admin,
-        });
+        const { receipt: receipt1 } = await this.manager.setTargetFunctionRole(
+          this.target.address,
+          sigs,
+          ROLES.SOME.id,
+          {
+            from: admin,
+          },
+        );
 
         for (const sig of sigs) {
           expectEvent(receipt1, 'TargetFunctionRoleUpdated', {
             target: this.target.address,
             selector: sig,
-            roleId: ROLES.SOME,
+            roleId: ROLES.SOME.id,
           });
-          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(ROLES.SOME);
+          expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
+            ROLES.SOME.id,
+          );
         }
 
         const { receipt: receipt2 } = await this.manager.setTargetFunctionRole(
           this.target.address,
           [sigs[1]],
-          ROLES.SOME_ADMIN,
+          ROLES.SOME_ADMIN.id,
           {
             from: admin,
           },
@@ -591,46 +632,48 @@ contract('AccessManager', function (accounts) {
         expectEvent(receipt2, 'TargetFunctionRoleUpdated', {
           target: this.target.address,
           selector: sigs[1],
-          roleId: ROLES.SOME_ADMIN,
+          roleId: ROLES.SOME_ADMIN.id,
         });
 
         for (const sig of sigs) {
           expect(await this.manager.getTargetFunctionRole(this.target.address, sig)).to.be.bignumber.equal(
-            sig == sigs[1] ? ROLES.SOME_ADMIN : ROLES.SOME,
+            sig == sigs[1] ? ROLES.SOME_ADMIN.id : ROLES.SOME.id,
           );
         }
       });
 
       it('non-admin cannot set function role', async function () {
         await expectRevertCustomError(
-          this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME, { from: other }),
+          this.manager.setTargetFunctionRole(this.target.address, sigs, ROLES.SOME.id, { from: other }),
           'AccessManagerUnauthorizedAccount',
-          [other, ROLES.ADMIN],
+          [other, ROLES.ADMIN.id],
         );
       });
     });
 
     // WIP
     describe('Calling restricted & unrestricted functions', function () {
-      for (const [callerRoles, fnRole, closed, delay] of product(
-        [[], [ROLES.SOME]],
-        [undefined, ROLES.ADMIN, ROLES.SOME, ROLES.PUBLIC],
-        [false, true],
-        [null, executeDelay],
+      for (const [callerRoles, currentRole, closed, delay] of product(
+        [[], [ROLES.SOME]], // callerRoles
+        [{}, ROLES.ADMIN, ROLES.SOME, ROLES.PUBLIC], // currentRoles
+        [false, true], // closed
+        [null, executeDelay], // delay,
       )) {
+        const isCaller = callerRoles.some(({ id }) => id == currentRole.id);
+
         // can we call with a delay ?
-        const indirectSuccess = (fnRole == ROLES.PUBLIC || callerRoles.includes(fnRole)) && !closed;
+        const indirectSuccess = (currentRole.id == ROLES.PUBLIC.id || isCaller) && !closed;
 
         // can we call without a delay ?
-        const directSuccess = (fnRole == ROLES.PUBLIC || (callerRoles.includes(fnRole) && !delay)) && !closed;
+        const directSuccess = (currentRole.id == ROLES.PUBLIC.id || (isCaller && !delay)) && !closed;
 
         const description = [
           'Caller in roles',
-          '[' + (callerRoles ?? []).map(roleId => ROLES[roleId]).join(', ') + ']',
+          '[' + callerRoles.map(({ name }) => name).join(', ') + ']',
           delay ? 'with a delay' : 'without a delay',
           '+',
-          'functions open to roles',
-          '[' + (ROLES[fnRole] ?? '') + ']',
+          'functions open to role',
+          '[' + (currentRole.name ?? '') + ']',
           closed ? `(closed)` : '',
         ].join(' ');
 
@@ -639,38 +682,34 @@ contract('AccessManager', function (accounts) {
             // setup
             await Promise.all([
               this.manager.$_setTargetClosed(this.target.address, closed),
-              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnRestricted()'), fnRole),
-              fnRole && this.manager.$_setTargetFunctionRole(this.target.address, selector('fnUnrestricted()'), fnRole),
+              currentRole.id &&
+                this.manager.$_setTargetFunctionRole(this.target.address, selector('fnRestricted()'), currentRole.id),
+              currentRole.id &&
+                this.manager.$_setTargetFunctionRole(this.target.address, selector('fnUnrestricted()'), currentRole.id),
               ...callerRoles
-                .filter(roleId => roleId != ROLES.PUBLIC)
-                .map(roleId => this.manager.$_grantRole(roleId, user, 0, delay ?? 0)),
+                .filter(({ id }) => id != ROLES.PUBLIC.id)
+                .map(({ id }) => this.manager.$_grantRole(id, user, 0, delay ?? 0)),
             ]);
 
             // post setup checks
             expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(closed);
 
-            if (fnRole) {
+            if (currentRole.id) {
               expect(
                 await this.manager.getTargetFunctionRole(this.target.address, selector('fnRestricted()')),
-              ).to.be.bignumber.equal(fnRole);
+              ).to.be.bignumber.equal(currentRole.id);
               expect(
                 await this.manager.getTargetFunctionRole(this.target.address, selector('fnUnrestricted()')),
-              ).to.be.bignumber.equal(fnRole);
+              ).to.be.bignumber.equal(currentRole.id);
             }
 
-            for (const roleId of callerRoles) {
+            for (const role of callerRoles) {
+              const roleId = role.id;
               const access = await this.manager.getAccess(roleId, user);
-              if (roleId == ROLES.PUBLIC) {
-                expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
-                expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                expect(access[3]).to.be.bignumber.equal('0'); // effect
-              } else {
-                expect(access[0]).to.be.bignumber.gt('0'); // inRoleSince
-                expect(access[1]).to.be.bignumber.eq(String(delay ?? 0)); // currentDelay
-                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                expect(access[3]).to.be.bignumber.equal('0'); // effect
-              }
+              expect(access[0]).to.be.bignumber.gt('0'); // inRoleSince
+              expect(access[1]).to.be.bignumber.eq(roleId == ROLES.PUBLIC.id ? '0' : String(delay ?? 0)); // currentDelay
+              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+              expect(access[3]).to.be.bignumber.equal('0'); // effect
             }
           });
 
@@ -744,7 +783,7 @@ contract('AccessManager', function (accounts) {
                 const { receipt, tx } = await this.execute();
 
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-                if (delay && fnRole !== ROLES.PUBLIC) {
+                if (delay && currentRole.id !== ROLES.PUBLIC.id) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
@@ -790,7 +829,7 @@ contract('AccessManager', function (accounts) {
                 const { receipt, tx } = await this.execute();
 
                 await expectEvent.inTransaction(tx, this.target, 'CalledRestricted', { caller: this.manager.address });
-                if (delay && fnRole !== ROLES.PUBLIC) {
+                if (delay && currentRole.id !== ROLES.PUBLIC.id) {
                   expectEvent(receipt, 'OperationExecuted', { operationId: this.opId });
                   expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
                 }
@@ -906,8 +945,8 @@ contract('AccessManager', function (accounts) {
 
     describe('Indirect execution corner-cases', async function () {
       beforeEach(async function () {
-        await this.manager.$_setTargetFunctionRole(this.target.address, this.callData, ROLES.SOME);
-        await this.manager.$_grantRole(ROLES.SOME, user, 0, executeDelay);
+        await this.manager.$_setTargetFunctionRole(this.target.address, this.callData, ROLES.SOME.id);
+        await this.manager.$_grantRole(ROLES.SOME.id, user, 0, executeDelay);
       });
 
       it('Checking canCall when caller is the manager depend on the _executionId', async function () {
@@ -962,11 +1001,12 @@ contract('AccessManager', function (accounts) {
       });
 
       it('Scheduler can cancel', async function () {
-        await this.schedule();
+        const scheduler = user;
+        await this.schedule({ from: scheduler });
 
         expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
 
-        expectEvent(await this.cancel({ from: manager }), 'OperationCanceled', { operationId: this.opId });
+        expectEvent(await this.cancel({ from: scheduler }), 'OperationCanceled', { operationId: this.opId });
 
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
       });
@@ -976,7 +1016,7 @@ contract('AccessManager', function (accounts) {
 
         expect(await this.manager.getSchedule(this.opId)).to.not.be.bignumber.equal('0');
 
-        expectEvent(await this.cancel({ from: manager }), 'OperationCanceled', { operationId: this.opId });
+        expectEvent(await this.cancel({ from: guardian }), 'OperationCanceled', { operationId: this.opId });
 
         expect(await this.manager.getSchedule(this.opId)).to.be.bignumber.equal('0');
       });
@@ -1093,7 +1133,7 @@ contract('AccessManager', function (accounts) {
 
       describe('function is open to public role', function () {
         beforeEach(async function () {
-          await this.manager.$_setTargetFunctionRole(this.ownable.address, selector('$_checkOwner()'), ROLES.PUBLIC);
+          await this.manager.$_setTargetFunctionRole(this.ownable.address, selector('$_checkOwner()'), ROLES.PUBLIC.id);
         });
 
         it('directly call: reverts', async function () {
@@ -1140,7 +1180,7 @@ contract('AccessManager', function (accounts) {
       await expectRevertCustomError(
         this.manager.updateAuthority(this.target.address, this.newManager.address, { from: other }),
         'AccessManagerUnauthorizedAccount',
-        [other, ROLES.ADMIN],
+        [other, ROLES.ADMIN.id],
       );
     });
 
