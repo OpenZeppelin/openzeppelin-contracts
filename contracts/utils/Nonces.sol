@@ -13,7 +13,7 @@ abstract contract Nonces {
     mapping(address account => uint256) private _nonces;
 
     /**
-     * @dev Returns an the next unused nonce for an address.
+     * @dev Returns the next unused nonce for an address.
      */
     function nonces(address owner) public view virtual returns (uint256) {
         return _nonces[owner];
