@@ -13,7 +13,7 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function canCall_2(address caller, address target, bytes4 selector) external view returns (uint32 result) {
-        (, result) = canCall(caller, target, selector);
+        (,result) = canCall(caller, target, selector);
     }
 
     function hasRole_1(uint64 roleId, address account) external view returns (bool result) {
@@ -21,7 +21,7 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function hasRole_2(uint64 roleId, address account) external view returns (uint32 result) {
-        (, result) = hasRole(roleId, account);
+        (,result) = hasRole(roleId, account);
     }
 
     function getAccess_1(uint64 roleId, address account) external view returns (uint48 result) {
@@ -29,15 +29,31 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function getAccess_2(uint64 roleId, address account) external view returns (uint32 result) {
-        (, result,,) = getAccess(roleId, account);
+        (,result,,) = getAccess(roleId, account);
     }
 
     function getAccess_3(uint64 roleId, address account) external view returns (uint32 result) {
-        (,, result,) = getAccess(roleId, account);
+        (,,result,) = getAccess(roleId, account);
     }
 
     function getAccess_4(uint64 roleId, address account) external view returns (uint48 result) {
-        (,,, result) = getAccess(roleId, account);
+        (,,,result) = getAccess(roleId, account);
+    }
+
+    function getTargetAdminDelay_2(address target) public view virtual returns (uint32 result) {
+        (,result,) = _getTargetAdminDelayFull(target);
+    }
+
+    function getTargetAdminDelay_3(address target) public view virtual returns (uint48 result) {
+        (,,result) = _getTargetAdminDelayFull(target);
+    }
+
+    function getRoleGrantDelay_2(uint64 roleId) public view virtual returns (uint32 result) {
+        (,result,) = _getRoleGrantDelayFull(roleId);
+    }
+
+    function getRoleGrantDelay_3(uint64 roleId) public view virtual returns (uint48 result) {
+        (,,result) = _getRoleGrantDelayFull(roleId);
     }
 
     function hashExecutionId(address target, bytes4 selector) external pure returns (bytes32) {

@@ -3,16 +3,21 @@ import "methods/IAccessManager.spec";
 
 methods {
     // FV
-    function canCall_1(address,address,bytes4) external returns (bool);
-    function canCall_2(address,address,bytes4) external returns (uint32);
-    function hasRole_1(uint64,address)         external returns (bool);
-    function hasRole_2(uint64,address)         external returns (uint32);
-    function getAccess_1(uint64,address)       external returns (uint48);
-    function getAccess_2(uint64,address)       external returns (uint32);
-    function getAccess_3(uint64,address)       external returns (uint32);
-    function getAccess_4(uint64,address)       external returns (uint48);
-    function hashExecutionId(address,bytes4)   external returns (bytes32) envfree;
-    function executionId()                     external returns (bytes32) envfree;
+    function canCall_1(address,address,bytes4)     external returns (bool);
+    function canCall_2(address,address,bytes4)     external returns (uint32);
+    function hasRole_1(uint64,address)             external returns (bool);
+    function hasRole_2(uint64,address)             external returns (uint32);
+    function getAccess_1(uint64,address)           external returns (uint48);
+    function getAccess_2(uint64,address)           external returns (uint32);
+    function getAccess_3(uint64,address)           external returns (uint32);
+    function getAccess_4(uint64,address)           external returns (uint48);
+    function getTargetAdminDelay_1(address target) external returns (uint32);
+    function getTargetAdminDelay_2(address target) external returns (uint32);
+    function getTargetAdminDelay_3(address target) external returns (uint48);
+    function getRoleGrantDelay_2(uint64 roleId)    external returns (uint32);
+    function getRoleGrantDelay_3(uint64 roleId)    external returns (uint48);
+    function hashExecutionId(address,bytes4)       external returns (bytes32) envfree;
+    function executionId()                         external returns (bytes32) envfree;
 }
 
 /*
@@ -300,34 +305,57 @@ rule getTargetAdminDelayChangeTime(address target) {
     env e2;
 
     // values before
-    mathint delayBefore = getTargetAdminDelay(e1, target);
+    mathint delayBefore        = getTargetAdminDelay(e1, target);
+    mathint delayPendingBefore = getTargetAdminDelay_2(e1, target);
+    mathint delayEffectBefore  = getTargetAdminDelay_3(e1, target);
 
     // time pass: e1 → e2
     require e1.block.timestamp <= e2.block.timestamp;
 
     // values after
-    mathint delayAfter = getTargetAdminDelay(e2, target);
+    mathint delayAfter        = getTargetAdminDelay(e2, target);
+    mathint delayPendingAfter = getTargetAdminDelay_2(e2, target);
+    mathint delayEffectAfter  = getTargetAdminDelay_3(e2, target);
 
-    // TODO: AdminDelay changes are scheduled and happen spontaneously when the effect timestamp is reached.
-    // Unfortunately we don't have an accessor to check that we indeed reach the effect, and that the new value
-    // is the one that was scheduled.
-    assert delayBefore != delayAfter => true;
+    assert (
+        delayBefore        != delayAfter        ||
+        delayPendingBefore != delayPendingAfter ||
+        delayEffectBefore  != delayEffectAfter
+    ) => (
+        delayEffectBefore >  e1.block.timestamp + 0 &&
+        delayEffectBefore <= e2.block.timestamp + 0 &&
+        delayAfter        == delayPendingBefore     &&
+        delayPendingAfter == 0                      &&
+        delayEffectAfter  == 0
+    );
 }
 
 rule getTargetAdminDelayChangeCall(address target) {
     env e;
 
     // values before
-    mathint delayBefore = getTargetAdminDelay(e, target);
+    mathint delayBefore        = getTargetAdminDelay(e, target);
+    mathint delayPendingBefore = getTargetAdminDelay_2(e, target);
+    mathint delayEffectBefore  = getTargetAdminDelay_3(e, target);
 
     // arbitrary function call
     method f; calldataarg args; f(e, args);
 
     // values after
-    mathint delayAfter = getTargetAdminDelay(e, target);
+    mathint delayAfter        = getTargetAdminDelay(e, target);
+    mathint delayPendingAfter = getTargetAdminDelay_2(e, target);
+    mathint delayEffectAfter  = getTargetAdminDelay_3(e, target);
 
     // transitions
-    assert delayBefore != delayAfter => f.selector == sig:setTargetAdminDelay(address,uint32).selector;
+    assert (
+        delayBefore        != delayAfter        ||
+        delayPendingBefore != delayPendingAfter ||
+        delayEffectBefore  != delayEffectAfter
+    ) => (
+        f.selector       == sig:setTargetAdminDelay(address,uint32).selector &&
+        delayAfter       >= delayBefore &&
+        delayEffectAfter >= e.block.timestamp + 0
+    );
 }
 
 /*
@@ -340,34 +368,57 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
     env e2;
 
     // values before
-    mathint delayBefore = getRoleGrantDelay(e1, roleId);
+    mathint delayBefore        = getRoleGrantDelay(e1, roleId);
+    mathint delayPendingBefore = getRoleGrantDelay_2(e1, roleId);
+    mathint delayEffectBefore  = getRoleGrantDelay_3(e1, roleId);
 
     // time pass: e1 → e2
     require e1.block.timestamp <= e2.block.timestamp;
 
     // values after
-    mathint delayAfter = getRoleGrantDelay(e2, roleId);
+    mathint delayAfter        = getRoleGrantDelay(e2, roleId);
+    mathint delayPendingAfter = getRoleGrantDelay_2(e2, roleId);
+    mathint delayEffectAfter  = getRoleGrantDelay_3(e2, roleId);
 
-    // TODO: GrandDelay changes are scheduled and happen spontaneously when the effect timestamp is reached.
-    // Unfortunately we don't have an accessor to check that we indeed reach the effect, and that the new value
-    // is the one that was scheduled.
-    assert delayBefore != delayAfter => true;
+    assert (
+        delayBefore        != delayAfter        ||
+        delayPendingBefore != delayPendingAfter ||
+        delayEffectBefore  != delayEffectAfter
+    ) => (
+        delayEffectBefore >  e1.block.timestamp + 0 &&
+        delayEffectBefore <= e2.block.timestamp + 0 &&
+        delayAfter        == delayPendingBefore     &&
+        delayPendingAfter == 0                      &&
+        delayEffectAfter  == 0
+    );
 }
 
 rule getRoleGrantDelayChangeCall(uint64 roleId) {
     env e;
 
     // values before
-    mathint delayBefore = getRoleGrantDelay(e, roleId);
+    mathint delayBefore        = getRoleGrantDelay(e, roleId);
+    mathint delayPendingBefore = getRoleGrantDelay_2(e, roleId);
+    mathint delayEffectBefore  = getRoleGrantDelay_3(e, roleId);
 
     // arbitrary function call
     method f; calldataarg args; f(e, args);
 
     // values after
-    mathint delayAfter = getRoleGrantDelay(e, roleId);
+    mathint delayAfter        = getRoleGrantDelay(e, roleId);
+    mathint delayPendingAfter = getRoleGrantDelay_2(e, roleId);
+    mathint delayEffectAfter  = getRoleGrantDelay_3(e, roleId);
 
     // transitions
-    assert delayBefore != delayAfter => f.selector == sig:setGrantDelay(uint64,uint32).selector;
+    assert (
+        delayBefore        != delayAfter        ||
+        delayPendingBefore != delayPendingAfter ||
+        delayEffectBefore  != delayEffectAfter
+    ) => (
+        f.selector       == sig:setGrantDelay(uint64,uint32).selector &&
+        delayAfter       >= delayBefore &&
+        delayEffectAfter >= e.block.timestamp + 0
+    );
 }
 
 /*
