@@ -1,6 +1,14 @@
---- access/manager/AccessManager.sol	2023-09-13 17:02:44.571409105 +0200
-+++ access/manager/AccessManager.sol	2023-09-13 17:02:54.041484102 +0200
-@@ -48,7 +48,7 @@
+--- access/manager/AccessManager.sol	2023-09-18 16:59:06.975566974 +0200
++++ access/manager/AccessManager.sol	2023-09-18 17:22:47.924190466 +0200
+@@ -6,7 +6,6 @@
+ import {IAccessManaged} from "./IAccessManaged.sol";
+ import {Address} from "../../utils/Address.sol";
+ import {Context} from "../../utils/Context.sol";
+-import {Multicall} from "../../utils/Multicall.sol";
+ import {Math} from "../../utils/math/Math.sol";
+ import {Time} from "../../utils/types/Time.sol";
+ 
+@@ -48,7 +47,7 @@
   * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
   * {{AccessControl-renounceRole}}.
   */
@@ -9,21 +17,45 @@
      using Time for *;
  
      // Structure that stores the details for a target contract.
-@@ -93,7 +93,7 @@
+@@ -93,7 +92,7 @@
      mapping(bytes32 operationId => Schedule) private _schedules;
  
      // This should be transient storage when supported by the EVM.
 -    bytes32 private _executionId;
-+    bytes32 internal _executionId;
++    bytes32 internal _executionId; // private → internal for FV
  
      /**
       * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
-@@ -728,7 +728,7 @@
+@@ -181,6 +180,11 @@
+         return _targets[target].adminDelay.get();
+     }
+ 
++    // Exposed for FV
++    function _getTargetAdminDelayFull(address target) public view virtual returns (uint32, uint32, uint48) {
++        return _targets[target].adminDelay.getFull();
++    }
++
+     /**
+      * @dev Get the id of the role that acts as an admin for given role.
+      *
+@@ -209,6 +213,11 @@
+         return _roles[roleId].grantDelay.get();
+     }
+ 
++    // Exposed for FV
++    function _getTargetAdminDelayFull(uint64 roleId) public view virtual returns (uint32, uint32, uint48) {
++        return _roles[roleId].grantDelay.getFull();
++    }
++
+     /**
+      * @dev Get the access details for a given account for a given role. These details include the timepoint at which
+      * membership becomes active, and the delay applied to all operation by this user that requires this permission
+@@ -738,7 +747,7 @@
      /**
       * @dev Hashing function for execute protection
       */
 -    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
-+    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) {
++    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) { // private → internal for FV
          return keccak256(abi.encode(target, selector));
      }
  
