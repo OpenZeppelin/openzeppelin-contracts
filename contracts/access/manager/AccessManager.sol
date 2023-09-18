@@ -559,6 +559,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * scheduled operation from other occurrences of the same `operationId` in invocations of {execute} and {cancel}.
      *
      * Emits a {OperationScheduled} event.
+     *
+     * NOTE: It is not possible to concurrently schedule more than one operation with the same `target` and `data`. If
+     * this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
+     * contract if it is using standard Solidity ABI encoding.
      */
     function schedule(
         address target,
@@ -572,12 +576,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         uint48 minWhen = Time.timestamp() + setback;
 
-        // if call is not authorized, or if requested timing is sooner than
+        // if call is not authorized, or if requested timing is too soon
         if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
         }
 
-        uint48 timepoint = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
+        // Reuse variable due to stack too deep
+        when = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
 
         // If caller is authorised, schedule operation
         operationId = hashOperation(caller, target, data);
@@ -588,9 +593,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // It's not feasible to overflow the nonce in less than 1000 years
             nonce = _schedules[operationId].nonce + 1;
         }
-        _schedules[operationId].timepoint = timepoint;
+        _schedules[operationId].timepoint = when;
         _schedules[operationId].nonce = nonce;
-        emit OperationScheduled(operationId, nonce, timepoint, caller, target, data);
+        emit OperationScheduled(operationId, nonce, when, caller, target, data);
 
         // Using named return values because otherwise we get stack too deep
     }
@@ -716,7 +721,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             }
         }
 
-        delete _schedules[operationId].timepoint;
+        delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
         uint32 nonce = _schedules[operationId].nonce;
         emit OperationCanceled(operationId, nonce);
 

@@ -87,27 +87,6 @@ contract('Time', function () {
       }
     });
 
-    it('getAt & getFullAt', async function () {
-      const valueBefore = 24194n;
-      const valueAfter = 4214143n;
-
-      for (const timepoint of [...SOME_VALUES, MAX_UINT48])
-        for (const effect of effectSamplesForTimepoint(timepoint)) {
-          const isPast = effect <= timepoint;
-
-          const delay = packDelay({ valueBefore, valueAfter, effect });
-
-          expect(await this.mock.$getAt(delay, timepoint)).to.be.bignumber.equal(
-            String(isPast ? valueAfter : valueBefore),
-          );
-
-          const getFullAt = await this.mock.$getFullAt(delay, timepoint);
-          expect(getFullAt[0]).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
-          expect(getFullAt[1]).to.be.bignumber.equal(String(isPast ? 0n : valueAfter));
-          expect(getFullAt[2]).to.be.bignumber.equal(String(isPast ? 0n : effect));
-        }
-    });
-
     it('get & getFull', async function () {
       const timepoint = await clock.timestamp().then(BigInt);
       const valueBefore = 24194n;

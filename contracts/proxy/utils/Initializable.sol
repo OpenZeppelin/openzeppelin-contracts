@@ -145,7 +145,7 @@ abstract contract Initializable {
      * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
      * a contract, executing them in the right order is up to the developer or operator.
      *
-     * WARNING: setting the version to 255 will prevent any future reinitialization.
+     * WARNING: Setting the version to 2**64 - 1 will prevent any future reinitialization.
      *
      * Emits an {Initialized} event.
      */

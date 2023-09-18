@@ -33,14 +33,16 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the
+     * library.
      */
     function push(Trace224 storage self, uint32 key, uint224 value) internal returns (uint224, uint224) {
         return _insert(self._checkpoints, key, value);
     }
 
     /**
-     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+     * there is none.
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
@@ -49,7 +51,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
@@ -58,9 +61,11 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * keys).
      */
     function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
@@ -148,8 +153,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -171,8 +177,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
+     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
+     * exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -220,14 +227,16 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max` key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max` key set will disable the
+     * library.
      */
     function push(Trace208 storage self, uint48 key, uint208 value) internal returns (uint208, uint208) {
         return _insert(self._checkpoints, key, value);
     }
 
     /**
-     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+     * there is none.
      */
     function lowerLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
@@ -236,7 +245,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      */
     function upperLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
@@ -245,9 +255,11 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * keys).
      */
     function upperLookupRecent(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
@@ -335,8 +347,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -358,8 +371,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
+     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
+     * exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -407,14 +421,16 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      *
-     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the library.
+     * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the
+     * library.
      */
     function push(Trace160 storage self, uint96 key, uint160 value) internal returns (uint160, uint160) {
         return _insert(self._checkpoints, key, value);
     }
 
     /**
-     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+     * there is none.
      */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
@@ -423,7 +439,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
@@ -432,9 +449,11 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+     * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * keys).
      */
     function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
@@ -522,8 +541,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -545,8 +565,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
+     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
+     * exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
