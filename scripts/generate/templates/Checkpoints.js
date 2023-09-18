@@ -37,14 +37,14 @@ struct ${opts.checkpointTypeName} {
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
- * 
+ *
  * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the library.
  */
 function push(
     ${opts.historyTypeName} storage self,
     ${opts.keyTypeName} key,
     ${opts.valueTypeName} value
-) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+) internal returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     return _insert(self.${opts.checkpointFieldName}, key, value);
 }
 
@@ -143,7 +143,7 @@ function _insert(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     ${opts.valueTypeName} value
-) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+) private returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     uint256 pos = self.length;
 
     if (pos > 0) {

@@ -81,4 +81,16 @@ module.exports = [
   //     }
   //   }
   // },
+
+  class extends Base {
+    static ruleId = 'multiple-returns';
+
+    FunctionDefinition(node) {
+      if (node.returnParameters.length > 1) {
+        if (node.returnParameters.some(p => !p.name)) {
+          this.error(node, 'Multiple return values must all be named');
+        }
+      }
+    }
+  },
 ];

@@ -114,16 +114,16 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-        bytes32 key = map._keys.at(index);
-        return (key, map._values[key]);
+    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+        key = map._keys.at(index);
+        value = map._values[key];
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
+    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool isMember, bytes32 value) {
         bytes32 value = map._values[key];
         if (value == bytes32(0)) {
             return (contains(map, key), bytes32(0));
@@ -208,18 +208,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), uint256(value));
+    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
+        (bytes32 rawKey, bytes32 rawValue) = at(map._inner, index);
+        return (uint256(rawKey), uint256(rawValue));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, uint256(value));
+    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool isMember, uint256 value) {
+        (bool isMember, bytes32 rawValue) = tryGet(map._inner, bytes32(key));
+        return (isMember, uint256(rawValue));
     }
 
     /**
@@ -302,18 +302,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256, address) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), address(uint160(uint256(value))));
+    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
+        (bytes32 rawKey, bytes32 rawValue) = at(map._inner, index);
+        return (uint256(rawKey), address(uint160(uint256(rawValue))));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, address(uint160(uint256(value))));
+    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool isMember, address value) {
+        (bool isMember, bytes32 rawValue) = tryGet(map._inner, bytes32(key));
+        return (isMember, address(uint160(uint256(rawValue))));
     }
 
     /**
@@ -396,18 +396,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (address(uint160(uint256(key))), uint256(value));
+    function at(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
+        (bytes32 rawKey, bytes32 rawValue) = at(map._inner, index);
+        return (address(uint160(uint256(rawKey))), uint256(rawValue));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
-        return (success, uint256(value));
+    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool isMember, uint256 value) {
+        (bool isMember, bytes32 rawValue) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (isMember, uint256(rawValue));
     }
 
     /**
@@ -490,18 +490,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (key, uint256(value));
+    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
+        (bytes32 rawKey, bytes32 rawValue) = at(map._inner, index);
+        return (rawKey, uint256(rawValue));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, key);
-        return (success, uint256(value));
+    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool isMember, uint256 value) {
+        (bool isMember, bytes32 rawValue) = tryGet(map._inner, key);
+        return (isMember, uint256(rawValue));
     }
 
     /**
