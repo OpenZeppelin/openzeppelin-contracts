@@ -760,7 +760,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
         if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
