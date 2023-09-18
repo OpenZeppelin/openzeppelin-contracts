@@ -1,5 +1,5 @@
 --- access/manager/AccessManager.sol	2023-09-18 16:59:06.975566974 +0200
-+++ access/manager/AccessManager.sol	2023-09-18 17:22:47.924190466 +0200
++++ access/manager/AccessManager.sol	2023-09-18 17:32:34.590396666 +0200
 @@ -6,7 +6,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -31,7 +31,7 @@
      }
  
 +    // Exposed for FV
-+    function _getTargetAdminDelayFull(address target) public view virtual returns (uint32, uint32, uint48) {
++    function _getTargetAdminDelayFull(address target) internal view virtual returns (uint32, uint32, uint48) {
 +        return _targets[target].adminDelay.getFull();
 +    }
 +
@@ -43,7 +43,7 @@
      }
  
 +    // Exposed for FV
-+    function _getTargetAdminDelayFull(uint64 roleId) public view virtual returns (uint32, uint32, uint48) {
++    function _getRoleGrantDelayFull(uint64 roleId) internal view virtual returns (uint32, uint32, uint48) {
 +        return _roles[roleId].grantDelay.getFull();
 +    }
 +
