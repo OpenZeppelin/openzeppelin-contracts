@@ -845,6 +845,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
         if (caller == address(this)) {
+            // Caller is AccessManager, this means the call was sent through {execute} and it already checked
+            // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(address(this), bytes4(data)), 0);
         }
 
