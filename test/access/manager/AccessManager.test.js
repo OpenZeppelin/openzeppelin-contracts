@@ -102,166 +102,192 @@ contract('AccessManager', function (accounts) {
     describe('hasRole()', function () {});
   });
 
-  describe('delayed admin operations', function () {
-    describe('#labelRole', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'labelRole(uint64,string)';
-        this.args = [123443, 'TEST'];
-      });
-
-      shouldBehaveLikeDelayedAdminOperation();
-
-      it('emits an event with the label', async function () {
-        expectEvent(await this.manager.labelRole(this.roles.SOME.id, 'Some label', { from: admin }), 'RoleLabel', {
-          roleId: this.roles.SOME.id,
-          label: 'Some label',
-        });
-      });
-
-      it('updates label on a second call', async function () {
-        await this.manager.labelRole(this.roles.SOME.id, 'Some label', { from: admin });
-
-        expectEvent(await this.manager.labelRole(this.roles.SOME.id, 'Updated label', { from: admin }), 'RoleLabel', {
-          roleId: this.roles.SOME.id,
-          label: 'Updated label',
-        });
-      });
-
-      it('reverts labeling PUBLIC_ROLE', async function () {
-        await expectRevertCustomError(
-          this.manager.labelRole(this.roles.PUBLIC.id, 'Some label', { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.PUBLIC.id],
-        );
-      });
-
-      it('reverts labeling ADMIN_ROLE', async function () {
-        await expectRevertCustomError(
-          this.manager.labelRole(this.roles.ADMIN.id, 'Some label', { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.ADMIN.id],
-        );
-      });
+  describe('admin operations', function () {
+    beforeEach('set required role', async function () {
+      this.role = this.roles.ADMIN;
     });
 
-    describe('#setRoleAdmin', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setRoleAdmin(uint64,uint64)';
-        this.args = [93445, 84532];
-      });
+    describe('subject to a delay', function () {
+      describe('role admin operations', function () {
+        const ANOTHER_ADMIN = web3.utils.toBN(0xdeadc0de1);
+        const ANOTHER_ROLE = web3.utils.toBN(0xdeadc0de2);
 
-      shouldBehaveLikeDelayedAdminOperation();
-
-      it("sets any role's admin if called by an admin", async function () {
-        expect(await this.manager.getRoleAdmin(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.SOME_ADMIN.id);
-
-        const { receipt } = await this.manager.setRoleAdmin(this.roles.SOME.id, this.roles.ADMIN.id, { from: admin });
-        expectEvent(receipt, 'RoleAdminChanged', { roleId: this.roles.SOME.id, admin: this.roles.ADMIN.id });
-
-        expect(await this.manager.getRoleAdmin(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.ADMIN.id);
-      });
-
-      it('reverts setting PUBLIC_ROLE admin', async function () {
-        await expectRevertCustomError(
-          this.manager.setRoleAdmin(this.roles.PUBLIC.id, this.roles.ADMIN.id, { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.PUBLIC.id],
-        );
-      });
-
-      it('reverts setting ADMIN_ROLE admin', async function () {
-        await expectRevertCustomError(
-          this.manager.setRoleAdmin(this.roles.ADMIN.id, this.roles.ADMIN.id, { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.ADMIN.id],
-        );
-      });
-    });
-
-    describe('#setRoleGuardian', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setRoleGuardian(uint64,uint64)';
-        this.args = [93445, 84532];
-      });
-
-      shouldBehaveLikeDelayedAdminOperation();
-
-      it("sets any role's guardian if called by an admin", async function () {
-        expect(await this.manager.getRoleGuardian(this.roles.SOME.id)).to.be.bignumber.equal(
-          this.roles.SOME_GUARDIAN.id,
-        );
-
-        const { receipt } = await this.manager.setRoleGuardian(this.roles.SOME.id, this.roles.ADMIN.id, {
-          from: admin,
-        });
-        expectEvent(receipt, 'RoleGuardianChanged', { roleId: this.roles.SOME.id, guardian: this.roles.ADMIN.id });
-
-        expect(await this.manager.getRoleGuardian(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.ADMIN.id);
-      });
-
-      it('reverts setting PUBLIC_ROLE admin', async function () {
-        await expectRevertCustomError(
-          this.manager.setRoleGuardian(this.roles.PUBLIC.id, this.roles.ADMIN.id, { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.PUBLIC.id],
-        );
-      });
-
-      it('reverts setting ADMIN_ROLE admin', async function () {
-        await expectRevertCustomError(
-          this.manager.setRoleGuardian(this.roles.ADMIN.id, this.roles.ADMIN.id, { from: admin }),
-          'AccessManagerLockedRole',
-          [this.roles.ADMIN.id],
-        );
-      });
-    });
-
-    describe('#setGrantDelay', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setGrantDelay(uint64,uint32)';
-        this.args = [984910, time.duration.days(2)];
-      });
-
-      shouldBehaveLikeDelayedAdminOperation();
-
-      describe('when increasing the delay', function () {
-        const oldDelay = web3.utils.toBN(10);
-        const newDelay = web3.utils.toBN(100);
-
-        beforeEach('sets old delay', async function () {
-          this.role = this.roles.SOME;
-          await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+        beforeEach('set required role', async function () {
+          await this.manager.$_setRoleAdmin(ANOTHER_ROLE, ANOTHER_ADMIN);
+          this.role = { id: ANOTHER_ADMIN };
         });
 
-        it('increases the delay after minsetback', async function () {
-          const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
-          const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'RoleGrantDelayChanged', {
-            roleId: this.role.id,
-            delay: newDelay,
-            since: timestamp.add(MINSETBACK),
+        describe('#grantRole', function () {
+          describe('permissions', function () {
+            beforeEach('set method and args', async function () {
+              const method = 'grantRole(uint64,address,uint32)';
+              const args = [ANOTHER_ROLE, Wallet.generate().getChecksumAddressString(), 0];
+              this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+            });
+
+            shouldBehaveLikeANotDelayedAdminOperation();
+          });
+        });
+
+        describe('#revokeRole', function () {
+          describe('permissions', function () {
+            beforeEach('set method and args', async function () {
+              const method = 'revokeRole(uint64,address)';
+              const args = [ANOTHER_ROLE, Wallet.generate().getChecksumAddressString()];
+              this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+
+              // Need to be set before revoking
+              await this.manager.$_grantRole(...args, 0, 0);
+            });
+
+            shouldBehaveLikeANotDelayedAdminOperation();
+          });
+        });
+      });
+
+      describe('#labelRole', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'labelRole(uint64,string)';
+            const args = [123443, 'TEST'];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+          shouldBehaveLikeDelayedAdminOperation();
+        });
+
+        it('emits an event with the label', async function () {
+          expectEvent(await this.manager.labelRole(this.roles.SOME.id, 'Some label', { from: admin }), 'RoleLabel', {
+            roleId: this.roles.SOME.id,
+            label: 'Some label',
+          });
+        });
+
+        it('updates label on a second call', async function () {
+          await this.manager.labelRole(this.roles.SOME.id, 'Some label', { from: admin });
+
+          expectEvent(await this.manager.labelRole(this.roles.SOME.id, 'Updated label', { from: admin }), 'RoleLabel', {
+            roleId: this.roles.SOME.id,
+            label: 'Updated label',
+          });
+        });
+
+        it('reverts labeling PUBLIC_ROLE', async function () {
+          await expectRevertCustomError(
+            this.manager.labelRole(this.roles.PUBLIC.id, 'Some label', { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.PUBLIC.id],
+          );
+        });
+
+        it('reverts labeling ADMIN_ROLE', async function () {
+          await expectRevertCustomError(
+            this.manager.labelRole(this.roles.ADMIN.id, 'Some label', { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.ADMIN.id],
+          );
         });
       });
 
-      describe('when reducing the delay', function () {
-        const oldDelay = time.duration.days(10);
+      describe('#setRoleAdmin', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setRoleAdmin(uint64,uint64)';
+            const args = [93445, 84532];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+          });
 
-        beforeEach('sets old delay', async function () {
-          this.role = this.roles.SOME;
-          await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+          shouldBehaveLikeDelayedAdminOperation();
         });
 
-        describe('when the delay difference is shorter than minimum setback', function () {
-          const newDelay = oldDelay.subn(1);
+        it("sets any role's admin if called by an admin", async function () {
+          expect(await this.manager.getRoleAdmin(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.SOME_ADMIN.id);
+
+          const { receipt } = await this.manager.setRoleAdmin(this.roles.SOME.id, this.roles.ADMIN.id, { from: admin });
+          expectEvent(receipt, 'RoleAdminChanged', { roleId: this.roles.SOME.id, admin: this.roles.ADMIN.id });
+
+          expect(await this.manager.getRoleAdmin(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.ADMIN.id);
+        });
+
+        it('reverts setting PUBLIC_ROLE admin', async function () {
+          await expectRevertCustomError(
+            this.manager.setRoleAdmin(this.roles.PUBLIC.id, this.roles.ADMIN.id, { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.PUBLIC.id],
+          );
+        });
+
+        it('reverts setting ADMIN_ROLE admin', async function () {
+          await expectRevertCustomError(
+            this.manager.setRoleAdmin(this.roles.ADMIN.id, this.roles.ADMIN.id, { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.ADMIN.id],
+          );
+        });
+      });
+
+      describe('#setRoleGuardian', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setRoleGuardian(uint64,uint64)';
+            const args = [93445, 84532];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+          });
+
+          shouldBehaveLikeDelayedAdminOperation();
+        });
+
+        it("sets any role's guardian if called by an admin", async function () {
+          expect(await this.manager.getRoleGuardian(this.roles.SOME.id)).to.be.bignumber.equal(
+            this.roles.SOME_GUARDIAN.id,
+          );
+
+          const { receipt } = await this.manager.setRoleGuardian(this.roles.SOME.id, this.roles.ADMIN.id, {
+            from: admin,
+          });
+          expectEvent(receipt, 'RoleGuardianChanged', { roleId: this.roles.SOME.id, guardian: this.roles.ADMIN.id });
+
+          expect(await this.manager.getRoleGuardian(this.roles.SOME.id)).to.be.bignumber.equal(this.roles.ADMIN.id);
+        });
+
+        it('reverts setting PUBLIC_ROLE admin', async function () {
+          await expectRevertCustomError(
+            this.manager.setRoleGuardian(this.roles.PUBLIC.id, this.roles.ADMIN.id, { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.PUBLIC.id],
+          );
+        });
+
+        it('reverts setting ADMIN_ROLE admin', async function () {
+          await expectRevertCustomError(
+            this.manager.setRoleGuardian(this.roles.ADMIN.id, this.roles.ADMIN.id, { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.ADMIN.id],
+          );
+        });
+      });
+
+      describe('#setGrantDelay', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setGrantDelay(uint64,uint32)';
+            const args = [984910, time.duration.days(2)];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+          });
+
+          shouldBehaveLikeDelayedAdminOperation();
+        });
+
+        describe('when increasing the delay', function () {
+          const oldDelay = web3.utils.toBN(10);
+          const newDelay = web3.utils.toBN(100);
+
+          beforeEach('sets old delay', async function () {
+            this.role = this.roles.SOME;
+            await this.manager.$_setGrantDelay(this.role.id, oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+          });
 
           it('increases the delay after minsetback', async function () {
             const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
@@ -278,77 +304,80 @@ contract('AccessManager', function (accounts) {
           });
         });
 
-        describe('when the delay difference is longer than minimum setback', function () {
-          const newDelay = web3.utils.toBN(1);
+        describe('when reducing the delay', function () {
+          const oldDelay = time.duration.days(10);
 
-          beforeEach('assert delay difference is higher than minsetback', function () {
-            expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
+          beforeEach('sets old delay', async function () {
+            this.role = this.roles.SOME;
+            await this.manager.$_setGrantDelay(this.role.id, oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
           });
 
-          it('increases the delay after delay difference', async function () {
-            const setback = oldDelay.sub(newDelay);
-            const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-            expectEvent(receipt, 'RoleGrantDelayChanged', {
-              roleId: this.role.id,
-              delay: newDelay,
-              since: timestamp.add(setback),
+          describe('when the delay difference is shorter than minimum setback', function () {
+            const newDelay = oldDelay.subn(1);
+
+            it('increases the delay after minsetback', async function () {
+              const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+              expectEvent(receipt, 'RoleGrantDelayChanged', {
+                roleId: this.role.id,
+                delay: newDelay,
+                since: timestamp.add(MINSETBACK),
+              });
+
+              expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+              await time.increase(MINSETBACK);
+              expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+            });
+          });
+
+          describe('when the delay difference is longer than minimum setback', function () {
+            const newDelay = web3.utils.toBN(1);
+
+            beforeEach('assert delay difference is higher than minsetback', function () {
+              expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
             });
 
-            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
-            await time.increase(setback);
-            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+            it('increases the delay after delay difference', async function () {
+              const setback = oldDelay.sub(newDelay);
+              const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+              expectEvent(receipt, 'RoleGrantDelayChanged', {
+                roleId: this.role.id,
+                delay: newDelay,
+                since: timestamp.add(setback),
+              });
+
+              expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+              await time.increase(setback);
+              expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+            });
           });
         });
       });
-    });
 
-    describe('#setTargetAdminDelay', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setTargetAdminDelay(address,uint32)';
-        this.args = [Wallet.generate().getChecksumAddressString(), time.duration.days(3)];
-      });
-
-      shouldBehaveLikeDelayedAdminOperation();
-
-      describe('when increasing the delay', function () {
-        const oldDelay = time.duration.days(10);
-        const newDelay = time.duration.days(11);
-        const target = Wallet.generate().getChecksumAddressString();
-
-        beforeEach('sets old delay', async function () {
-          await this.manager.$_setTargetAdminDelay(target, oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
-        });
-
-        it('increases the delay after minsetback', async function () {
-          const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
-          const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-          expectEvent(receipt, 'TargetAdminDelayUpdated', {
-            target,
-            delay: newDelay,
-            since: timestamp.add(MINSETBACK),
+      describe('#setTargetAdminDelay', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setTargetAdminDelay(address,uint32)';
+            const args = [Wallet.generate().getChecksumAddressString(), time.duration.days(3)];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
-        });
-      });
-
-      describe('when reducing the delay', function () {
-        const oldDelay = time.duration.days(10);
-        const target = Wallet.generate().getChecksumAddressString();
-
-        beforeEach('sets old delay', async function () {
-          await this.manager.$_setTargetAdminDelay(target, oldDelay);
-          await time.increase(MINSETBACK);
-          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+          shouldBehaveLikeDelayedAdminOperation();
         });
 
-        describe('when the delay difference is shorter than minimum setback', function () {
-          const newDelay = oldDelay.subn(1);
+        describe('when increasing the delay', function () {
+          const oldDelay = time.duration.days(10);
+          const newDelay = time.duration.days(11);
+          const target = Wallet.generate().getChecksumAddressString();
+
+          beforeEach('sets old delay', async function () {
+            await this.manager.$_setTargetAdminDelay(target, oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+          });
 
           it('increases the delay after minsetback', async function () {
             const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
@@ -365,81 +394,95 @@ contract('AccessManager', function (accounts) {
           });
         });
 
-        describe('when the delay difference is longer than minimum setback', function () {
-          const newDelay = web3.utils.toBN(1);
+        describe('when reducing the delay', function () {
+          const oldDelay = time.duration.days(10);
+          const target = Wallet.generate().getChecksumAddressString();
 
-          beforeEach('assert delay difference is higher than minsetback', function () {
-            expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
+          beforeEach('sets old delay', async function () {
+            await this.manager.$_setTargetAdminDelay(target, oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
           });
 
-          it('increases the delay after delay difference', async function () {
-            const setback = oldDelay.sub(newDelay);
-            const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
-            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-            expectEvent(receipt, 'TargetAdminDelayUpdated', {
-              target,
-              delay: newDelay,
-              since: timestamp.add(setback),
+          describe('when the delay difference is shorter than minimum setback', function () {
+            const newDelay = oldDelay.subn(1);
+
+            it('increases the delay after minsetback', async function () {
+              const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+              expectEvent(receipt, 'TargetAdminDelayUpdated', {
+                target,
+                delay: newDelay,
+                since: timestamp.add(MINSETBACK),
+              });
+
+              expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+              await time.increase(MINSETBACK);
+              expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+            });
+          });
+
+          describe('when the delay difference is longer than minimum setback', function () {
+            const newDelay = web3.utils.toBN(1);
+
+            beforeEach('assert delay difference is higher than minsetback', function () {
+              expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
             });
 
-            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
-            await time.increase(setback);
-            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+            it('increases the delay after delay difference', async function () {
+              const setback = oldDelay.sub(newDelay);
+              const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
+              const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+              expectEvent(receipt, 'TargetAdminDelayUpdated', {
+                target,
+                delay: newDelay,
+                since: timestamp.add(setback),
+              });
+
+              expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+              await time.increase(setback);
+              expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+            });
           });
         });
       });
     });
-  });
 
-  describe('not delayed admin operations', function () {
-    describe('#updateAuthority', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'updateAuthority(address,address)';
-        this.newAuthority = await AccessManager.new(admin);
-        this.args = [this.target.address, this.newAuthority.address];
-      });
-
-      shouldBehaveLikeANotDelayedAdminOperation();
-    });
-
-    describe('#setTargetClosed', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setTargetClosed(address,bool)';
-        this.args = [Wallet.generate().getChecksumAddressString(), true];
-      });
-
-      shouldBehaveLikeANotDelayedAdminOperation();
-    });
-
-    describe('#setTargetFunctionRole', function () {
-      beforeEach('set method and args', async function () {
-        this.method = 'setTargetFunctionRole(address,bytes4[],uint64)';
-        this.args = [Wallet.generate().getChecksumAddressString(), ['0x12345678'], 443342];
-      });
-
-      shouldBehaveLikeANotDelayedAdminOperation();
-    });
-
-    describe('role admin operations', function () {
-      describe('#grantRole', function () {
+    describe('not subject to a delay', function () {
+      describe('#updateAuthority', function () {
         beforeEach('set method and args', async function () {
-          this.method = 'grantRole(uint64,address,uint32)';
-          this.args = [32455, Wallet.generate().getChecksumAddressString(), 1234];
+          const method = 'updateAuthority(address,address)';
+          this.newAuthority = await AccessManager.new(admin);
+          this.newManagedTarget = await AccessManagedTarget.new(this.manager.address);
+          const args = [this.newManagedTarget.address, this.newAuthority.address];
+          this.calldata = this.manager.contract.methods[method](...args).encodeABI();
         });
 
         shouldBehaveLikeANotDelayedAdminOperation();
       });
 
-      describe('#revokeRole', function () {
-        beforeEach('set method and args', async function () {
-          this.method = 'revokeRole(uint64,address)';
-          this.args = [2403957, Wallet.generate().getChecksumAddressString()];
+      describe('#setTargetClosed', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setTargetClosed(address,bool)';
+            const args = [Wallet.generate().getChecksumAddressString(), true];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+          });
 
-          // Need to be set before revoking
-          await this.manager.$_grantRole(...this.args, 0, 0);
+          shouldBehaveLikeANotDelayedAdminOperation();
         });
+      });
 
-        shouldBehaveLikeANotDelayedAdminOperation();
+      describe('#setTargetFunctionRole', function () {
+        describe('permissions', function () {
+          beforeEach('set method and args', async function () {
+            const method = 'setTargetFunctionRole(address,bytes4[],uint64)';
+            const args = [Wallet.generate().getChecksumAddressString(), ['0x12345678'], 443342];
+            this.calldata = this.manager.contract.methods[method](...args).encodeABI();
+          });
+
+          shouldBehaveLikeANotDelayedAdminOperation();
+        });
       });
     });
   });
