@@ -55,8 +55,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view virtual returns (string memory) {
-        return _name;
+    function parentName() public view virtual override returns (string memory) {
+      return _name; 
     }
 
     /**
