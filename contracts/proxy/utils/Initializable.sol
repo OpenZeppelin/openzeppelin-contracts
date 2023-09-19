@@ -79,7 +79,7 @@ abstract contract Initializable {
     /**
      * @dev The contract is already initialized.
      */
-    error AlreadyInitialized();
+    error InvalidInitialization();
 
     /**
      * @dev The contract is not initializing.
@@ -95,8 +95,9 @@ abstract contract Initializable {
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
      * `onlyInitializing` functions can be used to initialize parent contracts.
      *
-     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a
-     * constructor.
+     * Similar to `reinitializer(1)`, except that in the context of a constructor an `initializer` may be invoked any
+     * number of times. This behavior in the constructor can be useful during testing and is not expected to be used in
+     * production.
      *
      * Emits an {Initialized} event.
      */
@@ -104,10 +105,20 @@ abstract contract Initializable {
         // solhint-disable-next-line var-name-mixedcase
         InitializableStorage storage $ = _getInitializableStorage();
 
+        // Cache values to avoid duplicated sloads
         bool isTopLevelCall = !$._initializing;
         uint64 initialized = $._initialized;
-        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {
-            revert AlreadyInitialized();
+
+        // Allowed calls:
+        // - initialSetup: the contract is not in the initializing state and no previous version was
+        //                 initialized
+        // - construction: the contract is initialized at version 1 (no reininitialization) and the
+        //                 current contract is just being deployed
+        bool initialSetup = initialized == 0 && isTopLevelCall;
+        bool construction = initialized == 1 && address(this).code.length == 0;
+
+        if (!initialSetup && !construction) {
+            revert InvalidInitialization();
         }
         $._initialized = 1;
         if (isTopLevelCall) {
@@ -134,7 +145,7 @@ abstract contract Initializable {
      * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
      * a contract, executing them in the right order is up to the developer or operator.
      *
-     * WARNING: setting the version to 255 will prevent any future reinitialization.
+     * WARNING: Setting the version to 2**64 - 1 will prevent any future reinitialization.
      *
      * Emits an {Initialized} event.
      */
@@ -143,7 +154,7 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         if ($._initializing || $._initialized >= version) {
-            revert AlreadyInitialized();
+            revert InvalidInitialization();
         }
         $._initialized = version;
         $._initializing = true;
@@ -183,7 +194,7 @@ abstract contract Initializable {
         InitializableStorage storage $ = _getInitializableStorage();
 
         if ($._initializing) {
-            revert AlreadyInitialized();
+            revert InvalidInitialization();
         }
         if ($._initialized != type(uint64).max) {
             $._initialized = type(uint64).max;

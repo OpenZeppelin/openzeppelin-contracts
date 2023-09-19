@@ -65,11 +65,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        address owner = _ownerOf(tokenId);
-        if (owner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
-        return owner;
+        return _requireOwned(tokenId);
     }
 
     /**
@@ -90,7 +86,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
@@ -116,7 +112,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-getApproved}.
      */
     function getApproved(uint256 tokenId) public view virtual returns (address) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         return _getApproved(tokenId);
     }
@@ -188,8 +184,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
      * particular (ignoring whether it is owned by `owner`).
      *
-     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not
-     * verify this assumption.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return
@@ -199,10 +195,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
+     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
+     * the `spender` for the specific `tokenId`.
      *
-     * WARNING: This function relies on {_isAuthorized}, so it doesn't check whether `owner` is the
-     * actual owner of `tokenId`.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isAuthorized(owner, spender, tokenId)) {
@@ -411,7 +408,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
         // Avoid reading the owner unless necessary
         if (emitEvent || auth != address(0)) {
-            address owner = ownerOf(tokenId);
+            address owner = _requireOwned(tokenId);
 
             // We do not use _isAuthorized because single-token approvals should not be able to call approve
             if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
@@ -443,12 +440,17 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Reverts if the `tokenId` has not been minted yet.
+     * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+     * Returns the owner.
+     *
+     * Overrides to ownership logic should be done to {_ownerOf}.
      */
-    function _requireMinted(uint256 tokenId) internal view virtual {
-        if (_ownerOf(tokenId) == address(0)) {
+    function _requireOwned(uint256 tokenId) internal view returns (address) {
+        address owner = _ownerOf(tokenId);
+        if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
+        return owner;
     }
 
     /**

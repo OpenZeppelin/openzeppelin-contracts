@@ -132,7 +132,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
+     * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from`
+     * (or `to`) is the zero address.
      *
      * Emits a {TransferSingle} event if the arrays contain one element, and {TransferBatch} otherwise.
      *
@@ -181,9 +182,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev Version of {_update} that performs the token acceptance check by calling {IERC1155Receiver-onERC1155Received}
-     * or {IERC1155Receiver-onERC1155BatchReceived} on the receiver address if it contains code (eg. is a smart contract
-     * at the moment of execution).
+     * @dev Version of {_update} that performs the token acceptance check by calling
+     * {IERC1155Receiver-onERC1155Received} or {IERC1155Receiver-onERC1155BatchReceived} on the receiver address if it
+     * contains code (eg. is a smart contract at the moment of execution).
      *
      * IMPORTANT: Overriding this function is discouraged because it poses a reentrancy risk from the receiver. So any
      * update to the contract state after this function would break the check-effect-interaction pattern. Consider

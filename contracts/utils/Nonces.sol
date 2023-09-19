@@ -36,11 +36,10 @@ abstract contract Nonces {
     /**
      * @dev Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
      */
-    function _useCheckedNonce(address owner, uint256 nonce) internal virtual returns (uint256) {
+    function _useCheckedNonce(address owner, uint256 nonce) internal virtual {
         uint256 current = _useNonce(owner);
         if (nonce != current) {
             revert InvalidAccountNonce(owner, current);
         }
-        return current;
     }
 }

@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
-import {IERC165} from "../../interfaces/IERC165.sol";
 import {Address} from "../../utils/Address.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
@@ -55,6 +54,13 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
+     * @dev See {IGovernor-proposalNeedsQueuing}.
+     */
+    function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
+        return true;
+    }
+
+    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queueOperations(
@@ -64,21 +70,23 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override returns (uint48) {
-        uint48 eta = SafeCast.toUint48(block.timestamp + _timelock.delay());
+        uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
+            if (
+                _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
+            ) {
                 revert GovernorAlreadyQueuedProposal(proposalId);
             }
-            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 
-        return eta;
+        return etaSeconds;
     }
 
     /**
-     * @dev Overridden version of the {Governor-_executeOperations} function that run the already queued proposal through
-     * the timelock.
+     * @dev Overridden version of the {Governor-_executeOperations} function that run the already queued proposal
+     * through the timelock.
      */
     function _executeOperations(
         uint256 proposalId,
@@ -87,18 +95,18 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override {
-        uint256 eta = proposalEta(proposalId);
-        if (eta == 0) {
+        uint256 etaSeconds = proposalEta(proposalId);
+        if (etaSeconds == 0) {
             revert GovernorNotQueuedProposal(proposalId);
         }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
     }
 
     /**
-     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it has already
      * been queued.
      */
     function _cancel(
@@ -109,11 +117,11 @@ abstract contract GovernorTimelockCompound is Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        uint256 eta = proposalEta(proposalId);
-        if (eta > 0) {
+        uint256 etaSeconds = proposalEta(proposalId);
+        if (etaSeconds > 0) {
             // do external call later
             for (uint256 i = 0; i < targets.length; ++i) {
-                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
+                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
             }
         }
 

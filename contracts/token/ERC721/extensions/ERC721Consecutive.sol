@@ -19,12 +19,12 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. The hooks will be only called once per batch, so you should take `batchSize` parameter into consideration
- * when relying on hooks.
+ * IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
+ * function through overrides will not be triggered when token are minted in batch. You may want to also override
+ * {_increaseBalance} or {_mintConsecutive} to account for these mints.
  *
- * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
- * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
+ * IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
+ * values during the {_mintConsecutive} execution if the super call is not called first. To be safe, execute the
  * super call before your custom logic.
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {

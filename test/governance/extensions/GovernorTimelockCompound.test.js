@@ -5,6 +5,7 @@ const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { computeCreateAddress } = require('../../helpers/create');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
@@ -29,6 +30,8 @@ contract('GovernorTimelockCompound', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
+  const defaultDelay = 2 * 86400;
+
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
@@ -40,7 +43,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         const nonce = await web3.eth.getTransactionCount(deployer);
         const predictGovernor = computeCreateAddress(deployer, nonce + 1);
 
-        this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
+        this.timelock = await Timelock.new(predictGovernor, defaultDelay);
         this.mock = await Governor.new(
           name,
           votingDelay,
@@ -91,6 +94,9 @@ contract('GovernorTimelockCompound', function (accounts) {
       });
 
       it('nominal', async function () {
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -99,7 +105,11 @@ contract('GovernorTimelockCompound', function (accounts) {
         await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
         await this.helper.waitForDeadline();
         const txQueue = await this.helper.queue();
-        const eta = await this.mock.proposalEta(this.proposal.id);
+
+        const eta = web3.utils.toBN(await clockFromReceipt.timestamp(txQueue.receipt)).addn(defaultDelay);
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal(eta);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         await this.helper.waitForEta();
         const txExecute = await this.helper.execute();
 

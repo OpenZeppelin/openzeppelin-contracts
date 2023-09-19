@@ -15,12 +15,15 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
- * inaccessible.
+ * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
- * WARNING: Setting up the TimelockController to have additional proposers besides the governor is very risky, as it
- * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
- * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
- * executing a Denial of Service attack. This risk will be mitigated in a future release.
+ * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
+ * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
+ * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
+ * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
+ *
+ * NOTE: `AccessManager` does not support scheduling more than one operation with the same target and calldata at
+ * the same time. See {AccessManager-schedule} for a workaround.
  */
 abstract contract GovernorTimelockControl is Governor {
     TimelockController private _timelock;
@@ -68,6 +71,13 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
+     * @dev See {IGovernor-proposalNeedsQueuing}.
+     */
+    function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
+        return true;
+    }
+
+    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queueOperations(
@@ -87,8 +97,8 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal through
-     * the timelock.
+     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal
+     * through the timelock.
      */
     function _executeOperations(
         uint256 proposalId,
@@ -104,7 +114,7 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it has already
      * been queued.
      */
     // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and

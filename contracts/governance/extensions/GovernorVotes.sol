@@ -7,9 +7,11 @@ import {Governor} from "../Governor.sol";
 import {IVotes} from "../utils/IVotes.sol";
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {Time} from "../../utils/types/Time.sol";
 
 /**
- * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
+ * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes}
+ * token.
  */
 abstract contract GovernorVotes is Governor {
     IERC5805 private immutable _token;
@@ -33,7 +35,7 @@ abstract contract GovernorVotes is Governor {
         try token().clock() returns (uint48 timepoint) {
             return timepoint;
         } catch {
-            return SafeCast.toUint48(block.number);
+            return Time.blockNumber();
         }
     }
 

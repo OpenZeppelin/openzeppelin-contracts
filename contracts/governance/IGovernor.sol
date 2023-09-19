@@ -122,7 +122,7 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @dev Emitted when a proposal is queued.
      */
-    event ProposalQueued(uint256 proposalId, uint256 eta);
+    event ProposalQueued(uint256 proposalId, uint256 etaSeconds);
 
     /**
      * @dev Emitted when a proposal is executed.
@@ -244,6 +244,12 @@ interface IGovernor is IERC165, IERC6372 {
      * different. In most cases this will be a timestamp.
      */
     function proposalEta(uint256 proposalId) external view returns (uint256);
+
+    /**
+     * @notice module:core
+     * @dev Whether a proposal needs to be queued before execution.
+     */
+    function proposalNeedsQueuing(uint256 proposalId) external view returns (bool);
 
     /**
      * @notice module:user-config
