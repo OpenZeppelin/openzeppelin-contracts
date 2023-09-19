@@ -8,7 +8,7 @@ const { product } = require('../../helpers/iterate');
 const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 const {
   shouldBehaveLikeDelayedAdminOperation,
-  shouldBehaveLikeANotDelayedAdminOperation,
+  shouldBehaveLikeNotDelayedAdminOperation,
 } = require('./AccessManager.behavior');
 const { default: Wallet } = require('ethereumjs-wallet');
 
@@ -125,7 +125,7 @@ contract('AccessManager', function (accounts) {
               this.calldata = this.manager.contract.methods[method](...args).encodeABI();
             });
 
-            shouldBehaveLikeANotDelayedAdminOperation();
+            shouldBehaveLikeNotDelayedAdminOperation();
           });
         });
 
@@ -140,7 +140,7 @@ contract('AccessManager', function (accounts) {
               await this.manager.$_grantRole(...args, 0, 0);
             });
 
-            shouldBehaveLikeANotDelayedAdminOperation();
+            shouldBehaveLikeNotDelayedAdminOperation();
           });
         });
       });
@@ -458,7 +458,7 @@ contract('AccessManager', function (accounts) {
           this.calldata = this.manager.contract.methods[method](...args).encodeABI();
         });
 
-        shouldBehaveLikeANotDelayedAdminOperation();
+        shouldBehaveLikeNotDelayedAdminOperation();
       });
 
       describe('#setTargetClosed', function () {
@@ -469,7 +469,7 @@ contract('AccessManager', function (accounts) {
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          shouldBehaveLikeANotDelayedAdminOperation();
+          shouldBehaveLikeNotDelayedAdminOperation();
         });
       });
 
@@ -481,7 +481,7 @@ contract('AccessManager', function (accounts) {
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          shouldBehaveLikeANotDelayedAdminOperation();
+          shouldBehaveLikeNotDelayedAdminOperation();
         });
       });
     });
