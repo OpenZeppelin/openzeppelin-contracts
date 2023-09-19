@@ -7,6 +7,7 @@ const {
 const { impersonate } = require('../../helpers/account');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { assert } = require('chai');
+const { EXPIRATION } = require('../../helpers/access-manager');
 
 // ============ DELAY HELPERS ============
 
@@ -65,8 +66,7 @@ function shouldBehaveLikeDelayedOperation({
     describe('when execution time has expired', function () {
       beforeEach('set execution time expired', async function () {
         const schedule = await this.manager.getSchedule(this.operationId);
-        const expiration = await this.manager.expiration();
-        await setNextBlockTimestamp(schedule.add(expiration));
+        await setNextBlockTimestamp(schedule.add(EXPIRATION));
       });
 
       expired.call(this);
@@ -282,12 +282,10 @@ function shouldBehaveLikeGetAccess({
 function shouldBehaveLikeAnAdminOperation({
   on: {
     externalCaller: {
-      on: {
-        notRequiredPublicRole: {
-          roleGranted: {
-            roleWithGrantDelay: {
-              callerWithExecutionDelay: { after },
-            },
+      notRequiredPublicRole: {
+        roleGranted: {
+          roleWithGrantDelay: {
+            callerWithExecutionDelay: { after },
           },
         },
       },
@@ -424,103 +422,62 @@ function shouldBehaveLikeDelayedAdminOperation() {
   shouldBehaveLikeAnAdminOperation({
     on: {
       externalCaller: {
-        on: {
-          notRequiredPublicRole: {
-            roleGranted: {
-              roleWithGrantDelay: {
-                callerWithExecutionDelay: {
-                  after: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+        notRequiredPublicRole: {
+          roleGranted: {
+            roleWithGrantDelay: {
+              callerWithExecutionDelay: {
+                after: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
 
-                    describe('with operation delay', function () {
-                      describe('when operation delay is greater than execution delay', function () {
-                        beforeEach('set operation delay', async function () {
-                          this.operationDelay = this.executionDelay.add(time.duration.hours(1));
-                          await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
-
-                          this.delayedUntil = this.operationDelay;
-                        });
-
-                        shouldBehaveLikeDelayedOperation.call(this, {
-                          on: {
-                            scheduled: {
-                              before: function () {
-                                it('reverts as AccessManagerNotReady', function () {
-                                  expectRevertCustomError(callMethod.call(this), 'AccessManagerNotReady', [
-                                    this.operationId,
-                                  ]);
-                                });
-                              },
-                              after: function () {
-                                it('succeeds', callMethod);
-                              },
-                              expired: function () {
-                                it('reverts as AccessManagerExpired', function () {
-                                  expectRevertCustomError(callMethod.call(this), 'AccessManagerExpired', [
-                                    this.operationId,
-                                  ]);
-                                });
-                              },
-                            },
-                            notScheduled: function () {
-                              it('reverts as AccessManagerNotScheduled', function () {
-                                expectRevertCustomError(callMethod.call(this), 'AccessManagerNotScheduled', [
-                                  this.operationId,
-                                ]);
-                              });
-                            },
-                          },
-                        });
-                      });
-
-                      describe('when operation delay is shorter than execution delay', function () {
-                        beforeEach('set operation delay', async function () {
-                          this.operationDelay = this.executionDelay.sub(time.duration.hours(1));
-                          await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
-
-                          this.delayedUntil = this.executionDelay;
-                        });
-
-                        shouldBehaveLikeDelayedOperation.call(this, {
-                          on: {
-                            scheduled: {
-                              before: function () {
-                                it('reverts as AccessManagerNotReady', function () {
-                                  expectRevertCustomError(callMethod.call(this), 'AccessManagerNotReady', [
-                                    this.operationId,
-                                  ]);
-                                });
-                              },
-                              after: function () {
-                                it('succeeds', callMethod);
-                              },
-                              expired: function () {
-                                it('reverts as AccessManagerExpired', function () {
-                                  expectRevertCustomError(callMethod.call(this), 'AccessManagerExpired', [
-                                    this.operationId,
-                                  ]);
-                                });
-                              },
-                            },
-                            notScheduled: function () {
-                              it('reverts as AccessManagerNotScheduled', function () {
-                                expectRevertCustomError(callMethod.call(this), 'AccessManagerNotScheduled', [
-                                  this.operationId,
-                                ]);
-                              });
-                            },
-                          },
-                        });
-                      });
-                    });
-
-                    describe('without operation delay', function () {
+                  describe('with operation delay', function () {
+                    describe('when operation delay is greater than execution delay', function () {
                       beforeEach('set operation delay', async function () {
-                        this.operationDelay = 0;
+                        this.operationDelay = this.executionDelay.add(time.duration.hours(1));
                         await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+
+                        this.delayedUntil = this.operationDelay;
+                      });
+
+                      shouldBehaveLikeDelayedOperation.call(this, {
+                        on: {
+                          scheduled: {
+                            before: function () {
+                              it('reverts as AccessManagerNotReady', function () {
+                                expectRevertCustomError(callMethod.call(this), 'AccessManagerNotReady', [
+                                  this.operationId,
+                                ]);
+                              });
+                            },
+                            after: function () {
+                              it('succeeds', callMethod);
+                            },
+                            expired: function () {
+                              it('reverts as AccessManagerExpired', function () {
+                                expectRevertCustomError(callMethod.call(this), 'AccessManagerExpired', [
+                                  this.operationId,
+                                ]);
+                              });
+                            },
+                          },
+                          notScheduled: function () {
+                            it('reverts as AccessManagerNotScheduled', function () {
+                              expectRevertCustomError(callMethod.call(this), 'AccessManagerNotScheduled', [
+                                this.operationId,
+                              ]);
+                            });
+                          },
+                        },
+                      });
+                    });
+
+                    describe('when operation delay is shorter than execution delay', function () {
+                      beforeEach('set operation delay', async function () {
+                        this.operationDelay = this.executionDelay.sub(time.duration.hours(1));
+                        await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+
                         this.delayedUntil = this.executionDelay;
                       });
 
@@ -555,27 +512,15 @@ function shouldBehaveLikeDelayedAdminOperation() {
                         },
                       });
                     });
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-}
+                  });
 
-function shouldBehaveLikeANotDelayedAdminOperation() {
-  shouldBehaveLikeAnAdminOperation({
-    on: {
-      externalCaller: {
-        on: {
-          notRequiredPublicRole: {
-            roleGranted: {
-              roleWithGrantDelay: {
-                callerWithExecutionDelay: {
-                  after: function () {
+                  describe('without operation delay', function () {
+                    beforeEach('set operation delay', async function () {
+                      this.operationDelay = 0;
+                      await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+                      this.delayedUntil = this.executionDelay;
+                    });
+
                     shouldBehaveLikeDelayedOperation.call(this, {
                       on: {
                         scheduled: {
@@ -606,7 +551,56 @@ function shouldBehaveLikeANotDelayedAdminOperation() {
                         },
                       },
                     });
-                  },
+                  });
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function shouldBehaveLikeANotDelayedAdminOperation() {
+  shouldBehaveLikeAnAdminOperation({
+    on: {
+      externalCaller: {
+        notRequiredPublicRole: {
+          roleGranted: {
+            roleWithGrantDelay: {
+              callerWithExecutionDelay: {
+                after: function () {
+                  beforeEach('set operation delay', function () {
+                    this.delayedUntil = this.executionDelay;
+                  });
+
+                  shouldBehaveLikeDelayedOperation.call(this, {
+                    on: {
+                      scheduled: {
+                        before: function () {
+                          it('reverts as AccessManagerNotReady', function () {
+                            expectRevertCustomError(callMethod.call(this), 'AccessManagerNotReady', [this.operationId]);
+                          });
+                        },
+                        after: function () {
+                          it('succeeds', callMethod);
+                        },
+                        expired: function () {
+                          it('reverts as AccessManagerExpired', function () {
+                            expectRevertCustomError(callMethod.call(this), 'AccessManagerExpired', [this.operationId]);
+                          });
+                        },
+                      },
+                      notScheduled: function () {
+                        it('reverts as AccessManagerNotScheduled', function () {
+                          expectRevertCustomError(callMethod.call(this), 'AccessManagerNotScheduled', [
+                            this.operationId,
+                          ]);
+                        });
+                      },
+                    },
+                  });
                 },
               },
             },

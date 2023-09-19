@@ -1,3 +1,4 @@
+const { time } = require('@openzeppelin/test-helpers');
 const { MAX_UINT64 } = require('./constants');
 
 function buildBaseRoles() {
@@ -39,7 +40,12 @@ function buildBaseRoles() {
 
 const formatAccess = access => [access[0], access[1].toString()];
 
+const MINSETBACK = time.duration.days(5);
+const EXPIRATION = time.duration.weeks(1);
+
 module.exports = {
   buildBaseRoles,
   formatAccess,
+  MINSETBACK,
+  EXPIRATION,
 };

@@ -3,33 +3,18 @@ const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { selector } = require('../../helpers/methods');
 const { clockFromReceipt } = require('../../helpers/time');
-const { buildBaseRoles, formatAccess } = require('../../helpers/access-manager');
+const { buildBaseRoles, formatAccess, EXPIRATION, MINSETBACK } = require('../../helpers/access-manager');
 const { product } = require('../../helpers/iterate');
-const helpers = require('@nomicfoundation/hardhat-network-helpers');
 const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 const {
-  shouldBehaveLikeNotDelayedAdminOperation,
-  shouldBehaveLikeGetAccess,
-  shouldBehaveLikeHasRole,
-  shouldBehaveLikeCanCallExecuting,
-  shouldBehaveLikeCanCallSelf,
-  scheduleOperation,
-  shouldBehaveLikeDelayedOperation,
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeANotDelayedAdminOperation,
 } = require('./AccessManager.behavior');
-const { assert } = require('chai');
 const { default: Wallet } = require('ethereumjs-wallet');
-const { computeCreateAddress } = require('../../helpers/create');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
 const Ownable = artifacts.require('$Ownable');
-
-const grantDelay = web3.utils.toBN(15);
-const executeDelay = web3.utils.toBN(10);
-const MINSETBACK = time.duration.days(5);
-const EXPIRATION = time.duration.weeks(1);
 
 const BASE_ROLES = buildBaseRoles();
 
@@ -239,87 +224,82 @@ contract('AccessManager', function (accounts) {
 
       shouldBehaveLikeDelayedAdminOperation();
 
-      it('immediately sets an increased delay', async function () {
+      describe('when increasing the delay', function () {
         const oldDelay = web3.utils.toBN(10);
         const newDelay = web3.utils.toBN(100);
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+        beforeEach('sets old delay', async function () {
+          this.role = this.roles.SOME;
+          await this.manager.$_setGrantDelay(this.role.id, oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
+        it('increases the delay after minsetback', async function () {
+          const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
+          const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+          expectEvent(receipt, 'RoleGrantDelayChanged', {
+            roleId: this.role.id,
+            delay: newDelay,
+            since: timestamp.add(MINSETBACK),
+          });
+
+          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+        });
       });
 
-      it('sets a reduced delay after minimum setback if its difference with current delay is too low', async function () {
-        const oldDelay = web3.utils.toBN(100);
-        const newDelay = web3.utils.toBN(10);
+      describe('when reducing the delay', function () {
+        const oldDelay = time.duration.days(10);
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+        beforeEach('sets old delay', async function () {
+          this.role = this.roles.SOME;
+          await this.manager.$_setGrantDelay(this.role.id, oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
-      });
+        describe('when the delay difference is shorter than minimum setback', function () {
+          const newDelay = oldDelay.subn(1);
 
-      it('sets a reduced delay after the difference between the old delay and the new delay if its higher than minimum setback', async function () {
-        const oldDelay = time.duration.days(30); // more than the minsetback
-        const newDelay = web3.utils.toBN(10);
+          it('increases the delay after minsetback', async function () {
+            const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+            expectEvent(receipt, 'RoleGrantDelayChanged', {
+              roleId: this.role.id,
+              delay: newDelay,
+              since: timestamp.add(MINSETBACK),
+            });
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.gt(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+          });
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
-      });
+        describe('when the delay difference is longer than minimum setback', function () {
+          const newDelay = web3.utils.toBN(1);
 
-      it('changing the grant delay is restricted', async function () {
-        await expectRevertCustomError(
-          this.manager.setGrantDelay(this.roles.SOME.id, grantDelay, { from: other }),
-          'AccessManagerUnauthorizedAccount',
-          [this.roles.ADMIN.id, other],
-        );
+          beforeEach('assert delay difference is higher than minsetback', function () {
+            expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
+          });
+
+          it('increases the delay after delay difference', async function () {
+            const setback = oldDelay.sub(newDelay);
+            const { receipt } = await this.manager.setGrantDelay(this.role.id, newDelay, { from: admin });
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+            expectEvent(receipt, 'RoleGrantDelayChanged', {
+              roleId: this.role.id,
+              delay: newDelay,
+              since: timestamp.add(setback),
+            });
+
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(oldDelay);
+            await time.increase(setback);
+            expect(await this.manager.getRoleGrantDelay(this.role.id)).to.be.bignumber.equal(newDelay);
+          });
+        });
       });
     });
 
@@ -331,87 +311,82 @@ contract('AccessManager', function (accounts) {
 
       shouldBehaveLikeDelayedAdminOperation();
 
-      it('immediately sets an increased delay', async function () {
-        const oldDelay = web3.utils.toBN(10);
-        const newDelay = web3.utils.toBN(100);
+      describe('when increasing the delay', function () {
+        const oldDelay = time.duration.days(10);
+        const newDelay = time.duration.days(11);
+        const target = Wallet.generate().getChecksumAddressString();
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+        beforeEach('sets old delay', async function () {
+          await this.manager.$_setTargetAdminDelay(target, oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
+        it('increases the delay after minsetback', async function () {
+          const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
+          const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+          expectEvent(receipt, 'TargetAdminDelayUpdated', {
+            target,
+            delay: newDelay,
+            since: timestamp.add(MINSETBACK),
+          });
+
+          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+        });
       });
 
-      it('sets a reduced delay after minimum setback if its difference with current delay is too low', async function () {
-        const oldDelay = web3.utils.toBN(100);
-        const newDelay = web3.utils.toBN(10);
+      describe('when reducing the delay', function () {
+        const oldDelay = time.duration.days(10);
+        const target = Wallet.generate().getChecksumAddressString();
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.equal(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+        beforeEach('sets old delay', async function () {
+          await this.manager.$_setTargetAdminDelay(target, oldDelay);
+          await time.increase(MINSETBACK);
+          expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
-      });
+        describe('when the delay difference is shorter than minimum setback', function () {
+          const newDelay = oldDelay.subn(1);
 
-      it('sets a reduced delay after the difference between the old delay and the new delay if its higher than minimum setback', async function () {
-        const oldDelay = time.duration.days(30); // more than the minsetback
-        const newDelay = web3.utils.toBN(10);
+          it('increases the delay after minsetback', async function () {
+            const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+            expectEvent(receipt, 'TargetAdminDelayUpdated', {
+              target,
+              delay: newDelay,
+              since: timestamp.add(MINSETBACK),
+            });
 
-        await this.manager.$_setGrantDelay(this.roles.SOME.id, oldDelay);
-        await time.increase(MINSETBACK);
-
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-
-        const { receipt } = await this.manager.setGrantDelay(this.roles.SOME.id, newDelay, { from: admin });
-        const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
-        const setback = web3.utils.BN.max(MINSETBACK, oldDelay.sub(newDelay));
-
-        expect(setback).to.be.bignumber.gt(MINSETBACK);
-        expectEvent(receipt, 'RoleGrantDelayChanged', {
-          roleId: this.roles.SOME.id,
-          delay: newDelay,
-          since: timestamp.add(setback),
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+            await time.increase(MINSETBACK);
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+          });
         });
 
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(oldDelay);
-        await time.increase(setback);
-        expect(await this.manager.getRoleGrantDelay(this.roles.SOME.id)).to.be.bignumber.equal(newDelay);
-      });
+        describe('when the delay difference is longer than minimum setback', function () {
+          const newDelay = web3.utils.toBN(1);
 
-      it('changing the grant delay is restricted', async function () {
-        await expectRevertCustomError(
-          this.manager.setGrantDelay(this.roles.SOME.id, grantDelay, { from: other }),
-          'AccessManagerUnauthorizedAccount',
-          [this.roles.ADMIN.id, other],
-        );
+          beforeEach('assert delay difference is higher than minsetback', function () {
+            expect(oldDelay.sub(newDelay)).to.be.bignumber.gt(MINSETBACK);
+          });
+
+          it('increases the delay after delay difference', async function () {
+            const setback = oldDelay.sub(newDelay);
+            const { receipt } = await this.manager.setTargetAdminDelay(target, newDelay, { from: admin });
+            const timestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
+            expectEvent(receipt, 'TargetAdminDelayUpdated', {
+              target,
+              delay: newDelay,
+              since: timestamp.add(setback),
+            });
+
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(oldDelay);
+            await time.increase(setback);
+            expect(await this.manager.getTargetAdminDelay(target)).to.be.bignumber.equal(newDelay);
+          });
+        });
       });
     });
   });
@@ -443,6 +418,29 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeANotDelayedAdminOperation();
+    });
+
+    describe('role admin operations', function () {
+      describe('#grantRole', function () {
+        beforeEach('set method and args', async function () {
+          this.method = 'grantRole(uint64,address,uint32)';
+          this.args = [32455, Wallet.generate().getChecksumAddressString(), 1234];
+        });
+
+        shouldBehaveLikeANotDelayedAdminOperation();
+      });
+
+      describe('#revokeRole', function () {
+        beforeEach('set method and args', async function () {
+          this.method = 'revokeRole(uint64,address)';
+          this.args = [2403957, Wallet.generate().getChecksumAddressString()];
+
+          // Need to be set before revoking
+          await this.manager.$_grantRole(...this.args, 0, 0);
+        });
+
+        shouldBehaveLikeANotDelayedAdminOperation();
+      });
     });
   });
 
