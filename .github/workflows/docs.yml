@@ -1,0 +1,19 @@
+name: Build Docs
+
+on:
+  push:
+    branches: [release-v*]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - run: node scripts/update-docs-branch.js
+      - run: git push --all origin 

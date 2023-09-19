@@ -1,0 +1,67 @@
+= ERC 721
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc721
+
+This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-721[ERC721 Non-Fungible Token Standard].
+
+TIP: For a walk through on how to create an ERC721 token read our xref:ROOT:erc721.adoc[ERC721 guide].
+
+The EIP specifies four interfaces:
+
+* {IERC721}: Core functionality required in all compliant implementation.
+* {IERC721Metadata}: Optional extension that adds name, symbol, and token URI, almost always included.
+* {IERC721Enumerable}: Optional extension that allows enumerating the tokens on chain, often not included since it requires large gas overhead.
+* {IERC721Receiver}: An interface that must be implemented by contracts if they want to accept tokens through `safeTransferFrom`.
+
+OpenZeppelin Contracts provides implementations of all four interfaces:
+
+* {ERC721}: The core and metadata extensions, with a base URI mechanism.
+* {ERC721Enumerable}: The enumerable extension.
+* {ERC721Holder}: A bare bones implementation of the receiver interface.
+
+Additionally there are a few of other extensions:
+
+* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC2309] for minting batchs of tokens during construction, in accordance with ERC721.
+* {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
+* {ERC721Votes}: Support for voting and vote delegation.
+* {ERC721Royalty}: A way to signal royalty information following ERC2981.
+* {ERC721Pausable}: A primitive to pause contract operation.
+* {ERC721Burnable}: A way for token holders to burn their own tokens.
+* {ERC721Wrapper}: Wrapper to create an ERC721 backed by another ERC721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
+
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
+
+== Core
+
+{{IERC721}}
+
+{{IERC721Metadata}}
+
+{{IERC721Enumerable}}
+
+{{ERC721}}
+
+{{ERC721Enumerable}}
+
+{{IERC721Receiver}}
+
+== Extensions
+
+{{ERC721Pausable}}
+
+{{ERC721Burnable}}
+
+{{ERC721Consecutive}}
+
+{{ERC721URIStorage}}
+
+{{ERC721Votes}}
+
+{{ERC721Royalty}}
+
+{{ERC721Wrapper}}
+
+== Utilities
+
+{{ERC721Holder}}

@@ -1,0 +1,5 @@
+{
+    "detectors_to_run": "arbitrary-send-erc20,array-by-reference,incorrect-shift,name-reused,rtlo,suicidal,uninitialized-state,uninitialized-storage,arbitrary-send-erc20-permit,controlled-array-length,controlled-delegatecall,delegatecall-loop,msg-value-loop,reentrancy-eth,unchecked-transfer,weak-prng,domain-separator-collision,erc20-interface,erc721-interface,locked-ether,mapping-deletion,shadowing-abstract,tautology,write-after-write,boolean-cst,reentrancy-no-eth,reused-constructor,tx-origin,unchecked-lowlevel,unchecked-send,variable-scope,void-cst,events-access,events-maths,incorrect-unary,boolean-equal,cyclomatic-complexity,deprecated-standards,erc20-indexed,function-init-state,pragma,unused-state,reentrancy-unlimited-gas,constable-states,immutable-states,var-read-using-this",
+    "filter_paths": "contracts/mocks,contracts-exposed",
+    "compile_force_framework": "hardhat"
+}

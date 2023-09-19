@@ -1,0 +1,359 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:xref-ERC2771Context-constructor-address-: xref:metatx.adoc#ERC2771Context-constructor-address-
+:xref-ERC2771Context-trustedForwarder--: xref:metatx.adoc#ERC2771Context-trustedForwarder--
+:xref-ERC2771Context-isTrustedForwarder-address-: xref:metatx.adoc#ERC2771Context-isTrustedForwarder-address-
+:xref-ERC2771Context-_msgSender--: xref:metatx.adoc#ERC2771Context-_msgSender--
+:xref-ERC2771Context-_msgData--: xref:metatx.adoc#ERC2771Context-_msgData--
+:ERC2771Context: pass:normal[xref:metatx.adoc#ERC2771Context[`ERC2771Context`]]
+:xref-ERC2771Forwarder-constructor-string-: xref:metatx.adoc#ERC2771Forwarder-constructor-string-
+:xref-ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-
+:xref-ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-
+:xref-ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-: xref:metatx.adoc#ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-
+:xref-ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-
+:xref-ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-
+:xref-ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-: xref:metatx.adoc#ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
+:xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
+:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-: xref:metatx.adoc#ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-
+:xref-ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-
+:xref-ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-
+:xref-ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:EIP712-constructor: pass:normal[xref:utils.adoc#EIP712-constructor-string-string-[`EIP712.constructor`]]
+:ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
+= Meta Transactions
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/metatx
+
+== Core
+
+:constructor: pass:normal[xref:#ERC2771Context-constructor-address-[`++constructor++`]]
+:trustedForwarder: pass:normal[xref:#ERC2771Context-trustedForwarder--[`++trustedForwarder++`]]
+:isTrustedForwarder: pass:normal[xref:#ERC2771Context-isTrustedForwarder-address-[`++isTrustedForwarder++`]]
+:_msgSender: pass:normal[xref:#ERC2771Context-_msgSender--[`++_msgSender++`]]
+:_msgData: pass:normal[xref:#ERC2771Context-_msgData--[`++_msgData++`]]
+
+[.contract]
+[[ERC2771Context]]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
+```
+
+Context variant with ERC2771 support.
+
+WARNING: Avoid using this pattern in contracts that rely in a specific calldata length as they'll
+be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC2771
+specification adding the address size in bytes (20) to the calldata size. An example of an unexpected
+behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`
+function only accessible if `msg.data.length == 0`.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC2771Context-constructor-address-}[`++constructor(trustedForwarder_)++`]
+* {xref-ERC2771Context-trustedForwarder--}[`++trustedForwarder()++`]
+* {xref-ERC2771Context-isTrustedForwarder-address-}[`++isTrustedForwarder(forwarder)++`]
+* {xref-ERC2771Context-_msgSender--}[`++_msgSender()++`]
+* {xref-ERC2771Context-_msgData--}[`++_msgData()++`]
+
+--
+
+[.contract-item]
+[[ERC2771Context-constructor-address-]]
+==== `[.contract-item-name]#++constructor++#++(address trustedForwarder_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[ERC2771Context-trustedForwarder--]]
+==== `[.contract-item-name]#++trustedForwarder++#++() → address++` [.item-kind]#public#
+
+Returns the address of the trusted forwarder.
+
+[.contract-item]
+[[ERC2771Context-isTrustedForwarder-address-]]
+==== `[.contract-item-name]#++isTrustedForwarder++#++(address forwarder) → bool++` [.item-kind]#public#
+
+Indicates whether any particular address is the trusted forwarder.
+
+[.contract-item]
+[[ERC2771Context-_msgSender--]]
+==== `[.contract-item-name]#++_msgSender++#++() → address sender++` [.item-kind]#internal#
+
+Override for `msg.sender`. Defaults to the original `msg.sender` whenever
+a call is not performed by the trusted forwarder or the calldata length is less than
+20 bytes (an address length).
+
+[.contract-item]
+[[ERC2771Context-_msgData--]]
+==== `[.contract-item-name]#++_msgData++#++() → bytes++` [.item-kind]#internal#
+
+Override for `msg.data`. Defaults to the original `msg.data` whenever
+a call is not performed by the trusted forwarder or the calldata length is less than
+20 bytes (an address length).
+
+== Utils
+
+:ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-ForwardRequestData[`++ForwardRequestData++`]]
+:_FORWARD_REQUEST_TYPEHASH: pass:normal[xref:#ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32[`++_FORWARD_REQUEST_TYPEHASH++`]]
+:ExecutedForwardRequest: pass:normal[xref:#ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-[`++ExecutedForwardRequest++`]]
+:ERC2771ForwarderInvalidSigner: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-[`++ERC2771ForwarderInvalidSigner++`]]
+:ERC2771ForwarderMismatchedValue: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-[`++ERC2771ForwarderMismatchedValue++`]]
+:ERC2771ForwarderExpiredRequest: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-[`++ERC2771ForwarderExpiredRequest++`]]
+:ERC2771UntrustfulTarget: pass:normal[xref:#ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-[`++ERC2771UntrustfulTarget++`]]
+:constructor: pass:normal[xref:#ERC2771Forwarder-constructor-string-[`++constructor++`]]
+:verify: pass:normal[xref:#ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-[`++verify++`]]
+:execute: pass:normal[xref:#ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-[`++execute++`]]
+:executeBatch: pass:normal[xref:#ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-[`++executeBatch++`]]
+:_validate: pass:normal[xref:#ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-[`++_validate++`]]
+:_recoverForwardRequestSigner: pass:normal[xref:#ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-[`++_recoverForwardRequestSigner++`]]
+:_execute: pass:normal[xref:#ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-[`++_execute++`]]
+
+[.contract]
+[[ERC2771Forwarder]]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
+```
+
+A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
+
+This forwarder operates on forward requests that include:
+
+* `from`: An address to operate on behalf of. It is required to be equal to the request signer.
+* `to`: The address that should be called.
+* `value`: The amount of native token to attach with the requested call.
+* `gas`: The amount of gas limit that will be forwarded with the requested call.
+* `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
+* `deadline`: A timestamp after which the request is not executable anymore.
+* `data`: Encoded `msg.data` to send with the requested call.
+
+Relayers are able to submit batches if they are processing a high volume of requests. With high
+throughput, relayers may run into limitations of the chain such as limits on the number of
+transactions in the mempool. In these cases the recommendation is to distribute the load among
+multiple accounts.
+
+NOTE: Batching requests includes an optional refund for unused `msg.value` that is achieved by
+performing a call with empty calldata. While this is within the bounds of ERC-2771 compliance,
+if the refund receiver happens to consider the forwarder a trusted forwarder, it MUST properly
+handle `msg.data.length == 0`. `ERC2771Context` in OpenZeppelin Contracts versions prior to 4.9.3
+do not handle this properly.
+
+==== Security Considerations
+
+If a relayer submits a forward request, it should be willing to pay up to 100% of the gas amount
+specified in the request. This contract does not implement any kind of retribution for this gas,
+and it is assumed that there is an out of band incentive for relayers to pay for execution on
+behalf of signers. Often, the relayer is operated by a project that will consider it a user
+acquisition cost.
+
+By offering to pay for gas, relayers are at risk of having that gas used by an attacker toward
+some other purpose that is not aligned with the expected out of band incentives. If you operate a
+relayer, consider whitelisting target contracts and function selectors. When relaying ERC-721 or
+ERC-1155 transfers specifically, consider rejecting the use of the `data` field, since it can be
+used to execute arbitrary code.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC2771Forwarder-constructor-string-}[`++constructor(name)++`]
+* {xref-ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-}[`++verify(request)++`]
+* {xref-ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-}[`++execute(request)++`]
+* {xref-ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-}[`++executeBatch(requests, refundReceiver)++`]
+* {xref-ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-}[`++_validate(request)++`]
+* {xref-ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-}[`++_recoverForwardRequestSigner(request)++`]
+* {xref-ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-}[`++_execute(request, requireValidRequest)++`]
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+* {xref-Nonces-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, nonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-}[`++ExecutedForwardRequest(signer, nonce, success)++`]
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-}[`++ERC2771ForwarderInvalidSigner(signer, from)++`]
+* {xref-ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-}[`++ERC2771ForwarderMismatchedValue(requestedValue, msgValue)++`]
+* {xref-ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-}[`++ERC2771ForwarderExpiredRequest(deadline)++`]
+* {xref-ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-}[`++ERC2771UntrustfulTarget(target, forwarder)++`]
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+--
+
+[.contract-item]
+[[ERC2771Forwarder-constructor-string-]]
+==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#public#
+
+See {EIP712-constructor}.
+
+[.contract-item]
+[[ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-]]
+==== `[.contract-item-name]#++verify++#++(struct ERC2771Forwarder.ForwardRequestData request) → bool++` [.item-kind]#public#
+
+Returns `true` if a request is valid for a provided `signature` at the current block timestamp.
+
+A transaction is considered valid when the target trusts this forwarder, the request hasn't expired
+(deadline is not met), and the signer matches the `from` parameter of the signed request.
+
+NOTE: A request may return false here but it won't cause {executeBatch} to revert if a refund
+receiver is provided.
+
+[.contract-item]
+[[ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-]]
+==== `[.contract-item-name]#++execute++#++(struct ERC2771Forwarder.ForwardRequestData request)++` [.item-kind]#public#
+
+Executes a `request` on behalf of `signature`'s signer using the ERC-2771 protocol. The gas
+provided to the requested call may not be exactly the amount requested, but the call will not run
+out of gas. Will revert if the request is invalid or the call reverts, in this case the nonce is not consumed.
+
+Requirements:
+
+- The request value should be equal to the provided `msg.value`.
+- The request should be valid according to {verify}.
+
+[.contract-item]
+[[ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-]]
+==== `[.contract-item-name]#++executeBatch++#++(struct ERC2771Forwarder.ForwardRequestData[] requests, address payable refundReceiver)++` [.item-kind]#public#
+
+Batch version of {execute} with optional refunding and atomic execution.
+
+In case a batch contains at least one invalid request (see {verify}), the
+request will be skipped and the `refundReceiver` parameter will receive back the
+unused requested value at the end of the execution. This is done to prevent reverting
+the entire batch when a request is invalid or has already been submitted.
+
+If the `refundReceiver` is the `address(0)`, this function will revert when at least
+one of the requests was not valid instead of skipping it. This could be useful if
+a batch is required to get executed atomically (at least at the top-level). For example,
+refunding (and thus atomicity) can be opt-out if the relayer is using a service that avoids
+including reverted transactions.
+
+Requirements:
+
+- The sum of the requests' values should be equal to the provided `msg.value`.
+- All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
+
+NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
+the first-level forwarded calls. In case a forwarded request calls to a contract with another
+subcall, the second-level call may revert without the top-level call reverting.
+
+[.contract-item]
+[[ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-]]
+==== `[.contract-item-name]#++_validate++#++(struct ERC2771Forwarder.ForwardRequestData request) → bool isTrustedForwarder, bool active, bool signerMatch, address signer++` [.item-kind]#internal#
+
+Validates if the provided request can be executed at current block timestamp with
+the given `request.signature` on behalf of `request.signer`.
+
+[.contract-item]
+[[ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-]]
+==== `[.contract-item-name]#++_recoverForwardRequestSigner++#++(struct ERC2771Forwarder.ForwardRequestData request) → bool, address++` [.item-kind]#internal#
+
+Returns a tuple with the recovered the signer of an EIP712 forward request message hash
+and a boolean indicating if the signature is valid.
+
+NOTE: The signature is considered valid if {ECDSA-tryRecover} indicates no recover error for it.
+
+[.contract-item]
+[[ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-]]
+==== `[.contract-item-name]#++_execute++#++(struct ERC2771Forwarder.ForwardRequestData request, bool requireValidRequest) → bool success++` [.item-kind]#internal#
+
+Validates and executes a signed request returning the request call `success` value.
+
+Internal function without msg.value validation.
+
+Requirements:
+
+- The caller must have provided enough gas to forward with the call.
+- The request must be valid (see {verify}) if the `requireValidRequest` is true.
+
+Emits an {ExecutedForwardRequest} event.
+
+IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially
+leaving value stuck in the contract.
+
+[.contract-item]
+[[ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-]]
+==== `[.contract-item-name]#++ExecutedForwardRequest++#++(address indexed signer, uint256 nonce, bool success)++` [.item-kind]#event#
+
+Emitted when a `ForwardRequest` is executed.
+
+NOTE: An unsuccessful forward request could be due to an invalid signature, an expired deadline,
+or simply a revert in the requested call. The contract guarantees that the relayer is not able to force
+the requested call to run out of gas.
+
+[.contract-item]
+[[ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-]]
+==== `[.contract-item-name]#++ERC2771ForwarderInvalidSigner++#++(address signer, address from)++` [.item-kind]#error#
+
+The request `from` doesn't match with the recovered `signer`.
+
+[.contract-item]
+[[ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC2771ForwarderMismatchedValue++#++(uint256 requestedValue, uint256 msgValue)++` [.item-kind]#error#
+
+The `requestedValue` doesn't match with the available `msgValue`.
+
+[.contract-item]
+[[ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-]]
+==== `[.contract-item-name]#++ERC2771ForwarderExpiredRequest++#++(uint48 deadline)++` [.item-kind]#error#
+
+The request `deadline` has expired.
+
+[.contract-item]
+[[ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-]]
+==== `[.contract-item-name]#++ERC2771UntrustfulTarget++#++(address target, address forwarder)++` [.item-kind]#error#
+
+The request target doesn't trust the `forwarder`.
+

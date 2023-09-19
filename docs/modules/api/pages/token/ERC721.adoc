@@ -1,0 +1,2991 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:IERC721: pass:normal[xref:token/ERC721.adoc#IERC721[`IERC721`]]
+:IERC721Metadata: pass:normal[xref:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`]]
+:IERC721Enumerable: pass:normal[xref:token/ERC721.adoc#IERC721Enumerable[`IERC721Enumerable`]]
+:IERC721Receiver: pass:normal[xref:token/ERC721.adoc#IERC721Receiver[`IERC721Receiver`]]
+:ERC721: pass:normal[xref:token/ERC721.adoc#ERC721[`ERC721`]]
+:ERC721Enumerable: pass:normal[xref:token/ERC721.adoc#ERC721Enumerable[`ERC721Enumerable`]]
+:ERC721Holder: pass:normal[xref:token/ERC721.adoc#ERC721Holder[`ERC721Holder`]]
+:ERC721Consecutive: pass:normal[xref:token/ERC721.adoc#ERC721Consecutive[`ERC721Consecutive`]]
+:ERC721URIStorage: pass:normal[xref:token/ERC721.adoc#ERC721URIStorage[`ERC721URIStorage`]]
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
+:ERC721Royalty: pass:normal[xref:token/ERC721.adoc#ERC721Royalty[`ERC721Royalty`]]
+:ERC721Pausable: pass:normal[xref:token/ERC721.adoc#ERC721Pausable[`ERC721Pausable`]]
+:ERC721Burnable: pass:normal[xref:token/ERC721.adoc#ERC721Burnable[`ERC721Burnable`]]
+:ERC721Wrapper: pass:normal[xref:token/ERC721.adoc#ERC721Wrapper[`ERC721Wrapper`]]
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
+:xref-IERC721-balanceOf-address-: xref:token/ERC721.adoc#IERC721-balanceOf-address-
+:xref-IERC721-ownerOf-uint256-: xref:token/ERC721.adoc#IERC721-ownerOf-uint256-
+:xref-IERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-IERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-
+:xref-IERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-
+:xref-IERC721-approve-address-uint256-: xref:token/ERC721.adoc#IERC721-approve-address-uint256-
+:xref-IERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-
+:xref-IERC721-getApproved-uint256-: xref:token/ERC721.adoc#IERC721-getApproved-uint256-
+:xref-IERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-
+:xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:xref-IERC721Metadata-name--: xref:token/ERC721.adoc#IERC721Metadata-name--
+:xref-IERC721Metadata-symbol--: xref:token/ERC721.adoc#IERC721Metadata-symbol--
+:xref-IERC721Metadata-tokenURI-uint256-: xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-
+:xref-IERC721-balanceOf-address-: xref:token/ERC721.adoc#IERC721-balanceOf-address-
+:xref-IERC721-ownerOf-uint256-: xref:token/ERC721.adoc#IERC721-ownerOf-uint256-
+:xref-IERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-IERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-
+:xref-IERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-
+:xref-IERC721-approve-address-uint256-: xref:token/ERC721.adoc#IERC721-approve-address-uint256-
+:xref-IERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-
+:xref-IERC721-getApproved-uint256-: xref:token/ERC721.adoc#IERC721-getApproved-uint256-
+:xref-IERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-
+:xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC721Enumerable-totalSupply--: xref:token/ERC721.adoc#IERC721Enumerable-totalSupply--
+:xref-IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-: xref:token/ERC721.adoc#IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-
+:xref-IERC721Enumerable-tokenByIndex-uint256-: xref:token/ERC721.adoc#IERC721Enumerable-tokenByIndex-uint256-
+:xref-IERC721-balanceOf-address-: xref:token/ERC721.adoc#IERC721-balanceOf-address-
+:xref-IERC721-ownerOf-uint256-: xref:token/ERC721.adoc#IERC721-ownerOf-uint256-
+:xref-IERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-IERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-
+:xref-IERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-
+:xref-IERC721-approve-address-uint256-: xref:token/ERC721.adoc#IERC721-approve-address-uint256-
+:xref-IERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-
+:xref-IERC721-getApproved-uint256-: xref:token/ERC721.adoc#IERC721-getApproved-uint256-
+:xref-IERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-
+:xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:ERC721Enumerable: pass:normal[xref:token/ERC721.adoc#ERC721Enumerable[`ERC721Enumerable`]]
+:xref-ERC721-constructor-string-string-: xref:token/ERC721.adoc#ERC721-constructor-string-string-
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:IERC721-balanceOf: pass:normal[xref:token/ERC721.adoc#IERC721-balanceOf-address-[`IERC721.balanceOf`]]
+:IERC721-ownerOf: pass:normal[xref:token/ERC721.adoc#IERC721-ownerOf-uint256-[`IERC721.ownerOf`]]
+:IERC721Metadata-name: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-name--[`IERC721Metadata.name`]]
+:IERC721Metadata-symbol: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-symbol--[`IERC721Metadata.symbol`]]
+:IERC721Metadata-tokenURI: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`IERC721Metadata.tokenURI`]]
+:IERC721-approve: pass:normal[xref:token/ERC721.adoc#IERC721-approve-address-uint256-[`IERC721.approve`]]
+:IERC721-getApproved: pass:normal[xref:token/ERC721.adoc#IERC721-getApproved-uint256-[`IERC721.getApproved`]]
+:IERC721-setApprovalForAll: pass:normal[xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-[`IERC721.setApprovalForAll`]]
+:IERC721-isApprovedForAll: pass:normal[xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-[`IERC721.isApprovedForAll`]]
+:IERC721-transferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-[`IERC721.transferFrom`]]
+:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-[`IERC721.safeTransferFrom`]]
+:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-[`IERC721.safeTransferFrom`]]
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:ERC721: pass:normal[xref:token/ERC721.adoc#ERC721[`ERC721`]]
+:xref-ERC721Enumerable-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721Enumerable-supportsInterface-bytes4-
+:xref-ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-: xref:token/ERC721.adoc#ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-
+:xref-ERC721Enumerable-totalSupply--: xref:token/ERC721.adoc#ERC721Enumerable-totalSupply--
+:xref-ERC721Enumerable-tokenByIndex-uint256-: xref:token/ERC721.adoc#ERC721Enumerable-tokenByIndex-uint256-
+:xref-ERC721Enumerable-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721Enumerable-_update-address-uint256-address-
+:xref-ERC721Enumerable-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721Enumerable-_increaseBalance-address-uint128-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-ERC721Enumerable-ERC721OutOfBoundsIndex-address-uint256-: xref:token/ERC721.adoc#ERC721Enumerable-ERC721OutOfBoundsIndex-address-uint256-
+:xref-ERC721Enumerable-ERC721EnumerableForbiddenBatchMint--: xref:token/ERC721.adoc#ERC721Enumerable-ERC721EnumerableForbiddenBatchMint--
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:IERC721Enumerable-tokenOfOwnerByIndex: pass:normal[xref:token/ERC721.adoc#IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`IERC721Enumerable.tokenOfOwnerByIndex`]]
+:IERC721Enumerable-totalSupply: pass:normal[xref:token/ERC721.adoc#IERC721Enumerable-totalSupply--[`IERC721Enumerable.totalSupply`]]
+:IERC721Enumerable-tokenByIndex: pass:normal[xref:token/ERC721.adoc#IERC721Enumerable-tokenByIndex-uint256-[`IERC721Enumerable.tokenByIndex`]]
+:ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
+:xref-IERC721Receiver-onERC721Received-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-
+:IERC721: pass:normal[xref:token/ERC721.adoc#IERC721[`IERC721`]]
+:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-[`IERC721.safeTransferFrom`]]
+:Pausable-_pause: pass:normal[xref:utils.adoc#Pausable-_pause--[`Pausable._pause`]]
+:Pausable-_unpause: pass:normal[xref:utils.adoc#Pausable-_unpause--[`Pausable._unpause`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:xref-ERC721Pausable-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721Pausable-_update-address-uint256-address-
+:xref-Pausable-paused--: xref:utils.adoc#Pausable-paused--
+:xref-Pausable-_requireNotPaused--: xref:utils.adoc#Pausable-_requireNotPaused--
+:xref-Pausable-_requirePaused--: xref:utils.adoc#Pausable-_requirePaused--
+:xref-Pausable-_pause--: xref:utils.adoc#Pausable-_pause--
+:xref-Pausable-_unpause--: xref:utils.adoc#Pausable-_unpause--
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-Pausable-Paused-address-: xref:utils.adoc#Pausable-Paused-address-
+:xref-Pausable-Unpaused-address-: xref:utils.adoc#Pausable-Unpaused-address-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-Pausable-EnforcedPause--: xref:utils.adoc#Pausable-EnforcedPause--
+:xref-Pausable-ExpectedPause--: xref:utils.adoc#Pausable-ExpectedPause--
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
+:xref-ERC721Burnable-burn-uint256-: xref:token/ERC721.adoc#ERC721Burnable-burn-uint256-
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:ERC721-_burn: pass:normal[xref:token/ERC721.adoc#ERC721-_burn-uint256-[`ERC721._burn`]]
+:xref-ERC721Consecutive-_maxBatchSize--: xref:token/ERC721.adoc#ERC721Consecutive-_maxBatchSize--
+:xref-ERC721Consecutive-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721Consecutive-_ownerOf-uint256-
+:xref-ERC721Consecutive-_mintConsecutive-address-uint96-: xref:token/ERC721.adoc#ERC721Consecutive-_mintConsecutive-address-uint96-
+:xref-ERC721Consecutive-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721Consecutive-_update-address-uint256-address-
+:xref-ERC721Consecutive-_firstConsecutiveId--: xref:token/ERC721.adoc#ERC721Consecutive-_firstConsecutiveId--
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-: xref:interfaces.adoc#IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-
+:xref-ERC721Consecutive-ERC721ForbiddenBatchMint--: xref:token/ERC721.adoc#ERC721Consecutive-ERC721ForbiddenBatchMint--
+:xref-ERC721Consecutive-ERC721ExceededMaxBatchMint-uint256-uint256-: xref:token/ERC721.adoc#ERC721Consecutive-ERC721ExceededMaxBatchMint-uint256-uint256-
+:xref-ERC721Consecutive-ERC721ForbiddenMint--: xref:token/ERC721.adoc#ERC721Consecutive-ERC721ForbiddenMint--
+:xref-ERC721Consecutive-ERC721ForbiddenBatchBurn--: xref:token/ERC721.adoc#ERC721Consecutive-ERC721ForbiddenBatchBurn--
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:ERC721-_ownerOf: pass:normal[xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-[`ERC721._ownerOf`]]
+:IERC2309-ConsecutiveTransfer: pass:normal[xref:interfaces.adoc#IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-[`IERC2309.ConsecutiveTransfer`]]
+:ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
+:ERC721Consecutive: pass:normal[xref:token/ERC721.adoc#ERC721Consecutive[`ERC721Consecutive`]]
+:IERC721-Transfer: pass:normal[xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-[`IERC721.Transfer`]]
+:xref-ERC721URIStorage-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721URIStorage-supportsInterface-bytes4-
+:xref-ERC721URIStorage-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721URIStorage-tokenURI-uint256-
+:xref-ERC721URIStorage-_setTokenURI-uint256-string-: xref:token/ERC721.adoc#ERC721URIStorage-_setTokenURI-uint256-string-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC4906-MetadataUpdate-uint256-: xref:interfaces.adoc#IERC4906-MetadataUpdate-uint256-
+:xref-IERC4906-BatchMetadataUpdate-uint256-uint256-: xref:interfaces.adoc#IERC4906-BatchMetadataUpdate-uint256-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:IERC721Metadata-tokenURI: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`IERC721Metadata.tokenURI`]]
+:Votes: pass:normal[xref:governance.adoc#Votes[`Votes`]]
+:xref-ERC721Votes-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721Votes-_update-address-uint256-address-
+:xref-ERC721Votes-_getVotingUnits-address-: xref:token/ERC721.adoc#ERC721Votes-_getVotingUnits-address-
+:xref-ERC721Votes-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721Votes-_increaseBalance-address-uint128-
+:xref-Votes-clock--: xref:governance.adoc#Votes-clock--
+:xref-Votes-CLOCK_MODE--: xref:governance.adoc#Votes-CLOCK_MODE--
+:xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
+:xref-Votes-getPastVotes-address-uint256-: xref:governance.adoc#Votes-getPastVotes-address-uint256-
+:xref-Votes-getPastTotalSupply-uint256-: xref:governance.adoc#Votes-getPastTotalSupply-uint256-
+:xref-Votes-_getTotalSupply--: xref:governance.adoc#Votes-_getTotalSupply--
+:xref-Votes-delegates-address-: xref:governance.adoc#Votes-delegates-address-
+:xref-Votes-delegate-address-: xref:governance.adoc#Votes-delegate-address-
+:xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-Votes-_delegate-address-address-: xref:governance.adoc#Votes-_delegate-address-address-
+:xref-Votes-_transferVotingUnits-address-address-uint256-: xref:governance.adoc#Votes-_transferVotingUnits-address-address-uint256-
+:xref-Votes-_numCheckpoints-address-: xref:governance.adoc#Votes-_numCheckpoints-address-
+:xref-Votes-_checkpoints-address-uint32-: xref:governance.adoc#Votes-_checkpoints-address-uint32-
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
+:xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
+:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
+:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-Votes-ERC6372InconsistentClock--: xref:governance.adoc#Votes-ERC6372InconsistentClock--
+:xref-Votes-ERC5805FutureLookup-uint256-uint48-: xref:governance.adoc#Votes-ERC5805FutureLookup-uint256-uint48-
+:xref-IVotes-VotesExpiredSignature-uint256-: xref:governance.adoc#IVotes-VotesExpiredSignature-uint256-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
+:IVotes-DelegateVotesChanged: pass:normal[xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-[`IVotes.DelegateVotesChanged`]]
+:ERC721-_increaseBalance: pass:normal[xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-[`ERC721._increaseBalance`]]
+:ERC2981-_setDefaultRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_setDefaultRoyalty-address-uint96-[`ERC2981._setDefaultRoyalty`]]
+:ERC2981-_setTokenRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_setTokenRoyalty-uint256-address-uint96-[`ERC2981._setTokenRoyalty`]]
+:xref-ERC721Royalty-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721Royalty-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-ERC2981-royaltyInfo-uint256-uint256-: xref:token/common.adoc#ERC2981-royaltyInfo-uint256-uint256-
+:xref-ERC2981-_feeDenominator--: xref:token/common.adoc#ERC2981-_feeDenominator--
+:xref-ERC2981-_setDefaultRoyalty-address-uint96-: xref:token/common.adoc#ERC2981-_setDefaultRoyalty-address-uint96-
+:xref-ERC2981-_deleteDefaultRoyalty--: xref:token/common.adoc#ERC2981-_deleteDefaultRoyalty--
+:xref-ERC2981-_setTokenRoyalty-uint256-address-uint96-: xref:token/common.adoc#ERC2981-_setTokenRoyalty-uint256-address-uint96-
+:xref-ERC2981-_resetTokenRoyalty-uint256-: xref:token/common.adoc#ERC2981-_resetTokenRoyalty-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:xref-ERC2981-ERC2981InvalidDefaultRoyalty-uint256-uint256-: xref:token/common.adoc#ERC2981-ERC2981InvalidDefaultRoyalty-uint256-uint256-
+:xref-ERC2981-ERC2981InvalidDefaultRoyaltyReceiver-address-: xref:token/common.adoc#ERC2981-ERC2981InvalidDefaultRoyaltyReceiver-address-
+:xref-ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-: xref:token/common.adoc#ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-
+:xref-ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-: xref:token/common.adoc#ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
+:xref-ERC721Wrapper-constructor-contract-IERC721-: xref:token/ERC721.adoc#ERC721Wrapper-constructor-contract-IERC721-
+:xref-ERC721Wrapper-depositFor-address-uint256---: xref:token/ERC721.adoc#ERC721Wrapper-depositFor-address-uint256---
+:xref-ERC721Wrapper-withdrawTo-address-uint256---: xref:token/ERC721.adoc#ERC721Wrapper-withdrawTo-address-uint256---
+:xref-ERC721Wrapper-onERC721Received-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721Wrapper-onERC721Received-address-address-uint256-bytes-
+:xref-ERC721Wrapper-_recover-address-uint256-: xref:token/ERC721.adoc#ERC721Wrapper-_recover-address-uint256-
+:xref-ERC721Wrapper-underlying--: xref:token/ERC721.adoc#ERC721Wrapper-underlying--
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_getApproved-uint256-: xref:token/ERC721.adoc#ERC721-_getApproved-uint256-
+:xref-ERC721-_isAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_isAuthorized-address-address-uint256-
+:xref-ERC721-_checkAuthorized-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_checkAuthorized-address-address-uint256-
+:xref-ERC721-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721-_increaseBalance-address-uint128-
+:xref-ERC721-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_approve-address-uint256-address-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-
+:xref-ERC721-_approve-address-uint256-address-bool-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-address-bool-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireOwned-uint256-: xref:token/ERC721.adoc#ERC721-_requireOwned-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:xref-ERC721Wrapper-ERC721UnsupportedToken-address-: xref:token/ERC721.adoc#ERC721Wrapper-ERC721UnsupportedToken-address-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721-transferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-[`IERC721.transferFrom`]]
+:ERC721Wrapper-_recover: pass:normal[xref:token/ERC721.adoc#ERC721Wrapper-_recover-address-uint256-[`ERC721Wrapper._recover`]]
+:IERC721Receiver: pass:normal[xref:token/ERC721.adoc#IERC721Receiver[`IERC721Receiver`]]
+:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-[`IERC721.safeTransferFrom`]]
+:IERC721-approve: pass:normal[xref:token/ERC721.adoc#IERC721-approve-address-uint256-[`IERC721.approve`]]
+:IERC721-setApprovalForAll: pass:normal[xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-[`IERC721.setApprovalForAll`]]
+:xref-ERC721Holder-onERC721Received-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721Holder-onERC721Received-address-address-uint256-bytes-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+= ERC 721
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc721
+
+This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-721[ERC721 Non-Fungible Token Standard].
+
+TIP: For a walk through on how to create an ERC721 token read our xref:ROOT:erc721.adoc[ERC721 guide].
+
+The EIP specifies four interfaces:
+
+* {IERC721}: Core functionality required in all compliant implementation.
+* {IERC721Metadata}: Optional extension that adds name, symbol, and token URI, almost always included.
+* {IERC721Enumerable}: Optional extension that allows enumerating the tokens on chain, often not included since it requires large gas overhead.
+* {IERC721Receiver}: An interface that must be implemented by contracts if they want to accept tokens through `safeTransferFrom`.
+
+OpenZeppelin Contracts provides implementations of all four interfaces:
+
+* {ERC721}: The core and metadata extensions, with a base URI mechanism.
+* {ERC721Enumerable}: The enumerable extension.
+* {ERC721Holder}: A bare bones implementation of the receiver interface.
+
+Additionally there are a few of other extensions:
+
+* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC2309] for minting batchs of tokens during construction, in accordance with ERC721.
+* {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
+* {ERC721Votes}: Support for voting and vote delegation.
+* {ERC721Royalty}: A way to signal royalty information following ERC2981.
+* {ERC721Pausable}: A primitive to pause contract operation.
+* {ERC721Burnable}: A way for token holders to burn their own tokens.
+* {ERC721Wrapper}: Wrapper to create an ERC721 backed by another ERC721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
+
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
+
+== Core
+
+:Transfer: pass:normal[xref:#IERC721-Transfer-address-address-uint256-[`++Transfer++`]]
+:Approval: pass:normal[xref:#IERC721-Approval-address-address-uint256-[`++Approval++`]]
+:ApprovalForAll: pass:normal[xref:#IERC721-ApprovalForAll-address-address-bool-[`++ApprovalForAll++`]]
+:balanceOf: pass:normal[xref:#IERC721-balanceOf-address-[`++balanceOf++`]]
+:ownerOf: pass:normal[xref:#IERC721-ownerOf-uint256-[`++ownerOf++`]]
+:safeTransferFrom: pass:normal[xref:#IERC721-safeTransferFrom-address-address-uint256-bytes-[`++safeTransferFrom++`]]
+:safeTransferFrom: pass:normal[xref:#IERC721-safeTransferFrom-address-address-uint256-[`++safeTransferFrom++`]]
+:transferFrom: pass:normal[xref:#IERC721-transferFrom-address-address-uint256-[`++transferFrom++`]]
+:approve: pass:normal[xref:#IERC721-approve-address-uint256-[`++approve++`]]
+:setApprovalForAll: pass:normal[xref:#IERC721-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:getApproved: pass:normal[xref:#IERC721-getApproved-uint256-[`++getApproved++`]]
+:isApprovedForAll: pass:normal[xref:#IERC721-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+
+[.contract]
+[[IERC721]]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+```
+
+Required interface of an ERC721 compliant contract.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-IERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+* {xref-IERC165-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[IERC721-balanceOf-address-]]
+==== `[.contract-item-name]#++balanceOf++#++(address owner) → uint256 balance++` [.item-kind]#external#
+
+Returns the number of tokens in ``owner``'s account.
+
+[.contract-item]
+[[IERC721-ownerOf-uint256-]]
+==== `[.contract-item-name]#++ownerOf++#++(uint256 tokenId) → address owner++` [.item-kind]#external#
+
+Returns the owner of the `tokenId` token.
+
+Requirements:
+
+- `tokenId` must exist.
+
+[.contract-item]
+[[IERC721-safeTransferFrom-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#external#
+
+Safely transfers `tokenId` token from `from` to `to`.
+
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `tokenId` token must exist and be owned by `from`.
+- If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+- If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+  a safe transfer.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[IERC721-safeTransferFrom-address-address-uint256-]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId)++` [.item-kind]#external#
+
+Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+are aware of the ERC721 protocol to prevent tokens from being forever locked.
+
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `tokenId` token must exist and be owned by `from`.
+- If the caller is not `from`, it must have been allowed to move this token by either {approve} or
+  {setApprovalForAll}.
+- If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+  a safe transfer.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[IERC721-transferFrom-address-address-uint256-]]
+==== `[.contract-item-name]#++transferFrom++#++(address from, address to, uint256 tokenId)++` [.item-kind]#external#
+
+Transfers `tokenId` token from `from` to `to`.
+
+WARNING: Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721
+or else they may be permanently lost. Usage of {safeTransferFrom} prevents loss, though the caller must
+understand this adds an external call which potentially creates a reentrancy vulnerability.
+
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `tokenId` token must be owned by `from`.
+- If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[IERC721-approve-address-uint256-]]
+==== `[.contract-item-name]#++approve++#++(address to, uint256 tokenId)++` [.item-kind]#external#
+
+Gives permission to `to` to transfer `tokenId` token to another account.
+The approval is cleared when the token is transferred.
+
+Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+
+Requirements:
+
+- The caller must own the token or be an approved operator.
+- `tokenId` must exist.
+
+Emits an {Approval} event.
+
+[.contract-item]
+[[IERC721-setApprovalForAll-address-bool-]]
+==== `[.contract-item-name]#++setApprovalForAll++#++(address operator, bool approved)++` [.item-kind]#external#
+
+Approve or remove `operator` as an operator for the caller.
+Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+
+Requirements:
+
+- The `operator` cannot be the address zero.
+
+Emits an {ApprovalForAll} event.
+
+[.contract-item]
+[[IERC721-getApproved-uint256-]]
+==== `[.contract-item-name]#++getApproved++#++(uint256 tokenId) → address operator++` [.item-kind]#external#
+
+Returns the account approved for `tokenId` token.
+
+Requirements:
+
+- `tokenId` must exist.
+
+[.contract-item]
+[[IERC721-isApprovedForAll-address-address-]]
+==== `[.contract-item-name]#++isApprovedForAll++#++(address owner, address operator) → bool++` [.item-kind]#external#
+
+Returns if the `operator` is allowed to manage all of the assets of `owner`.
+
+See {setApprovalForAll}
+
+[.contract-item]
+[[IERC721-Transfer-address-address-uint256-]]
+==== `[.contract-item-name]#++Transfer++#++(address indexed from, address indexed to, uint256 indexed tokenId)++` [.item-kind]#event#
+
+Emitted when `tokenId` token is transferred from `from` to `to`.
+
+[.contract-item]
+[[IERC721-Approval-address-address-uint256-]]
+==== `[.contract-item-name]#++Approval++#++(address indexed owner, address indexed approved, uint256 indexed tokenId)++` [.item-kind]#event#
+
+Emitted when `owner` enables `approved` to manage the `tokenId` token.
+
+[.contract-item]
+[[IERC721-ApprovalForAll-address-address-bool-]]
+==== `[.contract-item-name]#++ApprovalForAll++#++(address indexed owner, address indexed operator, bool approved)++` [.item-kind]#event#
+
+Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+
+:name: pass:normal[xref:#IERC721Metadata-name--[`++name++`]]
+:symbol: pass:normal[xref:#IERC721Metadata-symbol--[`++symbol++`]]
+:tokenURI: pass:normal[xref:#IERC721Metadata-tokenURI-uint256-[`++tokenURI++`]]
+
+[.contract]
+[[IERC721Metadata]]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+```
+
+See https://eips.ethereum.org/EIPS/eip-721
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC721Metadata-name--}[`++name()++`]
+* {xref-IERC721Metadata-symbol--}[`++symbol()++`]
+* {xref-IERC721Metadata-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-IERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+* {xref-IERC165-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[IERC721Metadata-name--]]
+==== `[.contract-item-name]#++name++#++() → string++` [.item-kind]#external#
+
+Returns the token collection name.
+
+[.contract-item]
+[[IERC721Metadata-symbol--]]
+==== `[.contract-item-name]#++symbol++#++() → string++` [.item-kind]#external#
+
+Returns the token collection symbol.
+
+[.contract-item]
+[[IERC721Metadata-tokenURI-uint256-]]
+==== `[.contract-item-name]#++tokenURI++#++(uint256 tokenId) → string++` [.item-kind]#external#
+
+Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+
+:totalSupply: pass:normal[xref:#IERC721Enumerable-totalSupply--[`++totalSupply++`]]
+:tokenOfOwnerByIndex: pass:normal[xref:#IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
+:tokenByIndex: pass:normal[xref:#IERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
+
+[.contract]
+[[IERC721Enumerable]]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+```
+
+See https://eips.ethereum.org/EIPS/eip-721
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC721Enumerable-totalSupply--}[`++totalSupply()++`]
+* {xref-IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-}[`++tokenOfOwnerByIndex(owner, index)++`]
+* {xref-IERC721Enumerable-tokenByIndex-uint256-}[`++tokenByIndex(index)++`]
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-IERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+* {xref-IERC165-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[IERC721Enumerable-totalSupply--]]
+==== `[.contract-item-name]#++totalSupply++#++() → uint256++` [.item-kind]#external#
+
+Returns the total amount of tokens stored by the contract.
+
+[.contract-item]
+[[IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-]]
+==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(address owner, uint256 index) → uint256++` [.item-kind]#external#
+
+Returns a token ID owned by `owner` at a given `index` of its token list.
+Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
+
+[.contract-item]
+[[IERC721Enumerable-tokenByIndex-uint256-]]
+==== `[.contract-item-name]#++tokenByIndex++#++(uint256 index) → uint256++` [.item-kind]#external#
+
+Returns a token ID at a given `index` of all the tokens stored by the contract.
+Use along with {totalSupply} to enumerate all tokens.
+
+:constructor: pass:normal[xref:#ERC721-constructor-string-string-[`++constructor++`]]
+:supportsInterface: pass:normal[xref:#ERC721-supportsInterface-bytes4-[`++supportsInterface++`]]
+:balanceOf: pass:normal[xref:#ERC721-balanceOf-address-[`++balanceOf++`]]
+:ownerOf: pass:normal[xref:#ERC721-ownerOf-uint256-[`++ownerOf++`]]
+:name: pass:normal[xref:#ERC721-name--[`++name++`]]
+:symbol: pass:normal[xref:#ERC721-symbol--[`++symbol++`]]
+:tokenURI: pass:normal[xref:#ERC721-tokenURI-uint256-[`++tokenURI++`]]
+:_baseURI: pass:normal[xref:#ERC721-_baseURI--[`++_baseURI++`]]
+:approve: pass:normal[xref:#ERC721-approve-address-uint256-[`++approve++`]]
+:getApproved: pass:normal[xref:#ERC721-getApproved-uint256-[`++getApproved++`]]
+:setApprovalForAll: pass:normal[xref:#ERC721-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:isApprovedForAll: pass:normal[xref:#ERC721-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+:transferFrom: pass:normal[xref:#ERC721-transferFrom-address-address-uint256-[`++transferFrom++`]]
+:safeTransferFrom: pass:normal[xref:#ERC721-safeTransferFrom-address-address-uint256-[`++safeTransferFrom++`]]
+:safeTransferFrom: pass:normal[xref:#ERC721-safeTransferFrom-address-address-uint256-bytes-[`++safeTransferFrom++`]]
+:_ownerOf: pass:normal[xref:#ERC721-_ownerOf-uint256-[`++_ownerOf++`]]
+:_getApproved: pass:normal[xref:#ERC721-_getApproved-uint256-[`++_getApproved++`]]
+:_isAuthorized: pass:normal[xref:#ERC721-_isAuthorized-address-address-uint256-[`++_isAuthorized++`]]
+:_checkAuthorized: pass:normal[xref:#ERC721-_checkAuthorized-address-address-uint256-[`++_checkAuthorized++`]]
+:_increaseBalance: pass:normal[xref:#ERC721-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+:_update: pass:normal[xref:#ERC721-_update-address-uint256-address-[`++_update++`]]
+:_mint: pass:normal[xref:#ERC721-_mint-address-uint256-[`++_mint++`]]
+:_safeMint: pass:normal[xref:#ERC721-_safeMint-address-uint256-[`++_safeMint++`]]
+:_safeMint: pass:normal[xref:#ERC721-_safeMint-address-uint256-bytes-[`++_safeMint++`]]
+:_burn: pass:normal[xref:#ERC721-_burn-uint256-[`++_burn++`]]
+:_transfer: pass:normal[xref:#ERC721-_transfer-address-address-uint256-[`++_transfer++`]]
+:_safeTransfer: pass:normal[xref:#ERC721-_safeTransfer-address-address-uint256-[`++_safeTransfer++`]]
+:_safeTransfer: pass:normal[xref:#ERC721-_safeTransfer-address-address-uint256-bytes-[`++_safeTransfer++`]]
+:_approve: pass:normal[xref:#ERC721-_approve-address-uint256-address-[`++_approve++`]]
+:_approve: pass:normal[xref:#ERC721-_approve-address-uint256-address-bool-[`++_approve++`]]
+:_setApprovalForAll: pass:normal[xref:#ERC721-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
+:_requireOwned: pass:normal[xref:#ERC721-_requireOwned-uint256-[`++_requireOwned++`]]
+
+[.contract]
+[[ERC721]]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+```
+
+Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+the Metadata extension, but not including the Enumerable extension, which is available separately as
+{ERC721Enumerable}.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721-constructor-string-string-}[`++constructor(name_, symbol_)++`]
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721-constructor-string-string-]]
+==== `[.contract-item-name]#++constructor++#++(string name_, string symbol_)++` [.item-kind]#internal#
+
+Initializes the contract by setting a `name` and a `symbol` to the token collection.
+
+[.contract-item]
+[[ERC721-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+[.contract-item]
+[[ERC721-balanceOf-address-]]
+==== `[.contract-item-name]#++balanceOf++#++(address owner) → uint256++` [.item-kind]#public#
+
+See {IERC721-balanceOf}.
+
+[.contract-item]
+[[ERC721-ownerOf-uint256-]]
+==== `[.contract-item-name]#++ownerOf++#++(uint256 tokenId) → address++` [.item-kind]#public#
+
+See {IERC721-ownerOf}.
+
+[.contract-item]
+[[ERC721-name--]]
+==== `[.contract-item-name]#++name++#++() → string++` [.item-kind]#public#
+
+See {IERC721Metadata-name}.
+
+[.contract-item]
+[[ERC721-symbol--]]
+==== `[.contract-item-name]#++symbol++#++() → string++` [.item-kind]#public#
+
+See {IERC721Metadata-symbol}.
+
+[.contract-item]
+[[ERC721-tokenURI-uint256-]]
+==== `[.contract-item-name]#++tokenURI++#++(uint256 tokenId) → string++` [.item-kind]#public#
+
+See {IERC721Metadata-tokenURI}.
+
+[.contract-item]
+[[ERC721-_baseURI--]]
+==== `[.contract-item-name]#++_baseURI++#++() → string++` [.item-kind]#internal#
+
+Base URI for computing {tokenURI}. If set, the resulting URI for each
+token will be the concatenation of the `baseURI` and the `tokenId`. Empty
+by default, can be overridden in child contracts.
+
+[.contract-item]
+[[ERC721-approve-address-uint256-]]
+==== `[.contract-item-name]#++approve++#++(address to, uint256 tokenId)++` [.item-kind]#public#
+
+See {IERC721-approve}.
+
+[.contract-item]
+[[ERC721-getApproved-uint256-]]
+==== `[.contract-item-name]#++getApproved++#++(uint256 tokenId) → address++` [.item-kind]#public#
+
+See {IERC721-getApproved}.
+
+[.contract-item]
+[[ERC721-setApprovalForAll-address-bool-]]
+==== `[.contract-item-name]#++setApprovalForAll++#++(address operator, bool approved)++` [.item-kind]#public#
+
+See {IERC721-setApprovalForAll}.
+
+[.contract-item]
+[[ERC721-isApprovedForAll-address-address-]]
+==== `[.contract-item-name]#++isApprovedForAll++#++(address owner, address operator) → bool++` [.item-kind]#public#
+
+See {IERC721-isApprovedForAll}.
+
+[.contract-item]
+[[ERC721-transferFrom-address-address-uint256-]]
+==== `[.contract-item-name]#++transferFrom++#++(address from, address to, uint256 tokenId)++` [.item-kind]#public#
+
+See {IERC721-transferFrom}.
+
+[.contract-item]
+[[ERC721-safeTransferFrom-address-address-uint256-]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId)++` [.item-kind]#public#
+
+See {IERC721-safeTransferFrom}.
+
+[.contract-item]
+[[ERC721-safeTransferFrom-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#public#
+
+See {IERC721-safeTransferFrom}.
+
+[.contract-item]
+[[ERC721-_ownerOf-uint256-]]
+==== `[.contract-item-name]#++_ownerOf++#++(uint256 tokenId) → address++` [.item-kind]#internal#
+
+Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+
+IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
+core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
+`balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
+
+[.contract-item]
+[[ERC721-_getApproved-uint256-]]
+==== `[.contract-item-name]#++_getApproved++#++(uint256 tokenId) → address++` [.item-kind]#internal#
+
+Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
+
+[.contract-item]
+[[ERC721-_isAuthorized-address-address-uint256-]]
+==== `[.contract-item-name]#++_isAuthorized++#++(address owner, address spender, uint256 tokenId) → bool++` [.item-kind]#internal#
+
+Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
+particular (ignoring whether it is owned by `owner`).
+
+WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+assumption.
+
+[.contract-item]
+[[ERC721-_checkAuthorized-address-address-uint256-]]
+==== `[.contract-item-name]#++_checkAuthorized++#++(address owner, address spender, uint256 tokenId)++` [.item-kind]#internal#
+
+Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
+Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
+the `spender` for the specific `tokenId`.
+
+WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+assumption.
+
+[.contract-item]
+[[ERC721-_increaseBalance-address-uint128-]]
+==== `[.contract-item-name]#++_increaseBalance++#++(address account, uint128 value)++` [.item-kind]#internal#
+
+Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+
+NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
+a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
+
+WARNING: Increasing an account's balance using this function tends to be paired with an override of the
+{_ownerOf} function to resolve the ownership of the corresponding tokens so that balances and ownership
+remain consistent with one another.
+
+[.contract-item]
+[[ERC721-_update-address-uint256-address-]]
+==== `[.contract-item-name]#++_update++#++(address to, uint256 tokenId, address auth) → address++` [.item-kind]#internal#
+
+Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+(or `to`) is the zero address. Returns the owner of the `tokenId` before the update.
+
+The `auth` argument is optional. If the value passed is non 0, then this function will check that
+`auth` is either the owner of the token, or approved to operate on the token (by the owner).
+
+Emits a {Transfer} event.
+
+NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
+
+[.contract-item]
+[[ERC721-_mint-address-uint256-]]
+==== `[.contract-item-name]#++_mint++#++(address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Mints `tokenId` and transfers it to `to`.
+
+WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+
+Requirements:
+
+- `tokenId` must not exist.
+- `to` cannot be the zero address.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC721-_safeMint-address-uint256-]]
+==== `[.contract-item-name]#++_safeMint++#++(address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Mints `tokenId`, transfers it to `to` and checks for `to` acceptance.
+
+Requirements:
+
+- `tokenId` must not exist.
+- If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC721-_safeMint-address-uint256-bytes-]]
+==== `[.contract-item-name]#++_safeMint++#++(address to, uint256 tokenId, bytes data)++` [.item-kind]#internal#
+
+Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
+forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+
+[.contract-item]
+[[ERC721-_burn-uint256-]]
+==== `[.contract-item-name]#++_burn++#++(uint256 tokenId)++` [.item-kind]#internal#
+
+Destroys `tokenId`.
+The approval is cleared when the token is burned.
+This is an internal function that does not check if the sender is authorized to operate on the token.
+
+Requirements:
+
+- `tokenId` must exist.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC721-_transfer-address-address-uint256-]]
+==== `[.contract-item-name]#++_transfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Transfers `tokenId` from `from` to `to`.
+ As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
+
+Requirements:
+
+- `to` cannot be the zero address.
+- `tokenId` token must be owned by `from`.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC721-_safeTransfer-address-address-uint256-]]
+==== `[.contract-item-name]#++_safeTransfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
+are aware of the ERC721 standard to prevent tokens from being forever locked.
+
+`data` is additional data, it has no specified format and it is sent in call to `to`.
+
+This internal function is like {safeTransferFrom} in the sense that it invokes
+{IERC721Receiver-onERC721Received} on the receiver, and can be used to e.g.
+implement alternative mechanisms to perform token transfer, such as signature-based.
+
+Requirements:
+
+- `tokenId` token must exist and be owned by `from`.
+- `to` cannot be the zero address.
+- `from` cannot be the zero address.
+- If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC721-_safeTransfer-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++_safeTransfer++#++(address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#internal#
+
+Same as {xref-ERC721-_safeTransfer-address-address-uint256-}[`_safeTransfer`], with an additional `data` parameter which is
+forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+
+[.contract-item]
+[[ERC721-_approve-address-uint256-address-]]
+==== `[.contract-item-name]#++_approve++#++(address to, uint256 tokenId, address auth)++` [.item-kind]#internal#
+
+Approve `to` to operate on `tokenId`
+
+The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+either the owner of the token, or approved to operate on all tokens held by this owner.
+
+Emits an {Approval} event.
+
+Overrides to this logic should be done to the variant with an additional `bool emitEvent` argument.
+
+[.contract-item]
+[[ERC721-_approve-address-uint256-address-bool-]]
+==== `[.contract-item-name]#++_approve++#++(address to, uint256 tokenId, address auth, bool emitEvent)++` [.item-kind]#internal#
+
+Variant of `_approve` with an optional flag to enable or disable the {Approval} event. The event is not
+emitted in the context of transfers.
+
+[.contract-item]
+[[ERC721-_setApprovalForAll-address-address-bool-]]
+==== `[.contract-item-name]#++_setApprovalForAll++#++(address owner, address operator, bool approved)++` [.item-kind]#internal#
+
+Approve `operator` to operate on all of `owner` tokens
+
+Requirements:
+- operator can't be the address zero.
+
+Emits an {ApprovalForAll} event.
+
+[.contract-item]
+[[ERC721-_requireOwned-uint256-]]
+==== `[.contract-item-name]#++_requireOwned++#++(uint256 tokenId) → address++` [.item-kind]#internal#
+
+Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+Returns the owner.
+
+Overrides to ownership logic should be done to {_ownerOf}.
+
+:ERC721OutOfBoundsIndex: pass:normal[xref:#ERC721Enumerable-ERC721OutOfBoundsIndex-address-uint256-[`++ERC721OutOfBoundsIndex++`]]
+:ERC721EnumerableForbiddenBatchMint: pass:normal[xref:#ERC721Enumerable-ERC721EnumerableForbiddenBatchMint--[`++ERC721EnumerableForbiddenBatchMint++`]]
+:supportsInterface: pass:normal[xref:#ERC721Enumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
+:tokenOfOwnerByIndex: pass:normal[xref:#ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
+:totalSupply: pass:normal[xref:#ERC721Enumerable-totalSupply--[`++totalSupply++`]]
+:tokenByIndex: pass:normal[xref:#ERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
+:_update: pass:normal[xref:#ERC721Enumerable-_update-address-uint256-address-[`++_update++`]]
+:_increaseBalance: pass:normal[xref:#ERC721Enumerable-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+
+[.contract]
+[[ERC721Enumerable]]
+=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+```
+
+This implements an optional extension of {ERC721} defined in the EIP that adds enumerability
+of all the token ids in the contract as well as all token ids owned by each account.
+
+CAUTION: `ERC721` extensions that implement custom `balanceOf` logic, such as `ERC721Consecutive`,
+interfere with enumerability and should not be used together with `ERC721Enumerable`.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Enumerable-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-}[`++tokenOfOwnerByIndex(owner, index)++`]
+* {xref-ERC721Enumerable-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC721Enumerable-tokenByIndex-uint256-}[`++tokenByIndex(index)++`]
+* {xref-ERC721Enumerable-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721Enumerable-_increaseBalance-address-uint128-}[`++_increaseBalance(account, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC721Enumerable
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721Enumerable
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC721Enumerable-ERC721OutOfBoundsIndex-address-uint256-}[`++ERC721OutOfBoundsIndex(owner, index)++`]
+* {xref-ERC721Enumerable-ERC721EnumerableForbiddenBatchMint--}[`++ERC721EnumerableForbiddenBatchMint()++`]
+
+[.contract-subindex-inherited]
+.IERC721Enumerable
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Enumerable-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+[.contract-item]
+[[ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-]]
+==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(address owner, uint256 index) → uint256++` [.item-kind]#public#
+
+See {IERC721Enumerable-tokenOfOwnerByIndex}.
+
+[.contract-item]
+[[ERC721Enumerable-totalSupply--]]
+==== `[.contract-item-name]#++totalSupply++#++() → uint256++` [.item-kind]#public#
+
+See {IERC721Enumerable-totalSupply}.
+
+[.contract-item]
+[[ERC721Enumerable-tokenByIndex-uint256-]]
+==== `[.contract-item-name]#++tokenByIndex++#++(uint256 index) → uint256++` [.item-kind]#public#
+
+See {IERC721Enumerable-tokenByIndex}.
+
+[.contract-item]
+[[ERC721Enumerable-_update-address-uint256-address-]]
+==== `[.contract-item-name]#++_update++#++(address to, uint256 tokenId, address auth) → address++` [.item-kind]#internal#
+
+See {ERC721-_update}.
+
+[.contract-item]
+[[ERC721Enumerable-_increaseBalance-address-uint128-]]
+==== `[.contract-item-name]#++_increaseBalance++#++(address account, uint128 amount)++` [.item-kind]#internal#
+
+[.contract-item]
+[[ERC721Enumerable-ERC721OutOfBoundsIndex-address-uint256-]]
+==== `[.contract-item-name]#++ERC721OutOfBoundsIndex++#++(address owner, uint256 index)++` [.item-kind]#error#
+
+An `owner`'s token query was out of bounds for `index`.
+
+NOTE: The owner being `address(0)` indicates a global out of bounds index.
+
+[.contract-item]
+[[ERC721Enumerable-ERC721EnumerableForbiddenBatchMint--]]
+==== `[.contract-item-name]#++ERC721EnumerableForbiddenBatchMint++#++()++` [.item-kind]#error#
+
+Batch mint is not allowed.
+
+:onERC721Received: pass:normal[xref:#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+
+[.contract]
+[[IERC721Receiver]]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+```
+
+Interface for any contract that wants to support safeTransfers
+from ERC721 asset contracts.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC721Receiver-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(operator, from, tokenId, data)++`]
+
+--
+
+[.contract-item]
+[[IERC721Receiver-onERC721Received-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onERC721Received++#++(address operator, address from, uint256 tokenId, bytes data) → bytes4++` [.item-kind]#external#
+
+Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+by `operator` from `from`, this function is called.
+
+It must return its Solidity selector to confirm the token transfer.
+If any other value is returned or the interface is not implemented by the recipient, the transfer will be
+reverted.
+
+The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+
+== Extensions
+
+:_update: pass:normal[xref:#ERC721Pausable-_update-address-uint256-address-[`++_update++`]]
+
+[.contract]
+[[ERC721Pausable]]
+=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+```
+
+ERC721 token with pausable token transfers, minting and burning.
+
+Useful for scenarios such as preventing trades until the end of an evaluation
+period, or having an emergency switch for freezing all token transfers in the
+event of a large bug.
+
+IMPORTANT: This contract does not include public pause and unpause functions. In
+addition to inheriting this contract, you must define both functions, invoking the
+{Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
+access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
+make the contract pause mechanism of the contract unreachable, and thus unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Pausable-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+
+[.contract-subindex-inherited]
+.Pausable
+* {xref-Pausable-paused--}[`++paused()++`]
+* {xref-Pausable-_requireNotPaused--}[`++_requireNotPaused()++`]
+* {xref-Pausable-_requirePaused--}[`++_requirePaused()++`]
+* {xref-Pausable-_pause--}[`++_pause()++`]
+* {xref-Pausable-_unpause--}[`++_unpause()++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.Pausable
+* {xref-Pausable-Paused-address-}[`++Paused(account)++`]
+* {xref-Pausable-Unpaused-address-}[`++Unpaused(account)++`]
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Pausable
+* {xref-Pausable-EnforcedPause--}[`++EnforcedPause()++`]
+* {xref-Pausable-ExpectedPause--}[`++ExpectedPause()++`]
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Pausable-_update-address-uint256-address-]]
+==== `[.contract-item-name]#++_update++#++(address to, uint256 tokenId, address auth) → address++` [.item-kind]#internal#
+
+See {ERC721-_update}.
+
+Requirements:
+
+- the contract must not be paused.
+
+:burn: pass:normal[xref:#ERC721Burnable-burn-uint256-[`++burn++`]]
+
+[.contract]
+[[ERC721Burnable]]
+=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+```
+
+ERC721 Token that can be burned (destroyed).
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Burnable-burn-uint256-}[`++burn(tokenId)++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Burnable-burn-uint256-]]
+==== `[.contract-item-name]#++burn++#++(uint256 tokenId)++` [.item-kind]#public#
+
+Burns `tokenId`. See {ERC721-_burn}.
+
+Requirements:
+
+- The caller must own `tokenId` or be an approved operator.
+
+:ERC721ForbiddenBatchMint: pass:normal[xref:#ERC721Consecutive-ERC721ForbiddenBatchMint--[`++ERC721ForbiddenBatchMint++`]]
+:ERC721ExceededMaxBatchMint: pass:normal[xref:#ERC721Consecutive-ERC721ExceededMaxBatchMint-uint256-uint256-[`++ERC721ExceededMaxBatchMint++`]]
+:ERC721ForbiddenMint: pass:normal[xref:#ERC721Consecutive-ERC721ForbiddenMint--[`++ERC721ForbiddenMint++`]]
+:ERC721ForbiddenBatchBurn: pass:normal[xref:#ERC721Consecutive-ERC721ForbiddenBatchBurn--[`++ERC721ForbiddenBatchBurn++`]]
+:_maxBatchSize: pass:normal[xref:#ERC721Consecutive-_maxBatchSize--[`++_maxBatchSize++`]]
+:_ownerOf: pass:normal[xref:#ERC721Consecutive-_ownerOf-uint256-[`++_ownerOf++`]]
+:_mintConsecutive: pass:normal[xref:#ERC721Consecutive-_mintConsecutive-address-uint96-[`++_mintConsecutive++`]]
+:_update: pass:normal[xref:#ERC721Consecutive-_update-address-uint256-address-[`++_update++`]]
+:_firstConsecutiveId: pass:normal[xref:#ERC721Consecutive-_firstConsecutiveId--[`++_firstConsecutiveId++`]]
+
+[.contract]
+[[ERC721Consecutive]]
+=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Consecutive.sol";
+```
+
+Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
+https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
+
+This extension allows the minting of large batches of tokens, during contract construction only. For upgradeable
+contracts this implies that batch minting is only available during proxy deployment, and not in subsequent upgrades.
+These batches are limited to 5000 tokens at a time by default to accommodate off-chain indexers.
+
+Using this extension removes the ability to mint single tokens during contract construction. This ability is
+regained after construction. During construction, only batch minting is allowed.
+
+IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
+function through overrides will not be triggered when token are minted in batch. You may want to also override
+{_increaseBalance} or {_mintConsecutive} to account for these mints.
+
+IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
+values during the {_mintConsecutive} execution if the super call is not called first. To be safe, execute the
+super call before your custom logic.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Consecutive-_maxBatchSize--}[`++_maxBatchSize()++`]
+* {xref-ERC721Consecutive-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721Consecutive-_mintConsecutive-address-uint96-}[`++_mintConsecutive(to, batchSize)++`]
+* {xref-ERC721Consecutive-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721Consecutive-_firstConsecutiveId--}[`++_firstConsecutiveId()++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC2309
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC2309
+* {xref-IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-}[`++ConsecutiveTransfer(fromTokenId, toTokenId, fromAddress, toAddress)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC721Consecutive-ERC721ForbiddenBatchMint--}[`++ERC721ForbiddenBatchMint()++`]
+* {xref-ERC721Consecutive-ERC721ExceededMaxBatchMint-uint256-uint256-}[`++ERC721ExceededMaxBatchMint(batchSize, maxBatch)++`]
+* {xref-ERC721Consecutive-ERC721ForbiddenMint--}[`++ERC721ForbiddenMint()++`]
+* {xref-ERC721Consecutive-ERC721ForbiddenBatchBurn--}[`++ERC721ForbiddenBatchBurn()++`]
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC2309
+
+--
+
+[.contract-item]
+[[ERC721Consecutive-_maxBatchSize--]]
+==== `[.contract-item-name]#++_maxBatchSize++#++() → uint96++` [.item-kind]#internal#
+
+Maximum size of a batch of consecutive tokens. This is designed to limit stress on off-chain indexing
+services that have to record one entry per token, and have protections against "unreasonably large" batches of
+tokens.
+
+NOTE: Overriding the default value of 5000 will not cause on-chain issues, but may result in the asset not being
+correctly supported by off-chain indexing services (including marketplaces).
+
+[.contract-item]
+[[ERC721Consecutive-_ownerOf-uint256-]]
+==== `[.contract-item-name]#++_ownerOf++#++(uint256 tokenId) → address++` [.item-kind]#internal#
+
+See {ERC721-_ownerOf}. Override that checks the sequential ownership structure for tokens that have
+been minted as part of a batch, and not yet transferred.
+
+[.contract-item]
+[[ERC721Consecutive-_mintConsecutive-address-uint96-]]
+==== `[.contract-item-name]#++_mintConsecutive++#++(address to, uint96 batchSize) → uint96++` [.item-kind]#internal#
+
+Mint a batch of tokens of length `batchSize` for `to`. Returns the token id of the first token minted in the
+batch; if `batchSize` is 0, returns the number of consecutive ids minted so far.
+
+Requirements:
+
+- `batchSize` must not be greater than {_maxBatchSize}.
+- The function is called in the constructor of the contract (directly or indirectly).
+
+CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done inside of the
+constructor, which is enforced by this function.
+
+CAUTION: Does not invoke `onERC721Received` on the receiver.
+
+Emits a {IERC2309-ConsecutiveTransfer} event.
+
+[.contract-item]
+[[ERC721Consecutive-_update-address-uint256-address-]]
+==== `[.contract-item-name]#++_update++#++(address to, uint256 tokenId, address auth) → address++` [.item-kind]#internal#
+
+See {ERC721-_update}. Override version that restricts normal minting to after construction.
+
+WARNING: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
+After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
+
+[.contract-item]
+[[ERC721Consecutive-_firstConsecutiveId--]]
+==== `[.contract-item-name]#++_firstConsecutiveId++#++() → uint96++` [.item-kind]#internal#
+
+Used to offset the first token id in {_nextConsecutiveId}
+
+[.contract-item]
+[[ERC721Consecutive-ERC721ForbiddenBatchMint--]]
+==== `[.contract-item-name]#++ERC721ForbiddenBatchMint++#++()++` [.item-kind]#error#
+
+Batch mint is restricted to the constructor.
+Any batch mint not emitting the {IERC721-Transfer} event outside of the constructor
+is non-ERC721 compliant.
+
+[.contract-item]
+[[ERC721Consecutive-ERC721ExceededMaxBatchMint-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC721ExceededMaxBatchMint++#++(uint256 batchSize, uint256 maxBatch)++` [.item-kind]#error#
+
+Exceeds the max amount of mints per batch.
+
+[.contract-item]
+[[ERC721Consecutive-ERC721ForbiddenMint--]]
+==== `[.contract-item-name]#++ERC721ForbiddenMint++#++()++` [.item-kind]#error#
+
+Individual minting is not allowed.
+
+[.contract-item]
+[[ERC721Consecutive-ERC721ForbiddenBatchBurn--]]
+==== `[.contract-item-name]#++ERC721ForbiddenBatchBurn++#++()++` [.item-kind]#error#
+
+Batch burn is not supported.
+
+:supportsInterface: pass:normal[xref:#ERC721URIStorage-supportsInterface-bytes4-[`++supportsInterface++`]]
+:tokenURI: pass:normal[xref:#ERC721URIStorage-tokenURI-uint256-[`++tokenURI++`]]
+:_setTokenURI: pass:normal[xref:#ERC721URIStorage-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
+
+[.contract]
+[[ERC721URIStorage]]
+=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+```
+
+ERC721 token with storage based token URI management.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721URIStorage-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721URIStorage-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721URIStorage-_setTokenURI-uint256-string-}[`++_setTokenURI(tokenId, _tokenURI)++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC4906
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC4906
+* {xref-IERC4906-MetadataUpdate-uint256-}[`++MetadataUpdate(_tokenId)++`]
+* {xref-IERC4906-BatchMetadataUpdate-uint256-uint256-}[`++BatchMetadataUpdate(_fromTokenId, _toTokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC4906
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721URIStorage-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}
+
+[.contract-item]
+[[ERC721URIStorage-tokenURI-uint256-]]
+==== `[.contract-item-name]#++tokenURI++#++(uint256 tokenId) → string++` [.item-kind]#public#
+
+See {IERC721Metadata-tokenURI}.
+
+[.contract-item]
+[[ERC721URIStorage-_setTokenURI-uint256-string-]]
+==== `[.contract-item-name]#++_setTokenURI++#++(uint256 tokenId, string _tokenURI)++` [.item-kind]#internal#
+
+Sets `_tokenURI` as the tokenURI of `tokenId`.
+
+Emits {MetadataUpdate}.
+
+:_update: pass:normal[xref:#ERC721Votes-_update-address-uint256-address-[`++_update++`]]
+:_getVotingUnits: pass:normal[xref:#ERC721Votes-_getVotingUnits-address-[`++_getVotingUnits++`]]
+:_increaseBalance: pass:normal[xref:#ERC721Votes-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+
+[.contract]
+[[ERC721Votes]]
+=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+```
+
+Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
+as 1 vote unit.
+
+Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
+on every transfer. Token holders can either delegate to a trusted representative who will decide how to make use of
+the votes in governance decisions, or they can delegate to themselves to be their own representative.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Votes-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721Votes-_getVotingUnits-address-}[`++_getVotingUnits(account)++`]
+* {xref-ERC721Votes-_increaseBalance-address-uint128-}[`++_increaseBalance(account, amount)++`]
+
+[.contract-subindex-inherited]
+.Votes
+* {xref-Votes-clock--}[`++clock()++`]
+* {xref-Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+* {xref-Votes-getVotes-address-}[`++getVotes(account)++`]
+* {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
+* {xref-Votes-_getTotalSupply--}[`++_getTotalSupply()++`]
+* {xref-Votes-delegates-address-}[`++delegates(account)++`]
+* {xref-Votes-delegate-address-}[`++delegate(delegatee)++`]
+* {xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
+* {xref-Votes-_delegate-address-address-}[`++_delegate(account, delegatee)++`]
+* {xref-Votes-_transferVotingUnits-address-address-uint256-}[`++_transferVotingUnits(from, to, amount)++`]
+* {xref-Votes-_numCheckpoints-address-}[`++_numCheckpoints(account)++`]
+* {xref-Votes-_checkpoints-address-uint32-}[`++_checkpoints(account, pos)++`]
+
+[.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+* {xref-Nonces-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, nonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.Votes
+
+[.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousVotes, newVotes)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Votes
+* {xref-Votes-ERC6372InconsistentClock--}[`++ERC6372InconsistentClock()++`]
+* {xref-Votes-ERC5805FutureLookup-uint256-uint48-}[`++ERC5805FutureLookup(timepoint, clock)++`]
+
+[.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-VotesExpiredSignature-uint256-}[`++VotesExpiredSignature(expiry)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Votes-_update-address-uint256-address-]]
+==== `[.contract-item-name]#++_update++#++(address to, uint256 tokenId, address auth) → address++` [.item-kind]#internal#
+
+See {ERC721-_update}. Adjusts votes when tokens are transferred.
+
+Emits a {IVotes-DelegateVotesChanged} event.
+
+[.contract-item]
+[[ERC721Votes-_getVotingUnits-address-]]
+==== `[.contract-item-name]#++_getVotingUnits++#++(address account) → uint256++` [.item-kind]#internal#
+
+Returns the balance of `account`.
+
+WARNING: Overriding this function will likely result in incorrect vote tracking.
+
+[.contract-item]
+[[ERC721Votes-_increaseBalance-address-uint128-]]
+==== `[.contract-item-name]#++_increaseBalance++#++(address account, uint128 amount)++` [.item-kind]#internal#
+
+See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch.
+
+:supportsInterface: pass:normal[xref:#ERC721Royalty-supportsInterface-bytes4-[`++supportsInterface++`]]
+
+[.contract]
+[[ERC721Royalty]]
+=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+```
+
+Extension of ERC721 with the ERC2981 NFT Royalty Standard, a standardized way to retrieve royalty payment
+information.
+
+Royalty information can be specified globally for all token ids via {ERC2981-_setDefaultRoyalty}, and/or individually
+for specific token ids via {ERC2981-_setTokenRoyalty}. The latter takes precedence over the first.
+
+IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Royalty-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC2981
+* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(tokenId, salePrice)++`]
+* {xref-ERC2981-_feeDenominator--}[`++_feeDenominator()++`]
+* {xref-ERC2981-_setDefaultRoyalty-address-uint96-}[`++_setDefaultRoyalty(receiver, feeNumerator)++`]
+* {xref-ERC2981-_deleteDefaultRoyalty--}[`++_deleteDefaultRoyalty()++`]
+* {xref-ERC2981-_setTokenRoyalty-uint256-address-uint96-}[`++_setTokenRoyalty(tokenId, receiver, feeNumerator)++`]
+* {xref-ERC2981-_resetTokenRoyalty-uint256-}[`++_resetTokenRoyalty(tokenId)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC2981
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC2981
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC2981
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC2981
+* {xref-ERC2981-ERC2981InvalidDefaultRoyalty-uint256-uint256-}[`++ERC2981InvalidDefaultRoyalty(numerator, denominator)++`]
+* {xref-ERC2981-ERC2981InvalidDefaultRoyaltyReceiver-address-}[`++ERC2981InvalidDefaultRoyaltyReceiver(receiver)++`]
+* {xref-ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-}[`++ERC2981InvalidTokenRoyalty(tokenId, numerator, denominator)++`]
+* {xref-ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-}[`++ERC2981InvalidTokenRoyaltyReceiver(tokenId, receiver)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC2981
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Royalty-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+:ERC721UnsupportedToken: pass:normal[xref:#ERC721Wrapper-ERC721UnsupportedToken-address-[`++ERC721UnsupportedToken++`]]
+:constructor: pass:normal[xref:#ERC721Wrapper-constructor-contract-IERC721-[`++constructor++`]]
+:depositFor: pass:normal[xref:#ERC721Wrapper-depositFor-address-uint256---[`++depositFor++`]]
+:withdrawTo: pass:normal[xref:#ERC721Wrapper-withdrawTo-address-uint256---[`++withdrawTo++`]]
+:onERC721Received: pass:normal[xref:#ERC721Wrapper-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+:_recover: pass:normal[xref:#ERC721Wrapper-_recover-address-uint256-[`++_recover++`]]
+:underlying: pass:normal[xref:#ERC721Wrapper-underlying--[`++underlying++`]]
+
+[.contract]
+[[ERC721Wrapper]]
+=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Wrapper.sol";
+```
+
+Extension of the ERC721 token contract to support token wrapping.
+
+Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is
+useful in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow
+the wrapping of an existing "basic" ERC721 into a governance token.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Wrapper-constructor-contract-IERC721-}[`++constructor(underlyingToken)++`]
+* {xref-ERC721Wrapper-depositFor-address-uint256---}[`++depositFor(account, tokenIds)++`]
+* {xref-ERC721Wrapper-withdrawTo-address-uint256---}[`++withdrawTo(account, tokenIds)++`]
+* {xref-ERC721Wrapper-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, from, tokenId, )++`]
+* {xref-ERC721Wrapper-_recover-address-uint256-}[`++_recover(account, tokenId)++`]
+* {xref-ERC721Wrapper-underlying--}[`++underlying()++`]
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_getApproved-uint256-}[`++_getApproved(tokenId)++`]
+* {xref-ERC721-_isAuthorized-address-address-uint256-}[`++_isAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_checkAuthorized-address-address-uint256-}[`++_checkAuthorized(owner, spender, tokenId)++`]
+* {xref-ERC721-_increaseBalance-address-uint128-}[`++_increaseBalance(account, value)++`]
+* {xref-ERC721-_update-address-uint256-address-}[`++_update(to, tokenId, auth)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-}[`++_safeTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_approve-address-uint256-address-}[`++_approve(to, tokenId, auth)++`]
+* {xref-ERC721-_approve-address-uint256-address-bool-}[`++_approve(to, tokenId, auth, emitEvent)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireOwned-uint256-}[`++_requireOwned(tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC721Wrapper-ERC721UnsupportedToken-address-}[`++ERC721UnsupportedToken(token)++`]
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Errors
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Wrapper-constructor-contract-IERC721-]]
+==== `[.contract-item-name]#++constructor++#++(contract IERC721 underlyingToken)++` [.item-kind]#internal#
+
+[.contract-item]
+[[ERC721Wrapper-depositFor-address-uint256---]]
+==== `[.contract-item-name]#++depositFor++#++(address account, uint256[] tokenIds) → bool++` [.item-kind]#public#
+
+Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
+
+[.contract-item]
+[[ERC721Wrapper-withdrawTo-address-uint256---]]
+==== `[.contract-item-name]#++withdrawTo++#++(address account, uint256[] tokenIds) → bool++` [.item-kind]#public#
+
+Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
+
+[.contract-item]
+[[ERC721Wrapper-onERC721Received-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onERC721Received++#++(address, address from, uint256 tokenId, bytes) → bytes4++` [.item-kind]#public#
+
+Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC721 transfers to
+this contract.
+
+In case there's data attached, it validates that the operator is this contract, so only trusted data
+is accepted from {depositFor}.
+
+WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
+for recovering in that scenario.
+
+[.contract-item]
+[[ERC721Wrapper-_recover-address-uint256-]]
+==== `[.contract-item-name]#++_recover++#++(address account, uint256 tokenId) → uint256++` [.item-kind]#internal#
+
+Mint a wrapped token to cover any underlyingToken that would have been transferred by mistake. Internal
+function that can be exposed with access control if desired.
+
+[.contract-item]
+[[ERC721Wrapper-underlying--]]
+==== `[.contract-item-name]#++underlying++#++() → contract IERC721++` [.item-kind]#public#
+
+Returns the underlying token.
+
+[.contract-item]
+[[ERC721Wrapper-ERC721UnsupportedToken-address-]]
+==== `[.contract-item-name]#++ERC721UnsupportedToken++#++(address token)++` [.item-kind]#error#
+
+The received ERC721 token couldn't be wrapped.
+
+== Utilities
+
+:onERC721Received: pass:normal[xref:#ERC721Holder-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+
+[.contract]
+[[ERC721Holder]]
+=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+```
+
+Implementation of the {IERC721Receiver} interface.
+
+Accepts all token transfers.
+Make sure the contract is able to use its token with {IERC721-safeTransferFrom}, {IERC721-approve} or
+{IERC721-setApprovalForAll}.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Holder-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+--
+
+[.contract-item]
+[[ERC721Holder-onERC721Received-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onERC721Received++#++(address, address, uint256, bytes) → bytes4++` [.item-kind]#public#
+
+See {IERC721Receiver-onERC721Received}.
+
+Always returns `IERC721Receiver.onERC721Received.selector`.
+

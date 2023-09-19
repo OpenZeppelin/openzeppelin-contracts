@@ -1,0 +1,2582 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:xref-Ownable-onlyOwner--: xref:access.adoc#Ownable-onlyOwner--
+:xref-Ownable-constructor-address-: xref:access.adoc#Ownable-constructor-address-
+:xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
+:xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
+:xref-Ownable-transferOwnership-address-: xref:access.adoc#Ownable-transferOwnership-address-
+:xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
+:xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
+:xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+:xref-Ownable2Step-pendingOwner--: xref:access.adoc#Ownable2Step-pendingOwner--
+:xref-Ownable2Step-transferOwnership-address-: xref:access.adoc#Ownable2Step-transferOwnership-address-
+:xref-Ownable2Step-_transferOwnership-address-: xref:access.adoc#Ownable2Step-_transferOwnership-address-
+:xref-Ownable2Step-acceptOwnership--: xref:access.adoc#Ownable2Step-acceptOwnership--
+:xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
+:xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
+:xref-Ownable2Step-OwnershipTransferStarted-address-address-: xref:access.adoc#Ownable2Step-OwnershipTransferStarted-address-address-
+:xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
+:xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+:xref-IAccessControl-hasRole-bytes32-address-: xref:access.adoc#IAccessControl-hasRole-bytes32-address-
+:xref-IAccessControl-getRoleAdmin-bytes32-: xref:access.adoc#IAccessControl-getRoleAdmin-bytes32-
+:xref-IAccessControl-grantRole-bytes32-address-: xref:access.adoc#IAccessControl-grantRole-bytes32-address-
+:xref-IAccessControl-revokeRole-bytes32-address-: xref:access.adoc#IAccessControl-revokeRole-bytes32-address-
+:xref-IAccessControl-renounceRole-bytes32-address-: xref:access.adoc#IAccessControl-renounceRole-bytes32-address-
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:AccessControl-_setRoleAdmin: pass:normal[xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-[`AccessControl._setRoleAdmin`]]
+:AccessControlEnumerable: pass:normal[xref:access.adoc#AccessControlEnumerable[`AccessControlEnumerable`]]
+:AccessControlDefaultAdminRules: pass:normal[xref:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`]]
+:xref-AccessControl-onlyRole-bytes32-: xref:access.adoc#AccessControl-onlyRole-bytes32-
+:xref-AccessControl-supportsInterface-bytes4-: xref:access.adoc#AccessControl-supportsInterface-bytes4-
+:xref-AccessControl-hasRole-bytes32-address-: xref:access.adoc#AccessControl-hasRole-bytes32-address-
+:xref-AccessControl-_checkRole-bytes32-: xref:access.adoc#AccessControl-_checkRole-bytes32-
+:xref-AccessControl-_checkRole-bytes32-address-: xref:access.adoc#AccessControl-_checkRole-bytes32-address-
+:xref-AccessControl-getRoleAdmin-bytes32-: xref:access.adoc#AccessControl-getRoleAdmin-bytes32-
+:xref-AccessControl-grantRole-bytes32-address-: xref:access.adoc#AccessControl-grantRole-bytes32-address-
+:xref-AccessControl-revokeRole-bytes32-address-: xref:access.adoc#AccessControl-revokeRole-bytes32-address-
+:xref-AccessControl-renounceRole-bytes32-address-: xref:access.adoc#AccessControl-renounceRole-bytes32-address-
+:xref-AccessControl-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-
+:xref-AccessControl-_grantRole-bytes32-address-: xref:access.adoc#AccessControl-_grantRole-bytes32-address-
+:xref-AccessControl-_revokeRole-bytes32-address-: xref:access.adoc#AccessControl-_revokeRole-bytes32-address-
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:xref-IAccessControlEnumerable-getRoleMember-bytes32-uint256-: xref:access.adoc#IAccessControlEnumerable-getRoleMember-bytes32-uint256-
+:xref-IAccessControlEnumerable-getRoleMemberCount-bytes32-: xref:access.adoc#IAccessControlEnumerable-getRoleMemberCount-bytes32-
+:xref-IAccessControl-hasRole-bytes32-address-: xref:access.adoc#IAccessControl-hasRole-bytes32-address-
+:xref-IAccessControl-getRoleAdmin-bytes32-: xref:access.adoc#IAccessControl-getRoleAdmin-bytes32-
+:xref-IAccessControl-grantRole-bytes32-address-: xref:access.adoc#IAccessControl-grantRole-bytes32-address-
+:xref-IAccessControl-revokeRole-bytes32-address-: xref:access.adoc#IAccessControl-revokeRole-bytes32-address-
+:xref-IAccessControl-renounceRole-bytes32-address-: xref:access.adoc#IAccessControl-renounceRole-bytes32-address-
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:xref-AccessControlEnumerable-supportsInterface-bytes4-: xref:access.adoc#AccessControlEnumerable-supportsInterface-bytes4-
+:xref-AccessControlEnumerable-getRoleMember-bytes32-uint256-: xref:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-
+:xref-AccessControlEnumerable-getRoleMemberCount-bytes32-: xref:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-
+:xref-AccessControlEnumerable-_grantRole-bytes32-address-: xref:access.adoc#AccessControlEnumerable-_grantRole-bytes32-address-
+:xref-AccessControlEnumerable-_revokeRole-bytes32-address-: xref:access.adoc#AccessControlEnumerable-_revokeRole-bytes32-address-
+:xref-AccessControl-hasRole-bytes32-address-: xref:access.adoc#AccessControl-hasRole-bytes32-address-
+:xref-AccessControl-_checkRole-bytes32-: xref:access.adoc#AccessControl-_checkRole-bytes32-
+:xref-AccessControl-_checkRole-bytes32-address-: xref:access.adoc#AccessControl-_checkRole-bytes32-address-
+:xref-AccessControl-getRoleAdmin-bytes32-: xref:access.adoc#AccessControl-getRoleAdmin-bytes32-
+:xref-AccessControl-grantRole-bytes32-address-: xref:access.adoc#AccessControl-grantRole-bytes32-address-
+:xref-AccessControl-revokeRole-bytes32-address-: xref:access.adoc#AccessControl-revokeRole-bytes32-address-
+:xref-AccessControl-renounceRole-bytes32-address-: xref:access.adoc#AccessControl-renounceRole-bytes32-address-
+:xref-AccessControl-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:AccessControl-_grantRole: pass:normal[xref:access.adoc#AccessControl-_grantRole-bytes32-address-[`AccessControl._grantRole`]]
+:AccessControl-_revokeRole: pass:normal[xref:access.adoc#AccessControl-_revokeRole-bytes32-address-[`AccessControl._revokeRole`]]
+:xref-IAccessControlDefaultAdminRules-defaultAdmin--: xref:access.adoc#IAccessControlDefaultAdminRules-defaultAdmin--
+:xref-IAccessControlDefaultAdminRules-pendingDefaultAdmin--: xref:access.adoc#IAccessControlDefaultAdminRules-pendingDefaultAdmin--
+:xref-IAccessControlDefaultAdminRules-defaultAdminDelay--: xref:access.adoc#IAccessControlDefaultAdminRules-defaultAdminDelay--
+:xref-IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--: xref:access.adoc#IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--
+:xref-IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-: xref:access.adoc#IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-
+:xref-IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--: xref:access.adoc#IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--
+:xref-IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--: xref:access.adoc#IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--
+:xref-IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-
+:xref-IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--: xref:access.adoc#IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--
+:xref-IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--: xref:access.adoc#IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--
+:xref-IAccessControl-hasRole-bytes32-address-: xref:access.adoc#IAccessControl-hasRole-bytes32-address-
+:xref-IAccessControl-getRoleAdmin-bytes32-: xref:access.adoc#IAccessControl-getRoleAdmin-bytes32-
+:xref-IAccessControl-grantRole-bytes32-address-: xref:access.adoc#IAccessControl-grantRole-bytes32-address-
+:xref-IAccessControl-revokeRole-bytes32-address-: xref:access.adoc#IAccessControl-revokeRole-bytes32-address-
+:xref-IAccessControl-renounceRole-bytes32-address-: xref:access.adoc#IAccessControl-renounceRole-bytes32-address-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--
+:xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-
+:xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--
+:xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:xref-AccessControlDefaultAdminRules-constructor-uint48-address-: xref:access.adoc#AccessControlDefaultAdminRules-constructor-uint48-address-
+:xref-AccessControlDefaultAdminRules-supportsInterface-bytes4-: xref:access.adoc#AccessControlDefaultAdminRules-supportsInterface-bytes4-
+:xref-AccessControlDefaultAdminRules-owner--: xref:access.adoc#AccessControlDefaultAdminRules-owner--
+:xref-AccessControlDefaultAdminRules-grantRole-bytes32-address-: xref:access.adoc#AccessControlDefaultAdminRules-grantRole-bytes32-address-
+:xref-AccessControlDefaultAdminRules-revokeRole-bytes32-address-: xref:access.adoc#AccessControlDefaultAdminRules-revokeRole-bytes32-address-
+:xref-AccessControlDefaultAdminRules-renounceRole-bytes32-address-: xref:access.adoc#AccessControlDefaultAdminRules-renounceRole-bytes32-address-
+:xref-AccessControlDefaultAdminRules-_grantRole-bytes32-address-: xref:access.adoc#AccessControlDefaultAdminRules-_grantRole-bytes32-address-
+:xref-AccessControlDefaultAdminRules-_revokeRole-bytes32-address-: xref:access.adoc#AccessControlDefaultAdminRules-_revokeRole-bytes32-address-
+:xref-AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-
+:xref-AccessControlDefaultAdminRules-defaultAdmin--: xref:access.adoc#AccessControlDefaultAdminRules-defaultAdmin--
+:xref-AccessControlDefaultAdminRules-pendingDefaultAdmin--: xref:access.adoc#AccessControlDefaultAdminRules-pendingDefaultAdmin--
+:xref-AccessControlDefaultAdminRules-defaultAdminDelay--: xref:access.adoc#AccessControlDefaultAdminRules-defaultAdminDelay--
+:xref-AccessControlDefaultAdminRules-pendingDefaultAdminDelay--: xref:access.adoc#AccessControlDefaultAdminRules-pendingDefaultAdminDelay--
+:xref-AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--: xref:access.adoc#AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--
+:xref-AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-: xref:access.adoc#AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-
+:xref-AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-: xref:access.adoc#AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-
+:xref-AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--: xref:access.adoc#AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--
+:xref-AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--: xref:access.adoc#AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--
+:xref-AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--: xref:access.adoc#AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--
+:xref-AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--: xref:access.adoc#AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--
+:xref-AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-: xref:access.adoc#AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-
+:xref-AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-: xref:access.adoc#AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-
+:xref-AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--: xref:access.adoc#AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--
+:xref-AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--: xref:access.adoc#AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--
+:xref-AccessControlDefaultAdminRules-_delayChangeWait-uint48-: xref:access.adoc#AccessControlDefaultAdminRules-_delayChangeWait-uint48-
+:xref-AccessControl-hasRole-bytes32-address-: xref:access.adoc#AccessControl-hasRole-bytes32-address-
+:xref-AccessControl-_checkRole-bytes32-: xref:access.adoc#AccessControl-_checkRole-bytes32-
+:xref-AccessControl-_checkRole-bytes32-address-: xref:access.adoc#AccessControl-_checkRole-bytes32-address-
+:xref-AccessControl-getRoleAdmin-bytes32-: xref:access.adoc#AccessControl-getRoleAdmin-bytes32-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--
+:xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-
+:xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--
+:xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
+:xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
+:xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
+:xref-IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-
+:xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--
+:xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-
+:xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
+:xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:IERC5313-owner: pass:normal[xref:interfaces.adoc#IERC5313-owner--[`IERC5313.owner`]]
+:AccessControl-grantRole: pass:normal[xref:access.adoc#AccessControl-grantRole-bytes32-address-[`AccessControl.grantRole`]]
+:AccessControl-revokeRole: pass:normal[xref:access.adoc#AccessControl-revokeRole-bytes32-address-[`AccessControl.revokeRole`]]
+:AccessControl-renounceRole: pass:normal[xref:access.adoc#AccessControl-renounceRole-bytes32-address-[`AccessControl.renounceRole`]]
+:AccessControl-_grantRole: pass:normal[xref:access.adoc#AccessControl-_grantRole-bytes32-address-[`AccessControl._grantRole`]]
+:AccessControl-_revokeRole: pass:normal[xref:access.adoc#AccessControl-_revokeRole-bytes32-address-[`AccessControl._revokeRole`]]
+:AccessControl-_setRoleAdmin: pass:normal[xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-[`AccessControl._setRoleAdmin`]]
+:xref-IAuthority-canCall-address-address-bytes4-: xref:access.adoc#IAuthority-canCall-address-address-bytes4-
+:AccessManaged: pass:normal[xref:access.adoc#AccessManaged[`AccessManaged`]]
+:IAuthority: pass:normal[xref:access.adoc#IAuthority[`IAuthority`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:Ownable-renounceOwnership: pass:normal[xref:access.adoc#Ownable-renounceOwnership--[`Ownable.renounceOwnership`]]
+:AccessControl-renounceRole: pass:normal[xref:access.adoc#AccessControl-renounceRole-bytes32-address-[`AccessControl.renounceRole`]]
+:xref-AccessManager-onlyAuthorized--: xref:access.adoc#AccessManager-onlyAuthorized--
+:xref-AccessManager-constructor-address-: xref:access.adoc#AccessManager-constructor-address-
+:xref-AccessManager-canCall-address-address-bytes4-: xref:access.adoc#AccessManager-canCall-address-address-bytes4-
+:xref-AccessManager-expiration--: xref:access.adoc#AccessManager-expiration--
+:xref-AccessManager-minSetback--: xref:access.adoc#AccessManager-minSetback--
+:xref-AccessManager-isTargetClosed-address-: xref:access.adoc#AccessManager-isTargetClosed-address-
+:xref-AccessManager-getTargetFunctionRole-address-bytes4-: xref:access.adoc#AccessManager-getTargetFunctionRole-address-bytes4-
+:xref-AccessManager-getTargetAdminDelay-address-: xref:access.adoc#AccessManager-getTargetAdminDelay-address-
+:xref-AccessManager-getRoleAdmin-uint64-: xref:access.adoc#AccessManager-getRoleAdmin-uint64-
+:xref-AccessManager-getRoleGuardian-uint64-: xref:access.adoc#AccessManager-getRoleGuardian-uint64-
+:xref-AccessManager-getRoleGrantDelay-uint64-: xref:access.adoc#AccessManager-getRoleGrantDelay-uint64-
+:xref-AccessManager-getAccess-uint64-address-: xref:access.adoc#AccessManager-getAccess-uint64-address-
+:xref-AccessManager-hasRole-uint64-address-: xref:access.adoc#AccessManager-hasRole-uint64-address-
+:xref-AccessManager-labelRole-uint64-string-: xref:access.adoc#AccessManager-labelRole-uint64-string-
+:xref-AccessManager-grantRole-uint64-address-uint32-: xref:access.adoc#AccessManager-grantRole-uint64-address-uint32-
+:xref-AccessManager-revokeRole-uint64-address-: xref:access.adoc#AccessManager-revokeRole-uint64-address-
+:xref-AccessManager-renounceRole-uint64-address-: xref:access.adoc#AccessManager-renounceRole-uint64-address-
+:xref-AccessManager-setRoleAdmin-uint64-uint64-: xref:access.adoc#AccessManager-setRoleAdmin-uint64-uint64-
+:xref-AccessManager-setRoleGuardian-uint64-uint64-: xref:access.adoc#AccessManager-setRoleGuardian-uint64-uint64-
+:xref-AccessManager-setGrantDelay-uint64-uint32-: xref:access.adoc#AccessManager-setGrantDelay-uint64-uint32-
+:xref-AccessManager-_grantRole-uint64-address-uint32-uint32-: xref:access.adoc#AccessManager-_grantRole-uint64-address-uint32-uint32-
+:xref-AccessManager-_revokeRole-uint64-address-: xref:access.adoc#AccessManager-_revokeRole-uint64-address-
+:xref-AccessManager-_setRoleAdmin-uint64-uint64-: xref:access.adoc#AccessManager-_setRoleAdmin-uint64-uint64-
+:xref-AccessManager-_setRoleGuardian-uint64-uint64-: xref:access.adoc#AccessManager-_setRoleGuardian-uint64-uint64-
+:xref-AccessManager-_setGrantDelay-uint64-uint32-: xref:access.adoc#AccessManager-_setGrantDelay-uint64-uint32-
+:xref-AccessManager-setTargetFunctionRole-address-bytes4---uint64-: xref:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-
+:xref-AccessManager-_setTargetFunctionRole-address-bytes4-uint64-: xref:access.adoc#AccessManager-_setTargetFunctionRole-address-bytes4-uint64-
+:xref-AccessManager-setTargetAdminDelay-address-uint32-: xref:access.adoc#AccessManager-setTargetAdminDelay-address-uint32-
+:xref-AccessManager-_setTargetAdminDelay-address-uint32-: xref:access.adoc#AccessManager-_setTargetAdminDelay-address-uint32-
+:xref-AccessManager-setTargetClosed-address-bool-: xref:access.adoc#AccessManager-setTargetClosed-address-bool-
+:xref-AccessManager-_setTargetClosed-address-bool-: xref:access.adoc#AccessManager-_setTargetClosed-address-bool-
+:xref-AccessManager-getSchedule-bytes32-: xref:access.adoc#AccessManager-getSchedule-bytes32-
+:xref-AccessManager-getNonce-bytes32-: xref:access.adoc#AccessManager-getNonce-bytes32-
+:xref-AccessManager-schedule-address-bytes-uint48-: xref:access.adoc#AccessManager-schedule-address-bytes-uint48-
+:xref-AccessManager-execute-address-bytes-: xref:access.adoc#AccessManager-execute-address-bytes-
+:xref-AccessManager-consumeScheduledOp-address-bytes-: xref:access.adoc#AccessManager-consumeScheduledOp-address-bytes-
+:xref-AccessManager-_consumeScheduledOp-bytes32-: xref:access.adoc#AccessManager-_consumeScheduledOp-bytes32-
+:xref-AccessManager-cancel-address-address-bytes-: xref:access.adoc#AccessManager-cancel-address-address-bytes-
+:xref-AccessManager-hashOperation-address-address-bytes-: xref:access.adoc#AccessManager-hashOperation-address-address-bytes-
+:xref-AccessManager-updateAuthority-address-address-: xref:access.adoc#AccessManager-updateAuthority-address-address-
+:xref-Multicall-multicall-bytes---: xref:utils.adoc#Multicall-multicall-bytes---
+:xref-IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-: xref:access.adoc#IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-
+:xref-IAccessManager-OperationExecuted-bytes32-uint32-: xref:access.adoc#IAccessManager-OperationExecuted-bytes32-uint32-
+:xref-IAccessManager-OperationCanceled-bytes32-uint32-: xref:access.adoc#IAccessManager-OperationCanceled-bytes32-uint32-
+:xref-IAccessManager-RoleLabel-uint64-string-: xref:access.adoc#IAccessManager-RoleLabel-uint64-string-
+:xref-IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-: xref:access.adoc#IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-
+:xref-IAccessManager-RoleRevoked-uint64-address-: xref:access.adoc#IAccessManager-RoleRevoked-uint64-address-
+:xref-IAccessManager-RoleAdminChanged-uint64-uint64-: xref:access.adoc#IAccessManager-RoleAdminChanged-uint64-uint64-
+:xref-IAccessManager-RoleGuardianChanged-uint64-uint64-: xref:access.adoc#IAccessManager-RoleGuardianChanged-uint64-uint64-
+:xref-IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-: xref:access.adoc#IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-
+:xref-IAccessManager-TargetClosed-address-bool-: xref:access.adoc#IAccessManager-TargetClosed-address-bool-
+:xref-IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-: xref:access.adoc#IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-
+:xref-IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-: xref:access.adoc#IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-
+:xref-IAccessManager-AccessManagerAlreadyScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerAlreadyScheduled-bytes32-
+:xref-IAccessManager-AccessManagerNotScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotScheduled-bytes32-
+:xref-IAccessManager-AccessManagerNotReady-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotReady-bytes32-
+:xref-IAccessManager-AccessManagerExpired-bytes32-: xref:access.adoc#IAccessManager-AccessManagerExpired-bytes32-
+:xref-IAccessManager-AccessManagerLockedAccount-address-: xref:access.adoc#IAccessManager-AccessManagerLockedAccount-address-
+:xref-IAccessManager-AccessManagerLockedRole-uint64-: xref:access.adoc#IAccessManager-AccessManagerLockedRole-uint64-
+:xref-IAccessManager-AccessManagerBadConfirmation--: xref:access.adoc#IAccessManager-AccessManagerBadConfirmation--
+:xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-
+:xref-IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-
+:xref-IAccessManager-AccessManagerUnauthorizedConsume-address-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedConsume-address-
+:xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-
+:xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-: xref:access.adoc#IAccessManager-AccessManagerInvalidInitialAdmin-address-
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:IAuthority: pass:normal[xref:access.adoc#IAuthority[`IAuthority`]]
+:xref-AccessManaged-restricted--: xref:access.adoc#AccessManaged-restricted--
+:xref-AccessManaged-constructor-address-: xref:access.adoc#AccessManaged-constructor-address-
+:xref-AccessManaged-authority--: xref:access.adoc#AccessManaged-authority--
+:xref-AccessManaged-setAuthority-address-: xref:access.adoc#AccessManaged-setAuthority-address-
+:xref-AccessManaged-isConsumingScheduledOp--: xref:access.adoc#AccessManaged-isConsumingScheduledOp--
+:xref-AccessManaged-_setAuthority-address-: xref:access.adoc#AccessManaged-_setAuthority-address-
+:xref-AccessManaged-_checkCanCall-address-bytes-: xref:access.adoc#AccessManaged-_checkCanCall-address-bytes-
+:xref-IAccessManaged-AuthorityUpdated-address-: xref:access.adoc#IAccessManaged-AuthorityUpdated-address-
+:xref-IAccessManaged-AccessManagedUnauthorized-address-: xref:access.adoc#IAccessManaged-AccessManagedUnauthorized-address-
+:xref-IAccessManaged-AccessManagedRequiredDelay-address-uint32-: xref:access.adoc#IAccessManaged-AccessManagedRequiredDelay-address-uint32-
+:xref-IAccessManaged-AccessManagedInvalidAuthority-address-: xref:access.adoc#IAccessManaged-AccessManagedInvalidAuthority-address-
+= Access Control
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/access
+
+This directory provides ways to restrict who can access the functions of a contract or when they can do it.
+
+- {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and assigned each to multiple accounts.
+- {Ownable} is a simpler mechanism with a single owner "role" that can be assigned to a single account. This simpler mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
+
+== Core
+
+:OwnableUnauthorizedAccount: pass:normal[xref:#Ownable-OwnableUnauthorizedAccount-address-[`++OwnableUnauthorizedAccount++`]]
+:OwnableInvalidOwner: pass:normal[xref:#Ownable-OwnableInvalidOwner-address-[`++OwnableInvalidOwner++`]]
+:OwnershipTransferred: pass:normal[xref:#Ownable-OwnershipTransferred-address-address-[`++OwnershipTransferred++`]]
+:constructor: pass:normal[xref:#Ownable-constructor-address-[`++constructor++`]]
+:onlyOwner: pass:normal[xref:#Ownable-onlyOwner--[`++onlyOwner++`]]
+:owner: pass:normal[xref:#Ownable-owner--[`++owner++`]]
+:_checkOwner: pass:normal[xref:#Ownable-_checkOwner--[`++_checkOwner++`]]
+:renounceOwnership: pass:normal[xref:#Ownable-renounceOwnership--[`++renounceOwnership++`]]
+:transferOwnership: pass:normal[xref:#Ownable-transferOwnership-address-[`++transferOwnership++`]]
+:_transferOwnership: pass:normal[xref:#Ownable-_transferOwnership-address-[`++_transferOwnership++`]]
+
+[.contract]
+[[Ownable]]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/Ownable.sol";
+```
+
+Contract module which provides a basic access control mechanism, where
+there is an account (an owner) that can be granted exclusive access to
+specific functions.
+
+The initial owner is set to the address provided by the deployer. This can
+later be changed with {transferOwnership}.
+
+This module is used through inheritance. It will make available the modifier
+`onlyOwner`, which can be applied to your functions to restrict their use to
+the owner.
+
+[.contract-index]
+.Modifiers
+--
+* {xref-Ownable-onlyOwner--}[`++onlyOwner()++`]
+--
+
+[.contract-index]
+.Functions
+--
+* {xref-Ownable-constructor-address-}[`++constructor(initialOwner)++`]
+* {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
+* {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
+* {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
+* {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-Ownable-OwnershipTransferred-address-address-}[`++OwnershipTransferred(previousOwner, newOwner)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-Ownable-OwnableUnauthorizedAccount-address-}[`++OwnableUnauthorizedAccount(account)++`]
+* {xref-Ownable-OwnableInvalidOwner-address-}[`++OwnableInvalidOwner(owner)++`]
+
+--
+
+[.contract-item]
+[[Ownable-onlyOwner--]]
+==== `[.contract-item-name]#++onlyOwner++#++()++` [.item-kind]#modifier#
+
+Throws if called by any account other than the owner.
+
+[.contract-item]
+[[Ownable-constructor-address-]]
+==== `[.contract-item-name]#++constructor++#++(address initialOwner)++` [.item-kind]#internal#
+
+Initializes the contract setting the address provided by the deployer as the initial owner.
+
+[.contract-item]
+[[Ownable-owner--]]
+==== `[.contract-item-name]#++owner++#++() → address++` [.item-kind]#public#
+
+Returns the address of the current owner.
+
+[.contract-item]
+[[Ownable-_checkOwner--]]
+==== `[.contract-item-name]#++_checkOwner++#++()++` [.item-kind]#internal#
+
+Throws if the sender is not the owner.
+
+[.contract-item]
+[[Ownable-renounceOwnership--]]
+==== `[.contract-item-name]#++renounceOwnership++#++()++` [.item-kind]#public#
+
+Leaves the contract without owner. It will not be possible to call
+`onlyOwner` functions. Can only be called by the current owner.
+
+NOTE: Renouncing ownership will leave the contract without an owner,
+thereby disabling any functionality that is only available to the owner.
+
+[.contract-item]
+[[Ownable-transferOwnership-address-]]
+==== `[.contract-item-name]#++transferOwnership++#++(address newOwner)++` [.item-kind]#public#
+
+Transfers ownership of the contract to a new account (`newOwner`).
+Can only be called by the current owner.
+
+[.contract-item]
+[[Ownable-_transferOwnership-address-]]
+==== `[.contract-item-name]#++_transferOwnership++#++(address newOwner)++` [.item-kind]#internal#
+
+Transfers ownership of the contract to a new account (`newOwner`).
+Internal function without access restriction.
+
+[.contract-item]
+[[Ownable-OwnershipTransferred-address-address-]]
+==== `[.contract-item-name]#++OwnershipTransferred++#++(address indexed previousOwner, address indexed newOwner)++` [.item-kind]#event#
+
+[.contract-item]
+[[Ownable-OwnableUnauthorizedAccount-address-]]
+==== `[.contract-item-name]#++OwnableUnauthorizedAccount++#++(address account)++` [.item-kind]#error#
+
+The caller account is not authorized to perform an operation.
+
+[.contract-item]
+[[Ownable-OwnableInvalidOwner-address-]]
+==== `[.contract-item-name]#++OwnableInvalidOwner++#++(address owner)++` [.item-kind]#error#
+
+The owner is not a valid owner account. (eg. `address(0)`)
+
+:OwnershipTransferStarted: pass:normal[xref:#Ownable2Step-OwnershipTransferStarted-address-address-[`++OwnershipTransferStarted++`]]
+:pendingOwner: pass:normal[xref:#Ownable2Step-pendingOwner--[`++pendingOwner++`]]
+:transferOwnership: pass:normal[xref:#Ownable2Step-transferOwnership-address-[`++transferOwnership++`]]
+:_transferOwnership: pass:normal[xref:#Ownable2Step-_transferOwnership-address-[`++_transferOwnership++`]]
+:acceptOwnership: pass:normal[xref:#Ownable2Step-acceptOwnership--[`++acceptOwnership++`]]
+
+[.contract]
+[[Ownable2Step]]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
+```
+
+Contract module which provides access control mechanism, where
+there is an account (an owner) that can be granted exclusive access to
+specific functions.
+
+The initial owner is specified at deployment time in the constructor for `Ownable`. This
+can later be changed with {transferOwnership} and {acceptOwnership}.
+
+This module is used through inheritance. It will make available all functions
+from parent (Ownable).
+
+[.contract-index]
+.Functions
+--
+* {xref-Ownable2Step-pendingOwner--}[`++pendingOwner()++`]
+* {xref-Ownable2Step-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
+* {xref-Ownable2Step-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
+* {xref-Ownable2Step-acceptOwnership--}[`++acceptOwnership()++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
+* {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-Ownable2Step-OwnershipTransferStarted-address-address-}[`++OwnershipTransferStarted(previousOwner, newOwner)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnershipTransferred-address-address-}[`++OwnershipTransferred(previousOwner, newOwner)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnableUnauthorizedAccount-address-}[`++OwnableUnauthorizedAccount(account)++`]
+* {xref-Ownable-OwnableInvalidOwner-address-}[`++OwnableInvalidOwner(owner)++`]
+
+--
+
+[.contract-item]
+[[Ownable2Step-pendingOwner--]]
+==== `[.contract-item-name]#++pendingOwner++#++() → address++` [.item-kind]#public#
+
+Returns the address of the pending owner.
+
+[.contract-item]
+[[Ownable2Step-transferOwnership-address-]]
+==== `[.contract-item-name]#++transferOwnership++#++(address newOwner)++` [.item-kind]#public#
+
+Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
+Can only be called by the current owner.
+
+[.contract-item]
+[[Ownable2Step-_transferOwnership-address-]]
+==== `[.contract-item-name]#++_transferOwnership++#++(address newOwner)++` [.item-kind]#internal#
+
+Transfers ownership of the contract to a new account (`newOwner`) and deletes any pending owner.
+Internal function without access restriction.
+
+[.contract-item]
+[[Ownable2Step-acceptOwnership--]]
+==== `[.contract-item-name]#++acceptOwnership++#++()++` [.item-kind]#public#
+
+The new owner accepts the ownership transfer.
+
+[.contract-item]
+[[Ownable2Step-OwnershipTransferStarted-address-address-]]
+==== `[.contract-item-name]#++OwnershipTransferStarted++#++(address indexed previousOwner, address indexed newOwner)++` [.item-kind]#event#
+
+:AccessControlUnauthorizedAccount: pass:normal[xref:#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-[`++AccessControlUnauthorizedAccount++`]]
+:AccessControlBadConfirmation: pass:normal[xref:#IAccessControl-AccessControlBadConfirmation--[`++AccessControlBadConfirmation++`]]
+:RoleAdminChanged: pass:normal[xref:#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-[`++RoleAdminChanged++`]]
+:RoleGranted: pass:normal[xref:#IAccessControl-RoleGranted-bytes32-address-address-[`++RoleGranted++`]]
+:RoleRevoked: pass:normal[xref:#IAccessControl-RoleRevoked-bytes32-address-address-[`++RoleRevoked++`]]
+:hasRole: pass:normal[xref:#IAccessControl-hasRole-bytes32-address-[`++hasRole++`]]
+:getRoleAdmin: pass:normal[xref:#IAccessControl-getRoleAdmin-bytes32-[`++getRoleAdmin++`]]
+:grantRole: pass:normal[xref:#IAccessControl-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole: pass:normal[xref:#IAccessControl-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole: pass:normal[xref:#IAccessControl-renounceRole-bytes32-address-[`++renounceRole++`]]
+
+[.contract]
+[[IAccessControl]]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/IAccessControl.sol";
+```
+
+External interface of AccessControl declared to support ERC165 detection.
+
+[.contract-index]
+.Functions
+--
+* {xref-IAccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-IAccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-IAccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-IAccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-IAccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[IAccessControl-hasRole-bytes32-address-]]
+==== `[.contract-item-name]#++hasRole++#++(bytes32 role, address account) → bool++` [.item-kind]#external#
+
+Returns `true` if `account` has been granted `role`.
+
+[.contract-item]
+[[IAccessControl-getRoleAdmin-bytes32-]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(bytes32 role) → bytes32++` [.item-kind]#external#
+
+Returns the admin role that controls `role`. See {grantRole} and
+{revokeRole}.
+
+To change a role's admin, use {AccessControl-_setRoleAdmin}.
+
+[.contract-item]
+[[IAccessControl-grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++grantRole++#++(bytes32 role, address account)++` [.item-kind]#external#
+
+Grants `role` to `account`.
+
+If `account` had not been already granted `role`, emits a {RoleGranted}
+event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+[.contract-item]
+[[IAccessControl-revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++revokeRole++#++(bytes32 role, address account)++` [.item-kind]#external#
+
+Revokes `role` from `account`.
+
+If `account` had been granted `role`, emits a {RoleRevoked} event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+[.contract-item]
+[[IAccessControl-renounceRole-bytes32-address-]]
+==== `[.contract-item-name]#++renounceRole++#++(bytes32 role, address callerConfirmation)++` [.item-kind]#external#
+
+Revokes `role` from the calling account.
+
+Roles are often managed via {grantRole} and {revokeRole}: this function's
+purpose is to provide a mechanism for accounts to lose their privileges
+if they are compromised (such as when a trusted device is misplaced).
+
+If the calling account had been granted `role`, emits a {RoleRevoked}
+event.
+
+Requirements:
+
+- the caller must be `callerConfirmation`.
+
+[.contract-item]
+[[IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)++` [.item-kind]#event#
+
+Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
+
+`DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+{RoleAdminChanged} not being emitted signaling this.
+
+[.contract-item]
+[[IAccessControl-RoleGranted-bytes32-address-address-]]
+==== `[.contract-item-name]#++RoleGranted++#++(bytes32 indexed role, address indexed account, address indexed sender)++` [.item-kind]#event#
+
+Emitted when `account` is granted `role`.
+
+`sender` is the account that originated the contract call, an admin role
+bearer except when using {AccessControl-_setupRole}.
+
+[.contract-item]
+[[IAccessControl-RoleRevoked-bytes32-address-address-]]
+==== `[.contract-item-name]#++RoleRevoked++#++(bytes32 indexed role, address indexed account, address indexed sender)++` [.item-kind]#event#
+
+Emitted when `account` is revoked `role`.
+
+`sender` is the account that originated the contract call:
+  - if using `revokeRole`, it is the admin role bearer
+  - if using `renounceRole`, it is the role bearer (i.e. `account`)
+
+[.contract-item]
+[[IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-]]
+==== `[.contract-item-name]#++AccessControlUnauthorizedAccount++#++(address account, bytes32 neededRole)++` [.item-kind]#error#
+
+The `account` is missing a role.
+
+[.contract-item]
+[[IAccessControl-AccessControlBadConfirmation--]]
+==== `[.contract-item-name]#++AccessControlBadConfirmation++#++()++` [.item-kind]#error#
+
+The caller of a function is not the expected one.
+
+NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
+
+:RoleData: pass:normal[xref:#AccessControl-RoleData[`++RoleData++`]]
+:DEFAULT_ADMIN_ROLE: pass:normal[xref:#AccessControl-DEFAULT_ADMIN_ROLE-bytes32[`++DEFAULT_ADMIN_ROLE++`]]
+:onlyRole: pass:normal[xref:#AccessControl-onlyRole-bytes32-[`++onlyRole++`]]
+:supportsInterface: pass:normal[xref:#AccessControl-supportsInterface-bytes4-[`++supportsInterface++`]]
+:hasRole: pass:normal[xref:#AccessControl-hasRole-bytes32-address-[`++hasRole++`]]
+:_checkRole: pass:normal[xref:#AccessControl-_checkRole-bytes32-[`++_checkRole++`]]
+:_checkRole: pass:normal[xref:#AccessControl-_checkRole-bytes32-address-[`++_checkRole++`]]
+:getRoleAdmin: pass:normal[xref:#AccessControl-getRoleAdmin-bytes32-[`++getRoleAdmin++`]]
+:grantRole: pass:normal[xref:#AccessControl-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole: pass:normal[xref:#AccessControl-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole: pass:normal[xref:#AccessControl-renounceRole-bytes32-address-[`++renounceRole++`]]
+:_setRoleAdmin: pass:normal[xref:#AccessControl-_setRoleAdmin-bytes32-bytes32-[`++_setRoleAdmin++`]]
+:_grantRole: pass:normal[xref:#AccessControl-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole: pass:normal[xref:#AccessControl-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+
+[.contract]
+[[AccessControl]]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/AccessControl.sol";
+```
+
+Contract module that allows children to implement role-based access
+control mechanisms. This is a lightweight version that doesn't allow enumerating role
+members except through off-chain means by accessing the contract event logs. Some
+applications may benefit from on-chain enumerability, for those cases see
+{AccessControlEnumerable}.
+
+Roles are referred to by their `bytes32` identifier. These should be exposed
+in the external API and be unique. The best way to achieve this is by
+using `public constant` hash digests:
+
+```solidity
+bytes32 public constant MY_ROLE = keccak256("MY_ROLE");
+```
+
+Roles can be used to represent a set of permissions. To restrict access to a
+function call, use {hasRole}:
+
+```solidity
+function foo() public {
+    require(hasRole(MY_ROLE, msg.sender));
+    ...
+}
+```
+
+Roles can be granted and revoked dynamically via the {grantRole} and
+{revokeRole} functions. Each role has an associated admin role, and only
+accounts that have a role's admin role can call {grantRole} and {revokeRole}.
+
+By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
+that only accounts with this role will be able to grant or revoke other
+roles. More complex role relationships can be created by using
+{_setRoleAdmin}.
+
+WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
+grant and revoke this role. Extra precautions should be taken to secure
+accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
+to enforce additional security measures for this role.
+
+[.contract-index]
+.Modifiers
+--
+* {xref-AccessControl-onlyRole-bytes32-}[`++onlyRole(role)++`]
+--
+
+[.contract-index]
+.Functions
+--
+* {xref-AccessControl-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-AccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-AccessControl-_checkRole-bytes32-}[`++_checkRole(role)++`]
+* {xref-AccessControl-_checkRole-bytes32-address-}[`++_checkRole(role, account)++`]
+* {xref-AccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-AccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-AccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-AccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
+* {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
+* {xref-AccessControl-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
+* {xref-AccessControl-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControl
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[AccessControl-onlyRole-bytes32-]]
+==== `[.contract-item-name]#++onlyRole++#++(bytes32 role)++` [.item-kind]#modifier#
+
+Modifier that checks that an account has a specific role. Reverts
+with an {AccessControlUnauthorizedAccount} error including the required role.
+
+[.contract-item]
+[[AccessControl-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+[.contract-item]
+[[AccessControl-hasRole-bytes32-address-]]
+==== `[.contract-item-name]#++hasRole++#++(bytes32 role, address account) → bool++` [.item-kind]#public#
+
+Returns `true` if `account` has been granted `role`.
+
+[.contract-item]
+[[AccessControl-_checkRole-bytes32-]]
+==== `[.contract-item-name]#++_checkRole++#++(bytes32 role)++` [.item-kind]#internal#
+
+Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
+
+[.contract-item]
+[[AccessControl-_checkRole-bytes32-address-]]
+==== `[.contract-item-name]#++_checkRole++#++(bytes32 role, address account)++` [.item-kind]#internal#
+
+Reverts with an {AccessControlUnauthorizedAccount} error if `account`
+is missing `role`.
+
+[.contract-item]
+[[AccessControl-getRoleAdmin-bytes32-]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(bytes32 role) → bytes32++` [.item-kind]#public#
+
+Returns the admin role that controls `role`. See {grantRole} and
+{revokeRole}.
+
+To change a role's admin, use {_setRoleAdmin}.
+
+[.contract-item]
+[[AccessControl-grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++grantRole++#++(bytes32 role, address account)++` [.item-kind]#public#
+
+Grants `role` to `account`.
+
+If `account` had not been already granted `role`, emits a {RoleGranted}
+event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControl-revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++revokeRole++#++(bytes32 role, address account)++` [.item-kind]#public#
+
+Revokes `role` from `account`.
+
+If `account` had been granted `role`, emits a {RoleRevoked} event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-renounceRole-bytes32-address-]]
+==== `[.contract-item-name]#++renounceRole++#++(bytes32 role, address callerConfirmation)++` [.item-kind]#public#
+
+Revokes `role` from the calling account.
+
+Roles are often managed via {grantRole} and {revokeRole}: this function's
+purpose is to provide a mechanism for accounts to lose their privileges
+if they are compromised (such as when a trusted device is misplaced).
+
+If the calling account had been revoked `role`, emits a {RoleRevoked}
+event.
+
+Requirements:
+
+- the caller must be `callerConfirmation`.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-_setRoleAdmin-bytes32-bytes32-]]
+==== `[.contract-item-name]#++_setRoleAdmin++#++(bytes32 role, bytes32 adminRole)++` [.item-kind]#internal#
+
+Sets `adminRole` as ``role``'s admin role.
+
+Emits a {RoleAdminChanged} event.
+
+[.contract-item]
+[[AccessControl-_grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++_grantRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.
+
+Internal function without access restriction.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControl-_revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++_revokeRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
+
+Internal function without access restriction.
+
+May emit a {RoleRevoked} event.
+
+== Extensions
+
+:getRoleMember: pass:normal[xref:#IAccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
+:getRoleMemberCount: pass:normal[xref:#IAccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
+
+[.contract]
+[[IAccessControlEnumerable]]
+=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/extensions/IAccessControlEnumerable.sol";
+```
+
+External interface of AccessControlEnumerable declared to support ERC165 detection.
+
+[.contract-index]
+.Functions
+--
+* {xref-IAccessControlEnumerable-getRoleMember-bytes32-uint256-}[`++getRoleMember(role, index)++`]
+* {xref-IAccessControlEnumerable-getRoleMemberCount-bytes32-}[`++getRoleMemberCount(role)++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-IAccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-IAccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-IAccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-IAccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[IAccessControlEnumerable-getRoleMember-bytes32-uint256-]]
+==== `[.contract-item-name]#++getRoleMember++#++(bytes32 role, uint256 index) → address++` [.item-kind]#external#
+
+Returns one of the accounts that have `role`. `index` must be a
+value between 0 and {getRoleMemberCount}, non-inclusive.
+
+Role bearers are not sorted in any particular way, and their ordering may
+change at any point.
+
+WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure
+you perform all queries on the same block. See the following
+https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
+for more information.
+
+[.contract-item]
+[[IAccessControlEnumerable-getRoleMemberCount-bytes32-]]
+==== `[.contract-item-name]#++getRoleMemberCount++#++(bytes32 role) → uint256++` [.item-kind]#external#
+
+Returns the number of accounts that have `role`. Can be used
+together with {getRoleMember} to enumerate all bearers of a role.
+
+:supportsInterface: pass:normal[xref:#AccessControlEnumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
+:getRoleMember: pass:normal[xref:#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
+:getRoleMemberCount: pass:normal[xref:#AccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
+:_grantRole: pass:normal[xref:#AccessControlEnumerable-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole: pass:normal[xref:#AccessControlEnumerable-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+
+[.contract]
+[[AccessControlEnumerable]]
+=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
+```
+
+Extension of {AccessControl} that allows enumerating the members of each role.
+
+[.contract-index]
+.Functions
+--
+* {xref-AccessControlEnumerable-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-AccessControlEnumerable-getRoleMember-bytes32-uint256-}[`++getRoleMember(role, index)++`]
+* {xref-AccessControlEnumerable-getRoleMemberCount-bytes32-}[`++getRoleMemberCount(role)++`]
+* {xref-AccessControlEnumerable-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
+* {xref-AccessControlEnumerable-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
+
+[.contract-subindex-inherited]
+.AccessControl
+* {xref-AccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-AccessControl-_checkRole-bytes32-}[`++_checkRole(role)++`]
+* {xref-AccessControl-_checkRole-bytes32-address-}[`++_checkRole(role, account)++`]
+* {xref-AccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-AccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-AccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-AccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
+* {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControlEnumerable
+
+[.contract-subindex-inherited]
+.IAccessControl
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.AccessControl
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControlEnumerable
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.AccessControl
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControlEnumerable
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[AccessControlEnumerable-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+[.contract-item]
+[[AccessControlEnumerable-getRoleMember-bytes32-uint256-]]
+==== `[.contract-item-name]#++getRoleMember++#++(bytes32 role, uint256 index) → address++` [.item-kind]#public#
+
+Returns one of the accounts that have `role`. `index` must be a
+value between 0 and {getRoleMemberCount}, non-inclusive.
+
+Role bearers are not sorted in any particular way, and their ordering may
+change at any point.
+
+WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure
+you perform all queries on the same block. See the following
+https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
+for more information.
+
+[.contract-item]
+[[AccessControlEnumerable-getRoleMemberCount-bytes32-]]
+==== `[.contract-item-name]#++getRoleMemberCount++#++(bytes32 role) → uint256++` [.item-kind]#public#
+
+Returns the number of accounts that have `role`. Can be used
+together with {getRoleMember} to enumerate all bearers of a role.
+
+[.contract-item]
+[[AccessControlEnumerable-_grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++_grantRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+Overload {AccessControl-_grantRole} to track enumerable memberships
+
+[.contract-item]
+[[AccessControlEnumerable-_revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++_revokeRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+Overload {AccessControl-_revokeRole} to track enumerable memberships
+
+:AccessControlInvalidDefaultAdmin: pass:normal[xref:#IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-[`++AccessControlInvalidDefaultAdmin++`]]
+:AccessControlEnforcedDefaultAdminRules: pass:normal[xref:#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--[`++AccessControlEnforcedDefaultAdminRules++`]]
+:AccessControlEnforcedDefaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-[`++AccessControlEnforcedDefaultAdminDelay++`]]
+:DefaultAdminTransferScheduled: pass:normal[xref:#IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-[`++DefaultAdminTransferScheduled++`]]
+:DefaultAdminTransferCanceled: pass:normal[xref:#IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--[`++DefaultAdminTransferCanceled++`]]
+:DefaultAdminDelayChangeScheduled: pass:normal[xref:#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-[`++DefaultAdminDelayChangeScheduled++`]]
+:DefaultAdminDelayChangeCanceled: pass:normal[xref:#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--[`++DefaultAdminDelayChangeCanceled++`]]
+:defaultAdmin: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdmin--[`++defaultAdmin++`]]
+:pendingDefaultAdmin: pass:normal[xref:#IAccessControlDefaultAdminRules-pendingDefaultAdmin--[`++pendingDefaultAdmin++`]]
+:defaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdminDelay--[`++defaultAdminDelay++`]]
+:pendingDefaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--[`++pendingDefaultAdminDelay++`]]
+:beginDefaultAdminTransfer: pass:normal[xref:#IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-[`++beginDefaultAdminTransfer++`]]
+:cancelDefaultAdminTransfer: pass:normal[xref:#IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--[`++cancelDefaultAdminTransfer++`]]
+:acceptDefaultAdminTransfer: pass:normal[xref:#IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--[`++acceptDefaultAdminTransfer++`]]
+:changeDefaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-[`++changeDefaultAdminDelay++`]]
+:rollbackDefaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--[`++rollbackDefaultAdminDelay++`]]
+:defaultAdminDelayIncreaseWait: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--[`++defaultAdminDelayIncreaseWait++`]]
+
+[.contract]
+[[IAccessControlDefaultAdminRules]]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/extensions/IAccessControlDefaultAdminRules.sol";
+```
+
+External interface of AccessControlDefaultAdminRules declared to support ERC165 detection.
+
+[.contract-index]
+.Functions
+--
+* {xref-IAccessControlDefaultAdminRules-defaultAdmin--}[`++defaultAdmin()++`]
+* {xref-IAccessControlDefaultAdminRules-pendingDefaultAdmin--}[`++pendingDefaultAdmin()++`]
+* {xref-IAccessControlDefaultAdminRules-defaultAdminDelay--}[`++defaultAdminDelay()++`]
+* {xref-IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--}[`++pendingDefaultAdminDelay()++`]
+* {xref-IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-}[`++beginDefaultAdminTransfer(newAdmin)++`]
+* {xref-IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--}[`++cancelDefaultAdminTransfer()++`]
+* {xref-IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--}[`++acceptDefaultAdminTransfer()++`]
+* {xref-IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-}[`++changeDefaultAdminDelay(newDelay)++`]
+* {xref-IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--}[`++rollbackDefaultAdminDelay()++`]
+* {xref-IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--}[`++defaultAdminDelayIncreaseWait()++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-IAccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-IAccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-IAccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-IAccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-}[`++DefaultAdminTransferScheduled(newAdmin, acceptSchedule)++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--}[`++DefaultAdminTransferCanceled()++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-}[`++DefaultAdminDelayChangeScheduled(newDelay, effectSchedule)++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--}[`++DefaultAdminDelayChangeCanceled()++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-}[`++AccessControlInvalidDefaultAdmin(defaultAdmin)++`]
+* {xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--}[`++AccessControlEnforcedDefaultAdminRules()++`]
+* {xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-}[`++AccessControlEnforcedDefaultAdminDelay(schedule)++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-defaultAdmin--]]
+==== `[.contract-item-name]#++defaultAdmin++#++() → address++` [.item-kind]#external#
+
+Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-pendingDefaultAdmin--]]
+==== `[.contract-item-name]#++pendingDefaultAdmin++#++() → address newAdmin, uint48 acceptSchedule++` [.item-kind]#external#
+
+Returns a tuple of a `newAdmin` and an accept schedule.
+
+After the `schedule` passes, the `newAdmin` will be able to accept the {defaultAdmin} role
+by calling {acceptDefaultAdminTransfer}, completing the role transfer.
+
+A zero value only in `acceptSchedule` indicates no pending admin transfer.
+
+NOTE: A zero address `newAdmin` means that {defaultAdmin} is being renounced.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-defaultAdminDelay--]]
+==== `[.contract-item-name]#++defaultAdminDelay++#++() → uint48++` [.item-kind]#external#
+
+Returns the delay required to schedule the acceptance of a {defaultAdmin} transfer started.
+
+This delay will be added to the current timestamp when calling {beginDefaultAdminTransfer} to set
+the acceptance schedule.
+
+NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule passes, making this
+function returns the new delay. See {changeDefaultAdminDelay}.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--]]
+==== `[.contract-item-name]#++pendingDefaultAdminDelay++#++() → uint48 newDelay, uint48 effectSchedule++` [.item-kind]#external#
+
+Returns a tuple of `newDelay` and an effect schedule.
+
+After the `schedule` passes, the `newDelay` will get into effect immediately for every
+new {defaultAdmin} transfer started with {beginDefaultAdminTransfer}.
+
+A zero value only in `effectSchedule` indicates no pending delay change.
+
+NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay}
+will be zero after the effect schedule.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-]]
+==== `[.contract-item-name]#++beginDefaultAdminTransfer++#++(address newAdmin)++` [.item-kind]#external#
+
+Starts a {defaultAdmin} transfer by setting a {pendingDefaultAdmin} scheduled for acceptance
+after the current timestamp plus a {defaultAdminDelay}.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+Emits a DefaultAdminRoleChangeStarted event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++cancelDefaultAdminTransfer++#++()++` [.item-kind]#external#
+
+Cancels a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
+
+A {pendingDefaultAdmin} not yet accepted can also be cancelled with this function.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+May emit a DefaultAdminTransferCanceled event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++acceptDefaultAdminTransfer++#++()++` [.item-kind]#external#
+
+Completes a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
+
+After calling the function:
+
+- `DEFAULT_ADMIN_ROLE` should be granted to the caller.
+- `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
+- {pendingDefaultAdmin} should be reset to zero values.
+
+Requirements:
+
+- Only can be called by the {pendingDefaultAdmin}'s `newAdmin`.
+- The {pendingDefaultAdmin}'s `acceptSchedule` should've passed.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-]]
+==== `[.contract-item-name]#++changeDefaultAdminDelay++#++(uint48 newDelay)++` [.item-kind]#external#
+
+Initiates a {defaultAdminDelay} update by setting a {pendingDefaultAdminDelay} scheduled for getting
+into effect after the current timestamp plus a {defaultAdminDelay}.
+
+This function guarantees that any call to {beginDefaultAdminTransfer} done between the timestamp this
+method is called and the {pendingDefaultAdminDelay} effect schedule will use the current {defaultAdminDelay}
+set before calling.
+
+The {pendingDefaultAdminDelay}'s effect schedule is defined in a way that waiting until the schedule and then
+calling {beginDefaultAdminTransfer} with the new delay will take at least the same as another {defaultAdmin}
+complete transfer (including acceptance).
+
+The schedule is designed for two scenarios:
+
+- When the delay is changed for a larger one the schedule is `block.timestamp + newDelay` capped by
+{defaultAdminDelayIncreaseWait}.
+- When the delay is changed for a shorter one, the schedule is `block.timestamp + (current delay - new delay)`.
+
+A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--]]
+==== `[.contract-item-name]#++rollbackDefaultAdminDelay++#++()++` [.item-kind]#external#
+
+Cancels a scheduled {defaultAdminDelay} change.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+May emit a DefaultAdminDelayChangeCanceled event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--]]
+==== `[.contract-item-name]#++defaultAdminDelayIncreaseWait++#++() → uint48++` [.item-kind]#external#
+
+Maximum time in seconds for an increase to {defaultAdminDelay} (that is scheduled using {changeDefaultAdminDelay})
+to take effect. Default to 5 days.
+
+When the {defaultAdminDelay} is scheduled to be increased, it goes into effect after the new delay has passed with
+the purpose of giving enough time for reverting any accidental change (i.e. using milliseconds instead of seconds)
+that may lock the contract. However, to avoid excessive schedules, the wait is capped by this function and it can
+be overrode for a custom {defaultAdminDelay} increase scheduling.
+
+IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
+there's a risk of setting a high new delay that goes into effect almost immediately without the
+possibility of human intervention in the case of an input error (eg. set milliseconds instead of seconds).
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-]]
+==== `[.contract-item-name]#++DefaultAdminTransferScheduled++#++(address indexed newAdmin, uint48 acceptSchedule)++` [.item-kind]#event#
+
+Emitted when a {defaultAdmin} transfer is started, setting `newAdmin` as the next
+address to become the {defaultAdmin} by calling {acceptDefaultAdminTransfer} only after `acceptSchedule`
+passes.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--]]
+==== `[.contract-item-name]#++DefaultAdminTransferCanceled++#++()++` [.item-kind]#event#
+
+Emitted when a {pendingDefaultAdmin} is reset if it was never accepted, regardless of its schedule.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-]]
+==== `[.contract-item-name]#++DefaultAdminDelayChangeScheduled++#++(uint48 newDelay, uint48 effectSchedule)++` [.item-kind]#event#
+
+Emitted when a {defaultAdminDelay} change is started, setting `newDelay` as the next
+delay to be applied between default admin transfer after `effectSchedule` has passed.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--]]
+==== `[.contract-item-name]#++DefaultAdminDelayChangeCanceled++#++()++` [.item-kind]#event#
+
+Emitted when a {pendingDefaultAdminDelay} is reset if its schedule didn't pass.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-]]
+==== `[.contract-item-name]#++AccessControlInvalidDefaultAdmin++#++(address defaultAdmin)++` [.item-kind]#error#
+
+The new default admin is not a valid default admin.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--]]
+==== `[.contract-item-name]#++AccessControlEnforcedDefaultAdminRules++#++()++` [.item-kind]#error#
+
+At least one of the following rules was violated:
+
+- The `DEFAULT_ADMIN_ROLE` must only be managed by itself.
+- The `DEFAULT_ADMIN_ROLE` must only be held by one account at the time.
+- Any `DEFAULT_ADMIN_ROLE` transfer must be in two delayed steps.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-]]
+==== `[.contract-item-name]#++AccessControlEnforcedDefaultAdminDelay++#++(uint48 schedule)++` [.item-kind]#error#
+
+The delay for transferring the default admin delay is enforced and
+the operation must wait until `schedule`.
+
+NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
+
+:constructor: pass:normal[xref:#AccessControlDefaultAdminRules-constructor-uint48-address-[`++constructor++`]]
+:supportsInterface: pass:normal[xref:#AccessControlDefaultAdminRules-supportsInterface-bytes4-[`++supportsInterface++`]]
+:owner: pass:normal[xref:#AccessControlDefaultAdminRules-owner--[`++owner++`]]
+:grantRole: pass:normal[xref:#AccessControlDefaultAdminRules-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole: pass:normal[xref:#AccessControlDefaultAdminRules-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole: pass:normal[xref:#AccessControlDefaultAdminRules-renounceRole-bytes32-address-[`++renounceRole++`]]
+:_grantRole: pass:normal[xref:#AccessControlDefaultAdminRules-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole: pass:normal[xref:#AccessControlDefaultAdminRules-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+:_setRoleAdmin: pass:normal[xref:#AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-[`++_setRoleAdmin++`]]
+:defaultAdmin: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdmin--[`++defaultAdmin++`]]
+:pendingDefaultAdmin: pass:normal[xref:#AccessControlDefaultAdminRules-pendingDefaultAdmin--[`++pendingDefaultAdmin++`]]
+:defaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdminDelay--[`++defaultAdminDelay++`]]
+:pendingDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-pendingDefaultAdminDelay--[`++pendingDefaultAdminDelay++`]]
+:defaultAdminDelayIncreaseWait: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--[`++defaultAdminDelayIncreaseWait++`]]
+:beginDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-[`++beginDefaultAdminTransfer++`]]
+:_beginDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-[`++_beginDefaultAdminTransfer++`]]
+:cancelDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--[`++cancelDefaultAdminTransfer++`]]
+:_cancelDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--[`++_cancelDefaultAdminTransfer++`]]
+:acceptDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--[`++acceptDefaultAdminTransfer++`]]
+:_acceptDefaultAdminTransfer: pass:normal[xref:#AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--[`++_acceptDefaultAdminTransfer++`]]
+:changeDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-[`++changeDefaultAdminDelay++`]]
+:_changeDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-[`++_changeDefaultAdminDelay++`]]
+:rollbackDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--[`++rollbackDefaultAdminDelay++`]]
+:_rollbackDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--[`++_rollbackDefaultAdminDelay++`]]
+:_delayChangeWait: pass:normal[xref:#AccessControlDefaultAdminRules-_delayChangeWait-uint48-[`++_delayChangeWait++`]]
+
+[.contract]
+[[AccessControlDefaultAdminRules]]
+=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
+```
+
+Extension of {AccessControl} that allows specifying special rules to manage
+the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions
+over other roles that may potentially have privileged rights in the system.
+
+If a specific role doesn't have an admin role assigned, the holder of the
+`DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it.
+
+This contract implements the following risk mitigations on top of {AccessControl}:
+
+* Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced.
+* Enforces a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
+* Enforces a configurable delay between the two steps, with the ability to cancel before the transfer is accepted.
+* The delay can be changed by scheduling, see {changeDefaultAdminDelay}.
+* It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
+
+Example usage:
+
+```solidity
+contract MyToken is AccessControlDefaultAdminRules {
+  constructor() AccessControlDefaultAdminRules(
+    3 days,
+    msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder
+   ) {}
+}
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-AccessControlDefaultAdminRules-constructor-uint48-address-}[`++constructor(initialDelay, initialDefaultAdmin)++`]
+* {xref-AccessControlDefaultAdminRules-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-AccessControlDefaultAdminRules-owner--}[`++owner()++`]
+* {xref-AccessControlDefaultAdminRules-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
+* {xref-AccessControlDefaultAdminRules-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
+* {xref-AccessControlDefaultAdminRules-renounceRole-bytes32-address-}[`++renounceRole(role, account)++`]
+* {xref-AccessControlDefaultAdminRules-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
+* {xref-AccessControlDefaultAdminRules-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
+* {xref-AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
+* {xref-AccessControlDefaultAdminRules-defaultAdmin--}[`++defaultAdmin()++`]
+* {xref-AccessControlDefaultAdminRules-pendingDefaultAdmin--}[`++pendingDefaultAdmin()++`]
+* {xref-AccessControlDefaultAdminRules-defaultAdminDelay--}[`++defaultAdminDelay()++`]
+* {xref-AccessControlDefaultAdminRules-pendingDefaultAdminDelay--}[`++pendingDefaultAdminDelay()++`]
+* {xref-AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--}[`++defaultAdminDelayIncreaseWait()++`]
+* {xref-AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-}[`++beginDefaultAdminTransfer(newAdmin)++`]
+* {xref-AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-}[`++_beginDefaultAdminTransfer(newAdmin)++`]
+* {xref-AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--}[`++cancelDefaultAdminTransfer()++`]
+* {xref-AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--}[`++_cancelDefaultAdminTransfer()++`]
+* {xref-AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--}[`++acceptDefaultAdminTransfer()++`]
+* {xref-AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--}[`++_acceptDefaultAdminTransfer()++`]
+* {xref-AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-}[`++changeDefaultAdminDelay(newDelay)++`]
+* {xref-AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-}[`++_changeDefaultAdminDelay(newDelay)++`]
+* {xref-AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--}[`++rollbackDefaultAdminDelay()++`]
+* {xref-AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--}[`++_rollbackDefaultAdminDelay()++`]
+* {xref-AccessControlDefaultAdminRules-_delayChangeWait-uint48-}[`++_delayChangeWait(newDelay)++`]
+
+[.contract-subindex-inherited]
+.AccessControl
+* {xref-AccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
+* {xref-AccessControl-_checkRole-bytes32-}[`++_checkRole(role)++`]
+* {xref-AccessControl-_checkRole-bytes32-address-}[`++_checkRole(role, account)++`]
+* {xref-AccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC5313
+
+[.contract-subindex-inherited]
+.IAccessControlDefaultAdminRules
+
+[.contract-subindex-inherited]
+.IAccessControl
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.AccessControl
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC5313
+
+[.contract-subindex-inherited]
+.IAccessControlDefaultAdminRules
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-}[`++DefaultAdminTransferScheduled(newAdmin, acceptSchedule)++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--}[`++DefaultAdminTransferCanceled()++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-}[`++DefaultAdminDelayChangeScheduled(newDelay, effectSchedule)++`]
+* {xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled--}[`++DefaultAdminDelayChangeCanceled()++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
+* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
+* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.AccessControl
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IERC5313
+
+[.contract-subindex-inherited]
+.IAccessControlDefaultAdminRules
+* {xref-IAccessControlDefaultAdminRules-AccessControlInvalidDefaultAdmin-address-}[`++AccessControlInvalidDefaultAdmin(defaultAdmin)++`]
+* {xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminRules--}[`++AccessControlEnforcedDefaultAdminRules()++`]
+* {xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-}[`++AccessControlEnforcedDefaultAdminDelay(schedule)++`]
+
+[.contract-subindex-inherited]
+.IAccessControl
+* {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
+* {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-constructor-uint48-address-]]
+==== `[.contract-item-name]#++constructor++#++(uint48 initialDelay, address initialDefaultAdmin)++` [.item-kind]#internal#
+
+Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-owner--]]
+==== `[.contract-item-name]#++owner++#++() → address++` [.item-kind]#public#
+
+See {IERC5313-owner}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++grantRole++#++(bytes32 role, address account)++` [.item-kind]#public#
+
+See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++revokeRole++#++(bytes32 role, address account)++` [.item-kind]#public#
+
+See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-renounceRole-bytes32-address-]]
+==== `[.contract-item-name]#++renounceRole++#++(bytes32 role, address account)++` [.item-kind]#public#
+
+See {AccessControl-renounceRole}.
+
+For the `DEFAULT_ADMIN_ROLE`, it only allows renouncing in two steps by first calling
+{beginDefaultAdminTransfer} to the `address(0)`, so it's required that the {pendingDefaultAdmin} schedule
+has also passed when calling this function.
+
+After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)` functions.
+
+NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a {defaultAdmin},
+thereby disabling any functionality that is only available for it, and the possibility of reassigning a
+non-administrated role.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_grantRole-bytes32-address-]]
+==== `[.contract-item-name]#++_grantRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+See {AccessControl-_grantRole}.
+
+For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a {defaultAdmin} or if the
+role has been previously renounced.
+
+NOTE: Exposing this function through another mechanism may make the `DEFAULT_ADMIN_ROLE`
+assignable again. Make sure to guarantee this is the expected behavior in your implementation.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_revokeRole-bytes32-address-]]
+==== `[.contract-item-name]#++_revokeRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
+
+See {AccessControl-_revokeRole}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-]]
+==== `[.contract-item-name]#++_setRoleAdmin++#++(bytes32 role, bytes32 adminRole)++` [.item-kind]#internal#
+
+See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-defaultAdmin--]]
+==== `[.contract-item-name]#++defaultAdmin++#++() → address++` [.item-kind]#public#
+
+Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-pendingDefaultAdmin--]]
+==== `[.contract-item-name]#++pendingDefaultAdmin++#++() → address newAdmin, uint48 schedule++` [.item-kind]#public#
+
+Returns a tuple of a `newAdmin` and an accept schedule.
+
+After the `schedule` passes, the `newAdmin` will be able to accept the {defaultAdmin} role
+by calling {acceptDefaultAdminTransfer}, completing the role transfer.
+
+A zero value only in `acceptSchedule` indicates no pending admin transfer.
+
+NOTE: A zero address `newAdmin` means that {defaultAdmin} is being renounced.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-defaultAdminDelay--]]
+==== `[.contract-item-name]#++defaultAdminDelay++#++() → uint48++` [.item-kind]#public#
+
+Returns the delay required to schedule the acceptance of a {defaultAdmin} transfer started.
+
+This delay will be added to the current timestamp when calling {beginDefaultAdminTransfer} to set
+the acceptance schedule.
+
+NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule passes, making this
+function returns the new delay. See {changeDefaultAdminDelay}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-pendingDefaultAdminDelay--]]
+==== `[.contract-item-name]#++pendingDefaultAdminDelay++#++() → uint48 newDelay, uint48 schedule++` [.item-kind]#public#
+
+Returns a tuple of `newDelay` and an effect schedule.
+
+After the `schedule` passes, the `newDelay` will get into effect immediately for every
+new {defaultAdmin} transfer started with {beginDefaultAdminTransfer}.
+
+A zero value only in `effectSchedule` indicates no pending delay change.
+
+NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay}
+will be zero after the effect schedule.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--]]
+==== `[.contract-item-name]#++defaultAdminDelayIncreaseWait++#++() → uint48++` [.item-kind]#public#
+
+Maximum time in seconds for an increase to {defaultAdminDelay} (that is scheduled using {changeDefaultAdminDelay})
+to take effect. Default to 5 days.
+
+When the {defaultAdminDelay} is scheduled to be increased, it goes into effect after the new delay has passed with
+the purpose of giving enough time for reverting any accidental change (i.e. using milliseconds instead of seconds)
+that may lock the contract. However, to avoid excessive schedules, the wait is capped by this function and it can
+be overrode for a custom {defaultAdminDelay} increase scheduling.
+
+IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
+there's a risk of setting a high new delay that goes into effect almost immediately without the
+possibility of human intervention in the case of an input error (eg. set milliseconds instead of seconds).
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-]]
+==== `[.contract-item-name]#++beginDefaultAdminTransfer++#++(address newAdmin)++` [.item-kind]#public#
+
+Starts a {defaultAdmin} transfer by setting a {pendingDefaultAdmin} scheduled for acceptance
+after the current timestamp plus a {defaultAdminDelay}.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+Emits a DefaultAdminRoleChangeStarted event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-]]
+==== `[.contract-item-name]#++_beginDefaultAdminTransfer++#++(address newAdmin)++` [.item-kind]#internal#
+
+See {beginDefaultAdminTransfer}.
+
+Internal function without access restriction.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++cancelDefaultAdminTransfer++#++()++` [.item-kind]#public#
+
+Cancels a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
+
+A {pendingDefaultAdmin} not yet accepted can also be cancelled with this function.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+May emit a DefaultAdminTransferCanceled event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++_cancelDefaultAdminTransfer++#++()++` [.item-kind]#internal#
+
+See {cancelDefaultAdminTransfer}.
+
+Internal function without access restriction.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++acceptDefaultAdminTransfer++#++()++` [.item-kind]#public#
+
+Completes a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
+
+After calling the function:
+
+- `DEFAULT_ADMIN_ROLE` should be granted to the caller.
+- `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
+- {pendingDefaultAdmin} should be reset to zero values.
+
+Requirements:
+
+- Only can be called by the {pendingDefaultAdmin}'s `newAdmin`.
+- The {pendingDefaultAdmin}'s `acceptSchedule` should've passed.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--]]
+==== `[.contract-item-name]#++_acceptDefaultAdminTransfer++#++()++` [.item-kind]#internal#
+
+See {acceptDefaultAdminTransfer}.
+
+Internal function without access restriction.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-]]
+==== `[.contract-item-name]#++changeDefaultAdminDelay++#++(uint48 newDelay)++` [.item-kind]#public#
+
+Initiates a {defaultAdminDelay} update by setting a {pendingDefaultAdminDelay} scheduled for getting
+into effect after the current timestamp plus a {defaultAdminDelay}.
+
+This function guarantees that any call to {beginDefaultAdminTransfer} done between the timestamp this
+method is called and the {pendingDefaultAdminDelay} effect schedule will use the current {defaultAdminDelay}
+set before calling.
+
+The {pendingDefaultAdminDelay}'s effect schedule is defined in a way that waiting until the schedule and then
+calling {beginDefaultAdminTransfer} with the new delay will take at least the same as another {defaultAdmin}
+complete transfer (including acceptance).
+
+The schedule is designed for two scenarios:
+
+- When the delay is changed for a larger one the schedule is `block.timestamp + newDelay` capped by
+{defaultAdminDelayIncreaseWait}.
+- When the delay is changed for a shorter one, the schedule is `block.timestamp + (current delay - new delay)`.
+
+A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-]]
+==== `[.contract-item-name]#++_changeDefaultAdminDelay++#++(uint48 newDelay)++` [.item-kind]#internal#
+
+See {changeDefaultAdminDelay}.
+
+Internal function without access restriction.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--]]
+==== `[.contract-item-name]#++rollbackDefaultAdminDelay++#++()++` [.item-kind]#public#
+
+Cancels a scheduled {defaultAdminDelay} change.
+
+Requirements:
+
+- Only can be called by the current {defaultAdmin}.
+
+May emit a DefaultAdminDelayChangeCanceled event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--]]
+==== `[.contract-item-name]#++_rollbackDefaultAdminDelay++#++()++` [.item-kind]#internal#
+
+See {rollbackDefaultAdminDelay}.
+
+Internal function without access restriction.
+
+[.contract-item]
+[[AccessControlDefaultAdminRules-_delayChangeWait-uint48-]]
+==== `[.contract-item-name]#++_delayChangeWait++#++(uint48 newDelay) → uint48++` [.item-kind]#internal#
+
+Returns the amount of seconds to wait after the `newDelay` will
+become the new {defaultAdminDelay}.
+
+The value returned guarantees that if the delay is reduced, it will go into effect
+after a wait that honors the previously set delay.
+
+See {defaultAdminDelayIncreaseWait}.
+
+== AccessManager
+
+:canCall: pass:normal[xref:#IAuthority-canCall-address-address-bytes4-[`++canCall++`]]
+
+[.contract]
+[[IAuthority]]
+=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/IAuthority.sol";
+```
+
+Standard interface for permissioning originally defined in Dappsys.
+
+[.contract-index]
+.Functions
+--
+* {xref-IAuthority-canCall-address-address-bytes4-}[`++canCall(caller, target, selector)++`]
+
+--
+
+[.contract-item]
+[[IAuthority-canCall-address-address-bytes4-]]
+==== `[.contract-item-name]#++canCall++#++(address caller, address target, bytes4 selector) → bool allowed++` [.item-kind]#external#
+
+Returns true if the caller can invoke on a target the function identified by a function selector.
+
+:TargetConfig: pass:normal[xref:#AccessManager-TargetConfig[`++TargetConfig++`]]
+:Access: pass:normal[xref:#AccessManager-Access[`++Access++`]]
+:Role: pass:normal[xref:#AccessManager-Role[`++Role++`]]
+:Schedule: pass:normal[xref:#AccessManager-Schedule[`++Schedule++`]]
+:ADMIN_ROLE: pass:normal[xref:#AccessManager-ADMIN_ROLE-uint64[`++ADMIN_ROLE++`]]
+:PUBLIC_ROLE: pass:normal[xref:#AccessManager-PUBLIC_ROLE-uint64[`++PUBLIC_ROLE++`]]
+:onlyAuthorized: pass:normal[xref:#AccessManager-onlyAuthorized--[`++onlyAuthorized++`]]
+:constructor: pass:normal[xref:#AccessManager-constructor-address-[`++constructor++`]]
+:canCall: pass:normal[xref:#AccessManager-canCall-address-address-bytes4-[`++canCall++`]]
+:expiration: pass:normal[xref:#AccessManager-expiration--[`++expiration++`]]
+:minSetback: pass:normal[xref:#AccessManager-minSetback--[`++minSetback++`]]
+:isTargetClosed: pass:normal[xref:#AccessManager-isTargetClosed-address-[`++isTargetClosed++`]]
+:getTargetFunctionRole: pass:normal[xref:#AccessManager-getTargetFunctionRole-address-bytes4-[`++getTargetFunctionRole++`]]
+:getTargetAdminDelay: pass:normal[xref:#AccessManager-getTargetAdminDelay-address-[`++getTargetAdminDelay++`]]
+:getRoleAdmin: pass:normal[xref:#AccessManager-getRoleAdmin-uint64-[`++getRoleAdmin++`]]
+:getRoleGuardian: pass:normal[xref:#AccessManager-getRoleGuardian-uint64-[`++getRoleGuardian++`]]
+:getRoleGrantDelay: pass:normal[xref:#AccessManager-getRoleGrantDelay-uint64-[`++getRoleGrantDelay++`]]
+:getAccess: pass:normal[xref:#AccessManager-getAccess-uint64-address-[`++getAccess++`]]
+:hasRole: pass:normal[xref:#AccessManager-hasRole-uint64-address-[`++hasRole++`]]
+:labelRole: pass:normal[xref:#AccessManager-labelRole-uint64-string-[`++labelRole++`]]
+:grantRole: pass:normal[xref:#AccessManager-grantRole-uint64-address-uint32-[`++grantRole++`]]
+:revokeRole: pass:normal[xref:#AccessManager-revokeRole-uint64-address-[`++revokeRole++`]]
+:renounceRole: pass:normal[xref:#AccessManager-renounceRole-uint64-address-[`++renounceRole++`]]
+:setRoleAdmin: pass:normal[xref:#AccessManager-setRoleAdmin-uint64-uint64-[`++setRoleAdmin++`]]
+:setRoleGuardian: pass:normal[xref:#AccessManager-setRoleGuardian-uint64-uint64-[`++setRoleGuardian++`]]
+:setGrantDelay: pass:normal[xref:#AccessManager-setGrantDelay-uint64-uint32-[`++setGrantDelay++`]]
+:_grantRole: pass:normal[xref:#AccessManager-_grantRole-uint64-address-uint32-uint32-[`++_grantRole++`]]
+:_revokeRole: pass:normal[xref:#AccessManager-_revokeRole-uint64-address-[`++_revokeRole++`]]
+:_setRoleAdmin: pass:normal[xref:#AccessManager-_setRoleAdmin-uint64-uint64-[`++_setRoleAdmin++`]]
+:_setRoleGuardian: pass:normal[xref:#AccessManager-_setRoleGuardian-uint64-uint64-[`++_setRoleGuardian++`]]
+:_setGrantDelay: pass:normal[xref:#AccessManager-_setGrantDelay-uint64-uint32-[`++_setGrantDelay++`]]
+:setTargetFunctionRole: pass:normal[xref:#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`++setTargetFunctionRole++`]]
+:_setTargetFunctionRole: pass:normal[xref:#AccessManager-_setTargetFunctionRole-address-bytes4-uint64-[`++_setTargetFunctionRole++`]]
+:setTargetAdminDelay: pass:normal[xref:#AccessManager-setTargetAdminDelay-address-uint32-[`++setTargetAdminDelay++`]]
+:_setTargetAdminDelay: pass:normal[xref:#AccessManager-_setTargetAdminDelay-address-uint32-[`++_setTargetAdminDelay++`]]
+:setTargetClosed: pass:normal[xref:#AccessManager-setTargetClosed-address-bool-[`++setTargetClosed++`]]
+:_setTargetClosed: pass:normal[xref:#AccessManager-_setTargetClosed-address-bool-[`++_setTargetClosed++`]]
+:getSchedule: pass:normal[xref:#AccessManager-getSchedule-bytes32-[`++getSchedule++`]]
+:getNonce: pass:normal[xref:#AccessManager-getNonce-bytes32-[`++getNonce++`]]
+:schedule: pass:normal[xref:#AccessManager-schedule-address-bytes-uint48-[`++schedule++`]]
+:execute: pass:normal[xref:#AccessManager-execute-address-bytes-[`++execute++`]]
+:consumeScheduledOp: pass:normal[xref:#AccessManager-consumeScheduledOp-address-bytes-[`++consumeScheduledOp++`]]
+:_consumeScheduledOp: pass:normal[xref:#AccessManager-_consumeScheduledOp-bytes32-[`++_consumeScheduledOp++`]]
+:cancel: pass:normal[xref:#AccessManager-cancel-address-address-bytes-[`++cancel++`]]
+:hashOperation: pass:normal[xref:#AccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
+:updateAuthority: pass:normal[xref:#AccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
+
+[.contract]
+[[AccessManager]]
+=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/AccessManager.sol";
+```
+
+AccessManager is a central contract to store the permissions of a system.
+
+The smart contracts under the control of an AccessManager instance will have a set of "restricted" functions, and the
+exact details of how access is restricted for each of those functions is configurable by the admins of the instance.
+These restrictions are expressed in terms of "roles".
+
+An AccessManager instance will define a set of roles. Accounts can be added into any number of these roles. Each of
+them defines a role, and may confer access to some of the restricted functions in the system, as configured by admins
+through the use of {setFunctionAllowedRoles}.
+
+Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
+{AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
+`restricted` modifier.
+
+There is a special role defined by default named "public" which all accounts automatically have.
+
+In addition to the access rules defined by each target's functions being assigned to roles, then entire target can
+be "closed". This "closed" mode is set/unset by the admin using {setTargetClosed} and can be used to lock a contract
+while permissions are being (re-)configured.
+
+Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
+they will be highly secured (e.g., a multisig or a well-configured DAO).
+
+NOTE: This contract implements a form of the {IAuthority} interface, but {canCall} has additional return data so it
+doesn't inherit `IAuthority`. It is however compatible with the `IAuthority` interface since the first 32 bytes of
+the return data are a boolean as expected by that interface.
+
+NOTE: Systems that implement other access control mechanisms (for example using {Ownable}) can be paired with an
+{AccessManager} by transferring permissions (ownership in the case of {Ownable}) directly to the {AccessManager}.
+Users will be able to interact with these contracts through the {execute} function, following the access rules
+registered in the {AccessManager}. Keep in mind that in that context, the msg.sender seen by restricted functions
+will be {AccessManager} itself.
+
+WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
+mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
+{{AccessControl-renounceRole}}.
+
+[.contract-index]
+.Modifiers
+--
+* {xref-AccessManager-onlyAuthorized--}[`++onlyAuthorized()++`]
+--
+
+[.contract-index]
+.Functions
+--
+* {xref-AccessManager-constructor-address-}[`++constructor(initialAdmin)++`]
+* {xref-AccessManager-canCall-address-address-bytes4-}[`++canCall(caller, target, selector)++`]
+* {xref-AccessManager-expiration--}[`++expiration()++`]
+* {xref-AccessManager-minSetback--}[`++minSetback()++`]
+* {xref-AccessManager-isTargetClosed-address-}[`++isTargetClosed(target)++`]
+* {xref-AccessManager-getTargetFunctionRole-address-bytes4-}[`++getTargetFunctionRole(target, selector)++`]
+* {xref-AccessManager-getTargetAdminDelay-address-}[`++getTargetAdminDelay(target)++`]
+* {xref-AccessManager-getRoleAdmin-uint64-}[`++getRoleAdmin(roleId)++`]
+* {xref-AccessManager-getRoleGuardian-uint64-}[`++getRoleGuardian(roleId)++`]
+* {xref-AccessManager-getRoleGrantDelay-uint64-}[`++getRoleGrantDelay(roleId)++`]
+* {xref-AccessManager-getAccess-uint64-address-}[`++getAccess(roleId, account)++`]
+* {xref-AccessManager-hasRole-uint64-address-}[`++hasRole(roleId, account)++`]
+* {xref-AccessManager-labelRole-uint64-string-}[`++labelRole(roleId, label)++`]
+* {xref-AccessManager-grantRole-uint64-address-uint32-}[`++grantRole(roleId, account, executionDelay)++`]
+* {xref-AccessManager-revokeRole-uint64-address-}[`++revokeRole(roleId, account)++`]
+* {xref-AccessManager-renounceRole-uint64-address-}[`++renounceRole(roleId, callerConfirmation)++`]
+* {xref-AccessManager-setRoleAdmin-uint64-uint64-}[`++setRoleAdmin(roleId, admin)++`]
+* {xref-AccessManager-setRoleGuardian-uint64-uint64-}[`++setRoleGuardian(roleId, guardian)++`]
+* {xref-AccessManager-setGrantDelay-uint64-uint32-}[`++setGrantDelay(roleId, newDelay)++`]
+* {xref-AccessManager-_grantRole-uint64-address-uint32-uint32-}[`++_grantRole(roleId, account, grantDelay, executionDelay)++`]
+* {xref-AccessManager-_revokeRole-uint64-address-}[`++_revokeRole(roleId, account)++`]
+* {xref-AccessManager-_setRoleAdmin-uint64-uint64-}[`++_setRoleAdmin(roleId, admin)++`]
+* {xref-AccessManager-_setRoleGuardian-uint64-uint64-}[`++_setRoleGuardian(roleId, guardian)++`]
+* {xref-AccessManager-_setGrantDelay-uint64-uint32-}[`++_setGrantDelay(roleId, newDelay)++`]
+* {xref-AccessManager-setTargetFunctionRole-address-bytes4---uint64-}[`++setTargetFunctionRole(target, selectors, roleId)++`]
+* {xref-AccessManager-_setTargetFunctionRole-address-bytes4-uint64-}[`++_setTargetFunctionRole(target, selector, roleId)++`]
+* {xref-AccessManager-setTargetAdminDelay-address-uint32-}[`++setTargetAdminDelay(target, newDelay)++`]
+* {xref-AccessManager-_setTargetAdminDelay-address-uint32-}[`++_setTargetAdminDelay(target, newDelay)++`]
+* {xref-AccessManager-setTargetClosed-address-bool-}[`++setTargetClosed(target, closed)++`]
+* {xref-AccessManager-_setTargetClosed-address-bool-}[`++_setTargetClosed(target, closed)++`]
+* {xref-AccessManager-getSchedule-bytes32-}[`++getSchedule(id)++`]
+* {xref-AccessManager-getNonce-bytes32-}[`++getNonce(id)++`]
+* {xref-AccessManager-schedule-address-bytes-uint48-}[`++schedule(target, data, when)++`]
+* {xref-AccessManager-execute-address-bytes-}[`++execute(target, data)++`]
+* {xref-AccessManager-consumeScheduledOp-address-bytes-}[`++consumeScheduledOp(caller, data)++`]
+* {xref-AccessManager-_consumeScheduledOp-bytes32-}[`++_consumeScheduledOp(operationId)++`]
+* {xref-AccessManager-cancel-address-address-bytes-}[`++cancel(caller, target, data)++`]
+* {xref-AccessManager-hashOperation-address-address-bytes-}[`++hashOperation(caller, target, data)++`]
+* {xref-AccessManager-updateAuthority-address-address-}[`++updateAuthority(target, newAuthority)++`]
+
+[.contract-subindex-inherited]
+.IAccessManager
+
+[.contract-subindex-inherited]
+.Multicall
+* {xref-Multicall-multicall-bytes---}[`++multicall(data)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IAccessManager
+* {xref-IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-}[`++OperationScheduled(operationId, nonce, schedule, caller, target, data)++`]
+* {xref-IAccessManager-OperationExecuted-bytes32-uint32-}[`++OperationExecuted(operationId, nonce)++`]
+* {xref-IAccessManager-OperationCanceled-bytes32-uint32-}[`++OperationCanceled(operationId, nonce)++`]
+* {xref-IAccessManager-RoleLabel-uint64-string-}[`++RoleLabel(roleId, label)++`]
+* {xref-IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-}[`++RoleGranted(roleId, account, delay, since, newMember)++`]
+* {xref-IAccessManager-RoleRevoked-uint64-address-}[`++RoleRevoked(roleId, account)++`]
+* {xref-IAccessManager-RoleAdminChanged-uint64-uint64-}[`++RoleAdminChanged(roleId, admin)++`]
+* {xref-IAccessManager-RoleGuardianChanged-uint64-uint64-}[`++RoleGuardianChanged(roleId, guardian)++`]
+* {xref-IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-}[`++RoleGrantDelayChanged(roleId, delay, since)++`]
+* {xref-IAccessManager-TargetClosed-address-bool-}[`++TargetClosed(target, closed)++`]
+* {xref-IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-}[`++TargetFunctionRoleUpdated(target, selector, roleId)++`]
+* {xref-IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-}[`++TargetAdminDelayUpdated(target, delay, since)++`]
+
+[.contract-subindex-inherited]
+.Multicall
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IAccessManager
+* {xref-IAccessManager-AccessManagerAlreadyScheduled-bytes32-}[`++AccessManagerAlreadyScheduled(operationId)++`]
+* {xref-IAccessManager-AccessManagerNotScheduled-bytes32-}[`++AccessManagerNotScheduled(operationId)++`]
+* {xref-IAccessManager-AccessManagerNotReady-bytes32-}[`++AccessManagerNotReady(operationId)++`]
+* {xref-IAccessManager-AccessManagerExpired-bytes32-}[`++AccessManagerExpired(operationId)++`]
+* {xref-IAccessManager-AccessManagerLockedAccount-address-}[`++AccessManagerLockedAccount(account)++`]
+* {xref-IAccessManager-AccessManagerLockedRole-uint64-}[`++AccessManagerLockedRole(roleId)++`]
+* {xref-IAccessManager-AccessManagerBadConfirmation--}[`++AccessManagerBadConfirmation()++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-}[`++AccessManagerUnauthorizedAccount(msgsender, roleId)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-}[`++AccessManagerUnauthorizedCall(caller, target, selector)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedConsume-address-}[`++AccessManagerUnauthorizedConsume(target)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-}[`++AccessManagerUnauthorizedCancel(msgsender, caller, target, selector)++`]
+* {xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-}[`++AccessManagerInvalidInitialAdmin(initialAdmin)++`]
+
+[.contract-subindex-inherited]
+.Multicall
+
+--
+
+[.contract-item]
+[[AccessManager-onlyAuthorized--]]
+==== `[.contract-item-name]#++onlyAuthorized++#++()++` [.item-kind]#modifier#
+
+Check that the caller is authorized to perform the operation, following the restrictions encoded in
+{_getAdminRestrictions}.
+
+[.contract-item]
+[[AccessManager-constructor-address-]]
+==== `[.contract-item-name]#++constructor++#++(address initialAdmin)++` [.item-kind]#public#
+
+[.contract-item]
+[[AccessManager-canCall-address-address-bytes4-]]
+==== `[.contract-item-name]#++canCall++#++(address caller, address target, bytes4 selector) → bool, uint32++` [.item-kind]#public#
+
+Check if an address (`caller`) is authorised to call a given function on a given contract directly (with
+no restriction). Additionally, it returns the delay needed to perform the call indirectly through the {schedule}
+& {execute} workflow.
+
+This function is usually called by the targeted contract to control immediate execution of restricted functions.
+Therefore we only return true is the call can be performed without any delay. If the call is subject to a delay,
+then the function should return false, and the caller should schedule the operation for future execution.
+
+We may be able to hash the operation, and check if the call was scheduled, but we would not be able to cleanup
+the schedule, leaving the possibility of multiple executions. Maybe this function should not be view?
+
+NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
+is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
+to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
+
+[.contract-item]
+[[AccessManager-expiration--]]
+==== `[.contract-item-name]#++expiration++#++() → uint32++` [.item-kind]#public#
+
+Expiration delay for scheduled proposals. Defaults to 1 week.
+
+[.contract-item]
+[[AccessManager-minSetback--]]
+==== `[.contract-item-name]#++minSetback++#++() → uint32++` [.item-kind]#public#
+
+Minimum setback for all delay updates, with the exception of execution delays, which
+can be increased without setback (and in the event of an accidental increase can be reset
+via {revokeRole}). Defaults to 5 days.
+
+[.contract-item]
+[[AccessManager-isTargetClosed-address-]]
+==== `[.contract-item-name]#++isTargetClosed++#++(address target) → bool++` [.item-kind]#public#
+
+Get the mode under which a contract is operating.
+
+[.contract-item]
+[[AccessManager-getTargetFunctionRole-address-bytes4-]]
+==== `[.contract-item-name]#++getTargetFunctionRole++#++(address target, bytes4 selector) → uint64++` [.item-kind]#public#
+
+Get the role required to call a function.
+
+[.contract-item]
+[[AccessManager-getTargetAdminDelay-address-]]
+==== `[.contract-item-name]#++getTargetAdminDelay++#++(address target) → uint32++` [.item-kind]#public#
+
+Get the admin delay for a target contract. Changes to contract configuration are subject to this delay.
+
+[.contract-item]
+[[AccessManager-getRoleAdmin-uint64-]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(uint64 roleId) → uint64++` [.item-kind]#public#
+
+Get the id of the role that acts as an admin for given role.
+
+The admin permission is required to grant the role, revoke the role and update the execution delay to execute
+an operation that is restricted to this role.
+
+[.contract-item]
+[[AccessManager-getRoleGuardian-uint64-]]
+==== `[.contract-item-name]#++getRoleGuardian++#++(uint64 roleId) → uint64++` [.item-kind]#public#
+
+Get the role that acts as a guardian for a given role.
+
+The guardian permission allows canceling operations that have been scheduled under the role.
+
+[.contract-item]
+[[AccessManager-getRoleGrantDelay-uint64-]]
+==== `[.contract-item-name]#++getRoleGrantDelay++#++(uint64 roleId) → uint32++` [.item-kind]#public#
+
+Get the role current grant delay, that value may change at any point, without an event emitted, following
+a call to {setGrantDelay}. Changes to this value, including effect timepoint are notified by the
+{RoleGrantDelayChanged} event.
+
+[.contract-item]
+[[AccessManager-getAccess-uint64-address-]]
+==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48, uint32, uint32, uint48++` [.item-kind]#public#
+
+Get the access details for a given account for a given role. These details include the timepoint at which
+membership becomes active, and the delay applied to all operation by this user that requires this permission
+level.
+
+Returns:
+[0] Timestamp at which the account membership becomes valid. 0 means role is not granted.
+[1] Current execution delay for the account.
+[2] Pending execution delay for the account.
+[3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
+
+[.contract-item]
+[[AccessManager-hasRole-uint64-address-]]
+==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool, uint32++` [.item-kind]#public#
+
+Check if a given account currently had the permission level corresponding to a given role. Note that this
+permission might be associated with a delay. {getAccess} can provide more details.
+
+[.contract-item]
+[[AccessManager-labelRole-uint64-string-]]
+==== `[.contract-item-name]#++labelRole++#++(uint64 roleId, string label)++` [.item-kind]#public#
+
+Give a label to a role, for improved role discoverabily by UIs.
+
+Emits a {RoleLabel} event.
+
+[.contract-item]
+[[AccessManager-grantRole-uint64-address-uint32-]]
+==== `[.contract-item-name]#++grantRole++#++(uint64 roleId, address account, uint32 executionDelay)++` [.item-kind]#public#
+
+Add `account` to `roleId`, or change its execution delay.
+
+This gives the account the authorization to call any function that is restricted to this role. An optional
+execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
+that is restricted to members this role. The user will only be able to execute the operation after the delay has
+passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
+
+If the account has already been granted this role, the execution delay will be updated. This update is not
+immediate and follows the delay rules. For example, If a user currently has a delay of 3 hours, and this is
+called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
+operation executed in the 3 hours that follows this update was indeed scheduled before this update.
+
+Requirements:
+
+- the caller must be an admin for the role (see {getRoleAdmin})
+
+Emits a {RoleGranted} event
+
+[.contract-item]
+[[AccessManager-revokeRole-uint64-address-]]
+==== `[.contract-item-name]#++revokeRole++#++(uint64 roleId, address account)++` [.item-kind]#public#
+
+Remove an account from a role, with immediate effect. If the account does not have the role, this call has
+no effect.
+
+Requirements:
+
+- the caller must be an admin for the role (see {getRoleAdmin})
+
+Emits a {RoleRevoked} event if the account had the role.
+
+[.contract-item]
+[[AccessManager-renounceRole-uint64-address-]]
+==== `[.contract-item-name]#++renounceRole++#++(uint64 roleId, address callerConfirmation)++` [.item-kind]#public#
+
+Renounce role permissions for the calling account, with immediate effect. If the sender is not in
+the role, this call has no effect.
+
+Requirements:
+
+- the caller must be `callerConfirmation`.
+
+Emits a {RoleRevoked} event if the account had the role.
+
+[.contract-item]
+[[AccessManager-setRoleAdmin-uint64-uint64-]]
+==== `[.contract-item-name]#++setRoleAdmin++#++(uint64 roleId, uint64 admin)++` [.item-kind]#public#
+
+Change admin role for a given role.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleAdminChanged} event
+
+[.contract-item]
+[[AccessManager-setRoleGuardian-uint64-uint64-]]
+==== `[.contract-item-name]#++setRoleGuardian++#++(uint64 roleId, uint64 guardian)++` [.item-kind]#public#
+
+Change guardian role for a given role.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleGuardianChanged} event
+
+[.contract-item]
+[[AccessManager-setGrantDelay-uint64-uint32-]]
+==== `[.contract-item-name]#++setGrantDelay++#++(uint64 roleId, uint32 newDelay)++` [.item-kind]#public#
+
+Update the delay for granting a `roleId`.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleGrantDelayChanged} event.
+
+[.contract-item]
+[[AccessManager-_grantRole-uint64-address-uint32-uint32-]]
+==== `[.contract-item-name]#++_grantRole++#++(uint64 roleId, address account, uint32 grantDelay, uint32 executionDelay) → bool++` [.item-kind]#internal#
+
+Internal version of {grantRole} without access control. Returns true if the role was newly granted.
+
+Emits a {RoleGranted} event.
+
+[.contract-item]
+[[AccessManager-_revokeRole-uint64-address-]]
+==== `[.contract-item-name]#++_revokeRole++#++(uint64 roleId, address account) → bool++` [.item-kind]#internal#
+
+Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
+Returns true if the role was previously granted.
+
+Emits a {RoleRevoked} event if the account had the role.
+
+[.contract-item]
+[[AccessManager-_setRoleAdmin-uint64-uint64-]]
+==== `[.contract-item-name]#++_setRoleAdmin++#++(uint64 roleId, uint64 admin)++` [.item-kind]#internal#
+
+Internal version of {setRoleAdmin} without access control.
+
+Emits a {RoleAdminChanged} event
+
+[.contract-item]
+[[AccessManager-_setRoleGuardian-uint64-uint64-]]
+==== `[.contract-item-name]#++_setRoleGuardian++#++(uint64 roleId, uint64 guardian)++` [.item-kind]#internal#
+
+Internal version of {setRoleGuardian} without access control.
+
+Emits a {RoleGuardianChanged} event
+
+[.contract-item]
+[[AccessManager-_setGrantDelay-uint64-uint32-]]
+==== `[.contract-item-name]#++_setGrantDelay++#++(uint64 roleId, uint32 newDelay)++` [.item-kind]#internal#
+
+Internal version of {setGrantDelay} without access control.
+
+Emits a {RoleGrantDelayChanged} event
+
+[.contract-item]
+[[AccessManager-setTargetFunctionRole-address-bytes4---uint64-]]
+==== `[.contract-item-name]#++setTargetFunctionRole++#++(address target, bytes4[] selectors, uint64 roleId)++` [.item-kind]#public#
+
+Set the role required to call functions identified by the `selectors` in the `target` contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetFunctionRoleUpdated} event per selector.
+
+[.contract-item]
+[[AccessManager-_setTargetFunctionRole-address-bytes4-uint64-]]
+==== `[.contract-item-name]#++_setTargetFunctionRole++#++(address target, bytes4 selector, uint64 roleId)++` [.item-kind]#internal#
+
+Internal version of {setFunctionAllowedRole} without access control.
+
+Emits a {TargetFunctionRoleUpdated} event
+
+[.contract-item]
+[[AccessManager-setTargetAdminDelay-address-uint32-]]
+==== `[.contract-item-name]#++setTargetAdminDelay++#++(address target, uint32 newDelay)++` [.item-kind]#public#
+
+Set the delay for changing the configuration of a given target contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetAdminDelayUpdated} event per selector
+
+[.contract-item]
+[[AccessManager-_setTargetAdminDelay-address-uint32-]]
+==== `[.contract-item-name]#++_setTargetAdminDelay++#++(address target, uint32 newDelay)++` [.item-kind]#internal#
+
+Internal version of {setTargetAdminDelay} without access control.
+
+Emits a {TargetAdminDelayUpdated} event
+
+[.contract-item]
+[[AccessManager-setTargetClosed-address-bool-]]
+==== `[.contract-item-name]#++setTargetClosed++#++(address target, bool closed)++` [.item-kind]#public#
+
+Set the closed flag for a contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetClosed} event.
+
+[.contract-item]
+[[AccessManager-_setTargetClosed-address-bool-]]
+==== `[.contract-item-name]#++_setTargetClosed++#++(address target, bool closed)++` [.item-kind]#internal#
+
+Set the closed flag for a contract. This is an internal setter with no access restrictions.
+
+Emits a {TargetClosed} event.
+
+[.contract-item]
+[[AccessManager-getSchedule-bytes32-]]
+==== `[.contract-item-name]#++getSchedule++#++(bytes32 id) → uint48++` [.item-kind]#public#
+
+Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
+operation is not yet scheduled, has expired, was executed, or was canceled.
+
+[.contract-item]
+[[AccessManager-getNonce-bytes32-]]
+==== `[.contract-item-name]#++getNonce++#++(bytes32 id) → uint32++` [.item-kind]#public#
+
+Return the nonce for the latest scheduled operation with a given id. Returns 0 if the operation has never
+been scheduled.
+
+[.contract-item]
+[[AccessManager-schedule-address-bytes-uint48-]]
+==== `[.contract-item-name]#++schedule++#++(address target, bytes data, uint48 when) → bytes32 operationId, uint32 nonce++` [.item-kind]#public#
+
+Schedule a delayed operation for future execution, and return the operation identifier. It is possible to
+choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
+required for the caller. The special value zero will automatically set the earliest possible time.
+
+Returns the `operationId` that was scheduled. Since this value is a hash of the parameters, it can reoccur when
+the same parameters are used; if this is relevant, the returned `nonce` can be used to uniquely identify this
+scheduled operation from other occurrences of the same `operationId` in invocations of {execute} and {cancel}.
+
+Emits a {OperationScheduled} event.
+
+NOTE: It is not possible to concurrently schedule more than one operation with the same `target` and `data`. If
+this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
+contract if it is using standard Solidity ABI encoding.
+
+[.contract-item]
+[[AccessManager-execute-address-bytes-]]
+==== `[.contract-item-name]#++execute++#++(address target, bytes data) → uint32++` [.item-kind]#public#
+
+Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
+execution delay is 0.
+
+Returns the nonce that identifies the previously scheduled operation that is executed, or 0 if the
+operation wasn't previously scheduled (if the caller doesn't have an execution delay).
+
+Emits an {OperationExecuted} event only if the call was scheduled and delayed.
+
+[.contract-item]
+[[AccessManager-consumeScheduledOp-address-bytes-]]
+==== `[.contract-item-name]#++consumeScheduledOp++#++(address caller, bytes data)++` [.item-kind]#public#
+
+Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
+(emit an {OperationExecuted} event and clean the state). Otherwise, throw an error.
+
+This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
+with all the verifications that it implies.
+
+Emit a {OperationExecuted} event
+
+[.contract-item]
+[[AccessManager-_consumeScheduledOp-bytes32-]]
+==== `[.contract-item-name]#++_consumeScheduledOp++#++(bytes32 operationId) → uint32++` [.item-kind]#internal#
+
+Internal variant of {consumeScheduledOp} that operates on bytes32 operationId.
+
+Returns the nonce of the scheduled operation that is consumed.
+
+[.contract-item]
+[[AccessManager-cancel-address-address-bytes-]]
+==== `[.contract-item-name]#++cancel++#++(address caller, address target, bytes data) → uint32++` [.item-kind]#public#
+
+Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
+operation that is cancelled.
+
+Requirements:
+
+- the caller must be the proposer, a guardian of the targeted function, or a global admin
+
+Emits a {OperationCanceled} event.
+
+[.contract-item]
+[[AccessManager-hashOperation-address-address-bytes-]]
+==== `[.contract-item-name]#++hashOperation++#++(address caller, address target, bytes data) → bytes32++` [.item-kind]#public#
+
+Hashing function for delayed operations
+
+[.contract-item]
+[[AccessManager-updateAuthority-address-address-]]
+==== `[.contract-item-name]#++updateAuthority++#++(address target, address newAuthority)++` [.item-kind]#public#
+
+Change the AccessManager instance used by a contract that correctly uses this instance.
+
+Requirements:
+
+- the caller must be a global admin
+
+:constructor: pass:normal[xref:#AccessManaged-constructor-address-[`++constructor++`]]
+:restricted: pass:normal[xref:#AccessManaged-restricted--[`++restricted++`]]
+:authority: pass:normal[xref:#AccessManaged-authority--[`++authority++`]]
+:setAuthority: pass:normal[xref:#AccessManaged-setAuthority-address-[`++setAuthority++`]]
+:isConsumingScheduledOp: pass:normal[xref:#AccessManaged-isConsumingScheduledOp--[`++isConsumingScheduledOp++`]]
+:_setAuthority: pass:normal[xref:#AccessManaged-_setAuthority-address-[`++_setAuthority++`]]
+:_checkCanCall: pass:normal[xref:#AccessManaged-_checkCanCall-address-bytes-[`++_checkCanCall++`]]
+
+[.contract]
+[[AccessManaged]]
+=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/AccessManaged.sol";
+```
+
+This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
+permissioned according to an "authority": a contract like {AccessManager} that follows the {IAuthority} interface,
+implementing a policy that allows certain callers to access certain functions.
+
+IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
+functions, and ideally only used in `external` functions. See {restricted}.
+
+[.contract-index]
+.Modifiers
+--
+* {xref-AccessManaged-restricted--}[`++restricted()++`]
+--
+
+[.contract-index]
+.Functions
+--
+* {xref-AccessManaged-constructor-address-}[`++constructor(initialAuthority)++`]
+* {xref-AccessManaged-authority--}[`++authority()++`]
+* {xref-AccessManaged-setAuthority-address-}[`++setAuthority(newAuthority)++`]
+* {xref-AccessManaged-isConsumingScheduledOp--}[`++isConsumingScheduledOp()++`]
+* {xref-AccessManaged-_setAuthority-address-}[`++_setAuthority(newAuthority)++`]
+* {xref-AccessManaged-_checkCanCall-address-bytes-}[`++_checkCanCall(caller, data)++`]
+
+[.contract-subindex-inherited]
+.IAccessManaged
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IAccessManaged
+* {xref-IAccessManaged-AuthorityUpdated-address-}[`++AuthorityUpdated(authority)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IAccessManaged
+* {xref-IAccessManaged-AccessManagedUnauthorized-address-}[`++AccessManagedUnauthorized(caller)++`]
+* {xref-IAccessManaged-AccessManagedRequiredDelay-address-uint32-}[`++AccessManagedRequiredDelay(caller, delay)++`]
+* {xref-IAccessManaged-AccessManagedInvalidAuthority-address-}[`++AccessManagedInvalidAuthority(authority)++`]
+
+--
+
+[.contract-item]
+[[AccessManaged-restricted--]]
+==== `[.contract-item-name]#++restricted++#++()++` [.item-kind]#modifier#
+
+Restricts access to a function as defined by the connected Authority for this contract and the
+caller and selector of the function that entered the contract.
+
+[IMPORTANT]
+====
+In general, this modifier should only be used on `external` functions. It is okay to use it on `public`
+functions that are used as external entry points and are not called internally. Unless you know what you're
+doing, it should never be used on `internal` functions. Failure to follow these rules can have critical security
+implications! This is because the permissions are determined by the function that entered the contract, i.e. the
+function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
+====
+
+[NOTE]
+====
+Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
+
+* If the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`] function
+is restricted, any other function with a `0x00000000` selector will share permissions with `receive()`.
+* Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with
+empty `calldata`, sharing the `0x00000000` selector permissions as well.
+* For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove
+the restricted function and replace it with a new method whose selector replaces the last one, keeping the
+previous permissions.
+====
+
+[.contract-item]
+[[AccessManaged-constructor-address-]]
+==== `[.contract-item-name]#++constructor++#++(address initialAuthority)++` [.item-kind]#internal#
+
+Initializes the contract connected to an initial authority.
+
+[.contract-item]
+[[AccessManaged-authority--]]
+==== `[.contract-item-name]#++authority++#++() → address++` [.item-kind]#public#
+
+Returns the current authority.
+
+[.contract-item]
+[[AccessManaged-setAuthority-address-]]
+==== `[.contract-item-name]#++setAuthority++#++(address newAuthority)++` [.item-kind]#public#
+
+Transfers control to a new authority. The caller must be the current authority.
+
+[.contract-item]
+[[AccessManaged-isConsumingScheduledOp--]]
+==== `[.contract-item-name]#++isConsumingScheduledOp++#++() → bytes4++` [.item-kind]#public#
+
+Returns true only in the context of a delayed restricted call, at the moment that the scheduled operation is
+being consumed. Prevents denial of service for delayed restricted calls in the case that the contract performs
+attacker controlled calls.
+
+[.contract-item]
+[[AccessManaged-_setAuthority-address-]]
+==== `[.contract-item-name]#++_setAuthority++#++(address newAuthority)++` [.item-kind]#internal#
+
+Transfers control to a new authority. Internal function with no access restriction. Allows bypassing the
+permissions set by the current authority.
+
+[.contract-item]
+[[AccessManaged-_checkCanCall-address-bytes-]]
+==== `[.contract-item-name]#++_checkCanCall++#++(address caller, bytes data)++` [.item-kind]#internal#
+
+Reverts if the caller is not allowed to call the function identified by a selector.
+

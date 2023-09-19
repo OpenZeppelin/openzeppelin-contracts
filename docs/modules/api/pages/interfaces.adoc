@@ -1,0 +1,1410 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:IERC20: pass:normal[xref:token/ERC20.adoc#IERC20[`IERC20`]]
+:IERC20Errors: pass:normal[xref:interfaces.adoc#IERC20Errors[`IERC20Errors`]]
+:IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
+:IERC165: pass:normal[xref:utils.adoc#IERC165[`IERC165`]]
+:IERC721: pass:normal[xref:token/ERC721.adoc#IERC721[`IERC721`]]
+:IERC721Receiver: pass:normal[xref:token/ERC721.adoc#IERC721Receiver[`IERC721Receiver`]]
+:IERC721Enumerable: pass:normal[xref:token/ERC721.adoc#IERC721Enumerable[`IERC721Enumerable`]]
+:IERC721Metadata: pass:normal[xref:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`]]
+:IERC721Errors: pass:normal[xref:interfaces.adoc#IERC721Errors[`IERC721Errors`]]
+:IERC777: pass:normal[xref:interfaces.adoc#IERC777[`IERC777`]]
+:IERC777Recipient: pass:normal[xref:interfaces.adoc#IERC777Recipient[`IERC777Recipient`]]
+:IERC777Sender: pass:normal[xref:interfaces.adoc#IERC777Sender[`IERC777Sender`]]
+:IERC1155: pass:normal[xref:token/ERC1155.adoc#IERC1155[`IERC1155`]]
+:IERC1155Receiver: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver[`IERC1155Receiver`]]
+:IERC1155MetadataURI: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI[`IERC1155MetadataURI`]]
+:IERC1155Errors: pass:normal[xref:interfaces.adoc#IERC1155Errors[`IERC1155Errors`]]
+:IERC1271: pass:normal[xref:interfaces.adoc#IERC1271[`IERC1271`]]
+:IERC1363: pass:normal[xref:interfaces.adoc#IERC1363[`IERC1363`]]
+:IERC1363Receiver: pass:normal[xref:interfaces.adoc#IERC1363Receiver[`IERC1363Receiver`]]
+:IERC1363Spender: pass:normal[xref:interfaces.adoc#IERC1363Spender[`IERC1363Spender`]]
+:IERC1820Implementer: pass:normal[xref:interfaces.adoc#IERC1820Implementer[`IERC1820Implementer`]]
+:IERC1820Registry: pass:normal[xref:interfaces.adoc#IERC1820Registry[`IERC1820Registry`]]
+:IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
+:IERC2612: pass:normal[xref:interfaces.adoc#IERC2612[`IERC2612`]]
+:IERC2981: pass:normal[xref:interfaces.adoc#IERC2981[`IERC2981`]]
+:IERC3156FlashLender: pass:normal[xref:interfaces.adoc#IERC3156FlashLender[`IERC3156FlashLender`]]
+:IERC3156FlashBorrower: pass:normal[xref:interfaces.adoc#IERC3156FlashBorrower[`IERC3156FlashBorrower`]]
+:IERC4626: pass:normal[xref:interfaces.adoc#IERC4626[`IERC4626`]]
+:IERC4906: pass:normal[xref:interfaces.adoc#IERC4906[`IERC4906`]]
+:IERC5267: pass:normal[xref:interfaces.adoc#IERC5267[`IERC5267`]]
+:IERC5313: pass:normal[xref:interfaces.adoc#IERC5313[`IERC5313`]]
+:IERC5805: pass:normal[xref:interfaces.adoc#IERC5805[`IERC5805`]]
+:IERC6372: pass:normal[xref:interfaces.adoc#IERC6372[`IERC6372`]]
+:xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidSender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSender-address-
+:xref-IERC20Errors-ERC20InvalidReceiver-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidReceiver-address-
+:xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
+:xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:xref-IERC721Errors-ERC721InvalidOwner-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOwner-address-
+:xref-IERC721Errors-ERC721NonexistentToken-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721NonexistentToken-uint256-
+:xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-: xref:interfaces.adoc#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-
+:xref-IERC721Errors-ERC721InvalidSender-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidSender-address-
+:xref-IERC721Errors-ERC721InvalidReceiver-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidReceiver-address-
+:xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-: xref:interfaces.adoc#IERC721Errors-ERC721InsufficientApproval-address-uint256-
+:xref-IERC721Errors-ERC721InvalidApprover-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidApprover-address-
+:xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
+:xref-IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-: xref:interfaces.adoc#IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-
+:xref-IERC1155Errors-ERC1155InvalidSender-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidSender-address-
+:xref-IERC1155Errors-ERC1155InvalidReceiver-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidReceiver-address-
+:xref-IERC1155Errors-ERC1155MissingApprovalForAll-address-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155MissingApprovalForAll-address-address-
+:xref-IERC1155Errors-ERC1155InvalidApprover-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidApprover-address-
+:xref-IERC1155Errors-ERC1155InvalidOperator-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidOperator-address-
+:xref-IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-
+:xref-IERC1271-isValidSignature-bytes32-bytes-: xref:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-
+:xref-IERC1363-transferAndCall-address-uint256-: xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-
+:xref-IERC1363-transferAndCall-address-uint256-bytes-: xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-bytes-
+:xref-IERC1363-transferFromAndCall-address-address-uint256-: xref:interfaces.adoc#IERC1363-transferFromAndCall-address-address-uint256-
+:xref-IERC1363-transferFromAndCall-address-address-uint256-bytes-: xref:interfaces.adoc#IERC1363-transferFromAndCall-address-address-uint256-bytes-
+:xref-IERC1363-approveAndCall-address-uint256-: xref:interfaces.adoc#IERC1363-approveAndCall-address-uint256-
+:xref-IERC1363-approveAndCall-address-uint256-bytes-: xref:interfaces.adoc#IERC1363-approveAndCall-address-uint256-bytes-
+:xref-IERC20-totalSupply--: xref:token/ERC20.adoc#IERC20-totalSupply--
+:xref-IERC20-balanceOf-address-: xref:token/ERC20.adoc#IERC20-balanceOf-address-
+:xref-IERC20-transfer-address-uint256-: xref:token/ERC20.adoc#IERC20-transfer-address-uint256-
+:xref-IERC20-allowance-address-address-: xref:token/ERC20.adoc#IERC20-allowance-address-address-
+:xref-IERC20-approve-address-uint256-: xref:token/ERC20.adoc#IERC20-approve-address-uint256-
+:xref-IERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-
+:xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:IERC1363-transferAndCall: pass:normal[xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-bytes-[`IERC1363.transferAndCall`]]
+:IERC1363-transferFromAndCall: pass:normal[xref:interfaces.adoc#IERC1363-transferFromAndCall-address-address-uint256-bytes-[`IERC1363.transferFromAndCall`]]
+:xref-IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-: xref:interfaces.adoc#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-
+:IERC1363-approveAndCall: pass:normal[xref:interfaces.adoc#IERC1363-approveAndCall-address-uint256-bytes-[`IERC1363.approveAndCall`]]
+:xref-IERC1363Spender-onApprovalReceived-address-uint256-bytes-: xref:interfaces.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-
+:IERC1820Registry: pass:normal[xref:interfaces.adoc#IERC1820Registry[`IERC1820Registry`]]
+:xref-IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-: xref:interfaces.adoc#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-
+:IERC1820Registry-setInterfaceImplementer: pass:normal[xref:interfaces.adoc#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-[`IERC1820Registry.setInterfaceImplementer`]]
+:IERC165: pass:normal[xref:utils.adoc#IERC165[`IERC165`]]
+:xref-IERC1820Registry-setManager-address-address-: xref:interfaces.adoc#IERC1820Registry-setManager-address-address-
+:xref-IERC1820Registry-getManager-address-: xref:interfaces.adoc#IERC1820Registry-getManager-address-
+:xref-IERC1820Registry-setInterfaceImplementer-address-bytes32-address-: xref:interfaces.adoc#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-
+:xref-IERC1820Registry-getInterfaceImplementer-address-bytes32-: xref:interfaces.adoc#IERC1820Registry-getInterfaceImplementer-address-bytes32-
+:xref-IERC1820Registry-interfaceHash-string-: xref:interfaces.adoc#IERC1820Registry-interfaceHash-string-
+:xref-IERC1820Registry-updateERC165Cache-address-bytes4-: xref:interfaces.adoc#IERC1820Registry-updateERC165Cache-address-bytes4-
+:xref-IERC1820Registry-implementsERC165Interface-address-bytes4-: xref:interfaces.adoc#IERC1820Registry-implementsERC165Interface-address-bytes4-
+:xref-IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-: xref:interfaces.adoc#IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-
+:xref-IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-: xref:interfaces.adoc#IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-
+:xref-IERC1820Registry-ManagerChanged-address-address-: xref:interfaces.adoc#IERC1820Registry-ManagerChanged-address-address-
+:IERC165: pass:normal[xref:utils.adoc#IERC165[`IERC165`]]
+:IERC1820Implementer: pass:normal[xref:interfaces.adoc#IERC1820Implementer[`IERC1820Implementer`]]
+:IERC1820Implementer-canImplementInterfaceForAddress: pass:normal[xref:interfaces.adoc#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-[`IERC1820Implementer.canImplementInterfaceForAddress`]]
+:IERC165: pass:normal[xref:utils.adoc#IERC165[`IERC165`]]
+:xref-IERC1822Proxiable-proxiableUUID--: xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--
+:xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-IERC20Permit-nonces-address-: xref:token/ERC20.adoc#IERC20Permit-nonces-address-
+:xref-IERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--
+:xref-IERC2981-royaltyInfo-uint256-uint256-: xref:interfaces.adoc#IERC2981-royaltyInfo-uint256-uint256-
+:xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
+:xref-IERC3156FlashLender-maxFlashLoan-address-: xref:interfaces.adoc#IERC3156FlashLender-maxFlashLoan-address-
+:xref-IERC3156FlashLender-flashFee-address-uint256-: xref:interfaces.adoc#IERC3156FlashLender-flashFee-address-uint256-
+:xref-IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
+:xref-IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-: xref:interfaces.adoc#IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-
+:xref-IERC4626-asset--: xref:interfaces.adoc#IERC4626-asset--
+:xref-IERC4626-totalAssets--: xref:interfaces.adoc#IERC4626-totalAssets--
+:xref-IERC4626-convertToShares-uint256-: xref:interfaces.adoc#IERC4626-convertToShares-uint256-
+:xref-IERC4626-convertToAssets-uint256-: xref:interfaces.adoc#IERC4626-convertToAssets-uint256-
+:xref-IERC4626-maxDeposit-address-: xref:interfaces.adoc#IERC4626-maxDeposit-address-
+:xref-IERC4626-previewDeposit-uint256-: xref:interfaces.adoc#IERC4626-previewDeposit-uint256-
+:xref-IERC4626-deposit-uint256-address-: xref:interfaces.adoc#IERC4626-deposit-uint256-address-
+:xref-IERC4626-maxMint-address-: xref:interfaces.adoc#IERC4626-maxMint-address-
+:xref-IERC4626-previewMint-uint256-: xref:interfaces.adoc#IERC4626-previewMint-uint256-
+:xref-IERC4626-mint-uint256-address-: xref:interfaces.adoc#IERC4626-mint-uint256-address-
+:xref-IERC4626-maxWithdraw-address-: xref:interfaces.adoc#IERC4626-maxWithdraw-address-
+:xref-IERC4626-previewWithdraw-uint256-: xref:interfaces.adoc#IERC4626-previewWithdraw-uint256-
+:xref-IERC4626-withdraw-uint256-address-address-: xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-
+:xref-IERC4626-maxRedeem-address-: xref:interfaces.adoc#IERC4626-maxRedeem-address-
+:xref-IERC4626-previewRedeem-uint256-: xref:interfaces.adoc#IERC4626-previewRedeem-uint256-
+:xref-IERC4626-redeem-uint256-address-address-: xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-
+:xref-IERC20Metadata-name--: xref:token/ERC20.adoc#IERC20Metadata-name--
+:xref-IERC20Metadata-symbol--: xref:token/ERC20.adoc#IERC20Metadata-symbol--
+:xref-IERC20Metadata-decimals--: xref:token/ERC20.adoc#IERC20Metadata-decimals--
+:xref-IERC20-totalSupply--: xref:token/ERC20.adoc#IERC20-totalSupply--
+:xref-IERC20-balanceOf-address-: xref:token/ERC20.adoc#IERC20-balanceOf-address-
+:xref-IERC20-transfer-address-uint256-: xref:token/ERC20.adoc#IERC20-transfer-address-uint256-
+:xref-IERC20-allowance-address-address-: xref:token/ERC20.adoc#IERC20-allowance-address-address-
+:xref-IERC20-approve-address-uint256-: xref:token/ERC20.adoc#IERC20-approve-address-uint256-
+:xref-IERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-
+:xref-IERC4626-Deposit-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Deposit-address-address-uint256-uint256-
+:xref-IERC4626-Withdraw-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-IERC5313-owner--: xref:interfaces.adoc#IERC5313-owner--
+:xref-IERC5267-eip712Domain--: xref:interfaces.adoc#IERC5267-eip712Domain--
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IVotes-getVotes-address-: xref:governance.adoc#IVotes-getVotes-address-
+:xref-IVotes-getPastVotes-address-uint256-: xref:governance.adoc#IVotes-getPastVotes-address-uint256-
+:xref-IVotes-getPastTotalSupply-uint256-: xref:governance.adoc#IVotes-getPastTotalSupply-uint256-
+:xref-IVotes-delegates-address-: xref:governance.adoc#IVotes-delegates-address-
+:xref-IVotes-delegate-address-: xref:governance.adoc#IVotes-delegate-address-
+:xref-IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-IERC6372-clock--: xref:interfaces.adoc#IERC6372-clock--
+:xref-IERC6372-CLOCK_MODE--: xref:interfaces.adoc#IERC6372-CLOCK_MODE--
+:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
+:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IVotes-VotesExpiredSignature-uint256-: xref:governance.adoc#IVotes-VotesExpiredSignature-uint256-
+:xref-IERC6372-clock--: xref:interfaces.adoc#IERC6372-clock--
+:xref-IERC6372-CLOCK_MODE--: xref:interfaces.adoc#IERC6372-CLOCK_MODE--
+= Interfaces
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/interfaces
+
+== List of standardized interfaces
+These interfaces are available as `.sol` files, and also as compiler `.json` ABI files (through the npm package). These
+are useful to interact with third party contracts that implement them.
+
+- {IERC20}
+- {IERC20Errors}
+- {IERC20Metadata}
+- {IERC165}
+- {IERC721}
+- {IERC721Receiver}
+- {IERC721Enumerable}
+- {IERC721Metadata}
+- {IERC721Errors}
+- {IERC777}
+- {IERC777Recipient}
+- {IERC777Sender}
+- {IERC1155}
+- {IERC1155Receiver}
+- {IERC1155MetadataURI}
+- {IERC1155Errors}
+- {IERC1271}
+- {IERC1363}
+- {IERC1363Receiver}
+- {IERC1363Spender}
+- {IERC1820Implementer}
+- {IERC1820Registry}
+- {IERC1822Proxiable}
+- {IERC2612}
+- {IERC2981}
+- {IERC3156FlashLender}
+- {IERC3156FlashBorrower}
+- {IERC4626}
+- {IERC4906}
+- {IERC5267}
+- {IERC5313}
+- {IERC5805}
+- {IERC6372}
+
+== Detailed ABI
+
+:ERC20InsufficientBalance: pass:normal[xref:#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-[`++ERC20InsufficientBalance++`]]
+:ERC20InvalidSender: pass:normal[xref:#IERC20Errors-ERC20InvalidSender-address-[`++ERC20InvalidSender++`]]
+:ERC20InvalidReceiver: pass:normal[xref:#IERC20Errors-ERC20InvalidReceiver-address-[`++ERC20InvalidReceiver++`]]
+:ERC20InsufficientAllowance: pass:normal[xref:#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-[`++ERC20InsufficientAllowance++`]]
+:ERC20InvalidApprover: pass:normal[xref:#IERC20Errors-ERC20InvalidApprover-address-[`++ERC20InvalidApprover++`]]
+:ERC20InvalidSpender: pass:normal[xref:#IERC20Errors-ERC20InvalidSpender-address-[`++ERC20InvalidSpender++`]]
+
+[.contract]
+[[IERC20Errors]]
+=== `++IERC20Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+```
+
+Standard ERC20 Errors
+Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
+
+[.contract-index]
+.Errors
+--
+* {xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-}[`++ERC20InsufficientBalance(sender, balance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidSender-address-}[`++ERC20InvalidSender(sender)++`]
+* {xref-IERC20Errors-ERC20InvalidReceiver-address-}[`++ERC20InvalidReceiver(receiver)++`]
+* {xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-}[`++ERC20InsufficientAllowance(spender, allowance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidApprover-address-}[`++ERC20InvalidApprover(approver)++`]
+* {xref-IERC20Errors-ERC20InvalidSpender-address-}[`++ERC20InvalidSpender(spender)++`]
+
+--
+
+[.contract-item]
+[[IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC20InsufficientBalance++#++(address sender, uint256 balance, uint256 needed)++` [.item-kind]#error#
+
+Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+
+[.contract-item]
+[[IERC20Errors-ERC20InvalidSender-address-]]
+==== `[.contract-item-name]#++ERC20InvalidSender++#++(address sender)++` [.item-kind]#error#
+
+Indicates a failure with the token `sender`. Used in transfers.
+
+[.contract-item]
+[[IERC20Errors-ERC20InvalidReceiver-address-]]
+==== `[.contract-item-name]#++ERC20InvalidReceiver++#++(address receiver)++` [.item-kind]#error#
+
+Indicates a failure with the token `receiver`. Used in transfers.
+
+[.contract-item]
+[[IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC20InsufficientAllowance++#++(address spender, uint256 allowance, uint256 needed)++` [.item-kind]#error#
+
+Indicates a failure with the `spender`’s `allowance`. Used in transfers.
+
+[.contract-item]
+[[IERC20Errors-ERC20InvalidApprover-address-]]
+==== `[.contract-item-name]#++ERC20InvalidApprover++#++(address approver)++` [.item-kind]#error#
+
+Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+
+[.contract-item]
+[[IERC20Errors-ERC20InvalidSpender-address-]]
+==== `[.contract-item-name]#++ERC20InvalidSpender++#++(address spender)++` [.item-kind]#error#
+
+Indicates a failure with the `spender` to be approved. Used in approvals.
+
+:ERC721InvalidOwner: pass:normal[xref:#IERC721Errors-ERC721InvalidOwner-address-[`++ERC721InvalidOwner++`]]
+:ERC721NonexistentToken: pass:normal[xref:#IERC721Errors-ERC721NonexistentToken-uint256-[`++ERC721NonexistentToken++`]]
+:ERC721IncorrectOwner: pass:normal[xref:#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-[`++ERC721IncorrectOwner++`]]
+:ERC721InvalidSender: pass:normal[xref:#IERC721Errors-ERC721InvalidSender-address-[`++ERC721InvalidSender++`]]
+:ERC721InvalidReceiver: pass:normal[xref:#IERC721Errors-ERC721InvalidReceiver-address-[`++ERC721InvalidReceiver++`]]
+:ERC721InsufficientApproval: pass:normal[xref:#IERC721Errors-ERC721InsufficientApproval-address-uint256-[`++ERC721InsufficientApproval++`]]
+:ERC721InvalidApprover: pass:normal[xref:#IERC721Errors-ERC721InvalidApprover-address-[`++ERC721InvalidApprover++`]]
+:ERC721InvalidOperator: pass:normal[xref:#IERC721Errors-ERC721InvalidOperator-address-[`++ERC721InvalidOperator++`]]
+
+[.contract]
+[[IERC721Errors]]
+=== `++IERC721Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+```
+
+Standard ERC721 Errors
+Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
+
+[.contract-index]
+.Errors
+--
+* {xref-IERC721Errors-ERC721InvalidOwner-address-}[`++ERC721InvalidOwner(owner)++`]
+* {xref-IERC721Errors-ERC721NonexistentToken-uint256-}[`++ERC721NonexistentToken(tokenId)++`]
+* {xref-IERC721Errors-ERC721IncorrectOwner-address-uint256-address-}[`++ERC721IncorrectOwner(sender, tokenId, owner)++`]
+* {xref-IERC721Errors-ERC721InvalidSender-address-}[`++ERC721InvalidSender(sender)++`]
+* {xref-IERC721Errors-ERC721InvalidReceiver-address-}[`++ERC721InvalidReceiver(receiver)++`]
+* {xref-IERC721Errors-ERC721InsufficientApproval-address-uint256-}[`++ERC721InsufficientApproval(operator, tokenId)++`]
+* {xref-IERC721Errors-ERC721InvalidApprover-address-}[`++ERC721InvalidApprover(approver)++`]
+* {xref-IERC721Errors-ERC721InvalidOperator-address-}[`++ERC721InvalidOperator(operator)++`]
+
+--
+
+[.contract-item]
+[[IERC721Errors-ERC721InvalidOwner-address-]]
+==== `[.contract-item-name]#++ERC721InvalidOwner++#++(address owner)++` [.item-kind]#error#
+
+Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in EIP-20.
+Used in balance queries.
+
+[.contract-item]
+[[IERC721Errors-ERC721NonexistentToken-uint256-]]
+==== `[.contract-item-name]#++ERC721NonexistentToken++#++(uint256 tokenId)++` [.item-kind]#error#
+
+Indicates a `tokenId` whose `owner` is the zero address.
+
+[.contract-item]
+[[IERC721Errors-ERC721IncorrectOwner-address-uint256-address-]]
+==== `[.contract-item-name]#++ERC721IncorrectOwner++#++(address sender, uint256 tokenId, address owner)++` [.item-kind]#error#
+
+Indicates an error related to the ownership over a particular token. Used in transfers.
+
+[.contract-item]
+[[IERC721Errors-ERC721InvalidSender-address-]]
+==== `[.contract-item-name]#++ERC721InvalidSender++#++(address sender)++` [.item-kind]#error#
+
+Indicates a failure with the token `sender`. Used in transfers.
+
+[.contract-item]
+[[IERC721Errors-ERC721InvalidReceiver-address-]]
+==== `[.contract-item-name]#++ERC721InvalidReceiver++#++(address receiver)++` [.item-kind]#error#
+
+Indicates a failure with the token `receiver`. Used in transfers.
+
+[.contract-item]
+[[IERC721Errors-ERC721InsufficientApproval-address-uint256-]]
+==== `[.contract-item-name]#++ERC721InsufficientApproval++#++(address operator, uint256 tokenId)++` [.item-kind]#error#
+
+Indicates a failure with the `operator`’s approval. Used in transfers.
+
+[.contract-item]
+[[IERC721Errors-ERC721InvalidApprover-address-]]
+==== `[.contract-item-name]#++ERC721InvalidApprover++#++(address approver)++` [.item-kind]#error#
+
+Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+
+[.contract-item]
+[[IERC721Errors-ERC721InvalidOperator-address-]]
+==== `[.contract-item-name]#++ERC721InvalidOperator++#++(address operator)++` [.item-kind]#error#
+
+Indicates a failure with the `operator` to be approved. Used in approvals.
+
+:ERC1155InsufficientBalance: pass:normal[xref:#IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-[`++ERC1155InsufficientBalance++`]]
+:ERC1155InvalidSender: pass:normal[xref:#IERC1155Errors-ERC1155InvalidSender-address-[`++ERC1155InvalidSender++`]]
+:ERC1155InvalidReceiver: pass:normal[xref:#IERC1155Errors-ERC1155InvalidReceiver-address-[`++ERC1155InvalidReceiver++`]]
+:ERC1155MissingApprovalForAll: pass:normal[xref:#IERC1155Errors-ERC1155MissingApprovalForAll-address-address-[`++ERC1155MissingApprovalForAll++`]]
+:ERC1155InvalidApprover: pass:normal[xref:#IERC1155Errors-ERC1155InvalidApprover-address-[`++ERC1155InvalidApprover++`]]
+:ERC1155InvalidOperator: pass:normal[xref:#IERC1155Errors-ERC1155InvalidOperator-address-[`++ERC1155InvalidOperator++`]]
+:ERC1155InvalidArrayLength: pass:normal[xref:#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-[`++ERC1155InvalidArrayLength++`]]
+
+[.contract]
+[[IERC1155Errors]]
+=== `++IERC1155Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+```
+
+Standard ERC1155 Errors
+Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
+
+[.contract-index]
+.Errors
+--
+* {xref-IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-}[`++ERC1155InsufficientBalance(sender, balance, needed, tokenId)++`]
+* {xref-IERC1155Errors-ERC1155InvalidSender-address-}[`++ERC1155InvalidSender(sender)++`]
+* {xref-IERC1155Errors-ERC1155InvalidReceiver-address-}[`++ERC1155InvalidReceiver(receiver)++`]
+* {xref-IERC1155Errors-ERC1155MissingApprovalForAll-address-address-}[`++ERC1155MissingApprovalForAll(operator, owner)++`]
+* {xref-IERC1155Errors-ERC1155InvalidApprover-address-}[`++ERC1155InvalidApprover(approver)++`]
+* {xref-IERC1155Errors-ERC1155InvalidOperator-address-}[`++ERC1155InvalidOperator(operator)++`]
+* {xref-IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-}[`++ERC1155InvalidArrayLength(idsLength, valuesLength)++`]
+
+--
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC1155InsufficientBalance++#++(address sender, uint256 balance, uint256 needed, uint256 tokenId)++` [.item-kind]#error#
+
+Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InvalidSender-address-]]
+==== `[.contract-item-name]#++ERC1155InvalidSender++#++(address sender)++` [.item-kind]#error#
+
+Indicates a failure with the token `sender`. Used in transfers.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InvalidReceiver-address-]]
+==== `[.contract-item-name]#++ERC1155InvalidReceiver++#++(address receiver)++` [.item-kind]#error#
+
+Indicates a failure with the token `receiver`. Used in transfers.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155MissingApprovalForAll-address-address-]]
+==== `[.contract-item-name]#++ERC1155MissingApprovalForAll++#++(address operator, address owner)++` [.item-kind]#error#
+
+Indicates a failure with the `operator`’s approval. Used in transfers.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InvalidApprover-address-]]
+==== `[.contract-item-name]#++ERC1155InvalidApprover++#++(address approver)++` [.item-kind]#error#
+
+Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InvalidOperator-address-]]
+==== `[.contract-item-name]#++ERC1155InvalidOperator++#++(address operator)++` [.item-kind]#error#
+
+Indicates a failure with the `operator` to be approved. Used in approvals.
+
+[.contract-item]
+[[IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC1155InvalidArrayLength++#++(uint256 idsLength, uint256 valuesLength)++` [.item-kind]#error#
+
+Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
+Used in batch transfers.
+
+:isValidSignature: pass:normal[xref:#IERC1271-isValidSignature-bytes32-bytes-[`++isValidSignature++`]]
+
+[.contract]
+[[IERC1271]]
+=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1271.sol";
+```
+
+Interface of the ERC1271 standard signature validation method for
+contracts as defined in https://eips.ethereum.org/EIPS/eip-1271[ERC-1271].
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1271-isValidSignature-bytes32-bytes-}[`++isValidSignature(hash, signature)++`]
+
+--
+
+[.contract-item]
+[[IERC1271-isValidSignature-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignature++#++(bytes32 hash, bytes signature) → bytes4 magicValue++` [.item-kind]#external#
+
+Should return whether the signature provided is valid for the provided data
+
+:transferAndCall: pass:normal[xref:#IERC1363-transferAndCall-address-uint256-[`++transferAndCall++`]]
+:transferAndCall: pass:normal[xref:#IERC1363-transferAndCall-address-uint256-bytes-[`++transferAndCall++`]]
+:transferFromAndCall: pass:normal[xref:#IERC1363-transferFromAndCall-address-address-uint256-[`++transferFromAndCall++`]]
+:transferFromAndCall: pass:normal[xref:#IERC1363-transferFromAndCall-address-address-uint256-bytes-[`++transferFromAndCall++`]]
+:approveAndCall: pass:normal[xref:#IERC1363-approveAndCall-address-uint256-[`++approveAndCall++`]]
+:approveAndCall: pass:normal[xref:#IERC1363-approveAndCall-address-uint256-bytes-[`++approveAndCall++`]]
+
+[.contract]
+[[IERC1363]]
+=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1363.sol";
+```
+
+Interface of an ERC1363 compliant contract, as defined in the
+https://eips.ethereum.org/EIPS/eip-1363[EIP].
+
+Defines a interface for ERC20 tokens that supports executing recipient
+code after `transfer` or `transferFrom`, or spender code after `approve`.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1363-transferAndCall-address-uint256-}[`++transferAndCall(to, amount)++`]
+* {xref-IERC1363-transferAndCall-address-uint256-bytes-}[`++transferAndCall(to, amount, data)++`]
+* {xref-IERC1363-transferFromAndCall-address-address-uint256-}[`++transferFromAndCall(from, to, amount)++`]
+* {xref-IERC1363-transferFromAndCall-address-address-uint256-bytes-}[`++transferFromAndCall(from, to, amount, data)++`]
+* {xref-IERC1363-approveAndCall-address-uint256-}[`++approveAndCall(spender, amount)++`]
+* {xref-IERC1363-approveAndCall-address-uint256-bytes-}[`++approveAndCall(spender, amount, data)++`]
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-IERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-IERC20-transfer-address-uint256-}[`++transfer(to, value)++`]
+* {xref-IERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-IERC20-approve-address-uint256-}[`++approve(spender, value)++`]
+* {xref-IERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, value)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+* {xref-IERC165-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[IERC1363-transferAndCall-address-uint256-]]
+==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 amount) → bool++` [.item-kind]#external#
+
+Transfer tokens from `msg.sender` to another address and then call `onTransferReceived` on receiver
+
+[.contract-item]
+[[IERC1363-transferAndCall-address-uint256-bytes-]]
+==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 amount, bytes data) → bool++` [.item-kind]#external#
+
+Transfer tokens from `msg.sender` to another address and then call `onTransferReceived` on receiver
+
+[.contract-item]
+[[IERC1363-transferFromAndCall-address-address-uint256-]]
+==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 amount) → bool++` [.item-kind]#external#
+
+Transfer tokens from one address to another and then call `onTransferReceived` on receiver
+
+[.contract-item]
+[[IERC1363-transferFromAndCall-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 amount, bytes data) → bool++` [.item-kind]#external#
+
+Transfer tokens from one address to another and then call `onTransferReceived` on receiver
+
+[.contract-item]
+[[IERC1363-approveAndCall-address-uint256-]]
+==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 amount) → bool++` [.item-kind]#external#
+
+Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
+and then call `onApprovalReceived` on spender.
+
+[.contract-item]
+[[IERC1363-approveAndCall-address-uint256-bytes-]]
+==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 amount, bytes data) → bool++` [.item-kind]#external#
+
+Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
+and then call `onApprovalReceived` on spender.
+
+:onTransferReceived: pass:normal[xref:#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-[`++onTransferReceived++`]]
+
+[.contract]
+[[IERC1363Receiver]]
+=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1363Receiver.sol";
+```
+
+Interface for any contract that wants to support {IERC1363-transferAndCall}
+or {IERC1363-transferFromAndCall} from {ERC1363} token contracts.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-}[`++onTransferReceived(operator, from, amount, data)++`]
+
+--
+
+[.contract-item]
+[[IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onTransferReceived++#++(address operator, address from, uint256 amount, bytes data) → bytes4++` [.item-kind]#external#
+
+Any ERC1363 smart contract calls this function on the recipient
+after a `transfer` or a `transferFrom`. This function MAY throw to revert and reject the
+transfer. Return of other than the magic value MUST result in the
+transaction being reverted.
+Note: the token contract address is always the message sender.
+
+:onApprovalReceived: pass:normal[xref:#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`++onApprovalReceived++`]]
+
+[.contract]
+[[IERC1363Spender]]
+=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1363Spender.sol";
+```
+
+Interface for any contract that wants to support {IERC1363-approveAndCall}
+from {ERC1363} token contracts.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1363Spender-onApprovalReceived-address-uint256-bytes-}[`++onApprovalReceived(owner, amount, data)++`]
+
+--
+
+[.contract-item]
+[[IERC1363Spender-onApprovalReceived-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onApprovalReceived++#++(address owner, uint256 amount, bytes data) → bytes4++` [.item-kind]#external#
+
+Any ERC1363 smart contract calls this function on the recipient
+after an `approve`. This function MAY throw to revert and reject the
+approval. Return of other than the magic value MUST result in the
+transaction being reverted.
+Note: the token contract address is always the message sender.
+
+:canImplementInterfaceForAddress: pass:normal[xref:#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-[`++canImplementInterfaceForAddress++`]]
+
+[.contract]
+[[IERC1820Implementer]]
+=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1820Implementer.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1820Implementer.sol";
+```
+
+Interface for an ERC1820 implementer, as defined in the
+https://eips.ethereum.org/EIPS/eip-1820#interface-implementation-erc1820implementerinterface[EIP].
+Used by contracts that will be registered as implementers in the
+{IERC1820Registry}.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-}[`++canImplementInterfaceForAddress(interfaceHash, account)++`]
+
+--
+
+[.contract-item]
+[[IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-]]
+==== `[.contract-item-name]#++canImplementInterfaceForAddress++#++(bytes32 interfaceHash, address account) → bytes32++` [.item-kind]#external#
+
+Returns a special value (`ERC1820_ACCEPT_MAGIC`) if this contract
+implements `interfaceHash` for `account`.
+
+See {IERC1820Registry-setInterfaceImplementer}.
+
+:InterfaceImplementerSet: pass:normal[xref:#IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-[`++InterfaceImplementerSet++`]]
+:ManagerChanged: pass:normal[xref:#IERC1820Registry-ManagerChanged-address-address-[`++ManagerChanged++`]]
+:setManager: pass:normal[xref:#IERC1820Registry-setManager-address-address-[`++setManager++`]]
+:getManager: pass:normal[xref:#IERC1820Registry-getManager-address-[`++getManager++`]]
+:setInterfaceImplementer: pass:normal[xref:#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-[`++setInterfaceImplementer++`]]
+:getInterfaceImplementer: pass:normal[xref:#IERC1820Registry-getInterfaceImplementer-address-bytes32-[`++getInterfaceImplementer++`]]
+:interfaceHash: pass:normal[xref:#IERC1820Registry-interfaceHash-string-[`++interfaceHash++`]]
+:updateERC165Cache: pass:normal[xref:#IERC1820Registry-updateERC165Cache-address-bytes4-[`++updateERC165Cache++`]]
+:implementsERC165Interface: pass:normal[xref:#IERC1820Registry-implementsERC165Interface-address-bytes4-[`++implementsERC165Interface++`]]
+:implementsERC165InterfaceNoCache: pass:normal[xref:#IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-[`++implementsERC165InterfaceNoCache++`]]
+
+[.contract]
+[[IERC1820Registry]]
+=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC1820Registry.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1820Registry.sol";
+```
+
+Interface of the global ERC1820 Registry, as defined in the
+https://eips.ethereum.org/EIPS/eip-1820[EIP]. Accounts may register
+implementers for interfaces in this registry, as well as query support.
+
+Implementers may be shared by multiple accounts, and can also implement more
+than a single interface for each account. Contracts can implement interfaces
+for themselves, but externally-owned accounts (EOA) must delegate this to a
+contract.
+
+{IERC165} interfaces can also be queried via the registry.
+
+For an in-depth explanation and source code analysis, see the EIP text.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1820Registry-setManager-address-address-}[`++setManager(account, newManager)++`]
+* {xref-IERC1820Registry-getManager-address-}[`++getManager(account)++`]
+* {xref-IERC1820Registry-setInterfaceImplementer-address-bytes32-address-}[`++setInterfaceImplementer(account, _interfaceHash, implementer)++`]
+* {xref-IERC1820Registry-getInterfaceImplementer-address-bytes32-}[`++getInterfaceImplementer(account, _interfaceHash)++`]
+* {xref-IERC1820Registry-interfaceHash-string-}[`++interfaceHash(interfaceName)++`]
+* {xref-IERC1820Registry-updateERC165Cache-address-bytes4-}[`++updateERC165Cache(account, interfaceId)++`]
+* {xref-IERC1820Registry-implementsERC165Interface-address-bytes4-}[`++implementsERC165Interface(account, interfaceId)++`]
+* {xref-IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-}[`++implementsERC165InterfaceNoCache(account, interfaceId)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-}[`++InterfaceImplementerSet(account, interfaceHash, implementer)++`]
+* {xref-IERC1820Registry-ManagerChanged-address-address-}[`++ManagerChanged(account, newManager)++`]
+
+--
+
+[.contract-item]
+[[IERC1820Registry-setManager-address-address-]]
+==== `[.contract-item-name]#++setManager++#++(address account, address newManager)++` [.item-kind]#external#
+
+Sets `newManager` as the manager for `account`. A manager of an
+account is able to set interface implementers for it.
+
+By default, each account is its own manager. Passing a value of `0x0` in
+`newManager` will reset the manager to this initial state.
+
+Emits a {ManagerChanged} event.
+
+Requirements:
+
+- the caller must be the current manager for `account`.
+
+[.contract-item]
+[[IERC1820Registry-getManager-address-]]
+==== `[.contract-item-name]#++getManager++#++(address account) → address++` [.item-kind]#external#
+
+Returns the manager for `account`.
+
+See {setManager}.
+
+[.contract-item]
+[[IERC1820Registry-setInterfaceImplementer-address-bytes32-address-]]
+==== `[.contract-item-name]#++setInterfaceImplementer++#++(address account, bytes32 _interfaceHash, address implementer)++` [.item-kind]#external#
+
+Sets the `implementer` contract as ``account``'s implementer for
+`interfaceHash`.
+
+`account` being the zero address is an alias for the caller's address.
+The zero address can also be used in `implementer` to remove an old one.
+
+See {interfaceHash} to learn how these are created.
+
+Emits an {InterfaceImplementerSet} event.
+
+Requirements:
+
+- the caller must be the current manager for `account`.
+- `interfaceHash` must not be an {IERC165} interface id (i.e. it must not
+end in 28 zeroes).
+- `implementer` must implement {IERC1820Implementer} and return true when
+queried for support, unless `implementer` is the caller. See
+{IERC1820Implementer-canImplementInterfaceForAddress}.
+
+[.contract-item]
+[[IERC1820Registry-getInterfaceImplementer-address-bytes32-]]
+==== `[.contract-item-name]#++getInterfaceImplementer++#++(address account, bytes32 _interfaceHash) → address++` [.item-kind]#external#
+
+Returns the implementer of `interfaceHash` for `account`. If no such
+implementer is registered, returns the zero address.
+
+If `interfaceHash` is an {IERC165} interface id (i.e. it ends with 28
+zeroes), `account` will be queried for support of it.
+
+`account` being the zero address is an alias for the caller's address.
+
+[.contract-item]
+[[IERC1820Registry-interfaceHash-string-]]
+==== `[.contract-item-name]#++interfaceHash++#++(string interfaceName) → bytes32++` [.item-kind]#external#
+
+Returns the interface hash for an `interfaceName`, as defined in the
+corresponding
+https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the EIP].
+
+[.contract-item]
+[[IERC1820Registry-updateERC165Cache-address-bytes4-]]
+==== `[.contract-item-name]#++updateERC165Cache++#++(address account, bytes4 interfaceId)++` [.item-kind]#external#
+
+[.contract-item]
+[[IERC1820Registry-implementsERC165Interface-address-bytes4-]]
+==== `[.contract-item-name]#++implementsERC165Interface++#++(address account, bytes4 interfaceId) → bool++` [.item-kind]#external#
+
+[.contract-item]
+[[IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-]]
+==== `[.contract-item-name]#++implementsERC165InterfaceNoCache++#++(address account, bytes4 interfaceId) → bool++` [.item-kind]#external#
+
+[.contract-item]
+[[IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-]]
+==== `[.contract-item-name]#++InterfaceImplementerSet++#++(address indexed account, bytes32 indexed interfaceHash, address indexed implementer)++` [.item-kind]#event#
+
+[.contract-item]
+[[IERC1820Registry-ManagerChanged-address-address-]]
+==== `[.contract-item-name]#++ManagerChanged++#++(address indexed account, address indexed newManager)++` [.item-kind]#event#
+
+:proxiableUUID: pass:normal[xref:#IERC1822Proxiable-proxiableUUID--[`++proxiableUUID++`]]
+
+[.contract]
+[[IERC1822Proxiable]]
+=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";
+```
+
+ERC1822: Universal Upgradeable Proxy Standard (UUPS) documents a method for upgradeability through a simplified
+proxy whose upgrades are fully controlled by the current implementation.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1822Proxiable-proxiableUUID--}[`++proxiableUUID()++`]
+
+--
+
+[.contract-item]
+[[IERC1822Proxiable-proxiableUUID--]]
+==== `[.contract-item-name]#++proxiableUUID++#++() → bytes32++` [.item-kind]#external#
+
+Returns the storage slot that the proxiable contract assumes is being used to store the implementation
+address.
+
+IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
+bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
+function revert if invoked through a proxy.
+
+[.contract]
+[[IERC2612]]
+=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC2612.sol";
+```
+
+[.contract-index]
+.Functions
+--
+
+[.contract-subindex-inherited]
+.IERC20Permit
+* {xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
+* {xref-IERC20Permit-nonces-address-}[`++nonces(owner)++`]
+* {xref-IERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
+
+--
+
+:royaltyInfo: pass:normal[xref:#IERC2981-royaltyInfo-uint256-uint256-[`++royaltyInfo++`]]
+
+[.contract]
+[[IERC2981]]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+```
+
+Interface for the NFT Royalty Standard.
+
+A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+support for royalty payments across all NFT marketplaces and ecosystem participants.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(tokenId, salePrice)++`]
+
+[.contract-subindex-inherited]
+.IERC165
+* {xref-IERC165-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+
+--
+
+[.contract-item]
+[[IERC2981-royaltyInfo-uint256-uint256-]]
+==== `[.contract-item-name]#++royaltyInfo++#++(uint256 tokenId, uint256 salePrice) → address receiver, uint256 royaltyAmount++` [.item-kind]#external#
+
+Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+
+:maxFlashLoan: pass:normal[xref:#IERC3156FlashLender-maxFlashLoan-address-[`++maxFlashLoan++`]]
+:flashFee: pass:normal[xref:#IERC3156FlashLender-flashFee-address-uint256-[`++flashFee++`]]
+:flashLoan: pass:normal[xref:#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`++flashLoan++`]]
+
+[.contract]
+[[IERC3156FlashLender]]
+=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
+```
+
+Interface of the ERC3156 FlashLender, as defined in
+https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC3156FlashLender-maxFlashLoan-address-}[`++maxFlashLoan(token)++`]
+* {xref-IERC3156FlashLender-flashFee-address-uint256-}[`++flashFee(token, amount)++`]
+* {xref-IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-}[`++flashLoan(receiver, token, amount, data)++`]
+
+--
+
+[.contract-item]
+[[IERC3156FlashLender-maxFlashLoan-address-]]
+==== `[.contract-item-name]#++maxFlashLoan++#++(address token) → uint256++` [.item-kind]#external#
+
+The amount of currency available to be lended.
+
+[.contract-item]
+[[IERC3156FlashLender-flashFee-address-uint256-]]
+==== `[.contract-item-name]#++flashFee++#++(address token, uint256 amount) → uint256++` [.item-kind]#external#
+
+The fee to be charged for a given loan.
+
+[.contract-item]
+[[IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-]]
+==== `[.contract-item-name]#++flashLoan++#++(contract IERC3156FlashBorrower receiver, address token, uint256 amount, bytes data) → bool++` [.item-kind]#external#
+
+Initiate a flash loan.
+
+:onFlashLoan: pass:normal[xref:#IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-[`++onFlashLoan++`]]
+
+[.contract]
+[[IERC3156FlashBorrower]]
+=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
+```
+
+Interface of the ERC3156 FlashBorrower, as defined in
+https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-}[`++onFlashLoan(initiator, token, amount, fee, data)++`]
+
+--
+
+[.contract-item]
+[[IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-]]
+==== `[.contract-item-name]#++onFlashLoan++#++(address initiator, address token, uint256 amount, uint256 fee, bytes data) → bytes32++` [.item-kind]#external#
+
+Receive a flash loan.
+
+:Deposit: pass:normal[xref:#IERC4626-Deposit-address-address-uint256-uint256-[`++Deposit++`]]
+:Withdraw: pass:normal[xref:#IERC4626-Withdraw-address-address-address-uint256-uint256-[`++Withdraw++`]]
+:asset: pass:normal[xref:#IERC4626-asset--[`++asset++`]]
+:totalAssets: pass:normal[xref:#IERC4626-totalAssets--[`++totalAssets++`]]
+:convertToShares: pass:normal[xref:#IERC4626-convertToShares-uint256-[`++convertToShares++`]]
+:convertToAssets: pass:normal[xref:#IERC4626-convertToAssets-uint256-[`++convertToAssets++`]]
+:maxDeposit: pass:normal[xref:#IERC4626-maxDeposit-address-[`++maxDeposit++`]]
+:previewDeposit: pass:normal[xref:#IERC4626-previewDeposit-uint256-[`++previewDeposit++`]]
+:deposit: pass:normal[xref:#IERC4626-deposit-uint256-address-[`++deposit++`]]
+:maxMint: pass:normal[xref:#IERC4626-maxMint-address-[`++maxMint++`]]
+:previewMint: pass:normal[xref:#IERC4626-previewMint-uint256-[`++previewMint++`]]
+:mint: pass:normal[xref:#IERC4626-mint-uint256-address-[`++mint++`]]
+:maxWithdraw: pass:normal[xref:#IERC4626-maxWithdraw-address-[`++maxWithdraw++`]]
+:previewWithdraw: pass:normal[xref:#IERC4626-previewWithdraw-uint256-[`++previewWithdraw++`]]
+:withdraw: pass:normal[xref:#IERC4626-withdraw-uint256-address-address-[`++withdraw++`]]
+:maxRedeem: pass:normal[xref:#IERC4626-maxRedeem-address-[`++maxRedeem++`]]
+:previewRedeem: pass:normal[xref:#IERC4626-previewRedeem-uint256-[`++previewRedeem++`]]
+:redeem: pass:normal[xref:#IERC4626-redeem-uint256-address-address-[`++redeem++`]]
+
+[.contract]
+[[IERC4626]]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC4626.sol";
+```
+
+Interface of the ERC4626 "Tokenized Vault Standard", as defined in
+https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC4626-asset--}[`++asset()++`]
+* {xref-IERC4626-totalAssets--}[`++totalAssets()++`]
+* {xref-IERC4626-convertToShares-uint256-}[`++convertToShares(assets)++`]
+* {xref-IERC4626-convertToAssets-uint256-}[`++convertToAssets(shares)++`]
+* {xref-IERC4626-maxDeposit-address-}[`++maxDeposit(receiver)++`]
+* {xref-IERC4626-previewDeposit-uint256-}[`++previewDeposit(assets)++`]
+* {xref-IERC4626-deposit-uint256-address-}[`++deposit(assets, receiver)++`]
+* {xref-IERC4626-maxMint-address-}[`++maxMint(receiver)++`]
+* {xref-IERC4626-previewMint-uint256-}[`++previewMint(shares)++`]
+* {xref-IERC4626-mint-uint256-address-}[`++mint(shares, receiver)++`]
+* {xref-IERC4626-maxWithdraw-address-}[`++maxWithdraw(owner)++`]
+* {xref-IERC4626-previewWithdraw-uint256-}[`++previewWithdraw(assets)++`]
+* {xref-IERC4626-withdraw-uint256-address-address-}[`++withdraw(assets, receiver, owner)++`]
+* {xref-IERC4626-maxRedeem-address-}[`++maxRedeem(owner)++`]
+* {xref-IERC4626-previewRedeem-uint256-}[`++previewRedeem(shares)++`]
+* {xref-IERC4626-redeem-uint256-address-address-}[`++redeem(shares, receiver, owner)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+* {xref-IERC20Metadata-name--}[`++name()++`]
+* {xref-IERC20Metadata-symbol--}[`++symbol()++`]
+* {xref-IERC20Metadata-decimals--}[`++decimals()++`]
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-IERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-IERC20-transfer-address-uint256-}[`++transfer(to, value)++`]
+* {xref-IERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-IERC20-approve-address-uint256-}[`++approve(spender, value)++`]
+* {xref-IERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, value)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC4626-Deposit-address-address-uint256-uint256-}[`++Deposit(sender, owner, assets, shares)++`]
+* {xref-IERC4626-Withdraw-address-address-address-uint256-uint256-}[`++Withdraw(sender, receiver, owner, assets, shares)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-item]
+[[IERC4626-asset--]]
+==== `[.contract-item-name]#++asset++#++() → address assetTokenAddress++` [.item-kind]#external#
+
+Returns the address of the underlying token used for the Vault for accounting, depositing, and withdrawing.
+
+- MUST be an ERC-20 token contract.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-totalAssets--]]
+==== `[.contract-item-name]#++totalAssets++#++() → uint256 totalManagedAssets++` [.item-kind]#external#
+
+Returns the total amount of the underlying asset that is “managed” by Vault.
+
+- SHOULD include any compounding that occurs from yield.
+- MUST be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-convertToShares-uint256-]]
+==== `[.contract-item-name]#++convertToShares++#++(uint256 assets) → uint256 shares++` [.item-kind]#external#
+
+Returns the amount of shares that the Vault would exchange for the amount of assets provided, in an ideal
+scenario where all the conditions are met.
+
+- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT show any variations depending on the caller.
+- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+- MUST NOT revert.
+
+NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
+“average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+from.
+
+[.contract-item]
+[[IERC4626-convertToAssets-uint256-]]
+==== `[.contract-item-name]#++convertToAssets++#++(uint256 shares) → uint256 assets++` [.item-kind]#external#
+
+Returns the amount of assets that the Vault would exchange for the amount of shares provided, in an ideal
+scenario where all the conditions are met.
+
+- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT show any variations depending on the caller.
+- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+- MUST NOT revert.
+
+NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
+“average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+from.
+
+[.contract-item]
+[[IERC4626-maxDeposit-address-]]
+==== `[.contract-item-name]#++maxDeposit++#++(address receiver) → uint256 maxAssets++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be deposited into the Vault for the receiver,
+through a deposit call.
+
+- MUST return a limited value if receiver is subject to some deposit limit.
+- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be deposited.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-previewDeposit-uint256-]]
+==== `[.contract-item-name]#++previewDeposit++#++(uint256 assets) → uint256 shares++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their deposit at the current block, given
+current on-chain conditions.
+
+- MUST return as close to and no more than the exact amount of Vault shares that would be minted in a deposit
+  call in the same transaction. I.e. deposit should return the same or more shares as previewDeposit if called
+  in the same transaction.
+- MUST NOT account for deposit limits like those returned from maxDeposit and should always act as though the
+  deposit would be accepted, regardless if the user has enough tokens approved, etc.
+- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.
+- MUST NOT revert.
+
+NOTE: any unfavorable discrepancy between convertToShares and previewDeposit SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by depositing.
+
+[.contract-item]
+[[IERC4626-deposit-uint256-address-]]
+==== `[.contract-item-name]#++deposit++#++(uint256 assets, address receiver) → uint256 shares++` [.item-kind]#external#
+
+Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.
+
+- MUST emit the Deposit event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+  deposit execution, and are accounted for during deposit.
+- MUST revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not
+  approving enough underlying tokens to the Vault contract, etc).
+
+NOTE: most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+
+[.contract-item]
+[[IERC4626-maxMint-address-]]
+==== `[.contract-item-name]#++maxMint++#++(address receiver) → uint256 maxShares++` [.item-kind]#external#
+
+Returns the maximum amount of the Vault shares that can be minted for the receiver, through a mint call.
+- MUST return a limited value if receiver is subject to some mint limit.
+- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of shares that may be minted.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-previewMint-uint256-]]
+==== `[.contract-item-name]#++previewMint++#++(uint256 shares) → uint256 assets++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their mint at the current block, given
+current on-chain conditions.
+
+- MUST return as close to and no fewer than the exact amount of assets that would be deposited in a mint call
+  in the same transaction. I.e. mint should return the same or fewer assets as previewMint if called in the
+  same transaction.
+- MUST NOT account for mint limits like those returned from maxMint and should always act as though the mint
+  would be accepted, regardless if the user has enough tokens approved, etc.
+- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.
+- MUST NOT revert.
+
+NOTE: any unfavorable discrepancy between convertToAssets and previewMint SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by minting.
+
+[.contract-item]
+[[IERC4626-mint-uint256-address-]]
+==== `[.contract-item-name]#++mint++#++(uint256 shares, address receiver) → uint256 assets++` [.item-kind]#external#
+
+Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
+
+- MUST emit the Deposit event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint
+  execution, and are accounted for during mint.
+- MUST revert if all of shares cannot be minted (due to deposit limit being reached, slippage, the user not
+  approving enough underlying tokens to the Vault contract, etc).
+
+NOTE: most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+
+[.contract-item]
+[[IERC4626-maxWithdraw-address-]]
+==== `[.contract-item-name]#++maxWithdraw++#++(address owner) → uint256 maxAssets++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the
+Vault, through a withdraw call.
+
+- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-previewWithdraw-uint256-]]
+==== `[.contract-item-name]#++previewWithdraw++#++(uint256 assets) → uint256 shares++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the current block,
+given current on-chain conditions.
+
+- MUST return as close to and no fewer than the exact amount of Vault shares that would be burned in a withdraw
+  call in the same transaction. I.e. withdraw should return the same or fewer shares as previewWithdraw if
+  called
+  in the same transaction.
+- MUST NOT account for withdrawal limits like those returned from maxWithdraw and should always act as though
+  the withdrawal would be accepted, regardless if the user has enough shares, etc.
+- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.
+- MUST NOT revert.
+
+NOTE: any unfavorable discrepancy between convertToShares and previewWithdraw SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by depositing.
+
+[.contract-item]
+[[IERC4626-withdraw-uint256-address-address-]]
+==== `[.contract-item-name]#++withdraw++#++(uint256 assets, address receiver, address owner) → uint256 shares++` [.item-kind]#external#
+
+Burns shares from owner and sends exactly assets of underlying tokens to receiver.
+
+- MUST emit the Withdraw event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+  withdraw execution, and are accounted for during withdraw.
+- MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached, slippage, the owner
+  not having enough shares, etc).
+
+Note that some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
+Those methods should be performed separately.
+
+[.contract-item]
+[[IERC4626-maxRedeem-address-]]
+==== `[.contract-item-name]#++maxRedeem++#++(address owner) → uint256 maxShares++` [.item-kind]#external#
+
+Returns the maximum amount of Vault shares that can be redeemed from the owner balance in the Vault,
+through a redeem call.
+
+- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
+- MUST return balanceOf(owner) if owner is not subject to any withdrawal limit or timelock.
+- MUST NOT revert.
+
+[.contract-item]
+[[IERC4626-previewRedeem-uint256-]]
+==== `[.contract-item-name]#++previewRedeem++#++(uint256 shares) → uint256 assets++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,
+given current on-chain conditions.
+
+- MUST return as close to and no more than the exact amount of assets that would be withdrawn in a redeem call
+  in the same transaction. I.e. redeem should return the same or more assets as previewRedeem if called in the
+  same transaction.
+- MUST NOT account for redemption limits like those returned from maxRedeem and should always act as though the
+  redemption would be accepted, regardless if the user has enough shares, etc.
+- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.
+- MUST NOT revert.
+
+NOTE: any unfavorable discrepancy between convertToAssets and previewRedeem SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by redeeming.
+
+[.contract-item]
+[[IERC4626-redeem-uint256-address-address-]]
+==== `[.contract-item-name]#++redeem++#++(uint256 shares, address receiver, address owner) → uint256 assets++` [.item-kind]#external#
+
+Burns exactly shares from owner and sends assets of underlying tokens to receiver.
+
+- MUST emit the Withdraw event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+  redeem execution, and are accounted for during redeem.
+- MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached, slippage, the owner
+  not having enough shares, etc).
+
+NOTE: some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
+Those methods should be performed separately.
+
+[.contract-item]
+[[IERC4626-Deposit-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++Deposit++#++(address indexed sender, address indexed owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
+
+[.contract-item]
+[[IERC4626-Withdraw-address-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++Withdraw++#++(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
+
+:owner: pass:normal[xref:#IERC5313-owner--[`++owner++`]]
+
+[.contract]
+[[IERC5313]]
+=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5313.sol";
+```
+
+Interface for the Light Contract Ownership Standard.
+
+A standardized minimal interface required to identify an account that controls a contract
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC5313-owner--}[`++owner()++`]
+
+--
+
+[.contract-item]
+[[IERC5313-owner--]]
+==== `[.contract-item-name]#++owner++#++() → address++` [.item-kind]#external#
+
+Gets the address of the owner.
+
+:EIP712DomainChanged: pass:normal[xref:#IERC5267-EIP712DomainChanged--[`++EIP712DomainChanged++`]]
+:eip712Domain: pass:normal[xref:#IERC5267-eip712Domain--[`++eip712Domain++`]]
+
+[.contract]
+[[IERC5267]]
+=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5267.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC5267-eip712Domain--}[`++eip712Domain()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+--
+
+[.contract-item]
+[[IERC5267-eip712Domain--]]
+==== `[.contract-item-name]#++eip712Domain++#++() → bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions++` [.item-kind]#external#
+
+returns the fields and values that describe the domain separator used by this contract for EIP-712
+signature.
+
+[.contract-item]
+[[IERC5267-EIP712DomainChanged--]]
+==== `[.contract-item-name]#++EIP712DomainChanged++#++()++` [.item-kind]#event#
+
+MAY be emitted to signal that the domain could have changed.
+
+[.contract]
+[[IERC5805]]
+=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5805.sol";
+```
+
+[.contract-index]
+.Functions
+--
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-getVotes-address-}[`++getVotes(account)++`]
+* {xref-IVotes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-IVotes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
+* {xref-IVotes-delegates-address-}[`++delegates(account)++`]
+* {xref-IVotes-delegate-address-}[`++delegate(delegatee)++`]
+* {xref-IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+* {xref-IERC6372-clock--}[`++clock()++`]
+* {xref-IERC6372-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousVotes, newVotes)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-VotesExpiredSignature-uint256-}[`++VotesExpiredSignature(expiry)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+--
+
+:clock: pass:normal[xref:#IERC6372-clock--[`++clock++`]]
+:CLOCK_MODE: pass:normal[xref:#IERC6372-CLOCK_MODE--[`++CLOCK_MODE++`]]
+
+[.contract]
+[[IERC6372]]
+=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC6372.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC6372-clock--}[`++clock()++`]
+* {xref-IERC6372-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+
+--
+
+[.contract-item]
+[[IERC6372-clock--]]
+==== `[.contract-item-name]#++clock++#++() → uint48++` [.item-kind]#external#
+
+Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+
+[.contract-item]
+[[IERC6372-CLOCK_MODE--]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → string++` [.item-kind]#external#
+
+Description of the clock
+

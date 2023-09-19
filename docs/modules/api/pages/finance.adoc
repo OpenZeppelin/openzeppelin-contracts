@@ -1,0 +1,234 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:VestingWallet: pass:normal[xref:finance.adoc#VestingWallet[`VestingWallet`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
+:xref-VestingWallet-constructor-address-uint64-uint64-: xref:finance.adoc#VestingWallet-constructor-address-uint64-uint64-
+:xref-VestingWallet-receive--: xref:finance.adoc#VestingWallet-receive--
+:xref-VestingWallet-start--: xref:finance.adoc#VestingWallet-start--
+:xref-VestingWallet-duration--: xref:finance.adoc#VestingWallet-duration--
+:xref-VestingWallet-end--: xref:finance.adoc#VestingWallet-end--
+:xref-VestingWallet-released--: xref:finance.adoc#VestingWallet-released--
+:xref-VestingWallet-released-address-: xref:finance.adoc#VestingWallet-released-address-
+:xref-VestingWallet-releasable--: xref:finance.adoc#VestingWallet-releasable--
+:xref-VestingWallet-releasable-address-: xref:finance.adoc#VestingWallet-releasable-address-
+:xref-VestingWallet-release--: xref:finance.adoc#VestingWallet-release--
+:xref-VestingWallet-release-address-: xref:finance.adoc#VestingWallet-release-address-
+:xref-VestingWallet-vestedAmount-uint64-: xref:finance.adoc#VestingWallet-vestedAmount-uint64-
+:xref-VestingWallet-vestedAmount-address-uint64-: xref:finance.adoc#VestingWallet-vestedAmount-address-uint64-
+:xref-VestingWallet-_vestingSchedule-uint256-uint64-: xref:finance.adoc#VestingWallet-_vestingSchedule-uint256-uint64-
+:xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
+:xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
+:xref-Ownable-transferOwnership-address-: xref:access.adoc#Ownable-transferOwnership-address-
+:xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
+:xref-VestingWallet-EtherReleased-uint256-: xref:finance.adoc#VestingWallet-EtherReleased-uint256-
+:xref-VestingWallet-ERC20Released-address-uint256-: xref:finance.adoc#VestingWallet-ERC20Released-address-uint256-
+:xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
+:xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+= Finance
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/finance
+
+This directory includes primitives for financial systems:
+
+- {VestingWallet} handles the vesting of Ether and ERC20 tokens for a given beneficiary. Custody of multiple tokens can
+  be given to this contract, which will release the token to the beneficiary following a given, customizable, vesting
+  schedule.
+
+== Contracts
+
+:EtherReleased: pass:normal[xref:#VestingWallet-EtherReleased-uint256-[`++EtherReleased++`]]
+:ERC20Released: pass:normal[xref:#VestingWallet-ERC20Released-address-uint256-[`++ERC20Released++`]]
+:constructor: pass:normal[xref:#VestingWallet-constructor-address-uint64-uint64-[`++constructor++`]]
+:receive: pass:normal[xref:#VestingWallet-receive--[`++receive++`]]
+:start: pass:normal[xref:#VestingWallet-start--[`++start++`]]
+:duration: pass:normal[xref:#VestingWallet-duration--[`++duration++`]]
+:end: pass:normal[xref:#VestingWallet-end--[`++end++`]]
+:released: pass:normal[xref:#VestingWallet-released--[`++released++`]]
+:released: pass:normal[xref:#VestingWallet-released-address-[`++released++`]]
+:releasable: pass:normal[xref:#VestingWallet-releasable--[`++releasable++`]]
+:releasable: pass:normal[xref:#VestingWallet-releasable-address-[`++releasable++`]]
+:release: pass:normal[xref:#VestingWallet-release--[`++release++`]]
+:release: pass:normal[xref:#VestingWallet-release-address-[`++release++`]]
+:vestedAmount: pass:normal[xref:#VestingWallet-vestedAmount-uint64-[`++vestedAmount++`]]
+:vestedAmount: pass:normal[xref:#VestingWallet-vestedAmount-address-uint64-[`++vestedAmount++`]]
+:_vestingSchedule: pass:normal[xref:#VestingWallet-_vestingSchedule-uint256-uint64-[`++_vestingSchedule++`]]
+
+[.contract]
+[[VestingWallet]]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/finance/VestingWallet.sol";
+```
+
+A vesting wallet is an ownable contract that can receive native currency and ERC20 tokens, and release these
+assets to the wallet owner, also referred to as "beneficiary", according to a vesting schedule.
+
+Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
+be immediately releasable.
+
+By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
+a beneficiary until a specified time.
+
+NOTE: Since the wallet is {Ownable}, and ownership can be transferred, it is possible to sell unvested tokens.
+Preventing this in a smart contract is difficult, considering that: 1) a beneficiary address could be a
+counterfactually deployed contract, 2) there is likely to be a migration path for EOAs to become contracts in the
+near future.
+
+NOTE: When using this contract with any token whose balance is adjusted automatically (i.e. a rebase token), make
+sure to account the supply/balance adjustment in the vesting schedule to ensure the vested amount is as intended.
+
+[.contract-index]
+.Functions
+--
+* {xref-VestingWallet-constructor-address-uint64-uint64-}[`++constructor(beneficiary, startTimestamp, durationSeconds)++`]
+* {xref-VestingWallet-receive--}[`++receive()++`]
+* {xref-VestingWallet-start--}[`++start()++`]
+* {xref-VestingWallet-duration--}[`++duration()++`]
+* {xref-VestingWallet-end--}[`++end()++`]
+* {xref-VestingWallet-released--}[`++released()++`]
+* {xref-VestingWallet-released-address-}[`++released(token)++`]
+* {xref-VestingWallet-releasable--}[`++releasable()++`]
+* {xref-VestingWallet-releasable-address-}[`++releasable(token)++`]
+* {xref-VestingWallet-release--}[`++release()++`]
+* {xref-VestingWallet-release-address-}[`++release(token)++`]
+* {xref-VestingWallet-vestedAmount-uint64-}[`++vestedAmount(timestamp)++`]
+* {xref-VestingWallet-vestedAmount-address-uint64-}[`++vestedAmount(token, timestamp)++`]
+* {xref-VestingWallet-_vestingSchedule-uint256-uint64-}[`++_vestingSchedule(totalAllocation, timestamp)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
+* {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
+* {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
+* {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-VestingWallet-EtherReleased-uint256-}[`++EtherReleased(amount)++`]
+* {xref-VestingWallet-ERC20Released-address-uint256-}[`++ERC20Released(token, amount)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnershipTransferred-address-address-}[`++OwnershipTransferred(previousOwner, newOwner)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnableUnauthorizedAccount-address-}[`++OwnableUnauthorizedAccount(account)++`]
+* {xref-Ownable-OwnableInvalidOwner-address-}[`++OwnableInvalidOwner(owner)++`]
+
+--
+
+[.contract-item]
+[[VestingWallet-constructor-address-uint64-uint64-]]
+==== `[.contract-item-name]#++constructor++#++(address beneficiary, uint64 startTimestamp, uint64 durationSeconds)++` [.item-kind]#public#
+
+Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
+vesting duration of the vesting wallet.
+
+[.contract-item]
+[[VestingWallet-receive--]]
+==== `[.contract-item-name]#++receive++#++()++` [.item-kind]#external#
+
+The contract should be able to receive Eth.
+
+[.contract-item]
+[[VestingWallet-start--]]
+==== `[.contract-item-name]#++start++#++() → uint256++` [.item-kind]#public#
+
+Getter for the start timestamp.
+
+[.contract-item]
+[[VestingWallet-duration--]]
+==== `[.contract-item-name]#++duration++#++() → uint256++` [.item-kind]#public#
+
+Getter for the vesting duration.
+
+[.contract-item]
+[[VestingWallet-end--]]
+==== `[.contract-item-name]#++end++#++() → uint256++` [.item-kind]#public#
+
+Getter for the end timestamp.
+
+[.contract-item]
+[[VestingWallet-released--]]
+==== `[.contract-item-name]#++released++#++() → uint256++` [.item-kind]#public#
+
+Amount of eth already released
+
+[.contract-item]
+[[VestingWallet-released-address-]]
+==== `[.contract-item-name]#++released++#++(address token) → uint256++` [.item-kind]#public#
+
+Amount of token already released
+
+[.contract-item]
+[[VestingWallet-releasable--]]
+==== `[.contract-item-name]#++releasable++#++() → uint256++` [.item-kind]#public#
+
+Getter for the amount of releasable eth.
+
+[.contract-item]
+[[VestingWallet-releasable-address-]]
+==== `[.contract-item-name]#++releasable++#++(address token) → uint256++` [.item-kind]#public#
+
+Getter for the amount of releasable `token` tokens. `token` should be the address of an
+IERC20 contract.
+
+[.contract-item]
+[[VestingWallet-release--]]
+==== `[.contract-item-name]#++release++#++()++` [.item-kind]#public#
+
+Release the native token (ether) that have already vested.
+
+Emits a {EtherReleased} event.
+
+[.contract-item]
+[[VestingWallet-release-address-]]
+==== `[.contract-item-name]#++release++#++(address token)++` [.item-kind]#public#
+
+Release the tokens that have already vested.
+
+Emits a {ERC20Released} event.
+
+[.contract-item]
+[[VestingWallet-vestedAmount-uint64-]]
+==== `[.contract-item-name]#++vestedAmount++#++(uint64 timestamp) → uint256++` [.item-kind]#public#
+
+Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
+
+[.contract-item]
+[[VestingWallet-vestedAmount-address-uint64-]]
+==== `[.contract-item-name]#++vestedAmount++#++(address token, uint64 timestamp) → uint256++` [.item-kind]#public#
+
+Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
+
+[.contract-item]
+[[VestingWallet-_vestingSchedule-uint256-uint64-]]
+==== `[.contract-item-name]#++_vestingSchedule++#++(uint256 totalAllocation, uint64 timestamp) → uint256++` [.item-kind]#internal#
+
+Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
+an asset given its total historical allocation.
+
+[.contract-item]
+[[VestingWallet-EtherReleased-uint256-]]
+==== `[.contract-item-name]#++EtherReleased++#++(uint256 amount)++` [.item-kind]#event#
+
+[.contract-item]
+[[VestingWallet-ERC20Released-address-uint256-]]
+==== `[.contract-item-name]#++ERC20Released++#++(address indexed token, uint256 amount)++` [.item-kind]#event#
+
