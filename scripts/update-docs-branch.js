@@ -21,11 +21,6 @@ if (!match) {
   process.exit(1);
 }
 
-if (/-.*$/.test(require('../package.json').version)) {
-  console.error('Refusing to update docs: prerelease detected');
-  process.exit(0);
-}
-
 const current = match.groups;
 const docsBranch = `docs-v${current.major}.x`;
 
