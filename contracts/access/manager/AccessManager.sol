@@ -156,7 +156,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
-            return _canCallExecuting(target, selector);
+            return (_isExecuting(target, selector), 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
             bool inRole;
@@ -883,11 +883,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev A version of {canCall} that checks for admin restructions in this contract.
+     * @dev A version of {canCall} that checks for admin restrictions in this contract.
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
         if (caller == address(this)) {
-            return _canCallExecuting(address(this), bytes4(data));
+            // Caller is AccessManager, this means the call was sent through {execute} and it already checked
+            // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
+            return (_isExecuting(address(this), bytes4(data)), 0);
         }
 
         (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
@@ -906,10 +908,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev A version of {canCall} that only checks if the current call is being executed via {executed}.
+     * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
-    function _canCallExecuting(address target, bytes4 selector) private view returns (bool immediate, uint32 delay) {
-        return (_executionId == _hashExecutionId(target, selector), 0);
+    function _isExecuting(address target, bytes4 selector) private view returns (bool) {
+        return _executionId == _hashExecutionId(target, selector);
     }
 
     /**
