@@ -308,7 +308,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * - the caller must be an admin for the role (see {getRoleAdmin})
      * - granted role must not be the `PUBLIC_ROLE`
      *
-     * Emits a {RoleGranted} event
+     * Emits a {RoleGranted} event.
      */
     function grantRole(uint64 roleId, address account, uint32 executionDelay) public virtual onlyAuthorized {
         _grantRole(roleId, account, getRoleGrantDelay(roleId), executionDelay);
