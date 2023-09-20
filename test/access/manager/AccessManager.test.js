@@ -104,17 +104,15 @@ contract('AccessManager', function (accounts) {
 
     describe('#isTargetClosed', function () {
       shouldBehaveLikeClosable({
-        on: {
-          closed: function () {
-            it('returns true', async function () {
-              expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(true);
-            });
-          },
-          open: function () {
-            it('returns false', async function () {
-              expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(false);
-            });
-          },
+        closed: function () {
+          it('returns true', async function () {
+            expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(true);
+          });
+        },
+        open: function () {
+          it('returns false', async function () {
+            expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(false);
+          });
         },
       });
     });
@@ -149,31 +147,25 @@ contract('AccessManager', function (accounts) {
         });
 
         shouldBehaveLikeDelay('effect', {
-          on: {
-            before: function () {
-              beforeEach('consume previously set grant delay', async function () {
-                // Consume previously set delay
-                await mine();
-              });
+          before: function () {
+            beforeEach('consume previously set grant delay', async function () {
+              // Consume previously set delay
+              await mine();
+            });
 
-              it('returns the old target admin delay', async function () {
-                expect(await this.manager.getTargetAdminDelay(this.target.address)).to.be.bignumber.equal(
-                  this.oldDelay,
-                );
-              });
-            },
-            after: function () {
-              beforeEach('consume previously set grant delay', async function () {
-                // Consume previously set delay
-                await mine();
-              });
+            it('returns the old target admin delay', async function () {
+              expect(await this.manager.getTargetAdminDelay(this.target.address)).to.be.bignumber.equal(this.oldDelay);
+            });
+          },
+          after: function () {
+            beforeEach('consume previously set grant delay', async function () {
+              // Consume previously set delay
+              await mine();
+            });
 
-              it('returns the new target admin delay', async function () {
-                expect(await this.manager.getTargetAdminDelay(this.target.address)).to.be.bignumber.equal(
-                  this.newDelay,
-                );
-              });
-            },
+            it('returns the new target admin delay', async function () {
+              expect(await this.manager.getTargetAdminDelay(this.target.address)).to.be.bignumber.equal(this.newDelay);
+            });
           },
         });
       });
@@ -228,27 +220,25 @@ contract('AccessManager', function (accounts) {
         });
 
         shouldBehaveLikeDelay('grant', {
-          on: {
-            before: function () {
-              beforeEach('consume previously set grant delay', async function () {
-                // Consume previously set delay
-                await mine();
-              });
+          before: function () {
+            beforeEach('consume previously set grant delay', async function () {
+              // Consume previously set delay
+              await mine();
+            });
 
-              it('returns the old role grant delay', async function () {
-                expect(await this.manager.getRoleGrantDelay(roleId)).to.be.bignumber.equal(this.oldDelay);
-              });
-            },
-            after: function () {
-              beforeEach('consume previously set grant delay', async function () {
-                // Consume previously set delay
-                await mine();
-              });
+            it('returns the old role grant delay', async function () {
+              expect(await this.manager.getRoleGrantDelay(roleId)).to.be.bignumber.equal(this.oldDelay);
+            });
+          },
+          after: function () {
+            beforeEach('consume previously set grant delay', async function () {
+              // Consume previously set delay
+              await mine();
+            });
 
-              it('returns the new role grant delay', async function () {
-                expect(await this.manager.getRoleGrantDelay(roleId)).to.be.bignumber.equal(this.newDelay);
-              });
-            },
+            it('returns the new role grant delay', async function () {
+              expect(await this.manager.getRoleGrantDelay(roleId)).to.be.bignumber.equal(this.newDelay);
+            });
           },
         });
       });
@@ -265,88 +255,36 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeGetAccess({
-        on: {
-          roleGranted: {
-            roleWithGrantDelay: {
-              callerWithExecutionDelay: {
-                before: async function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+        roleGranted: {
+          roleWithGrantDelay: {
+            callerWithExecutionDelay: {
+              before: async function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
 
-                  it('role is not in effect and execution delay is set', async function () {
-                    const access = await this.manager.getAccess(this.role.id, this.caller);
-                    expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
-                    expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+                it('role is not in effect and execution delay is set', async function () {
+                  const access = await this.manager.getAccess(this.role.id, this.caller);
+                  expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
+                  expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
+                  expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                  expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
 
-                    // Not in effect yet
-                    expect(await time.latest()).to.be.bignumber.lt(access[0]);
-                  });
-                },
-                after: async function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
-
-                  it('access has role in effect and execution delay is set', async function () {
-                    const access = await this.manager.getAccess(this.role.id, this.caller);
-
-                    expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
-                    expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
-
-                    // Already in effect
-                    expect(await time.latest()).to.be.bignumber.equal(access[0]);
-                  });
-                },
+                  // Not in effect yet
+                  expect(await time.latest()).to.be.bignumber.lt(access[0]);
+                });
               },
-              callerWithoutExecutionDelay: {
-                before: function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+              after: async function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
 
-                  it('access has role not in effect without execution delay', async function () {
-                    const access = await this.manager.getAccess(this.role.id, this.caller);
-                    expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
-                    expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
-
-                    // Not in effect yet
-                    expect(await time.latest()).to.be.bignumber.lt(access[0]);
-                  });
-                },
-                after: function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
-
-                  it('role is in effect without execution delay', async function () {
-                    const access = await this.manager.getAccess(this.role.id, this.caller);
-                    expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
-                    expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
-
-                    // Already in effect
-                    expect(await time.latest()).to.be.bignumber.equal(access[0]);
-                  });
-                },
-              },
-            },
-            roleWithoutGrantDelay: {
-              callerWithExecutionDelay: function () {
                 it('access has role in effect and execution delay is set', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
-                  expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
+
+                  expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
                   expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
                   expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
                   expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
@@ -355,10 +293,34 @@ contract('AccessManager', function (accounts) {
                   expect(await time.latest()).to.be.bignumber.equal(access[0]);
                 });
               },
-              callerWithoutExecutionDelay: function () {
-                it('access has role in effect without execution delay', async function () {
+            },
+            callerWithoutExecutionDelay: {
+              before: function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
+
+                it('access has role not in effect without execution delay', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
-                  expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
+                  expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
+                  expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+                  expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                  expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+
+                  // Not in effect yet
+                  expect(await time.latest()).to.be.bignumber.lt(access[0]);
+                });
+              },
+              after: function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
+
+                it('role is in effect without execution delay', async function () {
+                  const access = await this.manager.getAccess(this.role.id, this.caller);
+                  expect(access[0]).to.be.bignumber.equal(this.delayEffect); // inEffectSince
                   expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
                   expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
                   expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
@@ -369,15 +331,41 @@ contract('AccessManager', function (accounts) {
               },
             },
           },
-          roleNotGranted: function () {
-            it('has empty access', async function () {
-              const access = await this.manager.getAccess(this.role.id, this.caller);
-              expect(access[0]).to.be.bignumber.equal('0'); // inEffectSince
-              expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-              expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-              expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
-            });
+          roleWithoutGrantDelay: {
+            callerWithExecutionDelay: function () {
+              it('access has role in effect and execution delay is set', async function () {
+                const access = await this.manager.getAccess(this.role.id, this.caller);
+                expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
+                expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
+                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+
+                // Already in effect
+                expect(await time.latest()).to.be.bignumber.equal(access[0]);
+              });
+            },
+            callerWithoutExecutionDelay: function () {
+              it('access has role in effect without execution delay', async function () {
+                const access = await this.manager.getAccess(this.role.id, this.caller);
+                expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
+                expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+                expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+
+                // Already in effect
+                expect(await time.latest()).to.be.bignumber.equal(access[0]);
+              });
+            },
           },
+        },
+        roleNotGranted: function () {
+          it('has empty access', async function () {
+            const access = await this.manager.getAccess(this.role.id, this.caller);
+            expect(access[0]).to.be.bignumber.equal('0'); // inEffectSince
+            expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+            expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+            expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+          });
         },
       });
     });
@@ -390,79 +378,61 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeHasRole({
-        on: {
-          requiredPublicRole: async function () {
-            it('has PUBLIC role', async function () {
-              const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
-              expect(isMember).to.be.true;
-              expect(executionDelay).to.be.bignumber.eq('0');
-            });
-          },
-          notRequiredPublicRole: {
-            roleGranted: {
-              roleWithGrantDelay: {
-                callerWithExecutionDelay: {
-                  before: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+        requiredPublicRole: async function () {
+          it('has PUBLIC role', async function () {
+            const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+            expect(isMember).to.be.true;
+            expect(executionDelay).to.be.bignumber.eq('0');
+          });
+        },
+        notRequiredPublicRole: {
+          roleGranted: {
+            roleWithGrantDelay: {
+              callerWithExecutionDelay: {
+                before: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
 
-                    it('does not have role but execution delay', async function () {
-                      const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
-                      expect(isMember).to.be.false;
-                      expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
-                    });
-                  },
-                  after: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
-
-                    it('has role and execution delay', async function () {
-                      const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
-                      expect(isMember).to.be.true;
-                      expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
-                    });
-                  },
+                  it('does not have role but execution delay', async function () {
+                    const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+                    expect(isMember).to.be.false;
+                    expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
+                  });
                 },
-                callerWithoutExecutionDelay: {
-                  before: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+                after: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
 
-                    it('does not have role nor execution delay', async function () {
-                      const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
-                      expect(isMember).to.be.false;
-                      expect(executionDelay).to.be.bignumber.eq('0');
-                    });
-                  },
-                  after: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
-
-                    it('has role and no execution delay', async function () {
-                      const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
-                      expect(isMember).to.be.true;
-                      expect(executionDelay).to.be.bignumber.eq('0');
-                    });
-                  },
-                },
-              },
-              roleWithoutGrantDelay: {
-                callerWithExecutionDelay: function () {
                   it('has role and execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.true;
                     expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
                   });
                 },
-                callerWithoutExecutionDelay: function () {
+              },
+              callerWithoutExecutionDelay: {
+                before: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
+
+                  it('does not have role nor execution delay', async function () {
+                    const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+                    expect(isMember).to.be.false;
+                    expect(executionDelay).to.be.bignumber.eq('0');
+                  });
+                },
+                after: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
+
                   it('has role and no execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.true;
@@ -471,8 +441,24 @@ contract('AccessManager', function (accounts) {
                 },
               },
             },
-            roleNotGranted: function () {},
+            roleWithoutGrantDelay: {
+              callerWithExecutionDelay: function () {
+                it('has role and execution delay', async function () {
+                  const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+                  expect(isMember).to.be.true;
+                  expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
+                });
+              },
+              callerWithoutExecutionDelay: function () {
+                it('has role and no execution delay', async function () {
+                  const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+                  expect(isMember).to.be.true;
+                  expect(executionDelay).to.be.bignumber.eq('0');
+                });
+              },
+            },
           },
+          roleNotGranted: function () {},
         },
       });
     });
@@ -802,17 +788,15 @@ contract('AccessManager', function (accounts) {
           });
 
           shouldBehaveLikeNotDelayedAdminOperation({
-            on: {
-              externalCaller: {
-                requiredPublicRole: function () {
-                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                    await expectRevertCustomError(
-                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                      'AccessManagerUnauthorizedAccount',
-                      [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                    );
-                  });
-                },
+            externalCaller: {
+              requiredPublicRole: function () {
+                it('reverts as AccessManagerUnauthorizedAccount', async function () {
+                  await expectRevertCustomError(
+                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+                    'AccessManagerUnauthorizedAccount',
+                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
+                  );
+                });
               },
             },
           });
@@ -843,17 +827,15 @@ contract('AccessManager', function (accounts) {
           });
 
           shouldBehaveLikeNotDelayedAdminOperation({
-            on: {
-              externalCaller: {
-                requiredPublicRole: function () {
-                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                    await expectRevertCustomError(
-                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                      'AccessManagerUnauthorizedAccount',
-                      [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                    );
-                  });
-                },
+            externalCaller: {
+              requiredPublicRole: function () {
+                it('reverts as AccessManagerUnauthorizedAccount', async function () {
+                  await expectRevertCustomError(
+                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+                    'AccessManagerUnauthorizedAccount',
+                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
+                  );
+                });
               },
             },
           });
@@ -888,17 +870,15 @@ contract('AccessManager', function (accounts) {
           });
 
           shouldBehaveLikeNotDelayedAdminOperation({
-            on: {
-              externalCaller: {
-                requiredPublicRole: function () {
-                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                    await expectRevertCustomError(
-                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                      'AccessManagerUnauthorizedAccount',
-                      [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                    );
-                  });
-                },
+            externalCaller: {
+              requiredPublicRole: function () {
+                it('reverts as AccessManagerUnauthorizedAccount', async function () {
+                  await expectRevertCustomError(
+                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+                    'AccessManagerUnauthorizedAccount',
+                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
+                  );
+                });
               },
             },
           });
@@ -978,17 +958,15 @@ contract('AccessManager', function (accounts) {
             });
 
             shouldBehaveLikeNotDelayedAdminOperation({
-              on: {
-                externalCaller: {
-                  requiredPublicRole: function () {
-                    it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                      await expectRevertCustomError(
-                        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                        'AccessManagerUnauthorizedAccount',
-                        [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
-                      );
-                    });
-                  },
+              externalCaller: {
+                requiredPublicRole: function () {
+                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
+                    await expectRevertCustomError(
+                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+                      'AccessManagerUnauthorizedAccount',
+                      [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
+                    );
+                  });
                 },
               },
             });
@@ -1017,71 +995,69 @@ contract('AccessManager', function (accounts) {
               });
 
               shouldBehaveLikeDelay('grant', {
-                on: {
-                  before: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
+                before: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
+
+                  it('does not grant role to the user yet', async function () {
+                    const timestamp = await clockFromReceipt.timestamp(this.receipt).then(web3.utils.toBN);
+                    expectEvent(this.receipt, 'RoleGranted', {
+                      roleId: ANOTHER_ROLE,
+                      account: this.user,
+                      since: timestamp.add(this.grantDelay),
+                      delay: this.executionDelay,
+                      newMember: true,
                     });
 
-                    it('does not grant role to the user yet', async function () {
-                      const timestamp = await clockFromReceipt.timestamp(this.receipt).then(web3.utils.toBN);
-                      expectEvent(this.receipt, 'RoleGranted', {
-                        roleId: ANOTHER_ROLE,
-                        account: this.user,
-                        since: timestamp.add(this.grantDelay),
-                        delay: this.executionDelay,
-                        newMember: true,
-                      });
+                    // Access is correctly stored
+                    const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                    expect(access[0]).to.be.bignumber.equal(timestamp.add(this.grantDelay)); // inEffectSince
+                    expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
+                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
 
-                      // Access is correctly stored
-                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                      expect(access[0]).to.be.bignumber.equal(timestamp.add(this.grantDelay)); // inEffectSince
-                      expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
-                      expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                      expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+                    // Not in effect yet
+                    const currentTimestamp = await time.latest();
+                    expect(currentTimestamp).to.be.a.bignumber.lt(access[0]);
+                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                      false,
+                      this.executionDelay.toString(),
+                    ]);
+                  });
+                },
+                after: function () {
+                  beforeEach('consume previously set grant delay', async function () {
+                    // Consume previously set delay
+                    await mine();
+                  });
 
-                      // Not in effect yet
-                      const currentTimestamp = await time.latest();
-                      expect(currentTimestamp).to.be.a.bignumber.lt(access[0]);
-                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                        false,
-                        this.executionDelay.toString(),
-                      ]);
+                  it('grants role to the user', async function () {
+                    const timestamp = await clockFromReceipt.timestamp(this.receipt).then(web3.utils.toBN);
+                    expectEvent(this.receipt, 'RoleGranted', {
+                      roleId: ANOTHER_ROLE,
+                      account: this.user,
+                      since: timestamp.add(this.grantDelay),
+                      delay: this.executionDelay,
+                      newMember: true,
                     });
-                  },
-                  after: function () {
-                    beforeEach('consume previously set grant delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
 
-                    it('grants role to the user', async function () {
-                      const timestamp = await clockFromReceipt.timestamp(this.receipt).then(web3.utils.toBN);
-                      expectEvent(this.receipt, 'RoleGranted', {
-                        roleId: ANOTHER_ROLE,
-                        account: this.user,
-                        since: timestamp.add(this.grantDelay),
-                        delay: this.executionDelay,
-                        newMember: true,
-                      });
+                    // Access is correctly stored
+                    const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                    expect(access[0]).to.be.bignumber.equal(timestamp.add(this.grantDelay)); // inEffectSince
+                    expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
+                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                    expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
 
-                      // Access is correctly stored
-                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                      expect(access[0]).to.be.bignumber.equal(timestamp.add(this.grantDelay)); // inEffectSince
-                      expect(access[1]).to.be.bignumber.equal(this.executionDelay); // currentDelay
-                      expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                      expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
-
-                      // Already in effect
-                      const currentTimestamp = await time.latest();
-                      expect(currentTimestamp).to.be.a.bignumber.equal(access[0]);
-                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                        true,
-                        this.executionDelay.toString(),
-                      ]);
-                    });
-                  },
+                    // Already in effect
+                    const currentTimestamp = await time.latest();
+                    expect(currentTimestamp).to.be.a.bignumber.equal(access[0]);
+                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                      true,
+                      this.executionDelay.toString(),
+                    ]);
+                  });
                 },
               });
             });
@@ -1217,50 +1193,48 @@ contract('AccessManager', function (accounts) {
                 });
 
                 shouldBehaveLikeDelay('execution delay effect', {
-                  on: {
-                    before: function () {
-                      beforeEach('consume effect delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                  before: function () {
+                    beforeEach('consume effect delay', async function () {
+                      // Consume previously set delay
+                      await mine();
+                    });
 
-                      it('does not change the execution delay yet', async function () {
-                        // Access is correctly stored
-                        const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                        expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
-                        expect(access[1]).to.be.bignumber.equal(this.previousExecutionDelay); // currentDelay
-                        expect(access[2]).to.be.bignumber.equal(this.newExecutionDelay); // pendingDelay
-                        expect(access[3]).to.be.bignumber.equal(this.grantTimestamp.add(this.delay)); // pendingDelayEffect
+                    it('does not change the execution delay yet', async function () {
+                      // Access is correctly stored
+                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                      expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
+                      expect(access[1]).to.be.bignumber.equal(this.previousExecutionDelay); // currentDelay
+                      expect(access[2]).to.be.bignumber.equal(this.newExecutionDelay); // pendingDelay
+                      expect(access[3]).to.be.bignumber.equal(this.grantTimestamp.add(this.delay)); // pendingDelayEffect
 
-                        // Not in effect yet
-                        expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                          true,
-                          this.previousExecutionDelay.toString(),
-                        ]);
-                      });
-                    },
-                    after: function () {
-                      beforeEach('consume effect delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                      // Not in effect yet
+                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                        true,
+                        this.previousExecutionDelay.toString(),
+                      ]);
+                    });
+                  },
+                  after: function () {
+                    beforeEach('consume effect delay', async function () {
+                      // Consume previously set delay
+                      await mine();
+                    });
 
-                      it('changes the execution delay', async function () {
-                        // Access is correctly stored
-                        const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                    it('changes the execution delay', async function () {
+                      // Access is correctly stored
+                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
 
-                        expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
-                        expect(access[1]).to.be.bignumber.equal(this.newExecutionDelay); // currentDelay
-                        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                        expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+                      expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
+                      expect(access[1]).to.be.bignumber.equal(this.newExecutionDelay); // currentDelay
+                      expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                      expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
 
-                        // Already in effect
-                        expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                          true,
-                          this.newExecutionDelay.toString(),
-                        ]);
-                      });
-                    },
+                      // Already in effect
+                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                        true,
+                        this.newExecutionDelay.toString(),
+                      ]);
+                    });
                   },
                 });
               });
@@ -1345,50 +1319,48 @@ contract('AccessManager', function (accounts) {
                 });
 
                 shouldBehaveLikeDelay('execution delay effect', {
-                  on: {
-                    before: function () {
-                      beforeEach('consume effect delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                  before: function () {
+                    beforeEach('consume effect delay', async function () {
+                      // Consume previously set delay
+                      await mine();
+                    });
 
-                      it('does not change the execution delay yet', async function () {
-                        // Access is correctly stored
-                        const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                        expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
-                        expect(access[1]).to.be.bignumber.equal(this.previousExecutionDelay); // currentDelay
-                        expect(access[2]).to.be.bignumber.equal(this.newExecutionDelay); // pendingDelay
-                        expect(access[3]).to.be.bignumber.equal(this.grantTimestamp.add(this.delay)); // pendingDelayEffect
+                    it('does not change the execution delay yet', async function () {
+                      // Access is correctly stored
+                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                      expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
+                      expect(access[1]).to.be.bignumber.equal(this.previousExecutionDelay); // currentDelay
+                      expect(access[2]).to.be.bignumber.equal(this.newExecutionDelay); // pendingDelay
+                      expect(access[3]).to.be.bignumber.equal(this.grantTimestamp.add(this.delay)); // pendingDelayEffect
 
-                        // Not in effect yet
-                        expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                          true,
-                          this.previousExecutionDelay.toString(),
-                        ]);
-                      });
-                    },
-                    after: function () {
-                      beforeEach('consume effect delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                      // Not in effect yet
+                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                        true,
+                        this.previousExecutionDelay.toString(),
+                      ]);
+                    });
+                  },
+                  after: function () {
+                    beforeEach('consume effect delay', async function () {
+                      // Consume previously set delay
+                      await mine();
+                    });
 
-                      it('changes the execution delay', async function () {
-                        // Access is correctly stored
-                        const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                    it('changes the execution delay', async function () {
+                      // Access is correctly stored
+                      const access = await this.manager.getAccess(ANOTHER_ROLE, user);
 
-                        expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
-                        expect(access[1]).to.be.bignumber.equal(this.newExecutionDelay); // currentDelay
-                        expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                        expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
+                      expect(access[0]).to.be.bignumber.equal(this.oldAccess[0]); // inEffectSince
+                      expect(access[1]).to.be.bignumber.equal(this.newExecutionDelay); // currentDelay
+                      expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                      expect(access[3]).to.be.bignumber.equal('0'); // pendingDelayEffect
 
-                        // Already in effect
-                        expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                          true,
-                          this.newExecutionDelay.toString(),
-                        ]);
-                      });
-                    },
+                      // Already in effect
+                      expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                        true,
+                        this.newExecutionDelay.toString(),
+                      ]);
+                    });
                   },
                 });
               });
@@ -1408,17 +1380,15 @@ contract('AccessManager', function (accounts) {
             });
 
             shouldBehaveLikeNotDelayedAdminOperation({
-              on: {
-                externalCaller: {
-                  requiredPublicRole: function () {
-                    it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                      await expectRevertCustomError(
-                        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                        'AccessManagerUnauthorizedAccount',
-                        [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
-                      );
-                    });
-                  },
+              externalCaller: {
+                requiredPublicRole: function () {
+                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
+                    await expectRevertCustomError(
+                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+                      'AccessManagerUnauthorizedAccount',
+                      [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
+                    );
+                  });
                 },
               },
             });
@@ -1433,61 +1403,59 @@ contract('AccessManager', function (accounts) {
             });
 
             shouldBehaveLikeDelay('grant', {
-              on: {
-                before: function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+              before: function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
 
-                  it('revokes a granted role that will take effect in the future', async function () {
-                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                      false,
-                      '0',
-                    ]);
+                it('revokes a granted role that will take effect in the future', async function () {
+                  expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                    false,
+                    '0',
+                  ]);
 
-                    const { receipt } = await this.manager.revokeRole(ANOTHER_ROLE, user, { from: admin });
-                    expectEvent(receipt, 'RoleRevoked', { roleId: ANOTHER_ROLE, account: user });
+                  const { receipt } = await this.manager.revokeRole(ANOTHER_ROLE, user, { from: admin });
+                  expectEvent(receipt, 'RoleRevoked', { roleId: ANOTHER_ROLE, account: user });
 
-                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                      false,
-                      '0',
-                    ]);
+                  expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                    false,
+                    '0',
+                  ]);
 
-                    const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                    expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
-                    expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // effect
-                  });
-                },
-                after: function () {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                  const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                  expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
+                  expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+                  expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                  expect(access[3]).to.be.bignumber.equal('0'); // effect
+                });
+              },
+              after: function () {
+                beforeEach('consume previously set grant delay', async function () {
+                  // Consume previously set delay
+                  await mine();
+                });
 
-                  it('revokes a granted role that already took effect', async function () {
-                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                      true,
-                      '0',
-                    ]);
+                it('revokes a granted role that already took effect', async function () {
+                  expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                    true,
+                    '0',
+                  ]);
 
-                    const { receipt } = await this.manager.revokeRole(ANOTHER_ROLE, user, { from: admin });
-                    expectEvent(receipt, 'RoleRevoked', { roleId: ANOTHER_ROLE, account: user });
+                  const { receipt } = await this.manager.revokeRole(ANOTHER_ROLE, user, { from: admin });
+                  expectEvent(receipt, 'RoleRevoked', { roleId: ANOTHER_ROLE, account: user });
 
-                    expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
-                      false,
-                      '0',
-                    ]);
+                  expect(await this.manager.hasRole(ANOTHER_ROLE, user).then(formatAccess)).to.be.deep.equal([
+                    false,
+                    '0',
+                  ]);
 
-                    const access = await this.manager.getAccess(ANOTHER_ROLE, user);
-                    expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
-                    expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
-                    expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
-                    expect(access[3]).to.be.bignumber.equal('0'); // effect
-                  });
-                },
+                  const access = await this.manager.getAccess(ANOTHER_ROLE, user);
+                  expect(access[0]).to.be.bignumber.equal('0'); // inRoleSince
+                  expect(access[1]).to.be.bignumber.equal('0'); // currentDelay
+                  expect(access[2]).to.be.bignumber.equal('0'); // pendingDelay
+                  expect(access[3]).to.be.bignumber.equal('0'); // effect
+                });
               },
             });
           });
