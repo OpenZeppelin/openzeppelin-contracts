@@ -1,5 +1,6 @@
 > **Note**
-> Version 5.0 is currently in release candidate period. Bug bounty rewards are boosted 50% until the release. [See more details on Immunefi.](https://immunefi.com/bounty/openzeppelin/)
+> Version 5.0 is currently in release candidate period. Bug bounty rewards are boosted 50% until the release.  
+> [See more details on Immunefi.](https://immunefi.com/bounty/openzeppelin/)
 
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
