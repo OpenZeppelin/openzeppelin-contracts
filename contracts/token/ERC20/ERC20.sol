@@ -42,11 +42,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     string private _symbol;
 
     /**
-     * @dev Indicates a failed `decreaseAllowance` request.
-     */
-    error ERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
-
-    /**
      * @dev Sets the values for {name} and {symbol}.
      *
      * All two of these values are immutable: they can only be set once during
@@ -305,7 +300,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
      *
-     * Might emit an {Approval} event.
+     * Does not emit an {Approval} event.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);

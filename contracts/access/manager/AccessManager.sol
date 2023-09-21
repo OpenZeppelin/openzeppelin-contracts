@@ -136,7 +136,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
-            return (_executionId == _hashExecutionId(target, selector), 0);
+            return (_isExecuting(target, selector), 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
             (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
@@ -760,7 +760,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallExtended(caller, address(this), _msgData());
+        (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
         if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
@@ -833,23 +833,43 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
         if (target == address(this)) {
-            (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
-            if (!enabled) {
-                return (false, 0);
-            }
-
-            (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
-            if (!inRole) {
-                return (false, 0);
-            }
-
-            // downcast is safe because both options are uint32
-            uint32 delay = uint32(Math.max(operationDelay, executionDelay));
-            return (delay == 0, delay);
+            return _canCallSelf(caller, data);
         } else {
             bytes4 selector = bytes4(data);
             return canCall(caller, target, selector);
         }
+    }
+
+    /**
+     * @dev A version of {canCall} that checks for admin restrictions in this contract.
+     */
+    function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+        if (caller == address(this)) {
+            // Caller is AccessManager, this means the call was sent through {execute} and it already checked
+            // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
+            return (_isExecuting(address(this), bytes4(data)), 0);
+        }
+
+        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
+        if (!enabled) {
+            return (false, 0);
+        }
+
+        (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
+        if (!inRole) {
+            return (false, 0);
+        }
+
+        // downcast is safe because both options are uint32
+        delay = uint32(Math.max(operationDelay, executionDelay));
+        return (delay == 0, delay);
+    }
+
+    /**
+     * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
+     */
+    function _isExecuting(address target, bytes4 selector) private view returns (bool) {
+        return _executionId == _hashExecutionId(target, selector);
     }
 
     /**
