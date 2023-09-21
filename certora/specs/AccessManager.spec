@@ -18,6 +18,7 @@ methods {
     function getRoleGrantDelay_3(uint64 roleId)    external returns (uint48);
     function hashExecutionId(address,bytes4)       external returns (bytes32) envfree;
     function executionId()                         external returns (bytes32) envfree;
+    function getSelector(bytes)                    external returns (bytes4)  envfree;
 }
 
 /*
@@ -273,7 +274,9 @@ rule isTargetClosedChangeCall(address target) {
     bool isClosedAfter = isTargetClosed(e, target);
 
     // transitions
-    assert isClosedBefore != isClosedAfter => f.selector == sig:setTargetClosed(address,bool).selector;
+    assert isClosedBefore != isClosedAfter => (
+        f.selector == sig:setTargetClosed(address,bool).selector
+    );
 }
 
 /*
@@ -472,7 +475,9 @@ rule getRoleGuardianChangeCall(uint64 roleId) {
     mathint guardianIdAfter = getRoleGuardian(roleId);
 
     // transitions
-    assert guardianIdBefore != guardianIdAfter => f.selector == sig:setRoleGuardian(uint64,uint64).selector;
+    assert guardianIdBefore != guardianIdAfter => (
+        f.selector == sig:setRoleGuardian(uint64,uint64).selector
+    );
 }
 
 /*
@@ -606,4 +611,47 @@ rule restrictedFunctionsRevokeRole(env e) {
     revokeRole(e, roleId, account);
 
     assert hasAdminRoleBefore || e.msg.sender == currentContract;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Functions: canCall delay is enforced for calls to execute (only for others target)                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// getScheduleChangeCall proves that only {schedule} can set the delay to a non 0 value
+rule callDelayEnforce_scheduleInTheFuture(env e) {
+    address target;
+    bytes   data;
+    uint48  when;
+
+    // Condition: calling a third party with a delay
+    mathint delay = canCall_2(e, e.msg.sender, target, getSelector(data));
+    require target != currentContract && delay > 0;
+
+    // Schedule
+    schedule(e, target, data, when);
+
+    // Get operation schedule
+    mathint schedule = getSchedule(e, hashOperation(e.msg.sender, target, data));
+
+    // Schedule is far enough in the future
+    assert schedule >= clock(e) + delay;
+}
+
+rule callDelayEnforce_executeAfterDelay(env e) {
+    address target;
+    bytes   data;
+
+    // Condition: calling a third party with a delay
+    mathint delay = canCall_2(e, e.msg.sender, target, getSelector(data));
+    require target != currentContract && delay > 0;
+
+    // Get operation schedule
+    mathint schedule = getSchedule(e, hashOperation(e.msg.sender, target, data));
+
+    // Do call
+    execute@withrevert(e, target, data);
+
+    // Can only execute is delay is set and has passed
+    assert !lastReverted => (schedule != 0 && schedule <= clock(e));
 }

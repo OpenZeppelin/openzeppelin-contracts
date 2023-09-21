@@ -21,8 +21,9 @@ methods {
     function setTargetFunctionRole(address,bytes4[],uint64) external;
     function setTargetAdminDelay(address,uint32)            external;
     function setTargetClosed(address,bool)                  external;
-    function getSchedule(bytes32)                           external returns (uint48);
+    function hashOperation(address,address,bytes)           external returns (bytes32) envfree;
     function getNonce(bytes32)                              external returns (uint32) envfree;
+    function getSchedule(bytes32)                           external returns (uint48);
     function schedule(address,bytes,uint48)                 external returns (bytes32,uint32);
     function execute(address,bytes)                         external returns (uint32);
     function cancel(address,address,bytes)                  external returns (uint32);

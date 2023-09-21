@@ -60,6 +60,10 @@ contract AccessManagerHarness is AccessManager {
         return _hashExecutionId(target, selector);
     }
 
+    function getSelector(bytes calldata data) external pure returns (bytes4) {
+        return bytes4(data[0:4]);
+    }
+
     function executionId() external view returns (bytes32) {
         return _executionId;
     }
