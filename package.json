@@ -81,7 +81,7 @@
     "p-limit": "^3.1.0",
     "prettier": "^3.0.0",
     "prettier-plugin-solidity": "^1.1.0",
-    "rimraf": "^3.0.2",
+    "rimraf": "^5.0.1",
     "semver": "^7.3.5",
     "solhint": "^3.3.6",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
