@@ -25,11 +25,14 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+definition clock(env e) returns mathint =
+    to_mathint(e.block.timestamp);
+
 definition envsanity(env e) returns bool =
-    e.block.timestamp <= max_uint48;
+    clock(e) <= max_uint48;
 
 definition isSetAndPast(env e, uint48 timepoint) returns bool =
-    timepoint != 0 && to_mathint(timepoint) <= to_mathint(e.block.timestamp);
+    timepoint != 0 && to_mathint(timepoint) <= clock(e);
 
 definition isOnlyAuthorized(method f) returns bool =
     f.selector == sig:labelRole(uint64,string).selector                       ||
@@ -95,6 +98,12 @@ rule noRevert(env e) {
 
     hasRole@withrevert(e, roleId, caller);
     assert !lastReverted;
+
+    isTargetClosed@withrevert(target);
+    assert !lastReverted;
+
+    getTargetFunctionRole@withrevert(target, selector);
+    assert !lastReverted;
 }
 
 /*
@@ -151,7 +160,7 @@ rule canCall(env e) {
 │ State transitions: getAccess                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule getAccessChangeWait(uint64 roleId, address account) {
+rule getAccessChangeTime(uint64 roleId, address account) {
     env e1;
     env e2;
 
@@ -162,7 +171,7 @@ rule getAccessChangeWait(uint64 roleId, address account) {
     mathint getAccess4Before = getAccess_4(e1, roleId, account);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     mathint getAccess1After  = getAccess_1(e2, roleId, account);
@@ -180,8 +189,8 @@ rule getAccessChangeWait(uint64 roleId, address account) {
         getAccess4Before != getAccess4After
     ) => (
         getAccess4Before != 0 &&
-        getAccess4Before >  e1.block.timestamp + 0 &&
-        getAccess4Before <= e2.block.timestamp + 0 &&
+        getAccess4Before >  clock(e1) &&
+        getAccess4Before <= clock(e2) &&
         getAccess2After  == getAccess3Before &&
         getAccess3After  == 0 &&
         getAccess4After  == 0
@@ -213,9 +222,19 @@ rule getAccessChangeCall(uint64 roleId, address account) {
         getAccess3Before != getAccess3After ||
         getAccess4Before != getAccess4After
     ) => (
-        f.selector == sig:grantRole(uint64,address,uint32).selector ||
-        f.selector == sig:revokeRole(uint64,address).selector       ||
-        f.selector == sig:renounceRole(uint64,address).selector
+        (
+            f.selector == sig:grantRole(uint64,address,uint32).selector &&
+            getAccess1After != 0
+        ) || (
+            f.selector == sig:revokeRole(uint64,address).selector       &&
+            getAccess1After != 0
+        ) || (
+            f.selector == sig:renounceRole(uint64,address).selector     &&
+            getAccess1After == 0                                        &&
+            getAccess2After == 0                                        &&
+            getAccess3After == 0                                        &&
+            getAccess4After == 0
+        )
     );
 }
 
@@ -232,7 +251,7 @@ rule isTargetClosedChangeTime(address target) {
     bool isClosedBefore = isTargetClosed(e1, target);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     bool isClosedAfter = isTargetClosed(e2, target);
@@ -270,7 +289,7 @@ rule getTargetFunctionRoleChangeTime(address target, bytes4 selector) {
     mathint roleIdBefore = getTargetFunctionRole(e1, target, selector);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     mathint roleIdAfter = getTargetFunctionRole(e2, target, selector);
@@ -292,7 +311,9 @@ rule getTargetFunctionRoleChangeCall(address target, bytes4 selector) {
     mathint roleIdAfter = getTargetFunctionRole(e, target, selector);
 
     // transitions
-    assert roleIdBefore != roleIdAfter => f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector;
+    assert roleIdBefore != roleIdAfter => (
+        f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector
+    );
 }
 
 /*
@@ -310,7 +331,7 @@ rule getTargetAdminDelayChangeTime(address target) {
     mathint delayEffectBefore  = getTargetAdminDelay_3(e1, target);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     mathint delayAfter        = getTargetAdminDelay(e2, target);
@@ -322,10 +343,10 @@ rule getTargetAdminDelayChangeTime(address target) {
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        delayEffectBefore >  e1.block.timestamp + 0 &&
-        delayEffectBefore <= e2.block.timestamp + 0 &&
-        delayAfter        == delayPendingBefore     &&
-        delayPendingAfter == 0                      &&
+        delayEffectBefore >  clock(e1)          &&
+        delayEffectBefore <= clock(e2)          &&
+        delayAfter        == delayPendingBefore &&
+        delayPendingAfter == 0                  &&
         delayEffectAfter  == 0
     );
 }
@@ -354,7 +375,7 @@ rule getTargetAdminDelayChangeCall(address target) {
     ) => (
         f.selector       == sig:setTargetAdminDelay(address,uint32).selector &&
         delayAfter       >= delayBefore &&
-        delayEffectAfter >= e.block.timestamp + 0
+        delayEffectAfter >= clock(e)
     );
 }
 
@@ -373,7 +394,7 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
     mathint delayEffectBefore  = getRoleGrantDelay_3(e1, roleId);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     mathint delayAfter        = getRoleGrantDelay(e2, roleId);
@@ -385,8 +406,8 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        delayEffectBefore >  e1.block.timestamp + 0 &&
-        delayEffectBefore <= e2.block.timestamp + 0 &&
+        delayEffectBefore >  clock(e1) &&
+        delayEffectBefore <= clock(e2) &&
         delayAfter        == delayPendingBefore     &&
         delayPendingAfter == 0                      &&
         delayEffectAfter  == 0
@@ -417,7 +438,7 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
     ) => (
         f.selector       == sig:setGrantDelay(uint64,uint32).selector &&
         delayAfter       >= delayBefore &&
-        delayEffectAfter >= e.block.timestamp + 0
+        delayEffectAfter >= clock(e)
     );
 }
 
@@ -492,15 +513,15 @@ rule getScheduleChangeTime(bytes32 operationId) {
     mathint scheduleBefore = getSchedule(e1, operationId);
 
     // time pass: e1 → e2
-    require e1.block.timestamp <= e2.block.timestamp;
+    require clock(e1) <= clock(e2);
 
     // values after
     mathint scheduleAfter = getSchedule(e2, operationId);
 
     // transition
     assert scheduleBefore != scheduleAfter => (
-        scheduleBefore + expiration() >  e1.block.timestamp + 0 && // +0 cast to mathint
-        scheduleBefore + expiration() <= e2.block.timestamp + 0 && // +0 cast to mathint
+        scheduleBefore + expiration() >  clock(e1) &&
+        scheduleBefore + expiration() <= clock(e2) &&
         scheduleAfter == 0
     );
 }
@@ -519,11 +540,11 @@ rule getScheduleChangeCall(bytes32 operationId) {
 
     // transitions
     assert scheduleBefore != scheduleAfter => (
-        (f.selector == sig:schedule(address,bytes,uint48).selector    && scheduleAfter >= e.block.timestamp + 0) ||
-        (f.selector == sig:execute(address,bytes).selector            && scheduleAfter == 0                    ) ||
-        (f.selector == sig:cancel(address,address,bytes).selector     && scheduleAfter == 0                    ) ||
-        (f.selector == sig:consumeScheduledOp(address,bytes).selector && scheduleAfter == 0                    ) ||
-        (isOnlyAuthorized(f)                                          && scheduleAfter == 0                    )
+        (f.selector == sig:schedule(address,bytes,uint48).selector    && scheduleAfter >= clock(e)) ||
+        (f.selector == sig:execute(address,bytes).selector            && scheduleAfter == 0       ) ||
+        (f.selector == sig:cancel(address,address,bytes).selector     && scheduleAfter == 0       ) ||
+        (f.selector == sig:consumeScheduledOp(address,bytes).selector && scheduleAfter == 0       ) ||
+        (isOnlyAuthorized(f)                                          && scheduleAfter == 0       )
     );
 }
 
@@ -551,7 +572,7 @@ rule restrictedFunctions(env e) {
         f.selector == sig:setTargetClosed(address,bool).selector ||
         f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector
     ) => (
-        hasRole_1(e, ADMIN_ROLE(), e.msg.sender)
+        hasRole_1(e, ADMIN_ROLE(), e.msg.sender) || e.msg.sender == currentContract
     );
 }
 
@@ -568,7 +589,7 @@ rule restrictedFunctionsGrantRole(env e) {
 
     grantRole(e, roleId, account, executionDelay);
 
-    assert hasAdminRoleBefore;
+    assert hasAdminRoleBefore || e.msg.sender == currentContract;
 }
 
 rule restrictedFunctionsRevokeRole(env e) {
@@ -584,5 +605,5 @@ rule restrictedFunctionsRevokeRole(env e) {
 
     revokeRole(e, roleId, account);
 
-    assert hasAdminRoleBefore;
+    assert hasAdminRoleBefore || e.msg.sender == currentContract;
 }
