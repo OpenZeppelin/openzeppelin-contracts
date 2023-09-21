@@ -17,6 +17,11 @@ const {
   // ADMIN OPERATION HELPERS
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeNotDelayedAdminOperation,
+  shouldBehaveLikeRoleAdminOperation,
+  // RESTRICTED OPERATION HELPERS
+  shouldBehaveLikeAManagedRestrictedOperation,
+  shouldBehaveLikeCanCall,
+  shouldBehaveLikeSchedulableOperation,
 } = require('./AccessManager.behavior');
 const { default: Wallet } = require('ethereumjs-wallet');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
@@ -90,6 +95,215 @@ contract('AccessManager', function (accounts) {
   });
 
   describe('getters', async function () {
+    describe('#canCall', function () {
+      beforeEach('set calldata', function () {
+        this.calldata = '0x1234';
+        this.role = { id: web3.utils.toBN(379204) };
+      });
+
+      shouldBehaveLikeCanCall({
+        closed: function () {
+          it('should return false and no delay', async function () {
+            const { immediate, delay } = await this.manager.canCall(
+              Wallet.generate().getChecksumAddressString(),
+              this.target.address,
+              this.calldata.substring(0, 10),
+            );
+            expect(immediate).to.be.equal(false);
+            expect(delay).to.be.bignumber.equal('0');
+          });
+        },
+        open: {
+          managerCaller: {
+            executing: function () {
+              it('should return true and no delay', async function () {
+                const { immediate, delay } = await this.manager.canCall(
+                  this.caller,
+                  this.target.address,
+                  this.calldata.substring(0, 10),
+                );
+                expect(immediate).to.be.equal(true);
+                expect(delay).to.be.bignumber.equal('0');
+              });
+            },
+            notExecuting: function () {
+              it('should return false and no delay', async function () {
+                const { immediate, delay } = await this.manager.canCall(
+                  this.caller,
+                  this.target.address,
+                  this.calldata.substring(0, 10),
+                );
+                expect(immediate).to.be.equal(false);
+                expect(delay).to.be.bignumber.equal('0');
+              });
+            },
+          },
+          externalCaller: {
+            requiredPublicRole: function () {
+              it('should return true and no delay', async function () {
+                const { immediate, delay } = await this.manager.canCall(
+                  this.caller,
+                  this.target.address,
+                  this.calldata.substring(0, 10),
+                );
+                expect(immediate).to.be.equal(true);
+                expect(delay).to.be.bignumber.equal('0');
+              });
+            },
+            notRequiredPublicRole: {
+              roleGranted: {
+                roleWithGrantDelay: {
+                  callerWithExecutionDelay: {
+                    before: function () {
+                      beforeEach('consume previously set grant delay', async function () {
+                        // Consume previously set delay
+                        await mine();
+                      });
+
+                      it('should return false and no execution delay', async function () {
+                        const { immediate, delay } = await this.manager.canCall(
+                          this.caller,
+                          this.target.address,
+                          this.calldata.substring(0, 10),
+                        );
+                        expect(immediate).to.be.equal(false);
+                        expect(delay).to.be.bignumber.equal('0');
+                      });
+                    },
+                    after: function () {
+                      beforeEach('consume previously set grant delay', async function () {
+                        // Consume previously set delay
+                        await mine();
+                        this.delayedUntil = this.executionDelay;
+                      });
+
+                      shouldBehaveLikeSchedulableOperation({
+                        scheduled: {
+                          before: function () {
+                            it('should return false and execution delay', async function () {
+                              const { immediate, delay } = await this.manager.canCall(
+                                this.caller,
+                                this.target.address,
+                                this.calldata.substring(0, 10),
+                              );
+                              expect(immediate).to.be.equal(false);
+                              expect(delay).to.be.bignumber.equal(this.executionDelay);
+                            });
+                          },
+                          after: function () {
+                            it('should return false and execution delay', async function () {
+                              const { immediate, delay } = await this.manager.canCall(
+                                this.caller,
+                                this.target.address,
+                                this.calldata.substring(0, 10),
+                              );
+                              expect(immediate).to.be.equal(false);
+                              expect(delay).to.be.bignumber.equal(this.executionDelay);
+                            });
+                          },
+                          expired: function () {
+                            it('should return false and execution delay', async function () {
+                              const { immediate, delay } = await this.manager.canCall(
+                                this.caller,
+                                this.target.address,
+                                this.calldata.substring(0, 10),
+                              );
+                              expect(immediate).to.be.equal(false);
+                              expect(delay).to.be.bignumber.equal(this.executionDelay);
+                            });
+                          },
+                        },
+                        notScheduled: function () {
+                          it('should return false and execution delay', async function () {
+                            const { immediate, delay } = await this.manager.canCall(
+                              this.caller,
+                              this.target.address,
+                              this.calldata.substring(0, 10),
+                            );
+                            expect(immediate).to.be.equal(false);
+                            expect(delay).to.be.bignumber.equal(this.executionDelay);
+                          });
+                        },
+                      });
+                    },
+                  },
+                  callerWithoutExecutionDelay: {
+                    before: function () {
+                      beforeEach('consume previously set grant delay', async function () {
+                        // Consume previously set delay
+                        await mine();
+                      });
+
+                      it('should return false and no execution delay', async function () {
+                        const { immediate, delay } = await this.manager.canCall(
+                          this.caller,
+                          this.target.address,
+                          this.calldata.substring(0, 10),
+                        );
+                        expect(immediate).to.be.equal(false);
+                        expect(delay).to.be.bignumber.equal('0');
+                      });
+                    },
+                    after: function () {
+                      beforeEach('consume previously set grant delay', async function () {
+                        // Consume previously set delay
+                        await mine();
+                      });
+
+                      it('should return true and no execution delay', async function () {
+                        const { immediate, delay } = await this.manager.canCall(
+                          this.caller,
+                          this.target.address,
+                          this.calldata.substring(0, 10),
+                        );
+                        expect(immediate).to.be.equal(true);
+                        expect(delay).to.be.bignumber.equal('0');
+                      });
+                    },
+                  },
+                },
+                roleWithoutGrantDelay: {
+                  callerWithExecutionDelay: function () {
+                    it('should return false and execution delay', async function () {
+                      const { immediate, delay } = await this.manager.canCall(
+                        this.caller,
+                        this.target.address,
+                        this.calldata.substring(0, 10),
+                      );
+                      expect(immediate).to.be.equal(false);
+                      expect(delay).to.be.bignumber.equal(this.executionDelay);
+                    });
+                  },
+                  callerWithoutExecutionDelay: function () {
+                    it('should return true and no execution delay', async function () {
+                      const { immediate, delay } = await this.manager.canCall(
+                        this.caller,
+                        this.target.address,
+                        this.calldata.substring(0, 10),
+                      );
+                      expect(immediate).to.be.equal(true);
+                      expect(delay).to.be.bignumber.equal('0');
+                    });
+                  },
+                },
+              },
+              roleNotGranted: function () {
+                it('should return false and no execution delay', async function () {
+                  const { immediate, delay } = await this.manager.canCall(
+                    this.caller,
+                    this.target.address,
+                    this.calldata.substring(0, 10),
+                  );
+                  expect(immediate).to.be.equal(false);
+                  expect(delay).to.be.bignumber.equal('0');
+                });
+              },
+            },
+          },
+        },
+      });
+    });
+
     describe('#expiration', function () {
       it('has a 7 days default expiration', async function () {
         expect(await this.manager.expiration()).to.be.bignumber.equal(EXPIRATION);
@@ -371,7 +585,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('#hasRole', function () {
-      beforeEach('', function () {
+      beforeEach('setup shouldBehaveLikeHasRole', function () {
         this.role = { id: web3.utils.toBN(49832) };
         this.calldata = '0x1234';
         this.caller = user;
@@ -458,7 +672,13 @@ contract('AccessManager', function (accounts) {
               },
             },
           },
-          roleNotGranted: function () {},
+          roleNotGranted: function () {
+            it('has no role and no execution delay', async function () {
+              const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
+              expect(isMember).to.be.false;
+              expect(executionDelay).to.be.bignumber.eq('0');
+            });
+          },
         },
       });
     });
@@ -787,19 +1007,7 @@ contract('AccessManager', function (accounts) {
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          shouldBehaveLikeNotDelayedAdminOperation({
-            externalCaller: {
-              requiredPublicRole: function () {
-                it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                  await expectRevertCustomError(
-                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                    'AccessManagerUnauthorizedAccount',
-                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                  );
-                });
-              },
-            },
-          });
+          shouldBehaveLikeNotDelayedAdminOperation();
         });
 
         it('changes the authority', async function () {
@@ -826,19 +1034,7 @@ contract('AccessManager', function (accounts) {
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          shouldBehaveLikeNotDelayedAdminOperation({
-            externalCaller: {
-              requiredPublicRole: function () {
-                it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                  await expectRevertCustomError(
-                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                    'AccessManagerUnauthorizedAccount',
-                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                  );
-                });
-              },
-            },
-          });
+          shouldBehaveLikeNotDelayedAdminOperation();
         });
 
         it('closes and opens a target', async function () {
@@ -869,19 +1065,7 @@ contract('AccessManager', function (accounts) {
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
-          shouldBehaveLikeNotDelayedAdminOperation({
-            externalCaller: {
-              requiredPublicRole: function () {
-                it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                  await expectRevertCustomError(
-                    web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                    'AccessManagerUnauthorizedAccount',
-                    [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-                  );
-                });
-              },
-            },
-          });
+          shouldBehaveLikeNotDelayedAdminOperation();
         });
 
         const sigs = ['someFunction()', 'someOtherFunction(uint256)', 'oneMoreFunction(address,uint8)'].map(selector);
@@ -957,19 +1141,7 @@ contract('AccessManager', function (accounts) {
               this.calldata = this.manager.contract.methods[method](...args).encodeABI();
             });
 
-            shouldBehaveLikeNotDelayedAdminOperation({
-              externalCaller: {
-                requiredPublicRole: function () {
-                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                    await expectRevertCustomError(
-                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                      'AccessManagerUnauthorizedAccount',
-                      [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
-                    );
-                  });
-                },
-              },
-            });
+            shouldBehaveLikeRoleAdminOperation(ANOTHER_ADMIN);
           });
 
           describe('when the user is not a role member', function () {
@@ -1379,19 +1551,7 @@ contract('AccessManager', function (accounts) {
               await this.manager.$_grantRole(...args, 0, 0);
             });
 
-            shouldBehaveLikeNotDelayedAdminOperation({
-              externalCaller: {
-                requiredPublicRole: function () {
-                  it('reverts as AccessManagerUnauthorizedAccount', async function () {
-                    await expectRevertCustomError(
-                      web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-                      'AccessManagerUnauthorizedAccount',
-                      [this.caller, ANOTHER_ADMIN], // Role admin ops require the role's admin
-                    );
-                  });
-                },
-              },
-            });
+            shouldBehaveLikeRoleAdminOperation(ANOTHER_ADMIN);
           });
 
           describe('when role has been granted', function () {
@@ -1483,6 +1643,105 @@ contract('AccessManager', function (accounts) {
           });
         });
       });
+
+      describe('self role operations', function () {
+        describe('#renounceRole', function () {
+          beforeEach('grant role', async function () {
+            this.role = { id: web3.utils.toBN(783164) };
+            this.caller = user;
+            await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
+          });
+
+          it('renounces a role', async function () {
+            expect(await this.manager.hasRole(this.role.id, this.caller).then(formatAccess)).to.be.deep.equal([
+              true,
+              '0',
+            ]);
+            const { receipt } = await this.manager.renounceRole(this.role.id, this.caller, {
+              from: this.caller,
+            });
+            expectEvent(receipt, 'RoleRevoked', {
+              roleId: this.role.id,
+              account: this.caller,
+            });
+            expect(await this.manager.hasRole(this.role.id, this.caller).then(formatAccess)).to.be.deep.equal([
+              false,
+              '0',
+            ]);
+          });
+
+          it('reverts if renouncing the PUBLIC_ROLE', async function () {
+            await expectRevertCustomError(
+              this.manager.renounceRole(this.roles.PUBLIC.id, this.caller, {
+                from: this.caller,
+              }),
+              'AccessManagerLockedRole',
+              [this.roles.PUBLIC.id],
+            );
+          });
+
+          it('reverts if renouncing with bad caller confirmation', async function () {
+            await expectRevertCustomError(
+              this.manager.renounceRole(this.role.id, Wallet.generate().getChecksumAddressString(), {
+                from: this.caller,
+              }),
+              'AccessManagerBadConfirmation',
+              [],
+            );
+          });
+        });
+      });
+    });
+  });
+
+  describe('access managed target', function () {
+    describe('when calling a restricted target function', function () {
+      const method = 'fnRestricted()';
+
+      beforeEach('set required role', async function () {
+        this.role = { id: web3.utils.toBN(3597243) };
+        this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
+      });
+
+      describe('restrictions', function () {
+        beforeEach('set method and args', async function () {
+          this.calldata = this.target.contract.methods[method]().encodeABI();
+          this.caller = user;
+        });
+
+        shouldBehaveLikeAManagedRestrictedOperation.call(this);
+      });
+
+      it('succeeds called by a role member', async function () {
+        await this.manager.$_grantRole(this.role.id, user, 0, 0);
+
+        const { receipt } = await this.target.methods[method]({
+          data: this.calldata,
+          from: user,
+        });
+        expectEvent(receipt, 'CalledRestricted', {
+          caller: user,
+        });
+      });
+    });
+
+    describe('when calling a non-restricted target function', function () {
+      const method = 'fnUnrestricted()';
+
+      beforeEach('set required role', async function () {
+        this.role = { id: web3.utils.toBN(879435) };
+        this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
+      });
+
+      it('succeeds called by anyone', async function () {
+        const { receipt } = await this.target.methods[method]({
+          data: this.calldata,
+          from: user,
+        });
+        expectEvent(receipt, 'CalledUnrestricted', {
+          caller: user,
+        });
+      });
     });
   });
 
@@ -1490,7 +1749,7 @@ contract('AccessManager', function (accounts) {
   //   describe('grant role', function () {
   //     describe('without a grant delay', function () {
   //       it('without an execute delay', async function () {
-  //         expect(await this.manager.hasRole(this.roles.SOME.id, user).then(formatAccess)).to.be.deep.equal([
+  //         epect(await this.manager.hasRole(this.roles.SOME.id, user).then(formatAccess)).to.be.deep.equal([
   //           false,
   //           '0',
   //         ]);
