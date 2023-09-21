@@ -143,7 +143,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      *
-     * NOTE: This function doesn't not report the permissions of this manager itself. These are defined by the
+     * NOTE: This function does not report the permissions of this manager itself. These are defined by the
      * {_canCallSelf} function instead.
      */
     function canCall(
