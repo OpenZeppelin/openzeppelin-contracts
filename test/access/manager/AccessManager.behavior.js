@@ -154,18 +154,19 @@ function shouldBehaveLikeDelay(type, { before, after }) {
 // ============ OPERATION HELPERS ============
 
 /**
- * @requires this.{manager,delayedUntil}
+ * @requires this.{manager,scheduleIn,caller,target,calldata}
  */
 function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expired }, notScheduled }) {
   describe('when operation is scheduled', function () {
     beforeEach('schedule operation', async function () {
-      this.delay = this.delayedUntil;
+      this.delay = this.scheduleIn;
       const { operationId } = await scheduleOperation.call(this);
       this.operationId = operationId;
     });
 
     describe('when execution time has not passed', function () {
       beforeEach('set execution time not passed', async function () {
+        this.scheduledAt = await time.latest();
         const schedule = await this.manager.getSchedule(this.operationId);
         await setNextBlockTimestamp(schedule.subn(1));
       });
@@ -175,6 +176,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
 
     describe('when execution time has passed', function () {
       beforeEach('set execution time passed', async function () {
+        this.scheduledAt = await time.latest();
         const schedule = await this.manager.getSchedule(this.operationId);
         await setNextBlockTimestamp(schedule);
       });
@@ -184,6 +186,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
 
     describe('when execution time has expired', function () {
       beforeEach('set execution time expired', async function () {
+        this.scheduledAt = await time.latest();
         const schedule = await this.manager.getSchedule(this.operationId);
         await setNextBlockTimestamp(schedule.add(EXPIRATION));
       });
@@ -237,7 +240,7 @@ function shouldBehaveLikeDelayedOperation() {
         this.operationDelay = this.executionDelay.add(time.duration.hours(1));
         await this.manager.$_setTargetAdminDelay(this.target.address, this.operationDelay);
 
-        this.delayedUntil = this.operationDelay;
+        this.scheduleIn = this.operationDelay;
       });
 
       shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
@@ -248,7 +251,7 @@ function shouldBehaveLikeDelayedOperation() {
         this.operationDelay = this.executionDelay.sub(time.duration.hours(1));
         await this.manager.$_setTargetAdminDelay(this.target.address, this.operationDelay);
 
-        this.delayedUntil = this.executionDelay;
+        this.scheduleIn = this.executionDelay;
       });
 
       shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
@@ -259,7 +262,7 @@ function shouldBehaveLikeDelayedOperation() {
     beforeEach('set operation delay', async function () {
       this.operationDelay = web3.utils.toBN(0);
       await this.manager.$_setTargetAdminDelay(this.target.address, this.operationDelay);
-      this.delayedUntil = this.executionDelay;
+      this.scheduleIn = this.executionDelay;
     });
 
     shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
@@ -384,7 +387,7 @@ function shouldBehaveLikeGetAccess({
         beforeEach('set role and delay', async function () {
           this.executionDelay = time.duration.hours(10);
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
-          this.delayedUntil = this.executionDelay;
+          this.scheduleIn = this.executionDelay;
         });
 
         case3.call(this);
@@ -462,7 +465,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
   getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
     beforeEach('set operation delay', async function () {
       await mine();
-      this.delayedUntil = this.executionDelay;
+      this.scheduleIn = this.executionDelay;
     });
     shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
   };
@@ -501,7 +504,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
     beforeEach('set operation delay', async function () {
       await mine();
-      this.delayedUntil = this.executionDelay;
+      this.scheduleIn = this.executionDelay;
     });
     shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
   };
@@ -554,7 +557,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     beforeEach('consume previously set grant delay', async function () {
       // Consume previously set delay
       await mine();
-      this.delayedUntil = this.executionDelay;
+      this.scheduleIn = this.executionDelay;
     });
     shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
   };
@@ -623,4 +626,6 @@ module.exports = {
   shouldBehaveLikeRoleAdminOperation,
   // RESTRICTED OPERATION HELPERS
   shouldBehaveLikeAManagedRestrictedOperation,
+  // HELPERS
+  scheduleOperation,
 };
