@@ -1,5 +1,5 @@
---- access/manager/AccessManager.sol	2023-09-22 16:30:55.186595919 +0200
-+++ access/manager/AccessManager.sol	2023-09-22 16:33:52.040685882 +0200
+--- access/manager/AccessManager.sol	2023-09-22 16:45:10.500239259 +0200
++++ access/manager/AccessManager.sol	2023-09-22 16:46:02.377123859 +0200
 @@ -6,7 +6,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -74,6 +74,6 @@
       */
 -    function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
 +    function _canCallExtended(address caller, address target, bytes calldata data) internal view returns (bool, uint32) { // private → internal for FV
-         if (data.length < 4) {
-             return (false, 0);
-         } else if (target == address(this)) {
+         if (target == address(this)) {
+             return _canCallSelf(caller, data);
+         } else {

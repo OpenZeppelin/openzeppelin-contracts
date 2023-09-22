@@ -841,12 +841,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
-        if (data.length < 4) {
-            return (false, 0);
-        } else if (target == address(this)) {
+        if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
-            return canCall(caller, target, bytes4(data));
+            return data.length < 4 ? (false, 0) : canCall(caller, target, bytes4(data));
         }
     }
 
