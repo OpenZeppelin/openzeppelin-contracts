@@ -714,7 +714,7 @@ rule restrictedFunctionsRevokeRole(env e) {
     address account;
 
     // This is needed if roleId is self-administered, the `revokeRole` call could target
-    // e.msg.sender and remove the bery role that is necessary authorizing the call.
+    // e.msg.sender and remove the very role that is necessary for authorizing the call.
     bool hasAdminRoleBefore = hasRole_1(e, getRoleAdmin(roleId), e.msg.sender);
 
     revokeRole(e, roleId, account);

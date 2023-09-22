@@ -3,6 +3,7 @@ methods {
     function PUBLIC_ROLE()                                  external returns (uint64) envfree;
     function canCall(address,address,bytes4)                external returns (bool,uint32);
     function expiration()                                   external returns (uint32) envfree;
+    function minSetback() external returns (uint32) envfree;
     function isTargetClosed(address)                        external returns (bool) envfree;
     function getTargetFunctionRole(address,bytes4)          external returns (uint64) envfree;
     function getTargetAdminDelay(address)                   external returns (uint32);
