@@ -1,7 +1,5 @@
 const fs = require('fs');
-const { findAll } = require('solidity-ast/utils');
-const { astDereferencer } = require('@openzeppelin/upgrades-core/dist/ast-dereferencer');
-const { solcInputOutputDecoder } = require('@openzeppelin/upgrades-core/dist/src-decoder');
+const { findAll, astDereferencer, srcDecoder } = require('solidity-ast/utils');
 const { extractStorageLayout } = require('@openzeppelin/upgrades-core/dist/storage/extract');
 
 const { _ } = require('yargs').argv;
@@ -13,7 +11,7 @@ function extractLayouts(path) {
   const layout = {};
   const { input, output } = JSON.parse(fs.readFileSync(path));
 
-  const decoder = solcInputOutputDecoder(input, output);
+  const decoder = srcDecoder(input, output);
   const deref = astDereferencer(output);
 
   for (const src in output.contracts) {
