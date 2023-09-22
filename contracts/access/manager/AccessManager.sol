@@ -576,9 +576,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         uint48 minWhen = Time.timestamp() + setback;
 
-        // if call is not authorized, or if requested timing is too soon
+        // If call is not authorized, or if requested timing is too soon, revert
+        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
+        // will be padded to 4 bytes with zeros.
         if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
-            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
+            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
         }
 
         // Reuse variable due to stack too deep
@@ -629,7 +631,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // Fetch restrictions that apply to the caller on the targeted function
         (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
-        // If caller is not authorised, revert
+        // If call is not authorized, revert
+        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
+        // will be padded to 4 bytes with zeros.
         if (!immediate && setback == 0) {
             revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
         }
@@ -643,6 +647,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
+        // Note: here we know that data is at least 4 bytes long, because otherwize `_canCallExtended` would have
+        // returned (false, 0) and that would have cause the `AccessManagerUnauthorizedCall` error to be triggered.
         bytes32 executionIdBefore = _executionId;
         _executionId = _hashExecutionId(target, bytes4(data));
 
@@ -707,6 +713,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
         address msgsender = _msgSender();
+
+        // This will panic if the data is not long enough
         bytes4 selector = bytes4(data[0:4]);
 
         bytes32 operationId = hashOperation(caller, target, data);
@@ -780,11 +788,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
      */
     function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
-        bytes4 selector = bytes4(data);
-
         if (data.length < 4) {
             return (false, 0, 0);
         }
+
+        // This is safe considering the previous check
+        bytes4 selector = bytes4(data);
 
         // Restricted to ADMIN with no delay beside any execution delay the caller may have
         if (
@@ -832,11 +841,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
     function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
-        if (target == address(this)) {
+        if (data.length < 4) {
+            return (false, 0);
+        } else if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
-            bytes4 selector = bytes4(data);
-            return canCall(caller, target, selector);
+            return canCall(caller, target, bytes4(data));
         }
     }
 
@@ -844,7 +854,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev A version of {canCall} that checks for admin restrictions in this contract.
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
-        if (caller == address(this)) {
+        if (data.length < 4) {
+            return (false, 0);
+        } else if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(address(this), bytes4(data)), 0);

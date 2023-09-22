@@ -1,5 +1,5 @@
---- access/manager/AccessManager.sol	2023-09-18 16:59:06.975566974 +0200
-+++ access/manager/AccessManager.sol	2023-09-18 17:32:34.590396666 +0200
+--- access/manager/AccessManager.sol	2023-09-22 16:30:55.186595919 +0200
++++ access/manager/AccessManager.sol	2023-09-22 16:33:52.040685882 +0200
 @@ -6,7 +6,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -50,7 +50,7 @@
      /**
       * @dev Get the access details for a given account for a given role. These details include the timepoint at which
       * membership becomes active, and the delay applied to all operation by this user that requires this permission
-@@ -738,7 +747,7 @@
+@@ -746,7 +755,7 @@
      /**
       * @dev Hashing function for execute protection
       */
@@ -59,3 +59,21 @@
          return keccak256(abi.encode(target, selector));
      }
  
+@@ -787,7 +796,7 @@
+      * - uint64: which role is this operation restricted to
+      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
+      */
+-    function _getAdminRestrictions(bytes calldata data) private view returns (bool, uint64, uint32) {
++    function _getAdminRestrictions(bytes calldata data) internal view returns (bool, uint64, uint32) { // private → internal for FV
+         if (data.length < 4) {
+             return (false, 0, 0);
+         }
+@@ -840,7 +849,7 @@
+      * If immediate is true, the delay can be disregarded and the operation can be immediately executed.
+      * If immediate is false, the operation can be executed if and only if delay is greater than 0.
+      */
+-    function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool, uint32) {
++    function _canCallExtended(address caller, address target, bytes calldata data) internal view returns (bool, uint32) { // private → internal for FV
+         if (data.length < 4) {
+             return (false, 0);
+         } else if (target == address(this)) {

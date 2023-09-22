@@ -3,22 +3,30 @@ import "methods/IAccessManager.spec";
 
 methods {
     // FV
-    function canCall_1(address,address,bytes4)     external returns (bool);
-    function canCall_2(address,address,bytes4)     external returns (uint32);
-    function hasRole_1(uint64,address)             external returns (bool);
-    function hasRole_2(uint64,address)             external returns (uint32);
-    function getAccess_1(uint64,address)           external returns (uint48);
-    function getAccess_2(uint64,address)           external returns (uint32);
-    function getAccess_3(uint64,address)           external returns (uint32);
-    function getAccess_4(uint64,address)           external returns (uint48);
-    function getTargetAdminDelay_1(address target) external returns (uint32);
-    function getTargetAdminDelay_2(address target) external returns (uint32);
-    function getTargetAdminDelay_3(address target) external returns (uint48);
-    function getRoleGrantDelay_2(uint64 roleId)    external returns (uint32);
-    function getRoleGrantDelay_3(uint64 roleId)    external returns (uint48);
-    function hashExecutionId(address,bytes4)       external returns (bytes32) envfree;
-    function executionId()                         external returns (bytes32) envfree;
-    function getSelector(bytes)                    external returns (bytes4)  envfree;
+    function canCall_1(address,address,bytes4)        external returns (bool);
+    function canCall_2(address,address,bytes4)        external returns (uint32);
+    function canCallExtended(address,address,bytes)   external returns (bool,uint32);
+    function canCallExtended_1(address,address,bytes) external returns (bool);
+    function canCallExtended_2(address,address,bytes) external returns (uint32);
+    function getAdminRestrictions_1(bytes)            external returns (bool);
+    function getAdminRestrictions_2(bytes)            external returns (uint64);
+    function getAdminRestrictions_3(bytes)            external returns (uint32);
+    function hasRole_1(uint64,address)                external returns (bool);
+    function hasRole_2(uint64,address)                external returns (uint32);
+    function getAccess_1(uint64,address)              external returns (uint48);
+    function getAccess_2(uint64,address)              external returns (uint32);
+    function getAccess_3(uint64,address)              external returns (uint32);
+    function getAccess_4(uint64,address)              external returns (uint48);
+    function getTargetAdminDelay_1(address target)    external returns (uint32);
+    function getTargetAdminDelay_2(address target)    external returns (uint32);
+    function getTargetAdminDelay_3(address target)    external returns (uint48);
+    function getRoleGrantDelay_2(uint64 roleId)       external returns (uint32);
+    function getRoleGrantDelay_3(uint64 roleId)       external returns (uint48);
+    function hashExecutionId(address,bytes4)          external returns (bytes32) envfree;
+    function executionId()                            external returns (bytes32) envfree;
+    function getSelector(bytes)                       external returns (bytes4)  envfree;
+    function getFirstArgumentAsAddress(bytes)         external returns (address) envfree;
+    function getFirstArgumentAsUint64(bytes)          external returns (uint64)  envfree;
 }
 
 /*
@@ -30,22 +38,22 @@ definition clock(env e) returns mathint =
     to_mathint(e.block.timestamp);
 
 definition envsanity(env e) returns bool =
-    clock(e) <= max_uint48;
+    clock(e) > 0 && clock(e) <= max_uint48;
 
 definition isSetAndPast(env e, uint48 timepoint) returns bool =
     timepoint != 0 && to_mathint(timepoint) <= clock(e);
 
-definition isOnlyAuthorized(method f) returns bool =
-    f.selector == sig:labelRole(uint64,string).selector                       ||
-    f.selector == sig:setRoleAdmin(uint64,uint64).selector                    ||
-    f.selector == sig:setRoleGuardian(uint64,uint64).selector                 ||
-    f.selector == sig:setGrantDelay(uint64,uint32).selector                   ||
-    f.selector == sig:setTargetAdminDelay(address,uint32).selector            ||
-    f.selector == sig:updateAuthority(address,address).selector               ||
-    f.selector == sig:setTargetClosed(address,bool).selector                  ||
-    f.selector == sig:setTargetFunctionRole(address,bytes4[],uint64).selector ||
-    f.selector == sig:grantRole(uint64,address,uint32).selector               ||
-    f.selector == sig:revokeRole(uint64,address).selector;
+definition isOnlyAuthorized(bytes4 selector) returns bool =
+    selector == to_bytes4(sig:labelRole(uint64,string).selector                      ) ||
+    selector == to_bytes4(sig:setRoleAdmin(uint64,uint64).selector                   ) ||
+    selector == to_bytes4(sig:setRoleGuardian(uint64,uint64).selector                ) ||
+    selector == to_bytes4(sig:setGrantDelay(uint64,uint32).selector                  ) ||
+    selector == to_bytes4(sig:setTargetAdminDelay(address,uint32).selector           ) ||
+    selector == to_bytes4(sig:updateAuthority(address,address).selector              ) ||
+    selector == to_bytes4(sig:setTargetClosed(address,bool).selector                 ) ||
+    selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector) ||
+    selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector              ) ||
+    selector == to_bytes4(sig:revokeRole(uint64,address).selector                    );
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -79,7 +87,7 @@ invariant hasRoleGetAccessConsistency(env e, uint64 roleId, address account)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Functions: canCall, getAccess and hasRole do NOT revert                                                             │
+│ Functions: canCall, canCallExtended, getAccess, hasRole, isTargetClosed and getTargetFunctionRole do NOT revert     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noRevert(env e) {
@@ -88,10 +96,14 @@ rule noRevert(env e) {
 
     address caller;
     address target;
-    bytes4 selector;
-    uint64 roleId;
+    bytes   data;
+    bytes4  selector;
+    uint64  roleId;
 
     canCall@withrevert(e, caller, target, selector);
+    assert !lastReverted;
+
+    canCallExtended@withrevert(e, caller, target, data);
     assert !lastReverted;
 
     getAccess@withrevert(e, roleId, caller);
@@ -105,6 +117,36 @@ rule noRevert(env e) {
 
     getTargetFunctionRole@withrevert(target, selector);
     assert !lastReverted;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Functions: admin restrictions are correct                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule getAdminRestrictions(env e, bytes data) {
+    bool   restricted = getAdminRestrictions_1(e, data);
+    uint64 roleId     = getAdminRestrictions_2(e, data);
+    uint32 delay      = getAdminRestrictions_3(e, data);
+    bytes4 selector   = getSelector(data);
+
+    assert restricted ==
+        isOnlyAuthorized(selector);
+
+    assert roleId == (
+        (restricted && selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector)) ||
+        (restricted && selector == to_bytes4(sig:revokeRole(uint64,address).selector      ))
+        ? getRoleAdmin(getFirstArgumentAsUint64(data))
+        : ADMIN_ROLE()
+    );
+
+    assert delay == (
+        (restricted && selector == to_bytes4(sig:updateAuthority(address,address).selector              )) ||
+        (restricted && selector == to_bytes4(sig:setTargetClosed(address,bool).selector                 )) ||
+        (restricted && selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector))
+        ? getTargetAdminDelay(e, getFirstArgumentAsAddress(data))
+        : 0
+    );
 }
 
 /*
@@ -158,6 +200,70 @@ rule canCall(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Functions: canCallExtended                                                                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule canCallExtended(env e) {
+    address caller;
+    address target;
+    bytes   data;
+    bytes4  selector = getSelector(data);
+
+    bool   immediate      = canCallExtended_1(e, caller, target, data);
+    uint32 delay          = canCallExtended_2(e, caller, target, data);
+    bool   enabled        = getAdminRestrictions_1(e, data);
+    uint64 roleId         = getAdminRestrictions_2(e, data);
+    uint32 operationDelay = getAdminRestrictions_3(e, data);
+    bool   inRole         = hasRole_1(e, roleId, caller);
+    uint32 executionDelay = hasRole_2(e, roleId, caller);
+
+    if (target == currentContract) {
+        // Can only execute without delay in the specific cases:
+        // - caller is the AccessManager and the executionId is set
+        // or
+        // - data matches an admin restricted function
+        // - caller has the necessary role
+        // - operation delay is not set
+        // - execution delay is not set
+        assert immediate <=> (
+            (
+                caller == currentContract &&
+                executionId() == hashExecutionId(target, selector)
+            ) || (
+                caller != currentContract &&
+                enabled                   &&
+                inRole                    &&
+                operationDelay == 0       &&
+                executionDelay == 0
+            )
+        );
+
+        // Can only execute with delay in specific cases:
+        // - caller is a third party
+        // - data matches an admin restricted function
+        // - caller has the necessary role
+        // -operation delay or execution delay is set
+        assert delay > 0 <=> (
+            caller != currentContract &&
+            enabled                   &&
+            inRole                    &&
+            (operationDelay > 0 || executionDelay > 0)
+        );
+
+        // If there is a delay, then it must be the maximum of caller's execution delay and the operation delay
+        assert delay > 0 => to_mathint(delay) == max(operationDelay, executionDelay);
+
+        // Immediate execute means no delayed execution
+        assert immediate => delay == 0;
+    } else {
+        // results are equivalent when targeting third party contracts
+        assert immediate == canCall_1(e, caller, target, selector);
+        assert delay     == canCall_2(e, caller, target, selector);
+    }
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ State transitions: getAccess                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -201,6 +307,9 @@ rule getAccessChangeTime(uint64 roleId, address account) {
 rule getAccessChangeCall(uint64 roleId, address account) {
     env e;
 
+    // sanity
+    require envsanity(e);
+
     // values before
     mathint getAccess1Before = getAccess_1(e, roleId, account);
     mathint getAccess2Before = getAccess_2(e, roleId, account);
@@ -225,10 +334,10 @@ rule getAccessChangeCall(uint64 roleId, address account) {
     ) => (
         (
             f.selector == sig:grantRole(uint64,address,uint32).selector &&
-            getAccess1After != 0
+            getAccess1After > 0
         ) || (
             f.selector == sig:revokeRole(uint64,address).selector       &&
-            getAccess1After != 0
+            getAccess1After == 0
         ) || (
             f.selector == sig:renounceRole(uint64,address).selector     &&
             getAccess1After == 0                                        &&
@@ -549,7 +658,7 @@ rule getScheduleChangeCall(bytes32 operationId) {
         (f.selector == sig:execute(address,bytes).selector            && scheduleAfter == 0       ) ||
         (f.selector == sig:cancel(address,address,bytes).selector     && scheduleAfter == 0       ) ||
         (f.selector == sig:consumeScheduledOp(address,bytes).selector && scheduleAfter == 0       ) ||
-        (isOnlyAuthorized(f)                                          && scheduleAfter == 0       )
+        (isOnlyAuthorized(to_bytes4(f.selector))                      && scheduleAfter == 0       )
     );
 }
 
@@ -625,17 +734,17 @@ rule callDelayEnforce_scheduleInTheFuture(env e) {
     uint48  when;
 
     // Condition: calling a third party with a delay
-    mathint delay = canCall_2(e, e.msg.sender, target, getSelector(data));
-    require target != currentContract && delay > 0;
+    mathint delay = canCallExtended_2(e, e.msg.sender, target, data);
+    require delay > 0;
 
     // Schedule
     schedule(e, target, data, when);
 
     // Get operation schedule
-    mathint schedule = getSchedule(e, hashOperation(e.msg.sender, target, data));
+    mathint timepoint = getSchedule(e, hashOperation(e.msg.sender, target, data));
 
     // Schedule is far enough in the future
-    assert schedule >= clock(e) + delay;
+    assert timepoint == max(clock(e) + delay, when);
 }
 
 rule callDelayEnforce_executeAfterDelay(env e) {
@@ -643,8 +752,8 @@ rule callDelayEnforce_executeAfterDelay(env e) {
     bytes   data;
 
     // Condition: calling a third party with a delay
-    mathint delay = canCall_2(e, e.msg.sender, target, getSelector(data));
-    require target != currentContract && delay > 0;
+    mathint delay = canCallExtended_2(e, e.msg.sender, target, data);
+    require delay > 0;
 
     // Get operation schedule
     mathint schedule = getSchedule(e, hashOperation(e.msg.sender, target, data));

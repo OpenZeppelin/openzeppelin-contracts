@@ -16,6 +16,30 @@ contract AccessManagerHarness is AccessManager {
         (,result) = canCall(caller, target, selector);
     }
 
+    function canCallExtended(address caller, address target, bytes calldata data) external view returns (bool, uint32) {
+        return _canCallExtended(caller, target, data);
+    }
+
+    function canCallExtended_1(address caller, address target, bytes calldata data) external view returns (bool result) {
+        (result,) = _canCallExtended(caller, target, data);
+    }
+
+    function canCallExtended_2(address caller, address target, bytes calldata data) external view returns (uint32 result) {
+        (,result) = _canCallExtended(caller, target, data);
+    }
+
+    function getAdminRestrictions_1(bytes calldata data) external view returns (bool result) {
+        (result,,) = _getAdminRestrictions(data);
+    }
+
+    function getAdminRestrictions_2(bytes calldata data) external view returns (uint64 result) {
+        (,result,) = _getAdminRestrictions(data);
+    }
+
+    function getAdminRestrictions_3(bytes calldata data) external view returns (uint32 result) {
+        (,,result) = _getAdminRestrictions(data);
+    }
+
     function hasRole_1(uint64 roleId, address account) external view returns (bool result) {
         (result,) = hasRole(roleId, account);
     }
@@ -60,12 +84,20 @@ contract AccessManagerHarness is AccessManager {
         return _hashExecutionId(target, selector);
     }
 
-    function getSelector(bytes calldata data) external pure returns (bytes4) {
-        return bytes4(data[0:4]);
-    }
-
     function executionId() external view returns (bytes32) {
         return _executionId;
+    }
+
+    function getSelector(bytes calldata data) external pure returns (bytes4) {
+        return bytes4(data);
+    }
+
+    function getFirstArgumentAsAddress(bytes calldata data) external pure returns (address) {
+        return abi.decode(data[0x04:0x24], (address));
+    }
+
+    function getFirstArgumentAsUint64(bytes calldata data) external pure returns (uint64) {
+        return abi.decode(data[0x04:0x24], (uint64));
     }
 
     // function execute_labelRole(uint64 roleId, string calldata label) external {
