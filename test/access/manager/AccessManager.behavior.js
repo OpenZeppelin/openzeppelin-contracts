@@ -13,15 +13,16 @@ const { EXPIRATION } = require('../../helpers/access-manager');
 const COMMON_IS_EXECUTING_PATH = {
   executing: function () {
     it('succeeds', async function () {
-      await callMethod.call(this);
+      await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
     });
   },
   notExecuting: function () {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
-      await expectRevertCustomError(callMethod.call(this), 'AccessManagerUnauthorizedAccount', [
-        this.caller,
-        this.role.id,
-      ]);
+      await expectRevertCustomError(
+        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+        'AccessManagerUnauthorizedAccount',
+        [this.caller, this.role.id],
+      );
     });
   },
 };
@@ -32,10 +33,11 @@ const COMMON_GET_ACCESS_PATH = {
       callerWithExecutionDelay: {
         before: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(callMethod.call(this), 'AccessManagerUnauthorizedAccount', [
-              this.caller,
-              this.role.id,
-            ]);
+            await expectRevertCustomError(
+              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+              'AccessManagerUnauthorizedAccount',
+              [this.caller, this.role.id],
+            );
           });
         },
         after: undefined, // Diverges if there's an operation delay or not
@@ -43,15 +45,16 @@ const COMMON_GET_ACCESS_PATH = {
       callerWithoutExecutionDelay: {
         before: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(callMethod.call(this), 'AccessManagerUnauthorizedAccount', [
-              this.caller,
-              this.role.id,
-            ]);
+            await expectRevertCustomError(
+              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+              'AccessManagerUnauthorizedAccount',
+              [this.caller, this.role.id],
+            );
           });
         },
         after: function () {
           it('succeeds', async function () {
-            await callMethod.call(this);
+            await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
         },
       },
@@ -60,17 +63,18 @@ const COMMON_GET_ACCESS_PATH = {
       callerWithExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
       callerWithoutExecutionDelay: function () {
         it('succeeds', async function () {
-          await callMethod.call(this);
+          await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
         });
       },
     },
   },
   roleNotGranted: function () {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
-      await expectRevertCustomError(callMethod.call(this), 'AccessManagerUnauthorizedAccount', [
-        this.caller,
-        this.role.id,
-      ]);
+      await expectRevertCustomError(
+        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+        'AccessManagerUnauthorizedAccount',
+        [this.caller, this.role.id],
+      );
     });
   },
 };
@@ -79,23 +83,35 @@ const COMMON_SCHEDULABLE_PATH = {
   scheduled: {
     before: function () {
       it('reverts as AccessManagerNotReady', async function () {
-        await expectRevertCustomError(callMethod.call(this), 'AccessManagerNotReady', [this.operationId]);
+        await expectRevertCustomError(
+          web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+          'AccessManagerNotReady',
+          [this.operationId],
+        );
       });
     },
     after: function () {
       it('succeeds', async function () {
-        await callMethod.call(this);
+        await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
       });
     },
     expired: function () {
       it('reverts as AccessManagerExpired', async function () {
-        await expectRevertCustomError(callMethod.call(this), 'AccessManagerExpired', [this.operationId]);
+        await expectRevertCustomError(
+          web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+          'AccessManagerExpired',
+          [this.operationId],
+        );
       });
     },
   },
   notScheduled: function () {
     it('reverts as AccessManagerNotScheduled', async function () {
-      await expectRevertCustomError(callMethod.call(this), 'AccessManagerNotScheduled', [this.operationId]);
+      await expectRevertCustomError(
+        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+        'AccessManagerNotScheduled',
+        [this.operationId],
+      );
     });
   },
 };
@@ -111,7 +127,7 @@ function shouldBehaveLikeClosable({ closed, open }) {
       await this.manager.$_setTargetClosed(this.target.address, true);
     });
 
-    closed.call(this);
+    closed();
   });
 
   describe('when open', function () {
@@ -119,7 +135,7 @@ function shouldBehaveLikeClosable({ closed, open }) {
       await this.manager.$_setTargetClosed(this.target.address, false);
     });
 
-    open.call(this);
+    open();
   });
 }
 
@@ -139,7 +155,7 @@ function shouldBehaveLikeDelay(type, { before, after }) {
       await setNextBlockTimestamp(this.delayEffect.subn(1));
     });
 
-    before.call(this);
+    before();
   });
 
   describe(`when ${type} delay has passed`, function () {
@@ -147,7 +163,7 @@ function shouldBehaveLikeDelay(type, { before, after }) {
       await setNextBlockTimestamp(this.delayEffect);
     });
 
-    after.call(this);
+    after();
   });
 }
 
@@ -160,7 +176,12 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
   describe('when operation is scheduled', function () {
     beforeEach('schedule operation', async function () {
       this.delay = this.scheduleIn;
-      const { operationId } = await scheduleOperation.call(this);
+      const { operationId } = await scheduleOperation(this.manager, {
+        caller: this.caller,
+        target: this.target.address,
+        calldata: this.calldata,
+        delay: this.delay,
+      });
       this.operationId = operationId;
     });
 
@@ -171,7 +192,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
         await setNextBlockTimestamp(schedule.subn(1));
       });
 
-      before.call(this);
+      before();
     });
 
     describe('when execution time has passed', function () {
@@ -181,7 +202,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
         await setNextBlockTimestamp(schedule);
       });
 
-      after.call(this);
+      after();
     });
 
     describe('when execution time has expired', function () {
@@ -191,7 +212,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
         await setNextBlockTimestamp(schedule.add(EXPIRATION));
       });
 
-      expired.call(this);
+      expired();
     });
   });
 
@@ -204,7 +225,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
       expect(await this.manager.getSchedule(this.operationId)).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
-    notScheduled.call(this);
+    notScheduled();
   });
 }
 
@@ -218,7 +239,7 @@ function shouldBehaveLikeARestrictedOperation({ externalCaller, managerCaller })
       await impersonate(this.caller);
     });
 
-    shouldBehaveLikeCanCallExecuting.call(this, managerCaller);
+    shouldBehaveLikeCanCallExecuting(managerCaller);
   });
 
   describe('when caller is not the manager', function () {
@@ -226,7 +247,7 @@ function shouldBehaveLikeARestrictedOperation({ externalCaller, managerCaller })
       this.caller = this.roles.SOME.members[0];
     });
 
-    externalCaller.call(this);
+    externalCaller();
   });
 }
 
@@ -243,7 +264,7 @@ function shouldBehaveLikeDelayedOperation() {
         this.scheduleIn = this.operationDelay;
       });
 
-      shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+      shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
     });
 
     describe('when operation delay is shorter than execution delay', function () {
@@ -254,7 +275,7 @@ function shouldBehaveLikeDelayedOperation() {
         this.scheduleIn = this.executionDelay;
       });
 
-      shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+      shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
     });
   });
 
@@ -265,7 +286,7 @@ function shouldBehaveLikeDelayedOperation() {
       this.scheduleIn = this.executionDelay;
     });
 
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   });
 }
 
@@ -281,13 +302,13 @@ function shouldBehaveLikeCanCall({
     externalCaller: { requiredPublicRole, notRequiredPublicRole },
   },
 }) {
-  shouldBehaveLikeClosable.call(this, {
+  shouldBehaveLikeClosable({
     closed,
     open: function () {
-      shouldBehaveLikeARestrictedOperation.call(this, {
+      shouldBehaveLikeARestrictedOperation({
         managerCaller,
         externalCaller: function () {
-          shouldBehaveLikeHasRole.call(this, {
+          shouldBehaveLikeHasRole({
             requiredPublicRole,
             notRequiredPublicRole,
           });
@@ -309,7 +330,7 @@ function shouldBehaveLikeCanCallExecuting({ executing, notExecuting }) {
       await setStorageAt(this.manager.address, 3, executionId);
     });
 
-    executing.call(this);
+    executing();
   });
 
   describe('when is not executing', notExecuting);
@@ -327,7 +348,7 @@ function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) 
       });
     });
 
-    requiredPublicRole.call(this);
+    requiredPublicRole();
   });
 
   describe('when required role is not PUBLIC_ROLE', function () {
@@ -337,7 +358,7 @@ function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) 
       });
     });
 
-    shouldBehaveLikeGetAccess.call(this, notRequiredPublicRole);
+    shouldBehaveLikeGetAccess(notRequiredPublicRole);
   });
 }
 
@@ -364,7 +385,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        shouldBehaveLikeDelay.call(this, 'grant', case1);
+        shouldBehaveLikeDelay('grant', case1);
       });
 
       describe('without caller execution delay', function () {
@@ -374,7 +395,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        shouldBehaveLikeDelay.call(this, 'grant', case2);
+        shouldBehaveLikeDelay('grant', case2);
       });
     });
 
@@ -390,7 +411,7 @@ function shouldBehaveLikeGetAccess({
           this.scheduleIn = this.executionDelay;
         });
 
-        case3.call(this);
+        case3();
       });
 
       describe('without caller execution delay', function () {
@@ -399,7 +420,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        case4.call(this);
+        case4();
       });
     });
   });
@@ -413,7 +434,7 @@ function shouldBehaveLikeGetAccess({
       expect(since).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
-    roleNotGranted.call(this);
+    roleNotGranted();
   });
 }
 
@@ -429,26 +450,30 @@ function shouldBehaveLikeDelayedAdminOperation() {
       // Consume previously set delay
       await mine();
     });
-    shouldBehaveLikeDelayedOperation.call(this);
+    shouldBehaveLikeDelayedOperation();
   };
   getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
   });
 
-  shouldBehaveLikeARestrictedOperation.call(this, {
+  shouldBehaveLikeARestrictedOperation({
     managerCaller: COMMON_IS_EXECUTING_PATH,
     externalCaller: function () {
-      shouldBehaveLikeHasRole.call(this, {
+      shouldBehaveLikeHasRole({
         requiredPublicRole: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(callMethod.call(this), 'AccessManagerUnauthorizedAccount', [
-              this.caller,
-              this.roles.ADMIN.id, // Although PUBLIC is required, target function role doesn't apply to admin ops
-            ]);
+            await expectRevertCustomError(
+              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+              'AccessManagerUnauthorizedAccount',
+              [
+                this.caller,
+                this.roles.ADMIN.id, // Although PUBLIC is required, target function role doesn't apply to admin ops
+              ],
+            );
           });
         },
         notRequiredPublicRole: getAccessPath,
@@ -467,20 +492,20 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
       await mine();
       this.scheduleIn = this.executionDelay;
     });
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
   getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
   });
 
-  shouldBehaveLikeARestrictedOperation.call(this, {
+  shouldBehaveLikeARestrictedOperation({
     managerCaller: COMMON_IS_EXECUTING_PATH,
     externalCaller: function () {
-      shouldBehaveLikeHasRole.call(this, {
+      shouldBehaveLikeHasRole({
         requiredPublicRole: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
@@ -506,20 +531,20 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
       await mine();
       this.scheduleIn = this.executionDelay;
     });
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
   getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
   });
 
-  shouldBehaveLikeARestrictedOperation.call(this, {
+  shouldBehaveLikeARestrictedOperation({
     managerCaller: COMMON_IS_EXECUTING_PATH,
     externalCaller: function () {
-      shouldBehaveLikeHasRole.call(this, {
+      shouldBehaveLikeHasRole({
         requiredPublicRole: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
@@ -543,7 +568,11 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
 function shouldBehaveLikeAManagedRestrictedOperation() {
   function revertUnauthorized() {
     it('reverts as AccessManagedUnauthorized', async function () {
-      await expectRevertCustomError(callMethod.call(this), 'AccessManagedUnauthorized', [this.caller]);
+      await expectRevertCustomError(
+        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
+        'AccessManagedUnauthorized',
+        [this.caller],
+      );
     });
   }
 
@@ -559,10 +588,10 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
       await mine();
       this.scheduleIn = this.executionDelay;
     });
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
   getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
-    shouldBehaveLikeSchedulableOperation.call(this, COMMON_SCHEDULABLE_PATH);
+    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
 
   const isExecutingPath = COMMON_IS_EXECUTING_PATH;
@@ -575,7 +604,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
       externalCaller: {
         requiredPublicRole: function () {
           it('succeeds', async function () {
-            await callMethod.call(this);
+            await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
         },
         notRequiredPublicRole: getAccessPath,
@@ -589,25 +618,26 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
 /**
  * @requires this.{manager, caller, target, calldata}
  */
-async function scheduleOperation() {
+async function scheduleOperation(manager, { caller, target, calldata, delay }) {
   const timestamp = await time.latest();
-  const nextTimestamp = timestamp.addn(1);
-  await setNextBlockTimestamp(nextTimestamp); // Fix next block timestamp for predictability
-  await this.manager.schedule(this.target.address, this.calldata, nextTimestamp.add(this.delay), {
-    from: this.caller,
+  const scheduledAt = timestamp.addn(1);
+  await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
+  await manager.schedule(target, calldata, scheduledAt.add(delay), {
+    from: caller,
   });
 
   return {
-    operationId: await this.manager.hashOperation(this.caller, this.target.address, this.calldata),
+    scheduledAt: scheduledAt,
+    operationId: await manager.hashOperation(caller, target, calldata),
   };
 }
 
 /**
  * @requires this.{target, calldata, caller}
  */
-function callMethod() {
-  return web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
-}
+// function web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }) {
+//   return web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+// }
 
 module.exports = {
   // MODE HELPERS

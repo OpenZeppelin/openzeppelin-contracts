@@ -12,14 +12,15 @@ const {
   // METHOD HELPERS
   shouldBehaveLikeGetAccess,
   shouldBehaveLikeHasRole,
+  shouldBehaveLikeCanCall,
   // ADMIN OPERATION HELPERS
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeNotDelayedAdminOperation,
   shouldBehaveLikeRoleAdminOperation,
   // RESTRICTED OPERATION HELPERS
   shouldBehaveLikeAManagedRestrictedOperation,
-  shouldBehaveLikeCanCall,
   shouldBehaveLikeSchedulableOperation,
+  // HELPERS
   scheduleOperation,
 } = require('./AccessManager.behavior');
 const { default: Wallet } = require('ethereumjs-wallet');
@@ -751,7 +752,12 @@ contract('AccessManager', function (accounts) {
           this.calldata = await this.target.contract.methods[method]().encodeABI();
           this.delay = time.duration.days(10);
 
-          const { operationId } = await scheduleOperation.call(this);
+          const { operationId } = await scheduleOperation(this.manager, {
+            caller: this.caller,
+            target: this.target.address,
+            calldata: this.calldata,
+            delay: this.delay,
+          });
           this.operationId = operationId;
         });
 
@@ -1806,7 +1812,7 @@ contract('AccessManager', function (accounts) {
           this.caller = user;
         });
 
-        shouldBehaveLikeAManagedRestrictedOperation.call(this);
+        shouldBehaveLikeAManagedRestrictedOperation();
       });
 
       it('succeeds called by a role member', async function () {
