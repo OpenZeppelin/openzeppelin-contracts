@@ -68,7 +68,7 @@ contract('AccessManager', function (accounts) {
     }
   });
 
-  describe('during construction', async function () {
+  describe('during construction', function () {
     it('grants admin role to initialAdmin', async function () {
       const manager = await AccessManager.new(other);
       expect(await manager.hasRole(this.roles.ADMIN.id, other).then(formatAccess)).to.be.deep.equal([true, '0']);
@@ -94,7 +94,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('getters', async function () {
+  describe('getters', function () {
     describe('#canCall', function () {
       beforeEach('set calldata', function () {
         this.calldata = '0x1234';
@@ -472,7 +472,7 @@ contract('AccessManager', function (accounts) {
         roleGranted: {
           roleWithGrantDelay: {
             callerWithExecutionDelay: {
-              before: async function () {
+              before: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -489,7 +489,7 @@ contract('AccessManager', function (accounts) {
                   expect(await time.latest()).to.be.bignumber.lt(access[0]);
                 });
               },
-              after: async function () {
+              after: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -592,7 +592,7 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeHasRole({
-        requiredPublicRole: async function () {
+        requiredPublicRole: function () {
           it('has PUBLIC role', async function () {
             const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
             expect(isMember).to.be.true;
@@ -788,14 +788,14 @@ contract('AccessManager', function (accounts) {
   });
 
   describe('admin operations', function () {
-    beforeEach('set required role', async function () {
+    beforeEach('set required role', function () {
       this.role = this.roles.ADMIN;
     });
 
     describe('subject to a delay', function () {
       describe('#labelRole', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'labelRole(uint64,string)';
             const args = [123443, 'TEST'];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -839,7 +839,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setRoleAdmin', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setRoleAdmin(uint64,uint64)';
             const args = [93445, 84532];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -876,7 +876,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setRoleGuardian', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setRoleGuardian(uint64,uint64)';
             const args = [93445, 84532];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -917,7 +917,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setGrantDelay', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setGrantDelay(uint64,uint32)';
             const args = [984910, time.duration.days(2)];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1007,7 +1007,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setTargetAdminDelay', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setTargetAdminDelay(address,uint32)';
             const args = [Wallet.generate().getChecksumAddressString(), time.duration.days(3)];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1104,7 +1104,7 @@ contract('AccessManager', function (accounts) {
         });
 
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'updateAuthority(address,address)';
             const args = [this.newManagedTarget.address, this.newAuthority.address];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1131,7 +1131,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setTargetClosed', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setTargetClosed(address,bool)';
             const args = [Wallet.generate().getChecksumAddressString(), true];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1162,7 +1162,7 @@ contract('AccessManager', function (accounts) {
 
       describe('#setTargetFunctionRole', function () {
         describe('restrictions', function () {
-          beforeEach('set method and args', async function () {
+          beforeEach('set method and args', function () {
             const method = 'setTargetFunctionRole(address,bytes4[],uint64)';
             const args = [Wallet.generate().getChecksumAddressString(), ['0x12345678'], 443342];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1238,7 +1238,7 @@ contract('AccessManager', function (accounts) {
 
         describe('#grantRole', function () {
           describe('restrictions', function () {
-            beforeEach('set method and args', async function () {
+            beforeEach('set method and args', function () {
               const method = 'grantRole(uint64,address,uint32)';
               const args = [ANOTHER_ROLE, Wallet.generate().getChecksumAddressString(), 0];
               this.calldata = this.manager.contract.methods[method](...args).encodeABI();
@@ -1801,13 +1801,13 @@ contract('AccessManager', function (accounts) {
     describe('when calling a restricted target function', function () {
       const method = 'fnRestricted()';
 
-      beforeEach('set required role', async function () {
+      beforeEach('set required role', function () {
         this.role = { id: web3.utils.toBN(3597243) };
         this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
       });
 
       describe('restrictions', function () {
-        beforeEach('set method and args', async function () {
+        beforeEach('set method and args', function () {
           this.calldata = this.target.contract.methods[method]().encodeABI();
           this.caller = user;
         });
@@ -1831,7 +1831,7 @@ contract('AccessManager', function (accounts) {
     describe('when calling a non-restricted target function', function () {
       const method = 'fnUnrestricted()';
 
-      beforeEach('set required role', async function () {
+      beforeEach('set required role', function () {
         this.role = { id: web3.utils.toBN(879435) };
         this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
       });
