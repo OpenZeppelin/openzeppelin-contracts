@@ -114,7 +114,7 @@ contract('AccessManager', function (accounts) {
           });
         },
         open: {
-          managerCaller: {
+          callerIsTheManager: {
             executing: function () {
               it('should return true and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
@@ -138,8 +138,8 @@ contract('AccessManager', function (accounts) {
               });
             },
           },
-          externalCaller: {
-            requiredPublicRole: function () {
+          callerIsNotTheManager: {
+            publicRoleIsRequired: function () {
               it('should return true and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
@@ -150,10 +150,10 @@ contract('AccessManager', function (accounts) {
                 expect(delay).to.be.bignumber.equal('0');
               });
             },
-            notRequiredPublicRole: {
-              roleGranted: {
-                roleWithGrantDelay: {
-                  callerWithExecutionDelay: {
+            specificRoleIsRequired: {
+              requiredRoleIsGranted: {
+                roleGrantingIsDelayed: {
+                  callerHasAnExecutionDelay: {
                     before: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
@@ -227,7 +227,7 @@ contract('AccessManager', function (accounts) {
                       });
                     },
                   },
-                  callerWithoutExecutionDelay: {
+                  callerHasNoExecutionDelay: {
                     before: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
@@ -262,8 +262,8 @@ contract('AccessManager', function (accounts) {
                     },
                   },
                 },
-                roleWithoutGrantDelay: {
-                  callerWithExecutionDelay: function () {
+                roleGrantingIsNotDelayed: {
+                  callerHasAnExecutionDelay: function () {
                     it('should return false and execution delay', async function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
@@ -274,7 +274,7 @@ contract('AccessManager', function (accounts) {
                       expect(delay).to.be.bignumber.equal(this.executionDelay);
                     });
                   },
-                  callerWithoutExecutionDelay: function () {
+                  callerHasNoExecutionDelay: function () {
                     it('should return true and no execution delay', async function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
@@ -287,7 +287,7 @@ contract('AccessManager', function (accounts) {
                   },
                 },
               },
-              roleNotGranted: function () {
+              requiredRoleIsNotGranted: function () {
                 it('should return false and no execution delay', async function () {
                   const { immediate, delay } = await this.manager.canCall(
                     this.caller,
@@ -469,9 +469,9 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeGetAccess({
-        roleGranted: {
-          roleWithGrantDelay: {
-            callerWithExecutionDelay: {
+        requiredRoleIsGranted: {
+          roleGrantingIsDelayed: {
+            callerHasAnExecutionDelay: {
               before: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
@@ -508,7 +508,7 @@ contract('AccessManager', function (accounts) {
                 });
               },
             },
-            callerWithoutExecutionDelay: {
+            callerHasNoExecutionDelay: {
               before: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
@@ -545,8 +545,8 @@ contract('AccessManager', function (accounts) {
               },
             },
           },
-          roleWithoutGrantDelay: {
-            callerWithExecutionDelay: function () {
+          roleGrantingIsNotDelayed: {
+            callerHasAnExecutionDelay: function () {
               it('access has role in effect and execution delay is set', async function () {
                 const access = await this.manager.getAccess(this.role.id, this.caller);
                 expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
@@ -558,7 +558,7 @@ contract('AccessManager', function (accounts) {
                 expect(await time.latest()).to.be.bignumber.equal(access[0]);
               });
             },
-            callerWithoutExecutionDelay: function () {
+            callerHasNoExecutionDelay: function () {
               it('access has role in effect without execution delay', async function () {
                 const access = await this.manager.getAccess(this.role.id, this.caller);
                 expect(access[0]).to.be.bignumber.equal(await time.latest()); // inEffectSince
@@ -572,7 +572,7 @@ contract('AccessManager', function (accounts) {
             },
           },
         },
-        roleNotGranted: function () {
+        requiredRoleIsNotGranted: function () {
           it('has empty access', async function () {
             const access = await this.manager.getAccess(this.role.id, this.caller);
             expect(access[0]).to.be.bignumber.equal('0'); // inEffectSince
@@ -592,17 +592,17 @@ contract('AccessManager', function (accounts) {
       });
 
       shouldBehaveLikeHasRole({
-        requiredPublicRole: function () {
+        publicRoleIsRequired: function () {
           it('has PUBLIC role', async function () {
             const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
             expect(isMember).to.be.true;
             expect(executionDelay).to.be.bignumber.eq('0');
           });
         },
-        notRequiredPublicRole: {
-          roleGranted: {
-            roleWithGrantDelay: {
-              callerWithExecutionDelay: {
+        specificRoleIsRequired: {
+          requiredRoleIsGranted: {
+            roleGrantingIsDelayed: {
+              callerHasAnExecutionDelay: {
                 before: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
@@ -628,7 +628,7 @@ contract('AccessManager', function (accounts) {
                   });
                 },
               },
-              callerWithoutExecutionDelay: {
+              callerHasNoExecutionDelay: {
                 before: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
@@ -655,15 +655,15 @@ contract('AccessManager', function (accounts) {
                 },
               },
             },
-            roleWithoutGrantDelay: {
-              callerWithExecutionDelay: function () {
+            roleGrantingIsNotDelayed: {
+              callerHasAnExecutionDelay: function () {
                 it('has role and execution delay', async function () {
                   const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                   expect(isMember).to.be.true;
                   expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
                 });
               },
-              callerWithoutExecutionDelay: function () {
+              callerHasNoExecutionDelay: function () {
                 it('has role and no execution delay', async function () {
                   const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                   expect(isMember).to.be.true;
@@ -672,7 +672,7 @@ contract('AccessManager', function (accounts) {
               },
             },
           },
-          roleNotGranted: function () {
+          requiredRoleIsNotGranted: function () {
             it('has no role and no execution delay', async function () {
               const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
               expect(isMember).to.be.false;

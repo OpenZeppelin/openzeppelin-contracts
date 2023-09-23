@@ -28,9 +28,9 @@ const COMMON_IS_EXECUTING_PATH = {
 };
 
 const COMMON_GET_ACCESS_PATH = {
-  roleGranted: {
-    roleWithGrantDelay: {
-      callerWithExecutionDelay: {
+  requiredRoleIsGranted: {
+    roleGrantingIsDelayed: {
+      callerHasAnExecutionDelay: {
         before: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
@@ -42,7 +42,7 @@ const COMMON_GET_ACCESS_PATH = {
         },
         after: undefined, // Diverges if there's an operation delay or not
       },
-      callerWithoutExecutionDelay: {
+      callerHasNoExecutionDelay: {
         before: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
@@ -59,16 +59,16 @@ const COMMON_GET_ACCESS_PATH = {
         },
       },
     },
-    roleWithoutGrantDelay: {
-      callerWithExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
-      callerWithoutExecutionDelay: function () {
+    roleGrantingIsNotDelayed: {
+      callerHasAnExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
+      callerHasNoExecutionDelay: function () {
         it('succeeds', async function () {
           await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
         });
       },
     },
   },
-  roleNotGranted: function () {
+  requiredRoleIsNotGranted: function () {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expectRevertCustomError(
         web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -230,14 +230,14 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
 /**
  * @requires this.{manager,roles,target,calldata}
  */
-function shouldBehaveLikeARestrictedOperation({ externalCaller, managerCaller }) {
+function shouldBehaveLikeARestrictedOperation({ callerIsNotTheManager, callerIsTheManager }) {
   describe('when the call comes from the manager (msg.sender == manager)', function () {
     beforeEach('define caller as manager', async function () {
       this.caller = this.manager.address;
       await impersonate(this.caller);
     });
 
-    shouldBehaveLikeCanCallExecuting(managerCaller);
+    shouldBehaveLikeCanCallExecuting(callerIsTheManager);
   });
 
   describe('when the call does not come from the manager (msg.sender != manager)', function () {
@@ -245,7 +245,7 @@ function shouldBehaveLikeARestrictedOperation({ externalCaller, managerCaller })
       this.caller = this.roles.SOME.members[0];
     });
 
-    externalCaller();
+    callerIsNotTheManager();
   });
 }
 
@@ -294,19 +294,19 @@ function shouldBehaveLikeDelayedOperation() {
 function shouldBehaveLikeCanCall({
   closed,
   open: {
-    managerCaller,
-    externalCaller: { requiredPublicRole, notRequiredPublicRole },
+    callerIsTheManager,
+    callerIsNotTheManager: { publicRoleIsRequired, specificRoleIsRequired },
   },
 }) {
   shouldBehaveLikeClosable({
     closed,
     open: function () {
       shouldBehaveLikeARestrictedOperation({
-        managerCaller,
-        externalCaller: function () {
+        callerIsTheManager,
+        callerIsNotTheManager: function () {
           shouldBehaveLikeHasRole({
-            requiredPublicRole,
-            notRequiredPublicRole,
+            publicRoleIsRequired,
+            specificRoleIsRequired,
           });
         },
       });
@@ -335,7 +335,7 @@ function shouldBehaveLikeCanCallExecuting({ executing, notExecuting }) {
 /**
  * @requires this.{target,calldata,roles,role}
  */
-function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) {
+function shouldBehaveLikeHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
   describe('when the function requires the caller to be granted with the PUBLIC_ROLE', function () {
     beforeEach('set target function role as PUBLIC_ROLE', async function () {
       this.role = this.roles.PUBLIC;
@@ -344,7 +344,7 @@ function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) 
       });
     });
 
-    requiredPublicRole();
+    publicRoleIsRequired();
   });
 
   describe('when the function requires the caller to be granted with a role other than PUBLIC_ROLE', function () {
@@ -354,7 +354,7 @@ function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) 
       });
     });
 
-    shouldBehaveLikeGetAccess(notRequiredPublicRole);
+    shouldBehaveLikeGetAccess(specificRoleIsRequired);
   });
 }
 
@@ -362,11 +362,11 @@ function shouldBehaveLikeHasRole({ requiredPublicRole, notRequiredPublicRole }) 
  * @requires this.{manager,role,caller}
  */
 function shouldBehaveLikeGetAccess({
-  roleGranted: {
-    roleWithGrantDelay: { callerWithExecutionDelay: case1, callerWithoutExecutionDelay: case2 },
-    roleWithoutGrantDelay: { callerWithExecutionDelay: case3, callerWithoutExecutionDelay: case4 },
+  requiredRoleIsGranted: {
+    roleGrantingIsDelayed: { callerHasAnExecutionDelay: case1, callerHasNoExecutionDelay: case2 },
+    roleGrantingIsNotDelayed: { callerHasAnExecutionDelay: case3, callerHasNoExecutionDelay: case4 },
   },
-  roleNotGranted,
+  requiredRoleIsNotGranted,
 }) {
   describe('when the required role is granted to the caller', function () {
     describe('when role granting is delayed', function () {
@@ -429,7 +429,7 @@ function shouldBehaveLikeGetAccess({
       expect(since).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
-    roleNotGranted();
+    requiredRoleIsNotGranted();
   });
 }
 
@@ -440,14 +440,14 @@ function shouldBehaveLikeGetAccess({
  */
 function shouldBehaveLikeDelayedAdminOperation() {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
     beforeEach('consume previously set grant delay', async function () {
       // Consume previously set delay
       await mine();
     });
     shouldBehaveLikeDelayedOperation();
   };
-  getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeDelayedOperation
     });
@@ -459,10 +459,10 @@ function shouldBehaveLikeDelayedAdminOperation() {
   });
 
   shouldBehaveLikeARestrictedOperation({
-    managerCaller: COMMON_IS_EXECUTING_PATH,
-    externalCaller: function () {
+    callerIsTheManager: COMMON_IS_EXECUTING_PATH,
+    callerIsNotTheManager: function () {
       shouldBehaveLikeHasRole({
-        requiredPublicRole: function () {
+        publicRoleIsRequired: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -474,7 +474,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
             );
           });
         },
-        notRequiredPublicRole: getAccessPath,
+        specificRoleIsRequired: getAccessPath,
       });
     },
   });
@@ -485,14 +485,14 @@ function shouldBehaveLikeDelayedAdminOperation() {
  */
 function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
     beforeEach('set execution delay', async function () {
       await mine();
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
     });
     shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
-  getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
     });
@@ -504,10 +504,10 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
   });
 
   shouldBehaveLikeARestrictedOperation({
-    managerCaller: COMMON_IS_EXECUTING_PATH,
-    externalCaller: function () {
+    callerIsTheManager: COMMON_IS_EXECUTING_PATH,
+    callerIsNotTheManager: function () {
       shouldBehaveLikeHasRole({
-        requiredPublicRole: function () {
+        publicRoleIsRequired: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -516,7 +516,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
             );
           });
         },
-        notRequiredPublicRole: getAccessPath,
+        specificRoleIsRequired: getAccessPath,
       });
     },
   });
@@ -527,14 +527,14 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
  */
 function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
     beforeEach('set operation delay', async function () {
       await mine();
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
     });
     shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
-  getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
     });
@@ -546,10 +546,10 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   });
 
   shouldBehaveLikeARestrictedOperation({
-    managerCaller: COMMON_IS_EXECUTING_PATH,
-    externalCaller: function () {
+    callerIsTheManager: COMMON_IS_EXECUTING_PATH,
+    callerIsNotTheManager: function () {
       shouldBehaveLikeHasRole({
-        requiredPublicRole: function () {
+        publicRoleIsRequired: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -558,7 +558,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
             );
           });
         },
-        notRequiredPublicRole: getAccessPath,
+        specificRoleIsRequired: getAccessPath,
       });
     },
   });
@@ -582,11 +582,11 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
 
   const getAccessPath = COMMON_GET_ACCESS_PATH;
 
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.before = revertUnauthorized;
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithoutExecutionDelay.before = revertUnauthorized;
-  getAccessPath.roleNotGranted = revertUnauthorized;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.before = revertUnauthorized;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasNoExecutionDelay.before = revertUnauthorized;
+  getAccessPath.requiredRoleIsNotGranted = revertUnauthorized;
 
-  getAccessPath.roleGranted.roleWithGrantDelay.callerWithExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
     beforeEach('consume previously set grant delay', async function () {
       // Consume previously set delay
       await mine();
@@ -594,7 +594,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     });
     shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
   };
-  getAccessPath.roleGranted.roleWithoutGrantDelay.callerWithExecutionDelay = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('consume previously set grant delay', async function () {
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
     });
@@ -607,14 +607,14 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
   shouldBehaveLikeCanCall({
     closed: revertUnauthorized,
     open: {
-      managerCaller: isExecutingPath,
-      externalCaller: {
-        requiredPublicRole: function () {
+      callerIsTheManager: isExecutingPath,
+      callerIsNotTheManager: {
+        publicRoleIsRequired: function () {
           it('succeeds', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
         },
-        notRequiredPublicRole: getAccessPath,
+        specificRoleIsRequired: getAccessPath,
       },
     },
   });
