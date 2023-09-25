@@ -379,7 +379,7 @@ function shouldBehaveLikeGetAccess({
     roleGrantingIsDelayed: {
       // Because both grant and execution delay are set within the same $_grantRole call
       // it's not possible to create a set of tests that diverge between grant and execution delay.
-      // Thefore, the shouldBehaveLikeDelay arguments are renamed for clarity:
+      // Therefore, the shouldBehaveLikeDelay arguments are renamed for clarity:
       // before => beforeGrantDelay
       // after => afterGrantDelay
       callerHasAnExecutionDelay: { beforeGrantDelay: case1, afterGrantDelay: case2 },
