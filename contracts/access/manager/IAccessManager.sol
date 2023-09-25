@@ -32,7 +32,7 @@ interface IAccessManager {
     /**
      * @dev Emitted when `account` is granted `roleId`.
      *
-     * NOTE: The meaning of the `since` argument depends on the `newMember` argument. 
+     * NOTE: The meaning of the `since` argument depends on the `newMember` argument.
      * If the role is granted to a new member, the `since` argument indicates when the delay goes into effect,
      * otherwise it indicates the time when the roleId comes into effect.
      */

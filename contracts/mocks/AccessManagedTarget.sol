@@ -19,10 +19,10 @@ abstract contract AccessManagedTarget is AccessManaged {
 
     function setIsConsumingScheduledOp(bool isConsuming) external {
         // Memory layout is 0x....<_consumingSchedule (boolean)><authority (address)>
-        _consumingSchedule().value |= bytes32(uint256(isConsuming? 1 : 0)) << 161;
+        _consumingSchedule().value |= bytes32(uint256(isConsuming ? 1 : 0)) << 161;
     }
 
-    function _consumingSchedule() internal pure returns(StorageSlot.Bytes32Slot storage) {
+    function _consumingSchedule() internal pure returns (StorageSlot.Bytes32Slot storage) {
         return StorageSlot.getBytes32Slot(bytes32(uint256(0)));
     }
 }

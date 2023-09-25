@@ -112,7 +112,7 @@ contract('AccessManager', function (accounts) {
   describe('getters', function () {
     describe('#canCall', function () {
       beforeEach('set calldata', function () {
-        this.calldata = '0x1234';
+        this.calldata = '0x12345678';
         this.role = { id: web3.utils.toBN(379204) };
       });
 

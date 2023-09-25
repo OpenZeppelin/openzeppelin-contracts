@@ -617,7 +617,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // if call is not authorized, or if requested timing is too soon
         if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
-            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data[0:4]));
+            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
 
         // Reuse variable due to stack too deep
@@ -670,7 +670,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // If caller is not authorised, revert
         if (!immediate && setback == 0) {
-            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
+            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
 
         // If caller is authorised, check operation was scheduled early enough
@@ -683,7 +683,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // Mark the target and selector as authorised
         bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, bytes4(data));
+        _executionId = _hashExecutionId(target, _checkSelector(data));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
@@ -746,7 +746,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
         address msgsender = _msgSender();
-        bytes4 selector = bytes4(data[0:4]);
+        bytes4 selector = _checkSelector(data);
 
         bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
@@ -821,11 +821,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function _getAdminRestrictions(
         bytes calldata data
     ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
-        bytes4 selector = bytes4(data);
-
-        if (data.length < 4) {
-            return (false, 0, 0);
-        }
+        bytes4 selector = _checkSelector(data);
 
         // Restricted to ADMIN with no delay beside any execution delay the caller may have
         if (
@@ -877,7 +873,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
-            bytes4 selector = bytes4(data);
+            bytes4 selector = _checkSelector(data);
             return canCall(caller, target, selector);
         }
     }
@@ -889,7 +885,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
-            return (_isExecuting(address(this), bytes4(data)), 0);
+            return (_isExecuting(address(this), _checkSelector(data)), 0);
         }
 
         (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
@@ -919,5 +915,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _isExpired(uint48 timepoint) private view returns (bool) {
         return timepoint + expiration() <= Time.timestamp();
+    }
+
+    /**
+     * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
+     */
+    function _checkSelector(bytes calldata data) private pure returns (bytes4) {
+        return bytes4(data[0:4]);
     }
 }
