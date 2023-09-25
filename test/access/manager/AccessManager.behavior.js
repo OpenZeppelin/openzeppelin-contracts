@@ -6,7 +6,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { EXPIRATION } = require('../../helpers/access-manager');
+const { EXPIRATION, EXECUTION_ID_STORAGE_SLOT } = require('../../helpers/access-manager');
 
 // ============ COMMON PATHS ============
 
@@ -53,8 +53,12 @@ const COMMON_GET_ACCESS_PATH = {
           });
         },
         afterGrantDelay: function () {
-          it('succeeds', async function () {
+          it('succeeds called directly', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+          });
+
+          it('succeeds via execute', async function () {
+            await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
           });
         },
       },
@@ -62,8 +66,12 @@ const COMMON_GET_ACCESS_PATH = {
     roleGrantingIsNotDelayed: {
       callerHasAnExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
       callerHasNoExecutionDelay: function () {
-        it('succeeds', async function () {
+        it('succeeds called directly', async function () {
           await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+        });
+
+        it('succeeds via execute', async function () {
+          await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
         });
       },
     },
@@ -91,8 +99,12 @@ const COMMON_SCHEDULABLE_PATH = {
       });
     },
     after: function () {
-      it('succeeds', async function () {
+      it('succeeds called directly', async function () {
         await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+      });
+
+      it('succeeds via execute', async function () {
+        await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
       });
     },
     expired: function () {
@@ -175,6 +187,7 @@ function shouldBehaveLikeDelay(type, { before, after }) {
 function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expired }, notScheduled }) {
   describe('when operation is scheduled', function () {
     beforeEach('schedule operation', async function () {
+      await impersonate(this.caller); // May be a contract
       const { operationId } = await scheduleOperation(this.manager, {
         caller: this.caller,
         target: this.target.address,
@@ -323,7 +336,7 @@ function shouldBehaveLikeCanCallExecuting({ executing, notExecuting }) {
       const executionId = await web3.utils.keccak256(
         web3.eth.abi.encodeParameters(['address', 'bytes4'], [this.target.address, this.calldata.substring(0, 10)]),
       );
-      await setStorageAt(this.manager.address, 3, executionId);
+      await setStorageAt(this.manager.address, EXECUTION_ID_STORAGE_SLOT, executionId);
     });
 
     executing();
@@ -620,8 +633,12 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
       callerIsTheManager: isExecutingPath,
       callerIsNotTheManager: {
         publicRoleIsRequired: function () {
-          it('succeeds', async function () {
+          it('succeeds called directly', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+          });
+
+          it('succeeds via execute', async function () {
+            await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
           });
         },
         specificRoleIsRequired: getAccessPath,
@@ -639,17 +656,20 @@ async function scheduleOperation(manager, { caller, target, calldata, delay }) {
   const timestamp = await time.latest();
   const scheduledAt = timestamp.addn(1);
   await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
-  await manager.schedule(target, calldata, scheduledAt.add(delay), {
+  const { receipt } = await manager.schedule(target, calldata, scheduledAt.add(delay), {
     from: caller,
   });
 
   return {
-    scheduledAt: scheduledAt,
+    receipt,
+    scheduledAt,
     operationId: await manager.hashOperation(caller, target, calldata),
   };
 }
 
 module.exports = {
+  // COMMON PATHS
+  COMMON_SCHEDULABLE_PATH,
   // MODE HELPERS
   shouldBehaveLikeClosable,
   // DELAY HELPERS
