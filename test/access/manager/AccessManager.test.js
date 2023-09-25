@@ -24,7 +24,11 @@ const {
   scheduleOperation,
 } = require('./AccessManager.behavior');
 const { default: Wallet } = require('ethereumjs-wallet');
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+const {
+  mine,
+  time: { setNextBlockTimestamp },
+} = require('@nomicfoundation/hardhat-network-helpers');
+const { MAX_UINT48 } = require('../../helpers/constants');
 
 const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
@@ -154,7 +158,7 @@ contract('AccessManager', function (accounts) {
               requiredRoleIsGranted: {
                 roleGrantingIsDelayed: {
                   callerHasAnExecutionDelay: {
-                    before: function () {
+                    beforeGrantDelay: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
                         await mine();
@@ -170,7 +174,7 @@ contract('AccessManager', function (accounts) {
                         expect(delay).to.be.bignumber.equal('0');
                       });
                     },
-                    after: function () {
+                    afterGrantDelay: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
                         await mine();
@@ -180,6 +184,11 @@ contract('AccessManager', function (accounts) {
                       shouldBehaveLikeSchedulableOperation({
                         scheduled: {
                           before: function () {
+                            beforeEach('consume previously set delay', async function () {
+                              // Consume previously set delay
+                              await mine();
+                            });
+
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
@@ -191,6 +200,11 @@ contract('AccessManager', function (accounts) {
                             });
                           },
                           after: function () {
+                            beforeEach('consume previously set delay', async function () {
+                              // Consume previously set delay
+                              await mine();
+                            });
+
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
@@ -202,6 +216,10 @@ contract('AccessManager', function (accounts) {
                             });
                           },
                           expired: function () {
+                            beforeEach('consume previously set delay', async function () {
+                              // Consume previously set delay
+                              await mine();
+                            });
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
@@ -228,7 +246,7 @@ contract('AccessManager', function (accounts) {
                     },
                   },
                   callerHasNoExecutionDelay: {
-                    before: function () {
+                    beforeGrantDelay: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
                         await mine();
@@ -244,7 +262,7 @@ contract('AccessManager', function (accounts) {
                         expect(delay).to.be.bignumber.equal('0');
                       });
                     },
-                    after: function () {
+                    afterGrantDelay: function () {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
                         await mine();
@@ -457,7 +475,7 @@ contract('AccessManager', function (accounts) {
         });
       });
 
-      it('returns the 0 if not set', async function () {
+      it('returns 0 if delay is not set', async function () {
         expect(await this.manager.getTargetAdminDelay(this.target.address)).to.be.bignumber.equal('0');
       });
     });
@@ -472,7 +490,7 @@ contract('AccessManager', function (accounts) {
         requiredRoleIsGranted: {
           roleGrantingIsDelayed: {
             callerHasAnExecutionDelay: {
-              before: function () {
+              beforeGrantDelay: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -489,7 +507,7 @@ contract('AccessManager', function (accounts) {
                   expect(await time.latest()).to.be.bignumber.lt(access[0]);
                 });
               },
-              after: function () {
+              afterGrantDelay: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -509,7 +527,7 @@ contract('AccessManager', function (accounts) {
               },
             },
             callerHasNoExecutionDelay: {
-              before: function () {
+              beforeGrantDelay: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -526,7 +544,7 @@ contract('AccessManager', function (accounts) {
                   expect(await time.latest()).to.be.bignumber.lt(access[0]);
                 });
               },
-              after: function () {
+              afterGrantDelay: function () {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
                   await mine();
@@ -603,7 +621,7 @@ contract('AccessManager', function (accounts) {
           requiredRoleIsGranted: {
             roleGrantingIsDelayed: {
               callerHasAnExecutionDelay: {
-                before: function () {
+                beforeGrantDelay: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
                     await mine();
@@ -615,7 +633,7 @@ contract('AccessManager', function (accounts) {
                     expect(executionDelay).to.be.bignumber.eq(this.executionDelay);
                   });
                 },
-                after: function () {
+                afterGrantDelay: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
                     await mine();
@@ -629,7 +647,7 @@ contract('AccessManager', function (accounts) {
                 },
               },
               callerHasNoExecutionDelay: {
-                before: function () {
+                beforeGrantDelay: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
                     await mine();
@@ -641,7 +659,7 @@ contract('AccessManager', function (accounts) {
                     expect(executionDelay).to.be.bignumber.eq('0');
                   });
                 },
-                after: function () {
+                afterGrantDelay: function () {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
                     await mine();
@@ -1797,7 +1815,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('access managed target', function () {
+  describe('access managed target operations', function () {
     describe('when calling a restricted target function', function () {
       const method = 'fnRestricted()';
 
@@ -1831,9 +1849,9 @@ contract('AccessManager', function (accounts) {
     describe('when calling a non-restricted target function', function () {
       const method = 'fnUnrestricted()';
 
-      beforeEach('set required role', function () {
+      beforeEach('set required role', async function () {
         this.role = { id: web3.utils.toBN(879435) };
-        this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
+        await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
       });
 
       it('succeeds called by anyone', async function () {
@@ -1845,6 +1863,248 @@ contract('AccessManager', function (accounts) {
           caller: user,
         });
       });
+    });
+  });
+
+  describe.only('#schedule', function () {
+    const method = 'fnRestricted()';
+
+    beforeEach('set target function role', async function () {
+      this.role = { id: web3.utils.toBN(498305) };
+      this.caller = user;
+
+      await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
+      await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
+
+      this.calldata = this.target.contract.methods[method]().encodeABI();
+      this.delay = time.duration.weeks(2);
+    });
+
+    describe('restrictions', function () {
+      shouldBehaveLikeCanCall({
+        closed: function () {
+          it('reverts as AccessManagerUnauthorizedCall', async function () {
+            await expectRevertCustomError(
+              scheduleOperation(this.manager, {
+                caller: this.caller,
+                target: this.target.address,
+                calldata: this.calldata,
+                delay: this.delay,
+              }),
+              'AccessManagerUnauthorizedCall',
+              [this.caller, this.target.address, this.calldata.substring(0, 10)],
+            );
+          });
+        },
+        open: {
+          callerIsTheManager: {
+            executing: function () {
+              it('succeeds', async function () {
+                await scheduleOperation(this.manager, {
+                  caller: this.caller,
+                  target: this.target.address,
+                  calldata: this.calldata,
+                  delay: this.delay,
+                });
+              });
+            },
+            notExecuting: function () {
+              it('reverts as AccessManagerUnauthorizedCall', async function () {
+                await expectRevertCustomError(
+                  scheduleOperation(this.manager, {
+                    caller: this.caller,
+                    target: this.target.address,
+                    calldata: this.calldata,
+                    delay: this.delay,
+                  }),
+                  'AccessManagerUnauthorizedCall',
+                  [this.caller, this.target.address, this.calldata.substring(0, 10)],
+                );
+              });
+            },
+          },
+          callerIsNotTheManager: {
+            publicRoleIsRequired: function () {
+              it('succeeds', async function () {
+                await scheduleOperation(this.manager, {
+                  caller: this.caller,
+                  target: this.target.address,
+                  calldata: this.calldata,
+                  delay: this.delay,
+                });
+              });
+            },
+            specificRoleIsRequired: {
+              requiredRoleIsGranted: {
+                roleGrantingIsDelayed: {
+                  callerHasAnExecutionDelay: {
+                    beforeGrantDelay: function () {
+                      it('reverts as AccessManagerUnauthorizedCall', async function () {
+                        // scheduleOperation is not used here because it alters the next block timestamp
+                        await expectRevertCustomError(
+                          this.manager.schedule(this.target.address, this.calldata, MAX_UINT48, {
+                            from: this.caller,
+                          }),
+                          'AccessManagerUnauthorizedCall',
+                          [this.caller, this.target.address, this.calldata.substring(0, 10)],
+                        );
+                      });
+                    },
+                    afterGrantDelay: function () {
+                      it('succeeds', async function () {
+                        // scheduleOperation is not used here because it alters the next block timestamp
+                        await this.manager.schedule(this.target.address, this.calldata, MAX_UINT48, {
+                          from: this.caller,
+                        });
+                      });
+                    },
+                  },
+                  callerHasNoExecutionDelay: {
+                    beforeGrantDelay: function () {
+                      it('reverts as AccessManagerUnauthorizedCall', async function () {
+                        // scheduleOperation is not used here because it alters the next block timestamp
+                        await expectRevertCustomError(
+                          this.manager.schedule(this.target.address, this.calldata, MAX_UINT48, {
+                            from: this.caller,
+                          }),
+                          'AccessManagerUnauthorizedCall',
+                          [this.caller, this.target.address, this.calldata.substring(0, 10)],
+                        );
+                      });
+                    },
+                    afterGrantDelay: function () {
+                      it('succeeds', async function () {
+                        // scheduleOperation is not used here because it alters the next block timestamp
+                        await this.manager.schedule(this.target.address, this.calldata, MAX_UINT48, {
+                          from: this.caller,
+                        });
+                      });
+                    },
+                  },
+                },
+                roleGrantingIsNotDelayed: {
+                  callerHasAnExecutionDelay: function () {
+                    it('succeeds', async function () {
+                      await scheduleOperation(this.manager, {
+                        caller: this.caller,
+                        target: this.target.address,
+                        calldata: this.calldata,
+                        delay: this.delay,
+                      });
+                    });
+                  },
+                  callerHasNoExecutionDelay: function () {
+                    it('succeeds', async function () {
+                      await scheduleOperation(this.manager, {
+                        caller: this.caller,
+                        target: this.target.address,
+                        calldata: this.calldata,
+                        delay: this.delay,
+                      });
+                    });
+                  },
+                },
+              },
+              requiredRoleIsNotGranted: function () {
+                it('reverts as AccessManagerUnauthorizedCall', async function () {
+                  await expectRevertCustomError(
+                    scheduleOperation(this.manager, {
+                      caller: this.caller,
+                      target: this.target.address,
+                      calldata: this.calldata,
+                      delay: this.delay,
+                    }),
+                    'AccessManagerUnauthorizedCall',
+                    [this.caller, this.target.address, this.calldata.substring(0, 10)],
+                  );
+                });
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('schedules an operation at the specified execution date if it is larger than caller execution delay', async function () {
+      const { operationId, scheduledAt } = await scheduleOperation(this.manager, {
+        caller: this.caller,
+        target: this.target.address,
+        calldata: this.calldata,
+        delay: this.delay,
+      });
+
+      expect(await this.manager.getSchedule(operationId)).to.be.bignumber.equal(scheduledAt.add(this.delay));
+    });
+
+    it('schedules an operation at the minimum execution date if no specified execution date (when == 0)', async function () {
+      const executionDelay = await time.duration.hours(72);
+      await this.manager.$_grantRole(this.role.id, this.caller, 0, executionDelay);
+
+      const timestamp = await time.latest();
+      const scheduledAt = timestamp.addn(1);
+      await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
+      await this.manager.schedule(this.target.address, this.calldata, 0, {
+        from: this.caller,
+      });
+
+      const operationId = await this.manager.hashOperation(this.caller, this.target.address, this.calldata);
+
+      expect(await this.manager.getSchedule(operationId)).to.be.bignumber.equal(scheduledAt.add(executionDelay));
+    });
+
+    it('increases the nonce of an operation scheduled more than once', async function () {
+      // Setup and check initial nonce
+      const expectedOperationId = await web3.utils.keccak256(
+        web3.eth.abi.encodeParameters(
+          ['address', 'address', 'bytes'],
+          [this.caller, this.target.address, this.calldata],
+        ),
+      );
+      expect(await this.manager.getNonce(expectedOperationId)).to.be.bignumber.eq('0');
+
+      // Schedule
+      const op1 = await scheduleOperation(this.manager, {
+        caller: this.caller,
+        target: this.target.address,
+        calldata: this.calldata,
+        delay: this.delay,
+      });
+      expect(expectedOperationId).to.eq(op1.operationId);
+
+      // Consume
+      await time.increase(this.delay);
+      await this.manager.$_consumeScheduledOp(expectedOperationId);
+
+      // Check nonce
+      expect(await this.manager.getNonce(expectedOperationId)).to.be.bignumber.eq('1');
+
+      // Schedule again
+      const op2 = await scheduleOperation(this.manager, {
+        caller: this.caller,
+        target: this.target.address,
+        calldata: this.calldata,
+        delay: this.delay,
+      });
+      expect(expectedOperationId).to.eq(op2.operationId);
+
+      // Check final nonce
+      expect(await this.manager.getNonce(expectedOperationId)).to.be.bignumber.eq('2');
+    });
+
+    it('reverts if the specified execution date is before the current timestamp + caller execution delay', async function () {
+      const executionDelay = time.duration.weeks(1).add(this.delay);
+      await this.manager.$_grantRole(this.role.id, this.caller, 0, executionDelay);
+
+      await expectRevertCustomError(
+        scheduleOperation(this.manager, {
+          caller: this.caller,
+          target: this.target.address,
+          calldata: this.calldata,
+          delay: this.delay,
+        }),
+        'AccessManagerUnauthorizedCall',
+        [this.caller, this.target.address, this.calldata.substring(0, 10)],
+      );
     });
   });
 

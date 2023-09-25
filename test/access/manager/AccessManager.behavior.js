@@ -31,7 +31,7 @@ const COMMON_GET_ACCESS_PATH = {
   requiredRoleIsGranted: {
     roleGrantingIsDelayed: {
       callerHasAnExecutionDelay: {
-        before: function () {
+        beforeGrantDelay: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -40,10 +40,10 @@ const COMMON_GET_ACCESS_PATH = {
             );
           });
         },
-        after: undefined, // Diverges if there's an operation delay or not
+        afterGrantDelay: undefined, // Diverges if there's an operation delay or not
       },
       callerHasNoExecutionDelay: {
-        before: function () {
+        beforeGrantDelay: function () {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -52,7 +52,7 @@ const COMMON_GET_ACCESS_PATH = {
             );
           });
         },
-        after: function () {
+        afterGrantDelay: function () {
           it('succeeds', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
@@ -289,7 +289,7 @@ function shouldBehaveLikeDelayedOperation() {
 // ============ METHOD HELPERS ============
 
 /**
- * @requires this.{manager,roles,target,calldata}
+ * @requires this.{manager,roles,role,target,calldata}
  */
 function shouldBehaveLikeCanCall({
   closed,
@@ -363,8 +363,16 @@ function shouldBehaveLikeHasRole({ publicRoleIsRequired, specificRoleIsRequired 
  */
 function shouldBehaveLikeGetAccess({
   requiredRoleIsGranted: {
-    roleGrantingIsDelayed: { callerHasAnExecutionDelay: case1, callerHasNoExecutionDelay: case2 },
-    roleGrantingIsNotDelayed: { callerHasAnExecutionDelay: case3, callerHasNoExecutionDelay: case4 },
+    roleGrantingIsDelayed: {
+      // Because both grant and execution delay are set within the same $_grantRole call
+      // it's not possible to create a set of tests that diverge between grant and execution delay.
+      // Thefore, the shouldBehaveLikeDelay arguments are renamed for clarity:
+      // before => beforeGrantDelay
+      // after => afterGrantDelay
+      callerHasAnExecutionDelay: { beforeGrantDelay: case1, afterGrantDelay: case2 },
+      callerHasNoExecutionDelay: { beforeGrantDelay: case3, afterGrantDelay: case4 },
+    },
+    roleGrantingIsNotDelayed: { callerHasAnExecutionDelay: case5, callerHasNoExecutionDelay: case6 },
   },
   requiredRoleIsNotGranted,
 }) {
@@ -382,7 +390,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        shouldBehaveLikeDelay('grant', case1);
+        shouldBehaveLikeDelay('grant', { before: case1, after: case2 });
       });
 
       describe('when caller has no execution delay', function () {
@@ -391,7 +399,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        shouldBehaveLikeDelay('grant', case2);
+        shouldBehaveLikeDelay('grant', { before: case3, after: case4 });
       });
     });
 
@@ -406,7 +414,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        case3();
+        case5();
       });
 
       describe('when caller has no execution delay', function () {
@@ -415,7 +423,7 @@ function shouldBehaveLikeGetAccess({
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
-        case4();
+        case6();
       });
     });
   });
@@ -440,7 +448,7 @@ function shouldBehaveLikeGetAccess({
  */
 function shouldBehaveLikeDelayedAdminOperation() {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
     beforeEach('consume previously set grant delay', async function () {
       // Consume previously set delay
       await mine();
@@ -485,7 +493,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
  */
 function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
     beforeEach('set execution delay', async function () {
       await mine();
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
@@ -527,7 +535,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
  */
 function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   const getAccessPath = COMMON_GET_ACCESS_PATH;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
     beforeEach('set operation delay', async function () {
       await mine();
       this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
@@ -582,11 +590,13 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
 
   const getAccessPath = COMMON_GET_ACCESS_PATH;
 
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.before = revertUnauthorized;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasNoExecutionDelay.before = revertUnauthorized;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.beforeGrantDelay =
+    revertUnauthorized;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasNoExecutionDelay.beforeGrantDelay =
+    revertUnauthorized;
   getAccessPath.requiredRoleIsNotGranted = revertUnauthorized;
 
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.after = function () {
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
     beforeEach('consume previously set grant delay', async function () {
       // Consume previously set delay
       await mine();
@@ -638,13 +648,6 @@ async function scheduleOperation(manager, { caller, target, calldata, delay }) {
     operationId: await manager.hashOperation(caller, target, calldata),
   };
 }
-
-/**
- * @requires this.{target, calldata, caller}
- */
-// function web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }) {
-//   return web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
-// }
 
 module.exports = {
   // MODE HELPERS
