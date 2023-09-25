@@ -130,7 +130,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      */
-    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool immediate, uint32 delay) {
+    function canCall(
+        address caller,
+        address target,
+        bytes4 selector
+    ) public view virtual returns (bool immediate, uint32 delay) {
         if (isTargetClosed(target)) {
             return (false, 0);
         } else if (caller == address(this)) {
@@ -221,10 +225,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint64 roleId, address account) public view virtual returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect) {
+    function getAccess(
+        uint64 roleId,
+        address account
+    ) public view virtual returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect) {
         Access storage access = _roles[roleId].members[account];
 
-         since = access.since;
+        since = access.since;
         (currentDelay, pendingDelay, effect) = access.delay.getFull();
 
         return (since, currentDelay, pendingDelay, effect);
@@ -234,7 +241,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Check if a given account currently had the permission level corresponding to a given role. Note that this
      * permission might be associated with a delay. {getAccess} can provide more details.
      */
-    function hasRole(uint64 roleId, address account) public view virtual returns (bool isMember, uint32 executionDelay) {
+    function hasRole(
+        uint64 roleId,
+        address account
+    ) public view virtual returns (bool isMember, uint32 executionDelay) {
         if (roleId == PUBLIC_ROLE) {
             return (true, 0);
         } else {
@@ -776,7 +786,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * - uint64: which role is this operation restricted to
      * - uint32: minimum delay to enforce for that operation (on top of the admin's execution delay)
      */
-    function _getAdminRestrictions(bytes calldata data) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
+    function _getAdminRestrictions(
+        bytes calldata data
+    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
         bytes4 selector = _checkSelector(data);
 
         if (data.length < 4) {
@@ -827,7 +839,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * If immediate is true, the delay can be disregarded and the operation can be immediately executed.
      * If immediate is false, the operation can be executed if and only if delay is greater than 0.
      */
-    function _canCallExtended(address caller, address target, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+    function _canCallExtended(
+        address caller,
+        address target,
+        bytes calldata data
+    ) private view returns (bool immediate, uint32 delay) {
         if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
