@@ -2565,6 +2565,92 @@ contract('AccessManager', function (accounts) {
     });
   });
 
+  describe('#cancelScheduledOp', function () {
+    const method = 'fnRestricted()';
+
+    beforeEach('setup scheduling', async function () {
+      this.caller = this.roles.SOME.members[0];
+      await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.roles.SOME.id);
+
+      this.calldata = await this.target.contract.methods[method]().encodeABI();
+      this.scheduleIn = time.duration.days(10); // For shouldBehaveLikeSchedulableOperation
+    });
+
+    shouldBehaveLikeSchedulableOperation({
+      scheduled: {
+        before: function () {
+          describe('when caller is the scheduler', function () {
+            it('succeeds', async function () {
+              await this.manager.cancel(this.caller, this.target.address, this.calldata, { from: this.caller });
+            });
+          });
+
+          describe('when caller is an admin', function () {
+            it('succeeds', async function () {
+              await this.manager.cancel(this.caller, this.target.address, this.calldata, {
+                from: this.roles.ADMIN.members[0],
+              });
+            });
+          });
+
+          describe('when caller is the role guardian', function () {
+            it('succeeds', async function () {
+              await this.manager.cancel(this.caller, this.target.address, this.calldata, {
+                from: this.roles.SOME_GUARDIAN.members[0],
+              });
+            });
+          });
+
+          describe('when caller is any other account', function () {
+            it('reverts as AccessManagerUnauthorizedCancel', async function () {
+              await expectRevertCustomError(
+                this.manager.cancel(this.caller, this.target.address, this.calldata, { from: other }),
+                'AccessManagerUnauthorizedCancel',
+                [other, this.caller, this.target.address, selector(method)],
+              );
+            });
+          });
+        },
+        after: function () {
+          it('succeeds', async function () {
+            await this.manager.cancel(this.caller, this.target.address, this.calldata, { from: this.caller });
+          });
+        },
+        expired: function () {
+          it('succeeds', async function () {
+            await this.manager.cancel(this.caller, this.target.address, this.calldata, { from: this.caller });
+          });
+        },
+      },
+      notScheduled: function () {
+        it('reverts as AccessManagerNotScheduled', async function () {
+          await expectRevertCustomError(
+            this.manager.cancel(this.caller, this.target.address, this.calldata),
+            'AccessManagerNotScheduled',
+            [this.operationId],
+          );
+        });
+      },
+    });
+
+    it('cancels an operation and resets schedule', async function () {
+      const { operationId } = await scheduleOperation(this.manager, {
+        caller: this.caller,
+        target: this.target.address,
+        calldata: this.calldata,
+        delay: this.scheduleIn,
+      });
+      const { receipt } = await this.manager.cancel(this.caller, this.target.address, this.calldata, {
+        from: this.caller,
+      });
+      expectEvent(receipt, 'OperationCanceled', {
+        operationId,
+        nonce: '1',
+      });
+      expect(await this.manager.getSchedule(operationId)).to.be.bignumber.eq('0');
+    });
+  });
+
   describe('with Ownable target contract', function () {
     const roleId = web3.utils.toBN(1);
 

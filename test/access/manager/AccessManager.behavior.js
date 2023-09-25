@@ -207,7 +207,7 @@ function shouldBehaveLikeSchedulableOperation({ scheduled: { before, after, expi
       before();
     });
 
-    describe('when operation is ready for executuon', function () {
+    describe('when operation is ready for execution', function () {
       beforeEach('set next block time when operation is ready for execution', async function () {
         this.scheduledAt = await time.latest();
         const schedule = await this.manager.getSchedule(this.operationId);
