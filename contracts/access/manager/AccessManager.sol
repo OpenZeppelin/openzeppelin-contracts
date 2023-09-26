@@ -821,6 +821,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function _getAdminRestrictions(
         bytes calldata data
     ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
+        if (data.length < 4) {
+            return (false, 0, 0);
+        }
+
         bytes4 selector = _checkSelector(data);
 
         // Restricted to ADMIN with no delay beside any execution delay the caller may have
@@ -873,8 +877,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
-            bytes4 selector = _checkSelector(data);
-            return canCall(caller, target, selector);
+            return data.length < 4 ? (false, 0) : canCall(caller, target, _checkSelector(data));
         }
     }
 
@@ -882,6 +885,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev A version of {canCall} that checks for admin restrictions in this contract.
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+        if (data.length < 4) {
+            return (false, 0);
+        }
+
         if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
