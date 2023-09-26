@@ -1,0 +1,46 @@
+= Backwards Compatibility
+:page-aliases: releases-stability.adoc
+
+OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. Patch and minor updates will generally be backwards compatible, with rare exceptions as detailed below, and major updates should be assumed incompatible with previous releases. In this page we provide detail about these guarantees.
+
+== API
+
+In backwards compatible releases, all changes should be either additions or modifications to internal implementation details. Most code should continue to compile and behave as expected. The exceptions to this rule are listed below.
+
+=== Security
+
+Infrequently a patch or minor update will remove or change an API in a breaking way when the previous API is considered insecure. These breaking changes will be noted in the changelog and release notes, and published along with a security advisory.
+
+=== Draft or Pre-Final ERCs
+
+ERCs that are not Final can change in incompatible ways. For this reason, we avoid shipping an implementation of an ERC unless it's Final. Some exceptions are made for pre-Final ERCs that have been published for a long time and that seem unlikely to change. Breaking changes to the ERC specification are still technically possible in those cases, so they are published in files named `draft-*.sol` to make that condition explicit.
+
+=== Virtual & Overrides
+
+All functions in this library are virtual, but this does not mean that overrides are encouraged. There is a subset of functions that are designed to be overridden. By defining overrides outside of this subset you are potentially relying on internal implementation details. We make efforts to preserve backwards compatibility even in these cases but it is extremely difficult and easy to accidentally break. Caution is advised.
+
+Additionally, some minor updates may result in new compilation errors of the kind "two or more base classes define function with same name and parameter types" or "need to specify overriden contract", due to what Solidity considers ambiguity in inherited functions. This should be resolved by adding an override that invokes the function via `super`.
+
+See xref:extending-contracts.adoc[Extending Contracts] for more about virtual and overrides.
+
+=== Structs
+
+Struct members with an underscore prefix should be considered "private" and may break in minor versions. Struct data should only be accessed and modified through library functions.
+
+=== Errors
+
+The specific error format and data that is included with reverts should not be assumed stable unless otherwise specified.
+
+=== Major Releases
+
+Major releases should be assumed incompatible, although the external interfaces of contracts will remain compatible if they are standardized, or if the maintainers judge that changing them would cause significant strain on the ecosystem. Most importantly, the storage layout of contracts can change in major releases, and it will never be safe for a live contract to upgrade from one major release to another.
+
+== Storage Layout
+
+Minor and patch updates always preserve storage layout compatibility. This means that a live contract can receive upgrade from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+
+We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] to ensure storage layout safety of upgrades.
+
+== Solidity Version
+
+The minimum Solidity version required to compile the contracts should remain unchanged un minor and patch updates.
