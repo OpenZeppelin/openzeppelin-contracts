@@ -59,7 +59,7 @@ jobs:
       - name: Pack vanilla package
         id: vanilla
         run: |
-          tarball="$(npm pack --pack-destination ..)"
+          tarball="$(npm pack --pack-destination .. --no-foreground-scripts)"
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
         working-directory: contracts
       - name: Transpile to upgradeable
