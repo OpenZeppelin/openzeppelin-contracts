@@ -21,7 +21,7 @@ function buildBaseRoles() {
   };
 
   // Names
-  Object.assign(roles, Object.fromEntries(Object.entries(roles).map(([k, v]) => [k, { ...v, name: k }])));
+  Object.entries(roles).forEach(([ name, role ]) => role.name = name);
 
   // Defaults
   for (const role of Object.keys(roles)) {
