@@ -7,6 +7,45 @@ import "../patched/access/manager/AccessManager.sol";
 contract AccessManagerHarness is AccessManager {
     constructor(address initialAdmin) AccessManager(initialAdmin) {}
 
+    // bug introduction: inverse check-effect
+    /*
+    function bugged_execute(address target, bytes calldata data) public payable virtual returns (uint32) {
+        // Mark the target and selector as authorised
+        // Note: here we know that data is at least 4 bytes long, because otherwize `_canCallExtended` would have
+        // returned (false, 0) and that would have cause the `AccessManagerUnauthorizedCall` error to be triggered.
+        bytes32 executionIdBefore = _executionId;
+        _executionId = _hashExecutionId(target, bytes4(data));
+
+        // Perform call
+        Address.functionCallWithValue(target, data, msg.value);
+
+        // Reset execute identifier
+        _executionId = executionIdBefore;
+
+        address caller = _msgSender();
+
+        // Fetch restrictions that apply to the caller on the targeted function
+        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
+
+        // If call is not authorized, revert
+        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
+        // will be padded to 4 bytes with zeros.
+        if (!immediate && setback == 0) {
+            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
+        }
+
+        // If caller is authorised, check operation was scheduled early enough
+        bytes32 operationId = hashOperation(caller, target, data);
+        uint32 nonce;
+
+        if (setback != 0) {
+            nonce = _consumeScheduledOp(operationId);
+        }
+
+        return nonce;
+    }
+    */
+
     // FV
     function canCall_1(address caller, address target, bytes4 selector) external view returns (bool result) {
         (result,) = canCall(caller, target, selector);
@@ -88,6 +127,7 @@ contract AccessManagerHarness is AccessManager {
         return _executionId;
     }
 
+    // Pad with zeros (and don't revert) if data is too short.
     function getSelector(bytes calldata data) external pure returns (bytes4) {
         return bytes4(data);
     }
@@ -99,69 +139,4 @@ contract AccessManagerHarness is AccessManager {
     function getFirstArgumentAsUint64(bytes calldata data) external pure returns (uint64) {
         return abi.decode(data[0x04:0x24], (uint64));
     }
-
-    // function execute_labelRole(uint64 roleId, string calldata label) external {
-    //     _callExecuteSelf(abi.encodeCall(this.labelRole, (roleId, label)));
-    // }
-
-    // function execute_grantRole(uint64 roleId ,address account, uint32 executionDelay) external {
-    //     _callExecuteSelf(abi.encodeCall(this.grantRole, (roleId, account, executionDelay)));
-    // }
-
-    // function execute_revokeRole(uint64 roleId, address account) external {
-    //     _callExecuteSelf(abi.encodeCall(this.revokeRole, (roleId, account)));
-    // }
-
-    // function execute_renounceRole(uint64 roleId, address callerConfirmation) external {
-    //     _callExecuteSelf(abi.encodeCall(this.renounceRole, (roleId, callerConfirmation)));
-    // }
-
-    // function execute_setRoleAdmin(uint64 roleId, uint64 admin) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setRoleAdmin, (roleId, admin)));
-    // }
-
-    // function execute_setRoleGuardian(uint64 roleId, uint64 guardian) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setRoleGuardian, (roleId, guardian)));
-    // }
-
-    // function execute_setGrantDelay(uint64 roleId, uint32 newDelay) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setGrantDelay, (roleId, newDelay)));
-    // }
-
-    // function execute_setTargetFunctionRole(address target, bytes4[] calldata selectors, uint64 roleId) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setTargetFunctionRole, (target, selectors, roleId)));
-    // }
-
-    // function execute_setTargetAdminDelay(address target, uint32 newDelay) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setTargetAdminDelay, (target, newDelay)));
-    // }
-
-    // function execute_setTargetClosed(address target, bool closed) external {
-    //     _callExecuteSelf(abi.encodeCall(this.setTargetClosed, (target, closed)));
-    // }
-
-    // function execute_schedule(address target, bytes calldata data, uint48 when) external {
-    //     _callExecuteSelf(abi.encodeCall(this.schedule, (target, data, when)));
-    // }
-
-    // function execute_execute(address target, bytes calldata data) external {
-    //     _callExecuteSelf(abi.encodeCall(this.execute, (target, data)));
-    // }
-
-    // function execute_cancel(address caller, address target, bytes calldata data) external {
-    //     _callExecuteSelf(abi.encodeCall(this.cancel, (caller, target, data)));
-    // }
-
-    // function execute_consumeScheduledOp(address caller, bytes calldata data) external {
-    //     _callExecuteSelf(abi.encodeCall(this.consumeScheduledOp, (caller, data)));
-    // }
-
-    // function execute_updateAuthority(address target, address newAuthority) external {
-    //     _callExecuteSelf(abi.encodeCall(this.updateAuthority, (target, newAuthority)));
-    // }
-
-    // function _callExecuteSelf(bytes memory data) private {
-    //     (bool success,) = address(this).delegatecall(abi.encodeCall(this.execute, (address(this), data)));
-    //     require(success);
-    // }
 }
