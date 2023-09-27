@@ -33,14 +33,16 @@ The specific error format and data that is included with reverts should not be a
 
 === Major Releases
 
-Major releases should be assumed incompatible, although the external interfaces of contracts will remain compatible if they are standardized, or if the maintainers judge that changing them would cause significant strain on the ecosystem. Most importantly, the storage layout of contracts can change in major releases, and it will never be safe for a live contract to upgrade from one major release to another.
+Major releases should be assumed incompatible. Nevertheless, the external interfaces of contracts will remain compatible if they are standardized, or if the maintainers judge that changing them would cause significant strain on the ecosystem.
+
+An important aspect that major releases may break is "upgrade compatibility", in particular storage layout compatibility. It will never be safe for a live contract to upgrade from one major release to another.
 
 == Storage Layout
 
-Minor and patch updates always preserve storage layout compatibility. This means that a live contract can receive upgrade from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+Minor and patch updates always preserve storage layout compatibility. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
 
-We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] to ensure storage layout safety of upgrades.
+We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins or CLI] to ensure storage layout safety of upgrades.
 
 == Solidity Version
 
-The minimum Solidity version required to compile the contracts should remain unchanged un minor and patch updates.
+The minimum Solidity version required to compile the contracts will remain unchanged un minor and patch updates. New contracts in minor releases may make use of newer Solidity features and require a more recent version of the compiler.
