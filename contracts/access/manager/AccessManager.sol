@@ -143,9 +143,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (_isExecuting(target, selector), 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
-            bool inRole;
-            (inRole, delay) = hasRole(roleId, caller);
-            return inRole ? (delay == 0, delay) : (false, 0);
+            (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
+            return isMember ? (currentDelay == 0, currentDelay) : (false, 0);
         }
     }
 
