@@ -28,6 +28,7 @@ Additionally there are multiple custom extensions, including:
 Finally, there are some utilities to interact with ERC20 contracts in various ways:
 
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
+* {ERC1363Holder}: implementation of `IERC1363Receiver` and `IERC1363Spender` that will allow a contract to receive ERC1363 token transfers or approval.
 
 Other utilities that support ERC20 assets can be found in codebase:
 
@@ -68,3 +69,5 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 == Utilities
 
 {{SafeERC20}}
+
+{{ERC1363Holder}}
