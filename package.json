@@ -2,6 +2,7 @@
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
   "version": "4.9.2",
+  "private": true,
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -20,7 +21,6 @@
     "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && solhint '{contracts,test}/**/*.sol'",
     "lint:sol:fix": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
     "clean": "hardhat clean && rimraf build contracts/build",
-    "prepare": "scripts/prepare.sh",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
     "release": "scripts/release/release.sh",
