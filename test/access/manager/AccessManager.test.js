@@ -956,6 +956,14 @@ contract('AccessManager', function (accounts) {
           shouldBehaveLikeDelayedAdminOperation();
         });
 
+        it.only('reverts setting grant delay for the PUBLIC_ROLE', async function () {
+          await expectRevertCustomError(
+            this.manager.setGrantDelay(this.roles.PUBLIC.id, web3.utils.toBN(69), { from: admin }),
+            'AccessManagerLockedRole',
+            [this.roles.PUBLIC.id],
+          );
+        });
+
         describe('when increasing the delay', function () {
           const oldDelay = web3.utils.toBN(10);
           const newDelay = web3.utils.toBN(100);
