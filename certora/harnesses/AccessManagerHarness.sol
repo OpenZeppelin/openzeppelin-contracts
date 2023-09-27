@@ -11,7 +11,7 @@ contract AccessManagerHarness is AccessManager {
     /*
     function bugged_execute(address target, bytes calldata data) public payable virtual returns (uint32) {
         // Mark the target and selector as authorised
-        // Note: here we know that data is at least 4 bytes long, because otherwize `_canCallExtended` would have
+        // Note: here we know that data is at least 4 bytes long, because otherwise `_canCallExtended` would have
         // returned (false, 0) and that would have cause the `AccessManagerUnauthorizedCall` error to be triggered.
         bytes32 executionIdBefore = _executionId;
         _executionId = _hashExecutionId(target, bytes4(data));
