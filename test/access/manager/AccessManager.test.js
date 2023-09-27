@@ -101,7 +101,10 @@ contract('AccessManager', function (accounts) {
         expect(await this.manager.getRoleGuardian(roleId)).to.be.bignumber.equal(guardian.id);
 
         for (const user of this.roles.PUBLIC.members) {
-          expect(await this.manager.hasRole(roleId, user).then(formatAccess)).to.be.deep.equal([members.includes(user), '0']);
+          expect(await this.manager.hasRole(roleId, user).then(formatAccess)).to.be.deep.equal([
+            members.includes(user),
+            '0',
+          ]);
         }
       }
     });
@@ -2487,7 +2490,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('when caller is not consuming scheduled operation', function () {
-      beforeEach('set consuming true', async function () {
+      beforeEach('set consuming false', async function () {
         await this.target.setIsConsumingScheduledOp(false);
       });
 
@@ -2535,10 +2538,6 @@ contract('AccessManager', function (accounts) {
             });
           },
           expired: function () {
-            beforeEach('set consuming', async function () {
-              await this.target.setIsConsumingScheduledOp(false);
-            });
-
             it('reverts as AccessManagerExpired', async function () {
               await impersonate(this.caller);
               await expectRevertCustomError(

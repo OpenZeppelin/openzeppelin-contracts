@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {AccessManaged} from "../access/manager/AccessManaged.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
+import {console} from "hardhat/console.sol";
 
 abstract contract AccessManagedTarget is AccessManaged {
     event CalledRestricted(address caller);
@@ -19,7 +20,12 @@ abstract contract AccessManagedTarget is AccessManaged {
 
     function setIsConsumingScheduledOp(bool isConsuming) external {
         // Memory layout is 0x....<_consumingSchedule (boolean)><authority (address)>
-        _consumingSchedule().value |= bytes32(uint256(isConsuming ? 1 : 0)) << 161;
+        bytes32 mask = bytes32(uint256(1 << 160));
+        if (isConsuming) {
+            _consumingSchedule().value |= mask;
+        } else {
+            _consumingSchedule().value &= ~mask;
+        }
     }
 
     function _consumingSchedule() internal pure returns (StorageSlot.Bytes32Slot storage) {
