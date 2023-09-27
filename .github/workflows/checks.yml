@@ -65,7 +65,7 @@ jobs:
       - name: Install vanilla as dependency
         run: |
           mkdir -p node_modules/@openzeppelin
-          ln -s ".vanilla/contracts" node_modules/@openzeppelin/contracts
+          ln -sr ".vanilla/contracts" node_modules/@openzeppelin/contracts
       - name: Run tests
         run: npm run test
       - name: Check linearisation of the inheritance graph
