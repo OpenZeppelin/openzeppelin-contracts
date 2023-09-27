@@ -93,6 +93,7 @@ module.exports = {
     },
   },
   exposed: {
+    import: true,
     initializers: true,
     exclude: ['vendor/**/*'],
   },
