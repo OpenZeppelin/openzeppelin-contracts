@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import {AccessManaged} from "../access/manager/AccessManaged.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
-import {console} from "hardhat/console.sol";
 
 abstract contract AccessManagedTarget is AccessManaged {
     event CalledRestricted(address caller);
