@@ -27,6 +27,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC1363}
 - {IERC1363Receiver}
 - {IERC1363Spender}
+- {IERC1363Errors}
 - {IERC1820Implementer}
 - {IERC1820Registry}
 - {IERC1822Proxiable}
@@ -56,6 +57,8 @@ are useful to interact with third party contracts that implement them.
 {{IERC1363Receiver}}
 
 {{IERC1363Spender}}
+
+{{IERC1363Errors}}
 
 {{IERC1820Implementer}}
 
