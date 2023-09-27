@@ -61,11 +61,11 @@ jobs:
       - name: Check out copy of vanilla
         uses: actions/checkout@v4
         with:
-          path: ${{ runner.temp }}/vanilla
+          path: .vanilla
       - name: Install vanilla as dependency
         run:
           mkdir node_modules/@openzeppelin
-          ln -s "$RUNNER_TEMP/vanilla/contracts" node_modules/@openzeppelin/contracts
+          ln -s ".vanilla/contracts" node_modules/@openzeppelin/contracts
       - name: Run tests
         run: npm run test
       - name: Check linearisation of the inheritance graph
