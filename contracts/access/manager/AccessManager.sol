@@ -28,7 +28,7 @@ import {Time} from "../../utils/types/Time.sol";
  * * Close or open a target via {setTargetClosed} keeping the permissions intact.
  * * The roles that are allowed (or disallowed) to call a given function (identified by its selector) through {setTargetFunctionRole}.
  *
- * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
+ * By default every address is member of the `PUBLIC_ROLE` and every target function is restricted to the `ADMIN_ROLE` until configured otherwise.
  * Additionally, each role has the following configuration options restricted to this manager's admins:
  *
  * * A role's admin role via {setRoleAdmin} who can grant or revoke roles.
