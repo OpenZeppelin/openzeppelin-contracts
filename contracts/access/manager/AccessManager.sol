@@ -26,7 +26,7 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * * The target's {AccessManaged-authority} via {updateAuthority}.
  * * Close or open a target via {setTargetClosed} keeping the permissions intact.
- * * Each role's permissions through {setTargetFunctionRole}.
+ * * The roles that are allowed (or disallowed) to call a given function (identified by its selector) through {setTargetFunctionRole}.
  *
  * By default every address is member of the `PUBLIC_ROLE` and every contract allows public access until configured otherwise.
  * Additionally, each role has the following configuration options restricted to this manager's admins:
