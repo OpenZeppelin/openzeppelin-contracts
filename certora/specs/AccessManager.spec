@@ -34,15 +34,6 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition clock(env e) returns mathint =
-    to_mathint(e.block.timestamp);
-
-definition envsanity(env e) returns bool =
-    clock(e) > 0 && clock(e) <= max_uint48;
-
-definition isSetAndPast(env e, uint48 timepoint) returns bool =
-    timepoint != 0 && to_mathint(timepoint) <= clock(e);
-
 definition isOnlyAuthorized(bytes4 selector) returns bool =
     selector == to_bytes4(sig:labelRole(uint64,string).selector                      ) ||
     selector == to_bytes4(sig:setRoleAdmin(uint64,uint64).selector                   ) ||
@@ -92,7 +83,7 @@ invariant hasRoleGetAccessConsistency(env e, uint64 roleId, address account)
 */
 rule noRevert(env e) {
     require nonpayable(e);
-    require envsanity(e);
+    require sanity(e);
 
     address caller;
     address target;
@@ -308,7 +299,7 @@ rule getAccessChangeCall(uint64 roleId, address account) {
     env e;
 
     // sanity
-    require envsanity(e);
+    require sanity(e);
 
     // values before
     mathint getAccess1Before = getAccess_1(e, roleId, account);
@@ -669,7 +660,7 @@ rule getScheduleChangeCall(bytes32 operationId) {
 */
 rule restrictedFunctions(env e) {
     require nonpayable(e);
-    require envsanity(e);
+    require sanity(e);
 
     method f;
     calldataarg args;
@@ -692,7 +683,7 @@ rule restrictedFunctions(env e) {
 
 rule restrictedFunctionsGrantRole(env e) {
     require nonpayable(e);
-    require envsanity(e);
+    require sanity(e);
 
     uint64 roleId;
     address account;
@@ -708,7 +699,7 @@ rule restrictedFunctionsGrantRole(env e) {
 
 rule restrictedFunctionsRevokeRole(env e) {
     require nonpayable(e);
-    require envsanity(e);
+    require sanity(e);
 
     uint64 roleId;
     address account;
