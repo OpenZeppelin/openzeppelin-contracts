@@ -20,7 +20,7 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * The restriction rules for such functions are defined in terms of "roles" identified by an `uint64` and scoped
  * by target (`address`) and function selectors (`bytes4`). These roles are stored in this contract and can be
- * configured by each target's admins (`ADMIN_ROLE` members) after a delay (see {getTargetAdminDelay}).
+ * configured by admins (`ADMIN_ROLE` members) after a delay (see {getTargetAdminDelay}).
  *
  * For each target contract, admins can configure the following:
  *
