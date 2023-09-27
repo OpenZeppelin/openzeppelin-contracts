@@ -22,7 +22,7 @@ import {Time} from "../../utils/types/Time.sol";
  * by target (`address`) and function selectors (`bytes4`). These roles are stored in this contract and can be
  * configured by admins (`ADMIN_ROLE` members) after a delay (see {getTargetAdminDelay}).
  *
- * For each target contract, admins can configure the following:
+ * For each target contract, admins can configure the following without any delay:
  *
  * * The target's {AccessManaged-authority} via {updateAuthority}.
  * * Close or open a target via {setTargetClosed} keeping the permissions intact.
