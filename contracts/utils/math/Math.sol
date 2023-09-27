@@ -110,8 +110,10 @@ library Math {
             return a / b;
         }
 
-        // (a + b - 1) / b can overflow on addition, so we distribute.
-        return a == 0 ? 0 : (a - 1) / b + 1;
+        unchecked {
+            // (a + b - 1) / b can overflow on addition, so we distribute.
+            return a == 0 ? 0 : (a - 1) / b + 1;
+        }
     }
 
     /**
