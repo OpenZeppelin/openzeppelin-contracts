@@ -25,7 +25,7 @@ fi
 # -n: use namespaces
 # -N: exclude from namespaces transformation
 # -q: partial transpilation using @openzeppelin/contracts as peer project
-npx @openzeppelin/upgrade-safe-transpiler@latest -D \
+npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
