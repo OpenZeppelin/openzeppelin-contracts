@@ -450,6 +450,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleGrantDelayChanged} event
      */
     function _setGrantDelay(uint64 roleId, uint32 newDelay) internal virtual {
+        if (roleId == PUBLIC_ROLE) {
+            revert AccessManagerLockedRole(roleId);
+        }
+
         uint48 effect;
         (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
 
