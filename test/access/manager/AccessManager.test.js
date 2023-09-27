@@ -100,10 +100,8 @@ contract('AccessManager', function (accounts) {
         expect(await this.manager.getRoleAdmin(roleId)).to.be.bignumber.equal(admin.id);
         expect(await this.manager.getRoleGuardian(roleId)).to.be.bignumber.equal(guardian.id);
 
-        const isMember = Object.fromEntries(members.map(member => [member, true]));
-
         for (const user of this.roles.PUBLIC.members) {
-          expect(await this.manager.hasRole(roleId, user).then(formatAccess)).to.be.deep.equal([!!isMember[user], '0']);
+          expect(await this.manager.hasRole(roleId, user).then(formatAccess)).to.be.deep.equal([members.includes(user), '0']);
         }
       }
     });
