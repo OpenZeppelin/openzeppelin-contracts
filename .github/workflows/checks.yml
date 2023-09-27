@@ -64,7 +64,7 @@ jobs:
           path: .vanilla
       - name: Install vanilla as dependency
         run: |
-          mkdir node_modules/@openzeppelin
+          mkdir -p node_modules/@openzeppelin
           ln -s ".vanilla/contracts" node_modules/@openzeppelin/contracts
       - name: Run tests
         run: npm run test
