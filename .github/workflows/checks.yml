@@ -56,16 +56,16 @@ jobs:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
         uses: ./.github/actions/setup
-      - name: Pack vanilla package
-        id: vanilla
-        run: |
-          tarball="$(npm pack --pack-destination .. | tee /dev/stderr | tail -1)"
-          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
-        working-directory: contracts
       - name: Transpile to upgradeable
         run: bash scripts/upgradeable/transpile.sh
+      - name: Check out copy of vanilla
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.RUNNER_TEMP }}/vanilla
       - name: Install vanilla as dependency
-        run: npm install --no-save "${{ steps.vanilla.outputs.tarball }}"
+        run:
+          mkdir node_modules/@openzeppelin
+          ln -s ${{ env.RUNNER_TEMP }}/vanilla/contracts node_modules/@openzeppelin/contracts
       - name: Run tests
         run: npm run test
       - name: Check linearisation of the inheritance graph
