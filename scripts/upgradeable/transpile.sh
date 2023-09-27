@@ -38,7 +38,7 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -p 'contracts/**/presets/**/*' \
   -n \
   -N 'contracts/mocks/**/*' \
-  -q '@openzeppelin/contracts'
+  -q '@openzeppelin/'
 
 # delete compilation artifacts of vanilla code
 npm run clean
