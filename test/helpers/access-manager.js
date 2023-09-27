@@ -21,7 +21,7 @@ function buildBaseRoles() {
   };
 
   // Names
-  Object.entries(roles).forEach(([ name, role ]) => role.name = name);
+  Object.entries(roles).forEach(([name, role]) => (role.name = name));
 
   // Defaults
   for (const role of Object.keys(roles)) {
