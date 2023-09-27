@@ -24,6 +24,7 @@ fi
 # -p: emit public initializer
 # -n: use namespaces
 # -N: exclude from namespaces transformation
+# -q: partial transpilation using @openzeppelin/contracts as peer project
 npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
@@ -36,7 +37,8 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
   -p 'contracts/**/presets/**/*' \
   -n \
-  -N 'contracts/mocks/**/*'
+  -N 'contracts/mocks/**/*' \
+  -q '@openzeppelin/contracts'
 
 # delete compilation artifacts of vanilla code
 npm run clean
