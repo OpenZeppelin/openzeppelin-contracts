@@ -49,7 +49,7 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * since the selector defaults to `0x00000000` in the `receive()` function and similary in the `fallback()` function
      * if no calldata is provided. (See {_checkCanCall}).
      *
-     * The `receive()` function will always panic whereas the `fallback()` may panic depending on the calldata length. 
+     * The `receive()` function will always panic whereas the `fallback()` may panic depending on the calldata length.
      * ====
      */
     modifier restricted() {
