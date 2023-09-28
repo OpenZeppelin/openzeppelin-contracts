@@ -2,12 +2,12 @@
 
 set -euo pipefail -x
 
-VERSION=$(jq -r .version package.json)
+VERSION="$(jq -r .version package.json)"
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
 
 bash "$DIRNAME/patch-apply.sh"
-sed -i "s/<package-version>/$VERSION/g" package.json
-git add package.json
+sed -i "s/<package-version>/$VERSION/g" contracts/package.json
+git add contracts/package.json
 
 npm run clean
 npm run compile
