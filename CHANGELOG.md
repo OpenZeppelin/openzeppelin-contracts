@@ -1,6 +1,12 @@
 # Changelog
 
 
+## 5.0.0-rc.1 (2023-09-28)
+
+- Upgradeable Contracts: No longer transpile interfaces, libraries, and stateless contracts. ([#4636](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4636))
+- `AccessManager`, `AccessManaged`, `GovernorTimelockAccess`: Ensure that calldata shorter than 4 bytes is not padded to 4 bytes. ([#4624](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4624))
+- `AccessManager`: Use named return parameters in functions that return multiple values. ([#4624](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4624))
+
 ## 5.0.0-rc.0 (2023-09-19)
 
 - `ERC1155Receiver`: Removed in favor of `ERC1155Holder`. ([#4450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4450))
