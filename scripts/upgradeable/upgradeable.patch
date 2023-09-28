@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 2797a088..00000000
+index 2797a0889..000000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -26,7 +26,7 @@ index 2797a088..00000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef2..d343a53d 100644
+index 4018cef29..d343a53d8 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef2..d343a53d 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c..00000000
+index ff596b0c3..000000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,20 +59,20 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 38197f3a..bc934d1c 100644
+index 53c29e5f8..666a667d3 100644
 --- a/README.md
 +++ b/README.md
-@@ -19,6 +19,9 @@
+@@ -23,6 +23,9 @@
+ > [!IMPORTANT]
+ > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
- :building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a secure platform for automating and monitoring your operations.
- 
-+> **Note**
-+> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/4.x/upgradeable).
-+
+++> [!NOTE]
+++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
+++
  ## Overview
  
  ### Installation
-@@ -26,7 +29,7 @@
+@@ -30,7 +33,7 @@
  #### Hardhat, Truffle (npm)
  
  ```
@@ -80,8 +80,8 @@ index 38197f3a..bc934d1c 100644
 +$ npm install @openzeppelin/contracts-upgradeable
  ```
  
- OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
-@@ -38,10 +41,10 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
+ #### Foundry (git)
+@@ -40,10 +43,10 @@ $ npm install @openzeppelin/contracts
  > **Warning** Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +94,7 @@ index 38197f3a..bc934d1c 100644
  
  ### Usage
  
-@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -52,10 +55,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +110,7 @@ index 38197f3a..bc934d1c 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index df141192..1cf90ad1 100644
+index df141192d..1cf90ad14 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -130,7 +130,7 @@ index df141192..1cf90ad1 100644
    "keywords": [
      "solidity",
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 3800804a..90c1db78 100644
+index 644f6f531..ab8ba05ff 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -297,7 +297,7 @@ index 3800804a..90c1db78 100644
      }
  }
 diff --git a/package.json b/package.json
-index ffa868ac..e254d962 100644
+index e6804c4cd..612ec513e 100644
 --- a/package.json
 +++ b/package.json
 @@ -33,7 +33,7 @@
@@ -310,7 +310,7 @@ index ffa868ac..e254d962 100644
    "keywords": [
      "solidity",
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 7ea535b7..32e3a370 100644
+index faf01f1a3..b25171a56 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -47,26 +47,6 @@ contract('EIP712', function (accounts) {
