@@ -2064,7 +2064,7 @@ Check that the caller is authorized to perform the operation, following the rest
 
 [.contract-item]
 [[AccessManager-canCall-address-address-bytes4-]]
-==== `[.contract-item-name]#++canCall++#++(address caller, address target, bytes4 selector) → bool, uint32++` [.item-kind]#public#
+==== `[.contract-item-name]#++canCall++#++(address caller, address target, bytes4 selector) → bool immediate, uint32 delay++` [.item-kind]#public#
 
 Check if an address (`caller`) is authorised to call a given function on a given contract directly (with
 no restriction). Additionally, it returns the delay needed to perform the call indirectly through the {schedule}
@@ -2140,7 +2140,7 @@ a call to {setGrantDelay}. Changes to this value, including effect timepoint are
 
 [.contract-item]
 [[AccessManager-getAccess-uint64-address-]]
-==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48, uint32, uint32, uint48++` [.item-kind]#public#
+==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect++` [.item-kind]#public#
 
 Get the access details for a given account for a given role. These details include the timepoint at which
 membership becomes active, and the delay applied to all operation by this user that requires this permission
@@ -2154,7 +2154,7 @@ Returns:
 
 [.contract-item]
 [[AccessManager-hasRole-uint64-address-]]
-==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool, uint32++` [.item-kind]#public#
+==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool isMember, uint32 executionDelay++` [.item-kind]#public#
 
 Check if a given account currently had the permission level corresponding to a given role. Note that this
 permission might be associated with a delay. {getAccess} can provide more details.
@@ -2528,17 +2528,15 @@ implications! This is because the permissions are determined by the function tha
 function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
 ====
 
-[NOTE]
+[WARNING]
 ====
-Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
+Avoid adding this modifier to the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`]
+function or the https://docs.soliditylang.org/en/v0.8.20/contracts.html#fallback-function[`fallback()`]. These
+functions are the only execution paths where a function selector cannot be unambiguosly determined from the calldata
+since the selector defaults to `0x00000000` in the `receive()` function and similarly in the `fallback()` function
+if no calldata is provided. (See {_checkCanCall}).
 
-* If the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`] function
-is restricted, any other function with a `0x00000000` selector will share permissions with `receive()`.
-* Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with
-empty `calldata`, sharing the `0x00000000` selector permissions as well.
-* For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove
-the restricted function and replace it with a new method whose selector replaces the last one, keeping the
-previous permissions.
+The `receive()` function will always panic whereas the `fallback()` may panic depending on the calldata length.
 ====
 
 [.contract-item]
@@ -2578,5 +2576,6 @@ permissions set by the current authority.
 [[AccessManaged-_checkCanCall-address-bytes-]]
 ==== `[.contract-item-name]#++_checkCanCall++#++(address caller, bytes data)++` [.item-kind]#internal#
 
-Reverts if the caller is not allowed to call the function identified by a selector.
+Reverts if the caller is not allowed to call the function identified by a selector. Panics if the calldata
+is less than 4 bytes long.
 
