@@ -45,4 +45,4 @@ We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugi
 
 == Solidity Version
 
-The minimum Solidity version required to compile the contracts will remain unchanged un minor and patch updates. New contracts in minor releases may make use of newer Solidity features and require a more recent version of the compiler.
+The minimum Solidity version required to compile the contracts will remain unchanged in minor and patch updates. New contracts introduced in minor releases may make use of newer Solidity features and require a more recent version of the compiler.
