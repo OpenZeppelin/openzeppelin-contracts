@@ -99,14 +99,15 @@ abstract contract AccessManaged is Context, IAccessManaged {
     }
 
     /**
-     * @dev Reverts if the caller is not allowed to call the function identified by a selector.
+     * @dev Reverts if the caller is not allowed to call the function identified by a selector. Panics if the calldata
+     * is less than 4 bytes long.
      */
     function _checkCanCall(address caller, bytes calldata data) internal virtual {
         (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
             authority(),
             caller,
             address(this),
-            bytes4(data)
+            bytes4(data[0:4])
         );
         if (!immediate) {
             if (delay > 0) {
