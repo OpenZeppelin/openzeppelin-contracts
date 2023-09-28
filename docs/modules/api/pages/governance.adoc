@@ -1109,7 +1109,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1625,7 +1625,7 @@ If the `voter` is a contract, the signature is not valid using {IERC1271-isValid
 
 [.contract]
 [[Governor]]
-=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
+=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/Governor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2214,7 +2214,7 @@ quorum depending on values such as the totalSupply of a token at this timepoint 
 
 [.contract]
 [[GovernorCountingSimple]]
-=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2456,7 +2456,7 @@ See {Governor-_countVote}. In this module, the support follows the `VoteType` en
 
 [.contract]
 [[GovernorVotes]]
-=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
+=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2695,7 +2695,7 @@ Machine-readable description of the clock as specified in EIP-6372.
 
 [.contract]
 [[GovernorVotesQuorumFraction]]
-=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2995,7 +2995,7 @@ The quorum set is not a valid fraction.
 
 [.contract]
 [[GovernorTimelockControl]]
-=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3289,7 +3289,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorTimelockCompound]]
-=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3592,7 +3592,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorSettings]]
-=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
+=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3894,7 +3894,7 @@ Emits a {ProposalThresholdSet} event.
 
 [.contract]
 [[GovernorPreventLateQuorum]]
-=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4175,7 +4175,7 @@ Emitted when the {lateQuorumVoteExtension} parameter is changed.
 
 [.contract]
 [[GovernorStorage]]
-=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
+=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4447,7 +4447,7 @@ Returns the details (including the proposalId) of a proposal given its sequentia
 
 [.contract]
 [[Votes]]
-=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
+=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4729,7 +4729,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 
 [.contract]
 [[TimelockController]]
-=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
+=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

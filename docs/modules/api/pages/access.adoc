@@ -282,7 +282,7 @@ This directory provides ways to restrict who can access the functions of a contr
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/Ownable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -405,7 +405,7 @@ The owner is not a valid owner account. (eg. `address(0)`)
 
 [.contract]
 [[Ownable2Step]]
-=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -503,7 +503,7 @@ The new owner accepts the ownership transfer.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -656,7 +656,7 @@ NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -893,7 +893,7 @@ May emit a {RoleRevoked} event.
 
 [.contract]
 [[IAccessControlEnumerable]]
-=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -971,7 +971,7 @@ together with {getRoleMember} to enumerate all bearers of a role.
 
 [.contract]
 [[AccessControlEnumerable]]
-=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1121,7 +1121,7 @@ Overload {AccessControl-_revokeRole} to track enumerable memberships
 
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1410,7 +1410,7 @@ NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
 
 [.contract]
 [[AccessControlDefaultAdminRules]]
-=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1830,7 +1830,7 @@ See {defaultAdminDelayIncreaseWait}.
 
 [.contract]
 [[IAuthority]]
-=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
+=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1901,7 +1901,7 @@ Returns true if the caller can invoke on a target the function identified by a f
 
 [.contract]
 [[AccessManager]]
-=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
+=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2455,7 +2455,7 @@ Requirements:
 
 [.contract]
 [[AccessManaged]]
-=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
+=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.1/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
