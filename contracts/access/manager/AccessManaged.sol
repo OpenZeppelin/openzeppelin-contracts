@@ -41,17 +41,15 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
      * ====
      *
-     * [NOTE]
+     * [WARNING]
      * ====
-     * Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
+     * Avoid adding this modifier to the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`]
+     * function or the https://docs.soliditylang.org/en/v0.8.20/contracts.html#fallback-function[`fallback()`]. These
+     * functions are the only execution paths where a function selector cannot be unambiguosly determined from the calldata
+     * since the selector defaults to `0x00000000` in the `receive()` function and similarly in the `fallback()` function
+     * if no calldata is provided. (See {_checkCanCall}).
      *
-     * * If the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`] function
-     * is restricted, any other function with a `0x00000000` selector will share permissions with `receive()`.
-     * * Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with
-     * empty `calldata`, sharing the `0x00000000` selector permissions as well.
-     * * For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove
-     * the restricted function and replace it with a new method whose selector replaces the last one, keeping the
-     * previous permissions.
+     * The `receive()` function will always panic whereas the `fallback()` may panic depending on the calldata length.
      * ====
      */
     modifier restricted() {
@@ -99,14 +97,15 @@ abstract contract AccessManaged is Context, IAccessManaged {
     }
 
     /**
-     * @dev Reverts if the caller is not allowed to call the function identified by a selector.
+     * @dev Reverts if the caller is not allowed to call the function identified by a selector. Panics if the calldata
+     * is less than 4 bytes long.
      */
     function _checkCanCall(address caller, bytes calldata data) internal virtual {
         (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
             authority(),
             caller,
             address(this),
-            bytes4(data)
+            bytes4(data[0:4])
         );
         if (!immediate) {
             if (delay > 0) {

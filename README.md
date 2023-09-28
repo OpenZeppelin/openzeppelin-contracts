@@ -1,4 +1,4 @@
-> **Note**
+> [!NOTE]
 > Version 5.0 is currently in release candidate period. Bug bounty rewards are boosted 50% until the release.  
 > [See more details on Immunefi.](https://immunefi.com/bounty/openzeppelin/)
 
@@ -35,9 +35,11 @@ $ npm install @openzeppelin/contracts
 
 #### Foundry (git)
 
-> **Warning** When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
+> [!WARNING]
+> When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
 
-> **Warning** Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+> [!WARNING]
+> Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
 
 ```
 $ forge install OpenZeppelin/openzeppelin-contracts
