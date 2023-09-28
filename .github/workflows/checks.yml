@@ -58,14 +58,9 @@ jobs:
         uses: ./.github/actions/setup
       - name: Transpile to upgradeable
         run: bash scripts/upgradeable/transpile.sh
-      - name: Check out copy of vanilla
-        uses: actions/checkout@v4
-        with:
-          path: .vanilla
-      - name: Install vanilla as dependency
-        run: |
-          mkdir -p node_modules/@openzeppelin
-          ln -sr ".vanilla/contracts" node_modules/@openzeppelin/contracts
+      - name: Copy non-upgradeable contracts as dependency
+        run:
+          cp -rnT contracts node_modules/@openzeppelin/contracts
       - name: Run tests
         run: npm run test
       - name: Check linearisation of the inheritance graph
