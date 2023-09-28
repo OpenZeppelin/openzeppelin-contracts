@@ -2,7 +2,7 @@
 
 set -euo pipefail -x
 
-VERSION="$(jq -r .version package.json)"
+VERSION="$(jq -r .version contracts/package.json)"
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
 
 bash "$DIRNAME/patch-apply.sh"
