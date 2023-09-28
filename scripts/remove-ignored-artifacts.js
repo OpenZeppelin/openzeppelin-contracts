@@ -23,7 +23,7 @@ const ignorePatternsSubtrees = ignorePatterns
   .concat(ignorePatterns.map(pat => path.join(pat, '**/*')))
   .map(p => p.replace(/^\//, ''));
 
-const artifactsDir = 'build/contracts';
+const artifactsDir = 'contracts/build/contracts';
 const buildinfo = 'artifacts/build-info';
 const filenames = fs.readdirSync(buildinfo);
 

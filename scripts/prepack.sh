@@ -15,13 +15,9 @@ npm run clean
 
 env COMPILE_MODE=production npm run compile
 
-mkdirp build/contracts
-cp artifacts/contracts/**/*.json build/contracts
-rm build/contracts/*.dbg.json
-
+mkdirp contracts/build/contracts
+cp artifacts/contracts/**/*.json contracts/build/contracts
+rm contracts/build/contracts/*.dbg.json
 node scripts/remove-ignored-artifacts.js
 
 cp README.md contracts/
-
-mkdirp contracts/build/contracts
-cp -r build/contracts/*.json contracts/build/contracts
