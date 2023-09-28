@@ -12,6 +12,8 @@ pragma solidity ^0.8.20;
  * is concerned).
  *
  * This contract is only required for intermediate, library-like contracts.
+ *
+ * @custom:stateless
  */
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {

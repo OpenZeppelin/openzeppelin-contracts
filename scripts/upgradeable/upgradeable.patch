@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 53c29e5f8..666a667d3 100644
+index 549891e3f..a6b24078e 100644
 --- a/README.md
 +++ b/README.md
 @@ -23,6 +23,9 @@
@@ -81,8 +81,8 @@ index 53c29e5f8..666a667d3 100644
  ```
  
  #### Foundry (git)
-@@ -40,10 +43,10 @@ $ npm install @openzeppelin/contracts
- > **Warning** Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+@@ -42,10 +45,10 @@ $ npm install @openzeppelin/contracts
+ > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
 -$ forge install OpenZeppelin/openzeppelin-contracts
@@ -94,7 +94,7 @@ index 53c29e5f8..666a667d3 100644
  
  ### Usage
  
-@@ -52,10 +55,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -54,10 +57,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +110,7 @@ index 53c29e5f8..666a667d3 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index df141192d..1cf90ad14 100644
+index 9017953ca..f51c1d38b 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -129,6 +129,16 @@ index df141192d..1cf90ad14 100644
    },
    "keywords": [
      "solidity",
+@@ -28,5 +28,8 @@
+   "bugs": {
+     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
+   },
+-  "homepage": "https://openzeppelin.com/contracts/"
++  "homepage": "https://openzeppelin.com/contracts/",
++  "peerDependencies": {
++    "@openzeppelin/contracts": "<package-version>"
++  }
+ }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
 index 644f6f531..ab8ba05ff 100644
 --- a/contracts/utils/cryptography/EIP712.sol
@@ -297,10 +307,10 @@ index 644f6f531..ab8ba05ff 100644
      }
  }
 diff --git a/package.json b/package.json
-index e6804c4cd..612ec513e 100644
+index 3a1617c09..97e59c2d9 100644
 --- a/package.json
 +++ b/package.json
-@@ -33,7 +33,7 @@
+@@ -32,7 +32,7 @@
    },
    "repository": {
      "type": "git",

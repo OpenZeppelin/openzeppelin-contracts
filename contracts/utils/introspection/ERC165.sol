@@ -16,6 +16,8 @@ import {IERC165} from "./IERC165.sol";
  *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
  * }
  * ```
+ *
+ * @custom:stateless
  */
 abstract contract ERC165 is IERC165 {
     /**
