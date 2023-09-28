@@ -84,6 +84,18 @@ contract('GovernorTimelockAccess', function (accounts) {
           this.unrestricted.operation.target,
           this.unrestricted.operation.data,
         );
+
+        this.fallback = {};
+        this.fallback.operation = {
+          target: this.receiver.address,
+          value: '0',
+          data: '0x1234',
+        };
+        this.fallback.operationId = hashOperation(
+          this.mock.address,
+          this.fallback.operation.target,
+          this.fallback.operation.data,
+        );
       });
 
       it('accepts ether transfers', async function () {
@@ -180,7 +192,7 @@ contract('GovernorTimelockAccess', function (accounts) {
         await this.manager.grantRole(roleId, this.mock.address, managerDelay, { from: admin });
 
         this.proposal = await this.helper.setProposal(
-          [this.restricted.operation, this.unrestricted.operation],
+          [this.restricted.operation, this.unrestricted.operation, this.fallback.operation],
           'descr',
         );
 
@@ -209,6 +221,7 @@ contract('GovernorTimelockAccess', function (accounts) {
         });
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'CalledRestricted');
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'CalledUnrestricted');
+        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'CalledFallback');
       });
 
       describe('cancel', function () {
