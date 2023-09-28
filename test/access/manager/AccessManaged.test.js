@@ -1,4 +1,4 @@
-const { expectEvent, time } = require('@openzeppelin/test-helpers');
+const { expectEvent, time, expectRevert } = require('@openzeppelin/test-helpers');
 const { selector } = require('../../helpers/methods');
 const { expectRevertCustomError } = require('../../helpers/customError');
 const {
@@ -42,6 +42,12 @@ contract('AccessManaged', function (accounts) {
       await expectRevertCustomError(this.managed.methods[method]({ from: other }), 'AccessManagedUnauthorized', [
         other,
       ]);
+    });
+
+    it('panics in short calldata', async function () {
+      // We avoid adding the `restricted` modifier to the fallback function because other tests may depend on it
+      // being accessible without restrictions. We check for the internal `_checkCanCall` instead.
+      await expectRevert.unspecified(this.managed.$_checkCanCall(other, '0x1234'));
     });
 
     describe('when role is granted with execution delay', function () {
