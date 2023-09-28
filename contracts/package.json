@@ -8,7 +8,7 @@
     "!/mocks/**/*"
   ],
   "scripts": {
-    "prepare": "bash ../scripts/prepare-contracts-package.sh",
+    "prepack": "bash ../scripts/prepack.sh",
     "prepare-docs": "cd ..; npm run prepare-docs"
   },
   "repository": {
