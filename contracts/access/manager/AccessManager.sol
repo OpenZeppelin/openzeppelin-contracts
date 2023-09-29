@@ -587,8 +587,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint48 minWhen = Time.timestamp() + setback;
 
         // If call is not authorized, or if requested timing is too soon, revert
-        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
-        // will be padded to 4 bytes with zeros.
         if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
@@ -642,8 +640,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
         (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
 
         // If call is not authorized, revert
-        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
-        // will be padded to 4 bytes with zeros.
         if (!immediate && setback == 0) {
             revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
@@ -657,8 +653,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        // Note: here we know that data is at least 4 bytes long, because otherwise `_canCallExtended` would have
-        // returned (false, 0) and that would have cause the `AccessManagerUnauthorizedCall` error to be triggered.
         bytes32 executionIdBefore = _executionId;
         _executionId = _hashExecutionId(target, _checkSelector(data));
 
