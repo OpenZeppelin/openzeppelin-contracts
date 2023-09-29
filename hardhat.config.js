@@ -39,6 +39,11 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    foundry: {
+      alias: 'hasFoundry',
+      type: 'boolean',
+      default: hasFoundry(),
+    },
     compiler: {
       alias: 'compileVersion',
       type: 'string',
@@ -53,12 +58,8 @@ const argv = require('yargs/yargs')()
 require('@nomiclabs/hardhat-truffle5');
 require('hardhat-ignore-warnings');
 require('hardhat-exposed');
-
 require('solidity-docgen');
-
-if (hasFoundry()) {
-  require('@nomicfoundation/hardhat-foundry');
-}
+argv.foundry && require('@nomicfoundation/hardhat-foundry');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
