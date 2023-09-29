@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - release-v*
+      - partial-submodules
 
 jobs:
   transpile:
