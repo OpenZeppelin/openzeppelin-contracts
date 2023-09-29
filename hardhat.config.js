@@ -8,6 +8,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const proc = require('child_process');
+
 const argv = require('yargs/yargs')()
   .env('')
   .options({
@@ -49,11 +51,14 @@ const argv = require('yargs/yargs')()
   }).argv;
 
 require('@nomiclabs/hardhat-truffle5');
-require('@nomicfoundation/hardhat-foundry');
 require('hardhat-ignore-warnings');
 require('hardhat-exposed');
 
 require('solidity-docgen');
+
+if (hasFoundry()) {
+  require('@nomicfoundation/hardhat-foundry');
+}
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
@@ -114,4 +119,8 @@ if (argv.gas) {
 if (argv.coverage) {
   require('solidity-coverage');
   module.exports.networks.hardhat.initialBaseFeePerGas = 0;
+}
+
+function hasFoundry() {
+  return proc.spawnSync('forge', ['-V'], { stdio: 'ignore' }).error === undefined;
 }
