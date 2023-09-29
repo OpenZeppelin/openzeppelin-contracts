@@ -11,6 +11,8 @@ import {IERC1155Receiver} from "../IERC1155Receiver.sol";
  *
  * IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be
  * stuck.
+ *
+ * @custom:stateless
  */
 abstract contract ERC1155Holder is ERC165, IERC1155Receiver {
     /**
