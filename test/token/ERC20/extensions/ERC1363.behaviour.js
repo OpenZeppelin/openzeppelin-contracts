@@ -16,10 +16,6 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
   const RECEIVER_MAGIC_VALUE = '0x88a7ca5c';
   const SPENDER_MAGIC_VALUE = '0x7b04a2d0';
 
-  beforeEach(async function () {
-    await this.token.$_mint(owner, initialSupply);
-  });
-
   shouldSupportInterfaces(['ERC165', 'ERC1363']);
 
   describe('transfers', function () {
@@ -418,7 +414,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
   });
 
   describe('approvals', function () {
-    const value = initialSupply;
+    const initialBalance = initialSupply;
     const data = '0x42';
 
     describe('via approveAndCall', function () {
@@ -438,18 +434,20 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
           });
 
           it('calls onApprovalReceived', async function () {
-            const receipt = await approveFunction.call(this, this.to, value, { from: owner });
+            const receipt = await approveFunction.call(this, this.to, initialBalance, { from: owner });
 
             await expectEvent.inTransaction(receipt.tx, ERC1363Spender, 'Approved', {
               owner,
-              value,
+              value: initialBalance,
               data,
             });
           });
         });
       };
 
-      const approveWasSuccessful = function (owner, value) {
+      const approveWasSuccessful = function (owner, balance) {
+        const value = balance;
+
         let spender;
 
         beforeEach(async function () {
@@ -499,13 +497,13 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
       });
 
       describe('testing ERC20 behaviours', function () {
-        approveWasSuccessful(owner, value);
+        approveWasSuccessful(owner, initialBalance);
       });
 
       describe('to a spender that is not a contract', function () {
         it('reverts', async function () {
           await expectRevertCustomError(
-            approveAndCallWithoutData.call(this, recipient, value, { from: owner }),
+            approveAndCallWithoutData.call(this, recipient, initialBalance, { from: owner }),
             'ERC1363EOASpender',
             [recipient],
           );
@@ -516,7 +514,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const invalidSpender = await ERC1363Spender.new(data, RevertType.None);
           await expectRevertCustomError(
-            approveAndCallWithoutData.call(this, invalidSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, invalidSpender.address, initialBalance, { from: owner }),
             'ERC1363InvalidSpender',
             [invalidSpender.address],
           );
@@ -527,7 +525,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const revertingSpender = await ERC1363Spender.new(SPENDER_MAGIC_VALUE, RevertType.RevertWithMessage);
           await expectRevert(
-            approveAndCallWithoutData.call(this, revertingSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, revertingSpender.address, initialBalance, { from: owner }),
             'ERC1363SpenderMock: reverting',
           );
         });
@@ -537,7 +535,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const revertingSpender = await ERC1363Spender.new(SPENDER_MAGIC_VALUE, RevertType.RevertWithoutMessage);
           await expectRevertCustomError(
-            approveAndCallWithoutData.call(this, revertingSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, revertingSpender.address, initialBalance, { from: owner }),
             'ERC1363InvalidSpender',
             [revertingSpender.address],
           );
@@ -548,7 +546,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const revertingSpender = await ERC1363Spender.new(SPENDER_MAGIC_VALUE, RevertType.RevertWithCustomError);
           await expectRevertCustomError(
-            approveAndCallWithoutData.call(this, revertingSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, revertingSpender.address, initialBalance, { from: owner }),
             'CustomError',
             [SPENDER_MAGIC_VALUE],
           );
@@ -559,7 +557,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const revertingSpender = await ERC1363Spender.new(SPENDER_MAGIC_VALUE, RevertType.Panic);
           await expectRevert.unspecified(
-            approveAndCallWithoutData.call(this, revertingSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, revertingSpender.address, initialBalance, { from: owner }),
           );
         });
       });
@@ -568,7 +566,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         it('reverts', async function () {
           const nonSpender = this.token;
           await expectRevertCustomError(
-            approveAndCallWithoutData.call(this, nonSpender.address, value, { from: owner }),
+            approveAndCallWithoutData.call(this, nonSpender.address, initialBalance, { from: owner }),
             'ERC1363InvalidSpender',
             [nonSpender.address],
           );
