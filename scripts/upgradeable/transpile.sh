@@ -2,9 +2,12 @@
 
 set -euo pipefail -x
 
+VERSION="$(jq -r .version contracts/package.json)"
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
 
 bash "$DIRNAME/patch-apply.sh"
+sed -i "s/<package-version>/$VERSION/g" contracts/package.json
+git add contracts/package.json
 
 npm run clean
 npm run compile
@@ -24,7 +27,8 @@ fi
 # -p: emit public initializer
 # -n: use namespaces
 # -N: exclude from namespaces transformation
-npx @openzeppelin/upgrade-safe-transpiler@latest -D \
+# -q: partial transpilation using @openzeppelin/contracts as peer project
+npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
@@ -36,7 +40,8 @@ npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
   -p 'contracts/**/presets/**/*' \
   -n \
-  -N 'contracts/mocks/**/*'
+  -N 'contracts/mocks/**/*' \
+  -q '@openzeppelin/'
 
 # delete compilation artifacts of vanilla code
 npm run clean
