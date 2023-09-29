@@ -56,6 +56,9 @@ jobs:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
         uses: ./.github/actions/setup
+      - name: Copy non-upgradeable contracts as dependency
+        run:
+          cp -rnT contracts node_modules/@openzeppelin/contracts
       - name: Transpile to upgradeable
         run: bash scripts/upgradeable/transpile.sh
       - name: Run tests

@@ -3,7 +3,7 @@
 * xref:extending-contracts.adoc[Extending Contracts]
 * xref:upgradeable.adoc[Using with Upgrades]
 
-* xref:releases-stability.adoc[Releases & Stability]
+* xref:backwards-compatibility.adoc[Backwards Compatibility]
 
 * xref:access-control.adoc[Access Control]
 

@@ -18,10 +18,12 @@ jobs:
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
       - name: Fetch current non-upgradeable branch
         run: |
-          git fetch "https://github.com/${{ github.repository }}.git" "$REF"
+          git fetch "$REMOTE" master # Fetch default branch first for patch to apply cleanly
+          git fetch "$REMOTE" "$REF"
           git checkout FETCH_HEAD
         env:
           REF: ${{ github.ref }}
+          REMOTE: https://github.com/${{ github.repository }}.git
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
