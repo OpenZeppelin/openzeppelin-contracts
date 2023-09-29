@@ -15,7 +15,7 @@ base="${2-}"
 bash scripts/upgradeable/transpile.sh
 
 commit="$(git rev-parse --short HEAD)"
-branch="$(git rev-parse --abbrev-ref HEAD)"
+start_branch="$(git rev-parse --abbrev-ref HEAD)"
 
 git add contracts
 
@@ -43,10 +43,12 @@ fi
 
 if [[ -v REMOTE ]]; then
   lib=lib/openzeppelin-contracts
-  git submodule add -b "$branch" "$REMOTE" "$lib"
+  git submodule add -b "${base#origin/}" "$REMOTE" "$lib"
   git -C "$lib" checkout "$commit"
   git add "$lib"
 fi
 
 git commit -m "Transpile $commit"
-git checkout "$branch"
+
+# return to original branch
+git checkout "$start_branch"
