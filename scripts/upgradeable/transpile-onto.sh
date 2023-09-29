@@ -36,9 +36,17 @@ else
   fi
 fi
 
-# commit if there are changes to commit
-if ! git diff --quiet --cached; then
-  git commit -m "Transpile $commit"
+# abort if there are no changes to commit at this point
+if git diff --quiet --cached; then
+  exit
 fi
 
+if [[ -v REMOTE ]]; then
+  lib=lib/openzeppelin-contracts
+  git submodule add -b "$branch" "$REMOTE" "$lib"
+  git -C "$lib" checkout "$commit"
+  git add "$lib"
+fi
+
+git commit -m "Transpile $commit"
 git checkout "$branch"
