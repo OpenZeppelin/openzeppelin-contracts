@@ -128,6 +128,25 @@ const COMMON_SCHEDULABLE_PATH = {
   },
 };
 
+const COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY = {
+  scheduled: {
+    before: function () {
+      it.skip('is not reachable without a delay');
+    },
+    after: function () {
+      it.skip('is not reachable without a delay');
+    },
+    expired: function () {
+      it.skip('is not reachable without a delay');
+    },
+  },
+  notScheduled: function () {
+    it('succeeds', async function () {
+      await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
+    });
+  },
+};
+
 // ============ MODE HELPERS ============
 
 /**
@@ -670,6 +689,7 @@ async function scheduleOperation(manager, { caller, target, calldata, delay }) {
 module.exports = {
   // COMMON PATHS
   COMMON_SCHEDULABLE_PATH,
+  COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY,
   // MODE HELPERS
   shouldBehaveLikeClosable,
   // DELAY HELPERS

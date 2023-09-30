@@ -13,6 +13,7 @@ const {
 const {
   // COMMON PATHS
   COMMON_SCHEDULABLE_PATH,
+  COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY,
   // MODE HELPERS
   shouldBehaveLikeClosable,
   // DELAY HELPERS
@@ -1930,7 +1931,7 @@ contract('AccessManager', function (accounts) {
         open: {
           callerIsTheManager: {
             executing: function () {
-              it.skip('is not reachable');
+              it.skip('is not reachable because schedule is not restrictable');
             },
             notExecuting: function () {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
@@ -2270,28 +2271,7 @@ contract('AccessManager', function (accounts) {
           },
           callerIsNotTheManager: {
             publicRoleIsRequired: function () {
-              beforeEach('define schedule delay', async function () {
-                this.scheduleIn = time.duration.days(12);
-              });
-
-              shouldBehaveLikeSchedulableOperation({
-                scheduled: {
-                  before: function () {
-                    it.skip('is not reachable');
-                  },
-                  after: function () {
-                    it.skip('is not reachable');
-                  },
-                  expired: function () {
-                    it.skip('is not reachable');
-                  },
-                },
-                notScheduled: function () {
-                  it('succeeds', async function () {
-                    await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
-                  });
-                },
-              });
+              shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
             },
             specificRoleIsRequired: {
               requiredRoleIsGranted: {
@@ -2330,27 +2310,9 @@ contract('AccessManager', function (accounts) {
                       beforeEach('define schedule delay', async function () {
                         // Consume previously set delay
                         await mine();
-                        this.scheduleIn = time.duration.days(21);
                       });
 
-                      shouldBehaveLikeSchedulableOperation({
-                        scheduled: {
-                          before: function () {
-                            it.skip('is not reachable');
-                          },
-                          after: function () {
-                            it.skip('is not reachable');
-                          },
-                          expired: function () {
-                            it.skip('is not reachable');
-                          },
-                        },
-                        notScheduled: function () {
-                          it('succeeds', async function () {
-                            await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
-                          });
-                        },
-                      });
+                      shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
                     },
                   },
                 },
@@ -2363,28 +2325,7 @@ contract('AccessManager', function (accounts) {
                     shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
                   },
                   callerHasNoExecutionDelay: function () {
-                    beforeEach('define schedule delay', async function () {
-                      this.scheduleIn = time.duration.days(9);
-                    });
-
-                    shouldBehaveLikeSchedulableOperation({
-                      scheduled: {
-                        before: function () {
-                          it.skip('is not reachable');
-                        },
-                        after: function () {
-                          it.skip('is not reachable');
-                        },
-                        expired: function () {
-                          it.skip('is not reachable');
-                        },
-                      },
-                      notScheduled: function () {
-                        it('succeeds', async function () {
-                          await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
-                        });
-                      },
-                    });
+                    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
                   },
                 },
               },
