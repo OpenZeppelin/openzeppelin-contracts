@@ -57,8 +57,9 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Copy non-upgradeable contracts as dependency
-        run:
-          cp -rnT contracts node_modules/@openzeppelin/contracts
+        run: |
+          mkdir -p lib/openzeppelin-contracts
+          cp -rnT contracts lib/openzeppelin-contracts/contracts
       - name: Transpile to upgradeable
         run: bash scripts/upgradeable/transpile.sh
       - name: Run tests
