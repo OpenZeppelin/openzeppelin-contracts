@@ -636,7 +636,7 @@ contract('AccessManager', function (accounts) {
 
         describe(description, function () {
           beforeEach(async function () {
-            if (delay) this.skip(); // TODO: Fixed in #4613
+            if (!delay || fnRole === ROLES.PUBLIC) this.skip(); // TODO: Fixed in #4613
 
             // setup
             await Promise.all([
