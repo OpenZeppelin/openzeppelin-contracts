@@ -759,14 +759,23 @@ rule callDelayEnforce_executeAfterDelay(env e) {
 
     // Condition: calling a third party with a delay
     mathint delay = canCallExtended_2(e, e.msg.sender, target, data);
-    require delay > 0;
 
-    // Get operation schedule
-    mathint schedule = getSchedule(e, hashOperation(e.msg.sender, target, data));
+    // Get operation schedule before
+    mathint scheduleBefore = getSchedule(e, hashOperation(e.msg.sender, target, data));
 
     // Do call
     execute@withrevert(e, target, data);
+    bool success = !lastReverted;
+
+    // Get operation schedule after
+    mathint scheduleAfter = getSchedule(e, hashOperation(e.msg.sender, target, data));
 
     // Can only execute is delay is set and has passed
-    assert !lastReverted => (schedule != 0 && schedule <= clock(e));
+    assert success => (
+        delay > 0 => (
+            scheduleBefore != 0 &&
+            scheduleBefore <= clock(e)
+        ) &&
+        scheduleAfter == 0
+    );
 }

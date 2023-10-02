@@ -31,7 +31,4 @@ rule callRestrictedFunction(env e) {
             scheduleAfter == 0
         )
     );
-
-    // TODO: when fixed
-    // assert success => scheduleAfter == 0;
 }
