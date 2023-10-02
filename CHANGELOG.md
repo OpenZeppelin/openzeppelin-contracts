@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 5.0.0-rc.2 (2023-10-02)
+
+- `AccessManager`: Make `schedule` and `execute` more conservative when delay is 0.
+
 ## 5.0.0-rc.1 (2023-09-28)
 
 - Upgradeable Contracts: No longer transpile interfaces, libraries, and stateless contracts. ([#4636](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4636))
