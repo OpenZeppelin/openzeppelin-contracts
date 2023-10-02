@@ -7,8 +7,6 @@ import {Address} from "./Address.sol";
 
 /**
  * @dev Provides a function to batch together multiple calls in a single external call.
- *
- * @custom:stateless
  */
 abstract contract Multicall {
     /**
