@@ -2476,8 +2476,6 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 }
 ```
 
-@custom:stateless
-
 [.contract-index]
 .Functions
 --
@@ -4483,8 +4481,6 @@ import "@openzeppelin/contracts/utils/Multicall.sol";
 ```
 
 Provides a function to batch together multiple calls in a single external call.
-
-@custom:stateless
 
 [.contract-index]
 .Functions

@@ -1462,8 +1462,6 @@ Simple implementation of `IERC1155Receiver` that will allow a contract to hold E
 IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be
 stuck.
 
-@custom:stateless
-
 [.contract-index]
 .Functions
 --
