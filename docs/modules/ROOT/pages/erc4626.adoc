@@ -23,7 +23,7 @@ When plotted in log-log scale, the rate is defined similarly, but appears differ
 
 image::erc4626-rate-loglog.png[Exchange rates in logarithmic scale]
 
-In such a reprentation, widely different rates can be clearly visible in the same graph. This wouldn't be the case in linear scale.
+In such a representation, widely different rates can be clearly visible in the same graph. This wouldn't be the case in linear scale.
 
 image::erc4626-rate-loglogext.png[More exchange rates in logarithmic scale]
 
