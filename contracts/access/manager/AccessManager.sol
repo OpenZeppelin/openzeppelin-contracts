@@ -582,12 +582,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
         address caller = _msgSender();
 
         // Fetch restrictions that apply to the caller on the targeted function
-        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
+        (, uint32 setback) = _canCallExtended(caller, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
 
-        // if call is not authorized, or if requested timing is too soon
-        if ((!immediate && setback == 0) || (when > 0 && when < minWhen)) {
+        // if call with delay is not authorized, or if requested timing is too soon
+        if (setback == 0 || (when > 0 && when < minWhen)) {
             revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
 
@@ -644,11 +644,12 @@ contract AccessManager is Context, Multicall, IAccessManager {
             revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
         }
 
-        // If caller is authorised, check operation was scheduled early enough
         bytes32 operationId = hashOperation(caller, target, data);
         uint32 nonce;
 
-        if (setback != 0) {
+        // If caller is authorised, check operation was scheduled early enough
+        // Consume an available schedule even if there is no currently enforced delay
+        if (setback != 0 || getSchedule(operationId) != 0) {
             nonce = _consumeScheduledOp(operationId);
         }
 
