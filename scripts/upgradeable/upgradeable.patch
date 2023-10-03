@@ -319,6 +319,14 @@ index 3a1617c09..97e59c2d9 100644
    },
    "keywords": [
      "solidity",
+diff --git a/remappings.txt b/remappings.txt
+index 304d1386a..a1cd63bee 100644
+--- a/remappings.txt
++++ b/remappings.txt
+@@ -1 +1,2 @@
+-@openzeppelin/contracts/=contracts/
++@openzeppelin/contracts-upgradeable/=contracts/
++@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
 index faf01f1a3..b25171a56 100644
 --- a/test/utils/cryptography/EIP712.test.js

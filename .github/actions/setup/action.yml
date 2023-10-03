@@ -15,3 +15,7 @@ runs:
       run: npm ci
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
