@@ -1,5 +1,6 @@
 const { time } = require('@openzeppelin/test-helpers');
 const { MAX_UINT64 } = require('./constants');
+const { artifacts } = require('hardhat');
 
 function buildBaseRoles() {
   const roles = {
@@ -42,7 +43,15 @@ const formatAccess = access => [access[0], access[1].toString()];
 
 const MINSETBACK = time.duration.days(5);
 const EXPIRATION = time.duration.weeks(1);
-const EXECUTION_ID_STORAGE_SLOT = 3;
+
+let EXECUTION_ID_STORAGE_SLOT = 3n;
+try {
+  // Try to get the artifact path, will throw if it doesn't exist
+  artifacts._getArtifactPathSync('AccessManagerUpgradeable');
+  // ERC-7201 namespace location for AccessManager
+  EXECUTION_ID_STORAGE_SLOT += 0x40c6c8c28789853c7efd823ab20824bbd71718a8a5915e855f6f288c9a26ad00n;
+} catch (_) {
+}
 
 module.exports = {
   buildBaseRoles,
