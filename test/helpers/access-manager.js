@@ -51,6 +51,7 @@ try {
   // ERC-7201 namespace location for AccessManager
   EXECUTION_ID_STORAGE_SLOT += 0x40c6c8c28789853c7efd823ab20824bbd71718a8a5915e855f6f288c9a26ad00n;
 } catch (_) {
+  // eslint-disable-next-line no-empty
 }
 
 module.exports = {
