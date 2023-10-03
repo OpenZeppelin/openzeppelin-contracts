@@ -3,18 +3,18 @@ import "methods/IAccessManaged.spec";
 
 methods {
     // FV
-    function someFunction()                 external;
-    function authority_canCall_1(address)   external returns (bool);
-    function authority_canCall_2(address)   external returns (uint32);
-    function authority_getSchedule(address) external returns (uint48);
+    function someFunction()                       external;
+    function authority_canCall_immediate(address) external returns (bool);
+    function authority_canCall_delay(address)     external returns (uint32);
+    function authority_getSchedule(address)       external returns (uint48);
 }
 
 invariant isConsumingScheduledOpClean()
     isConsumingScheduledOp() == to_bytes4(0);
 
 rule callRestrictedFunction(env e) {
-    bool   immediate      = authority_canCall_1(e, e.msg.sender);
-    uint32 delay          = authority_canCall_2(e, e.msg.sender);
+    bool   immediate      = authority_canCall_immediate(e, e.msg.sender);
+    uint32 delay          = authority_canCall_delay(e, e.msg.sender);
     uint48 scheduleBefore = authority_getSchedule(e, e.msg.sender);
 
     someFunction@withrevert(e);

@@ -7,51 +7,12 @@ import "../patched/access/manager/AccessManager.sol";
 contract AccessManagerHarness is AccessManager {
     constructor(address initialAdmin) AccessManager(initialAdmin) {}
 
-    // bug introduction: inverse check-effect
-    /*
-    function bugged_execute(address target, bytes calldata data) public payable virtual returns (uint32) {
-        // Mark the target and selector as authorised
-        // Note: here we know that data is at least 4 bytes long, because otherwise `_canCallExtended` would have
-        // returned (false, 0) and that would have cause the `AccessManagerUnauthorizedCall` error to be triggered.
-        bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, bytes4(data));
-
-        // Perform call
-        Address.functionCallWithValue(target, data, msg.value);
-
-        // Reset execute identifier
-        _executionId = executionIdBefore;
-
-        address caller = _msgSender();
-
-        // Fetch restrictions that apply to the caller on the targeted function
-        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
-
-        // If call is not authorized, revert
-        // Note: this will also be triggered if data.length < 4. In that case the selector param in the custom error
-        // will be padded to 4 bytes with zeros.
-        if (!immediate && setback == 0) {
-            revert AccessManagerUnauthorizedCall(caller, target, bytes4(data));
-        }
-
-        // If caller is authorised, check operation was scheduled early enough
-        bytes32 operationId = hashOperation(caller, target, data);
-        uint32 nonce;
-
-        if (setback != 0) {
-            nonce = _consumeScheduledOp(operationId);
-        }
-
-        return nonce;
-    }
-    */
-
     // FV
-    function canCall_1(address caller, address target, bytes4 selector) external view returns (bool result) {
+    function canCall_immediate(address caller, address target, bytes4 selector) external view returns (bool result) {
         (result,) = canCall(caller, target, selector);
     }
 
-    function canCall_2(address caller, address target, bytes4 selector) external view returns (uint32 result) {
+    function canCall_delay(address caller, address target, bytes4 selector) external view returns (uint32 result) {
         (,result) = canCall(caller, target, selector);
     }
 
@@ -59,63 +20,63 @@ contract AccessManagerHarness is AccessManager {
         return _canCallExtended(caller, target, data);
     }
 
-    function canCallExtended_1(address caller, address target, bytes calldata data) external view returns (bool result) {
+    function canCallExtended_immediate(address caller, address target, bytes calldata data) external view returns (bool result) {
         (result,) = _canCallExtended(caller, target, data);
     }
 
-    function canCallExtended_2(address caller, address target, bytes calldata data) external view returns (uint32 result) {
+    function canCallExtended_delay(address caller, address target, bytes calldata data) external view returns (uint32 result) {
         (,result) = _canCallExtended(caller, target, data);
     }
 
-    function getAdminRestrictions_1(bytes calldata data) external view returns (bool result) {
+    function getAdminRestrictions_restricted(bytes calldata data) external view returns (bool result) {
         (result,,) = _getAdminRestrictions(data);
     }
 
-    function getAdminRestrictions_2(bytes calldata data) external view returns (uint64 result) {
+    function getAdminRestrictions_roleAdminId(bytes calldata data) external view returns (uint64 result) {
         (,result,) = _getAdminRestrictions(data);
     }
 
-    function getAdminRestrictions_3(bytes calldata data) external view returns (uint32 result) {
+    function getAdminRestrictions_executionDelay(bytes calldata data) external view returns (uint32 result) {
         (,,result) = _getAdminRestrictions(data);
     }
 
-    function hasRole_1(uint64 roleId, address account) external view returns (bool result) {
+    function hasRole_isMember(uint64 roleId, address account) external view returns (bool result) {
         (result,) = hasRole(roleId, account);
     }
 
-    function hasRole_2(uint64 roleId, address account) external view returns (uint32 result) {
+    function hasRole_executionDelay(uint64 roleId, address account) external view returns (uint32 result) {
         (,result) = hasRole(roleId, account);
     }
 
-    function getAccess_1(uint64 roleId, address account) external view returns (uint48 result) {
+    function getAccess_since(uint64 roleId, address account) external view returns (uint48 result) {
         (result,,,) = getAccess(roleId, account);
     }
 
-    function getAccess_2(uint64 roleId, address account) external view returns (uint32 result) {
+    function getAccess_currentDelay(uint64 roleId, address account) external view returns (uint32 result) {
         (,result,,) = getAccess(roleId, account);
     }
 
-    function getAccess_3(uint64 roleId, address account) external view returns (uint32 result) {
+    function getAccess_pendingDelay(uint64 roleId, address account) external view returns (uint32 result) {
         (,,result,) = getAccess(roleId, account);
     }
 
-    function getAccess_4(uint64 roleId, address account) external view returns (uint48 result) {
+    function getAccess_effect(uint64 roleId, address account) external view returns (uint48 result) {
         (,,,result) = getAccess(roleId, account);
     }
 
-    function getTargetAdminDelay_2(address target) public view virtual returns (uint32 result) {
+    function getTargetAdminDelay_after(address target) public view virtual returns (uint32 result) {
         (,result,) = _getTargetAdminDelayFull(target);
     }
 
-    function getTargetAdminDelay_3(address target) public view virtual returns (uint48 result) {
+    function getTargetAdminDelay_effect(address target) public view virtual returns (uint48 result) {
         (,,result) = _getTargetAdminDelayFull(target);
     }
 
-    function getRoleGrantDelay_2(uint64 roleId) public view virtual returns (uint32 result) {
+    function getRoleGrantDelay_after(uint64 roleId) public view virtual returns (uint32 result) {
         (,result,) = _getRoleGrantDelayFull(roleId);
     }
 
-    function getRoleGrantDelay_3(uint64 roleId) public view virtual returns (uint48 result) {
+    function getRoleGrantDelay_effect(uint64 roleId) public view virtual returns (uint48 result) {
         (,,result) = _getRoleGrantDelayFull(roleId);
     }
 

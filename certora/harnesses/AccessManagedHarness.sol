@@ -21,11 +21,11 @@ contract AccessManagedHarness is AccessManaged {
         );
     }
 
-    function authority_canCall_1(address caller) public view returns (bool result) {
+    function authority_canCall_immediate(address caller) public view returns (bool result) {
         (result,) = AuthorityUtils.canCallWithDelay(authority(), caller, address(this), this.someFunction.selector);
     }
 
-    function authority_canCall_2(address caller) public view returns (uint32 result) {
+    function authority_canCall_delay(address caller) public view returns (uint32 result) {
         (,result) = AuthorityUtils.canCallWithDelay(authority(), caller, address(this), this.someFunction.selector);
     }
 
