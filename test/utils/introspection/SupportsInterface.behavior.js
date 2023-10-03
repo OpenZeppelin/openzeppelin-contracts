@@ -114,7 +114,7 @@ function shouldSupportInterfaces(interfaces = []) {
     });
 
     describe('when the interfaceId is not supported', function () {
-      it('uses less thank 30k', async function () {
+      it('uses less than 30k', async function () {
         expect(await this.contractUnderTest.supportsInterface.estimateGas(INVALID_ID)).to.be.lte(30000);
       });
 
