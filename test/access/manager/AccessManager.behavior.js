@@ -11,12 +11,12 @@ const { EXPIRATION, EXECUTION_ID_STORAGE_SLOT } = require('../../helpers/access-
 // ============ COMMON PATHS ============
 
 const COMMON_IS_EXECUTING_PATH = {
-  executing: function () {
+  executing() {
     it('succeeds', async function () {
       await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
     });
   },
-  notExecuting: function () {
+  notExecuting() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expectRevertCustomError(
         web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -31,7 +31,7 @@ const COMMON_GET_ACCESS_PATH = {
   requiredRoleIsGranted: {
     roleGrantingIsDelayed: {
       callerHasAnExecutionDelay: {
-        beforeGrantDelay: function () {
+        beforeGrantDelay() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -43,7 +43,7 @@ const COMMON_GET_ACCESS_PATH = {
         afterGrantDelay: undefined, // Diverges if there's an operation delay or not
       },
       callerHasNoExecutionDelay: {
-        beforeGrantDelay: function () {
+        beforeGrantDelay() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -52,7 +52,7 @@ const COMMON_GET_ACCESS_PATH = {
             );
           });
         },
-        afterGrantDelay: function () {
+        afterGrantDelay() {
           it('succeeds called directly', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
@@ -65,7 +65,7 @@ const COMMON_GET_ACCESS_PATH = {
     },
     roleGrantingIsNotDelayed: {
       callerHasAnExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
-      callerHasNoExecutionDelay: function () {
+      callerHasNoExecutionDelay() {
         it('succeeds called directly', async function () {
           await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
         });
@@ -76,7 +76,7 @@ const COMMON_GET_ACCESS_PATH = {
       },
     },
   },
-  requiredRoleIsNotGranted: function () {
+  requiredRoleIsNotGranted() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expectRevertCustomError(
         web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -89,7 +89,7 @@ const COMMON_GET_ACCESS_PATH = {
 
 const COMMON_SCHEDULABLE_PATH = {
   scheduled: {
-    before: function () {
+    before() {
       it('reverts as AccessManagerNotReady', async function () {
         await expectRevertCustomError(
           web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -98,7 +98,7 @@ const COMMON_SCHEDULABLE_PATH = {
         );
       });
     },
-    after: function () {
+    after() {
       it('succeeds called directly', async function () {
         await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
       });
@@ -107,7 +107,7 @@ const COMMON_SCHEDULABLE_PATH = {
         await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
       });
     },
-    expired: function () {
+    expired() {
       it('reverts as AccessManagerExpired', async function () {
         await expectRevertCustomError(
           web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -117,7 +117,7 @@ const COMMON_SCHEDULABLE_PATH = {
       });
     },
   },
-  notScheduled: function () {
+  notScheduled() {
     it('reverts as AccessManagerNotScheduled', async function () {
       await expectRevertCustomError(
         web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -130,17 +130,17 @@ const COMMON_SCHEDULABLE_PATH = {
 
 const COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY = {
   scheduled: {
-    before: function () {
+    before() {
       it.skip('is not reachable without a delay');
     },
-    after: function () {
+    after() {
       it.skip('is not reachable without a delay');
     },
-    expired: function () {
+    expired() {
       it.skip('is not reachable without a delay');
     },
   },
-  notScheduled: function () {
+  notScheduled() {
     it('succeeds', async function () {
       await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
     });
@@ -332,10 +332,10 @@ function shouldBehaveLikeCanCall({
 }) {
   shouldBehaveLikeClosable({
     closed,
-    open: function () {
+    open() {
       shouldBehaveLikeARestrictedOperation({
         callerIsTheManager,
-        callerIsNotTheManager: function () {
+        callerIsNotTheManager() {
           shouldBehaveLikeHasRole({
             publicRoleIsRequired,
             specificRoleIsRequired,
@@ -500,9 +500,9 @@ function shouldBehaveLikeDelayedAdminOperation() {
 
   shouldBehaveLikeARestrictedOperation({
     callerIsTheManager: COMMON_IS_EXECUTING_PATH,
-    callerIsNotTheManager: function () {
+    callerIsNotTheManager() {
       shouldBehaveLikeHasRole({
-        publicRoleIsRequired: function () {
+        publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -545,9 +545,9 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
 
   shouldBehaveLikeARestrictedOperation({
     callerIsTheManager: COMMON_IS_EXECUTING_PATH,
-    callerIsNotTheManager: function () {
+    callerIsNotTheManager() {
       shouldBehaveLikeHasRole({
-        publicRoleIsRequired: function () {
+        publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -587,9 +587,9 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
 
   shouldBehaveLikeARestrictedOperation({
     callerIsTheManager: COMMON_IS_EXECUTING_PATH,
-    callerIsNotTheManager: function () {
+    callerIsNotTheManager() {
       shouldBehaveLikeHasRole({
-        publicRoleIsRequired: function () {
+        publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expectRevertCustomError(
               web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
@@ -651,7 +651,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     open: {
       callerIsTheManager: isExecutingPath,
       callerIsNotTheManager: {
-        publicRoleIsRequired: function () {
+        publicRoleIsRequired() {
           it('succeeds called directly', async function () {
             await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
           });
