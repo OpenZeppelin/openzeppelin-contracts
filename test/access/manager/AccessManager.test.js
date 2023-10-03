@@ -2369,7 +2369,7 @@ contract('AccessManager', function (accounts) {
       // give caller an execution delay
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1);
 
-      const { operationId, scheduledAt } = await scheduleOperation(this.manager, {
+      const { operationId } = await scheduleOperation(this.manager, {
         caller: this.caller,
         target: this.target.address,
         calldata: this.calldata,

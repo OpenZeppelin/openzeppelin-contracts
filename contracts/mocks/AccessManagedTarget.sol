@@ -8,6 +8,7 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 abstract contract AccessManagedTarget is AccessManaged {
     event CalledRestricted(address caller);
     event CalledUnrestricted(address caller);
+    event CalledFallback(address caller);
 
     function fnRestricted() public restricted {
         emit CalledRestricted(msg.sender);
@@ -29,5 +30,9 @@ abstract contract AccessManagedTarget is AccessManaged {
 
     function _consumingSchedule() internal pure returns (StorageSlot.Bytes32Slot storage) {
         return StorageSlot.getBytes32Slot(bytes32(uint256(0)));
+    }
+
+    fallback() external {
+        emit CalledFallback(msg.sender);
     }
 }
