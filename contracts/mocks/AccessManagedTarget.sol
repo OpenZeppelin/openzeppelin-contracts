@@ -18,18 +18,14 @@ abstract contract AccessManagedTarget is AccessManaged {
         emit CalledUnrestricted(msg.sender);
     }
 
-    function setIsConsumingScheduledOp(bool isConsuming) external {
+    function setIsConsumingScheduledOp(bool isConsuming, bytes32 slot) external {
         // Memory layout is 0x....<_consumingSchedule (boolean)><authority (address)>
         bytes32 mask = bytes32(uint256(1 << 160));
         if (isConsuming) {
-            _consumingSchedule().value |= mask;
+            StorageSlot.getBytes32Slot(slot).value |= mask;
         } else {
-            _consumingSchedule().value &= ~mask;
+            StorageSlot.getBytes32Slot(slot).value &= ~mask;
         }
-    }
-
-    function _consumingSchedule() internal pure returns (StorageSlot.Bytes32Slot storage) {
-        return StorageSlot.getBytes32Slot(bytes32(uint256(0)));
     }
 
     fallback() external {
