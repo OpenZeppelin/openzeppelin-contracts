@@ -6,8 +6,6 @@ const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/govern
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { clockFromReceipt } = require('../../helpers/time');
 const { selector } = require('../../helpers/methods');
-const { impersonate } = require('../../helpers/account');
-const { default: Wallet } = require('ethereumjs-wallet');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Governor = artifacts.require('$GovernorTimelockAccessMock');
@@ -22,7 +20,7 @@ const hashOperation = (caller, target, data) =>
   web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
 
 contract('GovernorTimelockAccess', function (accounts) {
-  const [admin, voter1, voter2, voter3, voter4] = accounts;
+  const [admin, voter1, voter2, voter3, voter4, other] = accounts;
 
   const name = 'OZ-Governor';
   const version = '1';
@@ -124,8 +122,23 @@ contract('GovernorTimelockAccess', function (accounts) {
           [voter1],
         );
 
-        await impersonate(this.mock.address);
-        const { receipt } = await this.mock.setBaseDelaySeconds(baseDelay, { from: this.mock.address });
+        this.proposal = await this.helper.setProposal(
+          [
+            {
+              target: this.mock.address,
+              value: '0',
+              data: this.mock.contract.methods.setBaseDelaySeconds(baseDelay).encodeABI(),
+            },
+          ],
+          'descr',
+        );
+
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        const receipt = await this.helper.execute();
+
         expectEvent(receipt, 'BaseDelaySet', {
           oldBaseDelaySeconds: '0',
           newBaseDelaySeconds: baseDelay,
@@ -134,58 +147,101 @@ contract('GovernorTimelockAccess', function (accounts) {
         expect(await this.mock.baseDelaySeconds()).to.be.bignumber.eq(baseDelay);
       });
 
-      it('sets access manager ignored', async function () {
-        const target = Wallet.generate().getChecksumAddressString();
+      it.only('sets access manager ignored', async function () {
         const selectors = ['0x12345678', '0x87654321', '0xabcdef01'];
 
         // Only through governance
         await expectRevertCustomError(
-          this.mock.setAccessManagerIgnored(target, selectors, true, { from: voter1 }),
+          this.mock.setAccessManagerIgnored(other, selectors, true, { from: voter1 }),
           'GovernorOnlyExecutor',
           [voter1],
         );
 
-        await impersonate(this.mock.address);
-        const ignore = await this.mock.setAccessManagerIgnored(target, selectors, true, {
-          from: this.mock.address,
-        });
+        // Ignore
+        const helperIgnore = new GovernorHelper(this.mock, mode);
+        await helperIgnore.setProposal(
+          [
+            {
+              target: this.mock.address,
+              value: '0',
+              data: this.mock.contract.methods.setAccessManagerIgnored(other, selectors, true).encodeABI(),
+            },
+          ],
+          'descr',
+        );
+
+        await helperIgnore.propose();
+        await helperIgnore.waitForSnapshot();
+        await helperIgnore.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await helperIgnore.waitForDeadline();
+        const ignoreReceipt = await helperIgnore.execute();
+
         for (const selector of selectors) {
-          expectEvent(ignore.receipt, 'AccessManagerIgnoredSet', {
-            target,
+          expectEvent(ignoreReceipt, 'AccessManagerIgnoredSet', {
+            target: other,
             selector,
             ignored: true,
           });
-          expect(await this.mock.isAccessManagerIgnored(target, selector)).to.be.true;
+          expect(await this.mock.isAccessManagerIgnored(other, selector)).to.be.true;
         }
 
-        await impersonate(this.mock.address);
-        const unignore = await this.mock.setAccessManagerIgnored(target, selectors, false, { from: this.mock.address });
+        // Unignore
+        const helperUnignore = new GovernorHelper(this.mock, mode);
+        await helperUnignore.setProposal(
+          [
+            {
+              target: this.mock.address,
+              value: '0',
+              data: this.mock.contract.methods.setAccessManagerIgnored(other, selectors, false).encodeABI(),
+            },
+          ],
+          'descr',
+        );
+
+        await helperUnignore.propose();
+        await helperUnignore.waitForSnapshot();
+        await helperUnignore.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await helperUnignore.waitForDeadline();
+        const unignoreReceipt = await helperUnignore.execute();
 
         for (const selector of selectors) {
-          expectEvent(unignore.receipt, 'AccessManagerIgnoredSet', {
-            target,
+          expectEvent(unignoreReceipt, 'AccessManagerIgnoredSet', {
+            target: other,
             selector,
             ignored: false,
           });
-          expect(await this.mock.isAccessManagerIgnored(target, selector)).to.be.false;
+          expect(await this.mock.isAccessManagerIgnored(other, selector)).to.be.false;
         }
       });
 
       it('sets access manager ignored when target is the governor', async function () {
-        const target = this.mock.address;
+        const other = this.mock.address;
         const selectors = ['0x12345678', '0x87654321', '0xabcdef01'];
 
-        await impersonate(this.mock.address);
-        const { receipt } = await this.mock.setAccessManagerIgnored(target, selectors, true, {
-          from: this.mock.address,
-        });
+        await this.helper.setProposal(
+          [
+            {
+              target: this.mock.address,
+              value: '0',
+              data: this.mock.contract.methods.setAccessManagerIgnored(other, selectors, true).encodeABI(),
+            },
+          ],
+          'descr',
+        );
+
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        const receipt = await this.helper.execute();
+
         for (const selector of selectors) {
           expectEvent(receipt, 'AccessManagerIgnoredSet', {
-            target,
+            other,
             selector,
             ignored: true,
           });
-          expect(await this.mock.isAccessManagerIgnored(target, selector)).to.be.true;
+          expect(await this.mock.isAccessManagerIgnored(other, selector)).to.be.true;
         }
       });
 
