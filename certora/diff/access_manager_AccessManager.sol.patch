@@ -1,5 +1,5 @@
 --- access/manager/AccessManager.sol	2023-10-04 11:20:52.802378968 +0200
-+++ access/manager/AccessManager.sol	2023-10-04 11:20:43.789029388 +0200
++++ access/manager/AccessManager.sol	2023-10-04 14:49:43.126279234 +0200
 @@ -6,7 +6,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -8,16 +8,17 @@
  import {Math} from "../../utils/math/Math.sol";
  import {Time} from "../../utils/types/Time.sol";
  
-@@ -48,7 +47,7 @@
+@@ -48,7 +47,8 @@
   * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
   * {{AccessControl-renounceRole}}.
   */
 -contract AccessManager is Context, Multicall, IAccessManager {
++// NOTE: The FV version of this contract doesn't include Multicall because CVL HAVOCs on any `delegatecall`.
 +contract AccessManager is Context, IAccessManager {
      using Time for *;
  
      // Structure that stores the details for a target contract.
-@@ -93,7 +92,7 @@
+@@ -93,7 +93,7 @@
      mapping(bytes32 operationId => Schedule) private _schedules;
  
      // This should be transient storage when supported by the EVM.
@@ -26,7 +27,7 @@
  
      /**
       * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
-@@ -185,6 +184,11 @@
+@@ -185,6 +185,11 @@
          return _targets[target].adminDelay.get();
      }
  
@@ -38,7 +39,7 @@
      /**
       * @dev Get the id of the role that acts as an admin for given role.
       *
-@@ -213,6 +217,11 @@
+@@ -213,6 +218,11 @@
          return _roles[roleId].grantDelay.get();
      }
  
@@ -50,7 +51,7 @@
      /**
       * @dev Get the access details for a given account for a given role. These details include the timepoint at which
       * membership becomes active, and the delay applied to all operation by this user that requires this permission
-@@ -749,7 +758,7 @@
+@@ -749,7 +759,7 @@
      /**
       * @dev Hashing function for execute protection
       */
@@ -59,7 +60,7 @@
          return keccak256(abi.encode(target, selector));
      }
  
-@@ -769,7 +778,7 @@
+@@ -769,7 +779,7 @@
      /**
       * @dev Check if the current call is authorized according to admin logic.
       */
@@ -68,7 +69,7 @@
          address caller = _msgSender();
          (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
          if (!immediate) {
-@@ -792,7 +801,7 @@
+@@ -792,7 +802,7 @@
       */
      function _getAdminRestrictions(
          bytes calldata data
@@ -77,7 +78,7 @@
          if (data.length < 4) {
              return (false, 0, 0);
          }
-@@ -847,7 +856,7 @@
+@@ -847,7 +857,7 @@
          address caller,
          address target,
          bytes calldata data
@@ -86,7 +87,7 @@
          if (target == address(this)) {
              return _canCallSelf(caller, data);
          } else {
-@@ -901,7 +910,7 @@
+@@ -901,7 +911,7 @@
      /**
       * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
       */
