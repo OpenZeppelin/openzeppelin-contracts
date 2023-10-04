@@ -66,9 +66,7 @@ OpenZeppelin Defender is equipped to help you audit your code smoothly and deplo
 We used [Audit](https://docs.openzeppelin.com/defender/v2/module/audit) to streamline the fix-review process and ensure all changes were tracked and resolved effectively, and we recommend [Deploy](https://docs.openzeppelin.com/defender/v2/module/deploy) as well to seamlessly handle gas payments, multisig approvals, and block explorer verification. While these constitute security best practices, Contracts is compatible with all deployment methods.
 
 ## Security
-This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the Solidity ecosystem. We address security through risk management in various areas such as engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
-
-The engineering guidelines we follow to promote project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
+This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the Solidity ecosystem. We address security through risk management in various areas such as engineering and open source [best practices](./GUIDELINES.md), scoping and API design, multi-layered review processes, and incident response preparedness.
 
 The [OpenZeppelin Contracts Security Center](https://contracts.openzeppelin.com/security) contains more details about the secure development process, including past audits, our bug bounty program, and advanced testing methods such as fuzzing and formal verification.
 
