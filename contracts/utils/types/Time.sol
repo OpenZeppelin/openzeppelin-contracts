@@ -96,22 +96,26 @@ library Time {
      * enforce the old delay at the moment of the update. Returns the updated Delay object and the timestamp when the
      * new delay becomes effective.
      */
-    function withUpdate(Delay self, uint32 newValue, uint32 minSetback) internal view returns (Delay, uint48) {
+    function withUpdate(
+        Delay self,
+        uint32 newValue,
+        uint32 minSetback
+    ) internal view returns (Delay updatedDelay, uint48 effect) {
         uint32 value = self.get();
         uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
-        uint48 effect = timestamp() + setback;
+        effect = timestamp() + setback;
         return (pack(value, newValue, effect), effect);
     }
 
     /**
      * @dev Split a delay into its components: valueBefore, valueAfter and effect (transition timepoint).
      */
-    function unpack(Delay self) internal pure returns (uint32, uint32, uint48) {
+    function unpack(Delay self) internal pure returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
         uint112 raw = Delay.unwrap(self);
 
-        uint32 valueAfter = uint32(raw);
-        uint32 valueBefore = uint32(raw >> 32);
-        uint48 effect = uint48(raw >> 64);
+        valueAfter = uint32(raw);
+        valueBefore = uint32(raw >> 32);
+        effect = uint48(raw >> 64);
 
         return (valueBefore, valueAfter, effect);
     }
