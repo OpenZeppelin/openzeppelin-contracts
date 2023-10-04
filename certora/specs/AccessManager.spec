@@ -341,13 +341,13 @@ rule getAccessChangeCall(uint64 roleId, address account) {
             f.selector == sig:grantRole(uint64,address,uint32).selector &&
             getAccess1After > 0
         ) || (
-            f.selector == sig:revokeRole(uint64,address).selector       &&
-            getAccess1After == 0
-        ) || (
-            f.selector == sig:renounceRole(uint64,address).selector     &&
-            getAccess1After == 0                                        &&
-            getAccess2After == 0                                        &&
-            getAccess3After == 0                                        &&
+            (
+                f.selector == sig:revokeRole(uint64,address).selector ||
+                f.selector == sig:renounceRole(uint64,address).selector
+            ) &&
+            getAccess1After == 0 &&
+            getAccess2After == 0 &&
+            getAccess3After == 0 &&
             getAccess4After == 0
         )
     );
