@@ -5,9 +5,16 @@ pragma solidity ^0.8.20;
 import "../patched/access/manager/AccessManager.sol";
 
 contract AccessManagerHarness is AccessManager {
+    // override with a storage slot that can basically take any value.
+    uint32 private _minSetback;
+
     constructor(address initialAdmin) AccessManager(initialAdmin) {}
 
     // FV
+    function minSetback() public view override returns (uint32) {
+        return _minSetback;
+    }
+
     function canCall_immediate(address caller, address target, bytes4 selector) external view returns (bool result) {
         (result,) = canCall(caller, target, selector);
     }

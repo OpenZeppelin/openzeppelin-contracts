@@ -486,17 +486,37 @@ rule getTargetAdminDelayChangeCall(address target) {
     mathint delayPendingAfter = getTargetAdminDelay_after(e, target);
     mathint delayEffectAfter  = getTargetAdminDelay_effect(e, target);
 
-    // transitions
-    assert minSetback() > 0 => delayBefore == delayAfter;
-
+    // if anything changed ...
     assert (
         delayBefore        != delayAfter        ||
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        f.selector       == sig:setTargetAdminDelay(address,uint32).selector &&
-        delayAfter       >= delayBefore && // if minSetback is not 0, we have an equality here (see above)
-        delayEffectAfter >= clock(e) + minSetback()
+        (
+            // ... it was the consequence of a call to setTargetAdminDelay
+            f.selector == sig:setTargetAdminDelay(address,uint32).selector
+        ) && (
+            // ... delay cannot decrease instantly
+            delayAfter >= delayBefore
+        ) && (
+            // ... if setback is not 0, value cannot change instantly
+            minSetback() > 0 => (
+                delayBefore == delayAfter
+            )
+        ) && (
+            // ... if the value did not change and there is a minSetback, there must be something scheduled in the future
+            delayAfter == delayBefore && minSetback() > 0 => (
+                delayEffectAfter >= clock(e) + minSetback()
+            )
+            // note: if there is no minSetback, and if the caller "confirms" the current value,
+            // then this as immediate effect and nothing is scheduled
+        ) && (
+            // ... if the value changed, then no further change should be scheduled
+            delayAfter != delayBefore => (
+                delayPendingAfter == 0 &&
+                delayEffectAfter  == 0
+            )
+        )
     );
 }
 
@@ -527,10 +547,10 @@ rule getRoleGrantDelayChangeTime(uint64 roleId) {
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        delayEffectBefore >  clock(e1) &&
-        delayEffectBefore <= clock(e2) &&
-        delayAfter        == delayPendingBefore     &&
-        delayPendingAfter == 0                      &&
+        delayEffectBefore >  clock(e1)          &&
+        delayEffectBefore <= clock(e2)          &&
+        delayAfter        == delayPendingBefore &&
+        delayPendingAfter == 0                  &&
         delayEffectAfter  == 0
     );
 }
@@ -551,17 +571,37 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
     mathint delayPendingAfter = getRoleGrantDelay_after(e, roleId);
     mathint delayEffectAfter  = getRoleGrantDelay_effect(e, roleId);
 
-    // transitions
-    assert minSetback() > 0 => delayBefore == delayAfter;
-
+    // if anything changed ...
     assert (
         delayBefore        != delayAfter        ||
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
-        f.selector       == sig:setGrantDelay(uint64,uint32).selector &&
-        delayAfter       >= delayBefore && // if minSetback is not 0, we have an equality here (see above)
-        delayEffectAfter >= clock(e) + minSetback()
+        (
+            // ... it was the consequence of a call to setTargetAdminDelay
+            f.selector == sig:setGrantDelay(uint64,uint32).selector
+        ) && (
+            // ... delay cannot decrease instantly
+            delayAfter >= delayBefore
+        ) && (
+            // ... if setback is not 0, value cannot change instantly
+            minSetback() > 0 => (
+                delayBefore == delayAfter
+            )
+        ) && (
+            // ... if the value did not change and there is a minSetback, there must be something scheduled in the future
+            delayAfter == delayBefore && minSetback() > 0 => (
+                delayEffectAfter >= clock(e) + minSetback()
+            )
+            // note: if there is no minSetback, and if the caller "confirms" the current value,
+            // then this as immediate effect and nothing is scheduled
+        ) && (
+            // ... if the value changed, then no further change should be scheduled
+            delayAfter != delayBefore => (
+                delayPendingAfter == 0 &&
+                delayEffectAfter  == 0
+            )
+        )
     );
 }
 
