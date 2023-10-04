@@ -46,7 +46,7 @@ abstract contract Pausable is Context {
     error ExpectedPause();
 
     constructor() {
-        _pause = NOT_PAUSED;
+        _paused = NOT_PAUSED;
     }
 
     /**
