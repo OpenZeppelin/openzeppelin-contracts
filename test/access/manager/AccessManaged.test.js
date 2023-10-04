@@ -121,12 +121,12 @@ contract('AccessManaged', function (accounts) {
 
   describe('isConsumingScheduledOp', function () {
     it('returns bytes4(0) when not consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(false, CONSUMING_SCHEDULE_STORAGE_SLOT);
+      await this.managed.setIsConsumingScheduledOp(false, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       expect(await this.managed.isConsumingScheduledOp()).to.eq('0x00000000');
     });
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(true, CONSUMING_SCHEDULE_STORAGE_SLOT);
+      await this.managed.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       expect(await this.managed.isConsumingScheduledOp()).to.eq(selector('isConsumingScheduledOp()'));
     });
   });
