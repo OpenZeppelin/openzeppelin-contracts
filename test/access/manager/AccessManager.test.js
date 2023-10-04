@@ -9,6 +9,7 @@ const {
   EXPIRATION,
   MINSETBACK,
   EXECUTION_ID_STORAGE_SLOT,
+  CONSUMING_SCHEDULE_STORAGE_SLOT,
 } = require('../../helpers/access-manager');
 const {
   // COMMON PATHS
@@ -2430,7 +2431,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is not consuming scheduled operation', function () {
       beforeEach('set consuming false', async function () {
-        await this.target.setIsConsumingScheduledOp(false);
+        await this.target.setIsConsumingScheduledOp(false, CONSUMING_SCHEDULE_STORAGE_SLOT);
       });
 
       it('reverts as AccessManagerUnauthorizedConsume', async function () {
@@ -2445,7 +2446,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is consuming scheduled operation', function () {
       beforeEach('set consuming true', async function () {
-        await this.target.setIsConsumingScheduledOp(true);
+        await this.target.setIsConsumingScheduledOp(true, CONSUMING_SCHEDULE_STORAGE_SLOT);
       });
 
       shouldBehaveLikeSchedulableOperation({
