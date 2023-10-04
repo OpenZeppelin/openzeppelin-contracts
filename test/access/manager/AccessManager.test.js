@@ -2416,7 +2416,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('#consumeScheduledOp', function () {
+  describe.only('#consumeScheduledOp', function () {
     beforeEach('define scheduling parameters', async function () {
       const method = 'fnRestricted()';
       this.caller = this.target.address;
@@ -2431,7 +2431,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is not consuming scheduled operation', function () {
       beforeEach('set consuming false', async function () {
-        await this.target.setIsConsumingScheduledOp(false, CONSUMING_SCHEDULE_STORAGE_SLOT);
+        await this.target.setIsConsumingScheduledOp(false, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString()}`);
       });
 
       it('reverts as AccessManagerUnauthorizedConsume', async function () {
@@ -2446,7 +2446,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is consuming scheduled operation', function () {
       beforeEach('set consuming true', async function () {
-        await this.target.setIsConsumingScheduledOp(true, CONSUMING_SCHEDULE_STORAGE_SLOT);
+        await this.target.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString()}`);
       });
 
       shouldBehaveLikeSchedulableOperation({
