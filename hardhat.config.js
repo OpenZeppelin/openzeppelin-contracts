@@ -61,6 +61,10 @@ require('hardhat-exposed');
 require('solidity-docgen');
 argv.foundry && require('@nomicfoundation/hardhat-foundry');
 
+if (argv.foundry && argv.coverage) {
+  throw Error('Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment');
+}
+
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
