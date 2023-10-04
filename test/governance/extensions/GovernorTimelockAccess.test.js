@@ -147,7 +147,7 @@ contract('GovernorTimelockAccess', function (accounts) {
         expect(await this.mock.baseDelaySeconds()).to.be.bignumber.eq(baseDelay);
       });
 
-      it.only('sets access manager ignored', async function () {
+      it('sets access manager ignored', async function () {
         const selectors = ['0x12345678', '0x87654321', '0xabcdef01'];
 
         // Only through governance
@@ -237,7 +237,7 @@ contract('GovernorTimelockAccess', function (accounts) {
 
         for (const selector of selectors) {
           expectEvent(receipt, 'AccessManagerIgnoredSet', {
-            other,
+            target: other,
             selector,
             ignored: true,
           });
@@ -311,47 +311,40 @@ contract('GovernorTimelockAccess', function (accounts) {
         });
         await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
 
-        // Set original proposal
-        this.proposal = await this.helper.setProposal(
-          [this.restricted.operation, this.unrestricted.operation],
-          'descr',
-        );
-
+        // Set proposals
+        const original = new GovernorHelper(this.mock, mode);
+        await original.setProposal([this.restricted.operation, this.unrestricted.operation], 'descr');
+        
         // Go through all the governance process
-        await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
+        await original.propose();
+        expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
+        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
         expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
         expect(indirect).to.deep.eq([true, false]);
         expect(withDelay).to.deep.eq([true, false]);
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.helper.waitForEta();
-
+        await original.waitForSnapshot();
+        await original.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await original.waitForDeadline();
+        await original.queue();
+        await original.waitForEta();
+        
         // Suddenly cancel one of the proposed operations in the manager
         await this.manager.cancel(this.mock.address, this.restricted.operation.target, this.restricted.operation.data, {
           from: admin,
         });
-
+        
         // Reschedule the same operation in a different proposal to avoid "AccessManagerNotScheduled" error
-        this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue(); // This will schedule it again in the manager
-        await this.helper.waitForEta();
-
-        // Set original proposal back for executing
-        this.proposal = await this.helper.setProposal(
-          [this.restricted.operation, this.unrestricted.operation],
-          'descr',
-        );
+        const rescheduled = new GovernorHelper(this.mock, mode);
+        await rescheduled.setProposal([this.restricted.operation], 'descr');
+        await rescheduled.propose();
+        await rescheduled.waitForSnapshot();
+        await rescheduled.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await rescheduled.waitForDeadline();
+        await rescheduled.queue(); // This will schedule it again in the manager
+        await rescheduled.waitForEta();
 
         // Attempt to execute
-        await expectRevertCustomError(this.helper.execute(), 'GovernorMismatchedNonce', [this.proposal.id, 1, 2]);
+        await expectRevertCustomError(original.execute(), 'GovernorMismatchedNonce', [original.currentProposal.id, 1, 2]);
       });
 
       it('single operation with access manager delay', async function () {
@@ -491,22 +484,22 @@ contract('GovernorTimelockAccess', function (accounts) {
         });
 
         it('cancels restricted with queueing if the same operation is part of a more recent proposal (internal)', async function () {
-          // Set original proposal
-          this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
-
-          // Go through all the governance process until queueing
-          await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
+          // Set proposals
+          const original = new GovernorHelper(this.mock, mode);
+          await original.setProposal([this.restricted.operation], 'descr');
+          
+          // Go through all the governance process
+          await original.propose();
+          expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
+          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
           expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
           expect(indirect).to.deep.eq([true]);
           expect(withDelay).to.deep.eq([true]);
-
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
-          await this.helper.queue();
-
+          await original.waitForSnapshot();
+          await original.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await original.waitForDeadline();
+          await original.queue();
+          
           // Cancel the operation in the manager
           await this.manager.cancel(
             this.mock.address,
@@ -514,28 +507,26 @@ contract('GovernorTimelockAccess', function (accounts) {
             this.restricted.operation.data,
             { from: admin },
           );
-
+          
           // Another proposal is added with the same operation
-          this.proposal = await this.helper.setProposal([this.restricted.operation], 'another descr');
+          const rescheduled = new GovernorHelper(this.mock, mode);
+          await rescheduled.setProposal([this.restricted.operation], 'another descr');
 
           // Queue the new proposal
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
-          await this.helper.queue(); // This will schedule it in the manager, increasing its nonce
-
-          // Set the original proposal back
-          this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
+          await rescheduled.propose();
+          await rescheduled.waitForSnapshot();
+          await rescheduled.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await rescheduled.waitForDeadline();
+          await rescheduled.queue(); // This will schedule it again in the manager
 
           // Cancel
-          const eta = await this.mock.proposalEta(this.proposal.id);
-          const txCancel = await this.helper.cancel('internal');
-          expectEvent(txCancel, 'ProposalCanceled', { proposalId: this.proposal.id });
+          const eta = await this.mock.proposalEta(rescheduled.currentProposal.id);
+          const txCancel = await original.cancel('internal');
+          expectEvent(txCancel, 'ProposalCanceled', { proposalId: original.currentProposal.id });
 
           await time.increase(eta); // waitForEta()
-          await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
-            this.proposal.id,
+          await expectRevertCustomError(original.execute(), 'GovernorUnexpectedProposalState', [
+            original.currentProposal.id,
             Enums.ProposalState.Canceled,
             proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
           ]);
