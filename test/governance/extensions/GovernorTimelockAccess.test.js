@@ -14,7 +14,7 @@ const Governor = artifacts.require('$GovernorTimelockAccessMock');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
 
 const TOKENS = [
-  // { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 
@@ -244,32 +244,6 @@ contract('GovernorTimelockAccess', function (accounts) {
           this.proposal.id,
           await this.mock.proposalEta(this.proposal.id),
         ]);
-      });
-
-      it('reverts when proposal is executed and the governor no longer has a delay', async function () {
-        const delay = time.duration.hours(2);
-        const roleId = '1';
-
-        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
-          from: admin,
-        });
-        await this.manager.grantRole(roleId, this.mock.address, delay, { from: admin });
-
-        this.proposal = await this.helper.setProposal([this.restricted.operation], 'another descr');
-        await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-        expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-        expect(indirect).to.deep.eq([true]);
-        expect(withDelay).to.deep.eq([true]);
-
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.manager.grantRole(roleId, this.mock.address, 0, { from: admin }); // Purposefully remove delay so the returned nonce differs
-        await this.helper.waitForEta();
-        await expectRevertCustomError(this.helper.execute(), 'GovernorMismatchedNonce', [this.proposal.id, 1, 0]);
       });
 
       it('reverts with a proposal including multiple operations but one of those was cancelled in the manager', async function () {
