@@ -1,0 +1,98 @@
+--- access/manager/AccessManager.sol	2023-10-04 11:20:52.802378968 +0200
++++ access/manager/AccessManager.sol	2023-10-04 14:49:43.126279234 +0200
+@@ -6,7 +6,6 @@
+ import {IAccessManaged} from "./IAccessManaged.sol";
+ import {Address} from "../../utils/Address.sol";
+ import {Context} from "../../utils/Context.sol";
+-import {Multicall} from "../../utils/Multicall.sol";
+ import {Math} from "../../utils/math/Math.sol";
+ import {Time} from "../../utils/types/Time.sol";
+ 
+@@ -48,7 +47,8 @@
+  * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
+  * {{AccessControl-renounceRole}}.
+  */
+-contract AccessManager is Context, Multicall, IAccessManager {
++// NOTE: The FV version of this contract doesn't include Multicall because CVL HAVOCs on any `delegatecall`.
++contract AccessManager is Context, IAccessManager {
+     using Time for *;
+ 
+     // Structure that stores the details for a target contract.
+@@ -93,7 +93,7 @@
+     mapping(bytes32 operationId => Schedule) private _schedules;
+ 
+     // This should be transient storage when supported by the EVM.
+-    bytes32 private _executionId;
++    bytes32 internal _executionId; // private → internal for FV
+ 
+     /**
+      * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
+@@ -185,6 +185,11 @@
+         return _targets[target].adminDelay.get();
+     }
+ 
++    // Exposed for FV
++    function _getTargetAdminDelayFull(address target) internal view virtual returns (uint32, uint32, uint48) {
++        return _targets[target].adminDelay.getFull();
++    }
++
+     /**
+      * @dev Get the id of the role that acts as an admin for given role.
+      *
+@@ -213,6 +218,11 @@
+         return _roles[roleId].grantDelay.get();
+     }
+ 
++    // Exposed for FV
++    function _getRoleGrantDelayFull(uint64 roleId) internal view virtual returns (uint32, uint32, uint48) {
++        return _roles[roleId].grantDelay.getFull();
++    }
++
+     /**
+      * @dev Get the access details for a given account for a given role. These details include the timepoint at which
+      * membership becomes active, and the delay applied to all operation by this user that requires this permission
+@@ -749,7 +759,7 @@
+     /**
+      * @dev Hashing function for execute protection
+      */
+-    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
++    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) { // private → internal for FV
+         return keccak256(abi.encode(target, selector));
+     }
+ 
+@@ -769,7 +779,7 @@
+     /**
+      * @dev Check if the current call is authorized according to admin logic.
+      */
+-    function _checkAuthorized() private {
++    function _checkAuthorized() internal virtual { // private → internal virtual for FV
+         address caller = _msgSender();
+         (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+         if (!immediate) {
+@@ -792,7 +802,7 @@
+      */
+     function _getAdminRestrictions(
+         bytes calldata data
+-    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
++    ) internal view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) { // private → internal for FV
+         if (data.length < 4) {
+             return (false, 0, 0);
+         }
+@@ -847,7 +857,7 @@
+         address caller,
+         address target,
+         bytes calldata data
+-    ) private view returns (bool immediate, uint32 delay) {
++    ) internal view returns (bool immediate, uint32 delay) { // private → internal for FV
+         if (target == address(this)) {
+             return _canCallSelf(caller, data);
+         } else {
+@@ -901,7 +911,7 @@
+     /**
+      * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
+      */
+-    function _checkSelector(bytes calldata data) private pure returns (bytes4) {
++    function _checkSelector(bytes calldata data) internal pure returns (bytes4) { // private → internal for FV
+         return bytes4(data[0:4]);
+     }
+ }
