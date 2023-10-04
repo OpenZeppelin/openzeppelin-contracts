@@ -5,6 +5,7 @@ const {
   time: { setNextBlockTimestamp },
 } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
+const { CONSUMING_SCHEDULE_STORAGE_SLOT } = require('../../helpers/access-manager');
 
 const AccessManaged = artifacts.require('$AccessManagedTarget');
 const AccessManager = artifacts.require('$AccessManager');
@@ -120,12 +121,12 @@ contract('AccessManaged', function (accounts) {
 
   describe('isConsumingScheduledOp', function () {
     it('returns bytes4(0) when not consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(false);
+      await this.managed.setIsConsumingScheduledOp(false, CONSUMING_SCHEDULE_STORAGE_SLOT);
       expect(await this.managed.isConsumingScheduledOp()).to.eq('0x00000000');
     });
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(true);
+      await this.managed.setIsConsumingScheduledOp(true, CONSUMING_SCHEDULE_STORAGE_SLOT);
       expect(await this.managed.isConsumingScheduledOp()).to.eq(selector('isConsumingScheduledOp()'));
     });
   });
