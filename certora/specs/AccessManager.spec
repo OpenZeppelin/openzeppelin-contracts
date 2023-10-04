@@ -93,6 +93,8 @@ rule noRevert(env e) {
     canCall@withrevert(e, caller, target, selector);
     assert !lastReverted;
 
+    // require data.length <= max_uint64;
+    //
     // canCallExtended@withrevert(e, caller, target, data);
     // assert !lastReverted;
 
