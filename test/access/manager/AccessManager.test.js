@@ -47,24 +47,25 @@ const AccessManager = artifacts.require('$AccessManager');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
 const Ownable = artifacts.require('$Ownable');
 
-const BASE_ROLES = buildBaseRoles();
+const someAddress = Wallet.generate().getChecksumAddressString();
 
 contract('AccessManager', function (accounts) {
   const [admin, manager, guardian, member, user, other] = accounts;
 
-  // Add members
-  BASE_ROLES.ADMIN.members = [admin];
-  BASE_ROLES.SOME_ADMIN.members = [manager];
-  BASE_ROLES.SOME_GUARDIAN.members = [guardian];
-  BASE_ROLES.SOME.members = [member];
-  BASE_ROLES.PUBLIC.members = [admin, manager, guardian, member, user, other];
-
   beforeEach(async function () {
-    this.roles = BASE_ROLES;
+    this.roles = buildBaseRoles();
+
+    // Add members
+    this.roles.ADMIN.members = [admin];
+    this.roles.SOME_ADMIN.members = [manager];
+    this.roles.SOME_GUARDIAN.members = [guardian];
+    this.roles.SOME.members = [member];
+    this.roles.PUBLIC.members = [admin, manager, guardian, member, user, other];
+
     this.manager = await AccessManager.new(admin);
     this.target = await AccessManagedTarget.new(this.manager.address);
 
-    for (const { id: roleId, admin, guardian, members } of Object.values(BASE_ROLES)) {
+    for (const { id: roleId, admin, guardian, members } of Object.values(this.roles)) {
       if (roleId === this.roles.PUBLIC.id) continue; // Every address belong to public and is locked
       if (roleId === this.roles.ADMIN.id) continue; // Admin set during construction and is locked
 
@@ -98,7 +99,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('initializes setup roles correctly', async function () {
-      for (const { id: roleId, admin, guardian, members } of Object.values(BASE_ROLES)) {
+      for (const { id: roleId, admin, guardian, members } of Object.values(this.roles)) {
         expect(await this.manager.getRoleAdmin(roleId)).to.be.bignumber.equal(admin.id);
         expect(await this.manager.getRoleGuardian(roleId)).to.be.bignumber.equal(guardian.id);
 
@@ -123,7 +124,7 @@ contract('AccessManager', function (accounts) {
         closed() {
           it('should return false and no delay', async function () {
             const { immediate, delay } = await this.manager.canCall(
-              Wallet.generate().getChecksumAddressString(),
+              someAddress,
               this.target.address,
               this.calldata.substring(0, 10),
             );
@@ -808,7 +809,7 @@ contract('AccessManager', function (accounts) {
     describe('#hashOperation', function () {
       it('returns an operationId', async function () {
         const calldata = '0x123543';
-        const address = Wallet.generate().getChecksumAddressString();
+        const address = someAddress;
 
         const args = [user, address, calldata];
 
@@ -1049,7 +1050,7 @@ contract('AccessManager', function (accounts) {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
             const method = 'setTargetAdminDelay(address,uint32)';
-            const args = [Wallet.generate().getChecksumAddressString(), time.duration.days(3)];
+            const args = [someAddress, time.duration.days(3)];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
@@ -1059,7 +1060,7 @@ contract('AccessManager', function (accounts) {
         describe('when increasing the delay', function () {
           const oldDelay = time.duration.days(10);
           const newDelay = time.duration.days(11);
-          const target = Wallet.generate().getChecksumAddressString();
+          const target = someAddress;
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
@@ -1084,7 +1085,7 @@ contract('AccessManager', function (accounts) {
 
         describe('when reducing the delay', function () {
           const oldDelay = time.duration.days(10);
-          const target = Wallet.generate().getChecksumAddressString();
+          const target = someAddress;
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
@@ -1173,7 +1174,7 @@ contract('AccessManager', function (accounts) {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
             const method = 'setTargetClosed(address,bool)';
-            const args = [Wallet.generate().getChecksumAddressString(), true];
+            const args = [someAddress, true];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
@@ -1204,7 +1205,7 @@ contract('AccessManager', function (accounts) {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
             const method = 'setTargetFunctionRole(address,bytes4[],uint64)';
-            const args = [Wallet.generate().getChecksumAddressString(), ['0x12345678'], 443342];
+            const args = [someAddress, ['0x12345678'], 443342];
             this.calldata = this.manager.contract.methods[method](...args).encodeABI();
           });
 
@@ -1280,7 +1281,7 @@ contract('AccessManager', function (accounts) {
           describe('restrictions', function () {
             beforeEach('set method and args', function () {
               const method = 'grantRole(uint64,address,uint32)';
-              const args = [ANOTHER_ROLE, Wallet.generate().getChecksumAddressString(), 0];
+              const args = [ANOTHER_ROLE, someAddress, 0];
               this.calldata = this.manager.contract.methods[method](...args).encodeABI();
             });
 
@@ -1697,7 +1698,7 @@ contract('AccessManager', function (accounts) {
           describe('restrictions', function () {
             beforeEach('set method and args', async function () {
               const method = 'revokeRole(uint64,address)';
-              const args = [ANOTHER_ROLE, Wallet.generate().getChecksumAddressString()];
+              const args = [ANOTHER_ROLE, someAddress];
               this.calldata = this.manager.contract.methods[method](...args).encodeABI();
 
               // Need to be set before revoking
@@ -1836,7 +1837,7 @@ contract('AccessManager', function (accounts) {
 
           it('reverts if renouncing with bad caller confirmation', async function () {
             await expectRevertCustomError(
-              this.manager.renounceRole(this.role.id, Wallet.generate().getChecksumAddressString(), {
+              this.manager.renounceRole(this.role.id, someAddress, {
                 from: this.caller,
               }),
               'AccessManagerBadConfirmation',
@@ -2416,7 +2417,7 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe.only('#consumeScheduledOp', function () {
+  describe('#consumeScheduledOp', function () {
     beforeEach('define scheduling parameters', async function () {
       const method = 'fnRestricted()';
       this.caller = this.target.address;
@@ -2431,7 +2432,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is not consuming scheduled operation', function () {
       beforeEach('set consuming false', async function () {
-        await this.target.setIsConsumingScheduledOp(false, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString()}`);
+        await this.target.setIsConsumingScheduledOp(false, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       });
 
       it('reverts as AccessManagerUnauthorizedConsume', async function () {
@@ -2446,7 +2447,7 @@ contract('AccessManager', function (accounts) {
 
     describe('when caller is consuming scheduled operation', function () {
       beforeEach('set consuming true', async function () {
-        await this.target.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString()}`);
+        await this.target.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       });
 
       shouldBehaveLikeSchedulableOperation({
