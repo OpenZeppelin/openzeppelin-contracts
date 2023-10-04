@@ -15,6 +15,25 @@
     "files": ["certora/harnesses/AccessControlDefaultAdminRulesHarness.sol"]
   },
   {
+    "spec": "AccessManager",
+    "contract": "AccessManagerHarness",
+    "files": ["certora/harnesses/AccessManagerHarness.sol"],
+    "options": ["--optimistic_hashing", "--optimistic_loop"]
+  },
+  {
+    "spec": "AccessManaged",
+    "contract": "AccessManagedHarness",
+    "files": [
+      "certora/harnesses/AccessManagedHarness.sol",
+      "certora/harnesses/AccessManagerHarness.sol"
+    ],
+    "options": [
+      "--optimistic_hashing",
+      "--optimistic_loop",
+      "--link AccessManagedHarness:_authority=AccessManagerHarness"
+    ]
+  },
+  {
     "spec": "DoubleEndedQueue",
     "contract": "DoubleEndedQueueHarness",
     "files": ["certora/harnesses/DoubleEndedQueueHarness.sol"]
