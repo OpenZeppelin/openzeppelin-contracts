@@ -182,6 +182,7 @@ In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was r
 The `_exists` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
 
 #### ERC165Storage
+
 Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:
 
 ```solidity
@@ -234,15 +235,17 @@ In favor of their original versions, the library no longer include upgradeable l
 Some changes may affect offchain systems if they rely on assumptions that are changed along with these new breaking changes. These cases are:
 
 ##### Relying on revert strings for processing errors
+
 A concrete example is AccessControl, where it was advised to catch revert reasons using the following regex:
 
 ```
 /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
 ```
 
-Instead, systems that interact with smart contracts outside of the network should take a look for any dependance on revert strings.
+Instead, systems that interact with smart contracts outside of the network should take a look for any dependence on revert strings.
 
 ##### Relying on storage locations for retrieving data
+
 After 5.0, both `TransparentUpgradeableProxy` and `BeaconProxy` use immutable variables to avoid unnecessary storage reads on every call. This means that both ERC1967's `BEACON_SLOT` and `ADMIN_SLOT` may no longer reflect the real value if its storage value differs from the immutable one.
 
 ## 4.9.2 (2023-06-16)
