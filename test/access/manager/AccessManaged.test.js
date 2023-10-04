@@ -10,6 +10,8 @@ const { CONSUMING_SCHEDULE_STORAGE_SLOT } = require('../../helpers/access-manage
 const AccessManaged = artifacts.require('$AccessManagedTarget');
 const AccessManager = artifacts.require('$AccessManager');
 
+const AuthoritiyObserveIsConsuming = artifacts.require('$AuthoritiyObserveIsConsuming');
+
 contract('AccessManaged', function (accounts) {
   const [admin, roleMember, other] = accounts;
 
@@ -120,14 +122,22 @@ contract('AccessManaged', function (accounts) {
   });
 
   describe('isConsumingScheduledOp', function () {
+    beforeEach(async function () {
+      this.authority = await AuthoritiyObserveIsConsuming.new();
+      this.managed = await AccessManaged.new(this.authority.address);
+    });
+
     it('returns bytes4(0) when not consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(false, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       expect(await this.managed.isConsumingScheduledOp()).to.eq('0x00000000');
     });
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {
-      await this.managed.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
-      expect(await this.managed.isConsumingScheduledOp()).to.eq(selector('isConsumingScheduledOp()'));
+      const receipt = await this.managed.fnRestricted({ from: other });
+      await expectEvent.inTransaction(receipt.tx, this.authority, 'ConsumeScheduledOpCalled', {
+        caller: other,
+        data: this.managed.contract.methods.fnRestricted().encodeABI(),
+        isConsuming: selector('isConsumingScheduledOp()'),
+      });
     });
   });
 });

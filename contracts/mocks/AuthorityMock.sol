@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.20;
 
+import {IAccessManaged} from "../access/manager/IAccessManaged.sol";
 import {IAuthority} from "../access/manager/IAuthority.sol";
 
 contract NotAuthorityMock is IAuthority {
@@ -49,4 +50,20 @@ contract AuthorityDelayMock {
 
 contract AuthorityNoResponse {
     function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external view {}
+}
+
+contract AuthoritiyObserveIsConsuming {
+    event ConsumeScheduledOpCalled(address caller, bytes data, bytes4 isConsuming);
+
+    function canCall(
+        address /* caller */,
+        address /* target */,
+        bytes4 /* selector */
+    ) external pure returns (bool immediate, uint32 delay) {
+        return (false, 1);
+    }
+
+    function consumeScheduledOp(address caller, bytes memory data) public {
+        emit ConsumeScheduledOpCalled(caller, data, IAccessManaged(msg.sender).isConsumingScheduledOp());
+    }
 }
