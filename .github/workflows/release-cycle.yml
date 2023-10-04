@@ -147,16 +147,12 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
-      - name: Tag
-        run: npx changeset tag
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-      - name: Push tags
-        run: git push --tags
       - name: Create Github Release
         uses: actions/github-script@v6
         env:

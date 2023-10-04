@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "compile": "hardhat compile",
-    "coverage": "env COVERAGE=true hardhat coverage",
+    "coverage": "env COVERAGE=true FOUNDRY=false hardhat coverage",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -57,7 +57,7 @@
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
     "@nomiclabs/hardhat-truffle5": "^2.0.5",
     "@nomiclabs/hardhat-web3": "^2.0.0",
-    "@openzeppelin/docs-utils": "^0.1.4",
+    "@openzeppelin/docs-utils": "^0.1.5",
     "@openzeppelin/test-helpers": "^0.5.13",
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
     "@openzeppelin/upgrades-core": "^1.20.6",
