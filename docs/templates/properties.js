@@ -40,10 +40,9 @@ module.exports['has-errors'] = function ({ item }) {
 };
 
 module.exports.functions = function ({ item }) {
-  return [...findAll(['VariableDeclaration', 'FunctionDefinition'], item)]
-    .filter(f =>
-      f.nodeType === 'VariableDeclaration' ? f.visibility === 'public' : f.visibility !== 'private'
-    );
+  return [...findAll(['VariableDeclaration', 'FunctionDefinition'], item)].filter(f =>
+    f.nodeType === 'VariableDeclaration' ? f.visibility === 'public' : f.visibility !== 'private',
+  );
 };
 
 module.exports.returns2 = function ({ item }) {
