@@ -47,6 +47,7 @@
 :xref-AccessControl-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-
 :xref-AccessControl-_grantRole-bytes32-address-: xref:access.adoc#AccessControl-_grantRole-bytes32-address-
 :xref-AccessControl-_revokeRole-bytes32-address-: xref:access.adoc#AccessControl-_revokeRole-bytes32-address-
+:xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32: xref:access.adoc#AccessControl-DEFAULT_ADMIN_ROLE-bytes32
 :xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
 :xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
 :xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
@@ -79,6 +80,7 @@
 :xref-AccessControl-revokeRole-bytes32-address-: xref:access.adoc#AccessControl-revokeRole-bytes32-address-
 :xref-AccessControl-renounceRole-bytes32-address-: xref:access.adoc#AccessControl-renounceRole-bytes32-address-
 :xref-AccessControl-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-
+:xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32: xref:access.adoc#AccessControl-DEFAULT_ADMIN_ROLE-bytes32
 :xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-: xref:access.adoc#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-
 :xref-IAccessControl-RoleGranted-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleGranted-bytes32-address-address-
 :xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
@@ -145,6 +147,7 @@
 :xref-AccessControl-_checkRole-bytes32-: xref:access.adoc#AccessControl-_checkRole-bytes32-
 :xref-AccessControl-_checkRole-bytes32-address-: xref:access.adoc#AccessControl-_checkRole-bytes32-address-
 :xref-AccessControl-getRoleAdmin-bytes32-: xref:access.adoc#AccessControl-getRoleAdmin-bytes32-
+:xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32: xref:access.adoc#AccessControl-DEFAULT_ADMIN_ROLE-bytes32
 :xref-IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled-address-uint48-
 :xref-IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled--
 :xref-IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled-uint48-uint48-
@@ -219,6 +222,8 @@
 :xref-AccessManager-cancel-address-address-bytes-: xref:access.adoc#AccessManager-cancel-address-address-bytes-
 :xref-AccessManager-hashOperation-address-address-bytes-: xref:access.adoc#AccessManager-hashOperation-address-address-bytes-
 :xref-AccessManager-updateAuthority-address-address-: xref:access.adoc#AccessManager-updateAuthority-address-address-
+:xref-AccessManager-ADMIN_ROLE-uint64: xref:access.adoc#AccessManager-ADMIN_ROLE-uint64
+:xref-AccessManager-PUBLIC_ROLE-uint64: xref:access.adoc#AccessManager-PUBLIC_ROLE-uint64
 :xref-Multicall-multicall-bytes---: xref:utils.adoc#Multicall-multicall-bytes---
 :xref-IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-: xref:access.adoc#IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-
 :xref-IAccessManager-OperationExecuted-bytes32-uint32-: xref:access.adoc#IAccessManager-OperationExecuted-bytes32-uint32-
@@ -721,6 +726,7 @@ to enforce additional security measures for this role.
 * {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
 * {xref-AccessControl-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
 * {xref-AccessControl-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
+* {xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32}[`++DEFAULT_ADMIN_ROLE()++`]
 
 [.contract-subindex-inherited]
 .ERC165
@@ -886,6 +892,10 @@ Internal function without access restriction.
 
 May emit a {RoleRevoked} event.
 
+[.contract-item]
+[[AccessControl-DEFAULT_ADMIN_ROLE-bytes32]]
+==== `[.contract-item-name]#++DEFAULT_ADMIN_ROLE++#++() → bytes32++` [.item-kind]#public#
+
 == Extensions
 
 :getRoleMember: pass:normal[xref:#IAccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
@@ -999,6 +1009,7 @@ Extension of {AccessControl} that allows enumerating the members of each role.
 * {xref-AccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
 * {xref-AccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, callerConfirmation)++`]
 * {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
+* {xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32}[`++DEFAULT_ADMIN_ROLE()++`]
 
 [.contract-subindex-inherited]
 .ERC165
@@ -1478,6 +1489,7 @@ contract MyToken is AccessControlDefaultAdminRules {
 * {xref-AccessControl-_checkRole-bytes32-}[`++_checkRole(role)++`]
 * {xref-AccessControl-_checkRole-bytes32-address-}[`++_checkRole(role, account)++`]
 * {xref-AccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
+* {xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32}[`++DEFAULT_ADMIN_ROLE()++`]
 
 [.contract-subindex-inherited]
 .ERC165
@@ -1993,6 +2005,8 @@ mindful of the danger associated with functions such as {{Ownable-renounceOwners
 * {xref-AccessManager-cancel-address-address-bytes-}[`++cancel(caller, target, data)++`]
 * {xref-AccessManager-hashOperation-address-address-bytes-}[`++hashOperation(caller, target, data)++`]
 * {xref-AccessManager-updateAuthority-address-address-}[`++updateAuthority(target, newAuthority)++`]
+* {xref-AccessManager-ADMIN_ROLE-uint64}[`++ADMIN_ROLE()++`]
+* {xref-AccessManager-PUBLIC_ROLE-uint64}[`++PUBLIC_ROLE()++`]
 
 [.contract-subindex-inherited]
 .IAccessManager
@@ -2444,6 +2458,14 @@ Change the AccessManager instance used by a contract that correctly uses this in
 Requirements:
 
 - the caller must be a global admin
+
+[.contract-item]
+[[AccessManager-ADMIN_ROLE-uint64]]
+==== `[.contract-item-name]#++ADMIN_ROLE++#++() → uint64++` [.item-kind]#public#
+
+[.contract-item]
+[[AccessManager-PUBLIC_ROLE-uint64]]
+==== `[.contract-item-name]#++PUBLIC_ROLE++#++() → uint64++` [.item-kind]#public#
 
 :constructor: pass:normal[xref:#AccessManaged-constructor-address-[`++constructor++`]]
 :restricted: pass:normal[xref:#AccessManaged-restricted--[`++restricted++`]]

@@ -119,6 +119,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -237,6 +239,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
@@ -325,6 +329,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -414,6 +420,8 @@
 :xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -510,6 +518,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -606,6 +616,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -699,6 +711,8 @@
 :xref-Governor-clock--: xref:governance.adoc#Governor-clock--
 :xref-Governor-CLOCK_MODE--: xref:governance.adoc#Governor-CLOCK_MODE--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -789,6 +803,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -882,6 +898,8 @@
 :xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
 :xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
 :xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
@@ -974,6 +992,9 @@
 :xref-TimelockController-_execute-address-uint256-bytes-: xref:governance.adoc#TimelockController-_execute-address-uint256-bytes-
 :xref-TimelockController-updateDelay-uint256-: xref:governance.adoc#TimelockController-updateDelay-uint256-
 :xref-TimelockController-_encodeStateBitmap-enum-TimelockController-OperationState-: xref:governance.adoc#TimelockController-_encodeStateBitmap-enum-TimelockController-OperationState-
+:xref-TimelockController-PROPOSER_ROLE-bytes32: xref:governance.adoc#TimelockController-PROPOSER_ROLE-bytes32
+:xref-TimelockController-EXECUTOR_ROLE-bytes32: xref:governance.adoc#TimelockController-EXECUTOR_ROLE-bytes32
+:xref-TimelockController-CANCELLER_ROLE-bytes32: xref:governance.adoc#TimelockController-CANCELLER_ROLE-bytes32
 :xref-ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-: xref:token/ERC1155.adoc#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
 :xref-ERC721Holder-onERC721Received-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721Holder-onERC721Received-address-address-uint256-bytes-
@@ -987,6 +1008,7 @@
 :xref-AccessControl-_setRoleAdmin-bytes32-bytes32-: xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-
 :xref-AccessControl-_grantRole-bytes32-address-: xref:access.adoc#AccessControl-_grantRole-bytes32-address-
 :xref-AccessControl-_revokeRole-bytes32-address-: xref:access.adoc#AccessControl-_revokeRole-bytes32-address-
+:xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32: xref:access.adoc#AccessControl-DEFAULT_ADMIN_ROLE-bytes32
 :xref-TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-: xref:governance.adoc#TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-
 :xref-TimelockController-CallExecuted-bytes32-uint256-address-uint256-bytes-: xref:governance.adoc#TimelockController-CallExecuted-bytes32-uint256-address-uint256-bytes-
 :xref-TimelockController-CallSalt-bytes32-bytes32-: xref:governance.adoc#TimelockController-CallSalt-bytes32-bytes32-
@@ -1697,6 +1719,8 @@ This contract is abstract and requires several functions to be implemented in va
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2201,6 +2225,14 @@ Minimum number of cast voted required for a proposal to be successful.
 NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
 quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
 
+[.contract-item]
+[[Governor-BALLOT_TYPEHASH-bytes32]]
+==== `[.contract-item-name]#++BALLOT_TYPEHASH++#++() → bytes32++` [.item-kind]#public#
+
+[.contract-item]
+[[Governor-EXTENDED_BALLOT_TYPEHASH-bytes32]]
+==== `[.contract-item-name]#++EXTENDED_BALLOT_TYPEHASH++#++() → bytes32++` [.item-kind]#public#
+
 === Modules
 
 :VoteType: pass:normal[xref:#GovernorCountingSimple-VoteType[`++VoteType++`]]
@@ -2279,6 +2311,8 @@ Extension of {Governor} for simple, 3 options, vote counting.
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2521,6 +2555,8 @@ token.
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2768,6 +2804,8 @@ fraction of the total supply.
 * {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3074,6 +3112,8 @@ the same time. See {AccessManager-schedule} for a workaround.
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3362,6 +3402,8 @@ inaccessible.
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3661,6 +3703,8 @@ Extension of {Governor} for settings updatable through governance.
 * {xref-Governor-clock--}[`++clock()++`]
 * {xref-Governor-CLOCK_MODE--}[`++CLOCK_MODE()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3966,6 +4010,8 @@ proposal.
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -4249,6 +4295,8 @@ Use cases for this module include:
 * {xref-Governor-votingDelay--}[`++votingDelay()++`]
 * {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
 * {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -4777,6 +4825,9 @@ a multisig or a DAO as the sole proposer.
 * {xref-TimelockController-_execute-address-uint256-bytes-}[`++_execute(target, value, data)++`]
 * {xref-TimelockController-updateDelay-uint256-}[`++updateDelay(newDelay)++`]
 * {xref-TimelockController-_encodeStateBitmap-enum-TimelockController-OperationState-}[`++_encodeStateBitmap(operationState)++`]
+* {xref-TimelockController-PROPOSER_ROLE-bytes32}[`++PROPOSER_ROLE()++`]
+* {xref-TimelockController-EXECUTOR_ROLE-bytes32}[`++EXECUTOR_ROLE()++`]
+* {xref-TimelockController-CANCELLER_ROLE-bytes32}[`++CANCELLER_ROLE()++`]
 
 [.contract-subindex-inherited]
 .ERC1155Holder
@@ -4805,6 +4856,7 @@ a multisig or a DAO as the sole proposer.
 * {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
 * {xref-AccessControl-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
 * {xref-AccessControl-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
+* {xref-AccessControl-DEFAULT_ADMIN_ROLE-bytes32}[`++DEFAULT_ADMIN_ROLE()++`]
 
 [.contract-subindex-inherited]
 .ERC165
@@ -5079,6 +5131,18 @@ the underlying position in the `OperationState` enum. For example:
          ^--- Ready
           ^-- Waiting
            ^- Unset
+
+[.contract-item]
+[[TimelockController-PROPOSER_ROLE-bytes32]]
+==== `[.contract-item-name]#++PROPOSER_ROLE++#++() → bytes32++` [.item-kind]#public#
+
+[.contract-item]
+[[TimelockController-EXECUTOR_ROLE-bytes32]]
+==== `[.contract-item-name]#++EXECUTOR_ROLE++#++() → bytes32++` [.item-kind]#public#
+
+[.contract-item]
+[[TimelockController-CANCELLER_ROLE-bytes32]]
+==== `[.contract-item-name]#++CANCELLER_ROLE++#++() → bytes32++` [.item-kind]#public#
 
 [.contract-item]
 [[TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-]]

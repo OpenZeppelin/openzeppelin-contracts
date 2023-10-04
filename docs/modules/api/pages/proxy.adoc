@@ -59,6 +59,7 @@
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
 :xref-ProxyAdmin-constructor-address-: xref:proxy.adoc#ProxyAdmin-constructor-address-
 :xref-ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-: xref:proxy.adoc#ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-
+:xref-ProxyAdmin-UPGRADE_INTERFACE_VERSION-string: xref:proxy.adoc#ProxyAdmin-UPGRADE_INTERFACE_VERSION-string
 :xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
 :xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
 :xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
@@ -119,6 +120,7 @@
 :xref-UUPSUpgradeable-_checkProxy--: xref:proxy.adoc#UUPSUpgradeable-_checkProxy--
 :xref-UUPSUpgradeable-_checkNotDelegated--: xref:proxy.adoc#UUPSUpgradeable-_checkNotDelegated--
 :xref-UUPSUpgradeable-_authorizeUpgrade-address-: xref:proxy.adoc#UUPSUpgradeable-_authorizeUpgrade-address-
+:xref-UUPSUpgradeable-UPGRADE_INTERFACE_VERSION-string: xref:proxy.adoc#UUPSUpgradeable-UPGRADE_INTERFACE_VERSION-string
 :xref-UUPSUpgradeable-UUPSUnauthorizedCallContext--: xref:proxy.adoc#UUPSUpgradeable-UUPSUnauthorizedCallContext--
 :xref-UUPSUpgradeable-UUPSUnsupportedProxiableUUID-bytes32-: xref:proxy.adoc#UUPSUpgradeable-UUPSUnsupportedProxiableUUID-bytes32-
 :Ownable-onlyOwner: pass:normal[xref:access.adoc#Ownable-onlyOwner--[`Ownable.onlyOwner`]]
@@ -583,6 +585,7 @@ explanation of why you would want to use this see the documentation for {Transpa
 --
 * {xref-ProxyAdmin-constructor-address-}[`++constructor(initialOwner)++`]
 * {xref-ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-}[`++upgradeAndCall(proxy, implementation, data)++`]
+* {xref-ProxyAdmin-UPGRADE_INTERFACE_VERSION-string}[`++UPGRADE_INTERFACE_VERSION()++`]
 
 [.contract-subindex-inherited]
 .Ownable
@@ -632,6 +635,17 @@ Requirements:
 
 - This contract must be the admin of `proxy`.
 - If `data` is empty, `msg.value` must be zero.
+
+[.contract-item]
+[[ProxyAdmin-UPGRADE_INTERFACE_VERSION-string]]
+==== `[.contract-item-name]#++UPGRADE_INTERFACE_VERSION++#++() → string++` [.item-kind]#public#
+
+The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address)`
+and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
+while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
+If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
+be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
+during an upgrade.
 
 == Beacon
 
@@ -1153,6 +1167,7 @@ The {_authorizeUpgrade} function must be overridden to include access restrictio
 * {xref-UUPSUpgradeable-_checkProxy--}[`++_checkProxy()++`]
 * {xref-UUPSUpgradeable-_checkNotDelegated--}[`++_checkNotDelegated()++`]
 * {xref-UUPSUpgradeable-_authorizeUpgrade-address-}[`++_authorizeUpgrade(newImplementation)++`]
+* {xref-UUPSUpgradeable-UPGRADE_INTERFACE_VERSION-string}[`++UPGRADE_INTERFACE_VERSION()++`]
 
 [.contract-subindex-inherited]
 .IERC1822Proxiable
@@ -1236,6 +1251,17 @@ Normally, this function will use an xref:access.adoc[access control] modifier su
 ```solidity
 function _authorizeUpgrade(address) internal onlyOwner {}
 ```
+
+[.contract-item]
+[[UUPSUpgradeable-UPGRADE_INTERFACE_VERSION-string]]
+==== `[.contract-item-name]#++UPGRADE_INTERFACE_VERSION++#++() → string++` [.item-kind]#public#
+
+The version of the upgrade interface of the contract. If this getter is missing, both `upgradeTo(address)`
+and `upgradeToAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
+while `upgradeToAndCall` will invoke the `receive` function if the second argument is the empty byte string.
+If the getter returns `"5.0.0"`, only `upgradeToAndCall(address,bytes)` is present, and the second argument must
+be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
+during an upgrade.
 
 [.contract-item]
 [[UUPSUpgradeable-UUPSUnauthorizedCallContext--]]
