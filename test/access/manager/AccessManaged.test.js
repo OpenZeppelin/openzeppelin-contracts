@@ -5,7 +5,6 @@ const {
   time: { setNextBlockTimestamp },
 } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
-const { CONSUMING_SCHEDULE_STORAGE_SLOT } = require('../../helpers/access-manager');
 
 const AccessManaged = artifacts.require('$AccessManagedTarget');
 const AccessManager = artifacts.require('$AccessManager');
