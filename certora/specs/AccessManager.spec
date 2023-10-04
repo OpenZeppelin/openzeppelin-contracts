@@ -732,7 +732,7 @@ rule restrictedFunctionsRevokeRole(env e) {
 │ Functions: canCall delay is enforced for calls to execute (only for others target)                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-// getScheduleChangeCall proves that only {schedule} can set the delay to a non 0 value
+// getScheduleChangeCall proves that only {schedule} can set an operation schedule to a non 0 value
 rule callDelayEnforce_scheduleInTheFuture(env e) {
     address target;
     bytes   data;
@@ -769,7 +769,7 @@ rule callDelayEnforce_executeAfterDelay(env e) {
     // Get operation schedule after
     mathint scheduleAfter = getSchedule(e, hashOperation(e.msg.sender, target, data));
 
-    // Can only execute is delay is set and has passed
+    // Can only execute if delay is set and has passed
     assert success => (
         delay > 0 => (
             scheduleBefore != 0 &&
