@@ -29,6 +29,13 @@ interface IAccessManager {
     event OperationCanceled(bytes32 indexed operationId, uint32 indexed nonce);
 
     event RoleLabel(uint64 indexed roleId, string label);
+    /**
+     * @dev Emitted when `account` is granted `roleId`.
+     *
+     * NOTE: The meaning of the `since` argument depends on the `newMember` argument.
+     * If the role is granted to a new member, the `since` argument indicates when the account becomes a member of the role,
+     * otherwise it indicates the execution delay for this account and roleId is updated.
+     */
     event RoleGranted(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember);
     event RoleRevoked(uint64 indexed roleId, address indexed account);
     event RoleAdminChanged(uint64 indexed roleId, uint64 indexed admin);
