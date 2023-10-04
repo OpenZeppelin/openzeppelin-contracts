@@ -314,11 +314,15 @@ contract('GovernorTimelockAccess', function (accounts) {
         // Set proposals
         const original = new GovernorHelper(this.mock, mode);
         await original.setProposal([this.restricted.operation, this.unrestricted.operation], 'descr');
-        
+
         // Go through all the governance process
         await original.propose();
         expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
+        const {
+          delay: planDelay,
+          indirect,
+          withDelay,
+        } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
         expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
         expect(indirect).to.deep.eq([true, false]);
         expect(withDelay).to.deep.eq([true, false]);
@@ -327,12 +331,12 @@ contract('GovernorTimelockAccess', function (accounts) {
         await original.waitForDeadline();
         await original.queue();
         await original.waitForEta();
-        
+
         // Suddenly cancel one of the proposed operations in the manager
         await this.manager.cancel(this.mock.address, this.restricted.operation.target, this.restricted.operation.data, {
           from: admin,
         });
-        
+
         // Reschedule the same operation in a different proposal to avoid "AccessManagerNotScheduled" error
         const rescheduled = new GovernorHelper(this.mock, mode);
         await rescheduled.setProposal([this.restricted.operation], 'descr');
@@ -344,7 +348,11 @@ contract('GovernorTimelockAccess', function (accounts) {
         await rescheduled.waitForEta();
 
         // Attempt to execute
-        await expectRevertCustomError(original.execute(), 'GovernorMismatchedNonce', [original.currentProposal.id, 1, 2]);
+        await expectRevertCustomError(original.execute(), 'GovernorMismatchedNonce', [
+          original.currentProposal.id,
+          1,
+          2,
+        ]);
       });
 
       it('single operation with access manager delay', async function () {
@@ -487,11 +495,15 @@ contract('GovernorTimelockAccess', function (accounts) {
           // Set proposals
           const original = new GovernorHelper(this.mock, mode);
           await original.setProposal([this.restricted.operation], 'descr');
-          
+
           // Go through all the governance process
           await original.propose();
           expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
+          const {
+            delay: planDelay,
+            indirect,
+            withDelay,
+          } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
           expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
           expect(indirect).to.deep.eq([true]);
           expect(withDelay).to.deep.eq([true]);
@@ -499,7 +511,7 @@ contract('GovernorTimelockAccess', function (accounts) {
           await original.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await original.waitForDeadline();
           await original.queue();
-          
+
           // Cancel the operation in the manager
           await this.manager.cancel(
             this.mock.address,
@@ -507,7 +519,7 @@ contract('GovernorTimelockAccess', function (accounts) {
             this.restricted.operation.data,
             { from: admin },
           );
-          
+
           // Another proposal is added with the same operation
           const rescheduled = new GovernorHelper(this.mock, mode);
           await rescheduled.setProposal([this.restricted.operation], 'another descr');
