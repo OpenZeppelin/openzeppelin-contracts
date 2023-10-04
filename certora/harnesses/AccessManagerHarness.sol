@@ -100,4 +100,10 @@ contract AccessManagerHarness is AccessManager {
     function getFirstArgumentAsUint64(bytes calldata data) external pure returns (uint64) {
         return abi.decode(data[0x04:0x24], (uint64));
     }
+
+    function _checkAuthorized() internal override {
+        // We need this hack otherwise certora will assume _checkSelector(_msgData()) can return anything :/
+        require(msg.sig == _checkSelector(_msgData()));
+        super._checkAuthorized();
+    }
 }

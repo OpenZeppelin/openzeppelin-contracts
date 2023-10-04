@@ -1,5 +1,5 @@
---- access/manager/AccessManager.sol	2023-10-03 19:45:03.556989974 +0200
-+++ access/manager/AccessManager.sol	2023-10-03 19:47:20.724193820 +0200
+--- access/manager/AccessManager.sol	2023-10-04 11:20:52.802378968 +0200
++++ access/manager/AccessManager.sol	2023-10-04 11:20:43.789029388 +0200
 @@ -6,7 +6,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -59,6 +59,15 @@
          return keccak256(abi.encode(target, selector));
      }
  
+@@ -769,7 +778,7 @@
+     /**
+      * @dev Check if the current call is authorized according to admin logic.
+      */
+-    function _checkAuthorized() private {
++    function _checkAuthorized() internal virtual { // private → internal virtual for FV
+         address caller = _msgSender();
+         (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+         if (!immediate) {
 @@ -792,7 +801,7 @@
       */
      function _getAdminRestrictions(
@@ -77,3 +86,12 @@
          if (target == address(this)) {
              return _canCallSelf(caller, data);
          } else {
+@@ -901,7 +910,7 @@
+     /**
+      * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
+      */
+-    function _checkSelector(bytes calldata data) private pure returns (bytes4) {
++    function _checkSelector(bytes calldata data) internal pure returns (bytes4) { // private → internal for FV
+         return bytes4(data[0:4]);
+     }
+ }
