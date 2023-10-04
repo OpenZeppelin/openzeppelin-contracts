@@ -487,14 +487,16 @@ rule getTargetAdminDelayChangeCall(address target) {
     mathint delayEffectAfter  = getTargetAdminDelay_effect(e, target);
 
     // transitions
+    assert minSetback() > 0 => delayBefore == delayAfter;
+
     assert (
         delayBefore        != delayAfter        ||
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
         f.selector       == sig:setTargetAdminDelay(address,uint32).selector &&
-        delayAfter       >= delayBefore &&
-        delayEffectAfter >= clock(e)
+        delayAfter       >= delayBefore && // if minSetback is not 0, we have an equality here (see above)
+        delayEffectAfter >= clock(e) + minSetback()
     );
 }
 
@@ -550,14 +552,16 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
     mathint delayEffectAfter  = getRoleGrantDelay_effect(e, roleId);
 
     // transitions
+    assert minSetback() > 0 => delayBefore == delayAfter;
+
     assert (
         delayBefore        != delayAfter        ||
         delayPendingBefore != delayPendingAfter ||
         delayEffectBefore  != delayEffectAfter
     ) => (
         f.selector       == sig:setGrantDelay(uint64,uint32).selector &&
-        delayAfter       >= delayBefore &&
-        delayEffectAfter >= clock(e)
+        delayAfter       >= delayBefore && // if minSetback is not 0, we have an equality here (see above)
+        delayEffectAfter >= clock(e) + minSetback()
     );
 }
 
