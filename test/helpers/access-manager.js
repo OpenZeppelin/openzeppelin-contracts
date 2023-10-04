@@ -50,7 +50,7 @@ try {
   // Try to get the artifact paths, will throw if it doesn't exist
   artifacts._getArtifactPathSync('AccessManagerUpgradeable');
   artifacts._getArtifactPathSync('AccessManagedUpgradeable');
-  
+
   // ERC-7201 namespace location for AccessManager
   EXECUTION_ID_STORAGE_SLOT += 0x40c6c8c28789853c7efd823ab20824bbd71718a8a5915e855f6f288c9a26ad00n;
   // ERC-7201 namespace location for AccessManaged
