@@ -10,10 +10,10 @@
 [![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-yellow)](https://docs.openzeppelin.com/contracts)
 
 ## Use Cases
-* Build tokens and NFTs using audited and battle-tested implementations of [ERC20](https://docs.openzeppelin.com/contracts/erc20), [ERC721](https://docs.openzeppelin.com/contracts/erc721), and [ERC1155](https://docs.openzeppelin.com/contracts/erc1155).
-* Manage permissions using state-of-the-art [AccessManager](https://docs.openzeppelin.com/contracts/5.x/api/access#AccessManager).
-* Set up and manage on-chain [Governance]https://docs.openzeppelin.com/contracts/governance).
-* Employ reusable [Solidity components](https://docs.openzeppelin.com/contracts/utilities) to build custom contracts and complex decentralized systems.
+* Create transferable tokens (e.g. stablecoins) and NFTs using audited and battle-tested implementations of [ERC20](https://docs.openzeppelin.com/contracts/erc20), [ERC721](https://docs.openzeppelin.com/contracts/erc721), and [ERC1155](https://docs.openzeppelin.com/contracts/erc1155).
+* Build DeFi protocols and manage permissions using state-of-the-art [AccessManager](https://docs.openzeppelin.com/contracts/5.x/api/access#AccessManager).
+* Set up and manage on-chain [Governance]https://docs.openzeppelin.com/contracts/governance) for a DAO.
+* Dream up your own idea with reusable [Solidity components](https://docs.openzeppelin.com/contracts/utilities).
 
 :mage: **Not sure how to get started?** Check out [Contracts Wizard](https://wizard.openzeppelin.com/) — an interactive smart contract generator.
 
