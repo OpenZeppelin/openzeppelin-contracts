@@ -161,17 +161,16 @@ Minting and burning are implemented by `_update` and customizations should be do
 For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
 
 ```diff
-- function _beforeTokenTransfer(
-+ function _update(
-    address from,
-    address to,
-    uint256 amount
-) internal virtual override {
--   super._beforeTokenTransfer(from, to, amount);
-    require(!condition(), "ERC20: wrong condition");
-+   super._update(from, to, amount);
-}
-
+-function _beforeTokenTransfer(
++function _update(
+   address from,
+   address to,
+   uint256 amount
+ ) internal virtual override {
+-  super._beforeTokenTransfer(from, to, amount);
+   require(!condition(), "ERC20: wrong condition");
++  super._update(from, to, amount);
+ }
 ```
 
 #### More about ERC721
@@ -199,19 +198,19 @@ Users working with Governor modules with overrides to the new internal interface
 The `ECDSA` library now only include functions for recovering the signer from a given signature. Previously it also included utility methods for producing digests to be used in signing or recovery. These utilities were moved to the `MessageHashUtils` library and should be imported if needed:
 
 ```diff
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-+ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
++import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
-contract Verifier {
-  using ECDSA for bytes32;
-+ using MessageHashUtils for bytes32;
+ contract Verifier {
+   using ECDSA for bytes32;
++  using MessageHashUtils for bytes32;
  
-  function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
-    return data
-        .toEthSignedMessageHash()
-        .recover(signature) == account;
-  }
-}
+   function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
+     return data
+       .toEthSignedMessageHash()
+       .recover(signature) == account;
+   }
+ }
 ```
 
 #### Partial transpilation in upgradeable contracts
@@ -221,13 +220,13 @@ The upgradeable version of the contracts library used to include a variant suffi
 In favor of their original versions, the library no longer include upgradeable libraries and interfaces. Projects migrating to 5.0 should replace their library and interface imports with their corresponding non-upgradeable version:
 
 ```diff
-// Libraries
-- import {AddressUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
-+ import {Address} from '@openzeppelin/contracts/utils/Address.sol';
+ // Libraries
+-import {AddressUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
++import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
-// Interfaces
-- import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/interfaces/IERC20.sol';
-+ import {IERC20} from '@openzeppelin/contracts/interfaces/IERC20.sol';
+ // Interfaces
+-import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/interfaces/IERC20.sol';
++import {IERC20} from '@openzeppelin/contracts/interfaces/IERC20.sol';
 ```
 
 #### Offchain Considerations
