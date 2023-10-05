@@ -88,7 +88,7 @@ contract('ERC4626', function (accounts) {
       const sharesForDeposit = await vault.previewDeposit(value, { from: holder });
       const sharesForReenter = await vault.previewDeposit(reenterValue, { from: holder });
 
-      // Do deposit normally, triggering the _beforeTokenTransfer hook
+      // Deposit normally, reentering before the internal `_update`
       const receipt = await vault.deposit(value, holder, { from: holder });
 
       // Main deposit event
@@ -170,7 +170,7 @@ contract('ERC4626', function (accounts) {
       // Price before
       const sharesBefore = await vault.previewDeposit(value);
 
-      // Deposit, triggering the _beforeTokenTransfer hook
+      // Deposit, reentering before the internal `_update`
       const receipt = await vault.deposit(value, holder, { from: holder });
 
       // Price is as previewed
