@@ -19,7 +19,7 @@ The following contracts and libraries were added:
 
 ### Removals Summary
 
-Also, in 5.0 the following contracts, libraries and functions were removed:
+The following contracts, libraries, and functions were removed:
 
 - `Address.isContract` (because of its ambiguous nature and potential for misuse)
 - `Checkpoints.History`
