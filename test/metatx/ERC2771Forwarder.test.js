@@ -16,7 +16,6 @@ contract('ERC2771Forwarder', function (accounts) {
     from: another,
     value: web3.utils.toWei('0.5'),
     data: '0x1742',
-    deadline: 0xdeadbeef,
   };
 
   beforeEach(async function () {

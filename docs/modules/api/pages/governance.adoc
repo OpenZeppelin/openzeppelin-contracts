@@ -937,6 +937,7 @@
 :IGovernor-cancel: pass:normal[xref:governance.adoc#IGovernor-cancel-address---uint256---bytes---bytes32-[`IGovernor.cancel`]]
 :ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
 :ERC721-balanceOf: pass:normal[xref:token/ERC721.adoc#ERC721-balanceOf-address-[`ERC721.balanceOf`]]
+:ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
 :xref-Votes-clock--: xref:governance.adoc#Votes-clock--
 :xref-Votes-CLOCK_MODE--: xref:governance.adoc#Votes-CLOCK_MODE--
 :xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
@@ -4517,7 +4518,7 @@ cost of this history tracking optional.
 
 When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
 {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
-previous example, it would be included in {ERC721-_beforeTokenTransfer}).
+previous example, it would be included in {ERC721-_update}).
 
 [.contract-index]
 .Functions
