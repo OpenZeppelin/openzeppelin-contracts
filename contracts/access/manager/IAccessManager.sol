@@ -43,7 +43,7 @@ interface IAccessManager {
     event RoleGranted(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember);
 
     /**
-     * @dev Emitted when `account` membership or `roleId` is revoked. Unlike granting, revocating is instantaneous.
+     * @dev Emitted when `account` membership or `roleId` is revoked. Unlike granting, revoking is instantaneous.
      */
     event RoleRevoked(uint64 indexed roleId, address indexed account);
 
@@ -63,12 +63,12 @@ interface IAccessManager {
     event RoleGrantDelayChanged(uint64 indexed roleId, uint32 delay, uint48 since);
 
     /**
-     * @dev Target mode is updated (true = closed / opened = false).
+     * @dev Target mode is updated (true = closed, false = open).
      */
     event TargetClosed(address indexed target, bool closed);
 
     /**
-     * @dev Permissions over a given `target`/`selector` is updated. Calling it now requires `roleId`.
+     * @dev Role required to invoke `selector` on `target` is updated to `roleId`.
      */
     event TargetFunctionRoleUpdated(address indexed target, bytes4 selector, uint64 indexed roleId);
 
