@@ -27,7 +27,6 @@ npm install @openzeppelin/contracts
 
 ### Foundry (git)
 ```
-# Foundry
 forge install OpenZeppelin/openzeppelin-contracts
 ```
 
