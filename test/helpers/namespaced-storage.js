@@ -8,9 +8,9 @@ function namespaceLocation(id) {
   const hashIdBN = web3.utils.toBN(web3.utils.keccak256(id)).subn(1); // keccak256(id) - 1
   const hashIdHex = web3.utils.padLeft(web3.utils.numberToHex(hashIdBN), 64);
 
-  const mask = web3.utils.toBN(web3.utils.padLeft('0x00', 64, 'f')); // ~0xff
+  const mask = BigInt(web3.utils.padLeft('0x00', 64, 'f')); // ~0xff
 
-  return web3.utils.toBN(web3.utils.keccak256(hashIdHex)).and(mask);
+  return BigInt(web3.utils.keccak256(hashIdHex)) & mask;
 }
 
 function namespaceSlot(contractName, offset) {
