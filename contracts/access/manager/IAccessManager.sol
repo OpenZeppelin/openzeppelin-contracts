@@ -341,7 +341,6 @@ interface IAccessManager {
      */
     function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
 
-
     /**
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
      * execution delay is 0.
