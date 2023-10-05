@@ -19,24 +19,27 @@
 
 
 ## Installation
-```
-# Hardhat
-npm install @openzeppelin/contracts 
 
+### Hardhat (npm)
+```
+npm install @openzeppelin/contracts 
+```
+
+### Foundry (git)
+```
 # Foundry
 forge install OpenZeppelin/openzeppelin-contracts
 ```
 
-### Foundry
-If using Foundry, add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt` after running `forge install`
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt` after running `forge install`
 
-> [!WARNING]
+> [!NOTE]
 > `forge install` installs the latest tagged version, but subsequent `forge update` commands will use the `master` branch.
 >
-> Be sure to use tagged versions to ensure your code has gone through our secure release process.
+> Be sure to use tagged versions to ensure your code has gone through OpenZeppelin's secure release process.
 
 ### Semantic Versioning
-OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
+OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility) and check out our [4.x -> 5.0 migration guide](https://zpl.in/contracts/migrate-v4-to-v5).
 
 ## Usage
 Once installed, you can use the contracts in the library by importing them:
@@ -58,27 +61,18 @@ _If you're new to smart contract development, head to [Developing Smart Contract
 ### Secure Code
 To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources nor modify it yourself. The library is designed so that only the contracts and functions you use in your code are deployed, ensuring greater gas efficiency.
 
-As best practice, we also recommend using OpenZeppelin Defender's [Code App](https://docs.openzeppelin.com/defender/v2/module/code), which uses state-of-the-art static analysis and machine learning to conduct security analysis, ensure dependencies stay up-to-date, and help you remain aware of potential vulnerabilities and/or potential efficiency improvements in your code.
-
-### Audit and Deploy
-OpenZeppelin Defender is equipped to help you audit your code smoothly and deploy to test and production environments across all target chains. 
-
-We used [Audit](https://docs.openzeppelin.com/defender/v2/module/audit) to streamline the fix-review process and ensure all changes were tracked and resolved effectively, and we recommend [Deploy](https://docs.openzeppelin.com/defender/v2/module/deploy) as well to seamlessly handle gas payments, multisig approvals, and block explorer verification. While these constitute security best practices, Contracts is compatible with all deployment methods.
+> [!NOTE]
+> 
+> [OpenZeppelin Defender](https://www.openzeppelin.com/defender) is designed to assist throughout the secure development process. From you securing your codebase with automatic code analysis, to streamlining audit reviews, verifying deployments, and monitoring live contracts with reusable trusted templates, Defender is a full-stack solution for secure smart contract development. Read more about the Code, Audit, Deploy, Monitor, and Actions modules in the [documentation](https://docs.openzeppelin.com/defender/v2/).
 
 ## Security
 This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the Solidity ecosystem. We address security through risk management in various areas such as engineering and open source [best practices](./GUIDELINES.md), scoping and API design, multi-layered review processes, and incident response preparedness.
 
 The [OpenZeppelin Contracts Security Center](https://contracts.openzeppelin.com/security) contains more details about the secure development process, including past audits, our bug bounty program, and advanced testing methods such as fuzzing and formal verification.
 
-Smart contracts are a nascent technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts is not a substitute for a security audit.
-
-OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
-
-### Monitoring and Operations
-Thousands of projects have deployed OpenZeppelin Contracts, and [monitoring templates](https://docs.openzeppelin.com/defender/v2/module/monitor) are available via Defender for common use cases. The same is true for automating [Actions](https://docs.openzeppelin.com/defender/v2/module/actions) post-deploy.
+Smart contracts are a nascent technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts is not a substitute for a security audit. OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
 ## Learn More
-
 The guides in the [documentation site](https://docs.openzeppelin.com/contracts) will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides.
 
 The [full API](https://docs.openzeppelin.com/contracts/api/token/ERC20) is also thoroughly documented, and serves as a great reference when developing your smart contract application. You are also welcome to ask for assistance and follow Contracts development in the [community forum](https://forum.openzeppelin.com).
@@ -86,13 +80,10 @@ The [full API](https://docs.openzeppelin.com/contracts/api/token/ERC20) is also 
 Finally, you may want to take a look at the [guides on our blog](https://blog.openzeppelin.com/), which cover several common use cases and best practices.
 
 ## Contribute
-
 OpenZeppelin Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide](CONTRIBUTING.md)!
 
 ## License
-
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
 
 ## Legal
-
 Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").
