@@ -169,6 +169,59 @@
 :AccessControl-_revokeRole: pass:normal[xref:access.adoc#AccessControl-_revokeRole-bytes32-address-[`AccessControl._revokeRole`]]
 :AccessControl-_setRoleAdmin: pass:normal[xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-[`AccessControl._setRoleAdmin`]]
 :xref-IAuthority-canCall-address-address-bytes4-: xref:access.adoc#IAuthority-canCall-address-address-bytes4-
+:xref-IAccessManager-canCall-address-address-bytes4-: xref:access.adoc#IAccessManager-canCall-address-address-bytes4-
+:xref-IAccessManager-expiration--: xref:access.adoc#IAccessManager-expiration--
+:xref-IAccessManager-minSetback--: xref:access.adoc#IAccessManager-minSetback--
+:xref-IAccessManager-isTargetClosed-address-: xref:access.adoc#IAccessManager-isTargetClosed-address-
+:xref-IAccessManager-getTargetFunctionRole-address-bytes4-: xref:access.adoc#IAccessManager-getTargetFunctionRole-address-bytes4-
+:xref-IAccessManager-getTargetAdminDelay-address-: xref:access.adoc#IAccessManager-getTargetAdminDelay-address-
+:xref-IAccessManager-getRoleAdmin-uint64-: xref:access.adoc#IAccessManager-getRoleAdmin-uint64-
+:xref-IAccessManager-getRoleGuardian-uint64-: xref:access.adoc#IAccessManager-getRoleGuardian-uint64-
+:xref-IAccessManager-getRoleGrantDelay-uint64-: xref:access.adoc#IAccessManager-getRoleGrantDelay-uint64-
+:xref-IAccessManager-getAccess-uint64-address-: xref:access.adoc#IAccessManager-getAccess-uint64-address-
+:xref-IAccessManager-hasRole-uint64-address-: xref:access.adoc#IAccessManager-hasRole-uint64-address-
+:xref-IAccessManager-labelRole-uint64-string-: xref:access.adoc#IAccessManager-labelRole-uint64-string-
+:xref-IAccessManager-grantRole-uint64-address-uint32-: xref:access.adoc#IAccessManager-grantRole-uint64-address-uint32-
+:xref-IAccessManager-revokeRole-uint64-address-: xref:access.adoc#IAccessManager-revokeRole-uint64-address-
+:xref-IAccessManager-renounceRole-uint64-address-: xref:access.adoc#IAccessManager-renounceRole-uint64-address-
+:xref-IAccessManager-setRoleAdmin-uint64-uint64-: xref:access.adoc#IAccessManager-setRoleAdmin-uint64-uint64-
+:xref-IAccessManager-setRoleGuardian-uint64-uint64-: xref:access.adoc#IAccessManager-setRoleGuardian-uint64-uint64-
+:xref-IAccessManager-setGrantDelay-uint64-uint32-: xref:access.adoc#IAccessManager-setGrantDelay-uint64-uint32-
+:xref-IAccessManager-setTargetFunctionRole-address-bytes4---uint64-: xref:access.adoc#IAccessManager-setTargetFunctionRole-address-bytes4---uint64-
+:xref-IAccessManager-setTargetAdminDelay-address-uint32-: xref:access.adoc#IAccessManager-setTargetAdminDelay-address-uint32-
+:xref-IAccessManager-setTargetClosed-address-bool-: xref:access.adoc#IAccessManager-setTargetClosed-address-bool-
+:xref-IAccessManager-getSchedule-bytes32-: xref:access.adoc#IAccessManager-getSchedule-bytes32-
+:xref-IAccessManager-getNonce-bytes32-: xref:access.adoc#IAccessManager-getNonce-bytes32-
+:xref-IAccessManager-schedule-address-bytes-uint48-: xref:access.adoc#IAccessManager-schedule-address-bytes-uint48-
+:xref-IAccessManager-execute-address-bytes-: xref:access.adoc#IAccessManager-execute-address-bytes-
+:xref-IAccessManager-cancel-address-address-bytes-: xref:access.adoc#IAccessManager-cancel-address-address-bytes-
+:xref-IAccessManager-consumeScheduledOp-address-bytes-: xref:access.adoc#IAccessManager-consumeScheduledOp-address-bytes-
+:xref-IAccessManager-hashOperation-address-address-bytes-: xref:access.adoc#IAccessManager-hashOperation-address-address-bytes-
+:xref-IAccessManager-updateAuthority-address-address-: xref:access.adoc#IAccessManager-updateAuthority-address-address-
+:xref-IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-: xref:access.adoc#IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-
+:xref-IAccessManager-OperationExecuted-bytes32-uint32-: xref:access.adoc#IAccessManager-OperationExecuted-bytes32-uint32-
+:xref-IAccessManager-OperationCanceled-bytes32-uint32-: xref:access.adoc#IAccessManager-OperationCanceled-bytes32-uint32-
+:xref-IAccessManager-RoleLabel-uint64-string-: xref:access.adoc#IAccessManager-RoleLabel-uint64-string-
+:xref-IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-: xref:access.adoc#IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-
+:xref-IAccessManager-RoleRevoked-uint64-address-: xref:access.adoc#IAccessManager-RoleRevoked-uint64-address-
+:xref-IAccessManager-RoleAdminChanged-uint64-uint64-: xref:access.adoc#IAccessManager-RoleAdminChanged-uint64-uint64-
+:xref-IAccessManager-RoleGuardianChanged-uint64-uint64-: xref:access.adoc#IAccessManager-RoleGuardianChanged-uint64-uint64-
+:xref-IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-: xref:access.adoc#IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-
+:xref-IAccessManager-TargetClosed-address-bool-: xref:access.adoc#IAccessManager-TargetClosed-address-bool-
+:xref-IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-: xref:access.adoc#IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-
+:xref-IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-: xref:access.adoc#IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-
+:xref-IAccessManager-AccessManagerAlreadyScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerAlreadyScheduled-bytes32-
+:xref-IAccessManager-AccessManagerNotScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotScheduled-bytes32-
+:xref-IAccessManager-AccessManagerNotReady-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotReady-bytes32-
+:xref-IAccessManager-AccessManagerExpired-bytes32-: xref:access.adoc#IAccessManager-AccessManagerExpired-bytes32-
+:xref-IAccessManager-AccessManagerLockedAccount-address-: xref:access.adoc#IAccessManager-AccessManagerLockedAccount-address-
+:xref-IAccessManager-AccessManagerLockedRole-uint64-: xref:access.adoc#IAccessManager-AccessManagerLockedRole-uint64-
+:xref-IAccessManager-AccessManagerBadConfirmation--: xref:access.adoc#IAccessManager-AccessManagerBadConfirmation--
+:xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-
+:xref-IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-
+:xref-IAccessManager-AccessManagerUnauthorizedConsume-address-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedConsume-address-
+:xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-
+:xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-: xref:access.adoc#IAccessManager-AccessManagerInvalidInitialAdmin-address-
 :AccessManaged: pass:normal[xref:access.adoc#AccessManaged[`AccessManaged`]]
 :AccessManaged-restricted: pass:normal[xref:access.adoc#AccessManaged-restricted--[`AccessManaged.restricted`]]
 :AccessManaged-authority: pass:normal[xref:access.adoc#AccessManaged-authority--[`AccessManaged.authority`]]
@@ -219,9 +272,9 @@
 :xref-AccessManager-getNonce-bytes32-: xref:access.adoc#AccessManager-getNonce-bytes32-
 :xref-AccessManager-schedule-address-bytes-uint48-: xref:access.adoc#AccessManager-schedule-address-bytes-uint48-
 :xref-AccessManager-execute-address-bytes-: xref:access.adoc#AccessManager-execute-address-bytes-
+:xref-AccessManager-cancel-address-address-bytes-: xref:access.adoc#AccessManager-cancel-address-address-bytes-
 :xref-AccessManager-consumeScheduledOp-address-bytes-: xref:access.adoc#AccessManager-consumeScheduledOp-address-bytes-
 :xref-AccessManager-_consumeScheduledOp-bytes32-: xref:access.adoc#AccessManager-_consumeScheduledOp-bytes32-
-:xref-AccessManager-cancel-address-address-bytes-: xref:access.adoc#AccessManager-cancel-address-address-bytes-
 :xref-AccessManager-hashOperation-address-address-bytes-: xref:access.adoc#AccessManager-hashOperation-address-address-bytes-
 :xref-AccessManager-updateAuthority-address-address-: xref:access.adoc#AccessManager-updateAuthority-address-address-
 :xref-AccessManager-ADMIN_ROLE-uint64: xref:access.adoc#AccessManager-ADMIN_ROLE-uint64
@@ -251,6 +304,13 @@
 :xref-IAccessManager-AccessManagerUnauthorizedConsume-address-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedConsume-address-
 :xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-
 :xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-: xref:access.adoc#IAccessManager-AccessManagerInvalidInitialAdmin-address-
+:xref-IAccessManaged-authority--: xref:access.adoc#IAccessManaged-authority--
+:xref-IAccessManaged-setAuthority-address-: xref:access.adoc#IAccessManaged-setAuthority-address-
+:xref-IAccessManaged-isConsumingScheduledOp--: xref:access.adoc#IAccessManaged-isConsumingScheduledOp--
+:xref-IAccessManaged-AuthorityUpdated-address-: xref:access.adoc#IAccessManaged-AuthorityUpdated-address-
+:xref-IAccessManaged-AccessManagedUnauthorized-address-: xref:access.adoc#IAccessManaged-AccessManagedUnauthorized-address-
+:xref-IAccessManaged-AccessManagedRequiredDelay-address-uint32-: xref:access.adoc#IAccessManaged-AccessManagedRequiredDelay-address-uint32-
+:xref-IAccessManaged-AccessManagedInvalidAuthority-address-: xref:access.adoc#IAccessManaged-AccessManagedInvalidAuthority-address-
 :AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :IAuthority: pass:normal[xref:access.adoc#IAuthority[`IAuthority`]]
 :xref-AccessManaged-restricted--: xref:access.adoc#AccessManaged-restricted--
@@ -264,6 +324,7 @@
 :xref-IAccessManaged-AccessManagedUnauthorized-address-: xref:access.adoc#IAccessManaged-AccessManagedUnauthorized-address-
 :xref-IAccessManaged-AccessManagedRequiredDelay-address-uint32-: xref:access.adoc#IAccessManaged-AccessManagedRequiredDelay-address-uint32-
 :xref-IAccessManaged-AccessManagedInvalidAuthority-address-: xref:access.adoc#IAccessManaged-AccessManagedInvalidAuthority-address-
+:xref-AuthorityUtils-canCallWithDelay-address-address-address-bytes4-: xref:access.adoc#AuthorityUtils-canCallWithDelay-address-address-address-bytes4-
 = Access Control
 
 [.readme-notice]
@@ -1866,6 +1927,588 @@ Standard interface for permissioning originally defined in Dappsys.
 
 Returns true if the caller can invoke on a target the function identified by a function selector.
 
+:OperationScheduled: pass:normal[xref:#IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-[`++OperationScheduled++`]]
+:OperationExecuted: pass:normal[xref:#IAccessManager-OperationExecuted-bytes32-uint32-[`++OperationExecuted++`]]
+:OperationCanceled: pass:normal[xref:#IAccessManager-OperationCanceled-bytes32-uint32-[`++OperationCanceled++`]]
+:RoleLabel: pass:normal[xref:#IAccessManager-RoleLabel-uint64-string-[`++RoleLabel++`]]
+:RoleGranted: pass:normal[xref:#IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[`++RoleGranted++`]]
+:RoleRevoked: pass:normal[xref:#IAccessManager-RoleRevoked-uint64-address-[`++RoleRevoked++`]]
+:RoleAdminChanged: pass:normal[xref:#IAccessManager-RoleAdminChanged-uint64-uint64-[`++RoleAdminChanged++`]]
+:RoleGuardianChanged: pass:normal[xref:#IAccessManager-RoleGuardianChanged-uint64-uint64-[`++RoleGuardianChanged++`]]
+:RoleGrantDelayChanged: pass:normal[xref:#IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-[`++RoleGrantDelayChanged++`]]
+:TargetClosed: pass:normal[xref:#IAccessManager-TargetClosed-address-bool-[`++TargetClosed++`]]
+:TargetFunctionRoleUpdated: pass:normal[xref:#IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[`++TargetFunctionRoleUpdated++`]]
+:TargetAdminDelayUpdated: pass:normal[xref:#IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-[`++TargetAdminDelayUpdated++`]]
+:AccessManagerAlreadyScheduled: pass:normal[xref:#IAccessManager-AccessManagerAlreadyScheduled-bytes32-[`++AccessManagerAlreadyScheduled++`]]
+:AccessManagerNotScheduled: pass:normal[xref:#IAccessManager-AccessManagerNotScheduled-bytes32-[`++AccessManagerNotScheduled++`]]
+:AccessManagerNotReady: pass:normal[xref:#IAccessManager-AccessManagerNotReady-bytes32-[`++AccessManagerNotReady++`]]
+:AccessManagerExpired: pass:normal[xref:#IAccessManager-AccessManagerExpired-bytes32-[`++AccessManagerExpired++`]]
+:AccessManagerLockedAccount: pass:normal[xref:#IAccessManager-AccessManagerLockedAccount-address-[`++AccessManagerLockedAccount++`]]
+:AccessManagerLockedRole: pass:normal[xref:#IAccessManager-AccessManagerLockedRole-uint64-[`++AccessManagerLockedRole++`]]
+:AccessManagerBadConfirmation: pass:normal[xref:#IAccessManager-AccessManagerBadConfirmation--[`++AccessManagerBadConfirmation++`]]
+:AccessManagerUnauthorizedAccount: pass:normal[xref:#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-[`++AccessManagerUnauthorizedAccount++`]]
+:AccessManagerUnauthorizedCall: pass:normal[xref:#IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-[`++AccessManagerUnauthorizedCall++`]]
+:AccessManagerUnauthorizedConsume: pass:normal[xref:#IAccessManager-AccessManagerUnauthorizedConsume-address-[`++AccessManagerUnauthorizedConsume++`]]
+:AccessManagerUnauthorizedCancel: pass:normal[xref:#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-[`++AccessManagerUnauthorizedCancel++`]]
+:AccessManagerInvalidInitialAdmin: pass:normal[xref:#IAccessManager-AccessManagerInvalidInitialAdmin-address-[`++AccessManagerInvalidInitialAdmin++`]]
+:canCall: pass:normal[xref:#IAccessManager-canCall-address-address-bytes4-[`++canCall++`]]
+:expiration: pass:normal[xref:#IAccessManager-expiration--[`++expiration++`]]
+:minSetback: pass:normal[xref:#IAccessManager-minSetback--[`++minSetback++`]]
+:isTargetClosed: pass:normal[xref:#IAccessManager-isTargetClosed-address-[`++isTargetClosed++`]]
+:getTargetFunctionRole: pass:normal[xref:#IAccessManager-getTargetFunctionRole-address-bytes4-[`++getTargetFunctionRole++`]]
+:getTargetAdminDelay: pass:normal[xref:#IAccessManager-getTargetAdminDelay-address-[`++getTargetAdminDelay++`]]
+:getRoleAdmin: pass:normal[xref:#IAccessManager-getRoleAdmin-uint64-[`++getRoleAdmin++`]]
+:getRoleGuardian: pass:normal[xref:#IAccessManager-getRoleGuardian-uint64-[`++getRoleGuardian++`]]
+:getRoleGrantDelay: pass:normal[xref:#IAccessManager-getRoleGrantDelay-uint64-[`++getRoleGrantDelay++`]]
+:getAccess: pass:normal[xref:#IAccessManager-getAccess-uint64-address-[`++getAccess++`]]
+:hasRole: pass:normal[xref:#IAccessManager-hasRole-uint64-address-[`++hasRole++`]]
+:labelRole: pass:normal[xref:#IAccessManager-labelRole-uint64-string-[`++labelRole++`]]
+:grantRole: pass:normal[xref:#IAccessManager-grantRole-uint64-address-uint32-[`++grantRole++`]]
+:revokeRole: pass:normal[xref:#IAccessManager-revokeRole-uint64-address-[`++revokeRole++`]]
+:renounceRole: pass:normal[xref:#IAccessManager-renounceRole-uint64-address-[`++renounceRole++`]]
+:setRoleAdmin: pass:normal[xref:#IAccessManager-setRoleAdmin-uint64-uint64-[`++setRoleAdmin++`]]
+:setRoleGuardian: pass:normal[xref:#IAccessManager-setRoleGuardian-uint64-uint64-[`++setRoleGuardian++`]]
+:setGrantDelay: pass:normal[xref:#IAccessManager-setGrantDelay-uint64-uint32-[`++setGrantDelay++`]]
+:setTargetFunctionRole: pass:normal[xref:#IAccessManager-setTargetFunctionRole-address-bytes4---uint64-[`++setTargetFunctionRole++`]]
+:setTargetAdminDelay: pass:normal[xref:#IAccessManager-setTargetAdminDelay-address-uint32-[`++setTargetAdminDelay++`]]
+:setTargetClosed: pass:normal[xref:#IAccessManager-setTargetClosed-address-bool-[`++setTargetClosed++`]]
+:getSchedule: pass:normal[xref:#IAccessManager-getSchedule-bytes32-[`++getSchedule++`]]
+:getNonce: pass:normal[xref:#IAccessManager-getNonce-bytes32-[`++getNonce++`]]
+:schedule: pass:normal[xref:#IAccessManager-schedule-address-bytes-uint48-[`++schedule++`]]
+:execute: pass:normal[xref:#IAccessManager-execute-address-bytes-[`++execute++`]]
+:cancel: pass:normal[xref:#IAccessManager-cancel-address-address-bytes-[`++cancel++`]]
+:consumeScheduledOp: pass:normal[xref:#IAccessManager-consumeScheduledOp-address-bytes-[`++consumeScheduledOp++`]]
+:hashOperation: pass:normal[xref:#IAccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
+:updateAuthority: pass:normal[xref:#IAccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
+
+[.contract]
+[[IAccessManager]]
+=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.2/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/IAccessManager.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IAccessManager-canCall-address-address-bytes4-}[`++canCall(caller, target, selector)++`]
+* {xref-IAccessManager-expiration--}[`++expiration()++`]
+* {xref-IAccessManager-minSetback--}[`++minSetback()++`]
+* {xref-IAccessManager-isTargetClosed-address-}[`++isTargetClosed(target)++`]
+* {xref-IAccessManager-getTargetFunctionRole-address-bytes4-}[`++getTargetFunctionRole(target, selector)++`]
+* {xref-IAccessManager-getTargetAdminDelay-address-}[`++getTargetAdminDelay(target)++`]
+* {xref-IAccessManager-getRoleAdmin-uint64-}[`++getRoleAdmin(roleId)++`]
+* {xref-IAccessManager-getRoleGuardian-uint64-}[`++getRoleGuardian(roleId)++`]
+* {xref-IAccessManager-getRoleGrantDelay-uint64-}[`++getRoleGrantDelay(roleId)++`]
+* {xref-IAccessManager-getAccess-uint64-address-}[`++getAccess(roleId, account)++`]
+* {xref-IAccessManager-hasRole-uint64-address-}[`++hasRole(roleId, account)++`]
+* {xref-IAccessManager-labelRole-uint64-string-}[`++labelRole(roleId, label)++`]
+* {xref-IAccessManager-grantRole-uint64-address-uint32-}[`++grantRole(roleId, account, executionDelay)++`]
+* {xref-IAccessManager-revokeRole-uint64-address-}[`++revokeRole(roleId, account)++`]
+* {xref-IAccessManager-renounceRole-uint64-address-}[`++renounceRole(roleId, callerConfirmation)++`]
+* {xref-IAccessManager-setRoleAdmin-uint64-uint64-}[`++setRoleAdmin(roleId, admin)++`]
+* {xref-IAccessManager-setRoleGuardian-uint64-uint64-}[`++setRoleGuardian(roleId, guardian)++`]
+* {xref-IAccessManager-setGrantDelay-uint64-uint32-}[`++setGrantDelay(roleId, newDelay)++`]
+* {xref-IAccessManager-setTargetFunctionRole-address-bytes4---uint64-}[`++setTargetFunctionRole(target, selectors, roleId)++`]
+* {xref-IAccessManager-setTargetAdminDelay-address-uint32-}[`++setTargetAdminDelay(target, newDelay)++`]
+* {xref-IAccessManager-setTargetClosed-address-bool-}[`++setTargetClosed(target, closed)++`]
+* {xref-IAccessManager-getSchedule-bytes32-}[`++getSchedule(id)++`]
+* {xref-IAccessManager-getNonce-bytes32-}[`++getNonce(id)++`]
+* {xref-IAccessManager-schedule-address-bytes-uint48-}[`++schedule(target, data, when)++`]
+* {xref-IAccessManager-execute-address-bytes-}[`++execute(target, data)++`]
+* {xref-IAccessManager-cancel-address-address-bytes-}[`++cancel(caller, target, data)++`]
+* {xref-IAccessManager-consumeScheduledOp-address-bytes-}[`++consumeScheduledOp(caller, data)++`]
+* {xref-IAccessManager-hashOperation-address-address-bytes-}[`++hashOperation(caller, target, data)++`]
+* {xref-IAccessManager-updateAuthority-address-address-}[`++updateAuthority(target, newAuthority)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-}[`++OperationScheduled(operationId, nonce, schedule, caller, target, data)++`]
+* {xref-IAccessManager-OperationExecuted-bytes32-uint32-}[`++OperationExecuted(operationId, nonce)++`]
+* {xref-IAccessManager-OperationCanceled-bytes32-uint32-}[`++OperationCanceled(operationId, nonce)++`]
+* {xref-IAccessManager-RoleLabel-uint64-string-}[`++RoleLabel(roleId, label)++`]
+* {xref-IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-}[`++RoleGranted(roleId, account, delay, since, newMember)++`]
+* {xref-IAccessManager-RoleRevoked-uint64-address-}[`++RoleRevoked(roleId, account)++`]
+* {xref-IAccessManager-RoleAdminChanged-uint64-uint64-}[`++RoleAdminChanged(roleId, admin)++`]
+* {xref-IAccessManager-RoleGuardianChanged-uint64-uint64-}[`++RoleGuardianChanged(roleId, guardian)++`]
+* {xref-IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-}[`++RoleGrantDelayChanged(roleId, delay, since)++`]
+* {xref-IAccessManager-TargetClosed-address-bool-}[`++TargetClosed(target, closed)++`]
+* {xref-IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-}[`++TargetFunctionRoleUpdated(target, selector, roleId)++`]
+* {xref-IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-}[`++TargetAdminDelayUpdated(target, delay, since)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-IAccessManager-AccessManagerAlreadyScheduled-bytes32-}[`++AccessManagerAlreadyScheduled(operationId)++`]
+* {xref-IAccessManager-AccessManagerNotScheduled-bytes32-}[`++AccessManagerNotScheduled(operationId)++`]
+* {xref-IAccessManager-AccessManagerNotReady-bytes32-}[`++AccessManagerNotReady(operationId)++`]
+* {xref-IAccessManager-AccessManagerExpired-bytes32-}[`++AccessManagerExpired(operationId)++`]
+* {xref-IAccessManager-AccessManagerLockedAccount-address-}[`++AccessManagerLockedAccount(account)++`]
+* {xref-IAccessManager-AccessManagerLockedRole-uint64-}[`++AccessManagerLockedRole(roleId)++`]
+* {xref-IAccessManager-AccessManagerBadConfirmation--}[`++AccessManagerBadConfirmation()++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-}[`++AccessManagerUnauthorizedAccount(msgsender, roleId)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-}[`++AccessManagerUnauthorizedCall(caller, target, selector)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedConsume-address-}[`++AccessManagerUnauthorizedConsume(target)++`]
+* {xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-}[`++AccessManagerUnauthorizedCancel(msgsender, caller, target, selector)++`]
+* {xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-}[`++AccessManagerInvalidInitialAdmin(initialAdmin)++`]
+
+--
+
+[.contract-item]
+[[IAccessManager-canCall-address-address-bytes4-]]
+==== `[.contract-item-name]#++canCall++#++(address caller, address target, bytes4 selector) → bool allowed, uint32 delay++` [.item-kind]#external#
+
+Check if an address (`caller`) is authorised to call a given function on a given contract directly (with
+no restriction). Additionally, it returns the delay needed to perform the call indirectly through the {schedule}
+& {execute} workflow.
+
+This function is usually called by the targeted contract to control immediate execution of restricted functions.
+Therefore we only return true if the call can be performed without any delay. If the call is subject to a
+previously set delay (not zero), then the function should return false and the caller should schedule the operation
+for future execution.
+
+If `immediate` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
+the operation can be executed if and only if delay is greater than 0.
+
+NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
+is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
+to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
+
+NOTE: This function does not report the permissions of this manager itself. These are defined by the
+{_canCallSelf} function instead.
+
+[.contract-item]
+[[IAccessManager-expiration--]]
+==== `[.contract-item-name]#++expiration++#++() → uint32++` [.item-kind]#external#
+
+Expiration delay for scheduled proposals. Defaults to 1 week.
+
+IMPORTANT: Avoid overriding the expiration with 0. Otherwise every contract proposal will be expired immediately,
+disabling any scheduling usage.
+
+[.contract-item]
+[[IAccessManager-minSetback--]]
+==== `[.contract-item-name]#++minSetback++#++() → uint32++` [.item-kind]#external#
+
+Minimum setback for all delay updates, with the exception of execution delays. It
+can be increased without setback (and reset via {revokeRole} in the case event of an
+accidental increase). Defaults to 5 days.
+
+[.contract-item]
+[[IAccessManager-isTargetClosed-address-]]
+==== `[.contract-item-name]#++isTargetClosed++#++(address target) → bool++` [.item-kind]#external#
+
+Get whether the contract is closed disabling any access. Otherwise role permissions are applied.
+
+[.contract-item]
+[[IAccessManager-getTargetFunctionRole-address-bytes4-]]
+==== `[.contract-item-name]#++getTargetFunctionRole++#++(address target, bytes4 selector) → uint64++` [.item-kind]#external#
+
+Get the role required to call a function.
+
+[.contract-item]
+[[IAccessManager-getTargetAdminDelay-address-]]
+==== `[.contract-item-name]#++getTargetAdminDelay++#++(address target) → uint32++` [.item-kind]#external#
+
+Get the admin delay for a target contract. Changes to contract configuration are subject to this delay.
+
+[.contract-item]
+[[IAccessManager-getRoleAdmin-uint64-]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(uint64 roleId) → uint64++` [.item-kind]#external#
+
+Get the id of the role that acts as an admin for the given role.
+
+The admin permission is required to grant the role, revoke the role and update the execution delay to execute
+an operation that is restricted to this role.
+
+[.contract-item]
+[[IAccessManager-getRoleGuardian-uint64-]]
+==== `[.contract-item-name]#++getRoleGuardian++#++(uint64 roleId) → uint64++` [.item-kind]#external#
+
+Get the role that acts as a guardian for a given role.
+
+The guardian permission allows canceling operations that have been scheduled under the role.
+
+[.contract-item]
+[[IAccessManager-getRoleGrantDelay-uint64-]]
+==== `[.contract-item-name]#++getRoleGrantDelay++#++(uint64 roleId) → uint32++` [.item-kind]#external#
+
+Get the role current grant delay.
+
+Its value may change at any point without an event emitted following a call to {setGrantDelay}.
+Changes to this value, including effect timepoint are notified in advance by the {RoleGrantDelayChanged} event.
+
+[.contract-item]
+[[IAccessManager-getAccess-uint64-address-]]
+==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48, uint32, uint32, uint48++` [.item-kind]#external#
+
+Get the access details for a given account for a given role. These details include the timepoint at which
+membership becomes active, and the delay applied to all operation by this user that requires this permission
+level.
+
+Returns:
+[0] Timestamp at which the account membership becomes valid. 0 means role is not granted.
+[1] Current execution delay for the account.
+[2] Pending execution delay for the account.
+[3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
+
+[.contract-item]
+[[IAccessManager-hasRole-uint64-address-]]
+==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool, uint32++` [.item-kind]#external#
+
+Check if a given account currently has the permission level corresponding to a given role. Note that this
+permission might be associated with an execution delay. {getAccess} can provide more details.
+
+[.contract-item]
+[[IAccessManager-labelRole-uint64-string-]]
+==== `[.contract-item-name]#++labelRole++#++(uint64 roleId, string label)++` [.item-kind]#external#
+
+Give a label to a role, for improved role discoverability by UIs.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleLabel} event.
+
+[.contract-item]
+[[IAccessManager-grantRole-uint64-address-uint32-]]
+==== `[.contract-item-name]#++grantRole++#++(uint64 roleId, address account, uint32 executionDelay)++` [.item-kind]#external#
+
+Add `account` to `roleId`, or change its execution delay.
+
+This gives the account the authorization to call any function that is restricted to this role. An optional
+execution delay (in seconds) can be set. If that delay is non 0, the user is required to schedule any operation
+that is restricted to members of this role. The user will only be able to execute the operation after the delay has
+passed, before it has expired. During this period, admin and guardians can cancel the operation (see {cancel}).
+
+If the account has already been granted this role, the execution delay will be updated. This update is not
+immediate and follows the delay rules. For example, if a user currently has a delay of 3 hours, and this is
+called to reduce that delay to 1 hour, the new delay will take some time to take effect, enforcing that any
+operation executed in the 3 hours that follows this update was indeed scheduled before this update.
+
+Requirements:
+
+- the caller must be an admin for the role (see {getRoleAdmin})
+- granted role must not be the `PUBLIC_ROLE`
+
+Emits a {RoleGranted} event.
+
+[.contract-item]
+[[IAccessManager-revokeRole-uint64-address-]]
+==== `[.contract-item-name]#++revokeRole++#++(uint64 roleId, address account)++` [.item-kind]#external#
+
+Remove an account from a role, with immediate effect. If the account does not have the role, this call has
+no effect.
+
+Requirements:
+
+- the caller must be an admin for the role (see {getRoleAdmin})
+- revoked role must not be the `PUBLIC_ROLE`
+
+Emits a {RoleRevoked} event if the account had the role.
+
+[.contract-item]
+[[IAccessManager-renounceRole-uint64-address-]]
+==== `[.contract-item-name]#++renounceRole++#++(uint64 roleId, address callerConfirmation)++` [.item-kind]#external#
+
+Renounce role permissions for the calling account with immediate effect. If the sender is not in
+the role this call has no effect.
+
+Requirements:
+
+- the caller must be `callerConfirmation`.
+
+Emits a {RoleRevoked} event if the account had the role.
+
+[.contract-item]
+[[IAccessManager-setRoleAdmin-uint64-uint64-]]
+==== `[.contract-item-name]#++setRoleAdmin++#++(uint64 roleId, uint64 admin)++` [.item-kind]#external#
+
+Change admin role for a given role.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleAdminChanged} event
+
+[.contract-item]
+[[IAccessManager-setRoleGuardian-uint64-uint64-]]
+==== `[.contract-item-name]#++setRoleGuardian++#++(uint64 roleId, uint64 guardian)++` [.item-kind]#external#
+
+Change guardian role for a given role.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleGuardianChanged} event
+
+[.contract-item]
+[[IAccessManager-setGrantDelay-uint64-uint32-]]
+==== `[.contract-item-name]#++setGrantDelay++#++(uint64 roleId, uint32 newDelay)++` [.item-kind]#external#
+
+Update the delay for granting a `roleId`.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {RoleGrantDelayChanged} event.
+
+[.contract-item]
+[[IAccessManager-setTargetFunctionRole-address-bytes4---uint64-]]
+==== `[.contract-item-name]#++setTargetFunctionRole++#++(address target, bytes4[] selectors, uint64 roleId)++` [.item-kind]#external#
+
+Set the role required to call functions identified by the `selectors` in the `target` contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetFunctionRoleUpdated} event per selector.
+
+[.contract-item]
+[[IAccessManager-setTargetAdminDelay-address-uint32-]]
+==== `[.contract-item-name]#++setTargetAdminDelay++#++(address target, uint32 newDelay)++` [.item-kind]#external#
+
+Set the delay for changing the configuration of a given target contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetAdminDelayUpdated} event.
+
+[.contract-item]
+[[IAccessManager-setTargetClosed-address-bool-]]
+==== `[.contract-item-name]#++setTargetClosed++#++(address target, bool closed)++` [.item-kind]#external#
+
+Set the closed flag for a contract.
+
+Requirements:
+
+- the caller must be a global admin
+
+Emits a {TargetClosed} event.
+
+[.contract-item]
+[[IAccessManager-getSchedule-bytes32-]]
+==== `[.contract-item-name]#++getSchedule++#++(bytes32 id) → uint48++` [.item-kind]#external#
+
+Return the timepoint at which a scheduled operation will be ready for execution. This returns 0 if the
+operation is not yet scheduled, has expired, was executed, or was canceled.
+
+[.contract-item]
+[[IAccessManager-getNonce-bytes32-]]
+==== `[.contract-item-name]#++getNonce++#++(bytes32 id) → uint32++` [.item-kind]#external#
+
+Return the nonce for the latest scheduled operation with a given id. Returns 0 if the operation has never
+been scheduled.
+
+[.contract-item]
+[[IAccessManager-schedule-address-bytes-uint48-]]
+==== `[.contract-item-name]#++schedule++#++(address target, bytes data, uint48 when) → bytes32, uint32++` [.item-kind]#external#
+
+Schedule a delayed operation for future execution, and return the operation identifier. It is possible to
+choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
+required for the caller. The special value zero will automatically set the earliest possible time.
+
+Returns the `operationId` that was scheduled. Since this value is a hash of the parameters, it can reoccur when
+the same parameters are used; if this is relevant, the returned `nonce` can be used to uniquely identify this
+scheduled operation from other occurrences of the same `operationId` in invocations of {execute} and {cancel}.
+
+Emits a {OperationScheduled} event.
+
+NOTE: It is not possible to concurrently schedule more than one operation with the same `target` and `data`. If
+this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
+contract if it is using standard Solidity ABI encoding.
+
+[.contract-item]
+[[IAccessManager-execute-address-bytes-]]
+==== `[.contract-item-name]#++execute++#++(address target, bytes data) → uint32++` [.item-kind]#external#
+
+Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
+execution delay is 0.
+
+Returns the nonce that identifies the previously scheduled operation that is executed, or 0 if the
+operation wasn't previously scheduled (if the caller doesn't have an execution delay).
+
+Emits an {OperationExecuted} event only if the call was scheduled and delayed.
+
+[.contract-item]
+[[IAccessManager-cancel-address-address-bytes-]]
+==== `[.contract-item-name]#++cancel++#++(address caller, address target, bytes data) → uint32++` [.item-kind]#external#
+
+Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
+operation that is cancelled.
+
+Requirements:
+
+- the caller must be the proposer, a guardian of the targeted function, or a global admin
+
+Emits a {OperationCanceled} event.
+
+[.contract-item]
+[[IAccessManager-consumeScheduledOp-address-bytes-]]
+==== `[.contract-item-name]#++consumeScheduledOp++#++(address caller, bytes data)++` [.item-kind]#external#
+
+Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
+(emit an {OperationExecuted} event and clean the state). Otherwise, throw an error.
+
+This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
+with all the verifications that it implies.
+
+Emit a {OperationExecuted} event.
+
+[.contract-item]
+[[IAccessManager-hashOperation-address-address-bytes-]]
+==== `[.contract-item-name]#++hashOperation++#++(address caller, address target, bytes data) → bytes32++` [.item-kind]#external#
+
+Hashing function for delayed operations.
+
+[.contract-item]
+[[IAccessManager-updateAuthority-address-address-]]
+==== `[.contract-item-name]#++updateAuthority++#++(address target, address newAuthority)++` [.item-kind]#external#
+
+Changes the authority of a target managed by this manager instance.
+
+Requirements:
+
+- the caller must be a global admin
+
+[.contract-item]
+[[IAccessManager-OperationScheduled-bytes32-uint32-uint48-address-address-bytes-]]
+==== `[.contract-item-name]#++OperationScheduled++#++(bytes32 indexed operationId, uint32 indexed nonce, uint48 schedule, address caller, address target, bytes data)++` [.item-kind]#event#
+
+A delayed operation was scheduled.
+
+[.contract-item]
+[[IAccessManager-OperationExecuted-bytes32-uint32-]]
+==== `[.contract-item-name]#++OperationExecuted++#++(bytes32 indexed operationId, uint32 indexed nonce)++` [.item-kind]#event#
+
+A scheduled operation was executed.
+
+[.contract-item]
+[[IAccessManager-OperationCanceled-bytes32-uint32-]]
+==== `[.contract-item-name]#++OperationCanceled++#++(bytes32 indexed operationId, uint32 indexed nonce)++` [.item-kind]#event#
+
+A scheduled operation was canceled.
+
+[.contract-item]
+[[IAccessManager-RoleLabel-uint64-string-]]
+==== `[.contract-item-name]#++RoleLabel++#++(uint64 indexed roleId, string label)++` [.item-kind]#event#
+
+Informational labelling for a roleId.
+
+[.contract-item]
+[[IAccessManager-RoleGranted-uint64-address-uint32-uint48-bool-]]
+==== `[.contract-item-name]#++RoleGranted++#++(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember)++` [.item-kind]#event#
+
+Emitted when `account` is granted `roleId`.
+
+NOTE: The meaning of the `since` argument depends on the `newMember` argument.
+If the role is granted to a new member, the `since` argument indicates when the account becomes a member of the role,
+otherwise it indicates the execution delay for this account and roleId is updated.
+
+[.contract-item]
+[[IAccessManager-RoleRevoked-uint64-address-]]
+==== `[.contract-item-name]#++RoleRevoked++#++(uint64 indexed roleId, address indexed account)++` [.item-kind]#event#
+
+Emitted when `account` membership or `roleId` is revoked. Unlike granting, revoking is instantaneous.
+
+[.contract-item]
+[[IAccessManager-RoleAdminChanged-uint64-uint64-]]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(uint64 indexed roleId, uint64 indexed admin)++` [.item-kind]#event#
+
+Role acting as admin over a given `roleId` is updated.
+
+[.contract-item]
+[[IAccessManager-RoleGuardianChanged-uint64-uint64-]]
+==== `[.contract-item-name]#++RoleGuardianChanged++#++(uint64 indexed roleId, uint64 indexed guardian)++` [.item-kind]#event#
+
+Role acting as guardian over a given `roleId` is updated.
+
+[.contract-item]
+[[IAccessManager-RoleGrantDelayChanged-uint64-uint32-uint48-]]
+==== `[.contract-item-name]#++RoleGrantDelayChanged++#++(uint64 indexed roleId, uint32 delay, uint48 since)++` [.item-kind]#event#
+
+Grant delay for a given `roleId` will be updated to `delay` when `since` is reached.
+
+[.contract-item]
+[[IAccessManager-TargetClosed-address-bool-]]
+==== `[.contract-item-name]#++TargetClosed++#++(address indexed target, bool closed)++` [.item-kind]#event#
+
+Target mode is updated (true = closed, false = open).
+
+[.contract-item]
+[[IAccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-]]
+==== `[.contract-item-name]#++TargetFunctionRoleUpdated++#++(address indexed target, bytes4 selector, uint64 indexed roleId)++` [.item-kind]#event#
+
+Role required to invoke `selector` on `target` is updated to `roleId`.
+
+[.contract-item]
+[[IAccessManager-TargetAdminDelayUpdated-address-uint32-uint48-]]
+==== `[.contract-item-name]#++TargetAdminDelayUpdated++#++(address indexed target, uint32 delay, uint48 since)++` [.item-kind]#event#
+
+Admin delay for a given `target` will be updated to `delay` when `since` is reached.
+
+[.contract-item]
+[[IAccessManager-AccessManagerAlreadyScheduled-bytes32-]]
+==== `[.contract-item-name]#++AccessManagerAlreadyScheduled++#++(bytes32 operationId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerNotScheduled-bytes32-]]
+==== `[.contract-item-name]#++AccessManagerNotScheduled++#++(bytes32 operationId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerNotReady-bytes32-]]
+==== `[.contract-item-name]#++AccessManagerNotReady++#++(bytes32 operationId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerExpired-bytes32-]]
+==== `[.contract-item-name]#++AccessManagerExpired++#++(bytes32 operationId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerLockedAccount-address-]]
+==== `[.contract-item-name]#++AccessManagerLockedAccount++#++(address account)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerLockedRole-uint64-]]
+==== `[.contract-item-name]#++AccessManagerLockedRole++#++(uint64 roleId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerBadConfirmation--]]
+==== `[.contract-item-name]#++AccessManagerBadConfirmation++#++()++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-]]
+==== `[.contract-item-name]#++AccessManagerUnauthorizedAccount++#++(address msgsender, uint64 roleId)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerUnauthorizedCall-address-address-bytes4-]]
+==== `[.contract-item-name]#++AccessManagerUnauthorizedCall++#++(address caller, address target, bytes4 selector)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerUnauthorizedConsume-address-]]
+==== `[.contract-item-name]#++AccessManagerUnauthorizedConsume++#++(address target)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-]]
+==== `[.contract-item-name]#++AccessManagerUnauthorizedCancel++#++(address msgsender, address caller, address target, bytes4 selector)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManager-AccessManagerInvalidInitialAdmin-address-]]
+==== `[.contract-item-name]#++AccessManagerInvalidInitialAdmin++#++(address initialAdmin)++` [.item-kind]#error#
+
 :TargetConfig: pass:normal[xref:#AccessManager-TargetConfig[`++TargetConfig++`]]
 :Access: pass:normal[xref:#AccessManager-Access[`++Access++`]]
 :Role: pass:normal[xref:#AccessManager-Role[`++Role++`]]
@@ -1907,9 +2550,9 @@ Returns true if the caller can invoke on a target the function identified by a f
 :getNonce: pass:normal[xref:#AccessManager-getNonce-bytes32-[`++getNonce++`]]
 :schedule: pass:normal[xref:#AccessManager-schedule-address-bytes-uint48-[`++schedule++`]]
 :execute: pass:normal[xref:#AccessManager-execute-address-bytes-[`++execute++`]]
+:cancel: pass:normal[xref:#AccessManager-cancel-address-address-bytes-[`++cancel++`]]
 :consumeScheduledOp: pass:normal[xref:#AccessManager-consumeScheduledOp-address-bytes-[`++consumeScheduledOp++`]]
 :_consumeScheduledOp: pass:normal[xref:#AccessManager-_consumeScheduledOp-bytes32-[`++_consumeScheduledOp++`]]
-:cancel: pass:normal[xref:#AccessManager-cancel-address-address-bytes-[`++cancel++`]]
 :hashOperation: pass:normal[xref:#AccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
 :updateAuthority: pass:normal[xref:#AccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
 
@@ -2011,9 +2654,9 @@ mindful of the danger associated with functions such as {{Ownable-renounceOwners
 * {xref-AccessManager-getNonce-bytes32-}[`++getNonce(id)++`]
 * {xref-AccessManager-schedule-address-bytes-uint48-}[`++schedule(target, data, when)++`]
 * {xref-AccessManager-execute-address-bytes-}[`++execute(target, data)++`]
+* {xref-AccessManager-cancel-address-address-bytes-}[`++cancel(caller, target, data)++`]
 * {xref-AccessManager-consumeScheduledOp-address-bytes-}[`++consumeScheduledOp(caller, data)++`]
 * {xref-AccessManager-_consumeScheduledOp-bytes32-}[`++_consumeScheduledOp(operationId)++`]
-* {xref-AccessManager-cancel-address-address-bytes-}[`++cancel(caller, target, data)++`]
 * {xref-AccessManager-hashOperation-address-address-bytes-}[`++hashOperation(caller, target, data)++`]
 * {xref-AccessManager-updateAuthority-address-address-}[`++updateAuthority(target, newAuthority)++`]
 * {xref-AccessManager-ADMIN_ROLE-uint64}[`++ADMIN_ROLE()++`]
@@ -2124,8 +2767,8 @@ disabling any scheduling usage.
 ==== `[.contract-item-name]#++minSetback++#++() → uint32++` [.item-kind]#public#
 
 Minimum setback for all delay updates, with the exception of execution delays. It
-can be increased without setback (and in the event of an accidental increase can be reset
-via {revokeRole}). Defaults to 5 days.
+can be increased without setback (and reset via {revokeRole} in the case event of an
+accidental increase). Defaults to 5 days.
 
 [.contract-item]
 [[AccessManager-isTargetClosed-address-]]
@@ -2196,7 +2839,7 @@ permission might be associated with an execution delay. {getAccess} can provide 
 [[AccessManager-labelRole-uint64-string-]]
 ==== `[.contract-item-name]#++labelRole++#++(uint64 roleId, string label)++` [.item-kind]#public#
 
-Give a label to a role, for improved role discoverabily by UIs.
+Give a label to a role, for improved role discoverability by UIs.
 
 Requirements:
 
@@ -2442,6 +3085,19 @@ operation wasn't previously scheduled (if the caller doesn't have an execution d
 Emits an {OperationExecuted} event only if the call was scheduled and delayed.
 
 [.contract-item]
+[[AccessManager-cancel-address-address-bytes-]]
+==== `[.contract-item-name]#++cancel++#++(address caller, address target, bytes data) → uint32++` [.item-kind]#public#
+
+Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
+operation that is cancelled.
+
+Requirements:
+
+- the caller must be the proposer, a guardian of the targeted function, or a global admin
+
+Emits a {OperationCanceled} event.
+
+[.contract-item]
 [[AccessManager-consumeScheduledOp-address-bytes-]]
 ==== `[.contract-item-name]#++consumeScheduledOp++#++(address caller, bytes data)++` [.item-kind]#public#
 
@@ -2462,29 +3118,16 @@ Internal variant of {consumeScheduledOp} that operates on bytes32 operationId.
 Returns the nonce of the scheduled operation that is consumed.
 
 [.contract-item]
-[[AccessManager-cancel-address-address-bytes-]]
-==== `[.contract-item-name]#++cancel++#++(address caller, address target, bytes data) → uint32++` [.item-kind]#public#
-
-Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
-operation that is cancelled.
-
-Requirements:
-
-- the caller must be the proposer, a guardian of the targeted function, or a global admin
-
-Emits a {OperationCanceled} event.
-
-[.contract-item]
 [[AccessManager-hashOperation-address-address-bytes-]]
 ==== `[.contract-item-name]#++hashOperation++#++(address caller, address target, bytes data) → bytes32++` [.item-kind]#public#
 
-Hashing function for delayed operations
+Hashing function for delayed operations.
 
 [.contract-item]
 [[AccessManager-updateAuthority-address-address-]]
 ==== `[.contract-item-name]#++updateAuthority++#++(address target, address newAuthority)++` [.item-kind]#public#
 
-Change the AccessManager instance used by a contract that correctly uses this instance.
+Changes the authority of a target managed by this manager instance.
 
 Requirements:
 
@@ -2497,6 +3140,86 @@ Requirements:
 [.contract-item]
 [[AccessManager-PUBLIC_ROLE-uint64]]
 ==== `[.contract-item-name]#++PUBLIC_ROLE++#++() → uint64++` [.item-kind]#public#
+
+:AuthorityUpdated: pass:normal[xref:#IAccessManaged-AuthorityUpdated-address-[`++AuthorityUpdated++`]]
+:AccessManagedUnauthorized: pass:normal[xref:#IAccessManaged-AccessManagedUnauthorized-address-[`++AccessManagedUnauthorized++`]]
+:AccessManagedRequiredDelay: pass:normal[xref:#IAccessManaged-AccessManagedRequiredDelay-address-uint32-[`++AccessManagedRequiredDelay++`]]
+:AccessManagedInvalidAuthority: pass:normal[xref:#IAccessManaged-AccessManagedInvalidAuthority-address-[`++AccessManagedInvalidAuthority++`]]
+:authority: pass:normal[xref:#IAccessManaged-authority--[`++authority++`]]
+:setAuthority: pass:normal[xref:#IAccessManaged-setAuthority-address-[`++setAuthority++`]]
+:isConsumingScheduledOp: pass:normal[xref:#IAccessManaged-isConsumingScheduledOp--[`++isConsumingScheduledOp++`]]
+
+[.contract]
+[[IAccessManaged]]
+=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.2/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IAccessManaged-authority--}[`++authority()++`]
+* {xref-IAccessManaged-setAuthority-address-}[`++setAuthority()++`]
+* {xref-IAccessManaged-isConsumingScheduledOp--}[`++isConsumingScheduledOp()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IAccessManaged-AuthorityUpdated-address-}[`++AuthorityUpdated(authority)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-IAccessManaged-AccessManagedUnauthorized-address-}[`++AccessManagedUnauthorized(caller)++`]
+* {xref-IAccessManaged-AccessManagedRequiredDelay-address-uint32-}[`++AccessManagedRequiredDelay(caller, delay)++`]
+* {xref-IAccessManaged-AccessManagedInvalidAuthority-address-}[`++AccessManagedInvalidAuthority(authority)++`]
+
+--
+
+[.contract-item]
+[[IAccessManaged-authority--]]
+==== `[.contract-item-name]#++authority++#++() → address++` [.item-kind]#external#
+
+Returns the current authority.
+
+[.contract-item]
+[[IAccessManaged-setAuthority-address-]]
+==== `[.contract-item-name]#++setAuthority++#++(address)++` [.item-kind]#external#
+
+Transfers control to a new authority. The caller must be the current authority.
+
+[.contract-item]
+[[IAccessManaged-isConsumingScheduledOp--]]
+==== `[.contract-item-name]#++isConsumingScheduledOp++#++() → bytes4++` [.item-kind]#external#
+
+Returns true only in the context of a delayed restricted call, at the moment that the scheduled operation is
+being consumed. Prevents denial of service for delayed restricted calls in the case that the contract performs
+attacker controlled calls.
+
+[.contract-item]
+[[IAccessManaged-AuthorityUpdated-address-]]
+==== `[.contract-item-name]#++AuthorityUpdated++#++(address authority)++` [.item-kind]#event#
+
+Authority that manages this contract was updated.
+
+[.contract-item]
+[[IAccessManaged-AccessManagedUnauthorized-address-]]
+==== `[.contract-item-name]#++AccessManagedUnauthorized++#++(address caller)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManaged-AccessManagedRequiredDelay-address-uint32-]]
+==== `[.contract-item-name]#++AccessManagedRequiredDelay++#++(address caller, uint32 delay)++` [.item-kind]#error#
+
+[.contract-item]
+[[IAccessManaged-AccessManagedInvalidAuthority-address-]]
+==== `[.contract-item-name]#++AccessManagedInvalidAuthority++#++(address authority)++` [.item-kind]#error#
 
 :constructor: pass:normal[xref:#AccessManaged-constructor-address-[`++constructor++`]]
 :restricted: pass:normal[xref:#AccessManaged-restricted--[`++restricted++`]]
@@ -2631,4 +3354,30 @@ permissions set by the current authority.
 
 Reverts if the caller is not allowed to call the function identified by a selector. Panics if the calldata
 is less than 4 bytes long.
+
+:canCallWithDelay: pass:normal[xref:#AuthorityUtils-canCallWithDelay-address-address-address-bytes4-[`++canCallWithDelay++`]]
+
+[.contract]
+[[AuthorityUtils]]
+=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.0-rc.2/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/manager/AuthorityUtils.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-AuthorityUtils-canCallWithDelay-address-address-address-bytes4-}[`++canCallWithDelay(authority, caller, target, selector)++`]
+
+--
+
+[.contract-item]
+[[AuthorityUtils-canCallWithDelay-address-address-address-bytes4-]]
+==== `[.contract-item-name]#++canCallWithDelay++#++(address authority, address caller, address target, bytes4 selector) → bool immediate, uint32 delay++` [.item-kind]#internal#
+
+Since `AccessManager` implements an extended IAuthority interface, invoking `canCall` with backwards compatibility
+for the preexisting `IAuthority` interface requires special care to avoid reverting on insufficient return data.
+This helper function takes care of invoking `canCall` in a backwards compatible way without reverting.
 
