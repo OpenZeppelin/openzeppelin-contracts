@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.0.0
+## 5.0.0 (2023-10-05)
 
 ### Additions Summary
 
