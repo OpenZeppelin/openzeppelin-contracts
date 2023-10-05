@@ -11,6 +11,7 @@ const { hashOperation } = require('../../helpers/access-manager');
 const AccessManager = artifacts.require('$AccessManager');
 const Governor = artifacts.require('$GovernorTimelockAccessMock');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
+const Ownable = artifacts.require('$Ownable');
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -830,6 +831,66 @@ contract('GovernorTimelockAccess', function (accounts) {
           await this.helper.waitForDeadline();
           const tx = await this.helper.execute();
           expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.mock.address });
+        });
+      });
+
+      describe('operating on an Ownable contract', function () {
+        
+        const method = selector('$_checkOwner()');
+        
+        beforeEach(async function () {
+          this.ownable = await Ownable.new(this.manager.address);
+          this.operation = {
+            target: this.ownable.address,
+            value: '0',
+            data: this.ownable.contract.methods.$_checkOwner().encodeABI(),
+          };
+        });
+
+        it('succeeds with delay', async function () {
+          const roleId = '1';
+          const executionDelay = time.duration.hours(2);
+          const baseDelay = time.duration.hours(1);
+
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.ownable.address, [method], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          this.proposal = await this.helper.setProposal([this.operation], `descr`);
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+          await this.helper.waitForEta();
+          await this.helper.execute(); // Don't revert
+        });
+
+        it('succeeds without delay', async function () {
+          const roleId = '1';
+          const executionDelay = web3.utils.toBN(0);
+          const baseDelay = web3.utils.toBN(0);
+
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.ownable.address, [method], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          this.proposal = await this.helper.setProposal([this.operation], `descr`);
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await this.helper.execute(); // Don't revert
         });
       });
     });
