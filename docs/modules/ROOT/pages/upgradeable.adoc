@@ -50,8 +50,8 @@ async function main() {
 
   const mc = await upgrades.deployProxy(MyCollectible);
 
-  await mc.deployed();
-  console.log("MyCollectible deployed to:", mc.address);
+  await mc.waitForDeployment();
+  console.log("MyCollectible deployed to:", await mc.getAddress());
 }
 
 main();
