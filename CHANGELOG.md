@@ -197,7 +197,7 @@ Custom Governor modules that override internal functions may require modificatio
 
 #### ECDSA and MessageHashUtils
 
-The `ECDSA` library now only include functions for recovering the signer from a given signature. Previously it also included utility methods for producing digests to be used in signing or recovery. These utilities were moved to the `MessageHashUtils` library and should be imported if needed:
+The `ECDSA` library is now focused on signer recovery. Previously it also included utility methods for producing digests to be used with signing or recovery. These utilities have been moved to the `MessageHashUtils` library and should be imported if needed:
 
 ```diff
  import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
