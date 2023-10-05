@@ -126,7 +126,7 @@ interface IAccessManager {
 
     /**
      * @dev Minimum setback for all delay updates, with the exception of execution delays. It
-     * can be increased without setback (and reset via {revokeRole} in the case event of an 
+     * can be increased without setback (and reset via {revokeRole} in the case event of an
      * accidental increase). Defaults to 5 days.
      */
     function minSetback() external view returns (uint32);
