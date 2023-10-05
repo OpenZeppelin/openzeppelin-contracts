@@ -45,7 +45,7 @@ const someAddress = Wallet.generate().getChecksumAddressString();
 
 // This test suite is made using with the following tools:
 //
-// * Predicates: Functions with commmon conditional setups without assertions.
+// * Predicates: Functions with common conditional setups without assertions.
 // * Behaviors: Functions with common assertions.
 //
 // The behavioral tests are built by composing predicates and are used as templates
