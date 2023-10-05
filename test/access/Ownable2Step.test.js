@@ -1,14 +1,13 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { deploy } = require('../helpers/deploy');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
   const owner = accounts.shift();
   const accountA = accounts.shift();
   const accountB = accounts.shift();
-  const ownable2Step = await deploy('$Ownable2Step', [owner.address]);
+  const ownable2Step = await ethers.deployContract('$Ownable2Step', [owner.address]);
   return { accounts, owner, accountA, accountB, ownable2Step };
 }
 

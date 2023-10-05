@@ -1,13 +1,12 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { deploy, getFactory } = require('../helpers/deploy');
 
 async function fixture() {
   const accounts = await ethers.getSigners(); // this is slow :/
   const owner = accounts.shift();
   const other = accounts.shift();
-  const ownable = await deploy('$Ownable', [owner.address]);
+  const ownable = await ethers.deployContract('$Ownable', [owner.address]);
   return { accounts, owner, other, ownable };
 }
 
@@ -19,9 +18,9 @@ describe('Ownable', function () {
   it('rejects zero address for initialOwner', async function () {
     // checking a custom error requires a contract, or at least the interface
     // we can get it from the contract factory
-    const { interface } = await getFactory('$Ownable');
+    const { interface } = await ethers.getContractFactory('$Ownable');
 
-    await expect(deploy('$Ownable', [ethers.ZeroAddress]))
+    await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
       .to.be.revertedWithCustomError({ interface }, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
