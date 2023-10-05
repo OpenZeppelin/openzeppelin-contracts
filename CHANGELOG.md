@@ -4,7 +4,7 @@
 
 ### Additions Summary
 
-This version includes the subsequent contract additions:
+The following contracts and libraries were added:
 
 - `AccessManager`: A consolidated system for managing access control in complex systems.
 	- `AccessManaged`: A module for connecting a contract to an authority in charge of its access control.
