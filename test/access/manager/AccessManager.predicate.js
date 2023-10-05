@@ -9,7 +9,7 @@ const { expectRevertCustomError } = require('../../helpers/customError');
 
 // ============ COMMON PREDICATES ============
 
-const AS_COMMON_IS_EXECUTING = {
+const LIKE_COMMON_IS_EXECUTING = {
   executing() {
     it('succeeds', async function () {
       await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
@@ -26,7 +26,7 @@ const AS_COMMON_IS_EXECUTING = {
   },
 };
 
-const AS_COMMON_GET_ACCESS = {
+const LIKE_COMMON_GET_ACCESS = {
   requiredRoleIsGranted: {
     roleGrantingIsDelayed: {
       callerHasAnExecutionDelay: {
@@ -86,7 +86,7 @@ const AS_COMMON_GET_ACCESS = {
   },
 };
 
-const AS_COMMON_SCHEDULABLE = {
+const LIKE_COMMON_SCHEDULABLE = {
   scheduled: {
     before() {
       it('reverts as AccessManagerNotReady', async function () {
@@ -284,7 +284,7 @@ function testAsDelayedOperation() {
         this.scheduleIn = this.operationDelay; // For testAsSchedulableOperation
       });
 
-      testAsSchedulableOperation(AS_COMMON_SCHEDULABLE);
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
     });
 
     describe('when operation delay is shorter than execution delay', function () {
@@ -294,7 +294,7 @@ function testAsDelayedOperation() {
         this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
       });
 
-      testAsSchedulableOperation(AS_COMMON_SCHEDULABLE);
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
     });
   });
 
@@ -305,7 +305,7 @@ function testAsDelayedOperation() {
       this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
     });
 
-    testAsSchedulableOperation(AS_COMMON_SCHEDULABLE);
+    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
   });
 }
 
@@ -447,9 +447,9 @@ function testAsGetAccess({
 }
 
 module.exports = {
-  AS_COMMON_IS_EXECUTING,
-  AS_COMMON_GET_ACCESS,
-  AS_COMMON_SCHEDULABLE,
+  LIKE_COMMON_IS_EXECUTING,
+  LIKE_COMMON_GET_ACCESS,
+  LIKE_COMMON_SCHEDULABLE,
   testAsClosable,
   testAsDelay,
   testAsSchedulableOperation,

@@ -20,7 +20,7 @@ const {
   shouldBehaveLikeAManagedRestrictedOperation,
 } = require('./AccessManager.behavior');
 const {
-  AS_COMMON_SCHEDULABLE,
+  LIKE_COMMON_SCHEDULABLE,
   testAsClosable,
   testAsDelay,
   testAsSchedulableOperation,
@@ -43,7 +43,7 @@ const Ownable = artifacts.require('$Ownable');
 
 const someAddress = Wallet.generate().getChecksumAddressString();
 
-// This test suite is made using with the following tools:
+// This test suite is made using the following tools:
 //
 // * Predicates: Functions with common conditional setups without assertions.
 // * Behaviors: Functions with common assertions.
@@ -54,8 +54,8 @@ const someAddress = Wallet.generate().getChecksumAddressString();
 // Similarly, unit tests in this suite will use predicates to test subsets of these
 // behaviors and are helped by common assertions provided for some of the predicates.
 //
-// The predicates can be identified by the `testAs*` prefix where as the behaviors
-// are prefixed commonly with `shouldBehave*`. The common assertions for predicates are
+// The predicates can be identified by the `testAs*` prefix while the behaviors
+// are prefixed with `shouldBehave*`. The common assertions for predicates are
 // defined as constants.
 contract('AccessManager', function (accounts) {
   const [admin, manager, guardian, member, user, other] = accounts;
@@ -2298,7 +2298,7 @@ contract('AccessManager', function (accounts) {
                         this.scheduleIn = time.duration.days(21);
                       });
 
-                      testAsSchedulableOperation(AS_COMMON_SCHEDULABLE);
+                      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
                     },
                   },
                   callerHasNoExecutionDelay: {
@@ -2329,7 +2329,7 @@ contract('AccessManager', function (accounts) {
                       this.scheduleIn = time.duration.days(15);
                     });
 
-                    testAsSchedulableOperation(AS_COMMON_SCHEDULABLE);
+                    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
                   },
                   callerHasNoExecutionDelay() {
                     it('succeeds', async function () {
