@@ -215,11 +215,11 @@ The `ECDSA` library is now focused on signer recovery. Previously it also includ
  }
 ```
 
-#### Partial transpilation in upgradeable contracts
+#### Interfaces and libraries in upgradeable contracts
 
-The upgradeable version of the contracts library used to include a variant suffixed with `Upgradeable` for every contract. These variants are produced via transpilation and mainly include changes for dealing with storage that don't apply to libraries and interfaces.
+The upgradeable version of the contracts library used to include a variant suffixed with `Upgradeable` for every contract. These variants, which are produced automatically, mainly include changes for dealing with storage that don't apply to libraries and interfaces.
 
-In favor of their original versions, the library no longer include upgradeable libraries and interfaces. Projects migrating to 5.0 should replace their library and interface imports with their corresponding non-upgradeable version:
+The upgradeable library no longer includes upgradeable variants for libraries and interfaces. Projects migrating to 5.0 should replace their library and interface imports with their corresponding non-upgradeable version:
 
 ```diff
  // Libraries
