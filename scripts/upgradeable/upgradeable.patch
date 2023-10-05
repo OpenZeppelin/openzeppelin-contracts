@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 2797a0889..000000000
+index 2797a088..00000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -26,7 +26,7 @@ index 2797a0889..000000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef29..d343a53d8 100644
+index 4018cef2..d343a53d 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef29..d343a53d8 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c3..000000000
+index ff596b0c..00000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,44 +59,38 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 549891e3f..a6b24078e 100644
+index 9223d6ac..0ac14497 100644
 --- a/README.md
 +++ b/README.md
-@@ -23,6 +23,9 @@
- > [!IMPORTANT]
- > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
+@@ -17,19 +17,22 @@
  
-++> [!NOTE]
-++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
-++
- ## Overview
+ :mage: **Not sure how to get started?** Check out [Contracts Wizard](https://wizard.openzeppelin.com/) — an interactive smart contract generator.
  
- ### Installation
-@@ -30,7 +33,7 @@
- #### Hardhat, Truffle (npm)
++> [!NOTE]
++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
++
+ ## Installation
  
+ ### Hardhat (npm)
  ```
--$ npm install @openzeppelin/contracts
-+$ npm install @openzeppelin/contracts-upgradeable
+-npm install @openzeppelin/contracts
++npm install @openzeppelin/contracts-upgradeable
  ```
  
- #### Foundry (git)
-@@ -42,10 +45,10 @@ $ npm install @openzeppelin/contracts
- > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
- 
+ ### Foundry (git)
  ```
--$ forge install OpenZeppelin/openzeppelin-contracts
-+$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
+-forge install OpenZeppelin/openzeppelin-contracts
++forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
--Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
-+Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.` 
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt` after running `forge install`
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt` after running `forge install`
  
- ### Usage
- 
-@@ -54,10 +57,11 @@ Once installed, you can use the contracts in the library by importing them:
+ > [!NOTE]
+ > `forge install` uses the latest version, but subsequent `forge update` commands will use `master` branch.
+@@ -45,10 +48,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
- pragma solidity ^0.8.20;
+ pragma solidity ^0.8.21;
  
 -import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 +import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -110,7 +104,7 @@ index 549891e3f..a6b24078e 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 9017953ca..f51c1d38b 100644
+index 9017953c..f51c1d38 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -140,7 +134,7 @@ index 9017953ca..f51c1d38b 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 644f6f531..ab8ba05ff 100644
+index 644f6f53..ab8ba05f 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -307,7 +301,7 @@ index 644f6f531..ab8ba05ff 100644
      }
  }
 diff --git a/package.json b/package.json
-index 3a1617c09..97e59c2d9 100644
+index 55a89746..adf1ee63 100644
 --- a/package.json
 +++ b/package.json
 @@ -32,7 +32,7 @@
@@ -320,7 +314,7 @@ index 3a1617c09..97e59c2d9 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index 304d1386a..a1cd63bee 100644
+index 304d1386..a1cd63be 100644
 --- a/remappings.txt
 +++ b/remappings.txt
 @@ -1 +1,2 @@
@@ -328,7 +322,7 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index faf01f1a3..b25171a56 100644
+index faf01f1a..b25171a5 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -47,26 +47,6 @@ contract('EIP712', function (accounts) {

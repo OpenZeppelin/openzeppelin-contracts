@@ -17,12 +17,11 @@
 
 :mage: **Not sure how to get started?** Check out [Contracts Wizard](https://wizard.openzeppelin.com/) — an interactive smart contract generator.
 
-
 ## Installation
 
 ### Hardhat (npm)
 ```
-npm install @openzeppelin/contracts 
+npm install @openzeppelin/contracts
 ```
 
 ### Foundry (git)
