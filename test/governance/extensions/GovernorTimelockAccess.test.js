@@ -835,9 +835,8 @@ contract('GovernorTimelockAccess', function (accounts) {
       });
 
       describe('operating on an Ownable contract', function () {
-        
         const method = selector('$_checkOwner()');
-        
+
         beforeEach(async function () {
           this.ownable = await Ownable.new(this.manager.address);
           this.operation = {

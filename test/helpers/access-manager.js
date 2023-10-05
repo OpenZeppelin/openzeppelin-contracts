@@ -71,7 +71,6 @@ async function scheduleOperation(manager, { caller, target, calldata, delay }) {
 const hashOperation = (caller, target, data) =>
   web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
 
-
 module.exports = {
   buildBaseRoles,
   formatAccess,
@@ -80,5 +79,5 @@ module.exports = {
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
   scheduleOperation,
-  hashOperation
+  hashOperation,
 };
