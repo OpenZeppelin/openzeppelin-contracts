@@ -126,8 +126,8 @@ interface IAccessManager {
 
     /**
      * @dev Minimum setback for all delay updates, with the exception of execution delays. It
-     * can be increased without setback (and in the event of an accidental increase can be reset
-     * via {revokeRole}). Defaults to 5 days.
+     * can be increased without setback (and reset via {revokeRole} in the case event of an 
+     * accidental increase). Defaults to 5 days.
      */
     function minSetback() external view returns (uint32);
 
@@ -189,7 +189,7 @@ interface IAccessManager {
     function hasRole(uint64 roleId, address account) external view returns (bool, uint32);
 
     /**
-     * @dev Give a label to a role, for improved role discoverabily by UIs.
+     * @dev Give a label to a role, for improved role discoverability by UIs.
      *
      * Requirements:
      *
@@ -376,12 +376,12 @@ interface IAccessManager {
     function consumeScheduledOp(address caller, bytes calldata data) external;
 
     /**
-     * @dev Hashing function for delayed operations
+     * @dev Hashing function for delayed operations.
      */
     function hashOperation(address caller, address target, bytes calldata data) external view returns (bytes32);
 
     /**
-     * @dev Change the AccessManager instance used by a contract that correctly uses this instance.
+     * @dev Changes the authority of a target managed by this manager instance.
      *
      * Requirements:
      *
