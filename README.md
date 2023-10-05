@@ -27,7 +27,7 @@
 
 ### Installation
 
-#### Hardhat, Truffle (npm)
+#### Hardhat (npm)
 
 ```
 $ npm install @openzeppelin/contracts
@@ -35,17 +35,17 @@ $ npm install @openzeppelin/contracts
 
 #### Foundry (git)
 
-> [!WARNING]
-> When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
-
-> [!WARNING]
-> Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
-
 ```
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
 
 Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
+
+> [!WARNING]
+> When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
+
+> [!WARNING]
+> Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
 
 ### Usage
 
