@@ -236,7 +236,7 @@ Some changes may affect offchain systems if they rely on assumptions that are ch
 
 ##### Relying on revert strings for processing errors
 
-A concrete example is AccessControl, where it was advised to catch revert reasons using the following regex:
+A concrete example is AccessControl, where it was previously advised to catch revert reasons using the following regex:
 
 ```
 /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
