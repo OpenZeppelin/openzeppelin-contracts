@@ -74,4 +74,4 @@ You may notice that contracts use a struct with the `@custom:storage-location er
 
 Without namespaced storage, it isn't safe to simply add a state variable because it "shifts down" all of the state variables below in the inheritance chain. This makes the storage layouts incompatible, as explained in xref:upgrades-plugins::writing-upgradeable.adoc#modifying-your-contracts[Writing Upgradeable Contracts].
 
-The namespaced storage pattern used in the Upgradeable package allows us to freely add new state variables in the future without compromising the storage compatibility with existing deployments.
+The namespaced storage pattern used in the Upgradeable package allows us to freely add new state variables in the future without compromising the storage compatibility with existing deployments. It also allows changing the inheritance order with no impact on the resulting storage layout, as long as all inherited contracts use namespaced storage.
