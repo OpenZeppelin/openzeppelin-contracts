@@ -22,7 +22,7 @@
 
 ### Hardhat (npm)
 ```
-npm install @openzeppelin/contracts 
+npm install @openzeppelin/contracts
 ```
 
 ### Foundry (git)
