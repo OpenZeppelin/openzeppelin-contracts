@@ -43,9 +43,7 @@ Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappi
 
 > [!WARNING]
 > When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
-
-> [!WARNING]
-> Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+> Note that `forge install` gets the latest version initially, but subsequent `forge update` commands will use the `master` branch.
 
 ### Usage
 
