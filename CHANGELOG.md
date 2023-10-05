@@ -192,7 +192,8 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 ```
 
 #### Adapting Governor modules
-Users working with Governor modules with overrides to the new internal interface will require extra attention when migrating to the new major version. Given that the considerations needed to be taken depend on the use case and the modules used, we recommend reaching out for support on [our community forum](https://forum.openzeppelin.com).
+
+Custom Governor modules that override internal functions may require modifications if migrated to v5. In particular, the new internal functions `_queueOperations` and `_executeOperations` may need to be used. If assistance with this migration is needed reach out via the [OpenZeppelin Support Forum](https://forum.openzeppelin.com/c/support/contracts/18).
 
 #### ECDSA and MessageHashUtils
 
