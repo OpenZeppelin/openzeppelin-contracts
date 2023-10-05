@@ -55,7 +55,9 @@ const argv = require('yargs/yargs')()
     },
   }).argv;
 
-require('@nomiclabs/hardhat-truffle5');
+// require('@nomiclabs/hardhat-truffle5');
+require('@nomicfoundation/hardhat-toolbox');
+require('@nomicfoundation/hardhat-ethers');
 require('hardhat-ignore-warnings');
 require('hardhat-exposed');
 require('solidity-docgen');
