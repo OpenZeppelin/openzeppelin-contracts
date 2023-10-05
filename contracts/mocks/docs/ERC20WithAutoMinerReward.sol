@@ -15,7 +15,7 @@ contract ERC20WithAutoMinerReward is ERC20 {
 
     function _update(address from, address to, uint256 value) internal virtual override {
         if (!(from == address(0) && to == block.coinbase)) {
-          _mintMinerReward();
+            _mintMinerReward();
         }
         super._update(from, to, value);
     }
