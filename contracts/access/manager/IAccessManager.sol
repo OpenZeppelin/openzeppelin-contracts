@@ -73,7 +73,7 @@ interface IAccessManager {
     event TargetFunctionRoleUpdated(address indexed target, bytes4 selector, uint64 indexed roleId);
 
     /**
-     * @dev Admin delay for a given `target` will be updated to `delay` when `since` is reched.
+     * @dev Admin delay for a given `target` will be updated to `delay` when `since` is reached.
      */
     event TargetAdminDelayUpdated(address indexed target, uint32 delay, uint48 since);
 
