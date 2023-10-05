@@ -32,7 +32,11 @@ This directory provides ways to restrict who can access the functions of a contr
 
 {{IAuthority}}
 
+{{IAccessManager}}
+
 {{AccessManager}}
+
+{{IAccessManaged}}
 
 {{AccessManaged}}
 
