@@ -34,9 +34,9 @@ forge install OpenZeppelin/openzeppelin-contracts
 Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt` after running `forge install`
 
 > [!NOTE]
-> `forge install` installs the latest tagged version, but subsequent `forge update` commands will use the `master` branch.
+> `forge install` uses the latest version, but subsequent `forge update` commands will use `master` branch.
 >
-> Be sure to use tagged versions to ensure your code has gone through OpenZeppelin's secure release process.
+> Always use tagged versions to ensure your code has gone through OpenZeppelin's secure release process.
 
 ### Semantic Versioning
 OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility) and check out our [4.x -> 5.0 migration guide](https://zpl.in/contracts/migrate-v4-to-v5).
