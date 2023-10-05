@@ -2,7 +2,7 @@
 
 If your contract is going to be deployed with upgradeability, such as using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins], you will need to use the Upgradeable variant of OpenZeppelin Contracts.
 
-This variant is available as a separate package called `@openzeppelin/contracts-upgradeable`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable[OpenZeppelin/openzeppelin-contracts-upgradeable].
+This variant is available as a separate package called `@openzeppelin/contracts-upgradeable`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable[OpenZeppelin/openzeppelin-contracts-upgradeable]. It uses `@openzeppelin/contracts` as a peer dependency.
 
 It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across minor versions.
 
@@ -13,12 +13,12 @@ TIP: OpenZeppelin provides a full suite of tools for deploying and securing upgr
 === Installation
 
 ```console
-$ npm install @openzeppelin/contracts-upgradeable
+$ npm install @openzeppelin/contracts-upgradeable @openzeppelin/contracts
 ```
 
 === Usage
 
-The package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `Upgradeable`.
+The Upgradeable package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `Upgradeable`.
 
 ```diff
 -import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -27,6 +27,8 @@ The package replicates the structure of the main OpenZeppelin Contracts package,
 -contract MyCollectible is ERC721 {
 +contract MyCollectible is ERC721Upgradeable {
 ```
+
+NOTE: Interfaces and libraries are not included in the Upgradeable package, but are instead imported from the main OpenZeppelin Contracts package.
 
 Constructors are replaced by internal initializer functions following the naming convention `+__{ContractName}_init+`. Since these are internal, you must always define your own public initializer function and call the parent initializer of the contract you extend.
 
