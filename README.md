@@ -1,13 +1,13 @@
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
-*The most widely adopted library for secure smart contract development in Solidity.*
-
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![NPM Downloads](https://img.shields.io/npm/dm/@openzeppelin/contracts.svg?color=purple)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
 [![GitPOAPs](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts)
 [![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-yellow)](https://docs.openzeppelin.com/contracts)
+
+**A library for secure smart contract development.** Build on a solid foundation of community-vetted code.
 
 ## Use Cases
 * Create transferable tokens (e.g. stablecoins) and NFTs using audited and battle-tested implementations of [ERC20](https://docs.openzeppelin.com/contracts/erc20), [ERC721](https://docs.openzeppelin.com/contracts/erc721), and [ERC1155](https://docs.openzeppelin.com/contracts/erc1155).
@@ -44,7 +44,7 @@ OpenZeppelin Contracts uses semantic versioning to communicate backwards compati
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.20;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -56,18 +56,18 @@ contract MyCollectible is ERC721 {
 
 _If you're new to smart contract development, head to [Developing Smart Contracts](https://docs.openzeppelin.com/learn/developing-smart-contracts) to learn about creating a new project and compiling your contracts._
 
-
-### Secure Code
 To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources nor modify it yourself. The library is designed so that only the contracts and functions you use in your code are deployed, ensuring greater gas efficiency.
 
 > [!NOTE]
 > 
-> [OpenZeppelin Defender](https://www.openzeppelin.com/defender) is designed to assist throughout the secure development process. From you securing your codebase with automatic code analysis, to streamlining audit reviews, verifying deployments, and monitoring live contracts with reusable trusted templates, Defender is a full-stack solution for secure smart contract development. Read more about the Code, Audit, Deploy, Monitor, and Actions modules in the [documentation](https://docs.openzeppelin.com/defender/v2/).
+> Expand on Contracts library standards with additional security and performance using [OpenZeppelin Defender](https://www.openzeppelin.com/defender) developer security platform: automated code analysis, verified deployments & upgrades, operations automation, and more!
 
 ## Security
 This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the Solidity ecosystem. We address security through risk management in various areas such as engineering and open source [best practices](./GUIDELINES.md), scoping and API design, multi-layered review processes, and incident response preparedness.
 
-The [OpenZeppelin Contracts Security Center](https://contracts.openzeppelin.com/security) contains more details about the secure development process, including past audits, our bug bounty program, and advanced testing methods such as fuzzing and formal verification.
+The [OpenZeppelin Contracts Security Center](https://contracts.openzeppelin.com/security) contains more details about the secure development process.
+
+The security policy is detailed in [`SECURITY.md`](./SECURITY.md) as well, and specifies how you can report security vulnerabilities, which versions will receive security patches, and how to stay informed about them. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward the responsible disclosure of vulnerabilities.
 
 Smart contracts are a nascent technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts is not a substitute for a security audit. OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
