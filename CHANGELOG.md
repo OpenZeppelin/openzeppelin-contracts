@@ -242,7 +242,7 @@ A concrete example is AccessControl, where it was advised to catch revert reason
 /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
 ```
 
-Instead, systems that interact with smart contracts outside of the network should take a look for any dependence on revert strings.
+Instead, contracts now revert with custom errors. Systems that interact with smart contracts outside of the network should consider reliance on revert strings and possibly support the new custom errors.
 
 ##### Relying on storage locations for retrieving data
 
