@@ -20,7 +20,7 @@ The following contracts and libraries were added:
 ### Removals Summary
 
 The following contracts, libraries, and functions were removed:
-
+ 
 - `Address.isContract` (because of its ambiguous nature and potential for misuse)
 - `Checkpoints.History`
 - `Counters`
@@ -247,7 +247,7 @@ Instead, contracts now revert with custom errors. Systems that interact with sma
 
 ##### Relying on storage locations for retrieving data
 
-After 5.0, both `TransparentUpgradeableProxy` and `BeaconProxy` use immutable variables to avoid unnecessary storage reads on every call. This means that both ERC1967's `BEACON_SLOT` and `ADMIN_SLOT` may no longer reflect the real value if its storage value differs from the immutable one.
+After 5.0, the storage location of some variables were changed. This is the case for `Initializable` and all the upgradeable contracts since they now use namespaced storaged locations. Any system relying on storage locations for retrieving data or detecting capabilities should be updated to support these new locations.
 
 ## 4.9.2 (2023-06-16)
 
