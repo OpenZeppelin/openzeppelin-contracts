@@ -132,7 +132,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         shouldTransferSafely(transferAndCallWithoutData, null);
       });
 
-      describe('testing ERC20 behaviours', function () {
+      describe('testing ERC20 behavior', function () {
         transferWasSuccessful(owner, initialBalance);
       });
 
@@ -324,7 +324,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         shouldTransferFromSafely(transferFromAndCallWithoutData, null);
       });
 
-      describe('testing ERC20 behaviours', function () {
+      describe('testing ERC20 behavior', function () {
         transferFromWasSuccessful(owner, spender, initialBalance);
       });
 
@@ -496,7 +496,7 @@ function shouldBehaveLikeERC1363(initialSupply, accounts) {
         shouldApproveSafely(approveAndCallWithoutData, null);
       });
 
-      describe('testing ERC20 behaviours', function () {
+      describe('testing ERC20 behavior', function () {
         approveWasSuccessful(owner, initialBalance);
       });
 
