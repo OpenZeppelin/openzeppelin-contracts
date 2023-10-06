@@ -180,6 +180,10 @@ In this logic of removing hidden SLOADs, the `_isApprovedOrOwner` function was r
 
 The `_exists` function was removed. Calls to this function can be replaced by `_ownerOf(tokenId) != address(0)`.
 
+#### More about ERC1155
+
+Batch transfers will now emit `TransferSingle` if the batch consists of a single token, while in previous versions the `TransferBatch` event would be used for all transfers initiated through `safeBatchTransferFrom`. Both behaviors are compliant with the ERC-1155 specification.
+
 #### ERC165Storage
 
 Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:

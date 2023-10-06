@@ -104,13 +104,12 @@ interface IERC1155 is IERC165 {
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
      *
-     *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
      * to an untrusted contract, when invoking {onERC1155BatchReceived} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *
-     * Emits a {TransferBatch} event.
+     * Emits either a {TransferSingle} or a {TransferBatch} event, depending on the length of the array arguments.
      *
      * Requirements:
      *
