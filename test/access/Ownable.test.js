@@ -6,7 +6,7 @@ async function fixture() {
   const accounts = await ethers.getSigners(); // this is slow :/
   const owner = accounts.shift();
   const other = accounts.shift();
-  const ownable = await ethers.deployContract('$Ownable', [owner.address]);
+  const ownable = await ethers.deployContract('$Ownable', [owner]);
   return { accounts, owner, other, ownable };
 }
 
@@ -31,7 +31,7 @@ describe('Ownable', function () {
 
   describe('transfer ownership', function () {
     it('changes owner after transfer', async function () {
-      await expect(this.ownable.connect(this.owner).transferOwnership(this.other.address))
+      await expect(this.ownable.connect(this.owner).transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
         .withArgs(this.owner.address, this.other.address);
 
@@ -39,7 +39,7 @@ describe('Ownable', function () {
     });
 
     it('prevents non-owners from transferring', async function () {
-      await expect(this.ownable.connect(this.other).transferOwnership(this.other.address))
+      await expect(this.ownable.connect(this.other).transferOwnership(this.other))
         .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
         .withArgs(this.other.address);
     });
@@ -69,7 +69,7 @@ describe('Ownable', function () {
     it('allows to recover access using the internal _transferOwnership', async function () {
       await this.ownable.connect(this.owner).renounceOwnership();
 
-      await expect(this.ownable.$_transferOwnership(this.other.address))
+      await expect(this.ownable.$_transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
         .withArgs(ethers.ZeroAddress, this.other.address);
 

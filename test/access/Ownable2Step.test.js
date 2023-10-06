@@ -7,7 +7,7 @@ async function fixture() {
   const owner = accounts.shift();
   const accountA = accounts.shift();
   const accountB = accounts.shift();
-  const ownable2Step = await ethers.deployContract('$Ownable2Step', [owner.address]);
+  const ownable2Step = await ethers.deployContract('$Ownable2Step', [owner]);
   return { accounts, owner, accountA, accountB, ownable2Step };
 }
 
@@ -18,7 +18,7 @@ describe('Ownable2Step', function () {
 
   describe('transfer ownership', function () {
     it('starting a transfer does not change owner', async function () {
-      await expect(this.ownable2Step.connect(this.owner).transferOwnership(this.accountA.address))
+      await expect(this.ownable2Step.connect(this.owner).transferOwnership(this.accountA))
         .to.emit(this.ownable2Step, 'OwnershipTransferStarted')
         .withArgs(this.owner.address, this.accountA.address);
 
@@ -27,7 +27,7 @@ describe('Ownable2Step', function () {
     });
 
     it('changes owner after transfer', async function () {
-      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA.address);
+      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA);
 
       await expect(this.ownable2Step.connect(this.accountA).acceptOwnership())
         .to.emit(this.ownable2Step, 'OwnershipTransferred')
@@ -38,7 +38,7 @@ describe('Ownable2Step', function () {
     });
 
     it('guards transfer against invalid user', async function () {
-      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA.address);
+      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA);
 
       await expect(this.ownable2Step.connect(this.accountB).acceptOwnership())
         .to.be.revertedWithCustomError(this.ownable2Step, 'OwnableUnauthorizedAccount')
@@ -59,7 +59,7 @@ describe('Ownable2Step', function () {
     });
 
     it('pending owner resets after renouncing ownership', async function () {
-      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA.address);
+      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA);
       expect(await this.ownable2Step.pendingOwner()).to.equal(this.accountA.address);
 
       await this.ownable2Step.connect(this.owner).renounceOwnership();
@@ -73,7 +73,7 @@ describe('Ownable2Step', function () {
     it('allows to recover access using the internal _transferOwnership', async function () {
       await this.ownable2Step.connect(this.owner).renounceOwnership();
 
-      await expect(this.ownable2Step.$_transferOwnership(this.accountA.address))
+      await expect(this.ownable2Step.$_transferOwnership(this.accountA))
         .to.emit(this.ownable2Step, 'OwnershipTransferred')
         .withArgs(ethers.ZeroAddress, this.accountA.address);
 
