@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import {IERC1363Receiver} from "../../interfaces/IERC1363Receiver.sol";
 
