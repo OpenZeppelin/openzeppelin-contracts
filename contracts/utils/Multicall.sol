@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/Multicall.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/Multicall.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,8 +7,6 @@ import {Address} from "./Address.sol";
 
 /**
  * @dev Provides a function to batch together multiple calls in a single external call.
- *
- * @custom:stateless
  */
 abstract contract Multicall {
     /**

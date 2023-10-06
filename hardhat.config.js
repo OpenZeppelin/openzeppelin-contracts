@@ -8,6 +8,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const proc = require('child_process');
+
 const argv = require('yargs/yargs')()
   .env('')
   .options({
@@ -37,6 +39,11 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    foundry: {
+      alias: 'hasFoundry',
+      type: 'boolean',
+      default: hasFoundry(),
+    },
     compiler: {
       alias: 'compileVersion',
       type: 'string',
@@ -51,8 +58,12 @@ const argv = require('yargs/yargs')()
 require('@nomiclabs/hardhat-truffle5');
 require('hardhat-ignore-warnings');
 require('hardhat-exposed');
-
 require('solidity-docgen');
+argv.foundry && require('@nomicfoundation/hardhat-foundry');
+
+if (argv.foundry && argv.coverage) {
+  throw Error('Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment');
+}
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
@@ -113,4 +124,8 @@ if (argv.gas) {
 if (argv.coverage) {
   require('solidity-coverage');
   module.exports.networks.hardhat.initialBaseFeePerGas = 0;
+}
+
+function hasFoundry() {
+  return proc.spawnSync('forge', ['-V'], { stdio: 'ignore' }).error === undefined;
 }
