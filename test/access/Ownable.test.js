@@ -16,12 +16,8 @@ describe('Ownable', function () {
   });
 
   it('rejects zero address for initialOwner', async function () {
-    // checking a custom error requires a contract, or at least the interface
-    // we can get it from the contract factory
-    const { interface } = await ethers.getContractFactory('$Ownable');
-
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
-      .to.be.revertedWithCustomError({ interface }, 'OwnableInvalidOwner')
+      .to.be.revertedWithCustomError(this.ownable, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
 
