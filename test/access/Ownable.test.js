@@ -17,7 +17,7 @@ describe('Ownable', function () {
 
   it('rejects zero address for initialOwner', async function () {
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
-      .to.be.revertedWithCustomError(this.ownable, 'OwnableInvalidOwner')
+      .to.be.revertedWithCustomError({interface: this.ownable.interface}, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
 
