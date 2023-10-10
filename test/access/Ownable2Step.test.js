@@ -3,17 +3,16 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const accounts = await ethers.getSigners();
-  const owner = accounts.shift();
-  const accountA = accounts.shift();
-  const accountB = accounts.shift();
-  const ownable2Step = await ethers.deployContract('$Ownable2Step', [owner]);
-  return { accounts, owner, accountA, accountB, ownable2Step };
+  this.owner = this.accounts.shift();
+  this.accountA = this.accounts.shift();
+  this.accountB = this.accounts.shift();
+  this.ownable2Step = await ethers.deployContract('$Ownable2Step', [this.owner]);
 }
 
-describe('Ownable2Step', function () {
+describe('Ownable2Step', function (_, accounts) {
   beforeEach(async function () {
-    await loadFixture(fixture).then(results => Object.assign(this, results));
+    this.accounts = accounts;
+    await loadFixture(fixture.bind(this));
   });
 
   describe('transfer ownership', function () {

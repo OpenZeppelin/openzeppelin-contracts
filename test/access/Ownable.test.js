@@ -3,16 +3,15 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const accounts = await ethers.getSigners(); // this is slow :/
-  const owner = accounts.shift();
-  const other = accounts.shift();
-  const ownable = await ethers.deployContract('$Ownable', [owner]);
-  return { accounts, owner, other, ownable };
+  this.owner = this.accounts.shift();
+  this.other = this.accounts.shift();
+  this.ownable = await ethers.deployContract('$Ownable', [this.owner]);
 }
 
-describe('Ownable', function () {
+contract('Ownable', function (_, signers) {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    this.accounts = signers;
+    await loadFixture(fixture.bind(this));
   });
 
   it('rejects zero address for initialOwner', async function () {

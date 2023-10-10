@@ -1,4 +1,6 @@
-extendEnvironment(env => {
+extendEnvironment(async env => {
+  const signers = await env.ethers.getSigners();
+
   const { contract } = env;
 
   env.contract = function (name, body) {
@@ -19,7 +21,7 @@ extendEnvironment(env => {
       // remove the default account from the accounts list used in tests, in order
       // to protect tests against accidentally passing due to the contract
       // deployer being used subsequently as function caller
-      body(accounts.slice(1));
+      body(accounts.slice(1), signers.slice(1));
     });
   };
 });
