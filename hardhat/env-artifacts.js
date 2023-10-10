@@ -1,14 +1,23 @@
 const { HardhatError } = require('hardhat/internal/core/errors');
 
-// Extends a require artifact function to try with the Upgradeable variants.
-function tryRequireUpgradableVariantsWith(originalRequire) {
-  return function (name) {
-    for (const suffix of ['UpgradeableWithInit', 'Upgradeable', '']) {
+function isExpectedError(e, suffix) {
+  // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
+  return HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '';
+}
+
+// Modifies the artifact require functions so that instead of X it loads the XUpgradeable contract.
+// This allows us to run the same test suite on both the original and the transpiled and renamed Upgradeable contracts.
+extendEnvironment(env => {
+  const suffixes = ['UpgradeableWithInit', 'Upgradeable', ''];
+
+  // Truffe (deprecated)
+  const originalRequire = env.artifacts.require;
+  env.artifacts.require = function (name) {
+    for (const suffix of suffixes) {
       try {
         return originalRequire.call(this, name + suffix);
       } catch (e) {
-        // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
-        if (HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '') {
+        if (isExpectedError(e, suffix)) {
           continue;
         } else {
           throw e;
@@ -17,15 +26,21 @@ function tryRequireUpgradableVariantsWith(originalRequire) {
     }
     throw new Error('Unreachable');
   };
-}
 
-// Modifies the artifact require functions so that instead of X it loads the XUpgradeable contract.
-// This allows us to run the same test suite on both the original and the transpiled and renamed Upgradeable contracts.
-extendEnvironment(env => {
-  for (const require of [
-    'require', // Truffle (Deprecated)
-    'readArtifact', // Ethers
-  ]) {
-    env.artifacts[require] = tryRequireUpgradableVariantsWith(env.artifacts[require]);
-  }
+  // Ethers
+  const originalReadArtifact = env.artifacts.readArtifact;
+  env.artifacts.readArtifact = async function (name) {
+    for (const suffix of suffixes) {
+      try {
+        return await originalReadArtifact.call(this, name + suffix);
+      } catch (e) {
+        if (isExpectedError(e, suffix)) {
+          continue;
+        } else {
+          throw e;
+        }
+      }
+    }
+    throw new Error('Unreachable');
+  };
 });
