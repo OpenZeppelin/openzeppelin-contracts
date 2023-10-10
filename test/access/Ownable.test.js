@@ -12,7 +12,7 @@ async function fixture() {
 
 describe('Ownable', function () {
   beforeEach(async function () {
-    await loadFixture(fixture).then(results => Object.assign(this, results));
+    Object.assign(this, await loadFixture(fixture)); 
   });
 
   it('rejects zero address for initialOwner', async function () {
