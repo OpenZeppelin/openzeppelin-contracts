@@ -12,12 +12,12 @@ async function fixture() {
 
 describe('Ownable', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture)); 
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('rejects zero address for initialOwner', async function () {
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
-      .to.be.revertedWithCustomError({interface: this.ownable.interface}, 'OwnableInvalidOwner')
+      .to.be.revertedWithCustomError({ interface: this.ownable.interface }, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
 
