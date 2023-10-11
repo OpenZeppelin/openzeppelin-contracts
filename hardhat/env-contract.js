@@ -6,30 +6,27 @@
 // - the accounts (and signersAsPromise) parameters of `contract` blocks
 // - the return of hre.ethers.getSigners()
 extendEnvironment(hre => {
-  // cache old version
-  const { contract } = hre;
-  const { getSigners } = hre.ethers;
-
-  // cache the signer list, so that its resolved only once.
-  const filteredSignersAsPromise = getSigners().then(signers => signers.slice(1));
-
   // override hre.ethers.getSigner()
+  const originalGetSigners = hre.ethers.getSigners;
+  const filteredSignersAsPromise = originalGetSigners().then(signers => signers.slice(1));
   hre.ethers.getSigners = () => filteredSignersAsPromise;
 
   // override hre.contract
-  hre.contract = (name, body) => {
-    const { takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
-
-    contract(name, accounts => {
-      // reset the state of the chain in between contract test suites
-      // TODO: this should be removed when migration to ethers is over
+  const originalContract = hre.contract;
+  hre.contract = function (name, body) {
+    originalContract.call(this, name, accounts => {
       let snapshot;
 
       before(async function () {
+        // reset the state of the chain in between contract test suites
+        // TODO: this should be removed when migration to ethers is over
+        const { takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
         snapshot = await takeSnapshot();
       });
 
       after(async function () {
+        // reset the state of the chain in between contract test suites
+        // TODO: this should be removed when migration to ethers is over
         await snapshot.restore();
       });
 
