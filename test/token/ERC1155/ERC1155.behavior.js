@@ -896,7 +896,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
     });
 
-    shouldSupportInterfaces(['ERC165', 'ERC1155']);
+    shouldSupportInterfaces(['ERC165', 'ERC1155', 'ERC1155MetadataURI']);
   });
 }
 
