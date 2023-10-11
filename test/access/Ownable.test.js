@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-contract('Ownable', function (_, signers) {
+contract('Ownable', function (_, signersAsPromise) {
   async function fixture() {
-    const [owner, other] = await signers;
+    const [owner, other] = await signersAsPromise;
     const ownable = await ethers.deployContract('$Ownable', [owner]);
     return { owner, other, ownable };
   }
