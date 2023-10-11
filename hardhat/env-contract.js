@@ -13,6 +13,7 @@ extendEnvironment(env => {
       // to protect tests against accidentally passing due to the contract
       // deployer being used subsequently as function caller
       const filteredAccounts = accounts.slice(1);
+      const filteredSigners = signers.then(signers => signers.slice(1));
 
       before(async function () {
         snapshot = await takeSnapshot();
@@ -22,7 +23,7 @@ extendEnvironment(env => {
         await snapshot.restore();
       });
 
-      body(filteredAccounts, signers);
+      body(filteredAccounts, filteredSigners);
     });
   };
 });
