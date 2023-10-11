@@ -1,19 +1,29 @@
-extendEnvironment(env => {
-  const { contract } = env;
+// Remove the default account from the accounts list used in tests, in order
+// to protect tests against accidentally passing due to the contract
+// deployer being used subsequently as function caller
+//
+// This operation affects:
+// - the accounts (and signersAsPromise) parameters of `contract` blocks
+// - the return of hre.ethers.getSigners()
+extendEnvironment(hre => {
+  // cache old version
+  const { contract } = hre;
+  const { getSigners } = hre.ethers;
 
-  const signers = env.ethers.getSigners();
+  // cache the signer list, so that its resolved only once.
+  const filteredSignersAsPromise = getSigners().then(signers => signers.slice(1));
 
-  env.contract = function (name, body) {
+  // override hre.ethers.getSigner()
+  hre.ethers.getSigners = () => filteredSignersAsPromise;
+
+  // override hre.contract
+  hre.contract = (name, body) => {
     const { takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
 
     contract(name, accounts => {
       // reset the state of the chain in between contract test suites
+      // TODO: this should be removed when migration to ethers is over
       let snapshot;
-      // remove the default account from the accounts list used in tests, in order
-      // to protect tests against accidentally passing due to the contract
-      // deployer being used subsequently as function caller
-      const filteredAccounts = accounts.slice(1);
-      const filteredSigners = signers.then(signers => signers.slice(1));
 
       before(async function () {
         snapshot = await takeSnapshot();
@@ -23,7 +33,7 @@ extendEnvironment(env => {
         await snapshot.restore();
       });
 
-      body(filteredAccounts, filteredSigners);
+      body(accounts.slice(1), filteredSignersAsPromise);
     });
   };
 });
