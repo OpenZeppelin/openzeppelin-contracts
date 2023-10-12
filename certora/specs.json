@@ -101,5 +101,10 @@
     "contract": "TimelockControllerHarness",
     "files": ["certora/harnesses/TimelockControllerHarness.sol"],
     "options": ["--optimistic_hashing", "--optimistic_loop"]
+  },
+  {
+    "spec": "Nonces",
+    "contract": "NoncesHarness",
+    "files": ["certora/harnesses/NoncesHarness.sol"]
   }
 ]
