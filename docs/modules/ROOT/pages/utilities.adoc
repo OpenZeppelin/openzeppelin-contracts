@@ -84,7 +84,7 @@ If you need support for more powerful structures than Solidity's native arrays a
 - xref:api:utils.adoc#EnumerableSet[`EnumerableSet`],
 - xref:api:utils.adoc#EnumerableMap[`EnumerableMap`].
 
-They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
+The "enumerable" structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
 [[misc]]
 == Misc
