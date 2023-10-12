@@ -22,24 +22,24 @@ function nonceSanity(address account) returns bool {
 */
 rule useNonce(address account) {
     require nonceSanity(account);
+
+    address other;
+
     mathint nonceBefore = nonces(account);
-    
-    address another;
-    mathint anotherNonceBefore = nonces(another);
+    mathint otherNonceBefore = nonces(other);
     
     mathint nonceUsed = useNonce@withrevert(account);
-    bool success = !lastReverted;
+    // liveness
+    assert !lastReverted, "doesn't revert";
 
     mathint nonceAfter = nonces(account);
-
-    // liveness
-    assert success, "doesn't revert";
+    mathint otherNonceAfter = nonces(other);
 
     // effect
     assert nonceAfter == nonceBefore + 1 && nonceBefore == nonceUsed, "nonce is used";
 
     // no side effect
-    assert anotherNonceBefore == to_mathint(nonces(another)) || another == account, "no other nonce is used";
+    assert otherNonceBefore != otherNonceAfter => other == account, "no other nonce is used";
 }
 
 /*
@@ -49,15 +49,17 @@ rule useNonce(address account) {
 */
 rule useCheckedNonce(address account, uint256 currentNonce) {
     require nonceSanity(account);
-    mathint nonceBefore = nonces(account);
+    
+    address other;
 
-    address another;
-    mathint anotherNonceBefore = nonces(another);
+    mathint nonceBefore = nonces(account);
+    mathint otherNonceBefore = nonces(other);
     
     mathint nonceUsed = useCheckedNonce@withrevert(account, currentNonce);
     bool success = !lastReverted;
 
     mathint nonceAfter = nonces(account);
+    mathint otherNonceAfter = nonces(other);
 
     // liveness
     assert success <=> to_mathint(currentNonce) == nonceBefore, "works iff current nonce is correct";
@@ -67,7 +69,7 @@ rule useCheckedNonce(address account, uint256 currentNonce) {
       "nonce is used";
 
     // no side effect
-    assert anotherNonceBefore == to_mathint(nonces(another)) || another == account, "no other nonce is used";
+    assert notherNonceBefore != otherNonceAfter => another == account, "no other nonce is used";
 }
 
 /*
@@ -75,16 +77,15 @@ rule useCheckedNonce(address account, uint256 currentNonce) {
 │ Rule: nonce only increments                                                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule nonceOnlyIncrements(env e, address account) {
-    require nonpayable(e);
+rule nonceOnlyIncrements(address account) {
     require nonceSanity(account);
 
     mathint nonceBefore = nonces(account);
 
-    method f; calldataarg args;
-    f@withrevert(e, args);
+    env e, method f; calldataarg args;
+    f(e, args);
 
     mathint nonceAfter = nonces(account);
 
-    assert nonceAfter >= nonceBefore, "nonce only increments";
+    assert nonceAfter == nonceBefore || nonceAfter == nonceBefore + 1, "nonce only increments";
 }
