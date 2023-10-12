@@ -8,7 +8,7 @@ contract NoncesHarness is Nonces {
         return _useNonce(account);
     }
 
-    function useCheckedNonce(address account, uint256 nonce) external returns (uint256) {
-        return _useCheckedNonce(account, nonce);
+    function useCheckedNonce(address account, uint256 nonce) external {
+        _useCheckedNonce(account, nonce);
     }
 }

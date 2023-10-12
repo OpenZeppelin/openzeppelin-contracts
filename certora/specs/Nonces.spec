@@ -3,7 +3,7 @@ import "helpers/helpers.spec";
 methods {
     function nonces(address) external returns (uint256) envfree;
     function useNonce(address) external returns (uint256) envfree;
-    function useCheckedNonce(address,uint256) external returns (uint256) envfree;
+    function useCheckedNonce(address,uint256) external envfree;
 }
 
 /*
@@ -29,11 +29,13 @@ rule useNonce(address account) {
     mathint otherNonceBefore = nonces(other);
 
     mathint nonceUsed = useNonce@withrevert(account);
-    // liveness
-    assert !lastReverted, "doesn't revert";
+    bool success = !lastReverted;
 
     mathint nonceAfter = nonces(account);
     mathint otherNonceAfter = nonces(other);
+
+    // liveness
+    assert success, "doesn't revert";
 
     // effect
     assert nonceAfter == nonceBefore + 1 && nonceBefore == nonceUsed, "nonce is used";
@@ -55,7 +57,7 @@ rule useCheckedNonce(address account, uint256 currentNonce) {
     mathint nonceBefore = nonces(account);
     mathint otherNonceBefore = nonces(other);
 
-    mathint nonceUsed = useCheckedNonce@withrevert(account, currentNonce);
+    useCheckedNonce@withrevert(account, currentNonce);
     bool success = !lastReverted;
 
     mathint nonceAfter = nonces(account);
@@ -65,8 +67,7 @@ rule useCheckedNonce(address account, uint256 currentNonce) {
     assert success <=> to_mathint(currentNonce) == nonceBefore, "works iff current nonce is correct";
 
     // effect
-    assert success => nonceAfter == nonceBefore + 1 && nonceBefore == nonceUsed,
-      "nonce is used";
+    assert success => nonceAfter == nonceBefore + 1, "nonce is used";
 
     // no side effect
     assert otherNonceBefore != otherNonceAfter => other == account, "no other nonce is used";
