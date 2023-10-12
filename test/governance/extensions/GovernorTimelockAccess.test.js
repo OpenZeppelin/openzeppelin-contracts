@@ -6,18 +6,17 @@ const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/govern
 const { expectRevertCustomError } = require('../../helpers/customError');
 const { clockFromReceipt } = require('../../helpers/time');
 const { selector } = require('../../helpers/methods');
+const { hashOperation } = require('../../helpers/access-manager');
 
 const AccessManager = artifacts.require('$AccessManager');
 const Governor = artifacts.require('$GovernorTimelockAccessMock');
 const AccessManagedTarget = artifacts.require('$AccessManagedTarget');
+const Ownable = artifacts.require('$Ownable');
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
-
-const hashOperation = (caller, target, data) =>
-  web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
 
 contract('GovernorTimelockAccess', function (accounts) {
   const [admin, voter1, voter2, voter3, voter4, other] = accounts;
@@ -245,6 +244,144 @@ contract('GovernorTimelockAccess', function (accounts) {
         }
       });
 
+      it('does not need to queue proposals with no delay', async function () {
+        const roleId = '1';
+
+        const executionDelay = web3.utils.toBN(0);
+        const baseDelay = web3.utils.toBN(0);
+
+        // Set execution delay
+        await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+          from: admin,
+        });
+        await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+        // Set base delay
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.false;
+      });
+
+      it('needs to queue proposals with any delay', async function () {
+        const roleId = '1';
+
+        const delays = [
+          [time.duration.hours(1), time.duration.hours(2)],
+          [time.duration.hours(2), time.duration.hours(1)],
+        ];
+
+        for (const [executionDelay, baseDelay] of delays) {
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          const helper = new GovernorHelper(this.mock, mode);
+          this.proposal = await helper.setProposal(
+            [this.restricted.operation],
+            `executionDelay=${executionDelay.toString()}}baseDelay=${baseDelay.toString()}}`,
+          );
+          await helper.propose();
+          expect(await this.mock.proposalNeedsQueuing(helper.currentProposal.id)).to.be.true;
+        }
+      });
+
+      describe('execution plan', function () {
+        it('returns plan for delayed operations', async function () {
+          const roleId = '1';
+
+          const delays = [
+            [time.duration.hours(1), time.duration.hours(2)],
+            [time.duration.hours(2), time.duration.hours(1)],
+          ];
+
+          for (const [executionDelay, baseDelay] of delays) {
+            // Set execution delay
+            await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+              from: admin,
+            });
+            await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+            // Set base delay
+            await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+            const helper = new GovernorHelper(this.mock, mode);
+            this.proposal = await helper.setProposal(
+              [this.restricted.operation],
+              `executionDelay=${executionDelay.toString()}}baseDelay=${baseDelay.toString()}}`,
+            );
+            await helper.propose();
+            const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
+            const maxDelay = web3.utils.toBN(Math.max(baseDelay.toNumber(), executionDelay.toNumber()));
+            expect(planDelay).to.be.bignumber.eq(maxDelay);
+            expect(indirect).to.deep.eq([true]);
+            expect(withDelay).to.deep.eq([true]);
+          }
+        });
+
+        it('returns plan for not delayed operations', async function () {
+          const roleId = '1';
+
+          const executionDelay = web3.utils.toBN(0);
+          const baseDelay = web3.utils.toBN(0);
+
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          this.proposal = await this.helper.setProposal([this.restricted.operation], `descr`);
+          await this.helper.propose();
+          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
+          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(0));
+          expect(indirect).to.deep.eq([true]);
+          expect(withDelay).to.deep.eq([false]);
+        });
+
+        it('returns plan for an operation ignoring the manager', async function () {
+          await this.mock.$_setAccessManagerIgnored(this.receiver.address, this.restricted.selector, true);
+
+          const roleId = '1';
+
+          const delays = [
+            [time.duration.hours(1), time.duration.hours(2)],
+            [time.duration.hours(2), time.duration.hours(1)],
+          ];
+
+          for (const [executionDelay, baseDelay] of delays) {
+            // Set execution delay
+            await this.manager.setTargetFunctionRole(this.receiver.address, [this.restricted.selector], roleId, {
+              from: admin,
+            });
+            await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+            // Set base delay
+            await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+            const helper = new GovernorHelper(this.mock, mode);
+            this.proposal = await helper.setProposal(
+              [this.restricted.operation],
+              `executionDelay=${executionDelay.toString()}}baseDelay=${baseDelay.toString()}}`,
+            );
+            await helper.propose();
+            const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
+            expect(planDelay).to.be.bignumber.eq(baseDelay);
+            expect(indirect).to.deep.eq([false]);
+            expect(withDelay).to.deep.eq([false]);
+          }
+        });
+      });
+
       describe('base delay only', function () {
         for (const [delay, queue] of [
           [0, true],
@@ -257,10 +394,6 @@ contract('GovernorTimelockAccess', function (accounts) {
             this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
 
             await this.helper.propose();
-            const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-            expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-            expect(indirect).to.deep.eq([false]);
-            expect(withDelay).to.deep.eq([false]);
 
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -286,12 +419,6 @@ contract('GovernorTimelockAccess', function (accounts) {
         this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
 
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-        expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-        expect(indirect).to.deep.eq([false]);
-        expect(withDelay).to.deep.eq([false]);
-
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline();
@@ -317,15 +444,6 @@ contract('GovernorTimelockAccess', function (accounts) {
 
         // Go through all the governance process
         await original.propose();
-        expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
-        const {
-          delay: planDelay,
-          indirect,
-          withDelay,
-        } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
-        expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-        expect(indirect).to.deep.eq([true, false]);
-        expect(withDelay).to.deep.eq([true, false]);
         await original.waitForSnapshot();
         await original.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await original.waitForDeadline();
@@ -367,12 +485,6 @@ contract('GovernorTimelockAccess', function (accounts) {
         this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
 
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-        expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-        expect(indirect).to.deep.eq([true]);
-        expect(withDelay).to.deep.eq([true]);
-
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline();
@@ -417,12 +529,6 @@ contract('GovernorTimelockAccess', function (accounts) {
         );
 
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-        const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-        expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(baseDelay));
-        expect(indirect).to.deep.eq([true, false, false]);
-        expect(withDelay).to.deep.eq([true, false, false]);
-
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline();
@@ -465,12 +571,6 @@ contract('GovernorTimelockAccess', function (accounts) {
           this.proposal = await this.helper.setProposal([this.restricted.operation], 'descr');
 
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(true);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-          expect(indirect).to.deep.eq([true]);
-          expect(withDelay).to.deep.eq([true]);
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
@@ -498,15 +598,6 @@ contract('GovernorTimelockAccess', function (accounts) {
 
           // Go through all the governance process
           await original.propose();
-          expect(await this.mock.proposalNeedsQueuing(original.currentProposal.id)).to.be.eq(true);
-          const {
-            delay: planDelay,
-            indirect,
-            withDelay,
-          } = await this.mock.proposalExecutionPlan(original.currentProposal.id);
-          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN(delay));
-          expect(indirect).to.deep.eq([true]);
-          expect(withDelay).to.deep.eq([true]);
           await original.waitForSnapshot();
           await original.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await original.waitForDeadline();
@@ -548,12 +639,6 @@ contract('GovernorTimelockAccess', function (accounts) {
           this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
 
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(false);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN('0'));
-          expect(indirect).to.deep.eq([false]);
-          expect(withDelay).to.deep.eq([false]);
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
@@ -575,12 +660,6 @@ contract('GovernorTimelockAccess', function (accounts) {
           this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
 
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(false);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN('0'));
-          expect(indirect).to.deep.eq([false]);
-          expect(withDelay).to.deep.eq([false]);
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
@@ -692,12 +771,6 @@ contract('GovernorTimelockAccess', function (accounts) {
           );
 
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(false);
-          const { delay: planDelay, indirect, withDelay } = await this.mock.proposalExecutionPlan(this.proposal.id);
-          expect(planDelay).to.be.bignumber.eq(web3.utils.toBN('0'));
-          expect(indirect).to.deep.eq([]); // Governor operations ignore access manager
-          expect(withDelay).to.deep.eq([]); // Governor operations ignore access manager
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
@@ -738,14 +811,8 @@ contract('GovernorTimelockAccess', function (accounts) {
           await this.manager.setTargetFunctionRole(target, [selector], roleId, { from: admin });
           await this.manager.grantRole(roleId, this.mock.address, 0, { from: admin });
 
-          const proposal = await this.helper.setProposal([{ target, data, value: '0' }], '1');
+          this.proposal = await this.helper.setProposal([{ target, data, value: '0' }], '1');
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(false);
-          const plan = await this.mock.proposalExecutionPlan(proposal.id);
-          expect(plan.delay).to.be.bignumber.eq(web3.utils.toBN('0'));
-          expect(plan.indirect).to.deep.eq([true]);
-          expect(plan.withDelay).to.deep.eq([false]);
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
@@ -757,19 +824,72 @@ contract('GovernorTimelockAccess', function (accounts) {
 
           await this.mock.$_setAccessManagerIgnored(target, selector, true);
 
-          const proposalIgnored = await this.helper.setProposal([{ target, data, value: '0' }], '2');
+          await this.helper.setProposal([{ target, data, value: '0' }], '2');
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.eq(false);
-          const planIgnored = await this.mock.proposalExecutionPlan(proposalIgnored.id);
-          expect(planIgnored.delay).to.be.bignumber.eq(web3.utils.toBN('0'));
-          expect(planIgnored.indirect).to.deep.eq([false]);
-          expect(planIgnored.withDelay).to.deep.eq([false]);
-
           await this.helper.waitForSnapshot();
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
           const tx = await this.helper.execute();
           expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.mock.address });
+        });
+      });
+
+      describe('operating on an Ownable contract', function () {
+        const method = selector('$_checkOwner()');
+
+        beforeEach(async function () {
+          this.ownable = await Ownable.new(this.manager.address);
+          this.operation = {
+            target: this.ownable.address,
+            value: '0',
+            data: this.ownable.contract.methods.$_checkOwner().encodeABI(),
+          };
+        });
+
+        it('succeeds with delay', async function () {
+          const roleId = '1';
+          const executionDelay = time.duration.hours(2);
+          const baseDelay = time.duration.hours(1);
+
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.ownable.address, [method], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          this.proposal = await this.helper.setProposal([this.operation], `descr`);
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+          await this.helper.waitForEta();
+          await this.helper.execute(); // Don't revert
+        });
+
+        it('succeeds without delay', async function () {
+          const roleId = '1';
+          const executionDelay = web3.utils.toBN(0);
+          const baseDelay = web3.utils.toBN(0);
+
+          // Set execution delay
+          await this.manager.setTargetFunctionRole(this.ownable.address, [method], roleId, {
+            from: admin,
+          });
+          await this.manager.grantRole(roleId, this.mock.address, executionDelay, { from: admin });
+
+          // Set base delay
+          await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+          this.proposal = await this.helper.setProposal([this.operation], `descr`);
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.waitForDeadline();
+          await this.helper.execute(); // Don't revert
         });
       });
     });
