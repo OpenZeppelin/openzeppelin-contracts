@@ -86,8 +86,6 @@ Easy!
 [[payment]]
 == Payment
 
-Want to split some payments between multiple people? Maybe you have an app that sends 30% of art purchases to the original creator and 70% of the profits to the current owner; you can build that with xref:api:finance.adoc#PaymentSplitter[`PaymentSplitter`]!
-
 In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website.
 
 [[collections]]
