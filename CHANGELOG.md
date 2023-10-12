@@ -7,20 +7,20 @@
 The following contracts and libraries were added:
 
 - `AccessManager`: A consolidated system for managing access control in complex systems.
-	- `AccessManaged`: A module for connecting a contract to an authority in charge of its access control.
-	- `GovernorTimelockAccess`:  An adapter for time-locking governance proposals using an `AccessManager`.
-	- `AuthorityUtils`: A library of utilities for interacting with authority contracts.
+  - `AccessManaged`: A module for connecting a contract to an authority in charge of its access control.
+  - `GovernorTimelockAccess`: An adapter for time-locking governance proposals using an `AccessManager`.
+  - `AuthorityUtils`: A library of utilities for interacting with authority contracts.
 - `GovernorStorage`: A Governor module that stores proposal details in storage.
 - `ERC2771Forwarder`: An ERC2771 forwarder for meta transactions.
 - `ERC1967Utils`: A library with ERC1967 events, errors and getters.
 - `Nonces`: An abstraction for managing account nonces.
 - `MessageHashUtils`: A library for producing digests for ECDSA operations.
-- `Time`: A library with helpers for manipulating time-related objects. 
+- `Time`: A library with helpers for manipulating time-related objects.
 
 ### Removals Summary
 
 The following contracts, libraries, and functions were removed:
- 
+
 - `Address.isContract` (because of its ambiguous nature and potential for misuse)
 - `Checkpoints.History`
 - `Counters`
@@ -127,7 +127,7 @@ These removals were implemented in the following PRs: [#3637](https://github.com
 - `ERC1155`: Removed check for address zero in `balanceOf`. ([#4263](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4263))
 - `ERC1155`: Optimized array accesses by skipping bounds checking when unnecessary. ([#4300](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4300))
 - `ERC1155`: Bubble errors triggered in the `onERC1155Received` and `onERC1155BatchReceived` hooks. ([#4314](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4314))
-- `ERC1155Supply`: Added a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted across all ids to 2**256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
+- `ERC1155Supply`: Added a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted across all ids to 2\*\*256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
 - `ERC1155Receiver`: Removed in favor of `ERC1155Holder`. ([#4450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4450))
 
 #### Utils
@@ -194,6 +194,27 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 }
 ```
 
+#### SafeMath
+
+Methods in SafeMath superseded by native overflow checks in Solidity 0.8.0 were removed along with operations providing an interface for revert strings. The remaining methods were moved to `utils/Math.sol`.
+
+```diff
+- import "@openzeppelin/contracts/utils/math/SafeMath.sol";
++ import "@openzeppelin/contracts/utils/math/Math.sol";
+
+ function tryOperations(uint256 x, uint256 y) external view {
+-  (bool overflowsAdd, uint256 resultAdd) = SafeMath.tryAdd(x, y);
++  (bool overflowsAdd, uint256 resultAdd) = Math.tryAdd(x, y);
+-  (bool overflowsSub, uint256 resultSub) = SafeMath.trySub(x, y);
++  (bool overflowsSub, uint256 resultSub) = Math.trySub(x, y);
+-  (bool overflowsMul, uint256 resultMul) = SafeMath.tryMul(x, y);
++  (bool overflowsMul, uint256 resultMul) = Math.tryMul(x, y);
+-  (bool overflowsDiv, uint256 resultDiv) = SafeMath.tryDiv(x, y);
++  (bool overflowsDiv, uint256 resultDiv) = Math.tryDiv(x, y);
+   // ...
+ }
+```
+
 #### Adapting Governor modules
 
 Custom Governor modules that override internal functions may require modifications if migrated to v5. In particular, the new internal functions `_queueOperations` and `_executeOperations` may need to be used. If assistance with this migration is needed reach out via the [OpenZeppelin Support Forum](https://forum.openzeppelin.com/c/support/contracts/18).
@@ -209,7 +230,7 @@ The `ECDSA` library is now focused on signer recovery. Previously it also includ
  contract Verifier {
    using ECDSA for bytes32;
 +  using MessageHashUtils for bytes32;
- 
+
    function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
      return data
        .toEthSignedMessageHash()
