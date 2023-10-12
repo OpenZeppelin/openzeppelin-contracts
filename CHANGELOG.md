@@ -71,8 +71,29 @@ Users that were registering EIP-165 interfaces with `_registerInterface` from `E
 
 ```solidity
 function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+  return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
 }
+```
+
+#### SafeMath
+
+Methods in SafeMath superseded by native overflow checks in Solidity 0.8.0 were removed along with operations providing an interface for revert strings. The remaining methods were moved to `utils/Math.sol`.
+
+```diff
+- import "@openzeppelin/contracts/utils/math/SafeMath.sol";
++ import "@openzeppelin/contracts/utils/math/Math.sol";
+
+ function tryOperations(uint256 x, uint256 y) external {
+-  (bool overflowsAdd, uint256 resultAdd) = SafeMath.tryAdd(x, y);
++  (bool overflowsAdd, uint256 resultAdd) = Math.tryAdd(x, y);
+-  (bool overflowsSub, uint256 resultSub) = SafeMath.trySub(x, y);
++  (bool overflowsSub, uint256 resultSub) = Math.trySub(x, y);
+-  (bool overflowsMul, uint256 resultMul) = SafeMath.tryMul(x, y);
++  (bool overflowsMul, uint256 resultMul) = Math.tryMul(x, y);
+-  (bool overflowsDiv, uint256 resultDiv) = SafeMath.tryDiv(x, y);
++  (bool overflowsDiv, uint256 resultDiv) = Math.tryDiv(x, y);
+   // ...
+ }
 ```
 
 ## 4.9.2 (2023-06-16)
