@@ -15,7 +15,7 @@ extendEnvironment(hre => {
   hre.artifacts.require = function (name) {
     for (const suffix of suffixes) {
       try {
-        return originalRequire(name + suffix);
+        return originalRequire.call(this, name + suffix);
       } catch (e) {
         if (isExpectedError(e, suffix)) {
           continue;
