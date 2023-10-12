@@ -34,6 +34,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
+      - name: Compile contracts # TODO: Remove after migrating tests to ethers
+        run: npm run compile
       - name: Run tests and generate gas report
         run: npm run test
       - name: Check linearisation of the inheritance graph
