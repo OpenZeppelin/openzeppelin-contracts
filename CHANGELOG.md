@@ -202,7 +202,7 @@ Methods in SafeMath superseded by native overflow checks in Solidity 0.8.0 were 
 - import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 + import "@openzeppelin/contracts/utils/math/Math.sol";
 
- function tryOperations(uint256 x, uint256 y) external {
+ function tryOperations(uint256 x, uint256 y) external view {
 -  (bool overflowsAdd, uint256 resultAdd) = SafeMath.tryAdd(x, y);
 +  (bool overflowsAdd, uint256 resultAdd) = Math.tryAdd(x, y);
 -  (bool overflowsSub, uint256 resultSub) = SafeMath.trySub(x, y);
