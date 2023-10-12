@@ -68,30 +68,15 @@ contract MyContract {
 }
 ----
 
-[[math]]
-== Math
-
-The most popular math related library OpenZeppelin Contracts provides is xref:api:utils.adoc#SafeMath[`SafeMath`], which provides mathematical functions that protect your contract from overflows and underflows.
-
-Include the contract with `using SafeMath for uint256;` and then call the functions:
-
-* `myNumber.add(otherNumber)`
-* `myNumber.sub(otherNumber)`
-* `myNumber.div(otherNumber)`
-* `myNumber.mul(otherNumber)`
-* `myNumber.mod(otherNumber)`
-
-Easy!
-
 [[payment]]
 == Payment
 
 In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website.
 
-[[collections]]
-== Collections
+[[structures]]
+== Structures
 
-If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`] and xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]. They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
+If you need support for more powerful structures than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`] and xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]. They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
 [[misc]]
 == Misc
