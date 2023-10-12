@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
 pragma solidity ^0.8.20;
 
@@ -45,7 +45,6 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum numerator at a specific timepoint. See {quorumDenominator}.
      */
     function quorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
-        // If history is empty, fallback to old storage
         uint256 length = _quorumNumeratorHistory._checkpoints.length;
 
         // Optimistic search, check the latest checkpoint

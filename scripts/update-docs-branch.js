@@ -21,8 +21,10 @@ if (!match) {
   process.exit(1);
 }
 
-if (/-.*$/.test(require('../package.json').version)) {
-  console.error('Refusing to update docs: prerelease detected');
+const pkgVersion = require('../package.json').version;
+
+if (pkgVersion.includes('-') && !pkgVersion.includes('.0.0-')) {
+  console.error('Refusing to update docs: non-major prerelease detected');
   process.exit(0);
 }
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -78,7 +78,8 @@ library Strings {
     }
 
     /**
-     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
+     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal
+     * representation.
      */
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), ADDRESS_LENGTH);

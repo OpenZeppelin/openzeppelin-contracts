@@ -1,15 +1,15 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
+require('@openzeppelin/test-helpers');
 
 const { shouldBehaveLikeERC2981 } = require('../../common/ERC2981.behavior');
 
 const ERC721Royalty = artifacts.require('$ERC721Royalty');
 
 contract('ERC721Royalty', function (accounts) {
-  const [account1, account2] = accounts;
-  const tokenId1 = new BN('1');
-  const tokenId2 = new BN('2');
-  const royalty = new BN('200');
-  const salePrice = new BN('1000');
+  const [account1, account2, recipient] = accounts;
+  const tokenId1 = web3.utils.toBN('1');
+  const tokenId2 = web3.utils.toBN('2');
+  const royalty = web3.utils.toBN('200');
+  const salePrice = web3.utils.toBN('1000');
 
   beforeEach(async function () {
     this.token = await ERC721Royalty.new('My Token', 'TKN');
@@ -25,15 +25,21 @@ contract('ERC721Royalty', function (accounts) {
 
   describe('token specific functions', function () {
     beforeEach(async function () {
-      await this.token.$_setTokenRoyalty(tokenId1, account1, royalty);
+      await this.token.$_setTokenRoyalty(tokenId1, recipient, royalty);
     });
 
-    it('removes royalty information after burn', async function () {
+    it('royalty information are kept during burn and re-mint', async function () {
       await this.token.$_burn(tokenId1);
-      const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
-      expect(tokenInfo[0]).to.be.equal(constants.ZERO_ADDRESS);
-      expect(tokenInfo[1]).to.be.bignumber.equal(new BN('0'));
+      const tokenInfoA = await this.token.royaltyInfo(tokenId1, salePrice);
+      expect(tokenInfoA[0]).to.be.equal(recipient);
+      expect(tokenInfoA[1]).to.be.bignumber.equal(salePrice.mul(royalty).divn(1e4));
+
+      await this.token.$_mint(account2, tokenId1);
+
+      const tokenInfoB = await this.token.royaltyInfo(tokenId1, salePrice);
+      expect(tokenInfoB[0]).to.be.equal(recipient);
+      expect(tokenInfoB[1]).to.be.bignumber.equal(salePrice.mul(royalty).divn(1e4));
     });
   });
 

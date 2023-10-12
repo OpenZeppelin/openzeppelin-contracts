@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/ShortStrings.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/ShortStrings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -107,7 +107,8 @@ library ShortStrings {
     }
 
     /**
-     * @dev Return the length of a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+     * @dev Return the length of a string that was encoded to `ShortString` or written to storage using
+     * {setWithFallback}.
      *
      * WARNING: This will return the "byte length" of the string. This may not reflect the actual length in terms of
      * actual characters as the UTF-8 encoding of a single character can span over multiple bytes.

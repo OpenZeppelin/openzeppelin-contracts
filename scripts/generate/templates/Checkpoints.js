@@ -38,7 +38,8 @@ struct ${opts.checkpointTypeName} {
  *
  * Returns previous value and new value.
  * 
- * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the library.
+ * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
+ * library.
  */
 function push(
     ${opts.historyTypeName} storage self,
@@ -49,7 +50,8 @@ function push(
 }
 
 /**
- * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+ * there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -58,7 +60,8 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * if there is none.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -67,9 +70,11 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * if there is none.
  *
- * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+ * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+ * keys).
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -169,8 +174,9 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\` if there is none.
- * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
+ * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
@@ -192,8 +198,9 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or \`high\` if there is none.
- * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
+ * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
+ * \`high\` if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and
+ * exclusive \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */

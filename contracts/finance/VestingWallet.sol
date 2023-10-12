@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
@@ -24,8 +24,8 @@ import {Ownable} from "../access/Ownable.sol";
  * counterfactually deployed contract, 2) there is likely to be a migration path for EOAs to become contracts in the
  * near future.
  *
- * NOTE: When using this contract with any token whose balance is adjusted automatically (i.e. a rebase token), make sure
- * to account the supply/balance adjustment in the vesting schedule to ensure the vested amount is as intended.
+ * NOTE: When using this contract with any token whose balance is adjusted automatically (i.e. a rebase token), make
+ * sure to account the supply/balance adjustment in the vesting schedule to ensure the vested amount is as intended.
  */
 contract VestingWallet is Context, Ownable {
     event EtherReleased(uint256 amount);

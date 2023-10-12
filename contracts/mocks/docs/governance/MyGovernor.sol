@@ -40,6 +40,12 @@ contract MyGovernor is
         return super.state(proposalId);
     }
 
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view virtual override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.proposalNeedsQueuing(proposalId);
+    }
+
     function _queueOperations(
         uint256 proposalId,
         address[] memory targets,

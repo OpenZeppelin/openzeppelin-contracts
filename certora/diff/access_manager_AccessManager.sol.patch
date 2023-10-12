@@ -1,0 +1,97 @@
+--- access/manager/AccessManager.sol	2023-10-05 12:17:09.694051809 -0300
++++ access/manager/AccessManager.sol	2023-10-05 12:26:18.498688718 -0300
+@@ -6,7 +6,6 @@
+ import {IAccessManaged} from "./IAccessManaged.sol";
+ import {Address} from "../../utils/Address.sol";
+ import {Context} from "../../utils/Context.sol";
+-import {Multicall} from "../../utils/Multicall.sol";
+ import {Math} from "../../utils/math/Math.sol";
+ import {Time} from "../../utils/types/Time.sol";
+ 
+@@ -57,7 +56,8 @@
+  * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
+  * {{AccessControl-renounceRole}}.
+  */
+-contract AccessManager is Context, Multicall, IAccessManager {
++// NOTE: The FV version of this contract doesn't include Multicall because CVL HAVOCs on any `delegatecall`.
++contract AccessManager is Context, IAccessManager {
+     using Time for *;
+ 
+     // Structure that stores the details for a target contract.
+@@ -105,7 +105,7 @@
+ 
+     // Used to identify operations that are currently being executed via {execute}.
+     // This should be transient storage when supported by the EVM.
+-    bytes32 private _executionId;
++    bytes32 internal _executionId; // private → internal for FV
+ 
+     /**
+      * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
+@@ -253,6 +253,11 @@
+         _setGrantDelay(roleId, newDelay);
+     }
+ 
++    // Exposed for FV
++    function _getTargetAdminDelayFull(address target) internal view virtual returns (uint32, uint32, uint48) {
++        return _targets[target].adminDelay.getFull();
++    }
++
+     /**
+      * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
+      *
+@@ -287,6 +292,11 @@
+         return newMember;
+     }
+ 
++    // Exposed for FV
++    function _getRoleGrantDelayFull(uint64 roleId) internal view virtual returns (uint32, uint32, uint48) {
++        return _roles[roleId].grantDelay.getFull();
++    }
++
+     /**
+      * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
+      * Returns true if the role was previously granted.
+@@ -586,7 +596,7 @@
+     /**
+      * @dev Check if the current call is authorized according to admin logic.
+      */
+-    function _checkAuthorized() private {
++    function _checkAuthorized() internal virtual { // private → internal virtual for FV
+         address caller = _msgSender();
+         (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+         if (!immediate) {
+@@ -609,7 +619,7 @@
+      */
+     function _getAdminRestrictions(
+         bytes calldata data
+-    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
++    ) internal view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) { // private → internal for FV
+         if (data.length < 4) {
+             return (false, 0, 0);
+         }
+@@ -662,7 +672,7 @@
+         address caller,
+         address target,
+         bytes calldata data
+-    ) private view returns (bool immediate, uint32 delay) {
++    ) internal view returns (bool immediate, uint32 delay) { // private → internal for FV
+         if (target == address(this)) {
+             return _canCallSelf(caller, data);
+         } else {
+@@ -716,14 +726,14 @@
+     /**
+      * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
+      */
+-    function _checkSelector(bytes calldata data) private pure returns (bytes4) {
++    function _checkSelector(bytes calldata data) internal pure returns (bytes4) { // private → internal for FV
+         return bytes4(data[0:4]);
+     }
+ 
+     /**
+      * @dev Hashing function for execute protection
+      */
+-    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
++    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) { // private → internal for FV
+         return keccak256(abi.encode(target, selector));
+     }
+ }

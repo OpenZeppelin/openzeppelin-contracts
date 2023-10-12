@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.20;
 
@@ -40,11 +40,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
 
     string private _name;
     string private _symbol;
-
-    /**
-     * @dev Indicates a failed `decreaseAllowance` request.
-     */
-    error ERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -184,8 +179,9 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
-     * @dev Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-     * the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+     * @dev Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from`
+     * (or `to`) is the zero address. All customizations to transfers, mints, and burns should be done by overriding
+     * this function.
      *
      * Emits a {Transfer} event.
      */
@@ -275,8 +271,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * `_spendAllowance` during the `transferFrom` operation set the flag to false. This saves gas by not emitting any
      * `Approval` event during `transferFrom` operations.
      *
-     * Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to true
-     * using the following override:
+     * Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to
+     * true using the following override:
      * ```
      * function _approve(address owner, address spender, uint256 value, bool) internal virtual override {
      *     super._approve(owner, spender, value, true);
@@ -304,7 +300,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
      *
-     * Might emit an {Approval} event.
+     * Does not emit an {Approval} event.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
