@@ -27,7 +27,7 @@ rule useNonce(address account) {
 
     mathint nonceBefore = nonces(account);
     mathint otherNonceBefore = nonces(other);
-    
+
     mathint nonceUsed = useNonce@withrevert(account);
     // liveness
     assert !lastReverted, "doesn't revert";
@@ -49,12 +49,12 @@ rule useNonce(address account) {
 */
 rule useCheckedNonce(address account, uint256 currentNonce) {
     require nonceSanity(account);
-    
+
     address other;
 
     mathint nonceBefore = nonces(account);
     mathint otherNonceBefore = nonces(other);
-    
+
     mathint nonceUsed = useCheckedNonce@withrevert(account, currentNonce);
     bool success = !lastReverted;
 
@@ -65,11 +65,11 @@ rule useCheckedNonce(address account, uint256 currentNonce) {
     assert success <=> to_mathint(currentNonce) == nonceBefore, "works iff current nonce is correct";
 
     // effect
-    assert success => nonceAfter == nonceBefore + 1 && nonceBefore == nonceUsed, 
+    assert success => nonceAfter == nonceBefore + 1 && nonceBefore == nonceUsed,
       "nonce is used";
 
     // no side effect
-    assert notherNonceBefore != otherNonceAfter => another == account, "no other nonce is used";
+    assert otherNonceBefore != otherNonceAfter => other == account, "no other nonce is used";
 }
 
 /*
@@ -82,7 +82,7 @@ rule nonceOnlyIncrements(address account) {
 
     mathint nonceBefore = nonces(account);
 
-    env e, method f; calldataarg args;
+    env e; method f; calldataarg args;
     f(e, args);
 
     mathint nonceAfter = nonces(account);
