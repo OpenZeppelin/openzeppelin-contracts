@@ -7,6 +7,7 @@
 // - the return of hre.ethers.getSigners()
 extendEnvironment(hre => {
   // override hre.ethers.getSigner()
+  // note that we don't just discard the first signer, we also cache the value to improve speed.
   const originalGetSigners = hre.ethers.getSigners;
   const filteredSignersAsPromise = originalGetSigners().then(signers => signers.slice(1));
   hre.ethers.getSigners = () => filteredSignersAsPromise;
@@ -30,7 +31,7 @@ extendEnvironment(hre => {
         await snapshot.restore();
       });
 
-      body(accounts.slice(1), filteredSignersAsPromise);
+      body(accounts.slice(1));
     });
   };
 });
