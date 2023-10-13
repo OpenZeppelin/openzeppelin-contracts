@@ -13,7 +13,7 @@ async function fixture() {
   };
 }
 
-contract('Ownable2Step', function () {
+describe('Ownable2Step', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

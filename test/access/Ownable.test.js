@@ -8,7 +8,7 @@ async function fixture() {
   return { owner, other, ownable };
 }
 
-contract('Ownable', function () {
+describe('Ownable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
