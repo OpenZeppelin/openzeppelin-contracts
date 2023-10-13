@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/cryptography/SignatureChecker.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./ECDSA.sol";
-import "../../interfaces/IERC1271.sol";
+import {ECDSA} from "./ECDSA.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA
  * signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets like
- * Argent and Gnosis Safe.
- *
- * _Available since v4.1._
+ * Argent and Safe Wallet (previously Gnosis Safe).
  */
 library SignatureChecker {
     /**
@@ -22,7 +20,7 @@ library SignatureChecker {
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        (address recovered, ECDSA.RecoverError error, ) = ECDSA.tryRecover(hash, signature);
         return
             (error == ECDSA.RecoverError.NoError && recovered == signer) ||
             isValidERC1271SignatureNow(signer, hash, signature);
@@ -41,7 +39,7 @@ library SignatureChecker {
         bytes memory signature
     ) internal view returns (bool) {
         (bool success, bytes memory result) = signer.staticcall(
-            abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
+            abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
         );
         return (success &&
             result.length >= 32 &&

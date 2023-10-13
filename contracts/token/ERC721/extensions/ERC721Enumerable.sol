@@ -1,28 +1,37 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Enumerable.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../ERC721.sol";
-import "./IERC721Enumerable.sol";
+import {ERC721} from "../ERC721.sol";
+import {IERC721Enumerable} from "./IERC721Enumerable.sol";
+import {IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
- * @dev This implements an optional extension of {ERC721} defined in the EIP that adds
- * enumerability of all the token ids in the contract as well as all token ids owned by each
- * account.
+ * @dev This implements an optional extension of {ERC721} defined in the EIP that adds enumerability
+ * of all the token ids in the contract as well as all token ids owned by each account.
+ *
+ * CAUTION: `ERC721` extensions that implement custom `balanceOf` logic, such as `ERC721Consecutive`,
+ * interfere with enumerability and should not be used together with `ERC721Enumerable`.
  */
 abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
-    // Mapping from owner to list of owned token IDs
-    mapping(address => mapping(uint256 => uint256)) private _ownedTokens;
+    mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
+    mapping(uint256 tokenId => uint256) private _ownedTokensIndex;
 
-    // Mapping from token ID to index of the owner tokens list
-    mapping(uint256 => uint256) private _ownedTokensIndex;
-
-    // Array with all token ids, used for enumeration
     uint256[] private _allTokens;
+    mapping(uint256 tokenId => uint256) private _allTokensIndex;
 
-    // Mapping from token id to position in the allTokens array
-    mapping(uint256 => uint256) private _allTokensIndex;
+    /**
+     * @dev An `owner`'s token query was out of bounds for `index`.
+     *
+     * NOTE: The owner being `address(0)` indicates a global out of bounds index.
+     */
+    error ERC721OutOfBoundsIndex(address owner, uint256 index);
+
+    /**
+     * @dev Batch mint is not allowed.
+     */
+    error ERC721EnumerableForbiddenBatchMint();
 
     /**
      * @dev See {IERC165-supportsInterface}.
@@ -34,54 +43,48 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        require(index < ERC721.balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
+        if (index >= balanceOf(owner)) {
+            revert ERC721OutOfBoundsIndex(owner, index);
+        }
         return _ownedTokens[owner][index];
     }
 
     /**
      * @dev See {IERC721Enumerable-totalSupply}.
      */
-    function totalSupply() public view virtual override returns (uint256) {
+    function totalSupply() public view virtual returns (uint256) {
         return _allTokens.length;
     }
 
     /**
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
-    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        require(index < ERC721Enumerable.totalSupply(), "ERC721Enumerable: global index out of bounds");
+    function tokenByIndex(uint256 index) public view virtual returns (uint256) {
+        if (index >= totalSupply()) {
+            revert ERC721OutOfBoundsIndex(address(0), index);
+        }
         return _allTokens[index];
     }
 
     /**
-     * @dev See {ERC721-_beforeTokenTransfer}.
+     * @dev See {ERC721-_update}.
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+        address previousOwner = super._update(to, tokenId, auth);
 
-        if (batchSize > 1) {
-            // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert("ERC721Enumerable: consecutive transfers not supported");
-        }
-
-        uint256 tokenId = firstTokenId;
-
-        if (from == address(0)) {
+        if (previousOwner == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
-        } else if (from != to) {
-            _removeTokenFromOwnerEnumeration(from, tokenId);
+        } else if (previousOwner != to) {
+            _removeTokenFromOwnerEnumeration(previousOwner, tokenId);
         }
         if (to == address(0)) {
             _removeTokenFromAllTokensEnumeration(tokenId);
-        } else if (to != from) {
+        } else if (previousOwner != to) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
+
+        return previousOwner;
     }
 
     /**
@@ -90,7 +93,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = ERC721.balanceOf(to);
+        uint256 length = balanceOf(to) - 1;
         _ownedTokens[to][length] = tokenId;
         _ownedTokensIndex[tokenId] = length;
     }
@@ -116,7 +119,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
-        uint256 lastTokenIndex = ERC721.balanceOf(from) - 1;
+        uint256 lastTokenIndex = balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
         // When the token to delete is the last token, the swap operation is unnecessary
@@ -155,5 +158,15 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // This also deletes the contents at the last position of the array
         delete _allTokensIndex[tokenId];
         _allTokens.pop();
+    }
+
+    /**
+     * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
+     */
+    function _increaseBalance(address account, uint128 amount) internal virtual override {
+        if (amount > 0) {
+            revert ERC721EnumerableForbiddenBatchMint();
+        }
+        super._increaseBalance(account, amount);
     }
 }

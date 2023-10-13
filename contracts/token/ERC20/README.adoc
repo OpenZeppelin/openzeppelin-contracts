@@ -15,23 +15,24 @@ There are a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 
+* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
-* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
-* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 * {ERC20Votes}: support for voting and vote delegation.
-* {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
 * {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
 * {ERC4626}: tokenized vault that manages shares (represented as ERC20) that are backed by assets (another ERC20).
 
-Finally, there are some utilities to interact with ERC20 contracts in various ways.
+Finally, there are some utilities to interact with ERC20 contracts in various ways:
 
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
-* {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
-NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+Other utilities that support ERC20 assets can be found in codebase:
+
+* ERC20 tokens can be timelocked (held tokens for a beneficiary until a specified time) or vested (released following a given schedule) using a {VestingWallet}.
+
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
 
 == Core
 
@@ -43,19 +44,17 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
+{{IERC20Permit}}
+
+{{ERC20Permit}}
+
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
 
 {{ERC20Pausable}}
 
-{{ERC20Permit}}
-
-{{ERC20Snapshot}}
-
 {{ERC20Votes}}
-
-{{ERC20VotesComp}}
 
 {{ERC20Wrapper}}
 
@@ -63,16 +62,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC4626}}
 
-== Presets
-
-These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
-
-{{ERC20PresetMinterPauser}}
-
-{{ERC20PresetFixedSupply}}
-
 == Utilities
 
 {{SafeERC20}}
-
-{{TokenTimelock}}

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../utils/Arrays.sol";
+import {Arrays} from "../utils/Arrays.sol";
 
 contract Uint256ArraysMock {
     using Arrays for uint256[];

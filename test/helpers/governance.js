@@ -1,4 +1,6 @@
+const { web3 } = require('hardhat');
 const { forward } = require('../helpers/time');
+const { ProposalState } = require('./enums');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -13,6 +15,9 @@ function concatHex(...args) {
 function concatOpts(args, opts = null) {
   return opts ? args.concat(opts) : args;
 }
+
+const timelockSalt = (address, descriptionHash) =>
+  '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
 class GovernorHelper {
   constructor(governor, mode = 'blocknumber') {
@@ -80,7 +85,7 @@ class GovernorHelper {
           ...concatOpts(proposal.shortProposal, opts),
         );
       default:
-        throw new Error(`unsuported visibility "${visibility}"`);
+        throw new Error(`unsupported visibility "${visibility}"`);
     }
   }
 
@@ -90,26 +95,17 @@ class GovernorHelper {
     return vote.signature
       ? // if signature, and either params or reason →
         vote.params || vote.reason
-        ? vote
-            .signature(this.governor, {
-              proposalId: proposal.id,
-              support: vote.support,
-              reason: vote.reason || '',
-              params: vote.params || '',
-            })
-            .then(({ v, r, s }) =>
-              this.governor.castVoteWithReasonAndParamsBySig(
-                ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params || '', v, r, s], opts),
+        ? this.sign(vote).then(signature =>
+            this.governor.castVoteWithReasonAndParamsBySig(
+              ...concatOpts(
+                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', signature],
+                opts,
               ),
-            )
-        : vote
-            .signature(this.governor, {
-              proposalId: proposal.id,
-              support: vote.support,
-            })
-            .then(({ v, r, s }) =>
-              this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, v, r, s], opts)),
-            )
+            ),
+          )
+        : this.sign(vote).then(signature =>
+            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
+          )
       : vote.params
       ? // otherwise if params
         this.governor.castVoteWithReasonAndParams(
@@ -119,6 +115,23 @@ class GovernorHelper {
       ? // otherwise if reason
         this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
+  }
+
+  sign(vote = {}) {
+    return vote.signature(this.governor, this.forgeMessage(vote));
+  }
+
+  forgeMessage(vote = {}) {
+    const proposal = this.currentProposal;
+
+    const message = { proposalId: proposal.id, support: vote.support, voter: vote.voter, nonce: vote.nonce };
+
+    if (vote.params || vote.reason) {
+      message.reason = vote.reason || '';
+      message.params = vote.params || '';
+    }
+
+    return message;
   }
 
   async waitForSnapshot(offset = 0) {
@@ -196,6 +209,45 @@ class GovernorHelper {
   }
 }
 
+/**
+ * Encodes a list ProposalStates into a bytes32 representation where each bit enabled corresponds to
+ * the underlying position in the `ProposalState` enum. For example:
+ *
+ * 0x000...10000
+ *   ^^^^^^------ ...
+ *         ^----- Succeeded
+ *          ^---- Defeated
+ *           ^--- Canceled
+ *            ^-- Active
+ *             ^- Pending
+ */
+function proposalStatesToBitMap(proposalStates, options = {}) {
+  if (!Array.isArray(proposalStates)) {
+    proposalStates = [proposalStates];
+  }
+  const statesCount = Object.keys(ProposalState).length;
+  let result = 0;
+
+  const uniqueProposalStates = new Set(proposalStates.map(bn => bn.toNumber())); // Remove duplicates
+  for (const state of uniqueProposalStates) {
+    if (state < 0 || state >= statesCount) {
+      expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
+    } else {
+      result |= 1 << state;
+    }
+  }
+
+  if (options.inverted) {
+    const mask = 2 ** statesCount - 1;
+    result = result ^ mask;
+  }
+
+  const hex = web3.utils.numberToHex(result);
+  return web3.utils.padLeft(hex, 64);
+}
+
 module.exports = {
   GovernorHelper,
+  proposalStatesToBitMap,
+  timelockSalt,
 };

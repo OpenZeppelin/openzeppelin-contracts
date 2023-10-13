@@ -63,6 +63,7 @@ contracts-exposed
 
 # Foundry
 /out
+/cache_forge
 
 # Certora
 .certora*

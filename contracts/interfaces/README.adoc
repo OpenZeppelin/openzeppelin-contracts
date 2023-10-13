@@ -8,18 +8,21 @@ These interfaces are available as `.sol` files, and also as compiler `.json` ABI
 are useful to interact with third party contracts that implement them.
 
 - {IERC20}
+- {IERC20Errors}
 - {IERC20Metadata}
 - {IERC165}
 - {IERC721}
 - {IERC721Receiver}
 - {IERC721Enumerable}
 - {IERC721Metadata}
+- {IERC721Errors}
 - {IERC777}
 - {IERC777Recipient}
 - {IERC777Sender}
 - {IERC1155}
 - {IERC1155Receiver}
 - {IERC1155MetadataURI}
+- {IERC1155Errors}
 - {IERC1271}
 - {IERC1363}
 - {IERC1363Receiver}
@@ -39,6 +42,12 @@ are useful to interact with third party contracts that implement them.
 - {IERC6372}
 
 == Detailed ABI
+
+{{IERC20Errors}}
+
+{{IERC721Errors}}
+
+{{IERC1155Errors}}
 
 {{IERC1271}}
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./token/ERC20MulticallMock.sol";
+import {ERC20MulticallMock} from "./token/ERC20MulticallMock.sol";
 
 contract MulticallTest {
     function checkReturnValues(
@@ -12,7 +12,7 @@ contract MulticallTest {
     ) external {
         bytes[] memory calls = new bytes[](recipients.length);
         for (uint256 i = 0; i < recipients.length; i++) {
-            calls[i] = abi.encodeWithSignature("transfer(address,uint256)", recipients[i], amounts[i]);
+            calls[i] = abi.encodeCall(multicallToken.transfer, (recipients[i], amounts[i]));
         }
 
         bytes[] memory results = multicallToken.multicall(calls);

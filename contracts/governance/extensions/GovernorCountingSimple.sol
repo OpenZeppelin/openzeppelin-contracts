@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorCountingSimple.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorCountingSimple.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../Governor.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for simple, 3 options, vote counting.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCountingSimple is Governor {
     /**
@@ -24,10 +22,10 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address => bool) hasVoted;
+        mapping(address voter => bool) hasVoted;
     }
 
-    mapping(uint256 => ProposalVote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
@@ -84,7 +82,9 @@ abstract contract GovernorCountingSimple is Governor {
     ) internal virtual override {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(!proposalVote.hasVoted[account], "GovernorVotingSimple: vote already cast");
+        if (proposalVote.hasVoted[account]) {
+            revert GovernorAlreadyCastVote(account);
+        }
         proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
@@ -94,7 +94,7 @@ abstract contract GovernorCountingSimple is Governor {
         } else if (support == uint8(VoteType.Abstain)) {
             proposalVote.abstainVotes += weight;
         } else {
-            revert("GovernorVotingSimple: invalid value for enum VoteType");
+            revert GovernorInvalidVoteType();
         }
     }
 }

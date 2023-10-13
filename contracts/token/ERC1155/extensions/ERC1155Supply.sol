@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/extensions/ERC1155Supply.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/extensions/ERC1155Supply.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../ERC1155.sol";
+import {ERC1155} from "../ERC1155.sol";
 
 /**
  * @dev Extension of ERC1155 that adds tracking of total supply per id.
@@ -12,52 +12,75 @@ import "../ERC1155.sol";
  * clearly identified. Note: While a totalSupply of 1 might mean the
  * corresponding is an NFT, there is no guarantees that no other token with the
  * same id are not going to be minted.
+ *
+ * NOTE: This contract implies a global limit of 2**256 - 1 to the number of tokens
+ * that can be minted.
+ *
+ * CAUTION: This extension should not be added in an upgrade to an already deployed contract.
  */
 abstract contract ERC1155Supply is ERC1155 {
-    mapping(uint256 => uint256) private _totalSupply;
+    mapping(uint256 id => uint256) private _totalSupply;
+    uint256 private _totalSupplyAll;
 
     /**
-     * @dev Total amount of tokens in with a given id.
+     * @dev Total value of tokens in with a given id.
      */
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return _totalSupply[id];
     }
 
     /**
-     * @dev Indicates whether any token exist with a given id, or not.
+     * @dev Total value of tokens.
      */
-    function exists(uint256 id) public view virtual returns (bool) {
-        return ERC1155Supply.totalSupply(id) > 0;
+    function totalSupply() public view virtual returns (uint256) {
+        return _totalSupplyAll;
     }
 
     /**
-     * @dev See {ERC1155-_beforeTokenTransfer}.
+     * @dev Indicates whether any token exist with a given id, or not.
      */
-    function _beforeTokenTransfer(
-        address operator,
+    function exists(uint256 id) public view virtual returns (bool) {
+        return totalSupply(id) > 0;
+    }
+
+    /**
+     * @dev See {ERC1155-_update}.
+     */
+    function _update(
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory values
     ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        super._update(from, to, ids, values);
 
         if (from == address(0)) {
+            uint256 totalMintValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                _totalSupply[ids[i]] += amounts[i];
+                uint256 value = values[i];
+                // Overflow check required: The rest of the code assumes that totalSupply never overflows
+                _totalSupply[ids[i]] += value;
+                totalMintValue += value;
             }
+            // Overflow check required: The rest of the code assumes that totalSupplyAll never overflows
+            _totalSupplyAll += totalMintValue;
         }
 
         if (to == address(0)) {
+            uint256 totalBurnValue = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                uint256 id = ids[i];
-                uint256 amount = amounts[i];
-                uint256 supply = _totalSupply[id];
-                require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
+                uint256 value = values[i];
+
                 unchecked {
-                    _totalSupply[id] = supply - amount;
+                    // Overflow not possible: values[i] <= balanceOf(from, ids[i]) <= totalSupply(ids[i])
+                    _totalSupply[ids[i]] -= value;
+                    // Overflow not possible: sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
+                    totalBurnValue += value;
                 }
+            }
+            unchecked {
+                // Overflow not possible: totalBurnValue = sum_i(values[i]) <= sum_i(totalSupply(ids[i])) <= totalSupplyAll
+                _totalSupplyAll -= totalBurnValue;
             }
         }
     }

@@ -1,11 +1,11 @@
-import "helpers.spec"
+import "helpers/helpers.spec";
 
 methods {
-    paused() returns (bool) envfree
-    pause()
-    unpause()
-    onlyWhenPaused()
-    onlyWhenNotPaused()
+    function paused() external returns (bool) envfree;
+    function pause() external;
+    function unpause() external;
+    function onlyWhenPaused() external;
+    function onlyWhenNotPaused() external;
 }
 
 /*
@@ -22,7 +22,7 @@ rule pause(env e) {
     bool success = !lastReverted;
 
     bool pausedAfter = paused();
-    
+
     // liveness
     assert success <=> !pausedBefore, "works if and only if the contract was not paused before";
 
@@ -44,7 +44,7 @@ rule unpause(env e) {
     bool success = !lastReverted;
 
     bool pausedAfter = paused();
-    
+
     // liveness
     assert success <=> pausedBefore, "works if and only if the contract was paused before";
 
@@ -71,7 +71,7 @@ rule whenPaused(env e) {
 */
 rule whenNotPaused(env e) {
     require nonpayable(e);
-    
+
     onlyWhenNotPaused@withrevert(e);
     assert !lastReverted <=> !paused(), "works if and only if the contract is not paused";
 }
@@ -90,7 +90,7 @@ rule noPauseChange(env e) {
     bool pausedAfter = paused();
 
     assert pausedBefore != pausedAfter => (
-        (!pausedAfter && f.selector == unpause().selector) ||
-        (pausedAfter && f.selector == pause().selector)
+        (!pausedAfter && f.selector == sig:unpause().selector) ||
+        (pausedAfter && f.selector == sig:pause().selector)
     ), "contract's paused status can only be changed by _pause() or _unpause()";
 }

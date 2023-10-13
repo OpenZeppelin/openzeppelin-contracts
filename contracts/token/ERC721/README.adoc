@@ -30,7 +30,7 @@ Additionally there are a few of other extensions:
 * {ERC721Burnable}: A way for token holders to burn their own tokens.
 * {ERC721Wrapper}: Wrapper to create an ERC721 backed by another ERC721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
 
-NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc721.adoc#Presets[ERC721 Presets] (such as {ERC721PresetMinterPauserAutoId}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
 
 == Core
 
@@ -61,12 +61,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC721Royalty}}
 
 {{ERC721Wrapper}}
-
-== Presets
-
-These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
-
-{{ERC721PresetMinterPauserAutoId}}
 
 == Utilities
 

@@ -2,7 +2,7 @@
 
 ERC1155 is a novel token standard that aims to take the best from previous standards to create a xref:tokens.adoc#different-kinds-of-tokens[*fungibility-agnostic*] and *gas-efficient* xref:tokens.adoc#but_first_coffee_a_primer_on_token_contracts[token contract].
 
-TIP: ERC1155 draws ideas from all of xref:erc20.adoc[ERC20], xref:erc721.adoc[ERC721], and xref:erc777.adoc[ERC777]. If you're unfamiliar with those standards, head to their guides before moving on.
+TIP: ERC1155 draws ideas from all of xref:erc20.adoc[ERC20], xref:erc721.adoc[ERC721], and https://eips.ethereum.org/EIPS/eip-777[ERC777]. If you're unfamiliar with those standards, head to their guides before moving on.
 
 [[multi-token-standard]]
 == Multi Token Standard
@@ -22,9 +22,9 @@ In the spirit of the standard, we've also included batch operations in the non-s
 
 == Constructing an ERC1155 Token Contract
 
-We'll use ERC1155 to track multiple items in our game, which will each have their own unique attributes. We mint all items to the deployer of the contract, which we can later transfer to players. Players are free to keep their tokens or trade them with other people as they see fit, as they would any other asset on the blockchain!  
+We'll use ERC1155 to track multiple items in our game, which will each have their own unique attributes. We mint all items to the deployer of the contract, which we can later transfer to players. Players are free to keep their tokens or trade them with other people as they see fit, as they would any other asset on the blockchain!
 
-For simplicity, we will mint all items in the constructor, but you could add minting functionality to the contract to mint on demand to players. 
+For simplicity, we will mint all items in the constructor, but you could add minting functionality to the contract to mint on demand to players.
 
 TIP: For an overview of minting mechanisms, check out xref:erc20-supply.adoc[Creating ERC20 Supply].
 
@@ -34,9 +34,9 @@ Here's what a contract for tokenized items might look like:
 ----
 // contracts/GameItems.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract GameItems is ERC1155 {
     uint256 public constant GOLD = 0;
@@ -112,7 +112,7 @@ The JSON document for token ID 2 might look something like:
 
 For more information about the metadata JSON Schema, check out the https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema[ERC-1155 Metadata URI JSON Schema].
 
-NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
+NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game!
 
 TIP: If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the URI information, but these techniques are out of the scope of this overview guide
 
@@ -134,20 +134,12 @@ In order for our contract to receive ERC1155 tokens we can inherit from the conv
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 contract MyContract is ERC1155Holder {
 }
 ----
 
 We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] functions.
-
-[[Presets]]
-== Preset ERC1155 contract
-A preset ERC1155 is available, https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.7/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol[`ERC1155PresetMinterPauser`]. It is preset to allow for token minting (create) - including batch minting, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
-
-This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
-
-NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com[Contracts Wizard] as a more powerful alternative.

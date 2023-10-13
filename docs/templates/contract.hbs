@@ -57,6 +57,23 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 --
 {{/if}}
 
+{{#if has-errors}}
+[.contract-index]
+.Errors
+--
+{{#each inheritance}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{name}}
+{{/unless}}
+{{#each errors}}
+* {xref-{{anchor~}} }[`++{{name}}({{names params}})++`]
+{{/each}}
+
+{{/each}}
+--
+{{/if}}
+
 {{#each modifiers}}
 [.contract-item]
 [[{{anchor}}]]
@@ -69,7 +86,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each functions}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}}){{#if returns}} → {{typed-params returns}}{{/if}}++` [.item-kind]#{{visibility}}#
+==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}}){{#if returns2}} → {{typed-params returns2}}{{/if}}++` [.item-kind]#{{visibility}}#
 
 {{{natspec.dev}}}
 
@@ -79,6 +96,15 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 [.contract-item]
 [[{{anchor}}]]
 ==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#event#
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each errors}}
+[.contract-item]
+[[{{anchor}}]]
+==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#error#
 
 {{{natspec.dev}}}
 

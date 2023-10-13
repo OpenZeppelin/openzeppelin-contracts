@@ -22,8 +22,6 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotes}: Extracts voting weight from an {ERC20Votes}, or since v4.5 an {ERC721Votes} token.
 
-* {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
-
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
 
 Counting modules determine valid voting options.
@@ -38,7 +36,7 @@ Timelock extensions add a delay for governance decisions to be executed. The wor
 
 Other extensions can customize the behavior or interface in multiple ways.
 
-* {GovernorCompatibilityBravo}: Extends the interface to be fully `GovernorBravo`-compatible. Note that events are compatible regardless of whether this extension is included or not.
+* {GovernorStorage}: Stores the proposal details onchain and provides enumerability of the proposals. This can be useful for some L2 chains where storage is cheap compared to calldata.
 
 * {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiring an upgrade.
 
@@ -66,8 +64,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorVotesQuorumFraction}}
 
-{{GovernorVotesComp}}
-
 === Extensions
 
 {{GovernorTimelockControl}}
@@ -78,11 +74,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorPreventLateQuorum}}
 
-{{GovernorCompatibilityBravo}}
-
-=== Deprecated
-
-{{GovernorProposalThreshold}}
+{{GovernorStorage}}
 
 == Utils
 
@@ -100,8 +92,9 @@ In a governance system, the {TimelockController} contract is in charge of introd
 * *Operation:* A transaction (or a set of transactions) that is the subject of the timelock. It has to be scheduled by a proposer and executed by an executor. The timelock enforces a minimum delay between the proposition and the execution (see xref:access-control.adoc#operation_lifecycle[operation lifecycle]). If the operation contains multiple transactions (batch mode), they are executed atomically. Operations are identified by the hash of their content.
 * *Operation status:*
 ** *Unset:* An operation that is not part of the timelock mechanism.
-** *Pending:* An operation that has been scheduled, before the timer expires.
+** *Waiting:* An operation that has been scheduled, before the timer expires.
 ** *Ready:* An operation that has been scheduled, after the timer expires.
+** *Pending:* An operation that is either waiting or ready.
 ** *Done:* An operation that has been executed.
 * *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
 * *Role*:
@@ -154,8 +147,6 @@ Operations status can be queried using the functions:
 ===== Admin
 
 The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, the admin role can be granted to any address (in addition to the timelock itself). After further configuration and testing, this optional admin should renounce its role such that all further maintenance operations have to go through the timelock process.
-
-This role is identified by the *TIMELOCK_ADMIN_ROLE* value: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
 
 [[timelock-proposer]]
 ===== Proposer

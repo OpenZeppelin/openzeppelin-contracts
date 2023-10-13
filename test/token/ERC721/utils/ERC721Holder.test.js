@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const ERC721Holder = artifacts.require('ERC721Holder');
+const ERC721Holder = artifacts.require('$ERC721Holder');
 const ERC721 = artifacts.require('$ERC721');
 
 contract('ERC721Holder', function (accounts) {

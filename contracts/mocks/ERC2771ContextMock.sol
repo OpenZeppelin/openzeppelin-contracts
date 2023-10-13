@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
 
-import "./ContextMock.sol";
-import "../metatx/ERC2771Context.sol";
+import {ContextMock} from "./ContextMock.sol";
+import {Context} from "../utils/Context.sol";
+import {ERC2771Context} from "../metatx/ERC2771Context.sol";
 
 // By inheriting from ERC2771Context, Context's internal functions are overridden automatically
 contract ERC2771ContextMock is ContextMock, ERC2771Context {
