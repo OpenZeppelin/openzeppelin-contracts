@@ -5,7 +5,7 @@ const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers'
 async function fixture() {
   const signers = await ethers.getSigners();
   const addresses = await Promise.all(signers.map(s => s.getAddress()));
-  return { signers, addresses }
+  return { signers, addresses };
 }
 
 contract('Environment sanity', function (accounts) {
@@ -25,14 +25,16 @@ contract('Environment sanity', function (accounts) {
   });
 
   describe('snapshot', function () {
+    let blockNumberBefore;
+
     it('cache and mine', async function () {
-      this.cache = await ethers.provider.getBlockNumber();
+      blockNumberBefore = await ethers.provider.getBlockNumber();
       await mine();
-      expect(await ethers.provider.getBlockNumber()).to.be.equal(this.cache + 1);
+      expect(await ethers.provider.getBlockNumber()).to.be.equal(blockNumberBefore + 1);
     });
 
     it('check snapshot', async function () {
-      expect(await ethers.provider.getBlockNumber()).to.be.equal(this.cache);
+      expect(await ethers.provider.getBlockNumber()).to.be.equal(blockNumberBefore);
     });
   });
 });
