@@ -13,7 +13,7 @@ contract('Environment sanity', function (accounts) {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('signers', function () {
+  describe('[skip-on-coverage] signers', function () {
     it('match accounts', async function () {
       expect(this.addresses).to.deep.equal(accounts);
     });
