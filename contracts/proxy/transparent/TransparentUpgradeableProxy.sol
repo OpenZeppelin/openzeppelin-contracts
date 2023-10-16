@@ -50,7 +50,8 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an
  * immutable variable, preventing any changes thereafter. However, the admin slot defined in ERC-1967 can still be
  * overwritten by the implementation logic pointed to by this proxy. In such cases, the contract may end up in an
- * undesirable state where the admin slot is different from the actual admin.
+ * undesirable state where the admin slot is different from the actual admin. Relying in the value of the admin slot
+ * is generally fine if the implementation is trusted.
  *
  * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the
  * compiler will not check that there are no selector conflicts, due to the note above. A selector clash between any new
