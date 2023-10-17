@@ -13,7 +13,7 @@ import {IERC1363Spender} from "../../../interfaces/IERC1363Spender.sol";
  * @title ERC1363
  * @dev Extension of {ERC20} tokens that adds support for code execution after transfers and approvals
  * on recipient contracts. Calls after transfers are enabled through the {ERC1363-transferAndCall} and
- * {ERC1363-transferFromAndCall} methods while calls after approvals can be made with {ERC1363-approveAndCall} 
+ * {ERC1363-transferFromAndCall} methods while calls after approvals can be made with {ERC1363-approveAndCall}
  */
 abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
