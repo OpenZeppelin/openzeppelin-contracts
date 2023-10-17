@@ -7,4 +7,6 @@ async function getChainId() {
 
 module.exports = {
   getChainId,
+  // TODO: when tests are ready to support bigint chainId
+  // getChainId: ethers.provider.getNetwork().then(network => network.chainId),
 };
