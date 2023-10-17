@@ -23,7 +23,15 @@ async function getDomain(contract) {
     throw Error('Extensions not implemented');
   }
 
-  const domain = { name, version, chainId, verifyingContract, salt };
+  const domain = {
+    name,
+    version,
+    // TODO: remove check when contracts are all migrated to ethers
+    chainId: web3.utils.isBN(chainId) ? chainId.toNumber() : chainId,
+    verifyingContract,
+    salt,
+  };
+
   for (const [i, { name }] of EIP712Domain.entries()) {
     if (!(fields & (1 << i))) {
       delete domain[name];
