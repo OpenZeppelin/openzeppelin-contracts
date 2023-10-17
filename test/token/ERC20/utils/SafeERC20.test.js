@@ -184,7 +184,9 @@ contract('SafeERC20', function (accounts) {
         await this.token.approve(other, constants.MAX_UINT256, { from: owner });
 
         await expectRevertCustomError(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](owner, receiver, value, '0x', { from: other }),
+          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](owner, receiver, value, '0x', {
+            from: other,
+          }),
           'ERC1363InvalidReceiver',
           [receiver],
         );
