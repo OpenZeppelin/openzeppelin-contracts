@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
-import {IERC20Permit} from "../extensions/IERC20Permit.sol";
+import {IERC1363} from "../../../interfaces/IERC1363.sol";
 import {Address} from "../../../utils/Address.sol";
 
 /**
@@ -79,6 +79,45 @@ library SafeERC20 {
         if (!_callOptionalReturnBool(token, approvalCall)) {
             _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
             _callOptionalReturn(token, approvalCall);
+        }
+    }
+
+    /**
+     * @dev Perform an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
+     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * targetting contracts.
+     */
+    function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
+        if (to.code.length == 0) {
+            token.transfer(to, value);
+        } else {
+            token.transferAndCall(to, value, data);
+        }
+    }
+
+    /**
+     * @dev Perform an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
+     * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * targetting contracts.
+     */
+    function transferFromAndCallRelaxed(IERC1363 token, address from, address to, uint256 value, bytes memory data) internal {
+        if (to.code.length == 0) {
+            token.transferFrom(from, to, value);
+        } else {
+            token.transferFromAndCall(from, to, value, data);
+        }
+    }
+
+    /**
+     * @dev Perform an {ERC1363} approveAndCall, with a fallback to the simple {ERC20} approve if the target has no
+     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * targetting contracts.
+     */
+    function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
+        if (to.code.length == 0) {
+            token.approve(to, value);
+        } else {
+            token.approveAndCall(to, value, data);
         }
     }
 
