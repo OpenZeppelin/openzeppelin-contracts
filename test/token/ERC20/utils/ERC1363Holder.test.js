@@ -1,63 +1,76 @@
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC1363Holder = artifacts.require('$ERC1363Holder');
-const ERC1363 = artifacts.require('$ERC1363');
+const name = 'My Token';
+const symbol = 'MTKN';
+const value = 1000n;
+const data = '0x123456';
 
-contract('ERC1363Holder', function (accounts) {
-  const [owner, spender] = accounts;
+async function fixture() {
+  const [holder, spender] = await ethers.getSigners();
+  const mock = await ethers.deployContract('$ERC1363Holder');
+  const token = await ethers.deployContract('$ERC1363', [name, symbol]);
+  await token.$_mint(holder, value);
+  return {
+    token,
+    mock,
+    holder,
+    spender,
+  };
+}
 
-  const name = 'My Token';
-  const symbol = 'MTKN';
-  const balance = new BN(100);
-
+describe('ERC1363Holder', function () {
   beforeEach(async function () {
-    this.token = await ERC1363.new(name, symbol);
-    this.receiver = await ERC1363Holder.new();
-
-    await this.token.$_mint(owner, balance);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('receives ERC1363 token transfers', function () {
+    beforeEach(async function () {
+      expect(await this.token.balanceOf(this.holder)).to.be.equal(value);
+      expect(await this.token.balanceOf(this.mock)).to.be.equal(0n);
+    });
+
+    afterEach(async function () {
+      expect(await this.token.balanceOf(this.holder)).to.be.equal(0n);
+      expect(await this.token.balanceOf(this.mock)).to.be.equal(value);
+    });
+
     it('via transferAndCall', async function () {
-      const receipt = await this.token.methods['transferAndCall(address,uint256)'](this.receiver.address, balance, {
-        from: owner,
-      });
-
-      expectEvent(receipt, 'Transfer', { from: owner, to: this.receiver.address, value: balance });
-
-      expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
-      expect(await this.token.balanceOf(this.receiver.address)).to.be.bignumber.equal(balance);
+      await expect(
+        this.token.connect(this.holder).getFunction('transferAndCall(address,uint256,bytes)')(this.mock, value, data),
+      )
+        .to.emit(this.token, 'Transfer')
+        .withArgs(this.holder.address, this.mock.target, value);
     });
 
     it('via transferFromAndCall', async function () {
-      await this.token.approve(spender, balance, { from: owner });
+      await this.token.connect(this.holder).approve(this.spender, value);
 
-      const receipt = await this.token.methods['transferFromAndCall(address,address,uint256)'](
-        owner,
-        this.receiver.address,
-        balance,
-        {
-          from: spender,
-        },
-      );
-
-      expectEvent(receipt, 'Transfer', { from: owner, to: this.receiver.address, value: balance });
-
-      expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
-      expect(await this.token.balanceOf(this.receiver.address)).to.be.bignumber.equal(balance);
+      await expect(
+        this.token.connect(this.spender).getFunction('transferFromAndCall(address,address,uint256,bytes)')(
+          this.holder,
+          this.mock,
+          value,
+          data,
+        ),
+      )
+        .to.emit(this.token, 'Transfer')
+        .withArgs(this.holder.address, this.mock.target, value);
     });
   });
 
   describe('receives ERC1363 token approvals', function () {
     it('via approveAndCall', async function () {
-      const receipt = await this.token.methods['approveAndCall(address,uint256)'](this.receiver.address, balance, {
-        from: owner,
-      });
+      expect(await this.token.allowance(this.holder, this.mock)).to.be.equal(0n);
 
-      expectEvent(receipt, 'Approval', { owner, spender: this.receiver.address, value: balance });
+      await expect(
+        this.token.connect(this.holder).getFunction('approveAndCall(address,uint256,bytes)')(this.mock, value, data),
+      )
+        .to.emit(this.token, 'Approval')
+        .withArgs(this.holder.address, this.mock.target, value);
 
-      expect(await this.token.allowance(owner, this.receiver.address)).to.be.bignumber.equal(balance);
+      expect(await this.token.allowance(this.holder, this.mock)).to.be.equal(value);
     });
   });
 });

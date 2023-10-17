@@ -138,7 +138,10 @@ function shouldSupportInterfaces(interfaces = []) {
         for (const fnName of INTERFACES[k]) {
           if (this.contractUnderTest.abi) {
             const fnSig = FN_SIGNATURES[fnName];
-            expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1, `did not find ${fnName}`);
+            expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(
+              1,
+              `did not find ${fnName}`,
+            );
           } else {
             expect(this.contractUnderTest.interface.getFunction(fnName)).to.be.an('object', `did not find ${fnName}`);
           }

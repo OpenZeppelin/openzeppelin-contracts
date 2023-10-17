@@ -100,7 +100,13 @@ library SafeERC20 {
      * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targetting contracts.
      */
-    function transferFromAndCallRelaxed(IERC1363 token, address from, address to, uint256 value, bytes memory data) internal {
+    function transferFromAndCallRelaxed(
+        IERC1363 token,
+        address from,
+        address to,
+        uint256 value,
+        bytes memory data
+    ) internal {
         if (to.code.length == 0) {
             safeTransferFrom(token, from, to, value);
         } else {
