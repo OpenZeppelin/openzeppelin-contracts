@@ -1,4 +1,4 @@
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const ERC1363Holder = artifacts.require('$ERC1363Holder');
@@ -20,7 +20,11 @@ contract('ERC1363Holder', function (accounts) {
 
   describe('receives ERC1363 token transfers', function () {
     it('via transferAndCall', async function () {
-      await this.token.methods['transferAndCall(address,uint256)'](this.receiver.address, balance, { from: owner });
+      const receipt = await this.token.methods['transferAndCall(address,uint256)'](this.receiver.address, balance, {
+        from: owner,
+      });
+
+      expectEvent(receipt, 'Transfer', { from: owner, to: this.receiver.address, value: balance });
 
       expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
       expect(await this.token.balanceOf(this.receiver.address)).to.be.bignumber.equal(balance);
@@ -29,9 +33,16 @@ contract('ERC1363Holder', function (accounts) {
     it('via transferFromAndCall', async function () {
       await this.token.approve(spender, balance, { from: owner });
 
-      await this.token.methods['transferFromAndCall(address,address,uint256)'](owner, this.receiver.address, balance, {
-        from: spender,
-      });
+      const receipt = await this.token.methods['transferFromAndCall(address,address,uint256)'](
+        owner,
+        this.receiver.address,
+        balance,
+        {
+          from: spender,
+        },
+      );
+
+      expectEvent(receipt, 'Transfer', { from: owner, to: this.receiver.address, value: balance });
 
       expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
       expect(await this.token.balanceOf(this.receiver.address)).to.be.bignumber.equal(balance);
@@ -40,7 +51,11 @@ contract('ERC1363Holder', function (accounts) {
 
   describe('receives ERC1363 token approvals', function () {
     it('via approveAndCall', async function () {
-      await this.token.methods['approveAndCall(address,uint256)'](this.receiver.address, balance, { from: owner });
+      const receipt = await this.token.methods['approveAndCall(address,uint256)'](this.receiver.address, balance, {
+        from: owner,
+      });
+
+      expectEvent(receipt, 'Approval', { owner, spender: this.receiver.address, value: balance });
 
       expect(await this.token.allowance(owner, this.receiver.address)).to.be.bignumber.equal(balance);
     });
