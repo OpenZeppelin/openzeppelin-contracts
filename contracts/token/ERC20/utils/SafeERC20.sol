@@ -89,7 +89,7 @@ library SafeERC20 {
      */
     function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
-            token.transfer(to, value);
+            safeTransfer(token, to, value);
         } else {
             token.transferAndCall(to, value, data);
         }
@@ -102,7 +102,7 @@ library SafeERC20 {
      */
     function transferFromAndCallRelaxed(IERC1363 token, address from, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
-            token.transferFrom(from, to, value);
+            safeTransferFrom(token, from, to, value);
         } else {
             token.transferFromAndCall(from, to, value, data);
         }
@@ -115,7 +115,7 @@ library SafeERC20 {
      */
     function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
-            token.approve(to, value);
+            forceApprove(token, to, value);
         } else {
             token.approveAndCall(to, value, data);
         }
