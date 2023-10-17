@@ -39,11 +39,7 @@ function domainType(domain) {
 
 function hashTypedData(domain, structHash) {
   return ethers.keccak256(
-    Buffer.concat([
-      '0x1901',
-      ethers.TypedDataEncoder.hashDomain(domain),
-      structHash,
-    ].map(ethers.toBeArray))
+    Buffer.concat(['0x1901', ethers.TypedDataEncoder.hashDomain(domain), structHash].map(ethers.toBeArray)),
   );
 }
 

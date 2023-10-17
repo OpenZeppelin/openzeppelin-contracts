@@ -1,3 +1,4 @@
+const { ethers } = require('hardhat');
 const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 const { mapValues } = require('../../helpers/iterate');

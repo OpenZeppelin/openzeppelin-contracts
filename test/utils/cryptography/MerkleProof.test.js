@@ -18,7 +18,10 @@ describe('MerkleProof', function () {
 
   describe('verify', function () {
     it('returns true for a valid Merkle proof', async function () {
-      const merkleTree = StandardMerkleTree.of(toElements('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='), ['string']);
+      const merkleTree = StandardMerkleTree.of(
+        toElements('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='),
+        ['string'],
+      );
 
       const root = merkleTree.root;
       const hash = merkleTree.leafHash(['A']);
@@ -98,21 +101,13 @@ describe('MerkleProof', function () {
       const hashE = merkleTree.leafHash(['e']); // incorrect (not part of the tree)
       const fill = ethers.randomBytes(32);
 
-      await expect(this.mock.$multiProofVerify(
-        [hashB, fill, hashCD],
-        [false, false, false],
-        root,
-        [hashA, hashE],
-      ))
-      .to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
+      await expect(
+        this.mock.$multiProofVerify([hashB, fill, hashCD], [false, false, false], root, [hashA, hashE]),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
 
-      await expect(this.mock.$multiProofVerifyCalldata(
-        [hashB, fill, hashCD],
-        [false, false, false],
-        root,
-        [hashA, hashE],
-      ))
-      .to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
+      await expect(
+        this.mock.$multiProofVerifyCalldata([hashB, fill, hashCD], [false, false, false], root, [hashA, hashE]),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
     });
 
     it('revert with invalid multi proof #2', async function () {
@@ -128,21 +123,13 @@ describe('MerkleProof', function () {
       const hashE = merkleTree.leafHash(['e']); // incorrect (not part of the tree)
       const fill = ethers.randomBytes(32);
 
-      await expect(this.mock.$multiProofVerify(
-        [hashB, fill, hashCD],
-        [false, false, false, false],
-        root,
-        [hashE, hashA],
-      ))
-      .to.be.revertedWithPanic(0x32);
+      await expect(
+        this.mock.$multiProofVerify([hashB, fill, hashCD], [false, false, false, false], root, [hashE, hashA]),
+      ).to.be.revertedWithPanic(0x32);
 
-      await expect(this.mock.$multiProofVerifyCalldata(
-        [hashB, fill, hashCD],
-        [false, false, false, false],
-        root,
-        [hashE, hashA],
-      ))
-      .to.be.revertedWithPanic(0x32);
+      await expect(
+        this.mock.$multiProofVerifyCalldata([hashB, fill, hashCD], [false, false, false, false], root, [hashE, hashA]),
+      ).to.be.revertedWithPanic(0x32);
     });
 
     it('limit case: works for tree containing a single leaf', async function () {
@@ -166,7 +153,7 @@ describe('MerkleProof', function () {
 
     it('reverts processing manipulated proofs with a zero-value node at depth 1', async function () {
       // Create a merkle tree that contains a zero leaf at depth 1
-      const leave = ethers.id('real leaf')
+      const leave = ethers.id('real leaf');
       const root = hashPair(ethers.toBeArray(leave), Buffer.alloc(32, 0));
 
       // Now we can pass any **malicious** fake leaves as valid!
