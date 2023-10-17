@@ -11,7 +11,9 @@ import {IERC1363Spender} from "../../../interfaces/IERC1363Spender.sol";
 
 /**
  * @title ERC1363
- * @dev Implementation of the ERC1363 interface.
+ * @dev Extension of {ERC20} tokens that adds support for code execution after transfers and approvals
+ * on recipient contracts. Calls after transfers are enabled through the {ERC1363-transferAndCall} and
+ * {ERC1363-transferFromAndCall} methods while calls after approvals can be made with {ERC1363-approveAndCall} 
  */
 abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
@@ -87,15 +89,11 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Private function to invoke `onTransferReceived` on a target address.
-     * This will revert if the target doesn't implement the `IERC1363Receiver` interface or
+     * @dev Performs a call to {IERC1363-onTransferReceived} on a target address.
+     * This will revert if the target doesn't implement the {IERC1363Receiver} interface or
      * if the target doesn't accept the token transfer or
      * if the target address is not a contract.
      *
-     * @param from Address representing the previous owner of the given token amount.
-     * @param to Target address that will receive the tokens.
-     * @param value The amount of tokens to be transferred.
-     * @param data Optional data to send along with the call.
      */
     function _checkOnTransferReceived(address from, address to, uint256 value, bytes memory data) private {
         if (to.code.length == 0) {
@@ -119,14 +117,11 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Private function to invoke `onApprovalReceived` on a target address.
-     * This will revert if the target doesn't implement the `IERC1363Spender` interface or
+     * @dev Performs a call to {IERC1363-onApprovalReceived} on a target address.
+     * This will revert if the target doesn't implement the {IERC1363Spender} interface or
      * if the target doesn't accept the token approval or
      * if the target address is not a contract.
      *
-     * @param spender The address which will spend the funds.
-     * @param value The amount of tokens to be spent.
-     * @param data Optional data to send along with the call.
      */
     function _checkOnApprovalReceived(address spender, uint256 value, bytes memory data) private {
         if (spender.code.length == 0) {
