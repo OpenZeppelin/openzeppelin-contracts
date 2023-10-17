@@ -13,13 +13,18 @@ contract ERC1363ReceiverMock is IERC1363Receiver {
         Panic
     }
 
-    bytes4 private immutable _retval;
-    RevertType private immutable _error;
+    bytes4 private _retval;
+    RevertType private _error;
 
-    event Received(address operator, address from, uint256 value, bytes data, uint256 gas);
+    event Received(address operator, address from, uint256 value, bytes data);
     error CustomError(bytes4);
 
-    constructor(bytes4 retval, RevertType error) {
+    constructor() {
+        _retval = IERC1363Receiver.onTransferReceived.selector;
+        _error = RevertType.None;
+    }
+
+    function setUp(bytes4 retval, RevertType error) public {
         _retval = retval;
         _error = error;
     }
@@ -41,7 +46,7 @@ contract ERC1363ReceiverMock is IERC1363Receiver {
             a;
         }
 
-        emit Received(operator, from, value, data, gasleft());
+        emit Received(operator, from, value, data);
         return _retval;
     }
 }

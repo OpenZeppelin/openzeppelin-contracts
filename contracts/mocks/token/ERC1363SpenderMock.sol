@@ -13,18 +13,27 @@ contract ERC1363SpenderMock is IERC1363Spender {
         Panic
     }
 
-    bytes4 private immutable _retval;
-    RevertType private immutable _error;
+    bytes4 private _retval;
+    RevertType private _error;
 
-    event Approved(address owner, uint256 value, bytes data, uint256 gas);
+    event Approved(address owner, uint256 value, bytes data);
     error CustomError(bytes4);
 
-    constructor(bytes4 retval, RevertType error) {
+    constructor() {
+        _retval = IERC1363Spender.onApprovalReceived.selector;
+        _error = RevertType.None;
+    }
+
+    function setUp(bytes4 retval, RevertType error) public {
         _retval = retval;
         _error = error;
     }
 
-    function onApprovalReceived(address owner, uint256 value, bytes calldata data) public override returns (bytes4) {
+    function onApprovalReceived(
+        address owner,
+        uint256 value,
+        bytes calldata data
+    ) public override returns (bytes4) {
         if (_error == RevertType.RevertWithoutMessage) {
             revert();
         } else if (_error == RevertType.RevertWithMessage) {
@@ -36,7 +45,7 @@ contract ERC1363SpenderMock is IERC1363Spender {
             a;
         }
 
-        emit Approved(owner, value, data, gasleft());
+        emit Approved(owner, value, data);
         return _retval;
     }
 }
