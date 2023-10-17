@@ -1,22 +1,6 @@
-const RLP = require('rlp');
-
-function computeCreateAddress(deployer, nonce) {
-  return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([deployer.address ?? deployer, nonce])).slice(-40));
-}
-
-function computeCreate2Address(saltHex, bytecode, deployer) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(
-        `0x${['ff', deployer.address ?? deployer, saltHex, web3.utils.soliditySha3(bytecode)]
-          .map(x => x.replace(/0x/, ''))
-          .join('')}`,
-      )
-      .slice(-40),
-  );
-}
+const { ethers } = require('hardhat');
 
 module.exports = {
-  computeCreateAddress,
-  computeCreate2Address,
+  computeCreateAddress: (from, nonce) => ethers.getCreateAddress({ from, nonce }),
+  computeCreate2Address: (salt, bytecode, from) => ethers.getCreate2Address(from, salt, ethers.keccak256(bytecode)),
 };
