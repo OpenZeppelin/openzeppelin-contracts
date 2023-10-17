@@ -10,30 +10,24 @@ const {
   MINSETBACK,
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
+  scheduleOperation,
+  hashOperation,
 } = require('../../helpers/access-manager');
 const {
-  // COMMON PATHS
-  COMMON_SCHEDULABLE_PATH,
-  COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY,
-  // MODE HELPERS
-  shouldBehaveLikeClosable,
-  // DELAY HELPERS
-  shouldBehaveLikeDelay,
-  // OPERATION HELPERS
-  shouldBehaveLikeSchedulableOperation,
-  // METHOD HELPERS
-  shouldBehaveLikeCanCall,
-  shouldBehaveLikeGetAccess,
-  shouldBehaveLikeHasRole,
-  // ADMIN OPERATION HELPERS
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeNotDelayedAdminOperation,
   shouldBehaveLikeRoleAdminOperation,
-  // RESTRICTED OPERATION HELPERS
   shouldBehaveLikeAManagedRestrictedOperation,
-  // HELPERS
-  scheduleOperation,
 } = require('./AccessManager.behavior');
+const {
+  LIKE_COMMON_SCHEDULABLE,
+  testAsClosable,
+  testAsDelay,
+  testAsSchedulableOperation,
+  testAsCanCall,
+  testAsHasRole,
+  testAsGetAccess,
+} = require('./AccessManager.predicate');
 const { default: Wallet } = require('ethereumjs-wallet');
 const {
   mine,
@@ -49,6 +43,20 @@ const Ownable = artifacts.require('$Ownable');
 
 const someAddress = Wallet.generate().getChecksumAddressString();
 
+// This test suite is made using the following tools:
+//
+// * Predicates: Functions with common conditional setups without assertions.
+// * Behaviors: Functions with common assertions.
+//
+// The behavioral tests are built by composing predicates and are used as templates
+// for testing access to restricted functions.
+//
+// Similarly, unit tests in this suite will use predicates to test subsets of these
+// behaviors and are helped by common assertions provided for some of the predicates.
+//
+// The predicates can be identified by the `testAs*` prefix while the behaviors
+// are prefixed with `shouldBehave*`. The common assertions for predicates are
+// defined as constants.
 contract('AccessManager', function (accounts) {
   const [admin, manager, guardian, member, user, other] = accounts;
 
@@ -120,7 +128,7 @@ contract('AccessManager', function (accounts) {
         this.role = { id: web3.utils.toBN(379204) };
       });
 
-      shouldBehaveLikeCanCall({
+      testAsCanCall({
         closed() {
           it('should return false and no delay', async function () {
             const { immediate, delay } = await this.manager.canCall(
@@ -193,10 +201,10 @@ contract('AccessManager', function (accounts) {
                       beforeEach('consume previously set grant delay', async function () {
                         // Consume previously set delay
                         await mine();
-                        this.scheduleIn = this.executionDelay; // For shouldBehaveLikeSchedulableOperation
+                        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
                       });
 
-                      shouldBehaveLikeSchedulableOperation({
+                      testAsSchedulableOperation({
                         scheduled: {
                           before() {
                             beforeEach('consume previously set delay', async function () {
@@ -350,7 +358,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('#isTargetClosed', function () {
-      shouldBehaveLikeClosable({
+      testAsClosable({
         closed() {
           it('returns true', async function () {
             expect(await this.manager.isTargetClosed(this.target.address)).to.be.equal(true);
@@ -390,10 +398,10 @@ contract('AccessManager', function (accounts) {
           this.newDelay = time.duration.days(10);
 
           await this.manager.$_setTargetAdminDelay(this.target.address, this.newDelay);
-          this.delay = MINSETBACK; // For shouldBehaveLikeDelay
+          this.delay = MINSETBACK; // For testAsDelay
         });
 
-        shouldBehaveLikeDelay('effect', {
+        testAsDelay('effect', {
           before() {
             beforeEach('consume previously set grant delay', async function () {
               // Consume previously set delay
@@ -463,10 +471,10 @@ contract('AccessManager', function (accounts) {
           this.newDelay = time.duration.days(11);
 
           await this.manager.$_setGrantDelay(roleId, this.newDelay);
-          this.delay = MINSETBACK; // For shouldBehaveLikeDelay
+          this.delay = MINSETBACK; // For testAsDelay
         });
 
-        shouldBehaveLikeDelay('grant', {
+        testAsDelay('grant', {
           before() {
             beforeEach('consume previously set grant delay', async function () {
               // Consume previously set delay
@@ -501,7 +509,7 @@ contract('AccessManager', function (accounts) {
         this.caller = user;
       });
 
-      shouldBehaveLikeGetAccess({
+      testAsGetAccess({
         requiredRoleIsGranted: {
           roleGrantingIsDelayed: {
             callerHasAnExecutionDelay: {
@@ -618,13 +626,13 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('#hasRole', function () {
-      beforeEach('setup shouldBehaveLikeHasRole', function () {
+      beforeEach('setup testAsHasRole', function () {
         this.role = { id: web3.utils.toBN(49832) };
         this.calldata = '0x1234';
         this.caller = user;
       });
 
-      shouldBehaveLikeHasRole({
+      testAsHasRole({
         publicRoleIsRequired() {
           it('has PUBLIC role', async function () {
             const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
@@ -724,11 +732,11 @@ contract('AccessManager', function (accounts) {
         await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
         await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
-        this.calldata = await this.target.contract.methods[method]().encodeABI();
-        this.scheduleIn = time.duration.days(10); // For shouldBehaveLikeSchedulableOperation
+        this.calldata = this.target.contract.methods[method]().encodeABI();
+        this.scheduleIn = time.duration.days(10); // For testAsSchedulableOperation
       });
 
-      shouldBehaveLikeSchedulableOperation({
+      testAsSchedulableOperation({
         scheduled: {
           before() {
             beforeEach('consume previously set grant delay', async function () {
@@ -782,7 +790,7 @@ contract('AccessManager', function (accounts) {
           await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
           await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
-          this.calldata = await this.target.contract.methods[method]().encodeABI();
+          this.calldata = this.target.contract.methods[method]().encodeABI();
           this.delay = time.duration.days(10);
 
           const { operationId } = await scheduleOperation(this.manager, {
@@ -813,9 +821,7 @@ contract('AccessManager', function (accounts) {
 
         const args = [user, address, calldata];
 
-        expect(await this.manager.hashOperation(...args)).to.be.bignumber.eq(
-          await web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], args)),
-        );
+        expect(await this.manager.hashOperation(...args)).to.be.bignumber.eq(hashOperation(...args));
       });
     });
   });
@@ -1317,10 +1323,10 @@ contract('AccessManager', function (accounts) {
                 });
 
                 this.receipt = receipt;
-                this.delay = this.grantDelay; // For shouldBehaveLikeDelay
+                this.delay = this.grantDelay; // For testAsDelay
               });
 
-              shouldBehaveLikeDelay('grant', {
+              testAsDelay('grant', {
                 before() {
                   beforeEach('consume previously set grant delay', async function () {
                     // Consume previously set delay
@@ -1505,7 +1511,7 @@ contract('AccessManager', function (accounts) {
                   this.grantTimestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
                   this.receipt = receipt;
-                  this.delay = this.previousExecutionDelay.sub(this.newExecutionDelay); // For shouldBehaveLikeDelay
+                  this.delay = this.previousExecutionDelay.sub(this.newExecutionDelay); // For testAsDelay
                 });
 
                 it('emits event', function () {
@@ -1518,7 +1524,7 @@ contract('AccessManager', function (accounts) {
                   });
                 });
 
-                shouldBehaveLikeDelay('execution delay effect', {
+                testAsDelay('execution delay effect', {
                   before() {
                     beforeEach('consume effect delay', async function () {
                       // Consume previously set delay
@@ -1631,7 +1637,7 @@ contract('AccessManager', function (accounts) {
                   this.grantTimestamp = await clockFromReceipt.timestamp(receipt).then(web3.utils.toBN);
 
                   this.receipt = receipt;
-                  this.delay = this.previousExecutionDelay.sub(this.newExecutionDelay); // For shouldBehaveLikeDelay
+                  this.delay = this.previousExecutionDelay.sub(this.newExecutionDelay); // For testAsDelay
                 });
 
                 it('emits event', function () {
@@ -1644,7 +1650,7 @@ contract('AccessManager', function (accounts) {
                   });
                 });
 
-                shouldBehaveLikeDelay('execution delay effect', {
+                testAsDelay('execution delay effect', {
                   before() {
                     beforeEach('consume effect delay', async function () {
                       // Consume previously set delay
@@ -1713,10 +1719,10 @@ contract('AccessManager', function (accounts) {
               this.grantDelay = time.duration.weeks(1);
               await this.manager.$_grantRole(ANOTHER_ROLE, user, this.grantDelay, 0);
 
-              this.delay = this.grantDelay; // For shouldBehaveLikeDelay
+              this.delay = this.grantDelay; // For testAsDelay
             });
 
-            shouldBehaveLikeDelay('grant', {
+            testAsDelay('grant', {
               before() {
                 beforeEach('consume previously set grant delay', async function () {
                   // Consume previously set delay
@@ -1915,7 +1921,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('restrictions', function () {
-      shouldBehaveLikeCanCall({
+      testAsCanCall({
         closed() {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
             await expectRevertCustomError(
@@ -2103,12 +2109,7 @@ contract('AccessManager', function (accounts) {
 
     it('increases the nonce of an operation scheduled more than once', async function () {
       // Setup and check initial nonce
-      const expectedOperationId = await web3.utils.keccak256(
-        web3.eth.abi.encodeParameters(
-          ['address', 'address', 'bytes'],
-          [this.caller, this.target.address, this.calldata],
-        ),
-      );
+      const expectedOperationId = hashOperation(this.caller, this.target.address, this.calldata);
       expect(await this.manager.getNonce(expectedOperationId)).to.be.bignumber.eq('0');
 
       // Schedule
@@ -2244,7 +2245,7 @@ contract('AccessManager', function (accounts) {
     });
 
     describe('restrictions', function () {
-      shouldBehaveLikeCanCall({
+      testAsCanCall({
         closed() {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
             await expectRevertCustomError(
@@ -2273,7 +2274,9 @@ contract('AccessManager', function (accounts) {
           },
           callerIsNotTheManager: {
             publicRoleIsRequired() {
-              shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
+              it('succeeds', async function () {
+                await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
+              });
             },
             specificRoleIsRequired: {
               requiredRoleIsGranted: {
@@ -2295,7 +2298,7 @@ contract('AccessManager', function (accounts) {
                         this.scheduleIn = time.duration.days(21);
                       });
 
-                      shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
+                      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
                     },
                   },
                   callerHasNoExecutionDelay: {
@@ -2314,7 +2317,9 @@ contract('AccessManager', function (accounts) {
                         await mine();
                       });
 
-                      shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
+                      it('succeeds', async function () {
+                        await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
+                      });
                     },
                   },
                 },
@@ -2324,10 +2329,12 @@ contract('AccessManager', function (accounts) {
                       this.scheduleIn = time.duration.days(15);
                     });
 
-                    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH);
+                    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
                   },
                   callerHasNoExecutionDelay() {
-                    shouldBehaveLikeSchedulableOperation(COMMON_SCHEDULABLE_PATH_IF_ZERO_DELAY);
+                    it('succeeds', async function () {
+                      await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
+                    });
                   },
                 },
               },
@@ -2427,7 +2434,7 @@ contract('AccessManager', function (accounts) {
       await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.role.id);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
-      this.scheduleIn = time.duration.hours(10); // For shouldBehaveLikeSchedulableOperation
+      this.scheduleIn = time.duration.hours(10); // For testAsSchedulableOperation
     });
 
     describe('when caller is not consuming scheduled operation', function () {
@@ -2450,7 +2457,7 @@ contract('AccessManager', function (accounts) {
         await this.target.setIsConsumingScheduledOp(true, `0x${CONSUMING_SCHEDULE_STORAGE_SLOT.toString(16)}`);
       });
 
-      shouldBehaveLikeSchedulableOperation({
+      testAsSchedulableOperation({
         scheduled: {
           before() {
             it('reverts as AccessManagerNotReady', async function () {
@@ -2511,11 +2518,11 @@ contract('AccessManager', function (accounts) {
       await this.manager.$_setTargetFunctionRole(this.target.address, selector(method), this.roles.SOME.id);
       await this.manager.$_grantRole(this.roles.SOME.id, this.caller, 0, 1); // nonzero execution delay
 
-      this.calldata = await this.target.contract.methods[method]().encodeABI();
-      this.scheduleIn = time.duration.days(10); // For shouldBehaveLikeSchedulableOperation
+      this.calldata = this.target.contract.methods[method]().encodeABI();
+      this.scheduleIn = time.duration.days(10); // For testAsSchedulableOperation
     });
 
-    shouldBehaveLikeSchedulableOperation({
+    testAsSchedulableOperation({
       scheduled: {
         before() {
           describe('when caller is the scheduler', function () {
