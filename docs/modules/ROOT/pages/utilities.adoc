@@ -71,29 +71,45 @@ contract MyContract {
 [[math]]
 == Math
 
-The most popular math related library OpenZeppelin Contracts provides is xref:api:utils.adoc#SafeMath[`SafeMath`], which provides mathematical functions that protect your contract from overflows and underflows.
+Although Solidity already provides math operators (i.e. `+`, `-`, etc.), Contracts includes xref:api:utils.adoc#Math[`Math`]; a set of utilities for dealing with mathematical operators, with support for extra operations (eg. xref:api:utils.adoc#Math-average-uint256-uint256-[`average`]) and xref:api:utils.adoc#SignedMath[`SignedMath`]; a library specialized in signed math operations.
 
-Include the contract with `using SafeMath for uint256;` and then call the functions:
+Include these contracts with `using Math for uint256` or `using SignedMath for int256` and then use their functions in your code:
 
-* `myNumber.add(otherNumber)`
-* `myNumber.sub(otherNumber)`
-* `myNumber.div(otherNumber)`
-* `myNumber.mul(otherNumber)`
-* `myNumber.mod(otherNumber)`
+[source,solidity]
+----
+contract MyContract {
+    using Math for uint256;
+    using SignedMath for int256;
+
+    function tryOperations(uint256 a, uint256 b) internal pure {
+        (bool overflowsAdd, uint256 resultAdd) = x.tryAdd(y);
+        (bool overflowsSub, uint256 resultSub) = x.trySub(y);
+        (bool overflowsMul, uint256 resultMul) = x.tryMul(y);
+        (bool overflowsDiv, uint256 resultDiv) = x.tryDiv(y);
+        // ...
+    }
+
+    function unsignedAverage(int256 a, int256 b) {
+        int256 avg = a.average(b);
+        // ...
+    }
+}
+----
 
 Easy!
 
-[[payment]]
-== Payment
+[[structures]]
+== Structures
 
-Want to split some payments between multiple people? Maybe you have an app that sends 30% of art purchases to the original creator and 70% of the profits to the current owner; you can build that with xref:api:finance.adoc#PaymentSplitter[`PaymentSplitter`]!
+Some use cases require more powerful data structures than arrays and mappings offered natively in Solidity. Contracts provides these libraries for enhanced data structure management:
 
-In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website.
+- xref:api:utils.adoc#BitMaps[`BitMaps`]: Store packed booleans in storage.
+- xref:api:utils.adoc#Checkpoints[`Checkpoints`]: Checkpoint values with built-in lookups.
+- xref:api:utils.adoc#DoubleEndedQueue[`DoubleEndedQueue`]: Store items in a queue with `pop()` and `queue()` constant time operations.
+- xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
+- xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
 
-[[collections]]
-== Collections
-
-If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`] and xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]. They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
+The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
 [[misc]]
 == Misc

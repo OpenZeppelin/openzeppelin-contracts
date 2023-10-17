@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AccessManaged.sol)
 
 pragma solidity ^0.8.20;
 
@@ -57,16 +58,12 @@ abstract contract AccessManaged is Context, IAccessManaged {
         _;
     }
 
-    /**
-     * @dev Returns the current authority.
-     */
+    /// @inheritdoc IAccessManaged
     function authority() public view virtual returns (address) {
         return _authority;
     }
 
-    /**
-     * @dev Transfers control to a new authority. The caller must be the current authority.
-     */
+    /// @inheritdoc IAccessManaged
     function setAuthority(address newAuthority) public virtual {
         address caller = _msgSender();
         if (caller != authority()) {
@@ -78,11 +75,7 @@ abstract contract AccessManaged is Context, IAccessManaged {
         _setAuthority(newAuthority);
     }
 
-    /**
-     * @dev Returns true only in the context of a delayed restricted call, at the moment that the scheduled operation is
-     * being consumed. Prevents denial of service for delayed restricted calls in the case that the contract performs
-     * attacker controlled calls.
-     */
+    /// @inheritdoc IAccessManaged
     function isConsumingScheduledOp() public view returns (bytes4) {
         return _consumingSchedule ? this.isConsumingScheduledOp.selector : bytes4(0);
     }

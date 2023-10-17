@@ -71,7 +71,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
-const withOptimizations = argv.gas || argv.compileMode === 'production';
+const withOptimizations = argv.gas || argv.coverage || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -101,7 +101,6 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      blockGasLimit: 10000000,
       allowUnlimitedContractSize: !withOptimizations,
     },
   },

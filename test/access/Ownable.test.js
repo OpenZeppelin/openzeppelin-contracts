@@ -3,25 +3,19 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const accounts = await ethers.getSigners(); // this is slow :/
-  const owner = accounts.shift();
-  const other = accounts.shift();
-  const ownable = await ethers.deployContract('$Ownable', [owner.address]);
-  return { accounts, owner, other, ownable };
+  const [owner, other] = await ethers.getSigners();
+  const ownable = await ethers.deployContract('$Ownable', [owner]);
+  return { owner, other, ownable };
 }
 
 describe('Ownable', function () {
   beforeEach(async function () {
-    await loadFixture(fixture).then(results => Object.assign(this, results));
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('rejects zero address for initialOwner', async function () {
-    // checking a custom error requires a contract, or at least the interface
-    // we can get it from the contract factory
-    const { interface } = await ethers.getContractFactory('$Ownable');
-
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
-      .to.be.revertedWithCustomError({ interface }, 'OwnableInvalidOwner')
+      .to.be.revertedWithCustomError({ interface: this.ownable.interface }, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
 
@@ -31,7 +25,7 @@ describe('Ownable', function () {
 
   describe('transfer ownership', function () {
     it('changes owner after transfer', async function () {
-      await expect(this.ownable.connect(this.owner).transferOwnership(this.other.address))
+      await expect(this.ownable.connect(this.owner).transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
         .withArgs(this.owner.address, this.other.address);
 
@@ -39,7 +33,7 @@ describe('Ownable', function () {
     });
 
     it('prevents non-owners from transferring', async function () {
-      await expect(this.ownable.connect(this.other).transferOwnership(this.other.address))
+      await expect(this.ownable.connect(this.other).transferOwnership(this.other))
         .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
         .withArgs(this.other.address);
     });
@@ -69,7 +63,7 @@ describe('Ownable', function () {
     it('allows to recover access using the internal _transferOwnership', async function () {
       await this.ownable.connect(this.owner).renounceOwnership();
 
-      await expect(this.ownable.$_transferOwnership(this.other.address))
+      await expect(this.ownable.$_transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
         .withArgs(ethers.ZeroAddress, this.other.address);
 

@@ -1,6 +1,9 @@
 const { time } = require('@openzeppelin/test-helpers');
 const { MAX_UINT64 } = require('./constants');
-const { artifacts } = require('hardhat');
+const { namespaceSlot } = require('./namespaced-storage');
+const {
+  time: { setNextBlockTimestamp },
+} = require('@nomicfoundation/hardhat-network-helpers');
 
 function buildBaseRoles() {
   const roles = {
@@ -44,20 +47,29 @@ const formatAccess = access => [access[0], access[1].toString()];
 const MINSETBACK = time.duration.days(5);
 const EXPIRATION = time.duration.weeks(1);
 
-let EXECUTION_ID_STORAGE_SLOT = 3n;
-let CONSUMING_SCHEDULE_STORAGE_SLOT = 0n;
-try {
-  // Try to get the artifact paths, will throw if it doesn't exist
-  artifacts._getArtifactPathSync('AccessManagerUpgradeable');
-  artifacts._getArtifactPathSync('AccessManagedUpgradeable');
+const EXECUTION_ID_STORAGE_SLOT = namespaceSlot('AccessManager', 3n);
+const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
 
-  // ERC-7201 namespace location for AccessManager
-  EXECUTION_ID_STORAGE_SLOT += 0x40c6c8c28789853c7efd823ab20824bbd71718a8a5915e855f6f288c9a26ad00n;
-  // ERC-7201 namespace location for AccessManaged
-  CONSUMING_SCHEDULE_STORAGE_SLOT += 0xf3177357ab46d8af007ab3fdb9af81da189e1068fefdc0073dca88a2cab40a00n;
-} catch (_) {
-  // eslint-disable-next-line no-empty
+/**
+ * @requires this.{manager, caller, target, calldata}
+ */
+async function scheduleOperation(manager, { caller, target, calldata, delay }) {
+  const timestamp = await time.latest();
+  const scheduledAt = timestamp.addn(1);
+  await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
+  const { receipt } = await manager.schedule(target, calldata, scheduledAt.add(delay), {
+    from: caller,
+  });
+
+  return {
+    receipt,
+    scheduledAt,
+    operationId: hashOperation(caller, target, calldata),
+  };
 }
+
+const hashOperation = (caller, target, data) =>
+  web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
 
 module.exports = {
   buildBaseRoles,
@@ -66,4 +78,6 @@ module.exports = {
   EXPIRATION,
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
+  scheduleOperation,
+  hashOperation,
 };

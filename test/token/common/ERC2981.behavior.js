@@ -108,7 +108,7 @@ function shouldBehaveLikeERC2981() {
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
 
       // must be different even at the same this.salePrice
-      expect(token1Info[1]).to.not.be.equal(token2Info.royaltyFraction);
+      expect(token1Info[1]).to.not.be.bignumber.equal(token2Info[1]);
     });
 
     it('reverts if invalid parameters', async function () {
