@@ -8,6 +8,7 @@ module.exports = {
   clockFromReceipt: {
     blocknumber: receipt => Promise.resolve(receipt.blockNumber),
     timestamp: receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp),
+    // TODO: update for ethers receipt
     // timestamp: receipt => receipt.getBlock().then(block => block.timestamp),
   },
   forward: {
