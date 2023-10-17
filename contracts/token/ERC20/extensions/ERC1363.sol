@@ -6,7 +6,6 @@ import {ERC20} from "../ERC20.sol";
 import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol";
 
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
-import {IERC1363Errors} from "../../../interfaces/IERC1363Errors.sol";
 import {IERC1363Receiver} from "../../../interfaces/IERC1363Receiver.sol";
 import {IERC1363Spender} from "../../../interfaces/IERC1363Spender.sol";
 
@@ -14,7 +13,19 @@ import {IERC1363Spender} from "../../../interfaces/IERC1363Spender.sol";
  * @title ERC1363
  * @dev Implementation of the ERC1363 interface.
  */
-abstract contract ERC1363 is ERC20, ERC165, IERC1363, IERC1363Errors {
+abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC1363InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the token `spender`. Used in approvals.
+     * @param spender Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC1363InvalidSpender(address spender);
+
     /**
      * @inheritdoc IERC165
      */
@@ -88,7 +99,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363, IERC1363Errors {
      */
     function _checkOnTransferReceived(address from, address to, uint256 value, bytes memory data) private {
         if (to.code.length == 0) {
-            revert ERC1363EOAReceiver(to);
+            revert ERC1363InvalidReceiver(to);
         }
 
         try IERC1363Receiver(to).onTransferReceived(_msgSender(), from, value, data) returns (bytes4 retval) {
@@ -119,7 +130,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363, IERC1363Errors {
      */
     function _checkOnApprovalReceived(address spender, uint256 value, bytes memory data) private {
         if (spender.code.length == 0) {
-            revert ERC1363EOASpender(spender);
+            revert ERC1363InvalidSpender(spender);
         }
 
         try IERC1363Spender(spender).onApprovalReceived(_msgSender(), value, data) returns (bytes4 retval) {
