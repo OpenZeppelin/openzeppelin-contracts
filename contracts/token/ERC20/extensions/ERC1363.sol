@@ -89,11 +89,10 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Performs a call to {IERC1363-onTransferReceived} on a target address.
+     * @dev Performs a call to {IERC1363Receiver-onTransferReceived} on a target address.
      * This will revert if the target doesn't implement the {IERC1363Receiver} interface or
      * if the target doesn't accept the token transfer or
      * if the target address is not a contract.
-     *
      */
     function _checkOnTransferReceived(address from, address to, uint256 value, bytes memory data) private {
         if (to.code.length == 0) {
@@ -117,11 +116,10 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Performs a call to {IERC1363-onApprovalReceived} on a target address.
+     * @dev Performs a call to {IERC1363Spender-onApprovalReceived} on a target address.
      * This will revert if the target doesn't implement the {IERC1363Spender} interface or
      * if the target doesn't accept the token approval or
      * if the target address is not a contract.
-     *
      */
     function _checkOnApprovalReceived(address spender, uint256 value, bytes memory data) private {
         if (spender.code.length == 0) {
