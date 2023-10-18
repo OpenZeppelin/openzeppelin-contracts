@@ -239,7 +239,7 @@ These delayed functions are settings scoped to a target, so each target will hav
 
 === Using with Ownable
 
-Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to the Access Manager by transfering ownership to the manager. After that, the ownable contract will be called thorugh the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function. Even if the caller doesn't require a delay.
+Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to the Access Manager by transferring ownership to the manager. After that, the ownable contract will be called through the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function. Even if the caller doesn't require a delay.
 
 ```javascript
 ownable.transferOwnership(accessManager.address, { from: owner });

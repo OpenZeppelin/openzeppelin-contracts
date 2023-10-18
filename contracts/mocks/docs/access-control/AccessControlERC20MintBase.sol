@@ -8,7 +8,7 @@ contract AccessControlERC0Mint is ERC20, AccessControl {
     // Create a new role identifier for the minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    error CallerNotMinter(address calller);
+    error CallerNotMinter(address caller);
 
     constructor(address minter) ERC20("MyToken", "TKN") {
         // Grant the minter role to a specified account
