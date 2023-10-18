@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {AccessControl} from "../../../access/AccessControl.sol";
 import {ERC20} from "../../../token/ERC20/ERC20.sol";
 
-contract AccessControlERC0Mint is ERC20, AccessControl {
+contract AccessControlERC20MintBase is ERC20, AccessControl {
     // Create a new role identifier for the minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
