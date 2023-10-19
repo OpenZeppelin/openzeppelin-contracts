@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/Checkpoints.t.js.
+// This file was procedurally generated from scripts\generate\templates\Checkpoints.t.js.
 
 pragma solidity ^0.8.20;
 
@@ -17,11 +17,18 @@ contract CheckpointsTrace224Test is Test {
     Checkpoints.Trace224 internal _ckpts;
 
     // helpers
-    function _boundUint32(uint32 x, uint32 min, uint32 max) internal view returns (uint32) {
+    function _boundUint32(
+        uint32 x,
+        uint32 min,
+        uint32 max
+    ) internal view returns (uint32) {
         return SafeCast.toUint32(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint32[] memory keys, uint32 maxSpread) internal view {
+    function _prepareKeys(
+        uint32[] memory keys,
+        uint32 maxSpread
+    ) internal view {
         uint32 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = _boundUint32(keys[i], lastKey, lastKey + maxSpread);
@@ -30,7 +37,11 @@ contract CheckpointsTrace224Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
+    function _assertLatestCheckpoint(
+        bool exist,
+        uint32 key,
+        uint224 value
+    ) internal {
         (bool _exist, uint32 _key, uint224 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -38,7 +49,11 @@ contract CheckpointsTrace224Test is Test {
     }
 
     // tests
-    function testPush(uint32[] memory keys, uint224[] memory values, uint32 pastKey) public {
+    function testPush(
+        uint32[] memory keys,
+        uint224[] memory values,
+        uint32 pastKey
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -51,7 +66,7 @@ contract CheckpointsTrace224Test is Test {
         for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
-            if (i > 0 && key == keys[i - 1]) ++duplicates;
+            if (i > 0 && key == keys[i-1]) ++duplicates;
 
             // push
             _ckpts.push(key, value);
@@ -75,10 +90,14 @@ contract CheckpointsTrace224Test is Test {
 
     // used to test reverts
     function push(uint32 key, uint224 value) external {
-        _ckpts.push(key, value);
+      _ckpts.push(key, value);
     }
 
-    function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
+    function testLookup(
+        uint32[] memory keys,
+        uint224[] memory values,
+        uint32 lookup
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -100,7 +119,7 @@ contract CheckpointsTrace224Test is Test {
                 upper = value;
             }
             // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
+            if (key >= lookup && (i == 0 || keys[i-1] < lookup)) {
                 lowerKey = key;
             }
             if (key == lowerKey) {
@@ -113,8 +132,8 @@ contract CheckpointsTrace224Test is Test {
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
-}
 
+}
 contract CheckpointsTrace208Test is Test {
     using Checkpoints for Checkpoints.Trace208;
 
@@ -125,11 +144,18 @@ contract CheckpointsTrace208Test is Test {
     Checkpoints.Trace208 internal _ckpts;
 
     // helpers
-    function _boundUint48(uint48 x, uint48 min, uint48 max) internal view returns (uint48) {
+    function _boundUint48(
+        uint48 x,
+        uint48 min,
+        uint48 max
+    ) internal view returns (uint48) {
         return SafeCast.toUint48(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint48[] memory keys, uint48 maxSpread) internal view {
+    function _prepareKeys(
+        uint48[] memory keys,
+        uint48 maxSpread
+    ) internal view {
         uint48 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint48 key = _boundUint48(keys[i], lastKey, lastKey + maxSpread);
@@ -138,7 +164,11 @@ contract CheckpointsTrace208Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint48 key, uint208 value) internal {
+    function _assertLatestCheckpoint(
+        bool exist,
+        uint48 key,
+        uint208 value
+    ) internal {
         (bool _exist, uint48 _key, uint208 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -146,7 +176,11 @@ contract CheckpointsTrace208Test is Test {
     }
 
     // tests
-    function testPush(uint48[] memory keys, uint208[] memory values, uint48 pastKey) public {
+    function testPush(
+        uint48[] memory keys,
+        uint208[] memory values,
+        uint48 pastKey
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -159,7 +193,7 @@ contract CheckpointsTrace208Test is Test {
         for (uint256 i = 0; i < keys.length; ++i) {
             uint48 key = keys[i];
             uint208 value = values[i % values.length];
-            if (i > 0 && key == keys[i - 1]) ++duplicates;
+            if (i > 0 && key == keys[i-1]) ++duplicates;
 
             // push
             _ckpts.push(key, value);
@@ -183,10 +217,14 @@ contract CheckpointsTrace208Test is Test {
 
     // used to test reverts
     function push(uint48 key, uint208 value) external {
-        _ckpts.push(key, value);
+      _ckpts.push(key, value);
     }
 
-    function testLookup(uint48[] memory keys, uint208[] memory values, uint48 lookup) public {
+    function testLookup(
+        uint48[] memory keys,
+        uint208[] memory values,
+        uint48 lookup
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -208,7 +246,7 @@ contract CheckpointsTrace208Test is Test {
                 upper = value;
             }
             // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
+            if (key >= lookup && (i == 0 || keys[i-1] < lookup)) {
                 lowerKey = key;
             }
             if (key == lowerKey) {
@@ -221,8 +259,8 @@ contract CheckpointsTrace208Test is Test {
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
-}
 
+}
 contract CheckpointsTrace160Test is Test {
     using Checkpoints for Checkpoints.Trace160;
 
@@ -233,11 +271,18 @@ contract CheckpointsTrace160Test is Test {
     Checkpoints.Trace160 internal _ckpts;
 
     // helpers
-    function _boundUint96(uint96 x, uint96 min, uint96 max) internal view returns (uint96) {
+    function _boundUint96(
+        uint96 x,
+        uint96 min,
+        uint96 max
+    ) internal view returns (uint96) {
         return SafeCast.toUint96(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint96[] memory keys, uint96 maxSpread) internal view {
+    function _prepareKeys(
+        uint96[] memory keys,
+        uint96 maxSpread
+    ) internal view {
         uint96 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = _boundUint96(keys[i], lastKey, lastKey + maxSpread);
@@ -246,7 +291,11 @@ contract CheckpointsTrace160Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal {
+    function _assertLatestCheckpoint(
+        bool exist,
+        uint96 key,
+        uint160 value
+    ) internal {
         (bool _exist, uint96 _key, uint160 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -254,7 +303,11 @@ contract CheckpointsTrace160Test is Test {
     }
 
     // tests
-    function testPush(uint96[] memory keys, uint160[] memory values, uint96 pastKey) public {
+    function testPush(
+        uint96[] memory keys,
+        uint160[] memory values,
+        uint96 pastKey
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -267,7 +320,7 @@ contract CheckpointsTrace160Test is Test {
         for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = keys[i];
             uint160 value = values[i % values.length];
-            if (i > 0 && key == keys[i - 1]) ++duplicates;
+            if (i > 0 && key == keys[i-1]) ++duplicates;
 
             // push
             _ckpts.push(key, value);
@@ -291,10 +344,14 @@ contract CheckpointsTrace160Test is Test {
 
     // used to test reverts
     function push(uint96 key, uint160 value) external {
-        _ckpts.push(key, value);
+      _ckpts.push(key, value);
     }
 
-    function testLookup(uint96[] memory keys, uint160[] memory values, uint96 lookup) public {
+    function testLookup(
+        uint96[] memory keys,
+        uint160[] memory values,
+        uint96 lookup
+    ) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -316,7 +373,7 @@ contract CheckpointsTrace160Test is Test {
                 upper = value;
             }
             // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
+            if (key >= lookup && (i == 0 || keys[i-1] < lookup)) {
                 lowerKey = key;
             }
             if (key == lowerKey) {
@@ -329,4 +386,6 @@ contract CheckpointsTrace160Test is Test {
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
+
 }
+

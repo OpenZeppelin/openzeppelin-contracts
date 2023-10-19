@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/EnumerableMap.sol)
-// This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
+// This file was procedurally generated from scripts\generate\templates\EnumerableMap.js.
 
 pragma solidity ^0.8.20;
 
@@ -71,7 +71,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(Bytes32ToBytes32Map storage map, bytes32 key, bytes32 value) internal returns (bool) {
+    function set(
+        Bytes32ToBytes32Map storage map,
+        bytes32 key,
+        bytes32 value
+    ) internal returns (bool) {
         map._values[key] = value;
         return map._keys.add(key);
     }
@@ -137,7 +141,7 @@ library EnumerableMap {
      */
     function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
         bytes32 value = map._values[key];
-        if (value == 0 && !contains(map, key)) {
+        if(value == 0 && !contains(map, key)) {
             revert EnumerableMapNonexistentKey(key);
         }
         return value;
@@ -168,7 +172,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(UintToUintMap storage map, uint256 key, uint256 value) internal returns (bool) {
+    function set(
+        UintToUintMap storage map,
+        uint256 key,
+        uint256 value
+    ) internal returns (bool) {
         return set(map._inner, bytes32(key), bytes32(value));
     }
 
@@ -262,7 +270,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(UintToAddressMap storage map, uint256 key, address value) internal returns (bool) {
+    function set(
+        UintToAddressMap storage map,
+        uint256 key,
+        address value
+    ) internal returns (bool) {
         return set(map._inner, bytes32(key), bytes32(uint256(uint160(value))));
     }
 
@@ -356,7 +368,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(AddressToUintMap storage map, address key, uint256 value) internal returns (bool) {
+    function set(
+        AddressToUintMap storage map,
+        address key,
+        uint256 value
+    ) internal returns (bool) {
         return set(map._inner, bytes32(uint256(uint160(key))), bytes32(value));
     }
 
@@ -450,7 +466,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(Bytes32ToUintMap storage map, bytes32 key, uint256 value) internal returns (bool) {
+    function set(
+        Bytes32ToUintMap storage map,
+        bytes32 key,
+        uint256 value
+    ) internal returns (bool) {
         return set(map._inner, key, bytes32(value));
     }
 
@@ -531,3 +551,4 @@ library EnumerableMap {
         return result;
     }
 }
+

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/Checkpoints.sol)
-// This file was procedurally generated from scripts/generate/templates/Checkpoints.js.
+// This file was procedurally generated from scripts\generate\templates\Checkpoints.js.
 
 pragma solidity ^0.8.20;
 
@@ -32,11 +32,15 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
-     *
+     * 
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the
      * library.
      */
-    function push(Trace224 storage self, uint32 key, uint224 value) internal returns (uint224, uint224) {
+    function push(
+        Trace224 storage self,
+        uint32 key,
+        uint224 value
+    ) internal returns (uint224, uint224) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -99,7 +103,15 @@ library Checkpoints {
      * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
-    function latestCheckpoint(Trace224 storage self) internal view returns (bool exists, uint32 _key, uint224 _value) {
+    function latestCheckpoint(Trace224 storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint32 _key,
+            uint224 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
         if (pos == 0) {
             return (false, 0, 0);
@@ -127,7 +139,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint224[] storage self, uint32 key, uint224 value) private returns (uint224, uint224) {
+    function _insert(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint224 value
+    ) private returns (uint224, uint224) {
         uint256 pos = self.length;
 
         if (pos > 0) {
@@ -135,7 +151,7 @@ library Checkpoints {
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            if (last._key > key) {
+            if(last._key > key) {
                 revert CheckpointUnorderedInsertion();
             }
 
@@ -203,10 +219,11 @@ library Checkpoints {
     /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
-    function _unsafeAccess(
-        Checkpoint224[] storage self,
-        uint256 pos
-    ) private pure returns (Checkpoint224 storage result) {
+    function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
+        private
+        pure
+        returns (Checkpoint224 storage result)
+    {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
@@ -226,11 +243,15 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into a Trace208 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
-     *
+     * 
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max` key set will disable the
      * library.
      */
-    function push(Trace208 storage self, uint48 key, uint208 value) internal returns (uint208, uint208) {
+    function push(
+        Trace208 storage self,
+        uint48 key,
+        uint208 value
+    ) internal returns (uint208, uint208) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -293,7 +314,15 @@ library Checkpoints {
      * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
-    function latestCheckpoint(Trace208 storage self) internal view returns (bool exists, uint48 _key, uint208 _value) {
+    function latestCheckpoint(Trace208 storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint48 _key,
+            uint208 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
         if (pos == 0) {
             return (false, 0, 0);
@@ -321,7 +350,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint208[] storage self, uint48 key, uint208 value) private returns (uint208, uint208) {
+    function _insert(
+        Checkpoint208[] storage self,
+        uint48 key,
+        uint208 value
+    ) private returns (uint208, uint208) {
         uint256 pos = self.length;
 
         if (pos > 0) {
@@ -329,7 +362,7 @@ library Checkpoints {
             Checkpoint208 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            if (last._key > key) {
+            if(last._key > key) {
                 revert CheckpointUnorderedInsertion();
             }
 
@@ -397,10 +430,11 @@ library Checkpoints {
     /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
-    function _unsafeAccess(
-        Checkpoint208[] storage self,
-        uint256 pos
-    ) private pure returns (Checkpoint208 storage result) {
+    function _unsafeAccess(Checkpoint208[] storage self, uint256 pos)
+        private
+        pure
+        returns (Checkpoint208 storage result)
+    {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
@@ -420,11 +454,15 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
-     *
+     * 
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the
      * library.
      */
-    function push(Trace160 storage self, uint96 key, uint160 value) internal returns (uint160, uint160) {
+    function push(
+        Trace160 storage self,
+        uint96 key,
+        uint160 value
+    ) internal returns (uint160, uint160) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -487,7 +525,15 @@ library Checkpoints {
      * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
-    function latestCheckpoint(Trace160 storage self) internal view returns (bool exists, uint96 _key, uint160 _value) {
+    function latestCheckpoint(Trace160 storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint96 _key,
+            uint160 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
         if (pos == 0) {
             return (false, 0, 0);
@@ -515,7 +561,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint160[] storage self, uint96 key, uint160 value) private returns (uint160, uint160) {
+    function _insert(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint160 value
+    ) private returns (uint160, uint160) {
         uint256 pos = self.length;
 
         if (pos > 0) {
@@ -523,7 +573,7 @@ library Checkpoints {
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            if (last._key > key) {
+            if(last._key > key) {
                 revert CheckpointUnorderedInsertion();
             }
 
@@ -591,13 +641,16 @@ library Checkpoints {
     /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
-    function _unsafeAccess(
-        Checkpoint160[] storage self,
-        uint256 pos
-    ) private pure returns (Checkpoint160 storage result) {
+    function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
+        private
+        pure
+        returns (Checkpoint160 storage result)
+    {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
         }
     }
+
 }
+
