@@ -138,7 +138,7 @@ The minimum delay (accessible through the xref:api:governance.adoc#TimelockContr
 [[access-management]]
 == Access Management
 
-Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for permissioning your contracts, decentralized protocols tend become more complex after integrating new smart contract instances, requiring to keep track of each contract permissions. This increases complexity of uniformly monitoring and updating permissions across the system.
+Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for permissioning your contracts, decentralized protocols tend become more complex after integrating new contract instances, requiring to keep track permissions in each one. This increases complexity of uniformly monitoring and updating permissions across the system.
 
 image::access-control-multiple.svg[Access Control multiple]
 
