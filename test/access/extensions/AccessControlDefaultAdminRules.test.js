@@ -1,26 +1,32 @@
-const { time, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
+  accessControlAccountsBaseFixture,
 } = require('../AccessControl.behavior.js');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { ethers } = require('hardhat');
+const time = require('../../helpers/time.js');
+const { ZeroAddress: ZERO_ADDRESS } = require('ethers');
 
-const AccessControlDefaultAdminRules = artifacts.require('$AccessControlDefaultAdminRules');
+async function fixture() {
+  const delay = time.duration.hours(10);
+  const { accounts } = await accessControlAccountsBaseFixture();
+  const defaultAdmin = accounts.shift();
+  const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin.address]);
+  return { mock, defaultAdmin, delay, accounts };
+}
 
-contract('AccessControlDefaultAdminRules', function (accounts) {
-  const delay = web3.utils.toBN(time.duration.hours(10));
-
+describe('AccessControlDefaultAdminRules', function () {
   beforeEach(async function () {
-    this.accessControl = await AccessControlDefaultAdminRules.new(delay, accounts[0], { from: accounts[0] });
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('initial admin not zero', async function () {
-    await expectRevert(
-      AccessControlDefaultAdminRules.new(delay, constants.ZERO_ADDRESS),
-      'AccessControlInvalidDefaultAdmin',
-      [constants.ZERO_ADDRESS],
-    );
+    await expect(ethers.deployContract('$AccessControlDefaultAdminRules', [this.delay, ZERO_ADDRESS]))
+      .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
+      .withArgs(ZERO_ADDRESS);
   });
 
-  shouldBehaveLikeAccessControl(...accounts);
-  shouldBehaveLikeAccessControlDefaultAdminRules(delay, ...accounts);
+  shouldBehaveLikeAccessControl();
+  shouldBehaveLikeAccessControlDefaultAdminRules();
 });
