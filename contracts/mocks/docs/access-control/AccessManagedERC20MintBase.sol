@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {AccessManaged} from "../../../access/manager/AccessManaged.sol";
 import {ERC20} from "../../../token/ERC20/ERC20.sol";
 
-contract AccessManagedERC0Mint is ERC20, AccessManaged {
+contract AccessManagedERC20Mint is ERC20, AccessManaged {
     constructor(address manager) ERC20("MyToken", "TKN") AccessManaged(manager) {}
 
     // Minting is restricted according to the manager rules for this function.
