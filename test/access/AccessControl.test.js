@@ -8,9 +8,10 @@ const {
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const { accounts } = await accessControlAccountsBaseFixture();
+  const {
+    accounts: [defaultAdmin, ...accounts],
+  } = await accessControlAccountsBaseFixture();
   const mock = await ethers.deployContract('$AccessControl');
-  const defaultAdmin = accounts.shift();
   await mock.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin.address);
   return { mock, defaultAdmin, accounts };
 }

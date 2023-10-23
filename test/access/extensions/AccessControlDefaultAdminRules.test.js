@@ -10,8 +10,9 @@ const { ZeroAddress: ZERO_ADDRESS } = require('ethers');
 
 async function fixture() {
   const delay = time.duration.hours(10);
-  const { accounts } = await accessControlAccountsBaseFixture();
-  const defaultAdmin = accounts.shift();
+  const {
+    accounts: [defaultAdmin, ...accounts],
+  } = await accessControlAccountsBaseFixture();
   const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin.address]);
   return { mock, defaultAdmin, delay, accounts };
 }
