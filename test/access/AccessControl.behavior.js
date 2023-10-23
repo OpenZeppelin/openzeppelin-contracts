@@ -443,7 +443,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
 
     describe('when there is no pending delay nor pending admin transfer', function () {
       it('should set pending default admin and schedule', async function () {
-        const acceptSchedule = BigInt(await time.latest()) + this.delay + BigInt(1);
+        const nextBlockTimestamp = BigInt(await time.latest()) + BigInt(1);
+        await time.setNextBlockTimestamp(nextBlockTimestamp);
+        const acceptSchedule = nextBlockTimestamp + this.delay;
         await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin))
           .to.emit(this.mock, 'DefaultAdminTransferScheduled')
           .withArgs(this.newDefaultAdmin.address, acceptSchedule);
@@ -742,7 +744,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
           const minWait = capWait < this.newDefaultAdminDelay ? capWait : this.newDefaultAdminDelay;
           const changeDelay =
             this.newDefaultAdminDelay <= this.delay ? this.delay - this.newDefaultAdminDelay : minWait;
-          const effectSchedule = BigInt(await time.latest()) + changeDelay + BigInt(1);
+          const nextBlockTimestamp = BigInt(await time.latest()) + BigInt(1);
+          await time.setNextBlockTimestamp(nextBlockTimestamp);
+          const effectSchedule = nextBlockTimestamp + changeDelay;
 
           // Begins the change
           await expect(this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(this.newDefaultAdminDelay))
