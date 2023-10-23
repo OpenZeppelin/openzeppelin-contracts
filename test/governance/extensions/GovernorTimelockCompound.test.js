@@ -1,10 +1,10 @@
+const { ethers } = require('ethers');
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { computeCreateAddress } = require('../../helpers/create');
 const { clockFromReceipt } = require('../../helpers/time');
 
 const Timelock = artifacts.require('CompTimelock');
@@ -41,7 +41,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);
-        const predictGovernor = computeCreateAddress(deployer, nonce + 1);
+        const predictGovernor = ethers.getCreateAddress({ from: deployer, nonce: nonce + 1 });
 
         this.timelock = await Timelock.new(predictGovernor, defaultDelay);
         this.mock = await Governor.new(
