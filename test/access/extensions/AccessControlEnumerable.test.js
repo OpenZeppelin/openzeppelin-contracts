@@ -16,7 +16,7 @@ async function fixture() {
   return { mock, defaultAdmin, accounts };
 }
 
-contract('AccessControlEnumerable', function () {
+describe('AccessControlEnumerable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
