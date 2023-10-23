@@ -4,8 +4,7 @@ const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpe
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 const { expect } = require('chai');
-const { web3 } = require('hardhat');
-const { computeCreateAddress } = require('../../helpers/create');
+const { ethers, web3 } = require('hardhat');
 const { impersonate } = require('../../helpers/account');
 
 const Implementation1 = artifacts.require('Implementation1');
@@ -27,7 +26,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     const proxy = await createProxy(logic, initData, opts);
 
     // Expect proxy admin to be the first and only contract created by the proxy
-    const proxyAdminAddress = computeCreateAddress(proxy.address, 1);
+    const proxyAdminAddress = ethers.getCreateAddress({ from: proxy.address, nonce: 1 });
     await impersonate(proxyAdminAddress);
 
     return {
