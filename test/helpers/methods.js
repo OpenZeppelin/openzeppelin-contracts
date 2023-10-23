@@ -1,5 +1,5 @@
-const { soliditySha3 } = require('web3-utils');
+const { ethers } = require('hardhat');
 
 module.exports = {
-  selector: signature => soliditySha3(signature).substring(0, 10),
+  selector: signature => ethers.FunctionFragment.from(signature).selector,
 };

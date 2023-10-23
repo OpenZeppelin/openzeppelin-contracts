@@ -1,6 +1,4 @@
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
-
+const { ethers } = require('hardhat');
 const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 const { mapValues } = require('../../helpers/iterate');
@@ -80,23 +78,18 @@ contract('EIP712', function (accounts) {
           contents: 'very interesting',
         };
 
-        const data = {
-          types: {
-            EIP712Domain: this.domainType,
-            Mail: [
-              { name: 'to', type: 'address' },
-              { name: 'contents', type: 'string' },
-            ],
-          },
-          domain: this.domain,
-          primaryType: 'Mail',
-          message,
+        const types = {
+          Mail: [
+            { name: 'to', type: 'address' },
+            { name: 'contents', type: 'string' },
+          ],
         };
 
-        const wallet = Wallet.generate();
-        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const signer = ethers.Wallet.createRandom();
+        const address = await signer.getAddress();
+        const signature = await signer.signTypedData(this.domain, types, message);
 
-        await this.eip712.verify(signature, wallet.getAddressString(), message.to, message.contents);
+        await this.eip712.verify(signature, address, message.to, message.contents);
       });
 
       it('name', async function () {
