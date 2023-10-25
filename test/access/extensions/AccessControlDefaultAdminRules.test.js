@@ -1,18 +1,15 @@
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { bigint: time } = require('../../helpers/time');
+
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
-  accessControlAccountsBaseFixture,
 } = require('../AccessControl.behavior.js');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { ethers } = require('hardhat');
-const time = require('../../helpers/time.js');
-const { ZeroAddress: ZERO_ADDRESS } = require('ethers');
 
 async function fixture() {
   const delay = time.duration.hours(10);
-  const {
-    accounts: [defaultAdmin, ...accounts],
-  } = await accessControlAccountsBaseFixture();
+  const [defaultAdmin, ...accounts] = await ethers.getSigners();
   const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin.address]);
   return { mock, defaultAdmin, delay, accounts };
 }
@@ -23,9 +20,9 @@ describe('AccessControlDefaultAdminRules', function () {
   });
 
   it('initial admin not zero', async function () {
-    await expect(ethers.deployContract('$AccessControlDefaultAdminRules', [this.delay, ZERO_ADDRESS]))
+    await expect(ethers.deployContract('$AccessControlDefaultAdminRules', [this.delay, ethers.ZeroAddress]))
       .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
-      .withArgs(ZERO_ADDRESS);
+      .withArgs(ethers.ZeroAddress);
   });
 
   shouldBehaveLikeAccessControl();

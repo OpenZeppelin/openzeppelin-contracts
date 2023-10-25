@@ -1,5 +1,7 @@
 const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
 
+const mapObject = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]));
+
 module.exports = {
   clock: {
     blocknumber: () => time.latestBlock(),
@@ -13,26 +15,15 @@ module.exports = {
   },
   forward: {
     blocknumber: mineUpTo,
-    timestamp: time.increaseTo,
+    timestamp: (to, mine = true) => (mine ? time.increaseTo(to) : time.setNextBlockTimestamp(to)),
   },
-  duration: {
-    seconds: function (val) {
-      return BigInt(val);
-    },
-    minutes: function (val) {
-      return BigInt(val) * this.seconds(60);
-    },
-    hours: function (val) {
-      return BigInt(val) * this.minutes(60);
-    },
-    days: function (val) {
-      return BigInt(val) * this.hours(24);
-    },
-    weeks: function (val) {
-      return BigInt(val) * this.days(7);
-    },
-    years: function (val) {
-      return BigInt(val) * this.days(365);
-    },
-  },
+  duration: time.duration,
+};
+
+// TODO: deprecate the old version in favor of this one
+module.exports.bigint = {
+  clock: mapObject(module.exports.clock, fn => () => fn().then(BigInt)),
+  clockFromReceipt: mapObject(module.exports.clockFromReceipt, fn => receipt => fn(receipt).then(BigInt)),
+  forward: module.exports.forward,
+  duration: mapObject(module.exports.duration, fn => n => BigInt(fn(n))),
 };
