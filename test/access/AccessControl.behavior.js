@@ -173,17 +173,17 @@ function shouldBehaveLikeAccessControl() {
     });
 
     it('do not revert if sender has role', async function () {
-      await this.mock.connect(this.authorized)['$_checkRole(bytes32)'](ROLE);
+      await this.mock.connect(this.authorized).$_checkRole(ROLE);
     });
 
     it("revert if sender doesn't have role #1", async function () {
-      await expect(this.mock.connect(this.other)['$_checkRole(bytes32)'](ROLE))
+      await expect(this.mock.connect(this.other).$_checkRole(ROLE))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
         .withArgs(this.other.address, ROLE);
     });
 
     it("revert if sender doesn't have role #2", async function () {
-      await expect(this.mock.connect(this.authorized)['$_checkRole(bytes32)'](OTHER_ROLE))
+      await expect(this.mock.connect(this.authorized).$_checkRole(OTHER_ROLE))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
         .withArgs(this.authorized.address, OTHER_ROLE);
     });
