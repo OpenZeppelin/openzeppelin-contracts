@@ -1,5 +1,6 @@
+const { ethers } = require('ethers');
 const { expect } = require('chai');
-const { FunctionFragment, toBeHex } = require('ethers');
+const { selector } = require('../../helpers/methods');
 
 const INVALID_ID = '0xffffffff';
 const SIGNATURES = {
@@ -80,22 +81,15 @@ const SIGNATURES = {
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
-const INTERFACE_IDS = {};
-const SELECTORS = {};
-
-const toInterfaceId = fragments =>
-  toBeHex(
-    fragments.reduce((id, curr) => BigInt(curr.selector) ^ BigInt(id), BigInt(0)),
-    4,
-  );
-
-for (const k of Object.getOwnPropertyNames(SIGNATURES)) {
-  INTERFACE_IDS[k] = toInterfaceId(SIGNATURES[k].map(FunctionFragment.from));
-
-  for (const fnSig of SIGNATURES[k]) {
-    SELECTORS[fnSig] = FunctionFragment.from(fnSig).selector;
-  }
-}
+const INTERFACE_IDS = Object.fromEntries(
+  Object.entries(SIGNATURES).map(([name, signatures]) => [
+    name,
+    ethers.toBeHex(
+      signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
+      4,
+    ),
+  ]),
+);
 
 function shouldSupportInterfaces(interfaces = []) {
   describe('ERC165', function () {
@@ -136,7 +130,7 @@ function shouldSupportInterfaces(interfaces = []) {
         for (const fnSig of SIGNATURES[k]) {
           // TODO: Remove Truffle case when ethersjs migration is done
           if (this.contractUnderTest.abi) {
-            const fnSelector = SELECTORS[fnSig];
+            const fnSelector = selector(fnSig);
             return expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSelector).length).to.equal(
               1,
               `did not find ${fnSig}`,
