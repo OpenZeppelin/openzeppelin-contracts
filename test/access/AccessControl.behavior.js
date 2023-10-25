@@ -278,7 +278,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
 
         // Wait for acceptance
-        const acceptSchedule = await time.clock.timestamp() + this.delay;
+        const acceptSchedule = (await time.clock.timestamp()) + this.delay;
         await time.forward.timestamp(acceptSchedule + 1n, false);
         await this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
 
@@ -433,7 +433,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
 
     describe('when there is no pending delay nor pending admin transfer', function () {
       it('should set pending default admin and schedule', async function () {
-        const nextBlockTimestamp = await time.clock.timestamp() + 1n;
+        const nextBlockTimestamp = (await time.clock.timestamp()) + 1n;
         const acceptSchedule = nextBlockTimestamp + this.delay;
 
         await time.forward.timestamp(nextBlockTimestamp, false); // set timestamp but don't mine the block yet
@@ -450,7 +450,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     describe('when there is a pending admin transfer', function () {
       beforeEach('sets a pending default admin transfer', async function () {
         await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
-        this.acceptSchedule = await time.clock.timestamp() + this.delay;
+        this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
       });
 
       for (const [fromSchedule, tag] of [
@@ -467,7 +467,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
             this.mock,
             'DefaultAdminTransferCanceled', // Cancellation is always emitted since it was never accepted
           );
-          const newSchedule = await time.clock.timestamp() + this.delay;
+          const newSchedule = (await time.clock.timestamp()) + this.delay;
           const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
           expect(newAdmin).to.equal(this.other.address);
           expect(schedule).to.equal(newSchedule);
@@ -527,7 +527,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
   describe('accepts transfer admin', function () {
     beforeEach(async function () {
       await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
-      this.acceptSchedule = await time.clock.timestamp() + this.delay;
+      this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
     });
 
     it('should revert if caller is not pending default admin', async function () {
@@ -543,10 +543,8 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       });
 
       it('accepts a transfer and changes default admin', async function () {
-        const methodCall = this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
-
         // Emit events
-        await expect(methodCall)
+        await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
           .to.emit(this.mock, 'RoleRevoked')
           .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.newDefaultAdmin.address)
           .to.emit(this.mock, 'RoleGranted')
@@ -589,7 +587,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     describe('when there is a pending default admin transfer', function () {
       beforeEach(async function () {
         await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
-        this.acceptSchedule = await time.clock.timestamp() + this.delay;
+        this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
       });
 
       for (const [fromSchedule, tag] of [
@@ -642,7 +640,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
   describe('renounces admin', function () {
     beforeEach(async function () {
       await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(ethers.ZeroAddress);
-      this.expectedSchedule = await time.clock.timestamp() + this.delay;
+      this.expectedSchedule = (await time.clock.timestamp()) + this.delay;
       this.delayNotPassed = this.expectedSchedule;
       this.delayPassed = this.expectedSchedule + 1n;
     });
@@ -735,7 +733,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
           const minWait = capWait < this.newDefaultAdminDelay ? capWait : this.newDefaultAdminDelay;
           const changeDelay =
             this.newDefaultAdminDelay <= this.delay ? this.delay - this.newDefaultAdminDelay : minWait;
-          const nextBlockTimestamp = await time.clock.timestamp() + 1n;
+          const nextBlockTimestamp = (await time.clock.timestamp()) + 1n;
           const effectSchedule = nextBlockTimestamp + changeDelay;
 
           await time.forward.timestamp(nextBlockTimestamp, false);

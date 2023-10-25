@@ -6,7 +6,7 @@ const { DEFAULT_ADMIN_ROLE, shouldBehaveLikeAccessControl } = require('./AccessC
 async function fixture() {
   const [defaultAdmin, ...accounts] = await ethers.getSigners();
   const mock = await ethers.deployContract('$AccessControl');
-  await mock.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin.address);
+  await mock.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
   return { mock, defaultAdmin, accounts };
 }
 

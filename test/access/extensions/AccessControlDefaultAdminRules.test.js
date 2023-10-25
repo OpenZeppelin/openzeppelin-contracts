@@ -10,7 +10,7 @@ const {
 async function fixture() {
   const delay = time.duration.hours(10);
   const [defaultAdmin, ...accounts] = await ethers.getSigners();
-  const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin.address]);
+  const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin]);
   return { mock, defaultAdmin, delay, accounts };
 }
 
