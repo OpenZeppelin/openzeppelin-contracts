@@ -8,7 +8,7 @@ Security vulnerabilities should be disclosed to the project maintainers through 
 
 Responsible disclosure of security vulnerabilities is rewarded through a bug bounty program on [Immunefi].
 
-There is a bonus reward for issues introduced in release candidates that are reported before making it into a stable release. Learn more about release candidates at [Releases](../RELEASING.md).
+There is a bonus reward for issues introduced in release candidates that are reported before making it into a stable release. Learn more about release candidates at [`RELEASING.md`](./RELEASING.md).
 
 ## Security Patches
 
