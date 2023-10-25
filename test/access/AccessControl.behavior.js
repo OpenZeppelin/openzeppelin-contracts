@@ -248,6 +248,7 @@ function shouldBehaveLikeAccessControlEnumerable() {
 
       expect(bearers).to.have.members([this.authorized.address, this.otherAuthorized.address]);
     });
+
     it('role enumeration should be in sync after renounceRole call', async function () {
       expect(await this.mock.getRoleMemberCount(ROLE)).to.equal(0);
       await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.defaultAdmin);
@@ -492,8 +493,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
 
       beforeEach('schedule a delay change', async function () {
         await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(newDelay);
-        const pendingDefaultAdminDelay = await this.mock.pendingDefaultAdminDelay();
-        this.effectSchedule = pendingDefaultAdminDelay.schedule;
+        ({ schedule: this.effectSchedule } = await this.mock.pendingDefaultAdminDelay());
       });
 
       for (const [fromSchedule, schedulePassed, expectNewDelay] of [
