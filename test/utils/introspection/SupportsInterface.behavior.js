@@ -137,7 +137,7 @@ function shouldSupportInterfaces(interfaces = []) {
             );
           }
 
-          expect(!!this.contractUnderTest.interface.getFunction(fnSig), `did not ${fnSig}`).to.be.true;
+          expect(!!this.contractUnderTest.interface.getFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }
     });
