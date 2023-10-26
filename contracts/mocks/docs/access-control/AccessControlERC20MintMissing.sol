@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {AccessControl} from "../../../access/AccessControl.sol";
 import {ERC20} from "../../../token/ERC20/ERC20.sol";
 
-contract AccessControlERC0MintMissing is ERC20, AccessControl {
+contract AccessControlERC20MintMissing is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
