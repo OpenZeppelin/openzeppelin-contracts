@@ -144,7 +144,7 @@ image::access-control-multiple.svg[Access Control multiple]
 
 These protocols often require a single main interface to manage all roles, while keeping the benefits of delaying access control operations and the same built-in rules for assigning and revoking roles.
 
-This is accomplished with an xref:api:access.adoc#AccessManager[`AccessManager`] instance; a contract to store multiple smart contract permissions. Instead of managing each contract separately, it allows managing access from a single contract, making your protocol easier to audit and control.
+This can be accomplished with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, the AccessManager stores all the permissions in a a single contract, making your protocol easier to audit and maintain.
 
 image::access-manager.svg[Access Manager]
 
