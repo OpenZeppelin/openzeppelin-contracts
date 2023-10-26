@@ -8,8 +8,7 @@ import {IERC165} from "./IERC165.sol";
 
 /**
  * @title IERC1363
- * @dev Interface of the ERC1363 standard as defined in the
- * https://eips.ethereum.org/EIPS/eip-1363[EIP-1363].
+ * @dev Interface of the ERC1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363].
  *
  * Defines an extension interface for ERC20 tokens that supports executing code on a recipient contract
  * after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction.
