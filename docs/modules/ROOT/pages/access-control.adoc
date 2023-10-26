@@ -208,7 +208,11 @@ await manager.labelRole(MINTER, "MINTER");
 
 It's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets and functions, assign a new admin and finally renouncing to the admin role.
 
-Finally, the manager comes with a configurable `close` mode. When enabled by admins, it restricts every call to any managed contract while keeping permissions intact.
+Finally, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to a target contract will revert.
+
+Additionally, closing and opening contracts don't alter any of their settings, neither permissions nor delays. Particularly, the roles required for calling specific functions are not modified.
+
+This mode is useful for incident response operations that require temporarily shutting down a contract in order to evaluate emergencies and reconfigure permissions.
 
 ```javascriot
 // Token's `restricted` functions closed
