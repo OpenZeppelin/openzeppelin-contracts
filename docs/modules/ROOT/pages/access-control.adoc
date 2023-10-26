@@ -221,7 +221,7 @@ An important aspect of the AccessControl contract is that roles aren't granted n
 
 In the case of the AccessMananger, the same rule applies and only each role admin is able to call xref:api:access.adoc#AccessManager-grantRole-uint64-address-uint32-[grant] and xref:api:access.doc#AccessManager-revokeRole-uint64-address-[revoke] functions. Note that calling these functions will be subject to the execution delay the executing role admin has.
 
-Additionally, the access manager stores a _guardian_ an extra protection for each role and it is given the ability of canceling operations that have been scheduled by any role member with an execution delay. Consider that a role will have its initial admin and guardian default to the `ADMIN_ROLE` (`0`).
+Additionally, the access manager stores a _guardian_ as an extra protection for each role. This guardian has the ability to cancel operations that have been scheduled by any role member with an execution delay. Consider that a role will have its initial admin and guardian default to the `ADMIN_ROLE` (`0`).
 
 IMPORTANT: Be careful with the `ADMIN_ROLE` members, since it acts as the default admin and guardian for every role, even a misbehaved guardian can cancel operations at discretion, affecting the manager operation.
 
