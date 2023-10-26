@@ -48,7 +48,7 @@ These removals were implemented in the following PRs: [#3637](https://github.com
 #### General
 
 - Replaced revert strings and require statements with custom errors. ([#4261](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4261))
-- Bumped minimum compiler version required to 0.8.20 ([#4288](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4288))
+- Bumped minimum compiler version required to 0.8.20 ([#4288](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4288), [#4489](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4489))
 - Use of `abi.encodeCall` in place of `abi.encodeWithSelector` and `abi.encodeWithSignature` for improved type-checking of parameters ([#4293](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4293))
 - Replaced some uses of `abi.encodePacked` with clearer alternatives (e.g. `bytes.concat`, `string.concat`). ([#4504](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4504)) ([#4296](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4296))
 - Overrides are now used internally for a number of functions that were previously hardcoded to their default implementation in certain locations: `ERC1155Supply.totalSupply`, `ERC721.ownerOf`, `ERC721.balanceOf` and `ERC721.totalSupply` in `ERC721Enumerable`, `ERC20.totalSupply` in `ERC20FlashMint`, and `ERC1967._getImplementation` in `ERC1967Proxy`. ([#4299](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4299))
