@@ -148,7 +148,12 @@ This can be accomplished with an xref:api:access.adoc#AccessManager[`AccessManag
 
 image::access-manager.svg[Access Manager]
 
-The manager allows granting permissions to a role, scoped by contract (called target) and https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] (called function). In this model, each role is allowed to call multiple functions in different contracts. Similarly, a role can be granted to multiple addresses, and a single address can be granted with multiple roles.
+The AccessManager is designed around the concept of role:
+
+* Roles are granted to accounts (addresses) following a many-to-many approach. This means that each user can have one or multiple roles, and that multiple users can have the same role.
+* Access to a restricted function is restricted to one role. A function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
+
+For a call to be authorized, the caller must bear the role that is assigned to the current function (contract address + function selector).
 
 image::access-manager-functions.svg[Access Manager functions]
 
