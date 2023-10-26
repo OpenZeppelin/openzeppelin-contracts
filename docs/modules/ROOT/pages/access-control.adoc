@@ -186,7 +186,7 @@ await manager.setTargetFunctionRole(
 );
 ```
 
-Even though each role has its own list of permissioned functions. Each address granted with a role (called member) will have an execution delay that will dictate how long the account should wait to execute a function allowed to its role. Delayed operations are possible by using the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] and xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] functions.
+Even though each role has its own list of permissioned functions, each address granted with a role (called member) will have an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must be xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`d] first on the Access Manager before they can be executed, either directly or using the Access Manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
 
 Additionally, each role granted to a member will have a granting delay before it takes effect. This is how you can set roles with a granting and execution delay:
 
