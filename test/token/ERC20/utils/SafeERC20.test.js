@@ -6,6 +6,8 @@ const ERC20ReturnTrueMock = artifacts.require('$ERC20'); // default implementati
 const ERC20NoReturnMock = artifacts.require('$ERC20NoReturnMock');
 const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
 const ERC1363 = artifacts.require('$ERC1363');
+const ERC1363ReceiverMock = artifacts.require('ERC1363ReceiverMock');
+const ERC1363SpenderMock = artifacts.require('ERC1363SpenderMock');
 
 const { expectRevertCustomError } = require('../../../helpers/customError');
 
@@ -148,6 +150,7 @@ contract('SafeERC20', function (accounts) {
 
   describe('with ERC1363', function () {
     const value = web3.utils.toBN(100);
+    const data  = '0x12345678';
 
     beforeEach(async function () {
       this.token = await ERC1363.new(name, symbol);
@@ -160,7 +163,7 @@ contract('SafeERC20', function (accounts) {
         await this.token.$_mint(owner, 100);
 
         await expectRevertCustomError(
-          this.token.methods['transferAndCall(address,uint256,bytes)'](receiver, value, '0x', { from: owner }),
+          this.token.methods['transferAndCall(address,uint256,bytes)'](receiver, value, data, { from: owner }),
           'ERC1363InvalidReceiver',
           [receiver],
         );
@@ -169,11 +172,30 @@ contract('SafeERC20', function (accounts) {
       it('can transferAndCall to an EOA using helper', async function () {
         await this.token.$_mint(this.mock.address, value);
 
-        const { tx } = await this.mock.$transferAndCallRelaxed(this.token.address, receiver, value, '0x');
+        const { tx } = await this.mock.$transferAndCallRelaxed(this.token.address, receiver, value, data);
         await expectEvent.inTransaction(tx, this.token, 'Transfer', {
           from: this.mock.address,
           to: receiver,
           value,
+        });
+      });
+
+      it('can transferAndCall to an ERC1363Receiver using helper', async function () {
+        const receiver = await ERC1363ReceiverMock.new();
+
+        await this.token.$_mint(this.mock.address, value);
+
+        const { tx } = await this.mock.$transferAndCallRelaxed(this.token.address, receiver.address, value, data);
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: this.mock.address,
+          to: receiver.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, receiver, 'Received', {
+          operator: this.mock.address,
+          from: this.mock.address,
+          value,
+          data,
         });
       });
     });
@@ -184,7 +206,7 @@ contract('SafeERC20', function (accounts) {
         await this.token.approve(other, constants.MAX_UINT256, { from: owner });
 
         await expectRevertCustomError(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](owner, receiver, value, '0x', {
+          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](owner, receiver, value, data, {
             from: other,
           }),
           'ERC1363InvalidReceiver',
@@ -196,11 +218,31 @@ contract('SafeERC20', function (accounts) {
         await this.token.$_mint(owner, value);
         await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
 
-        const { tx } = await this.mock.$transferFromAndCallRelaxed(this.token.address, owner, receiver, value, '0x');
+        const { tx } = await this.mock.$transferFromAndCallRelaxed(this.token.address, owner, receiver, value, data);
         await expectEvent.inTransaction(tx, this.token, 'Transfer', {
           from: owner,
           to: receiver,
           value,
+        });
+      });
+
+      it('can transferFromAndCall to an ERC1363Receiver using helper', async function () {
+        const receiver = await ERC1363ReceiverMock.new();
+
+        await this.token.$_mint(owner, value);
+        await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
+
+        const { tx } = await this.mock.$transferFromAndCallRelaxed(this.token.address, owner, receiver.address, value, data);
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: owner,
+          to: receiver.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, receiver, 'Received', {
+          operator: this.mock.address,
+          from: owner,
+          value,
+          data,
         });
       });
     });
@@ -208,18 +250,34 @@ contract('SafeERC20', function (accounts) {
     describe('approveAndCall', function () {
       it('cannot approveAndCall to an EOA directly', async function () {
         await expectRevertCustomError(
-          this.token.methods['approveAndCall(address,uint256,bytes)'](receiver, value, '0x'),
+          this.token.methods['approveAndCall(address,uint256,bytes)'](receiver, value, data),
           'ERC1363InvalidSpender',
           [receiver],
         );
       });
 
       it('can approveAndCall to an EOA using helper', async function () {
-        const { tx } = await this.mock.$approveAndCallRelaxed(this.token.address, receiver, value, '0x');
+        const { tx } = await this.mock.$approveAndCallRelaxed(this.token.address, receiver, value, data);
         await expectEvent.inTransaction(tx, this.token, 'Approval', {
           owner: this.mock.address,
           spender: receiver,
           value,
+        });
+      });
+
+      it('can approveAndCall to an ERC1363Spender using helper', async function () {
+        const spender = await ERC1363SpenderMock.new();
+
+        const { tx } = await this.mock.$approveAndCallRelaxed(this.token.address, spender.address, value, data);
+        await expectEvent.inTransaction(tx, this.token, 'Approval', {
+          owner: this.mock.address,
+          spender: spender.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, spender, 'Approved', {
+          owner: this.mock.address,
+          value,
+          data,
         });
       });
     });
