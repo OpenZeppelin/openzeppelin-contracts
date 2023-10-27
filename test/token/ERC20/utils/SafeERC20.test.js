@@ -150,7 +150,7 @@ contract('SafeERC20', function (accounts) {
 
   describe('with ERC1363', function () {
     const value = web3.utils.toBN(100);
-    const data  = '0x12345678';
+    const data = '0x12345678';
 
     beforeEach(async function () {
       this.token = await ERC1363.new(name, symbol);
@@ -232,7 +232,13 @@ contract('SafeERC20', function (accounts) {
         await this.token.$_mint(owner, value);
         await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
 
-        const { tx } = await this.mock.$transferFromAndCallRelaxed(this.token.address, owner, receiver.address, value, data);
+        const { tx } = await this.mock.$transferFromAndCallRelaxed(
+          this.token.address,
+          owner,
+          receiver.address,
+          value,
+          data,
+        );
         await expectEvent.inTransaction(tx, this.token, 'Transfer', {
           from: owner,
           to: receiver.address,
