@@ -1,353 +1,361 @@
-const { expectEvent, constants, BN } = require('@openzeppelin/test-helpers');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-
-const { time } = require('@nomicfoundation/hardhat-network-helpers');
+const { bigint: time } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { network } = require('hardhat');
-const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
-const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
-const ROLE = web3.utils.soliditySha3('ROLE');
-const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
-const ZERO = web3.utils.toBN(0);
+const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
+const ROLE = ethers.id('ROLE');
+const OTHER_ROLE = ethers.id('OTHER_ROLE');
 
-function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
+function shouldBehaveLikeAccessControl() {
+  beforeEach(async function () {
+    [this.authorized, this.other, this.otherAdmin] = this.accounts;
+  });
+
   shouldSupportInterfaces(['AccessControl']);
 
   describe('default admin', function () {
     it('deployer has default admin role', async function () {
-      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.equal(true);
+      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.equal(true);
     });
 
     it("other roles's admin is the default admin role", async function () {
-      expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
+      expect(await this.mock.getRoleAdmin(ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
 
     it("default admin role's admin is itself", async function () {
-      expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
+      expect(await this.mock.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
   });
 
   describe('granting', function () {
     beforeEach(async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
     });
 
     it('non-admin cannot grant role to other accounts', async function () {
-      await expectRevertCustomError(
-        this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        'AccessControlUnauthorizedAccount',
-        [other, DEFAULT_ADMIN_ROLE],
-      );
+      await expect(this.mock.connect(this.other).grantRole(ROLE, this.authorized))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
     });
 
     it('accounts can be granted a role multiple times', async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      expectEvent.notEmitted(receipt, 'RoleGranted');
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
+      expect(this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized)).to.not.emit(
+        this.mock,
+        'RoleGranted',
+      );
     });
   });
 
   describe('revoking', function () {
     it('roles that are not had can be revoked', async function () {
-      expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
+      expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
 
-      const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-      expectEvent.notEmitted(receipt, 'RoleRevoked');
+      await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
+        this.mock,
+        'RoleRevoked',
+      );
     });
 
     context('with granted role', function () {
       beforeEach(async function () {
-        await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+        await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });
 
       it('admin can revoke role', async function () {
-        const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: admin });
+        await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'RoleRevoked')
+          .withArgs(ROLE, this.authorized.address, this.defaultAdmin.address);
 
-        expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
       });
 
       it('non-admin cannot revoke role', async function () {
-        await expectRevertCustomError(
-          this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          'AccessControlUnauthorizedAccount',
-          [other, DEFAULT_ADMIN_ROLE],
-        );
+        await expect(this.mock.connect(this.other).revokeRole(ROLE, this.authorized))
+          .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+          .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
       });
 
       it('a role can be revoked multiple times', async function () {
-        await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
+        await this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized);
 
-        const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-        expectEvent.notEmitted(receipt, 'RoleRevoked');
+        expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
+          this.mock,
+          'RoleRevoked',
+        );
       });
     });
   });
 
   describe('renouncing', function () {
     it('roles that are not had can be renounced', async function () {
-      const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-      expectEvent.notEmitted(receipt, 'RoleRevoked');
+      await expect(this.mock.connect(this.authorized).renounceRole(ROLE, this.authorized)).to.not.emit(
+        this.mock,
+        'RoleRevoked',
+      );
     });
 
     context('with granted role', function () {
       beforeEach(async function () {
-        await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+        await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });
 
       it('bearer can renounce role', async function () {
-        const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: authorized });
+        await expect(this.mock.connect(this.authorized).renounceRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'RoleRevoked')
+          .withArgs(ROLE, this.authorized.address, this.authorized.address);
 
-        expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
       });
 
       it('only the sender can renounce their roles', async function () {
-        await expectRevertCustomError(
-          this.accessControl.renounceRole(ROLE, authorized, { from: admin }),
+        expect(this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.authorized)).to.be.revertedWithCustomError(
+          this.mock,
           'AccessControlBadConfirmation',
-          [],
         );
       });
 
       it('a role can be renounced multiple times', async function () {
-        await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
+        await this.mock.connect(this.authorized).renounceRole(ROLE, this.authorized);
 
-        const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-        expectEvent.notEmitted(receipt, 'RoleRevoked');
+        await expect(this.mock.connect(this.authorized).renounceRole(ROLE, this.authorized)).not.to.emit(
+          this.mock,
+          'RoleRevoked',
+        );
       });
     });
   });
 
   describe('setting role admin', function () {
     beforeEach(async function () {
-      const receipt = await this.accessControl.$_setRoleAdmin(ROLE, OTHER_ROLE);
-      expectEvent(receipt, 'RoleAdminChanged', {
-        role: ROLE,
-        previousAdminRole: DEFAULT_ADMIN_ROLE,
-        newAdminRole: OTHER_ROLE,
-      });
+      await expect(this.mock.$_setRoleAdmin(ROLE, OTHER_ROLE))
+        .to.emit(this.mock, 'RoleAdminChanged')
+        .withArgs(ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);
 
-      await this.accessControl.grantRole(OTHER_ROLE, otherAdmin, { from: admin });
+      await this.mock.connect(this.defaultAdmin).grantRole(OTHER_ROLE, this.otherAdmin);
     });
 
     it("a role's admin role can be changed", async function () {
-      expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
+      expect(await this.mock.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
     });
 
     it('the new admin can grant roles', async function () {
-      const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: otherAdmin });
-      expectEvent(receipt, 'RoleGranted', { account: authorized, role: ROLE, sender: otherAdmin });
+      await expect(this.mock.connect(this.otherAdmin).grantRole(ROLE, this.authorized))
+        .to.emit(this.mock, 'RoleGranted')
+        .withArgs(ROLE, this.authorized.address, this.otherAdmin.address);
     });
 
     it('the new admin can revoke roles', async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: otherAdmin });
-      const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: otherAdmin });
-      expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: otherAdmin });
+      await this.mock.connect(this.otherAdmin).grantRole(ROLE, this.authorized);
+      await expect(this.mock.connect(this.otherAdmin).revokeRole(ROLE, this.authorized))
+        .to.emit(this.mock, 'RoleRevoked')
+        .withArgs(ROLE, this.authorized.address, this.otherAdmin.address);
     });
 
     it("a role's previous admins no longer grant roles", async function () {
-      await expectRevertCustomError(
-        this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        'AccessControlUnauthorizedAccount',
-        [admin.toLowerCase(), OTHER_ROLE],
-      );
+      await expect(this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.defaultAdmin.address, OTHER_ROLE);
     });
 
     it("a role's previous admins no longer revoke roles", async function () {
-      await expectRevertCustomError(
-        this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        'AccessControlUnauthorizedAccount',
-        [admin.toLowerCase(), OTHER_ROLE],
-      );
+      await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.defaultAdmin.address, OTHER_ROLE);
     });
   });
 
   describe('onlyRole modifier', function () {
     beforeEach(async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
     });
 
     it('do not revert if sender has role', async function () {
-      await this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: authorized });
+      await this.mock.connect(this.authorized).$_checkRole(ROLE);
     });
 
     it("revert if sender doesn't have role #1", async function () {
-      await expectRevertCustomError(
-        this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: other }),
-        'AccessControlUnauthorizedAccount',
-        [other, ROLE],
-      );
+      await expect(this.mock.connect(this.other).$_checkRole(ROLE))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, ROLE);
     });
 
     it("revert if sender doesn't have role #2", async function () {
-      await expectRevertCustomError(
-        this.accessControl.methods['$_checkRole(bytes32)'](OTHER_ROLE, { from: authorized }),
-        'AccessControlUnauthorizedAccount',
-        [authorized.toLowerCase(), OTHER_ROLE],
-      );
+      await expect(this.mock.connect(this.authorized).$_checkRole(OTHER_ROLE))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.authorized.address, OTHER_ROLE);
     });
   });
 
   describe('internal functions', function () {
     describe('_grantRole', function () {
       it('return true if the account does not have the role', async function () {
-        const receipt = await this.accessControl.$_grantRole(ROLE, authorized);
-        expectEvent(receipt, 'return$_grantRole', { ret0: true });
+        await expect(this.mock.$_grantRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'return$_grantRole')
+          .withArgs(true);
       });
 
       it('return false if the account has the role', async function () {
-        await this.accessControl.$_grantRole(ROLE, authorized);
+        await this.mock.$_grantRole(ROLE, this.authorized);
 
-        const receipt = await this.accessControl.$_grantRole(ROLE, authorized);
-        expectEvent(receipt, 'return$_grantRole', { ret0: false });
+        await expect(this.mock.$_grantRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'return$_grantRole')
+          .withArgs(false);
       });
     });
 
     describe('_revokeRole', function () {
       it('return true if the account has the role', async function () {
-        await this.accessControl.$_grantRole(ROLE, authorized);
+        await this.mock.$_grantRole(ROLE, this.authorized);
 
-        const receipt = await this.accessControl.$_revokeRole(ROLE, authorized);
-        expectEvent(receipt, 'return$_revokeRole', { ret0: true });
+        await expect(this.mock.$_revokeRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'return$_revokeRole')
+          .withArgs(true);
       });
 
       it('return false if the account does not have the role', async function () {
-        const receipt = await this.accessControl.$_revokeRole(ROLE, authorized);
-        expectEvent(receipt, 'return$_revokeRole', { ret0: false });
+        await expect(this.mock.$_revokeRole(ROLE, this.authorized))
+          .to.emit(this.mock, 'return$_revokeRole')
+          .withArgs(false);
       });
     });
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerable(admin, authorized, other, otherAdmin, otherAuthorized) {
+function shouldBehaveLikeAccessControlEnumerable() {
+  beforeEach(async function () {
+    [this.authorized, this.other, this.otherAdmin, this.otherAuthorized] = this.accounts;
+  });
+
   shouldSupportInterfaces(['AccessControlEnumerable']);
 
   describe('enumerating', function () {
     it('role bearers can be enumerated', async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      await this.accessControl.grantRole(ROLE, other, { from: admin });
-      await this.accessControl.grantRole(ROLE, otherAuthorized, { from: admin });
-      await this.accessControl.revokeRole(ROLE, other, { from: admin });
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.other);
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.otherAuthorized);
+      await this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.other);
 
-      const memberCount = await this.accessControl.getRoleMemberCount(ROLE);
-      expect(memberCount).to.bignumber.equal('2');
+      const memberCount = await this.mock.getRoleMemberCount(ROLE);
+      expect(memberCount).to.equal(2);
 
       const bearers = [];
       for (let i = 0; i < memberCount; ++i) {
-        bearers.push(await this.accessControl.getRoleMember(ROLE, i));
+        bearers.push(await this.mock.getRoleMember(ROLE, i));
       }
 
-      expect(bearers).to.have.members([authorized, otherAuthorized]);
+      expect(bearers).to.have.members([this.authorized.address, this.otherAuthorized.address]);
     });
+
     it('role enumeration should be in sync after renounceRole call', async function () {
-      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('0');
-      await this.accessControl.grantRole(ROLE, admin, { from: admin });
-      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('1');
-      await this.accessControl.renounceRole(ROLE, admin, { from: admin });
-      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('0');
+      expect(await this.mock.getRoleMemberCount(ROLE)).to.equal(0);
+      await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.defaultAdmin);
+      expect(await this.mock.getRoleMemberCount(ROLE)).to.equal(1);
+      await this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.defaultAdmin);
+      expect(await this.mock.getRoleMemberCount(ROLE)).to.equal(0);
     });
   });
 }
 
-function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, newDefaultAdmin, other) {
+function shouldBehaveLikeAccessControlDefaultAdminRules() {
   shouldSupportInterfaces(['AccessControlDefaultAdminRules']);
+
+  beforeEach(async function () {
+    [this.newDefaultAdmin, this.other] = this.accounts;
+  });
 
   for (const getter of ['owner', 'defaultAdmin']) {
     describe(`${getter}()`, function () {
       it('has a default set to the initial default admin', async function () {
-        const value = await this.accessControl[getter]();
-        expect(value).to.equal(defaultAdmin);
-        expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, value)).to.be.true;
+        const value = await this.mock[getter]();
+        expect(value).to.equal(this.defaultAdmin.address);
+        expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, value)).to.be.true;
       });
 
       it('changes if the default admin changes', async function () {
         // Starts an admin transfer
-        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
 
         // Wait for acceptance
-        const acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
-        await time.setNextBlockTimestamp(acceptSchedule.addn(1));
-        await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
+        const acceptSchedule = (await time.clock.timestamp()) + this.delay;
+        await time.forward.timestamp(acceptSchedule + 1n, false);
+        await this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
 
-        const value = await this.accessControl[getter]();
-        expect(value).to.equal(newDefaultAdmin);
+        const value = await this.mock[getter]();
+        expect(value).to.equal(this.newDefaultAdmin.address);
       });
     });
   }
 
   describe('pendingDefaultAdmin()', function () {
     it('returns 0 if no pending default admin transfer', async function () {
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.eq(ZERO_ADDRESS);
-      expect(schedule).to.be.bignumber.eq(ZERO);
+      const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(ethers.ZeroAddress);
+      expect(schedule).to.equal(0);
     });
 
     describe('when there is a scheduled default admin transfer', function () {
       beforeEach('begins admin transfer', async function () {
-        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
       });
 
       for (const [fromSchedule, tag] of [
-        [-1, 'before'],
-        [0, 'exactly when'],
-        [1, 'after'],
+        [-1n, 'before'],
+        [0n, 'exactly when'],
+        [1n, 'after'],
       ]) {
         it(`returns pending admin and schedule ${tag} it passes if not accepted`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
-          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
-          await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+          const { schedule: firstSchedule } = await this.mock.pendingDefaultAdmin();
+          await time.forward.timestamp(firstSchedule + fromSchedule);
 
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-          expect(newAdmin).to.eq(newDefaultAdmin);
-          expect(schedule).to.be.bignumber.eq(firstSchedule);
+          const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+          expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+          expect(schedule).to.equal(firstSchedule);
         });
       }
 
       it('returns 0 after schedule passes and the transfer was accepted', async function () {
         // Wait after schedule
-        const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
-        await time.setNextBlockTimestamp(firstSchedule.addn(1));
+        const { schedule: firstSchedule } = await this.mock.pendingDefaultAdmin();
+        await time.forward.timestamp(firstSchedule + 1n, false);
 
         // Accepts
-        await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
+        await this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
 
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.eq(ZERO_ADDRESS);
-        expect(schedule).to.be.bignumber.eq(ZERO);
+        const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(ethers.ZeroAddress);
+        expect(schedule).to.equal(0);
       });
     });
   });
 
   describe('defaultAdminDelay()', function () {
     it('returns the current delay', async function () {
-      expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.eq(delay);
+      expect(await this.mock.defaultAdminDelay()).to.equal(this.delay);
     });
 
     describe('when there is a scheduled delay change', function () {
-      const newDelay = web3.utils.toBN(0xdead); // Any change
+      const newDelay = 0x1337n; // Any change
 
       beforeEach('begins delay change', async function () {
-        await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(newDelay);
       });
 
-      for (const [fromSchedule, tag, expectedDelay, delayTag] of [
-        [-1, 'before', delay, 'old'],
-        [0, 'exactly when', delay, 'old'],
-        [1, 'after', newDelay, 'new'],
+      for (const [fromSchedule, tag, expectNew, delayTag] of [
+        [-1n, 'before', false, 'old'],
+        [0n, 'exactly when', false, 'old'],
+        [1n, 'after', true, 'new'],
       ]) {
         it(`returns ${delayTag} delay ${tag} delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule } = await this.accessControl.pendingDefaultAdminDelay();
-          await time.setNextBlockTimestamp(schedule.toNumber() + fromSchedule);
-          await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+          const { schedule } = await this.mock.pendingDefaultAdminDelay();
+          await time.forward.timestamp(schedule + fromSchedule);
 
-          const currentDelay = await this.accessControl.defaultAdminDelay();
-          expect(currentDelay).to.be.bignumber.eq(expectedDelay);
+          const currentDelay = await this.mock.defaultAdminDelay();
+          expect(currentDelay).to.equal(expectNew ? newDelay : this.delay);
         });
       }
     });
@@ -355,32 +363,31 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('pendingDefaultAdminDelay()', function () {
     it('returns 0 if not set', async function () {
-      const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-      expect(newDelay).to.be.bignumber.eq(ZERO);
-      expect(schedule).to.be.bignumber.eq(ZERO);
+      const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+      expect(newDelay).to.equal(0);
+      expect(schedule).to.equal(0);
     });
 
     describe('when there is a scheduled delay change', function () {
-      const newDelay = web3.utils.toBN(0xdead); // Any change
+      const newDelay = 0x1337n; // Any change
 
       beforeEach('begins admin transfer', async function () {
-        await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(newDelay);
       });
 
       for (const [fromSchedule, tag, expectedDelay, delayTag, expectZeroSchedule] of [
-        [-1, 'before', newDelay, 'new'],
-        [0, 'exactly when', newDelay, 'new'],
-        [1, 'after', ZERO, 'zero', true],
+        [-1n, 'before', newDelay, 'new'],
+        [0n, 'exactly when', newDelay, 'new'],
+        [1n, 'after', 0, 'zero', true],
       ]) {
         it(`returns ${delayTag} delay ${tag} delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
-          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
-          await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+          const { schedule: firstSchedule } = await this.mock.pendingDefaultAdminDelay();
+          await time.forward.timestamp(firstSchedule + fromSchedule);
 
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-          expect(newDelay).to.be.bignumber.eq(expectedDelay);
-          expect(schedule).to.be.bignumber.eq(expectZeroSchedule ? ZERO : firstSchedule);
+          const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+          expect(newDelay).to.equal(expectedDelay);
+          expect(schedule).to.equal(expectZeroSchedule ? 0 : firstSchedule);
         });
       }
     });
@@ -388,207 +395,183 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('defaultAdminDelayIncreaseWait()', function () {
     it('should return 5 days (default)', async function () {
-      expect(await this.accessControl.defaultAdminDelayIncreaseWait()).to.be.bignumber.eq(
-        web3.utils.toBN(time.duration.days(5)),
-      );
+      expect(await this.mock.defaultAdminDelayIncreaseWait()).to.equal(time.duration.days(5));
     });
   });
 
   it('should revert if granting default admin role', async function () {
-    await expectRevertCustomError(
-      this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      'AccessControlEnforcedDefaultAdminRules',
-      [],
-    );
+    await expect(
+      this.mock.connect(this.defaultAdmin).grantRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin),
+    ).to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminRules');
   });
 
   it('should revert if revoking default admin role', async function () {
-    await expectRevertCustomError(
-      this.accessControl.revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      'AccessControlEnforcedDefaultAdminRules',
-      [],
-    );
+    await expect(
+      this.mock.connect(this.defaultAdmin).revokeRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin),
+    ).to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminRules');
   });
 
   it("should revert if defaultAdmin's admin is changed", async function () {
-    await expectRevertCustomError(
-      this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, OTHER_ROLE),
+    await expect(this.mock.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, OTHER_ROLE)).to.be.revertedWithCustomError(
+      this.mock,
       'AccessControlEnforcedDefaultAdminRules',
-      [],
     );
   });
 
   it('should not grant the default admin role twice', async function () {
-    await expectRevertCustomError(
-      this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin),
+    await expect(this.mock.$_grantRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.revertedWithCustomError(
+      this.mock,
       'AccessControlEnforcedDefaultAdminRules',
-      [],
     );
   });
 
   describe('begins a default admin transfer', function () {
-    let receipt;
-    let acceptSchedule;
-
     it('reverts if called by non default admin accounts', async function () {
-      await expectRevertCustomError(
-        this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: other }),
-        'AccessControlUnauthorizedAccount',
-        [other, DEFAULT_ADMIN_ROLE],
-      );
+      await expect(this.mock.connect(this.other).beginDefaultAdminTransfer(this.newDefaultAdmin))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is no pending delay nor pending admin transfer', function () {
-      beforeEach('begins admin transfer', async function () {
-        receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-        acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
-      });
-
       it('should set pending default admin and schedule', async function () {
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.equal(newDefaultAdmin);
-        expect(schedule).to.be.bignumber.equal(acceptSchedule);
-        expectEvent(receipt, 'DefaultAdminTransferScheduled', {
-          newAdmin,
-          acceptSchedule,
-        });
+        const nextBlockTimestamp = (await time.clock.timestamp()) + 1n;
+        const acceptSchedule = nextBlockTimestamp + this.delay;
+
+        await time.forward.timestamp(nextBlockTimestamp, false); // set timestamp but don't mine the block yet
+        await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin))
+          .to.emit(this.mock, 'DefaultAdminTransferScheduled')
+          .withArgs(this.newDefaultAdmin.address, acceptSchedule);
+
+        const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+        expect(schedule).to.equal(acceptSchedule);
       });
     });
 
     describe('when there is a pending admin transfer', function () {
       beforeEach('sets a pending default admin transfer', async function () {
-        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-        acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
+        await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
+        this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
       });
 
       for (const [fromSchedule, tag] of [
-        [-1, 'before'],
-        [0, 'exactly when'],
-        [1, 'after'],
+        [-1n, 'before'],
+        [0n, 'exactly when'],
+        [1n, 'after'],
       ]) {
         it(`should be able to begin a transfer again ${tag} acceptSchedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          await time.setNextBlockTimestamp(acceptSchedule.toNumber() + fromSchedule);
+          await time.forward.timestamp(this.acceptSchedule + fromSchedule, false);
 
           // defaultAdmin changes its mind and begin again to another address
-          const receipt = await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
-          const newSchedule = web3.utils.toBN(await time.latest()).add(delay);
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(other);
-          expect(schedule).to.be.bignumber.equal(newSchedule);
-
-          // Cancellation is always emitted since it was never accepted
-          expectEvent(receipt, 'DefaultAdminTransferCanceled');
+          await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.other)).to.emit(
+            this.mock,
+            'DefaultAdminTransferCanceled', // Cancellation is always emitted since it was never accepted
+          );
+          const newSchedule = (await time.clock.timestamp()) + this.delay;
+          const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+          expect(newAdmin).to.equal(this.other.address);
+          expect(schedule).to.equal(newSchedule);
         });
       }
 
       it('should not emit a cancellation event if the new default admin accepted', async function () {
         // Wait until the acceptSchedule has passed
-        await time.setNextBlockTimestamp(acceptSchedule.addn(1));
+        await time.forward.timestamp(this.acceptSchedule + 1n, false);
 
         // Accept and restart
-        await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
-        const receipt = await this.accessControl.beginDefaultAdminTransfer(other, { from: newDefaultAdmin });
-
-        expectEvent.notEmitted(receipt, 'DefaultAdminTransferCanceled');
+        await this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
+        await expect(this.mock.connect(this.newDefaultAdmin).beginDefaultAdminTransfer(this.other)).to.not.emit(
+          this.mock,
+          'DefaultAdminTransferCanceled',
+        );
       });
     });
 
     describe('when there is a pending delay', function () {
-      const newDelay = web3.utils.toBN(time.duration.hours(3));
+      const newDelay = time.duration.hours(3);
 
       beforeEach('schedule a delay change', async function () {
-        await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
-        const pendingDefaultAdminDelay = await this.accessControl.pendingDefaultAdminDelay();
-        acceptSchedule = pendingDefaultAdminDelay.schedule;
+        await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(newDelay);
+        ({ schedule: this.effectSchedule } = await this.mock.pendingDefaultAdminDelay());
       });
 
-      for (const [fromSchedule, schedulePassed, expectedDelay, delayTag] of [
-        [-1, 'before', delay, 'old'],
-        [0, 'exactly when', delay, 'old'],
-        [1, 'after', newDelay, 'new'],
+      for (const [fromSchedule, schedulePassed, expectNewDelay] of [
+        [-1n, 'before', false],
+        [0n, 'exactly when', false],
+        [1n, 'after', true],
       ]) {
-        it(`should set the ${delayTag} delay and apply it to next default admin transfer schedule ${schedulePassed} acceptSchedule passed`, async function () {
+        it(`should set the ${
+          expectNewDelay ? 'new' : 'old'
+        } delay and apply it to next default admin transfer schedule ${schedulePassed} effectSchedule passed`, async function () {
           // Wait until the expected fromSchedule time
-          await time.setNextBlockTimestamp(acceptSchedule.toNumber() + fromSchedule);
+          const nextBlockTimestamp = this.effectSchedule + fromSchedule;
+          await time.forward.timestamp(nextBlockTimestamp, false);
 
           // Start the new default admin transfer and get its schedule
-          const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-          const expectedAcceptSchedule = web3.utils.toBN(await time.latest()).add(expectedDelay);
+          const expectedDelay = expectNewDelay ? newDelay : this.delay;
+          const expectedAcceptSchedule = nextBlockTimestamp + expectedDelay;
+          await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin))
+            .to.emit(this.mock, 'DefaultAdminTransferScheduled')
+            .withArgs(this.newDefaultAdmin.address, expectedAcceptSchedule);
 
           // Check that the schedule corresponds with the new delay
-          const { newAdmin, schedule: transferSchedule } = await this.accessControl.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(newDefaultAdmin);
-          expect(transferSchedule).to.be.bignumber.equal(expectedAcceptSchedule);
-
-          expectEvent(receipt, 'DefaultAdminTransferScheduled', {
-            newAdmin,
-            acceptSchedule: expectedAcceptSchedule,
-          });
+          const { newAdmin, schedule: transferSchedule } = await this.mock.pendingDefaultAdmin();
+          expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+          expect(transferSchedule).to.equal(expectedAcceptSchedule);
         });
       }
     });
   });
 
   describe('accepts transfer admin', function () {
-    let acceptSchedule;
-
     beforeEach(async function () {
-      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
+      await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
+      this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
     });
 
     it('should revert if caller is not pending default admin', async function () {
-      await time.setNextBlockTimestamp(acceptSchedule.addn(1));
-      await expectRevertCustomError(
-        this.accessControl.acceptDefaultAdminTransfer({ from: other }),
-        'AccessControlInvalidDefaultAdmin',
-        [other],
-      );
+      await time.forward.timestamp(this.acceptSchedule + 1n, false);
+      await expect(this.mock.connect(this.other).acceptDefaultAdminTransfer())
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
+        .withArgs(this.other.address);
     });
 
     describe('when caller is pending default admin and delay has passed', function () {
       beforeEach(async function () {
-        await time.setNextBlockTimestamp(acceptSchedule.addn(1));
+        await time.forward.timestamp(this.acceptSchedule + 1n, false);
       });
 
       it('accepts a transfer and changes default admin', async function () {
-        const receipt = await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
+        // Emit events
+        await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
+          .to.emit(this.mock, 'RoleRevoked')
+          .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.newDefaultAdmin.address)
+          .to.emit(this.mock, 'RoleGranted')
+          .withArgs(DEFAULT_ADMIN_ROLE, this.newDefaultAdmin.address, this.newDefaultAdmin.address);
 
         // Storage changes
-        expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
-        expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, newDefaultAdmin)).to.be.true;
-        expect(await this.accessControl.owner()).to.equal(newDefaultAdmin);
-
-        // Emit events
-        expectEvent(receipt, 'RoleRevoked', {
-          role: DEFAULT_ADMIN_ROLE,
-          account: defaultAdmin,
-        });
-        expectEvent(receipt, 'RoleGranted', {
-          role: DEFAULT_ADMIN_ROLE,
-          account: newDefaultAdmin,
-        });
+        expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
+        expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.newDefaultAdmin)).to.be.true;
+        expect(await this.mock.owner()).to.equal(this.newDefaultAdmin.address);
 
         // Resets pending default admin and schedule
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
-        expect(schedule).to.be.bignumber.equal(ZERO);
+        const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(ethers.ZeroAddress);
+        expect(schedule).to.equal(0);
       });
     });
 
     describe('schedule not passed', function () {
       for (const [fromSchedule, tag] of [
-        [-1, 'less'],
-        [0, 'equal'],
+        [-1n, 'less'],
+        [0n, 'equal'],
       ]) {
         it(`should revert if block.timestamp is ${tag} to schedule`, async function () {
-          await time.setNextBlockTimestamp(acceptSchedule.toNumber() + fromSchedule);
-          await expectRevertCustomError(
-            this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-            'AccessControlEnforcedDefaultAdminDelay',
-            [acceptSchedule],
-          );
+          await time.forward.timestamp(this.acceptSchedule + fromSchedule, false);
+          expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
+            .to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminDelay')
+            .withArgs(this.acceptSchedule);
         });
       }
     });
@@ -596,147 +579,132 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('cancels a default admin transfer', function () {
     it('reverts if called by non default admin accounts', async function () {
-      await expectRevertCustomError(
-        this.accessControl.cancelDefaultAdminTransfer({ from: other }),
-        'AccessControlUnauthorizedAccount',
-        [other, DEFAULT_ADMIN_ROLE],
-      );
+      await expect(this.mock.connect(this.other).cancelDefaultAdminTransfer())
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is a pending default admin transfer', function () {
-      let acceptSchedule;
-
       beforeEach(async function () {
-        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-        acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
+        await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin);
+        this.acceptSchedule = (await time.clock.timestamp()) + this.delay;
       });
 
       for (const [fromSchedule, tag] of [
-        [-1, 'before'],
-        [0, 'exactly when'],
-        [1, 'after'],
+        [-1n, 'before'],
+        [0n, 'exactly when'],
+        [1n, 'after'],
       ]) {
         it(`resets pending default admin and schedule ${tag} transfer schedule passes`, async function () {
           // Advance until passed delay
-          await time.setNextBlockTimestamp(acceptSchedule.toNumber() + fromSchedule);
+          await time.forward.timestamp(this.acceptSchedule + fromSchedule, false);
 
-          const receipt = await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
+          await expect(this.mock.connect(this.defaultAdmin).cancelDefaultAdminTransfer()).to.emit(
+            this.mock,
+            'DefaultAdminTransferCanceled',
+          );
 
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
-          expect(schedule).to.be.bignumber.equal(ZERO);
-
-          expectEvent(receipt, 'DefaultAdminTransferCanceled');
+          const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+          expect(newAdmin).to.equal(ethers.ZeroAddress);
+          expect(schedule).to.equal(0);
         });
       }
 
       it('should revert if the previous default admin tries to accept', async function () {
-        await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).cancelDefaultAdminTransfer();
 
         // Advance until passed delay
-        await time.setNextBlockTimestamp(acceptSchedule.addn(1));
+        await time.forward.timestamp(this.acceptSchedule + 1n, false);
 
         // Previous pending default admin should not be able to accept after cancellation.
-        await expectRevertCustomError(
-          this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-          'AccessControlInvalidDefaultAdmin',
-          [newDefaultAdmin],
-        );
+        await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
+          .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
+          .withArgs(this.newDefaultAdmin.address);
       });
     });
 
     describe('when there is no pending default admin transfer', async function () {
       it('should succeed without changes', async function () {
-        const receipt = await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
+        await expect(this.mock.connect(this.defaultAdmin).cancelDefaultAdminTransfer()).to.not.emit(
+          this.mock,
+          'DefaultAdminTransferCanceled',
+        );
 
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
-        expect(schedule).to.be.bignumber.equal(ZERO);
-
-        expectEvent.notEmitted(receipt, 'DefaultAdminTransferCanceled');
+        const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(ethers.ZeroAddress);
+        expect(schedule).to.equal(0);
       });
     });
   });
 
   describe('renounces admin', function () {
-    let expectedSchedule;
-    let delayPassed;
-    let delayNotPassed;
-
     beforeEach(async function () {
-      await this.accessControl.beginDefaultAdminTransfer(constants.ZERO_ADDRESS, { from: defaultAdmin });
-      expectedSchedule = web3.utils.toBN(await time.latest()).add(delay);
-      delayNotPassed = expectedSchedule;
-      delayPassed = expectedSchedule.addn(1);
+      await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(ethers.ZeroAddress);
+      this.expectedSchedule = (await time.clock.timestamp()) + this.delay;
+      this.delayNotPassed = this.expectedSchedule;
+      this.delayPassed = this.expectedSchedule + 1n;
     });
 
     it('reverts if caller is not default admin', async function () {
-      await time.setNextBlockTimestamp(delayPassed);
-      await expectRevertCustomError(
-        this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: defaultAdmin }),
-        'AccessControlBadConfirmation',
-        [],
-      );
+      await time.forward.timestamp(this.delayPassed, false);
+      await expect(
+        this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.other),
+      ).to.be.revertedWithCustomError(this.mock, 'AccessControlBadConfirmation');
     });
 
     it("renouncing the admin role when not an admin doesn't affect the schedule", async function () {
-      await time.setNextBlockTimestamp(delayPassed);
-      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
+      await time.forward.timestamp(this.delayPassed, false);
+      await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
-      expect(schedule).to.be.bignumber.equal(expectedSchedule);
+      const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(ethers.ZeroAddress);
+      expect(schedule).to.equal(this.expectedSchedule);
     });
 
     it('keeps defaultAdmin consistent with hasRole if another non-defaultAdmin user renounces the DEFAULT_ADMIN_ROLE', async function () {
-      await time.setNextBlockTimestamp(delayPassed);
+      await time.forward.timestamp(this.delayPassed, false);
 
       // This passes because it's a noop
-      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
+      await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
-      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.true;
-      expect(await this.accessControl.defaultAdmin()).to.be.equal(defaultAdmin);
+      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
+      expect(await this.mock.defaultAdmin()).to.be.equal(this.defaultAdmin.address);
     });
 
     it('renounces role', async function () {
-      await time.setNextBlockTimestamp(delayPassed);
-      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin });
+      await time.forward.timestamp(this.delayPassed, false);
+      await expect(this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin))
+        .to.emit(this.mock, 'RoleRevoked')
+        .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.defaultAdmin.address);
 
-      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
-      expect(await this.accessControl.defaultAdmin()).to.be.equal(constants.ZERO_ADDRESS);
-      expectEvent(receipt, 'RoleRevoked', {
-        role: DEFAULT_ADMIN_ROLE,
-        account: defaultAdmin,
-      });
-      expect(await this.accessControl.owner()).to.equal(constants.ZERO_ADDRESS);
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.eq(ZERO_ADDRESS);
-      expect(schedule).to.be.bignumber.eq(ZERO);
+      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
+      expect(await this.mock.defaultAdmin()).to.be.equal(ethers.ZeroAddress);
+      expect(await this.mock.owner()).to.equal(ethers.ZeroAddress);
+
+      const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(ethers.ZeroAddress);
+      expect(schedule).to.equal(0);
     });
 
     it('allows to recover access using the internal _grantRole', async function () {
-      await time.setNextBlockTimestamp(delayPassed);
-      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin });
+      await time.forward.timestamp(this.delayPassed, false);
+      await this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin);
 
-      const grantRoleReceipt = await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, other);
-      expectEvent(grantRoleReceipt, 'RoleGranted', {
-        role: DEFAULT_ADMIN_ROLE,
-        account: other,
-      });
+      await expect(this.mock.connect(this.defaultAdmin).$_grantRole(DEFAULT_ADMIN_ROLE, this.other))
+        .to.emit(this.mock, 'RoleGranted')
+        .withArgs(DEFAULT_ADMIN_ROLE, this.other.address, this.defaultAdmin.address);
     });
 
     describe('schedule not passed', function () {
       for (const [fromSchedule, tag] of [
-        [-1, 'less'],
-        [0, 'equal'],
+        [-1n, 'less'],
+        [0n, 'equal'],
       ]) {
         it(`reverts if block.timestamp is ${tag} to schedule`, async function () {
-          await time.setNextBlockTimestamp(delayNotPassed.toNumber() + fromSchedule);
-          await expectRevertCustomError(
-            this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-            'AccessControlEnforcedDefaultAdminDelay',
-            [expectedSchedule],
-          );
+          await time.forward.timestamp(this.delayNotPassed + fromSchedule, false);
+          await expect(this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin))
+            .to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminDelay')
+            .withArgs(this.expectedSchedule);
         });
       }
     });
@@ -744,97 +712,95 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('changes delay', function () {
     it('reverts if called by non default admin accounts', async function () {
-      await expectRevertCustomError(
-        this.accessControl.changeDefaultAdminDelay(time.duration.hours(4), {
-          from: other,
-        }),
-        'AccessControlUnauthorizedAccount',
-        [other, DEFAULT_ADMIN_ROLE],
-      );
+      await expect(this.mock.connect(this.other).changeDefaultAdminDelay(time.duration.hours(4)))
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
     });
 
-    for (const [newDefaultAdminDelay, delayChangeType] of [
-      [web3.utils.toBN(delay).subn(time.duration.hours(1)), 'decreased'],
-      [web3.utils.toBN(delay).addn(time.duration.hours(1)), 'increased'],
-      [web3.utils.toBN(delay).addn(time.duration.days(5)), 'increased to more than 5 days'],
+    for (const [delayDifference, delayChangeType] of [
+      [time.duration.hours(-1), 'decreased'],
+      [time.duration.hours(1), 'increased'],
+      [time.duration.days(5), 'increased to more than 5 days'],
     ]) {
       describe(`when the delay is ${delayChangeType}`, function () {
-        it('begins the delay change to the new delay', async function () {
-          // Begins the change
-          const receipt = await this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, {
-            from: defaultAdmin,
-          });
+        beforeEach(function () {
+          this.newDefaultAdminDelay = this.delay + delayDifference;
+        });
 
+        it('begins the delay change to the new delay', async function () {
           // Calculate expected values
-          const cap = await this.accessControl.defaultAdminDelayIncreaseWait();
-          const changeDelay = newDefaultAdminDelay.lte(delay)
-            ? delay.sub(newDefaultAdminDelay)
-            : BN.min(newDefaultAdminDelay, cap);
-          const timestamp = web3.utils.toBN(await time.latest());
-          const effectSchedule = timestamp.add(changeDelay);
+          const capWait = await this.mock.defaultAdminDelayIncreaseWait();
+          const minWait = capWait < this.newDefaultAdminDelay ? capWait : this.newDefaultAdminDelay;
+          const changeDelay =
+            this.newDefaultAdminDelay <= this.delay ? this.delay - this.newDefaultAdminDelay : minWait;
+          const nextBlockTimestamp = (await time.clock.timestamp()) + 1n;
+          const effectSchedule = nextBlockTimestamp + changeDelay;
+
+          await time.forward.timestamp(nextBlockTimestamp, false);
+
+          // Begins the change
+          await expect(this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(this.newDefaultAdminDelay))
+            .to.emit(this.mock, 'DefaultAdminDelayChangeScheduled')
+            .withArgs(this.newDefaultAdminDelay, effectSchedule);
 
           // Assert
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-          expect(newDelay).to.be.bignumber.eq(newDefaultAdminDelay);
-          expect(schedule).to.be.bignumber.eq(effectSchedule);
-          expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
-            newDelay,
-            effectSchedule,
-          });
+          const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+          expect(newDelay).to.equal(this.newDefaultAdminDelay);
+          expect(schedule).to.equal(effectSchedule);
         });
 
         describe('scheduling again', function () {
           beforeEach('schedule once', async function () {
-            await this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, { from: defaultAdmin });
+            await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(this.newDefaultAdminDelay);
           });
 
           for (const [fromSchedule, tag] of [
-            [-1, 'before'],
-            [0, 'exactly when'],
-            [1, 'after'],
+            [-1n, 'before'],
+            [0n, 'exactly when'],
+            [1n, 'after'],
           ]) {
             const passed = fromSchedule > 0;
 
             it(`succeeds ${tag} the delay schedule passes`, async function () {
               // Wait until schedule + fromSchedule
-              const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
-              await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
-
-              // Default admin changes its mind and begins another delay change
-              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.hours(2));
-              const receipt = await this.accessControl.changeDefaultAdminDelay(anotherNewDefaultAdminDelay, {
-                from: defaultAdmin,
-              });
+              const { schedule: firstSchedule } = await this.mock.pendingDefaultAdminDelay();
+              const nextBlockTimestamp = firstSchedule + fromSchedule;
+              await time.forward.timestamp(nextBlockTimestamp, false);
 
               // Calculate expected values
-              const cap = await this.accessControl.defaultAdminDelayIncreaseWait();
-              const timestamp = web3.utils.toBN(await time.latest());
-              const effectSchedule = timestamp.add(BN.min(cap, anotherNewDefaultAdminDelay));
+              const anotherNewDefaultAdminDelay = this.newDefaultAdminDelay + time.duration.hours(2);
+              const capWait = await this.mock.defaultAdminDelayIncreaseWait();
+              const minWait = capWait < anotherNewDefaultAdminDelay ? capWait : anotherNewDefaultAdminDelay;
+              const effectSchedule = nextBlockTimestamp + minWait;
+
+              // Default admin changes its mind and begins another delay change
+              await expect(this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(anotherNewDefaultAdminDelay))
+                .to.emit(this.mock, 'DefaultAdminDelayChangeScheduled')
+                .withArgs(anotherNewDefaultAdminDelay, effectSchedule);
 
               // Assert
-              const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-              expect(newDelay).to.be.bignumber.eq(anotherNewDefaultAdminDelay);
-              expect(schedule).to.be.bignumber.eq(effectSchedule);
-              expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
-                newDelay,
-                effectSchedule,
-              });
+              const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+              expect(newDelay).to.equal(anotherNewDefaultAdminDelay);
+              expect(schedule).to.equal(effectSchedule);
             });
 
             const emit = passed ? 'not emit' : 'emit';
             it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
               // Wait until schedule + fromSchedule
-              const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
-              await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
+              const { schedule: firstSchedule } = await this.mock.pendingDefaultAdminDelay();
+              await time.forward.timestamp(firstSchedule + fromSchedule, false);
 
               // Default admin changes its mind and begins another delay change
-              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.hours(2));
-              const receipt = await this.accessControl.changeDefaultAdminDelay(anotherNewDefaultAdminDelay, {
-                from: defaultAdmin,
-              });
+              const anotherNewDefaultAdminDelay = this.newDefaultAdminDelay + time.duration.hours(2);
 
-              const eventMatcher = passed ? expectEvent.notEmitted : expectEvent;
-              eventMatcher(receipt, 'DefaultAdminDelayChangeCanceled');
+              const expected = expect(
+                this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(anotherNewDefaultAdminDelay),
+              );
+              if (passed) {
+                await expected.to.not.emit(this.mock, 'DefaultAdminDelayChangeCanceled');
+              } else {
+                await expected.to.emit(this.mock, 'DefaultAdminDelayChangeCanceled');
+              }
             });
           }
         });
@@ -844,58 +810,58 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
 
   describe('rollbacks a delay change', function () {
     it('reverts if called by non default admin accounts', async function () {
-      await expectRevertCustomError(
-        this.accessControl.rollbackDefaultAdminDelay({ from: other }),
-        'AccessControlUnauthorizedAccount',
-        [other, DEFAULT_ADMIN_ROLE],
-      );
+      await expect(this.mock.connect(this.other).rollbackDefaultAdminDelay())
+        .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
+        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is a pending delay', function () {
       beforeEach('set pending delay', async function () {
-        await this.accessControl.changeDefaultAdminDelay(time.duration.hours(12), { from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(time.duration.hours(12));
       });
 
       for (const [fromSchedule, tag] of [
-        [-1, 'before'],
-        [0, 'exactly when'],
-        [1, 'after'],
+        [-1n, 'before'],
+        [0n, 'exactly when'],
+        [1n, 'after'],
       ]) {
         const passed = fromSchedule > 0;
 
         it(`resets pending delay and schedule ${tag} delay change schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
-          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
+          const { schedule: firstSchedule } = await this.mock.pendingDefaultAdminDelay();
+          await time.forward.timestamp(firstSchedule + fromSchedule, false);
 
-          await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
+          await this.mock.connect(this.defaultAdmin).rollbackDefaultAdminDelay();
 
-          const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-          expect(newDelay).to.be.bignumber.eq(ZERO);
-          expect(schedule).to.be.bignumber.eq(ZERO);
+          const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+          expect(newDelay).to.equal(0);
+          expect(schedule).to.equal(0);
         });
 
         const emit = passed ? 'not emit' : 'emit';
         it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
-          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
+          const { schedule: firstSchedule } = await this.mock.pendingDefaultAdminDelay();
+          await time.forward.timestamp(firstSchedule + fromSchedule, false);
 
-          const receipt = await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
-
-          const eventMatcher = passed ? expectEvent.notEmitted : expectEvent;
-          eventMatcher(receipt, 'DefaultAdminDelayChangeCanceled');
+          const expected = expect(this.mock.connect(this.defaultAdmin).rollbackDefaultAdminDelay());
+          if (passed) {
+            await expected.to.not.emit(this.mock, 'DefaultAdminDelayChangeCanceled');
+          } else {
+            await expected.to.emit(this.mock, 'DefaultAdminDelayChangeCanceled');
+          }
         });
       }
     });
 
     describe('when there is no pending delay', function () {
       it('succeeds without changes', async function () {
-        await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
+        await this.mock.connect(this.defaultAdmin).rollbackDefaultAdminDelay();
 
-        const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
-        expect(newDelay).to.be.bignumber.eq(ZERO);
-        expect(schedule).to.be.bignumber.eq(ZERO);
+        const { newDelay, schedule } = await this.mock.pendingDefaultAdminDelay();
+        expect(newDelay).to.equal(0);
+        expect(schedule).to.equal(0);
       });
     });
   });

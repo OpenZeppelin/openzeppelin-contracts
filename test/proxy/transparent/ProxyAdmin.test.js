@@ -1,3 +1,4 @@
+const { ethers } = require('hardhat');
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const ImplV1 = artifacts.require('DummyImplementation');
@@ -8,7 +9,6 @@ const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableP
 
 const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { computeCreateAddress } = require('../../helpers/create');
 
 contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, anotherAccount] = accounts;
@@ -23,7 +23,7 @@ contract('ProxyAdmin', function (accounts) {
     const proxy = await TransparentUpgradeableProxy.new(this.implementationV1.address, proxyAdminOwner, initializeData);
 
     const proxyNonce = await web3.eth.getTransactionCount(proxy.address);
-    const proxyAdminAddress = computeCreateAddress(proxy.address, proxyNonce - 1); // Nonce already used
+    const proxyAdminAddress = ethers.getCreateAddress({ from: proxy.address, nonce: proxyNonce - 1 }); // Nonce already used
     this.proxyAdmin = await ProxyAdmin.at(proxyAdminAddress);
 
     this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
