@@ -206,7 +206,7 @@ You may notice roles do not define a name. Opposed to the xref:api:access.adoc#A
 await manager.labelRole(MINTER, "MINTER");
 ```
 
-It's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets and functions, assign a new admin and finally renouncing to the admin role.
+It's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets and functions, assign a new admin and finally renouncing its admin role.
 
 Finally, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to a target contract will revert.
 
