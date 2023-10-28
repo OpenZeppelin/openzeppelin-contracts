@@ -1,23 +1,26 @@
-const { time } = require('@openzeppelin/test-helpers');
-const { MAX_UINT64 } = require('./constants');
+const {
+  bigint: { MAX_UINT64 },
+} = require('./constants');
 const { namespaceSlot } = require('./namespaced-storage');
 const {
   time: { setNextBlockTimestamp },
 } = require('@nomicfoundation/hardhat-network-helpers');
+const { bigint: time } = require('./time');
+const { keccak256, AbiCoder } = require('ethers');
 
 function buildBaseRoles() {
   const roles = {
     ADMIN: {
-      id: web3.utils.toBN(0),
+      id: BigInt(0),
     },
     SOME_ADMIN: {
-      id: web3.utils.toBN(17),
+      id: BigInt(17),
     },
     SOME_GUARDIAN: {
-      id: web3.utils.toBN(35),
+      id: BigInt(35),
     },
     SOME: {
-      id: web3.utils.toBN(42),
+      id: BigInt(42),
     },
     PUBLIC: {
       id: MAX_UINT64,
@@ -53,23 +56,20 @@ const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
 /**
  * @requires this.{manager, caller, target, calldata}
  */
-async function scheduleOperation(manager, { caller, target, calldata, delay }) {
-  const timestamp = await time.latest();
-  const scheduledAt = timestamp.addn(1);
+async function prepareOperation(manager, { caller, target, calldata, delay }) {
+  const timestamp = await time.clock.timestamp();
+  const scheduledAt = timestamp + 1n;
   await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
-  const { receipt } = await manager.schedule(target, calldata, scheduledAt.add(delay), {
-    from: caller,
-  });
 
   return {
-    receipt,
+    schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
     scheduledAt,
-    operationId: hashOperation(caller, target, calldata),
+    operationId: hashOperation(caller.address, target, calldata),
   };
 }
 
 const hashOperation = (caller, target, data) =>
-  web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
+  keccak256(AbiCoder.defaultAbiCoder().encode(['address', 'address', 'bytes'], [caller, target, data]));
 
 module.exports = {
   buildBaseRoles,
@@ -78,6 +78,6 @@ module.exports = {
   EXPIRATION,
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
-  scheduleOperation,
+  prepareOperation,
   hashOperation,
 };

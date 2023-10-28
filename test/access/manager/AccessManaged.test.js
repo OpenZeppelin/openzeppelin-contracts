@@ -1,129 +1,131 @@
-const { expectEvent, time, expectRevert } = require('@openzeppelin/test-helpers');
+const { bigint: time } = require('../../helpers/time');
 const { selector } = require('../../helpers/methods');
-const { expectRevertCustomError } = require('../../helpers/customError');
-const {
-  time: { setNextBlockTimestamp },
-} = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
+const { ethers } = require('hardhat');
+const { setNextBlockTimestamp } = require('@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time');
 
-const AccessManaged = artifacts.require('$AccessManagedTarget');
-const AccessManager = artifacts.require('$AccessManager');
+async function fixture() {
+  const [admin, roleMember, other] = await ethers.getSigners();
 
-const AuthoritiyObserveIsConsuming = artifacts.require('$AuthoritiyObserveIsConsuming');
+  const authority = await ethers.deployContract('$AccessManager', [admin.address]);
+  const managed = await ethers.deployContract('$AccessManagedTarget', [authority.target]);
 
-contract('AccessManaged', function (accounts) {
-  const [admin, roleMember, other] = accounts;
+  const anotherAuthority = await ethers.deployContract('$AccessManager', [admin.address]);
+  const authorityObserveIsConsuming = await ethers.deployContract('$AuthorityObserveIsConsuming');
 
+  await impersonate(authority.target);
+  const asAuthority = await ethers.getSigner(authority.target);
+
+  return {
+    roleMember,
+    other,
+    asAuthority,
+    authority,
+    managed,
+    authorityObserveIsConsuming,
+    anotherAuthority,
+  };
+}
+
+describe('AccessManaged', function () {
   beforeEach(async function () {
-    this.authority = await AccessManager.new(admin);
-    this.managed = await AccessManaged.new(this.authority.address);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('sets authority and emits AuthorityUpdated event during construction', async function () {
-    await expectEvent.inConstruction(this.managed, 'AuthorityUpdated', {
-      authority: this.authority.address,
-    });
-    expect(await this.managed.authority()).to.eq(this.authority.address);
+    await expect(await this.managed.deploymentTransaction())
+      .to.emit(this.managed, 'AuthorityUpdated')
+      .withArgs(this.authority.target);
   });
 
   describe('restricted modifier', function () {
-    const method = 'fnRestricted()';
-
     beforeEach(async function () {
-      this.selector = selector(method);
-      this.role = web3.utils.toBN(42);
-      await this.authority.$_setTargetFunctionRole(this.managed.address, this.selector, this.role);
-      await this.authority.$_grantRole(this.role, roleMember, 0, 0);
+      this.selector = selector('fnRestricted()');
+      this.role = 42n;
+      await this.authority.$_setTargetFunctionRole(this.managed.target, this.selector, this.role);
+      await this.authority.$_grantRole(this.role, this.roleMember, 0, 0);
     });
 
     it('succeeds when role is granted without execution delay', async function () {
-      await this.managed.methods[method]({ from: roleMember });
+      await this.managed.connect(this.roleMember)[this.selector]();
     });
 
     it('reverts when role is not granted', async function () {
-      await expectRevertCustomError(this.managed.methods[method]({ from: other }), 'AccessManagedUnauthorized', [
-        other,
-      ]);
+      await expect(this.managed.connect(this.other)[this.selector]())
+        .to.be.revertedWithCustomError(this.managed, 'AccessManagedUnauthorized')
+        .withArgs(this.other.address);
     });
 
     it('panics in short calldata', async function () {
       // We avoid adding the `restricted` modifier to the fallback function because other tests may depend on it
       // being accessible without restrictions. We check for the internal `_checkCanCall` instead.
-      await expectRevert.unspecified(this.managed.$_checkCanCall(other, '0x1234'));
+      await expect(this.managed.$_checkCanCall(this.roleMember, '0x1234')).to.be.reverted;
     });
 
     describe('when role is granted with execution delay', function () {
       beforeEach(async function () {
-        const executionDelay = web3.utils.toBN(911);
-        await this.authority.$_grantRole(this.role, roleMember, 0, executionDelay);
+        const executionDelay = 911n;
+        await this.authority.$_grantRole(this.role, this.roleMember, 0, executionDelay);
       });
 
       it('reverts if the operation is not scheduled', async function () {
-        const calldata = this.managed.contract.methods[method]().encodeABI();
-        const opId = await this.authority.hashOperation(roleMember, this.managed.address, calldata);
+        const fn = this.managed.interface.getFunction(this.selector);
+        const calldata = this.managed.interface.encodeFunctionData(fn, []);
+        const opId = await this.authority.hashOperation(this.roleMember, this.managed.target, calldata);
 
-        await expectRevertCustomError(this.managed.methods[method]({ from: roleMember }), 'AccessManagerNotScheduled', [
-          opId,
-        ]);
+        await expect(this.managed.connect(this.roleMember)[this.selector]())
+          .to.be.revertedWithCustomError(this.authority, 'AccessManagerNotScheduled')
+          .withArgs(opId);
       });
 
       it('succeeds if the operation is scheduled', async function () {
         // Arguments
         const delay = time.duration.hours(12);
-        const calldata = this.managed.contract.methods[method]().encodeABI();
+        const fn = this.managed.interface.getFunction(this.selector);
+        const calldata = this.managed.interface.encodeFunctionData(fn, []);
 
         // Schedule
-        const timestamp = await time.latest();
-        const scheduledAt = timestamp.addn(1);
-        const when = scheduledAt.add(delay);
+        const timestamp = await time.clock.timestamp();
+        const scheduledAt = timestamp + 1n;
+        const when = scheduledAt + delay;
         await setNextBlockTimestamp(scheduledAt);
-        await this.authority.schedule(this.managed.address, calldata, when, {
-          from: roleMember,
-        });
+        await this.authority.connect(this.roleMember).schedule(this.managed.target, calldata, when);
 
         // Set execution date
         await setNextBlockTimestamp(when);
 
         // Shouldn't revert
-        await this.managed.methods[method]({ from: roleMember });
+        await this.managed.connect(this.roleMember)[this.selector]();
       });
     });
   });
 
   describe('setAuthority', function () {
-    beforeEach(async function () {
-      this.newAuthority = await AccessManager.new(admin);
-    });
-
     it('reverts if the caller is not the authority', async function () {
-      await expectRevertCustomError(this.managed.setAuthority(other, { from: other }), 'AccessManagedUnauthorized', [
-        other,
-      ]);
+      await expect(this.managed.connect(this.other).setAuthority(this.other))
+        .to.be.revertedWithCustomError(this.managed, 'AccessManagedUnauthorized')
+        .withArgs(this.other.address);
     });
 
     it('reverts if the new authority is not a valid authority', async function () {
-      await impersonate(this.authority.address);
-      await expectRevertCustomError(
-        this.managed.setAuthority(other, { from: this.authority.address }),
-        'AccessManagedInvalidAuthority',
-        [other],
-      );
+      await expect(this.managed.connect(this.asAuthority).setAuthority(this.other))
+        .to.be.revertedWithCustomError(this.managed, 'AccessManagedInvalidAuthority')
+        .withArgs(this.other.address);
     });
 
     it('sets authority and emits AuthorityUpdated event', async function () {
-      await impersonate(this.authority.address);
-      const { receipt } = await this.managed.setAuthority(this.newAuthority.address, { from: this.authority.address });
-      await expectEvent(receipt, 'AuthorityUpdated', {
-        authority: this.newAuthority.address,
-      });
-      expect(await this.managed.authority()).to.eq(this.newAuthority.address);
+      await expect(this.managed.connect(this.asAuthority).setAuthority(this.anotherAuthority.target))
+        .to.emit(this.managed, 'AuthorityUpdated')
+        .withArgs(this.anotherAuthority.target);
+
+      expect(await this.managed.authority()).to.eq(this.anotherAuthority.target);
     });
   });
 
   describe('isConsumingScheduledOp', function () {
     beforeEach(async function () {
-      this.authority = await AuthoritiyObserveIsConsuming.new();
-      this.managed = await AccessManaged.new(this.authority.address);
+      await this.managed.connect(this.asAuthority).setAuthority(this.authorityObserveIsConsuming.target);
     });
 
     it('returns bytes4(0) when not consuming operation', async function () {
@@ -131,12 +133,15 @@ contract('AccessManaged', function (accounts) {
     });
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {
-      const receipt = await this.managed.fnRestricted({ from: other });
-      await expectEvent.inTransaction(receipt.tx, this.authority, 'ConsumeScheduledOpCalled', {
-        caller: other,
-        data: this.managed.contract.methods.fnRestricted().encodeABI(),
-        isConsuming: selector('isConsumingScheduledOp()'),
-      });
+      const isConsumingScheduledOp = this.managed.interface.getFunction('isConsumingScheduledOp()');
+      const fnRestricted = this.managed.interface.getFunction('fnRestricted()');
+      await expect(this.managed.connect(this.other).fnRestricted())
+        .to.emit(this.authorityObserveIsConsuming, 'ConsumeScheduledOpCalled')
+        .withArgs(
+          this.other.address,
+          this.managed.interface.encodeFunctionData(fnRestricted, []),
+          isConsumingScheduledOp.selector,
+        );
     });
   });
 });
