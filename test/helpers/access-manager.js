@@ -11,16 +11,16 @@ const { keccak256, AbiCoder } = require('ethers');
 function buildBaseRoles() {
   const roles = {
     ADMIN: {
-      id: BigInt(0),
+      id: 0n,
     },
     SOME_ADMIN: {
-      id: BigInt(17),
+      id: 17n,
     },
     SOME_GUARDIAN: {
-      id: BigInt(35),
+      id: 35n,
     },
     SOME: {
-      id: BigInt(42),
+      id: 42n,
     },
     PUBLIC: {
       id: MAX_UINT64,

@@ -40,7 +40,7 @@ describe('AuthorityUtils', function () {
           '0x12345678',
         );
         expect(immediate).to.equal(false);
-        expect(delay).to.be.equal(BigInt(0));
+        expect(delay).to.be.equal(0n);
       });
     });
 
@@ -59,7 +59,7 @@ describe('AuthorityUtils', function () {
           '0x12345678',
         );
         expect(immediate).to.equal(this.immediate);
-        expect(delay).to.be.equal(BigInt(0));
+        expect(delay).to.be.equal(0n);
       });
     });
 
@@ -69,7 +69,7 @@ describe('AuthorityUtils', function () {
       });
 
       for (const immediate of [true, false]) {
-        for (const delay of ['0', '42']) {
+        for (const delay of [0n, 42n]) {
           it(`returns (immediate=${immediate}, delay=${delay})`, async function () {
             await this.authority._setImmediate(immediate);
             await this.authority._setDelay(delay);
@@ -80,7 +80,7 @@ describe('AuthorityUtils', function () {
               '0x12345678',
             );
             expect(result.immediate).to.equal(immediate);
-            expect(result.delay).to.be.equal(BigInt(delay));
+            expect(result.delay).to.be.equal(delay);
           });
         }
       }
@@ -99,7 +99,7 @@ describe('AuthorityUtils', function () {
           '0x12345678',
         );
         expect(immediate).to.equal(false);
-        expect(delay).to.be.equal(BigInt(0));
+        expect(delay).to.be.equal(0n);
       });
     });
   });
