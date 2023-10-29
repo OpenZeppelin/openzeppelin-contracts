@@ -1,4 +1,3 @@
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
 const {
   LIKE_COMMON_IS_EXECUTING,
   LIKE_COMMON_GET_ACCESS,
@@ -17,13 +16,9 @@ const {
  */
 function shouldBehaveLikeDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      // Consume previously set delay
-      await mine();
-    });
-    testAsDelayedOperation();
-  };
+  testAsDelayedOperation.mineDelay = true;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testAsDelayedOperation;
   getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For testAsDelayedOperation
@@ -60,19 +55,20 @@ function shouldBehaveLikeDelayedAdminOperation() {
  */
 function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('set execution delay', async function () {
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
-    beforeEach('set execution delay', async function () {
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+
+  function testScheduleOperation(mineDelay) {
+    return function self() {
+      self.mineDelay = mineDelay;
+      beforeEach('set execution delay', async function () {
+        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+      });
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+    };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testScheduleOperation(true);
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
@@ -103,19 +99,17 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
  */
 function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('set operation delay', async function () {
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
+
+  function afterGrantDelay() {
+    afterGrantDelay.mineDelay = true;
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
     });
     testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = afterGrantDelay;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = afterGrantDelay;
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
@@ -160,20 +154,19 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     revertUnauthorized;
   getAccessPath.requiredRoleIsNotGranted = revertUnauthorized;
 
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      // Consume previously set delay
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+  function testScheduleOperation(mineDelay) {
+    return function self() {
+      self.mineDelay = mineDelay;
+      beforeEach('sets execution delay', async function () {
+        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+      });
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+    };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testScheduleOperation(true);
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
 
   const isExecutingPath = LIKE_COMMON_IS_EXECUTING;
   isExecutingPath.notExecuting = revertUnauthorized;

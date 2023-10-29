@@ -1,7 +1,4 @@
 const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
-const {
-  time: { setNextBlockTimestamp },
-} = require('@nomicfoundation/hardhat-network-helpers');
 const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
 const { impersonate } = require('../../helpers/account');
 const { bigint: time } = require('../../helpers/time');
@@ -150,7 +147,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has not taken effect yet`, function () {
     beforeEach(`set next block timestamp before ${type} takes effect`, async function () {
-      await setNextBlockTimestamp(this.delayEffect - 1n);
+      await time.forward.timestamp(this.delayEffect - 1n, !!before.mineDelay);
     });
 
     before();
@@ -158,7 +155,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has taken effect`, function () {
     beforeEach(`set next block timestamp when ${type} takes effect`, async function () {
-      await setNextBlockTimestamp(this.delayEffect);
+      await time.forward.timestamp(this.delayEffect, !!after.mineDelay);
     });
 
     after();
@@ -191,7 +188,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time before operation is ready', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await setNextBlockTimestamp(schedule - 1n);
+        await time.forward.timestamp(schedule - 1n, !!before.mineDelay);
       });
 
       before();
@@ -201,7 +198,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation is ready for execution', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await setNextBlockTimestamp(schedule);
+        await time.forward.timestamp(schedule, !!after.mineDelay);
       });
 
       after();
@@ -211,7 +208,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation expired', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await setNextBlockTimestamp(schedule + EXPIRATION);
+        await time.forward.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
       });
 
       expired();

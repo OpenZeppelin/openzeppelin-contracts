@@ -27,15 +27,14 @@ const {
 } = require('./AccessManager.predicate');
 
 const {
-  mine,
-  time: { setNextBlockTimestamp, increase },
+  time: { increase },
   getStorageAt,
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers');
 const { MAX_UINT48 } = require('../../helpers/constants');
 const { impersonate } = require('../../helpers/account');
 const { bigint: time } = require('../../helpers/time');
-const { ZeroAddress: ZERO_ADDRESS, Wallet, toBeHex } = require('ethers');
+const { ZeroAddress: ZERO_ADDRESS, Wallet, toBeHex, id } = require('ethers');
 
 const someAddress = Wallet.createRandom().address;
 
@@ -197,11 +196,8 @@ contract('AccessManager', function () {
               requiredRoleIsGranted: {
                 roleGrantingIsDelayed: {
                   callerHasAnExecutionDelay: {
-                    beforeGrantDelay() {
-                      beforeEach('consume previously set grant delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                    beforeGrantDelay: function self() {
+                      self.mineDelay = true;
 
                       it('should return false and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
@@ -213,20 +209,17 @@ contract('AccessManager', function () {
                         expect(delay).to.equal(0n);
                       });
                     },
-                    afterGrantDelay() {
-                      beforeEach('consume previously set grant delay', async function () {
-                        // Consume previously set delay
-                        await mine();
+                    afterGrantDelay: function self() {
+                      self.mineDelay = true;
+
+                      beforeEach('sets execution delay', function () {
                         this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
                       });
 
                       testAsSchedulableOperation({
                         scheduled: {
-                          before() {
-                            beforeEach('consume previously set delay', async function () {
-                              // Consume previously set delay
-                              await mine();
-                            });
+                          before: function self() {
+                            self.mineDelay = true;
 
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
@@ -238,11 +231,8 @@ contract('AccessManager', function () {
                               expect(delay).to.equal(this.executionDelay);
                             });
                           },
-                          after() {
-                            beforeEach('consume previously set delay', async function () {
-                              // Consume previously set delay
-                              await mine();
-                            });
+                          after: function self() {
+                            self.mineDelay = true;
 
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
@@ -254,11 +244,9 @@ contract('AccessManager', function () {
                               expect(delay).to.equal(this.executionDelay);
                             });
                           },
-                          expired() {
-                            beforeEach('consume previously set delay', async function () {
-                              // Consume previously set delay
-                              await mine();
-                            });
+                          expired: function self() {
+                            self.mineDelay = true;
+
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
@@ -285,11 +273,8 @@ contract('AccessManager', function () {
                     },
                   },
                   callerHasNoExecutionDelay: {
-                    beforeGrantDelay() {
-                      beforeEach('consume previously set grant delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                    beforeGrantDelay: function self() {
+                      self.mineDelay = true;
 
                       it('should return false and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
@@ -301,11 +286,8 @@ contract('AccessManager', function () {
                         expect(delay).to.equal(0n);
                       });
                     },
-                    afterGrantDelay() {
-                      beforeEach('consume previously set grant delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                    afterGrantDelay: function self() {
+                      self.mineDelay = true;
 
                       it('should return true and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
@@ -416,21 +398,15 @@ contract('AccessManager', function () {
         });
 
         testAsDelay('effect', {
-          before() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          before: function self() {
+            self.mineDelay = true;
 
             it('returns the old target admin delay', async function () {
               expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(this.oldDelay);
             });
           },
-          after() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          after: function self() {
+            self.mineDelay = true;
 
             it('returns the new target admin delay', async function () {
               expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(this.newDelay);
@@ -489,21 +465,15 @@ contract('AccessManager', function () {
         });
 
         testAsDelay('grant', {
-          before() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          before: function self() {
+            self.mineDelay = true;
 
             it('returns the old role grant delay', async function () {
               expect(await this.manager.getRoleGrantDelay(roleId)).to.equal(this.oldDelay);
             });
           },
-          after() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          after: function self() {
+            self.mineDelay = true;
 
             it('returns the new role grant delay', async function () {
               expect(await this.manager.getRoleGrantDelay(roleId)).to.equal(this.newDelay);
@@ -527,11 +497,8 @@ contract('AccessManager', function () {
         requiredRoleIsGranted: {
           roleGrantingIsDelayed: {
             callerHasAnExecutionDelay: {
-              beforeGrantDelay() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              beforeGrantDelay: function self() {
+                self.mineDelay = true;
 
                 it('role is not in effect and execution delay is set', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
@@ -544,11 +511,8 @@ contract('AccessManager', function () {
                   expect(await time.clock.timestamp()).to.lt(access[0]);
                 });
               },
-              afterGrantDelay() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              afterGrantDelay: function self() {
+                self.mineDelay = true;
 
                 it('access has role in effect and execution delay is set', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
@@ -564,11 +528,8 @@ contract('AccessManager', function () {
               },
             },
             callerHasNoExecutionDelay: {
-              beforeGrantDelay() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              beforeGrantDelay: function self() {
+                self.mineDelay = true;
 
                 it('access has role not in effect without execution delay', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
@@ -581,11 +542,8 @@ contract('AccessManager', function () {
                   expect(await time.clock.timestamp()).to.lt(access[0]);
                 });
               },
-              afterGrantDelay() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              afterGrantDelay: function self() {
+                self.mineDelay = true;
 
                 it('role is in effect without execution delay', async function () {
                   const access = await this.manager.getAccess(this.role.id, this.caller);
@@ -658,11 +616,8 @@ contract('AccessManager', function () {
           requiredRoleIsGranted: {
             roleGrantingIsDelayed: {
               callerHasAnExecutionDelay: {
-                beforeGrantDelay() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                beforeGrantDelay: function self() {
+                  self.mineDelay = true;
 
                   it('does not have role but execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
@@ -670,11 +625,8 @@ contract('AccessManager', function () {
                     expect(executionDelay).to.eq(this.executionDelay);
                   });
                 },
-                afterGrantDelay() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                afterGrantDelay: function self() {
+                  self.mineDelay = true;
 
                   it('has role and execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
@@ -684,11 +636,8 @@ contract('AccessManager', function () {
                 },
               },
               callerHasNoExecutionDelay: {
-                beforeGrantDelay() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                beforeGrantDelay: function self() {
+                  self.mineDelay = true;
 
                   it('does not have role nor execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
@@ -696,11 +645,8 @@ contract('AccessManager', function () {
                     expect(executionDelay).to.eq('0');
                   });
                 },
-                afterGrantDelay() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                afterGrantDelay: function self() {
+                  self.mineDelay = true;
 
                   it('has role and no execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
@@ -752,11 +698,8 @@ contract('AccessManager', function () {
 
       testAsSchedulableOperation({
         scheduled: {
-          before() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          before: function self() {
+            self.mineDelay = true;
 
             it('returns schedule in the future', async function () {
               const schedule = await this.manager.getSchedule(this.operationId);
@@ -764,11 +707,8 @@ contract('AccessManager', function () {
               expect(schedule).to.gt(await time.clock.timestamp());
             });
           },
-          after() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          after: function self() {
+            self.mineDelay = true;
 
             it('returns schedule', async function () {
               const schedule = await this.manager.getSchedule(this.operationId);
@@ -776,11 +716,8 @@ contract('AccessManager', function () {
               expect(schedule).to.eq(await time.clock.timestamp());
             });
           },
-          expired() {
-            beforeEach('consume previously set grant delay', async function () {
-              // Consume previously set delay
-              await mine();
-            });
+          expired: function self() {
+            self.mineDelay = true;
 
             it('returns 0', async function () {
               expect(await this.manager.getSchedule(this.operationId)).to.equal(0n);
@@ -824,7 +761,7 @@ contract('AccessManager', function () {
 
       describe('when is not scheduled', function () {
         it('returns default 0', async function () {
-          expect(await this.manager.getNonce(web3.utils.keccak256('operation'))).to.equal(0n);
+          expect(await this.manager.getNonce(id('operation'))).to.equal(0n);
         });
       });
     });
@@ -964,7 +901,7 @@ contract('AccessManager', function () {
           shouldBehaveLikeDelayedAdminOperation();
         });
 
-        it('reverts setting grant delay for the PUBLIC_ROLE', async function () {
+        it('reverts setting grant delay for the PUBLIC_ROLE', function () {
           expect(this.manager.connect(this.admin).setGrantDelay(this.roles.PUBLIC.id, 69n))
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerLockedRole')
             .withArgs(this.roles.PUBLIC.id);
@@ -982,10 +919,9 @@ contract('AccessManager', function () {
           });
 
           it('increases the delay after minsetback', async function () {
-            const timestamp = await time.clock.timestamp();
-            const setGrantDelayAt = timestamp + 1n;
-            await setNextBlockTimestamp(setGrantDelayAt);
-            await expect(this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay))
+            const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
+            const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
+            expect(txResponse)
               .to.emit(this.manager, 'RoleGrantDelayChanged')
               .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
@@ -1009,10 +945,9 @@ contract('AccessManager', function () {
             const newDelay = oldDelay - 1n;
 
             it('increases the delay after minsetback', async function () {
-              const timestamp = await time.clock.timestamp();
-              const setGrantDelayAt = timestamp + 1n;
-              await setNextBlockTimestamp(setGrantDelayAt);
-              await expect(this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay))
+              const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
+              const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
+              expect(txResponse)
                 .to.emit(this.manager, 'RoleGrantDelayChanged')
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
@@ -1032,11 +967,10 @@ contract('AccessManager', function () {
             it('increases the delay after delay difference', async function () {
               const setback = oldDelay - newDelay;
 
-              const timestamp = await time.clock.timestamp();
-              const setGrantDelayAt = timestamp + 1n;
-              await setNextBlockTimestamp(setGrantDelayAt);
+              const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
+              const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
 
-              await expect(this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay))
+              expect(txResponse)
                 .to.emit(this.manager, 'RoleGrantDelayChanged')
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + setback);
 
@@ -1071,10 +1005,9 @@ contract('AccessManager', function () {
           });
 
           it('increases the delay after minsetback', async function () {
-            const timestamp = await time.clock.timestamp();
-            const setTargetAdminDelayAt = timestamp + 1n;
-            await setNextBlockTimestamp(setTargetAdminDelayAt);
-            await expect(this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay))
+            const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+            const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
+            expect(txResponse)
               .to.emit(this.manager, 'TargetAdminDelayUpdated')
               .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
@@ -1098,10 +1031,9 @@ contract('AccessManager', function () {
             const newDelay = oldDelay - 1n;
 
             it('increases the delay after minsetback', async function () {
-              const timestamp = await time.clock.timestamp();
-              const setTargetAdminDelayAt = timestamp + 1n;
-              await setNextBlockTimestamp(setTargetAdminDelayAt);
-              await expect(this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay))
+              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+              const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
+              expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
                 .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
@@ -1120,10 +1052,11 @@ contract('AccessManager', function () {
 
             it('increases the delay after delay difference', async function () {
               const setback = oldDelay - newDelay;
-              const timestamp = await time.clock.timestamp();
-              const setTargetAdminDelayAt = timestamp + 1n;
-              await setNextBlockTimestamp(setTargetAdminDelayAt);
-              await expect(this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay))
+
+              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+              const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
+
+              expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
                 .withArgs(target, newDelay, setTargetAdminDelayAt + setback);
 
@@ -1293,11 +1226,8 @@ contract('AccessManager', function () {
               });
 
               testAsDelay('grant', {
-                before() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                before: function self() {
+                  self.mineDelay = true;
 
                   it('does not grant role to the user yet', async function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
@@ -1321,11 +1251,8 @@ contract('AccessManager', function () {
                     ]);
                   });
                 },
-                after() {
-                  beforeEach('consume previously set grant delay', async function () {
-                    // Consume previously set delay
-                    await mine();
-                  });
+                after: function self() {
+                  self.mineDelay = true;
 
                   it('grants role to the user', async function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
@@ -1361,22 +1288,23 @@ contract('AccessManager', function () {
               });
 
               it('immediately grants the role to the user', async function () {
-                this.executionDelay = time.duration.days(6);
+                const executionDelay = time.duration.days(6);
                 expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
                   false,
                   '0',
                 ]);
-                const timestamp = await time.clock.timestamp();
-                const grantedAt = timestamp + 1n;
-                await setNextBlockTimestamp(grantedAt);
-                await expect(this.manager.connect(this.admin).grantRole(ANOTHER_ROLE, this.user, this.executionDelay))
+                const txResponse = await this.manager
+                  .connect(this.admin)
+                  .grantRole(ANOTHER_ROLE, this.user, executionDelay);
+                const grantedAt = await time.clockFromReceipt.timestamp(txResponse);
+                expect(txResponse)
                   .to.emit(this.manager, 'RoleGranted')
-                  .withArgs(ANOTHER_ROLE, this.user.address, this.executionDelay, grantedAt, true);
+                  .withArgs(ANOTHER_ROLE, this.user.address, executionDelay, grantedAt, true);
 
                 // Access is correctly stored
                 const access = await this.manager.getAccess(ANOTHER_ROLE, this.user);
                 expect(access[0]).to.equal(grantedAt); // inEffectSince
-                expect(access[1]).to.equal(this.executionDelay); // currentDelay
+                expect(access[1]).to.equal(executionDelay); // currentDelay
                 expect(access[2]).to.equal(0n); // pendingDelay
                 expect(access[3]).to.equal(0n); // pendingDelayEffect
 
@@ -1385,7 +1313,7 @@ contract('AccessManager', function () {
                 expect(currentTimestamp).to.be.equal(access[0]);
                 expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
                   true,
-                  this.executionDelay.toString(),
+                  executionDelay.toString(),
                 ]);
               });
             });
@@ -1474,11 +1402,8 @@ contract('AccessManager', function () {
                 });
 
                 testAsDelay('execution delay effect', {
-                  before() {
-                    beforeEach('consume effect delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+                  before: function self() {
+                    self.mineDelay = true;
 
                     it('does not change the execution delay yet', async function () {
                       // Access is correctly stored
@@ -1495,11 +1420,8 @@ contract('AccessManager', function () {
                       ]);
                     });
                   },
-                  after() {
-                    beforeEach('consume effect delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+                  after: function self() {
+                    self.mineDelay = true;
 
                     it('changes the execution delay', async function () {
                       // Access is correctly stored
@@ -1597,11 +1519,8 @@ contract('AccessManager', function () {
                 });
 
                 testAsDelay('execution delay effect', {
-                  before() {
-                    beforeEach('consume effect delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+                  before: function self() {
+                    self.mineDelay = true;
 
                     it('does not change the execution delay yet', async function () {
                       // Access is correctly stored
@@ -1618,11 +1537,8 @@ contract('AccessManager', function () {
                       ]);
                     });
                   },
-                  after() {
-                    beforeEach('consume effect delay', async function () {
-                      // Consume previously set delay
-                      await mine();
-                    });
+                  after: function self() {
+                    self.mineDelay = true;
 
                     it('changes the execution delay', async function () {
                       // Access is correctly stored
@@ -1669,11 +1585,8 @@ contract('AccessManager', function () {
             });
 
             testAsDelay('grant', {
-              before() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              before: function self() {
+                self.mineDelay = true;
 
                 it('revokes a granted role that will take effect in the future', async function () {
                   expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
@@ -1697,11 +1610,8 @@ contract('AccessManager', function () {
                   expect(access[3]).to.equal(0n); // effect
                 });
               },
-              after() {
-                beforeEach('consume previously set grant delay', async function () {
-                  // Consume previously set delay
-                  await mine();
-                });
+              after: function self() {
+                self.mineDelay = true;
 
                 it('revokes a granted role that already took effect', async function () {
                   expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
@@ -2005,10 +1915,8 @@ contract('AccessManager', function () {
       const executionDelay = await time.duration.hours(72);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, executionDelay);
 
-      const timestamp = await time.clock.timestamp();
-      const scheduledAt = timestamp + 1n;
-      await setNextBlockTimestamp(scheduledAt);
       const txResponse = await this.manager.connect(this.caller).schedule(this.target.target, this.calldata, 0);
+      const scheduledAt = await time.clockFromReceipt.timestamp(txResponse);
 
       const operationId = await this.manager.hashOperation(this.caller, this.target.target, this.calldata);
 
@@ -2201,11 +2109,11 @@ contract('AccessManager', function () {
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
                     },
-                    afterGrantDelay() {
-                      beforeEach('define schedule delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                        this.scheduleIn = time.duration.days(21);
+                    afterGrantDelay: function self() {
+                      self.mineDelay = true;
+
+                      beforeEach('define schedule delay', function () {
+                        this.scheduleIn = time.duration.days(21); // For testAsSchedulableOperation
                       });
 
                       testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
@@ -2219,11 +2127,8 @@ contract('AccessManager', function () {
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
                     },
-                    afterGrantDelay() {
-                      beforeEach('define schedule delay', async function () {
-                        // Consume previously set delay
-                        await mine();
-                      });
+                    afterGrantDelay: function self() {
+                      self.mineDelay = true;
 
                       it('succeeds', async function () {
                         await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
@@ -2233,8 +2138,8 @@ contract('AccessManager', function () {
                 },
                 roleGrantingIsNotDelayed: {
                   callerHasAnExecutionDelay() {
-                    beforeEach('define schedule delay', async function () {
-                      this.scheduleIn = time.duration.days(15);
+                    beforeEach('define schedule delay', function () {
+                      this.scheduleIn = time.duration.days(15); // For testAsSchedulableOperation
                     });
 
                     testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
