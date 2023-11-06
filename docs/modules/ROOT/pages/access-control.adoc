@@ -41,7 +41,7 @@ Most software uses access control systems that are role-based: some users are re
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessControl[`AccessControl`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
 you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role.
 
-Here's a simple example of using `AccessControl` in an xref:tokens.adoc#ERC20[`ERC20` token] to define a 'minter' role, which allows accounts that have it create new tokens:
+Here's a simple example of using `AccessControl` in an xref:erc20.adoc[`ERC20` token] to define a 'minter' role, which allows accounts that have it create new tokens:
 
 [source,solidity]
 ----
@@ -171,7 +171,7 @@ include::api:example$access-control/AccessManagedERC20MintBase.sol[]
 
 NOTE: Make sure you fully understand how xref:api:access.adoc#AccessManager[`AccessManager`] works before using it or copy-pasting the examples from this guide.
 
-Once the managed contract has been deployed, it is now under the manager's control, which will get the minter role assigned to an address and also allow the role to call the `mint` function.
+Once the managed contract has been deployed, it is now under the manager's control. The initial admin can then assign the minter role to an address and also allow the role to call the `mint` function. 
 
 ```javascript
 const MINTER = 42n; // Roles are uint64 (0 is reserved for the ADMIN_ROLE)
@@ -198,7 +198,9 @@ const EXECUTION_DELAY = 5 * HOUR;
 const ACCOUNT = "0x...";
     
 await manager.setGrantDelay(MINTER, GRANT_DELAY, { from: initialAdmin });
-await manager.grantRole(MINTER, ACCOUNT, EXECUTION_DELAY, { from: initialAdmin });
+
+// The role will go into effect after the GRANT_DELAY passes
+await manager.grantRole(MINTER, ACCOUNT, EXECUTION_DELAY, { from: initialAdmin }); 
 ```
 
 Note that roles do not define a name. As opposed to the xref:api:access.adoc#AccessControl[`AccessControl`] case, roles are identified as numeric values instead of being hardcoded in the contract as `bytes32` values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
@@ -223,7 +225,7 @@ await manager.setTargetClosed(myToken.address, true);
 await manager.setTargetClosed(myToken.address, false);
 ```
 
-WARNING: Even if an `AccessManager` defines permissions for a target function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManageddf-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
+WARNING: Even if an `AccessManager` defines permissions for a target function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManaged-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
 
 === Role Admins and Guardians
 
