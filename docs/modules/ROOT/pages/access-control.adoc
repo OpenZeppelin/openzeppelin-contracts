@@ -161,7 +161,7 @@ image::access-manager-functions.svg[Access Manager functions]
 
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessManager[`AccessManager`] for managing roles across any number of contracts. The `AccessManager` itself is a contract that can be deployed and used out of the box. It sets an initial admin in the constructor who will be allowed to perform management operations.
 
-In order to restrict access to some functions of your contract, you should inherit from the xref:api:access.adoc#AccessManaged[`AccessManaged`] contract provided along with the manager so that the `restricted` modifier is available to protect any externally facing function. Note you will have to set the address of the Access Manager instance (xref:api:access.adoc#AccessManaged-constructor-address-[`initialAuthority`]) in the constructor so the `restricted` modifier can check permissions by calling the correct manager.
+In order to restrict access to some functions of your contract, you should inherit from the xref:api:access.adoc#AccessManaged[`AccessManaged`] contract provided along with the manager so that the `restricted` modifier is available to protect any externally facing function. Note you will have to set the address of the AccessManager instance (xref:api:access.adoc#AccessManaged-constructor-address-[`initialAuthority`]) in the constructor so the `restricted` modifier can check permissions by calling the correct manager.
 
 Here's a simple example of an xref:tokens.adoc#ERC20[`ERC20` token] that defines a `mint` function that is restricted by an xref:api:access.adoc#AccessManager[`AccessManager`]:
 
