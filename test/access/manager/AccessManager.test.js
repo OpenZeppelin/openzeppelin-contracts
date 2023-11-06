@@ -686,10 +686,10 @@ contract('AccessManager', function () {
 
     describe('#getSchedule', function () {
       beforeEach('set role and calldata', async function () {
-        const fnRestricted = this.target.interface.getFunction('fnRestricted()');
+        const fnRestricted = this.target.fnRestricted.getFragment().selector;
         this.caller = this.user;
         this.role = { id: 493590n };
-        await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted.selector, this.role.id);
+        await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted, this.role.id);
         await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
         this.calldata = this.target.interface.encodeFunctionData(fnRestricted, []);
@@ -735,10 +735,10 @@ contract('AccessManager', function () {
     describe('#getNonce', function () {
       describe('when operation is scheduled', function () {
         beforeEach('schedule operation', async function () {
-          const fnRestricted = this.target.interface.getFunction('fnRestricted()');
+          const fnRestricted = this.target.fnRestricted.getFragment().selector;
           this.caller = this.user;
           this.role = { id: 4209043n };
-          await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted.selector, this.role.id);
+          await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted, this.role.id);
           await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
           this.calldata = this.target.interface.encodeFunctionData(fnRestricted, []);
@@ -1704,7 +1704,7 @@ contract('AccessManager', function () {
   describe('access managed target operations', function () {
     describe('when calling a restricted target function', function () {
       beforeEach('set required role', function () {
-        this.method = this.target.interface.getFunction('fnRestricted()');
+        this.method = this.target.fnRestricted.getFragment();
         this.role = { id: 3597243n };
         this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.role.id);
       });
@@ -1736,7 +1736,11 @@ contract('AccessManager', function () {
 
       beforeEach('set required role', async function () {
         this.role = { id: 879435n };
-        await this.manager.$_setTargetFunctionRole(this.target.target, selector(method), this.role.id);
+        await this.manager.$_setTargetFunctionRole(
+          this.target.target,
+          this.target[method].getFragment().selector,
+          this.role.id,
+        );
       });
 
       it('succeeds called by anyone', async function () {
@@ -1753,7 +1757,7 @@ contract('AccessManager', function () {
 
   describe('#schedule', function () {
     beforeEach('set target function role', async function () {
-      this.method = this.target.interface.getFunction('fnRestricted()');
+      this.method = this.target.fnRestricted.getFragment();
       this.role = { id: 498305n };
       this.caller = this.user;
 
@@ -2058,7 +2062,7 @@ contract('AccessManager', function () {
 
   describe('#execute', function () {
     beforeEach('set target function role', async function () {
-      this.method = this.target.interface.getFunction('fnRestricted()');
+      this.method = this.target.fnRestricted.getFragment();
       this.role = { id: 9825430n };
       this.caller = this.user;
 
@@ -2236,7 +2240,7 @@ contract('AccessManager', function () {
 
   describe('#consumeScheduledOp', function () {
     beforeEach('define scheduling parameters', async function () {
-      const method = this.target.interface.getFunction('fnRestricted()');
+      const method = this.target.fnRestricted.getFragment();
       this.caller = await ethers.getSigner(this.target.target);
       await impersonate(this.caller.address);
       this.calldata = this.target.interface.encodeFunctionData(method, []);
@@ -2305,7 +2309,7 @@ contract('AccessManager', function () {
 
   describe('#cancelScheduledOp', function () {
     beforeEach('setup scheduling', async function () {
-      this.method = this.target.interface.getFunction('fnRestricted()');
+      this.method = this.target.fnRestricted.getFragment();
       this.caller = this.roles.SOME.members[0];
       await this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.roles.SOME.id);
       await this.manager.$_grantRole(this.roles.SOME.id, this.caller, 0, 1); // nonzero execution delay
@@ -2408,22 +2412,34 @@ contract('AccessManager', function () {
       });
 
       it('relayed call (with role): reverts', async function () {
-        await expect(this.manager.connect(this.user).execute(this.ownable.target, selector('$_checkOwner()')))
+        await expect(
+          this.manager
+            .connect(this.user)
+            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+        )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-          .withArgs(this.user.address, this.ownable.target, selector('$_checkOwner()'));
+          .withArgs(this.user.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
       });
 
       it('relayed call (without role): reverts', async function () {
-        await expect(this.manager.connect(this.other).execute(this.ownable.target, selector('$_checkOwner()')))
+        await expect(
+          this.manager
+            .connect(this.other)
+            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+        )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-          .withArgs(this.other.address, this.ownable.target, selector('$_checkOwner()'));
+          .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
       });
     });
 
     describe('Contract is managed', function () {
       describe('function is open to specific role', function () {
         beforeEach(async function () {
-          await this.manager.$_setTargetFunctionRole(this.ownable.target, selector('$_checkOwner()'), roleId);
+          await this.manager.$_setTargetFunctionRole(
+            this.ownable.target,
+            this.ownable.$_checkOwner.getFragment().selector,
+            roleId,
+          );
         });
 
         it('directly call: reverts', async function () {
@@ -2433,13 +2449,19 @@ contract('AccessManager', function () {
         });
 
         it('relayed call (with role): success', async function () {
-          await this.manager.connect(this.user).execute(this.ownable.target, selector('$_checkOwner()'));
+          await this.manager
+            .connect(this.user)
+            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): reverts', async function () {
-          await expect(this.manager.connect(this.other).execute(this.ownable.target, selector('$_checkOwner()')))
+          await expect(
+            this.manager
+              .connect(this.other)
+              .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+          )
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
-            .withArgs(this.other.address, this.ownable.target, selector('$_checkOwner()'));
+            .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
         });
       });
 
@@ -2447,7 +2469,7 @@ contract('AccessManager', function () {
         beforeEach(async function () {
           await this.manager.$_setTargetFunctionRole(
             this.ownable.target,
-            selector('$_checkOwner()'),
+            this.ownable.$_checkOwner.getFragment().selector,
             this.roles.PUBLIC.id,
           );
         });
@@ -2459,11 +2481,15 @@ contract('AccessManager', function () {
         });
 
         it('relayed call (with role): success', async function () {
-          await this.manager.connect(this.user).execute(this.ownable.target, selector('$_checkOwner()'));
+          await this.manager
+            .connect(this.user)
+            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): success', async function () {
-          await this.manager.connect(this.other).execute(this.ownable.target, selector('$_checkOwner()'));
+          await this.manager
+            .connect(this.other)
+            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
         });
       });
     });

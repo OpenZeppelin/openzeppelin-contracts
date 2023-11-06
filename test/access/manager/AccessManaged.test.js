@@ -132,7 +132,7 @@ describe('AccessManaged', function () {
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {
       const isConsumingScheduledOp = this.managed.interface.getFunction('isConsumingScheduledOp()');
-      const fnRestricted = this.managed.interface.getFunction('fnRestricted()');
+      const fnRestricted = this.managed.fnRestricted.getFragment();
       await expect(this.managed.connect(this.other).fnRestricted())
         .to.emit(this.authorityObserveIsConsuming, 'ConsumeScheduledOpCalled')
         .withArgs(
