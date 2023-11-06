@@ -144,16 +144,16 @@ Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynam
 
 image::access-control-multiple.svg[Access Control multiple]
 
-Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple `AccessControl` instances. 
+Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple `AccessControl` instances.
 
 image::access-manager.svg[Access Manager]
 
-The AccessManager is designed around the concept of role:
+The AccessManager is designed around the concept of role and target functions:
 
 * Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.
-* Access to a restricted function is restricted to one role. A function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
+* Access to a restricted target function is restricted to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
 
-For a call to be authorized, the caller must bear the role that is assigned to the current function (contract address + function selector).
+For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).
 
 image::access-manager-functions.svg[Access Manager functions]
 
@@ -186,7 +186,7 @@ await manager.setTargetFunctionRole(
 );
 ```
 
-Even though each role has its own list of function permissions, each role member (`address`) will have an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must be xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`d] first on the Access Manager before they can be executed, either directly or using the Access Manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
+Even though each role has its own list of function permissions, each role member (`address`) will have an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the Access Manager before they can be executed, either by calling to the target function or using the Access Manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
 
 Additionally, roles can have a granting delay that prevents adding members immediately. The Access Manager admins can set this grant delay as follows:
 
@@ -195,9 +195,10 @@ const HOUR = 60 * 60;
 
 const GRANT_DELAY = 24 * HOUR;
 const EXECUTION_DELAY = 5 * HOUR;
+const ACCOUNT = "0x...";
     
 await manager.setGrantDelay(MINTER, GRANT_DELAY, { from: initialAdmin });
-await manager.grantRole(MINTER, EXECUTION_DELAY, { from: initialAdmin });
+await manager.grantRole(MINTER, ACCOUNT, EXECUTION_DELAY, { from: initialAdmin });
 ```
 
 Note that roles do not define a name. As opposed to the xref:api:access.adoc#AccessControl[`AccessControl`] case, roles are identified as numeric values instead of being hardcoded in the contract as `bytes32` values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
@@ -206,11 +207,11 @@ Note that roles do not define a name. As opposed to the xref:api:access.adoc#Acc
 await manager.labelRole(MINTER, "MINTER");
 ```
 
-It's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets, and functions, assign a new admin, and finally renounce its admin role.
+Given the admins of the `AccessManaged` can modify all of its permissions, it's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets, and functions, assign a new admin, and finally renounce its admin role.
 
-For improved incident response coordination, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to restricted functions in a target contract will revert.
+For improved incident response coordination, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to restricted target functions in a target contract will revert.
 
-Closing and opening contracts don't alter any of their settings, neither permissions nor delays. Particularly, the roles required for calling specific functions are not modified.
+Closing and opening contracts don't alter any of their settings, neither permissions nor delays. Particularly, the roles required for calling specific target functions are not modified.
 
 This mode is useful for incident response operations that require temporarily shutting down a contract in order to evaluate emergencies and reconfigure permissions.
 
@@ -222,7 +223,7 @@ await manager.setTargetClosed(myToken.address, true);
 await manager.setTargetClosed(myToken.address, false);
 ```
 
-WARNING: Even if an `AccessManager` defines permissions for a contract function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManageddf-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
+WARNING: Even if an `AccessManager` defines permissions for a target function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManageddf-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
 
 === Role Admins and Guardians
 
