@@ -1,7 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { ZeroAddress } = require('ethers');
 
 async function fixture() {
   const [owner, other] = await ethers.getSigners();
@@ -17,7 +16,7 @@ describe('Ownable', function () {
   it('emits ownership transfer events during construction', async function () {
     await expect(await this.ownable.deploymentTransaction())
       .to.emit(this.ownable, 'OwnershipTransferred')
-      .withArgs(ZeroAddress, this.owner.address);
+      .withArgs(ethers.ZeroAddress, this.owner.address);
   });
 
   it('rejects zero address for initialOwner', async function () {
