@@ -1,9 +1,9 @@
-const { makeInterfaceId } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('ethers');
 const { expect } = require('chai');
+const { selector } = require('../../helpers/methods');
 
 const INVALID_ID = '0xffffffff';
-const INTERFACES = {
+const SIGNATURES = {
   ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
     'balanceOf(address)',
@@ -81,27 +81,27 @@ const INTERFACES = {
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
-const INTERFACE_IDS = {};
-const FN_SIGNATURES = {};
-for (const k of Object.getOwnPropertyNames(INTERFACES)) {
-  INTERFACE_IDS[k] = makeInterfaceId.ERC165(INTERFACES[k]);
-  for (const fnName of INTERFACES[k]) {
-    // the interface id of a single function is equivalent to its function signature
-    FN_SIGNATURES[fnName] = makeInterfaceId.ERC165([fnName]);
-  }
-}
+const INTERFACE_IDS = Object.fromEntries(
+  Object.entries(SIGNATURES).map(([name, signatures]) => [
+    name,
+    ethers.toBeHex(
+      signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
+      4,
+    ),
+  ]),
+);
 
 function shouldSupportInterfaces(interfaces = []) {
   describe('ERC165', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
+      this.contractUnderTest = this.mock || this.token || this.holder;
     });
 
     describe('when the interfaceId is supported', function () {
       it('uses less than 30k gas', async function () {
         for (const k of interfaces) {
-          const interfaceId = INTERFACE_IDS[k] ?? k;
-          expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
+          const interface = INTERFACE_IDS[k] ?? k;
+          expect(await this.contractUnderTest.supportsInterface.estimateGas(interface)).to.be.lte(30000);
         }
       });
 
@@ -126,13 +126,18 @@ function shouldSupportInterfaces(interfaces = []) {
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
         // skip interfaces for which we don't have a function list
-        if (INTERFACES[k] === undefined) continue;
-        for (const fnName of INTERFACES[k]) {
-          const fnSig = FN_SIGNATURES[fnName];
-          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(
-            1,
-            `did not find ${fnName}`,
-          );
+        if (SIGNATURES[k] === undefined) continue;
+        for (const fnSig of SIGNATURES[k]) {
+          // TODO: Remove Truffle case when ethersjs migration is done
+          if (this.contractUnderTest.abi) {
+            const fnSelector = selector(fnSig);
+            return expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSelector).length).to.equal(
+              1,
+              `did not find ${fnSig}`,
+            );
+          }
+
+          expect(!!this.contractUnderTest.interface.getFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }
     });

@@ -59,7 +59,7 @@ contract('AccessManaged', function (accounts) {
       });
 
       it('reverts if the operation is not scheduled', async function () {
-        const calldata = await this.managed.contract.methods[method]().encodeABI();
+        const calldata = this.managed.contract.methods[method]().encodeABI();
         const opId = await this.authority.hashOperation(roleMember, this.managed.address, calldata);
 
         await expectRevertCustomError(this.managed.methods[method]({ from: roleMember }), 'AccessManagerNotScheduled', [
@@ -70,7 +70,7 @@ contract('AccessManaged', function (accounts) {
       it('succeeds if the operation is scheduled', async function () {
         // Arguments
         const delay = time.duration.hours(12);
-        const calldata = await this.managed.contract.methods[method]().encodeABI();
+        const calldata = this.managed.contract.methods[method]().encodeABI();
 
         // Schedule
         const timestamp = await time.latest();
