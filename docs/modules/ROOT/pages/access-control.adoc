@@ -138,19 +138,19 @@ The minimum delay (accessible through the xref:api:governance.adoc#TimelockContr
 [[access-management]]
 == Access Management
 
-Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
+Better role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
+
+Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
 
 image::access-control-multiple.svg[Access Control multiple]
 
 Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple `AccessControl` instances. 
 
-Better role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
-
 image::access-manager.svg[Access Manager]
 
 The AccessManager is designed around the concept of role:
 
-* Roles are granted to accounts (addresses) following a many-to-many approach. This means that each user can have one or multiple roles and multiple users can have the same role.
+* Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.
 * Access to a restricted function is restricted to one role. A function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
 
 For a call to be authorized, the caller must bear the role that is assigned to the current function (contract address + function selector).
