@@ -146,7 +146,7 @@ image::access-control-multiple.svg[Access Control multiple]
 
 Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple `AccessControl` instances.
 
-image::access-manager.svg[Access Manager]
+image::access-manager.svg[AccessManager]
 
 The AccessManager is designed around the concept of role and target functions:
 
@@ -155,7 +155,7 @@ The AccessManager is designed around the concept of role and target functions:
 
 For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).
 
-image::access-manager-functions.svg[Access Manager functions]
+image::access-manager-functions.svg[AccessManager functions]
 
 === Using `AccessManager`
 
@@ -186,9 +186,9 @@ await manager.setTargetFunctionRole(
 );
 ```
 
-Even though each role has its own list of function permissions, each role member (`address`) will have an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the Access Manager before they can be executed, either by calling to the target function or using the Access Manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
+Even though each role has its own list of function permissions, each role member (`address`) will have an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the AccessManager before they can be executed, either by calling to the target function or using the AccessManager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
 
-Additionally, roles can have a granting delay that prevents adding members immediately. The Access Manager admins can set this grant delay as follows:
+Additionally, roles can have a granting delay that prevents adding members immediately. The AccessManager admins can set this grant delay as follows:
 
 ```javascript
 const HOUR = 60 * 60;
