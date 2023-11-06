@@ -138,7 +138,7 @@ The minimum delay (accessible through the xref:api:governance.adoc#TimelockContr
 [[access-management]]
 == Access Management
 
-Better role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
+For a system of contracts, better integrated role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
 
 Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
 
@@ -235,11 +235,11 @@ In the case of the `AccessManager`, the same rule applies and only the role's ad
 
 Additionally, the `AccessManager` stores a _guardian_ as an extra protection for each role. This guardian has the ability to cancel operations that have been scheduled by any role member with an execution delay. Consider that a role will have its initial admin and guardian default to the `ADMIN_ROLE` (`0`).
 
-IMPORTANT: Be careful with the members of `ADMIN_ROLE`, since it acts as the default admin and guardian for every role. A misbehaved guardian can cancel operations at will, affecting the `AccessManager`'s operation.
+IMPORTANT: Be careful with the members of `ADMIN_ROLE`, since it acts as the default admin and guardian for every role. A misbehaved guardian can cancel operations at will, affecting the AccessManager's operation.
 
 === Manager configuration
 
-The `AccessManager` provides a built-in interface for configuring permission settings that can be accessed by the `AccessManager`'s `ADMIN_ROLE` members.
+The `AccessManager` provides a built-in interface for configuring permission settings that can be accessed by its `ADMIN_ROLE` members.
 
 This configuration interface includes the following functions:
 
