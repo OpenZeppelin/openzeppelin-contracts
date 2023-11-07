@@ -1,31 +1,38 @@
-const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const { expect } = require('chai');
 const { BNmin } = require('../helpers/math');
 const { expectRevertCustomError } = require('../helpers/customError');
+
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { bigint: time } = require('../helpers/time');
 
 const VestingWallet = artifacts.require('VestingWallet');
 const ERC20 = artifacts.require('$ERC20');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
+async function fixture() {
+  const amount = ethers.parseEther('100');
+  const duration = time.duration.years(4);
+  const start = (await time.clock.timestamp()) + time.duration.hours(1);
+
+  const [sender, beneficiary, ...accounts] = await ethers.getSigners();
+  const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
+  return { mock, amount, duration, start, sender, beneficiary, accounts };
+}
+
 contract('VestingWallet', function (accounts) {
-  const [sender, beneficiary] = accounts;
-
-  const amount = web3.utils.toBN(web3.utils.toWei('100'));
-  const duration = web3.utils.toBN(4 * 365 * 86400); // 4 years
-
   beforeEach(async function () {
-    this.start = (await time.latest()).addn(3600); // in 1 hour
-    this.mock = await VestingWallet.new(beneficiary, this.start, duration);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  it('rejects zero address for beneficiary', async function () {
-    await expectRevertCustomError(
-      VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'OwnableInvalidOwner',
-      [constants.ZERO_ADDRESS],
-    );
+  it.only('rejects zero address for beneficiary', async function () {
+    const tx = ethers.deployContract('VestingWallet', [ethers.ZeroAddress, this.start, this.duration]);
+    await expect(tx)
+      .revertedWithCustomError(this.mock, 'OwnableInvalidOwner')
+      .withArgs(ethers.ZeroAddress);
   });
 
   it('check vesting contract', async function () {
@@ -50,7 +57,7 @@ contract('VestingWallet', function (accounts) {
         this.checkRelease = () => {};
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting();
     });
 
     describe('ERC20 vesting', function () {
@@ -63,7 +70,7 @@ contract('VestingWallet', function (accounts) {
         await this.token.$_mint(this.mock.address, amount);
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting();
     });
   });
 });
