@@ -6,10 +6,10 @@ const { ethers } = require('hardhat');
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
 
-  const authority = await ethers.deployContract('$AccessManager', [admin.address]);
-  const managed = await ethers.deployContract('$AccessManagedTarget', [authority.target]);
+  const authority = await ethers.deployContract('$AccessManager', [admin]);
+  const managed = await ethers.deployContract('$AccessManagedTarget', [authority]);
 
-  const anotherAuthority = await ethers.deployContract('$AccessManager', [admin.address]);
+  const anotherAuthority = await ethers.deployContract('$AccessManager', [admin]);
   const authorityObserveIsConsuming = await ethers.deployContract('$AuthorityObserveIsConsuming');
 
   await impersonate(authority.target);
@@ -41,7 +41,7 @@ describe('AccessManaged', function () {
     beforeEach(async function () {
       this.selector = this.managed.fnRestricted.getFragment().selector;
       this.role = 42n;
-      await this.authority.$_setTargetFunctionRole(this.managed.target, this.selector, this.role);
+      await this.authority.$_setTargetFunctionRole(this.managed, this.selector, this.role);
       await this.authority.$_grantRole(this.role, this.roleMember, 0, 0);
     });
 
@@ -70,7 +70,7 @@ describe('AccessManaged', function () {
       it('reverts if the operation is not scheduled', async function () {
         const fn = this.managed.interface.getFunction(this.selector);
         const calldata = this.managed.interface.encodeFunctionData(fn, []);
-        const opId = await this.authority.hashOperation(this.roleMember, this.managed.target, calldata);
+        const opId = await this.authority.hashOperation(this.roleMember, this.managed, calldata);
 
         await expect(this.managed.connect(this.roleMember)[this.selector]())
           .to.be.revertedWithCustomError(this.authority, 'AccessManagerNotScheduled')
@@ -88,7 +88,7 @@ describe('AccessManaged', function () {
         const scheduledAt = timestamp + 1n;
         const when = scheduledAt + delay;
         await time.forward.timestamp(scheduledAt, false);
-        await this.authority.connect(this.roleMember).schedule(this.managed.target, calldata, when);
+        await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
 
         // Set execution date
         await time.forward.timestamp(when, false);
@@ -113,21 +113,21 @@ describe('AccessManaged', function () {
     });
 
     it('sets authority and emits AuthorityUpdated event', async function () {
-      await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.anotherAuthority.target))
+      await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.anotherAuthority))
         .to.emit(this.managed, 'AuthorityUpdated')
         .withArgs(this.anotherAuthority.target);
 
-      expect(await this.managed.authority()).to.eq(this.anotherAuthority.target);
+      expect(await this.managed.authority()).to.equal(this.anotherAuthority.target);
     });
   });
 
   describe('isConsumingScheduledOp', function () {
     beforeEach(async function () {
-      await this.managed.connect(this.authorityAsSigner).setAuthority(this.authorityObserveIsConsuming.target);
+      await this.managed.connect(this.authorityAsSigner).setAuthority(this.authorityObserveIsConsuming);
     });
 
     it('returns bytes4(0) when not consuming operation', async function () {
-      expect(await this.managed.isConsumingScheduledOp()).to.eq('0x00000000');
+      expect(await this.managed.isConsumingScheduledOp()).to.equal('0x00000000');
     });
 
     it('returns isConsumingScheduledOp selector when consuming operation', async function () {

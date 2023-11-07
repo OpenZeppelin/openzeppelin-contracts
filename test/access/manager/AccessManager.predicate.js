@@ -49,7 +49,7 @@ const LIKE_COMMON_GET_ACCESS = {
           });
 
           it('succeeds via execute', async function () {
-            await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+            await this.manager.connect(this.caller).execute(this.target, this.calldata);
           });
         },
       },
@@ -62,7 +62,7 @@ const LIKE_COMMON_GET_ACCESS = {
         });
 
         it('succeeds via execute', async function () {
-          await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+          await this.manager.connect(this.caller).execute(this.target, this.calldata);
         });
       },
     },
@@ -91,7 +91,7 @@ const LIKE_COMMON_SCHEDULABLE = {
       });
 
       it('succeeds via execute', async function () {
-        await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+        await this.manager.connect(this.caller).execute(this.target, this.calldata);
       });
     },
     expired() {
@@ -119,7 +119,7 @@ const LIKE_COMMON_SCHEDULABLE = {
 function testAsClosable({ closed, open }) {
   describe('when the manager is closed', function () {
     beforeEach('close', async function () {
-      await this.manager.$_setTargetClosed(this.target.target, true);
+      await this.manager.$_setTargetClosed(this.target, true);
     });
 
     closed();
@@ -127,7 +127,7 @@ function testAsClosable({ closed, open }) {
 
   describe('when the manager is open', function () {
     beforeEach('open', async function () {
-      await this.manager.$_setTargetClosed(this.target.target, false);
+      await this.manager.$_setTargetClosed(this.target, false);
     });
 
     open();
@@ -176,7 +176,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       }
       const { operationId, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.scheduleIn,
       });
@@ -217,7 +217,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 
   describe('when operation is not scheduled', function () {
     beforeEach('set expected operationId', async function () {
-      this.operationId = await this.manager.hashOperation(this.caller, this.target.target, this.calldata);
+      this.operationId = await this.manager.hashOperation(this.caller, this.target, this.calldata);
 
       // Assert operation is not scheduled
       expect(await this.manager.getSchedule(this.operationId)).to.equal(0n);
@@ -274,7 +274,7 @@ function testAsDelayedOperation() {
     describe('when operation delay is greater than execution delay', function () {
       beforeEach('set operation delay', async function () {
         this.operationDelay = this.executionDelay + time.duration.hours(1);
-        await this.manager.$_setTargetAdminDelay(this.target.target, this.operationDelay);
+        await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
         this.scheduleIn = this.operationDelay; // For testAsSchedulableOperation
       });
 
@@ -284,7 +284,7 @@ function testAsDelayedOperation() {
     describe('when operation delay is shorter than execution delay', function () {
       beforeEach('set operation delay', async function () {
         this.operationDelay = this.executionDelay - time.duration.hours(1);
-        await this.manager.$_setTargetAdminDelay(this.target.target, this.operationDelay);
+        await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
         this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
       });
 
@@ -295,7 +295,7 @@ function testAsDelayedOperation() {
   describe('without operation delay', function () {
     beforeEach('set operation delay', async function () {
       this.operationDelay = 0n;
-      await this.manager.$_setTargetAdminDelay(this.target.target, this.operationDelay);
+      await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
       this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
     });
 
@@ -340,7 +340,7 @@ function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
       this.role = this.roles.PUBLIC;
       await this.manager
         .connect(this.roles.ADMIN.members[0])
-        .$_setTargetFunctionRole(this.target.target, this.calldata.substring(0, 10), this.role.id);
+        .$_setTargetFunctionRole(this.target, this.calldata.substring(0, 10), this.role.id);
     });
 
     publicRoleIsRequired();
@@ -350,7 +350,7 @@ function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
     beforeEach('set target function role as PUBLIC_ROLE', async function () {
       await this.manager
         .connect(this.roles.ADMIN.members[0])
-        .$_setTargetFunctionRole(this.target.target, this.calldata.substring(0, 10), this.role.id);
+        .$_setTargetFunctionRole(this.target, this.calldata.substring(0, 10), this.role.id);
     });
 
     testAsGetAccess(specificRoleIsRequired);

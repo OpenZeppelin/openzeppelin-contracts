@@ -61,12 +61,14 @@ async function prepareOperation(manager, { caller, target, calldata, delay }) {
   return {
     schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
     scheduledAt,
-    operationId: hashOperation(caller.address, target, calldata),
+    operationId: hashOperation(caller, target, calldata),
   };
 }
 
+const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
+
 const hashOperation = (caller, target, data) =>
-  keccak256(AbiCoder.defaultAbiCoder().encode(['address', 'address', 'bytes'], [caller, target, data]));
+  keccak256(AbiCoder.defaultAbiCoder().encode(['address', 'address', 'bytes'], [lazyGetAddress(caller), lazyGetAddress(target), data]));
 
 module.exports = {
   buildBaseRoles,

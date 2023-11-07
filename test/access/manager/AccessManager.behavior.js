@@ -182,7 +182,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
           });
 
           it('succeeds via execute', async function () {
-            await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+            await this.manager.connect(this.caller).execute(this.target, this.calldata);
           });
         },
         specificRoleIsRequired: getAccessPath,

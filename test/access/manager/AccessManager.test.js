@@ -36,7 +36,7 @@ const { impersonate } = require('../../helpers/account');
 const { bigint: time } = require('../../helpers/time');
 const { ZeroAddress: ZERO_ADDRESS, Wallet, toBeHex, id } = require('ethers');
 
-const someAddress = Wallet.createRandom().address;
+const { address: someAddress } = Wallet.createRandom();
 
 async function fixture() {
   const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
@@ -51,8 +51,8 @@ async function fixture() {
   roles.SOME.members = [member];
   roles.PUBLIC.members = [admin, roleAdmin, roleGuardian, member, user, other];
 
-  const manager = await ethers.deployContract('$AccessManager', [admin.address]);
-  const target = await ethers.deployContract('$AccessManagedTarget', [manager.target]);
+  const manager = await ethers.deployContract('$AccessManager', [admin]);
+  const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
 
   for (const { id: roleId, admin, guardian, members } of Object.values(roles)) {
     if (roleId === roles.PUBLIC.id) continue; // Every address belong to public and is locked
@@ -111,7 +111,7 @@ contract('AccessManager', function () {
 
   describe('during construction', function () {
     it('grants admin role to initialAdmin', async function () {
-      const manager = await ethers.deployContract('$AccessManager', [this.other.address]);
+      const manager = await ethers.deployContract('$AccessManager', [this.other]);
       expect(await manager.hasRole(this.roles.ADMIN.id, this.other).then(formatAccess)).to.be.deep.equal([true, '0']);
     });
 
@@ -148,7 +148,7 @@ contract('AccessManager', function () {
           it('should return false and no delay', async function () {
             const { immediate, delay } = await this.manager.canCall(
               someAddress,
-              this.target.target,
+              this.target,
               this.calldata.substring(0, 10),
             );
             expect(immediate).to.be.false;
@@ -161,7 +161,7 @@ contract('AccessManager', function () {
               it('should return true and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
-                  this.target.target,
+                  this.target,
                   this.calldata.substring(0, 10),
                 );
                 expect(immediate).to.be.true;
@@ -172,7 +172,7 @@ contract('AccessManager', function () {
               it('should return false and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
-                  this.target.target,
+                  this.target,
                   this.calldata.substring(0, 10),
                 );
                 expect(immediate).to.be.false;
@@ -185,7 +185,7 @@ contract('AccessManager', function () {
               it('should return true and no delay', async function () {
                 const { immediate, delay } = await this.manager.canCall(
                   this.caller,
-                  this.target.target,
+                  this.target,
                   this.calldata.substring(0, 10),
                 );
                 expect(immediate).to.be.true;
@@ -202,7 +202,7 @@ contract('AccessManager', function () {
                       it('should return false and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
-                          this.target.target,
+                          this.target,
                           this.calldata.substring(0, 10),
                         );
                         expect(immediate).to.be.false;
@@ -224,7 +224,7 @@ contract('AccessManager', function () {
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
-                                this.target.target,
+                                this.target,
                                 this.calldata.substring(0, 10),
                               );
                               expect(immediate).to.be.false;
@@ -237,7 +237,7 @@ contract('AccessManager', function () {
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
-                                this.target.target,
+                                this.target,
                                 this.calldata.substring(0, 10),
                               );
                               expect(immediate).to.be.false;
@@ -250,7 +250,7 @@ contract('AccessManager', function () {
                             it('should return false and execution delay', async function () {
                               const { immediate, delay } = await this.manager.canCall(
                                 this.caller,
-                                this.target.target,
+                                this.target,
                                 this.calldata.substring(0, 10),
                               );
                               expect(immediate).to.be.false;
@@ -262,7 +262,7 @@ contract('AccessManager', function () {
                           it('should return false and execution delay', async function () {
                             const { immediate, delay } = await this.manager.canCall(
                               this.caller,
-                              this.target.target,
+                              this.target,
                               this.calldata.substring(0, 10),
                             );
                             expect(immediate).to.be.false;
@@ -279,7 +279,7 @@ contract('AccessManager', function () {
                       it('should return false and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
-                          this.target.target,
+                          this.target,
                           this.calldata.substring(0, 10),
                         );
                         expect(immediate).to.be.false;
@@ -292,7 +292,7 @@ contract('AccessManager', function () {
                       it('should return true and no execution delay', async function () {
                         const { immediate, delay } = await this.manager.canCall(
                           this.caller,
-                          this.target.target,
+                          this.target,
                           this.calldata.substring(0, 10),
                         );
                         expect(immediate).to.be.true;
@@ -306,7 +306,7 @@ contract('AccessManager', function () {
                     it('should return false and execution delay', async function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
-                        this.target.target,
+                        this.target,
                         this.calldata.substring(0, 10),
                       );
                       expect(immediate).to.be.false;
@@ -317,7 +317,7 @@ contract('AccessManager', function () {
                     it('should return true and no execution delay', async function () {
                       const { immediate, delay } = await this.manager.canCall(
                         this.caller,
-                        this.target.target,
+                        this.target,
                         this.calldata.substring(0, 10),
                       );
                       expect(immediate).to.be.true;
@@ -330,7 +330,7 @@ contract('AccessManager', function () {
                 it('should return false and no execution delay', async function () {
                   const { immediate, delay } = await this.manager.canCall(
                     this.caller,
-                    this.target.target,
+                    this.target,
                     this.calldata.substring(0, 10),
                   );
                   expect(immediate).to.be.false;
@@ -359,12 +359,12 @@ contract('AccessManager', function () {
       testAsClosable({
         closed() {
           it('returns true', async function () {
-            expect(await this.manager.isTargetClosed(this.target.target)).to.be.true;
+            expect(await this.manager.isTargetClosed(this.target)).to.be.true;
           });
         },
         open() {
           it('returns false', async function () {
-            expect(await this.manager.isTargetClosed(this.target.target)).to.be.false;
+            expect(await this.manager.isTargetClosed(this.target)).to.be.false;
           });
         },
       });
@@ -375,13 +375,13 @@ contract('AccessManager', function () {
 
       it('returns the target function role', async function () {
         const roleId = 21498n;
-        await this.manager.$_setTargetFunctionRole(this.target.target, methodSelector, roleId);
+        await this.manager.$_setTargetFunctionRole(this.target, methodSelector, roleId);
 
-        expect(await this.manager.getTargetFunctionRole(this.target.target, methodSelector)).to.equal(roleId);
+        expect(await this.manager.getTargetFunctionRole(this.target, methodSelector)).to.equal(roleId);
       });
 
       it('returns the ADMIN role if not set', async function () {
-        expect(await this.manager.getTargetFunctionRole(this.target.target, methodSelector)).to.equal(
+        expect(await this.manager.getTargetFunctionRole(this.target, methodSelector)).to.equal(
           this.roles.ADMIN.id,
         );
       });
@@ -390,10 +390,10 @@ contract('AccessManager', function () {
     describe('#getTargetAdminDelay', function () {
       describe('when the target admin delay is setup', function () {
         beforeEach('set target admin delay', async function () {
-          this.oldDelay = await this.manager.getTargetAdminDelay(this.target.target);
+          this.oldDelay = await this.manager.getTargetAdminDelay(this.target);
           this.newDelay = time.duration.days(10);
 
-          await this.manager.$_setTargetAdminDelay(this.target.target, this.newDelay);
+          await this.manager.$_setTargetAdminDelay(this.target, this.newDelay);
           this.delay = MINSETBACK; // For testAsDelay
         });
 
@@ -402,21 +402,21 @@ contract('AccessManager', function () {
             self.mineDelay = true;
 
             it('returns the old target admin delay', async function () {
-              expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(this.oldDelay);
+              expect(await this.manager.getTargetAdminDelay(this.target)).to.equal(this.oldDelay);
             });
           },
           after: function self() {
             self.mineDelay = true;
 
             it('returns the new target admin delay', async function () {
-              expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(this.newDelay);
+              expect(await this.manager.getTargetAdminDelay(this.target)).to.equal(this.newDelay);
             });
           },
         });
       });
 
       it('returns the 0 if not set', async function () {
-        expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(0n);
+        expect(await this.manager.getTargetAdminDelay(this.target)).to.equal(0n);
       });
     });
 
@@ -483,7 +483,7 @@ contract('AccessManager', function () {
       });
 
       it('returns 0 if delay is not set', async function () {
-        expect(await this.manager.getTargetAdminDelay(this.target.target)).to.equal(0n);
+        expect(await this.manager.getTargetAdminDelay(this.target)).to.equal(0n);
       });
     });
 
@@ -609,7 +609,7 @@ contract('AccessManager', function () {
           it('has PUBLIC role', async function () {
             const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
             expect(isMember).to.be.true;
-            expect(executionDelay).to.eq('0');
+            expect(executionDelay).to.equal('0');
           });
         },
         specificRoleIsRequired: {
@@ -622,7 +622,7 @@ contract('AccessManager', function () {
                   it('does not have role but execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.false;
-                    expect(executionDelay).to.eq(this.executionDelay);
+                    expect(executionDelay).to.equal(this.executionDelay);
                   });
                 },
                 afterGrantDelay: function self() {
@@ -631,7 +631,7 @@ contract('AccessManager', function () {
                   it('has role and execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.true;
-                    expect(executionDelay).to.eq(this.executionDelay);
+                    expect(executionDelay).to.equal(this.executionDelay);
                   });
                 },
               },
@@ -642,7 +642,7 @@ contract('AccessManager', function () {
                   it('does not have role nor execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.false;
-                    expect(executionDelay).to.eq('0');
+                    expect(executionDelay).to.equal('0');
                   });
                 },
                 afterGrantDelay: function self() {
@@ -651,7 +651,7 @@ contract('AccessManager', function () {
                   it('has role and no execution delay', async function () {
                     const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                     expect(isMember).to.be.true;
-                    expect(executionDelay).to.eq('0');
+                    expect(executionDelay).to.equal('0');
                   });
                 },
               },
@@ -661,14 +661,14 @@ contract('AccessManager', function () {
                 it('has role and execution delay', async function () {
                   const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                   expect(isMember).to.be.true;
-                  expect(executionDelay).to.eq(this.executionDelay);
+                  expect(executionDelay).to.equal(this.executionDelay);
                 });
               },
               callerHasNoExecutionDelay() {
                 it('has role and no execution delay', async function () {
                   const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
                   expect(isMember).to.be.true;
-                  expect(executionDelay).to.eq('0');
+                  expect(executionDelay).to.equal('0');
                 });
               },
             },
@@ -677,7 +677,7 @@ contract('AccessManager', function () {
             it('has no role and no execution delay', async function () {
               const { isMember, executionDelay } = await this.manager.hasRole(this.role.id, this.caller);
               expect(isMember).to.be.false;
-              expect(executionDelay).to.eq('0');
+              expect(executionDelay).to.equal('0');
             });
           },
         },
@@ -689,7 +689,7 @@ contract('AccessManager', function () {
         const fnRestricted = this.target.fnRestricted.getFragment().selector;
         this.caller = this.user;
         this.role = { id: 493590n };
-        await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted, this.role.id);
+        await this.manager.$_setTargetFunctionRole(this.target, fnRestricted, this.role.id);
         await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
         this.calldata = this.target.interface.encodeFunctionData(fnRestricted, []);
@@ -713,7 +713,7 @@ contract('AccessManager', function () {
             it('returns schedule', async function () {
               const schedule = await this.manager.getSchedule(this.operationId);
               expect(schedule).to.equal(this.scheduledAt + this.scheduleIn);
-              expect(schedule).to.eq(await time.clock.timestamp());
+              expect(schedule).to.equal(await time.clock.timestamp());
             });
           },
           expired: function self() {
@@ -738,7 +738,7 @@ contract('AccessManager', function () {
           const fnRestricted = this.target.fnRestricted.getFragment().selector;
           this.caller = this.user;
           this.role = { id: 4209043n };
-          await this.manager.$_setTargetFunctionRole(this.target.target, fnRestricted, this.role.id);
+          await this.manager.$_setTargetFunctionRole(this.target, fnRestricted, this.role.id);
           await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
           this.calldata = this.target.interface.encodeFunctionData(fnRestricted, []);
@@ -746,7 +746,7 @@ contract('AccessManager', function () {
 
           const { operationId, schedule } = await prepareOperation(this.manager, {
             caller: this.caller,
-            target: this.target.target,
+            target: this.target,
             calldata: this.calldata,
             delay: this.delay,
           });
@@ -773,7 +773,7 @@ contract('AccessManager', function () {
 
         const args = [this.user.address, address, calldata];
 
-        expect(await this.manager.hashOperation(...args)).to.eq(hashOperation(...args));
+        expect(await this.manager.hashOperation(...args)).to.equal(hashOperation(...args));
       });
     });
   });
@@ -1072,15 +1072,13 @@ contract('AccessManager', function () {
     describe('not subject to a delay', function () {
       describe('#updateAuthority', function () {
         beforeEach('create a target and a new authority', async function () {
-          this.newAuthority = await ethers.deployContract('$AccessManager', [this.admin.address]);
-          this.newManagedTarget = await ethers.deployContract('$AccessManagedTarget', [this.manager.target]);
+          this.newAuthority = await ethers.deployContract('$AccessManager', [this.admin]);
+          this.newManagedTarget = await ethers.deployContract('$AccessManagedTarget', [this.manager]);
         });
 
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
-            const args = [this.newManagedTarget.target, this.newAuthority.target];
-            const method = this.manager.interface.getFunction('updateAuthority(address,address)');
-            this.calldata = this.manager.interface.encodeFunctionData(method, args);
+            this.calldata = this.manager.interface.encodeFunctionData('updateAuthority(address,address)', [this.newManagedTarget.target, this.newAuthority.target]);
           });
 
           shouldBehaveLikeNotDelayedAdminOperation();
@@ -1090,7 +1088,7 @@ contract('AccessManager', function () {
           expect(await this.newManagedTarget.authority()).to.be.equal(this.manager.target);
 
           await expect(
-            this.manager.connect(this.admin).updateAuthority(this.newManagedTarget.target, this.newAuthority.target),
+            this.manager.connect(this.admin).updateAuthority(this.newManagedTarget, this.newAuthority),
           )
             .to.emit(this.newManagedTarget, 'AuthorityUpdated') // Managed contract is responsible of notifying the change through an event
             .withArgs(this.newAuthority.target);
@@ -1111,19 +1109,19 @@ contract('AccessManager', function () {
         });
 
         it('closes and opens a target', async function () {
-          await expect(this.manager.connect(this.admin).setTargetClosed(this.target.target, true))
+          await expect(this.manager.connect(this.admin).setTargetClosed(this.target, true))
             .to.emit(this.manager, 'TargetClosed')
             .withArgs(this.target.target, true);
-          expect(await this.manager.isTargetClosed(this.target.target)).to.be.true;
+          expect(await this.manager.isTargetClosed(this.target)).to.be.true;
 
-          await expect(this.manager.connect(this.admin).setTargetClosed(this.target.target, false))
+          await expect(this.manager.connect(this.admin).setTargetClosed(this.target, false))
             .to.emit(this.manager, 'TargetClosed')
             .withArgs(this.target.target, false);
-          expect(await this.manager.isTargetClosed(this.target.target)).to.be.false;
+          expect(await this.manager.isTargetClosed(this.target)).to.be.false;
         });
 
         it('reverts if closing the manager', async function () {
-          await expect(this.manager.connect(this.admin).setTargetClosed(this.manager.target, true))
+          await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerLockedAccount')
             .withArgs(this.manager.target);
         });
@@ -1144,30 +1142,30 @@ contract('AccessManager', function () {
 
         it('sets function roles', async function () {
           for (const sig of sigs) {
-            expect(await this.manager.getTargetFunctionRole(this.target.target, sig)).to.equal(this.roles.ADMIN.id);
+            expect(await this.manager.getTargetFunctionRole(this.target, sig)).to.equal(this.roles.ADMIN.id);
           }
 
           const allowRole = await this.manager
             .connect(this.admin)
-            .setTargetFunctionRole(this.target.target, sigs, this.roles.SOME.id);
+            .setTargetFunctionRole(this.target, sigs, this.roles.SOME.id);
 
           for (const sig of sigs) {
             expect(allowRole)
               .to.emit(this.manager, 'TargetFunctionRoleUpdated')
               .withArgs(this.target.target, sig, this.roles.SOME.id);
-            expect(await this.manager.getTargetFunctionRole(this.target.target, sig)).to.equal(this.roles.SOME.id);
+            expect(await this.manager.getTargetFunctionRole(this.target, sig)).to.equal(this.roles.SOME.id);
           }
 
           await expect(
             this.manager
               .connect(this.admin)
-              .setTargetFunctionRole(this.target.target, [sigs[1]], this.roles.SOME_ADMIN.id),
+              .setTargetFunctionRole(this.target, [sigs[1]], this.roles.SOME_ADMIN.id),
           )
             .to.emit(this.manager, 'TargetFunctionRoleUpdated')
             .withArgs(this.target.target, sigs[1], this.roles.SOME_ADMIN.id);
 
           for (const sig of sigs) {
-            expect(await this.manager.getTargetFunctionRole(this.target.target, sig)).to.equal(
+            expect(await this.manager.getTargetFunctionRole(this.target, sig)).to.equal(
               sig == sigs[1] ? this.roles.SOME_ADMIN.id : this.roles.SOME.id,
             );
           }
@@ -1706,7 +1704,7 @@ contract('AccessManager', function () {
       beforeEach('set required role', function () {
         this.method = this.target.fnRestricted.getFragment();
         this.role = { id: 3597243n };
-        this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.role.id);
+        this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
       });
 
       describe('restrictions', function () {
@@ -1737,7 +1735,7 @@ contract('AccessManager', function () {
       beforeEach('set required role', async function () {
         this.role = { id: 879435n };
         await this.manager.$_setTargetFunctionRole(
-          this.target.target,
+          this.target,
           this.target[method].getFragment().selector,
           this.role.id,
         );
@@ -1761,7 +1759,7 @@ contract('AccessManager', function () {
       this.role = { id: 498305n };
       this.caller = this.user;
 
-      await this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.role.id);
+      await this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
       this.calldata = this.target.interface.encodeFunctionData(this.method, []);
@@ -1774,7 +1772,7 @@ contract('AccessManager', function () {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
             const { schedule } = await prepareOperation(this.manager, {
               caller: this.caller,
-              target: this.target.target,
+              target: this.target,
               calldata: this.calldata,
               delay: this.delay,
             });
@@ -1792,7 +1790,7 @@ contract('AccessManager', function () {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
                 const { schedule } = await prepareOperation(this.manager, {
                   caller: this.caller,
-                  target: this.target.target,
+                  target: this.target,
                   calldata: this.calldata,
                   delay: this.delay,
                 });
@@ -1806,7 +1804,7 @@ contract('AccessManager', function () {
             publicRoleIsRequired() {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
                 // prepareOperation is not used here because it alters the next block timestamp
-                await expect(this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48))
+                await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                   .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                   .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
               });
@@ -1819,7 +1817,7 @@ contract('AccessManager', function () {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(
-                          this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48),
+                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
                         )
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
@@ -1828,7 +1826,7 @@ contract('AccessManager', function () {
                     afterGrantDelay() {
                       it('succeeds', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
-                        await this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48);
+                        await this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48);
                       });
                     },
                   },
@@ -1837,7 +1835,7 @@ contract('AccessManager', function () {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(
-                          this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48),
+                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
                         )
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
@@ -1847,7 +1845,7 @@ contract('AccessManager', function () {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
                         await expect(
-                          this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48),
+                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
                         )
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
@@ -1860,7 +1858,7 @@ contract('AccessManager', function () {
                     it('succeeds', async function () {
                       const { schedule } = await prepareOperation(this.manager, {
                         caller: this.caller,
-                        target: this.target.target,
+                        target: this.target,
                         calldata: this.calldata,
                         delay: this.delay,
                       });
@@ -1872,7 +1870,7 @@ contract('AccessManager', function () {
                     it('reverts as AccessManagerUnauthorizedCall', async function () {
                       // prepareOperation is not used here because it alters the next block timestamp
                       await expect(
-                        this.manager.connect(this.caller).schedule(this.target.target, this.calldata, MAX_UINT48),
+                        this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
                       )
                         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                         .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
@@ -1884,7 +1882,7 @@ contract('AccessManager', function () {
                 it('reverts as AccessManagerUnauthorizedCall', async function () {
                   const { schedule } = await prepareOperation(this.manager, {
                     caller: this.caller,
-                    target: this.target.target,
+                    target: this.target,
                     calldata: this.calldata,
                     delay: this.delay,
                   });
@@ -1902,7 +1900,7 @@ contract('AccessManager', function () {
     it('schedules an operation at the specified execution date if it is larger than caller execution delay', async function () {
       const { operationId, scheduledAt, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -1919,10 +1917,10 @@ contract('AccessManager', function () {
       const executionDelay = await time.duration.hours(72);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, executionDelay);
 
-      const txResponse = await this.manager.connect(this.caller).schedule(this.target.target, this.calldata, 0);
+      const txResponse = await this.manager.connect(this.caller).schedule(this.target, this.calldata, 0);
       const scheduledAt = await time.clockFromReceipt.timestamp(txResponse);
 
-      const operationId = await this.manager.hashOperation(this.caller, this.target.target, this.calldata);
+      const operationId = await this.manager.hashOperation(this.caller, this.target, this.calldata);
 
       expect(await this.manager.getSchedule(operationId)).to.equal(scheduledAt + executionDelay);
       expect(txResponse)
@@ -1932,13 +1930,13 @@ contract('AccessManager', function () {
 
     it('increases the nonce of an operation scheduled more than once', async function () {
       // Setup and check initial nonce
-      const expectedOperationId = hashOperation(this.caller.address, this.target.target, this.calldata);
-      expect(await this.manager.getNonce(expectedOperationId)).to.eq('0');
+      const expectedOperationId = hashOperation(this.caller, this.target, this.calldata);
+      expect(await this.manager.getNonce(expectedOperationId)).to.equal('0');
 
       // Schedule
       const op1 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -1952,19 +1950,19 @@ contract('AccessManager', function () {
           this.target.target,
           this.calldata,
         );
-      expect(expectedOperationId).to.eq(op1.operationId);
+      expect(expectedOperationId).to.equal(op1.operationId);
 
       // Consume
       await increase(this.delay);
       await this.manager.$_consumeScheduledOp(expectedOperationId);
 
       // Check nonce
-      expect(await this.manager.getNonce(expectedOperationId)).to.eq('1');
+      expect(await this.manager.getNonce(expectedOperationId)).to.equal('1');
 
       // Schedule again
       const op2 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -1978,10 +1976,10 @@ contract('AccessManager', function () {
           this.target.target,
           this.calldata,
         );
-      expect(expectedOperationId).to.eq(op2.operationId);
+      expect(expectedOperationId).to.equal(op2.operationId);
 
       // Check final nonce
-      expect(await this.manager.getNonce(expectedOperationId)).to.eq('2');
+      expect(await this.manager.getNonce(expectedOperationId)).to.equal('2');
     });
 
     it('reverts if the specified execution date is before the current timestamp + caller execution delay', async function () {
@@ -1990,7 +1988,7 @@ contract('AccessManager', function () {
 
       const { schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -2003,7 +2001,7 @@ contract('AccessManager', function () {
     it('reverts if an operation is already schedule', async function () {
       const op1 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -2012,7 +2010,7 @@ contract('AccessManager', function () {
 
       const op2 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.delay,
       });
@@ -2028,7 +2026,7 @@ contract('AccessManager', function () {
       // Managed contract
       const op1 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: calldata,
         delay: this.delay,
       });
@@ -2037,7 +2035,7 @@ contract('AccessManager', function () {
       // Manager contract
       const op2 = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.manager.target,
+        target: this.manager,
         calldata: calldata,
         delay: this.delay,
       });
@@ -2049,7 +2047,7 @@ contract('AccessManager', function () {
 
       const { schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.manager.target,
+        target: this.manager,
         calldata,
         delay: this.delay,
       });
@@ -2066,7 +2064,7 @@ contract('AccessManager', function () {
       this.role = { id: 9825430n };
       this.caller = this.user;
 
-      await this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.role.id);
+      await this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
 
       this.calldata = this.target.interface.encodeFunctionData(this.method, []);
@@ -2076,7 +2074,7 @@ contract('AccessManager', function () {
       testAsCanCall({
         closed() {
           it('reverts as AccessManagerUnauthorizedCall', async function () {
-            await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+            await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
               .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
           });
@@ -2085,12 +2083,12 @@ contract('AccessManager', function () {
           callerIsTheManager: {
             executing() {
               it('succeeds', async function () {
-                await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+                await this.manager.connect(this.caller).execute(this.target, this.calldata);
               });
             },
             notExecuting() {
               it('reverts as AccessManagerUnauthorizedCall', async function () {
-                await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+                await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                   .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                   .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
               });
@@ -2099,7 +2097,7 @@ contract('AccessManager', function () {
           callerIsNotTheManager: {
             publicRoleIsRequired() {
               it('succeeds', async function () {
-                await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+                await this.manager.connect(this.caller).execute(this.target, this.calldata);
               });
             },
             specificRoleIsRequired: {
@@ -2108,7 +2106,7 @@ contract('AccessManager', function () {
                   callerHasAnExecutionDelay: {
                     beforeGrantDelay() {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
-                        await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+                        await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
@@ -2126,7 +2124,7 @@ contract('AccessManager', function () {
                   callerHasNoExecutionDelay: {
                     beforeGrantDelay() {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
-                        await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+                        await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
@@ -2135,7 +2133,7 @@ contract('AccessManager', function () {
                       self.mineDelay = true;
 
                       it('succeeds', async function () {
-                        await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+                        await this.manager.connect(this.caller).execute(this.target, this.calldata);
                       });
                     },
                   },
@@ -2150,14 +2148,14 @@ contract('AccessManager', function () {
                   },
                   callerHasNoExecutionDelay() {
                     it('succeeds', async function () {
-                      await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+                      await this.manager.connect(this.caller).execute(this.target, this.calldata);
                     });
                   },
                 },
               },
               requiredRoleIsNotGranted() {
                 it('reverts as AccessManagerUnauthorizedCall', async function () {
-                  await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+                  await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
                     .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                     .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                 });
@@ -2174,13 +2172,13 @@ contract('AccessManager', function () {
 
       const { operationId, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay,
       });
       await schedule();
       await increase(delay);
-      await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+      await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
 
@@ -2195,7 +2193,7 @@ contract('AccessManager', function () {
 
       const { operationId, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay,
       });
@@ -2205,7 +2203,7 @@ contract('AccessManager', function () {
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
 
       await increase(delay);
-      await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+      await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
 
@@ -2214,7 +2212,7 @@ contract('AccessManager', function () {
 
     it('keeps the original _executionId after finishing the call', async function () {
       const executionIdBefore = await getStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT);
-      await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
+      await this.manager.connect(this.caller).execute(this.target, this.calldata);
       const executionIdAfter = await getStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT);
       expect(executionIdBefore).to.equal(executionIdAfter);
     });
@@ -2225,14 +2223,14 @@ contract('AccessManager', function () {
 
       const { operationId, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay,
       });
       await schedule();
       await increase(delay);
-      await this.manager.connect(this.caller).execute(this.target.target, this.calldata);
-      await expect(this.manager.connect(this.caller).execute(this.target.target, this.calldata))
+      await this.manager.connect(this.caller).execute(this.target, this.calldata);
+      await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled')
         .withArgs(operationId);
     });
@@ -2246,7 +2244,7 @@ contract('AccessManager', function () {
       this.calldata = this.target.interface.encodeFunctionData(method, []);
       this.role = { id: 9834983n };
 
-      await this.manager.$_setTargetFunctionRole(this.target.target, method.selector, this.role.id);
+      await this.manager.$_setTargetFunctionRole(this.target, method.selector, this.role.id);
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 1); // nonzero execution delay
 
       this.scheduleIn = time.duration.hours(10); // For testAsSchedulableOperation
@@ -2311,7 +2309,7 @@ contract('AccessManager', function () {
     beforeEach('setup scheduling', async function () {
       this.method = this.target.fnRestricted.getFragment();
       this.caller = this.roles.SOME.members[0];
-      await this.manager.$_setTargetFunctionRole(this.target.target, this.method.selector, this.roles.SOME.id);
+      await this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.roles.SOME.id);
       await this.manager.$_grantRole(this.roles.SOME.id, this.caller, 0, 1); // nonzero execution delay
 
       this.calldata = this.target.interface.encodeFunctionData(this.method, []);
@@ -2323,7 +2321,7 @@ contract('AccessManager', function () {
         before() {
           describe('when caller is the scheduler', function () {
             it('succeeds', async function () {
-              await this.manager.connect(this.caller).cancel(this.caller, this.target.target, this.calldata);
+              await this.manager.connect(this.caller).cancel(this.caller, this.target, this.calldata);
             });
           });
 
@@ -2331,7 +2329,7 @@ contract('AccessManager', function () {
             it('succeeds', async function () {
               await this.manager
                 .connect(this.roles.ADMIN.members[0])
-                .cancel(this.caller, this.target.target, this.calldata);
+                .cancel(this.caller, this.target, this.calldata);
             });
           });
 
@@ -2339,13 +2337,13 @@ contract('AccessManager', function () {
             it('succeeds', async function () {
               await this.manager
                 .connect(this.roles.SOME_GUARDIAN.members[0])
-                .cancel(this.caller, this.target.target, this.calldata);
+                .cancel(this.caller, this.target, this.calldata);
             });
           });
 
           describe('when caller is any other account', function () {
             it('reverts as AccessManagerUnauthorizedCancel', async function () {
-              await expect(this.manager.connect(this.other).cancel(this.caller, this.target.target, this.calldata))
+              await expect(this.manager.connect(this.other).cancel(this.caller, this.target, this.calldata))
                 .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
                 .withArgs(this.other.address, this.caller.address, this.target.target, this.method.selector);
             });
@@ -2353,18 +2351,18 @@ contract('AccessManager', function () {
         },
         after() {
           it('succeeds', async function () {
-            await this.manager.connect(this.caller).cancel(this.caller, this.target.target, this.calldata);
+            await this.manager.connect(this.caller).cancel(this.caller, this.target, this.calldata);
           });
         },
         expired() {
           it('succeeds', async function () {
-            await this.manager.connect(this.caller).cancel(this.caller, this.target.target, this.calldata);
+            await this.manager.connect(this.caller).cancel(this.caller, this.target, this.calldata);
           });
         },
       },
       notScheduled() {
         it('reverts as AccessManagerNotScheduled', async function () {
-          await expect(this.manager.cancel(this.caller, this.target.target, this.calldata))
+          await expect(this.manager.cancel(this.caller, this.target, this.calldata))
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled')
             .withArgs(this.operationId);
         });
@@ -2374,15 +2372,15 @@ contract('AccessManager', function () {
     it('cancels an operation and resets schedule', async function () {
       const { operationId, schedule } = await prepareOperation(this.manager, {
         caller: this.caller,
-        target: this.target.target,
+        target: this.target,
         calldata: this.calldata,
         delay: this.scheduleIn,
       });
       await schedule();
-      await expect(this.manager.connect(this.caller).cancel(this.caller, this.target.target, this.calldata))
+      await expect(this.manager.connect(this.caller).cancel(this.caller, this.target, this.calldata))
         .to.emit(this.manager, 'OperationCanceled')
         .withArgs(operationId, 1n);
-      expect(await this.manager.getSchedule(operationId)).to.eq('0');
+      expect(await this.manager.getSchedule(operationId)).to.equal('0');
     });
   });
 
@@ -2390,7 +2388,7 @@ contract('AccessManager', function () {
     const roleId = 1n;
 
     beforeEach(async function () {
-      this.ownable = await ethers.deployContract('$Ownable', [this.manager.target]);
+      this.ownable = await ethers.deployContract('$Ownable', [this.manager]);
 
       // add user to role
       await this.manager.$_grantRole(roleId, this.user, 0, 0);
@@ -2402,7 +2400,7 @@ contract('AccessManager', function () {
 
     describe('Contract is closed', function () {
       beforeEach(async function () {
-        await this.manager.$_setTargetClosed(this.ownable.target, true);
+        await this.manager.$_setTargetClosed(this.ownable, true);
       });
 
       it('directly call: reverts', async function () {
@@ -2415,7 +2413,7 @@ contract('AccessManager', function () {
         await expect(
           this.manager
             .connect(this.user)
-            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
         )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
           .withArgs(this.user.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2425,7 +2423,7 @@ contract('AccessManager', function () {
         await expect(
           this.manager
             .connect(this.other)
-            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
         )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
           .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2436,7 +2434,7 @@ contract('AccessManager', function () {
       describe('function is open to specific role', function () {
         beforeEach(async function () {
           await this.manager.$_setTargetFunctionRole(
-            this.ownable.target,
+            this.ownable,
             this.ownable.$_checkOwner.getFragment().selector,
             roleId,
           );
@@ -2451,14 +2449,14 @@ contract('AccessManager', function () {
         it('relayed call (with role): success', async function () {
           await this.manager
             .connect(this.user)
-            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
+            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): reverts', async function () {
           await expect(
             this.manager
               .connect(this.other)
-              .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector),
+              .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
           )
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
             .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2468,7 +2466,7 @@ contract('AccessManager', function () {
       describe('function is open to public role', function () {
         beforeEach(async function () {
           await this.manager.$_setTargetFunctionRole(
-            this.ownable.target,
+            this.ownable,
             this.ownable.$_checkOwner.getFragment().selector,
             this.roles.PUBLIC.id,
           );
@@ -2483,13 +2481,13 @@ contract('AccessManager', function () {
         it('relayed call (with role): success', async function () {
           await this.manager
             .connect(this.user)
-            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
+            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): success', async function () {
           await this.manager
             .connect(this.other)
-            .execute(this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
+            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
         });
       });
     });
