@@ -22,7 +22,7 @@ Ownable also lets you:
 
 WARNING: Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
-Ownable is a simple and effective way to implement access control, but you should be mindful of the dangers associated with transferring the ownership to an incorrect account that can't interact with this contract anymore. An alternative to this problem is using xref:api:access.adoc#Ownable2Step[`Ownable2Step`]; a variant of Ownable that requires the new owner address to call the xref:api:access.adoc#Ownable2Step-acceptOwnership--[`acceptOwnership`] before the ownership is transferred.
+Ownable is a simple and effective way to implement access control, but you should be mindful of the dangers associated with transferring the ownership to an incorrect account that can't interact with this contract anymore. An alternative to this problem is using xref:api:access.adoc#Ownable2Step[`Ownable2Step`]; a variant of Ownable that requires the new owner to explicitly accept the ownership transfer by calling xref:api:access.adoc#Ownable2Step-acceptOwnership--[`acceptOwnership`].
 
 Note that *a contract can also be the owner of another one*! This opens the door to using, for example, a https://gnosis-safe.io[Gnosis Safe], an https://aragon.org[Aragon DAO], or a totally custom contract that _you_ create.
 
