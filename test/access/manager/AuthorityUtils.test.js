@@ -34,7 +34,7 @@ describe('AuthorityUtils', function () {
 
       it('returns (immediate = 0, delay = 0)', async function () {
         const { immediate, delay } = await this.mock.$canCallWithDelay(
-          this.authority.target,
+          this.authority,
           this.user,
           this.other,
           '0x12345678',
@@ -53,7 +53,7 @@ describe('AuthorityUtils', function () {
 
       it('returns (immediate, delay = 0)', async function () {
         const { immediate, delay } = await this.mock.$canCallWithDelay(
-          this.authority.target,
+          this.authority,
           this.user,
           this.other,
           '0x12345678',
@@ -74,7 +74,7 @@ describe('AuthorityUtils', function () {
             await this.authority._setImmediate(immediate);
             await this.authority._setDelay(delay);
             const result = await this.mock.$canCallWithDelay(
-              this.authority.target,
+              this.authority,
               this.user,
               this.other,
               '0x12345678',
@@ -93,7 +93,7 @@ describe('AuthorityUtils', function () {
 
       it('returns (immediate = 0, delay = 0)', async function () {
         const { immediate, delay } = await this.mock.$canCallWithDelay(
-          this.authority.target,
+          this.authority,
           this.user,
           this.other,
           '0x12345678',
