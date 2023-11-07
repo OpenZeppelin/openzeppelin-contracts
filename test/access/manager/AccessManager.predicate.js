@@ -10,12 +10,12 @@ const { ethers } = require('hardhat');
 const LIKE_COMMON_IS_EXECUTING = {
   executing() {
     it('succeeds', async function () {
-      await this.caller.sendTransaction({ to: this.target.target, data: this.calldata });
+      await this.caller.sendTransaction({ to: this.target, data: this.calldata });
     });
   },
   notExecuting() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
-      await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
         .withArgs(this.caller.address, this.role.id);
     });
@@ -28,7 +28,7 @@ const LIKE_COMMON_GET_ACCESS = {
       callerHasAnExecutionDelay: {
         beforeGrantDelay() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
               .withArgs(this.caller.address, this.role.id);
           });
@@ -38,14 +38,14 @@ const LIKE_COMMON_GET_ACCESS = {
       callerHasNoExecutionDelay: {
         beforeGrantDelay() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
               .withArgs(this.caller.address, this.role.id);
           });
         },
         afterGrantDelay() {
           it('succeeds called directly', async function () {
-            await this.caller.sendTransaction({ to: this.target.target, data: this.calldata });
+            await this.caller.sendTransaction({ to: this.target, data: this.calldata });
           });
 
           it('succeeds via execute', async function () {
@@ -58,7 +58,7 @@ const LIKE_COMMON_GET_ACCESS = {
       callerHasAnExecutionDelay: undefined, // Diverges if there's an operation to schedule or not
       callerHasNoExecutionDelay() {
         it('succeeds called directly', async function () {
-          await this.caller.sendTransaction({ to: this.target.target, data: this.calldata });
+          await this.caller.sendTransaction({ to: this.target, data: this.calldata });
         });
 
         it('succeeds via execute', async function () {
@@ -69,7 +69,7 @@ const LIKE_COMMON_GET_ACCESS = {
   },
   requiredRoleIsNotGranted() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
-      await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
         .withArgs(this.caller.address, this.role.id);
     });
@@ -80,14 +80,14 @@ const LIKE_COMMON_SCHEDULABLE = {
   scheduled: {
     before() {
       it('reverts as AccessManagerNotReady', async function () {
-        await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+        await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotReady')
           .withArgs(this.operationId);
       });
     },
     after() {
       it('succeeds called directly', async function () {
-        await this.caller.sendTransaction({ to: this.target.target, data: this.calldata });
+        await this.caller.sendTransaction({ to: this.target, data: this.calldata });
       });
 
       it('succeeds via execute', async function () {
@@ -96,7 +96,7 @@ const LIKE_COMMON_SCHEDULABLE = {
     },
     expired() {
       it('reverts as AccessManagerExpired', async function () {
-        await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+        await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerExpired')
           .withArgs(this.operationId);
       });
@@ -104,7 +104,7 @@ const LIKE_COMMON_SCHEDULABLE = {
   },
   notScheduled() {
     it('reverts as AccessManagerNotScheduled', async function () {
-      await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled')
         .withArgs(this.operationId);
     });

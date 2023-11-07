@@ -36,7 +36,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(
                 this.caller.address,
@@ -80,7 +80,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(
                 this.caller.address,
@@ -121,7 +121,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(this.caller.address, roleAdmin);
           });
@@ -140,7 +140,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
 function shouldBehaveLikeAManagedRestrictedOperation() {
   function revertUnauthorized() {
     it('reverts as AccessManagedUnauthorized', async function () {
-      await expect(this.caller.sendTransaction({ to: this.target.target, data: this.calldata }))
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.target, 'AccessManagedUnauthorized')
         .withArgs(this.caller.address);
     });
@@ -178,7 +178,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
       callerIsNotTheManager: {
         publicRoleIsRequired() {
           it('succeeds called directly', async function () {
-            await this.caller.sendTransaction({ to: this.target.target, data: this.calldata });
+            await this.caller.sendTransaction({ to: this.target, data: this.calldata });
           });
 
           it('succeeds via execute', async function () {
