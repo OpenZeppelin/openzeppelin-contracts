@@ -1,10 +1,10 @@
-const { time } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
+const { bigint: time } = require('../helpers/time');
 
 function shouldBehaveLikeVesting() {
   it('check vesting schedule', async function () {
     for (const timestamp of this.schedule) {
-      await time.increaseTo(timestamp);
+      await time.forward.timestamp(timestamp);
       const vesting = this.vestingFn(timestamp);
 
       expect(await this.mock.vestedAmount(...this.args, timestamp)).to.be.equal(vesting);
@@ -24,7 +24,7 @@ function shouldBehaveLikeVesting() {
     }
 
     for (const timestamp of this.schedule) {
-      await time.setNextBlockTimestamp(timestamp);
+      await time.forward.timestamp(timestamp, false);
       const vested = this.vestingFn(timestamp);
 
       const tx = await this.mock.release(...this.args);

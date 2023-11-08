@@ -3,7 +3,6 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { bigint: time } = require('../helpers/time');
 const { min } = require('../helpers/math');
-const { Typed } = require('ethers');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
@@ -12,9 +11,9 @@ async function fixture() {
   const duration = time.duration.years(4);
   const start = (await time.clock.timestamp()) + time.duration.hours(1);
 
-  const [sender, beneficiary, ...accounts] = await ethers.getSigners();
+  const [sender, beneficiary] = await ethers.getSigners();
   const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
-  return { mock, amount, duration, start, sender, beneficiary, accounts };
+  return { mock, amount, duration, start, sender, beneficiary };
 }
 
 describe('VestingWallet', function () {
@@ -23,8 +22,9 @@ describe('VestingWallet', function () {
   });
 
   it('rejects zero address for beneficiary', async function () {
-    const tx = ethers.deployContract('VestingWallet', [ethers.ZeroAddress, this.start, this.duration]);
-    await expect(tx).revertedWithCustomError(this.mock, 'OwnableInvalidOwner').withArgs(ethers.ZeroAddress);
+    await expect(ethers.deployContract('VestingWallet', [ethers.ZeroAddress, this.start, this.duration]))
+      .revertedWithCustomError(this.mock, 'OwnableInvalidOwner')
+      .withArgs(ethers.ZeroAddress);
   });
 
   it('check vesting contract', async function () {
@@ -60,16 +60,16 @@ describe('VestingWallet', function () {
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
         this.token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
+        await this.token.$_mint(this.mock, this.amount);
+
         this.getBalance = account => this.token.balanceOf(account);
         this.checkRelease = async (tx, amount) => {
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.beneficiary.address, amount);
           await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
         };
 
-        await this.token.$_mint(this.mock, this.amount);
-
         this.releasedEvent = 'ERC20Released';
-        this.args = [Typed.address(this.token.target)];
+        this.args = [ethers.Typed.address(this.token.target)];
         this.argsVerify = [this.token.target];
       });
 
