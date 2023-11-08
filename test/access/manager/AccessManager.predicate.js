@@ -2,7 +2,6 @@ const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
 const { impersonate } = require('../../helpers/account');
 const { bigint: time } = require('../../helpers/time');
-const { keccak256, AbiCoder } = require('ethers');
 const { ethers } = require('hardhat');
 
 // ============ COMMON PREDICATES ============
@@ -242,8 +241,8 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
 
     describe('when _executionId is in storage for target and selector', function () {
       beforeEach('set _executionId flag from calldata and target', async function () {
-        const executionId = keccak256(
-          AbiCoder.defaultAbiCoder().encode(
+        const executionId = ethers.keccak256(
+          ethers.AbiCoder.defaultAbiCoder().encode(
             ['address', 'bytes4'],
             [this.target.target, this.calldata.substring(0, 10)],
           ),
