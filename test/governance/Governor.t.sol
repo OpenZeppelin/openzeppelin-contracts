@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../../contracts/utils/Strings.sol";
-import "../../contracts/governance/Governor.sol";
+import {Test} from "forge-std/Test.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 
 contract GovernorInternalTest is Test, Governor {
     constructor() Governor("") {}

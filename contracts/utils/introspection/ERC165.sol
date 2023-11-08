@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/ERC165.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "./IERC165.sol";
+import {IERC165} from "./IERC165.sol";
 
 /**
  * @dev Implementation of the {IERC165} interface.

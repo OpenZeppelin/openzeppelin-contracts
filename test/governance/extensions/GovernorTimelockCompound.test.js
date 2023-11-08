@@ -1,27 +1,17 @@
+const { ethers } = require('ethers');
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const RLP = require('rlp');
 
 const Enums = require('../../helpers/enums');
 const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
-
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
-
-function makeContractAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(RLP.encode([creator, nonce]))
-      .slice(12)
-      .substring(14),
-  );
-}
 
 const TOKENS = [
   { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
@@ -40,6 +30,8 @@ contract('GovernorTimelockCompound', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
+  const defaultDelay = 2 * 86400;
+
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
@@ -49,9 +41,9 @@ contract('GovernorTimelockCompound', function (accounts) {
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);
-        const predictGovernor = makeContractAddress(deployer, nonce + 1);
+        const predictGovernor = ethers.getCreateAddress({ from: deployer, nonce: nonce + 1 });
 
-        this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
+        this.timelock = await Timelock.new(predictGovernor, defaultDelay);
         this.mock = await Governor.new(
           name,
           votingDelay,
@@ -86,8 +78,6 @@ contract('GovernorTimelockCompound', function (accounts) {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
-
       it("doesn't accept ether transfers", async function () {
         await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));
       });
@@ -104,6 +94,9 @@ contract('GovernorTimelockCompound', function (accounts) {
       });
 
       it('nominal', async function () {
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -112,7 +105,11 @@ contract('GovernorTimelockCompound', function (accounts) {
         await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
         await this.helper.waitForDeadline();
         const txQueue = await this.helper.queue();
-        const eta = await this.mock.proposalEta(this.proposal.id);
+
+        const eta = web3.utils.toBN(await clockFromReceipt.timestamp(txQueue.receipt)).addn(defaultDelay);
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal(eta);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(true);
+
         await this.helper.waitForEta();
         const txExecute = await this.helper.execute();
 

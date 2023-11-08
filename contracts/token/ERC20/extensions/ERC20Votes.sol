@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Votes.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../ERC20.sol";
-import "../../../governance/utils/Votes.sol";
-import "../../../utils/math/SafeCast.sol";
+import {ERC20} from "../ERC20.sol";
+import {Votes} from "../../../governance/utils/Votes.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
- * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
+ * and supports token supply up to 2^208^ - 1, while COMP is limited to 2^96^ - 1.
  *
  * NOTE: This contract does not provide interface compatibility with Compound's COMP token.
  *
@@ -19,8 +19,6 @@ import "../../../utils/math/SafeCast.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- *
- * _Available since v4.2._
  */
 abstract contract ERC20Votes is ERC20, Votes {
     /**
@@ -29,10 +27,17 @@ abstract contract ERC20Votes is ERC20, Votes {
     error ERC20ExceededSafeSupply(uint256 increasedSupply, uint256 cap);
 
     /**
-     * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
+     * @dev Maximum token supply. Defaults to `type(uint208).max` (2^208^ - 1).
+     *
+     * This maximum is enforced in {_update}. It limits the total supply of the token, which is otherwise a uint256,
+     * so that checkpoints can be stored in the Trace208 structure used by {{Votes}}. Increasing this value will not
+     * remove the underlying limitation, and will cause {_update} to fail because of a math overflow in
+     * {_transferVotingUnits}. An override could be used to further restrict the total supply (to a lower value) if
+     * additional logic requires it. When resolving override conflicts on this function, the minimum should be
+     * returned.
      */
-    function _maxSupply() internal view virtual returns (uint224) {
-        return type(uint224).max;
+    function _maxSupply() internal view virtual returns (uint256) {
+        return type(uint208).max;
     }
 
     /**
@@ -40,8 +45,8 @@ abstract contract ERC20Votes is ERC20, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override {
-        super._update(from, to, amount);
+    function _update(address from, address to, uint256 value) internal virtual override {
+        super._update(from, to, value);
         if (from == address(0)) {
             uint256 supply = totalSupply();
             uint256 cap = _maxSupply();
@@ -49,11 +54,14 @@ abstract contract ERC20Votes is ERC20, Votes {
                 revert ERC20ExceededSafeSupply(supply, cap);
             }
         }
-        _transferVotingUnits(from, to, amount);
+        _transferVotingUnits(from, to, value);
     }
 
     /**
-     * @dev Returns the balance of `account`.
+     * @dev Returns the voting units of an `account`.
+     *
+     * WARNING: Overriding this function may compromise the internal vote accounting.
+     * `ERC20Votes` assumes tokens map to voting units 1:1 and this is not easy to change.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);
@@ -69,7 +77,7 @@ abstract contract ERC20Votes is ERC20, Votes {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint224 memory) {
+    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint208 memory) {
         return _checkpoints(account, pos);
     }
 }

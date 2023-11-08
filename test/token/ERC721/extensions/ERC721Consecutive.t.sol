@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 // solhint-disable func-name-mixedcase
 
-import "../../../../contracts/token/ERC721/extensions/ERC721Consecutive.sol";
-import "forge-std/Test.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Consecutive} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Consecutive.sol";
+import {Test, StdUtils} from "forge-std/Test.sol";
 
 function toSingleton(address account) pure returns (address[] memory) {
     address[] memory accounts = new address[](1);

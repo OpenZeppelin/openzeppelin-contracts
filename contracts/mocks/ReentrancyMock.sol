@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../security/ReentrancyGuard.sol";
-import "./ReentrancyAttack.sol";
+import {ReentrancyGuard} from "../utils/ReentrancyGuard.sol";
+import {ReentrancyAttack} from "./ReentrancyAttack.sol";
 
 contract ReentrancyMock is ReentrancyGuard {
     uint256 public counter;

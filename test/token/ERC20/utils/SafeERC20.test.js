@@ -4,15 +4,9 @@ const SafeERC20 = artifacts.require('$SafeERC20');
 const ERC20ReturnFalseMock = artifacts.require('$ERC20ReturnFalseMock');
 const ERC20ReturnTrueMock = artifacts.require('$ERC20'); // default implementation returns true
 const ERC20NoReturnMock = artifacts.require('$ERC20NoReturnMock');
-const ERC20PermitNoRevertMock = artifacts.require('$ERC20PermitNoRevertMock');
 const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
 
-const { getDomain, domainType, Permit } = require('../../../helpers/eip712');
 const { expectRevertCustomError } = require('../../../helpers/customError');
-
-const { fromRpcSig } = require('ethereumjs-util');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
@@ -120,123 +114,6 @@ contract('SafeERC20', function (accounts) {
     });
 
     shouldOnlyRevertOnErrors(accounts);
-  });
-
-  describe("with token that doesn't revert on invalid permit", function () {
-    const wallet = Wallet.generate();
-    const owner = wallet.getAddressString();
-    const spender = hasNoCode;
-
-    beforeEach(async function () {
-      this.token = await ERC20PermitNoRevertMock.new(name, symbol, name);
-
-      this.data = await getDomain(this.token).then(domain => ({
-        primaryType: 'Permit',
-        types: { EIP712Domain: domainType(domain), Permit },
-        domain,
-        message: { owner, spender, value: '42', nonce: '0', deadline: constants.MAX_UINT256 },
-      }));
-
-      this.signature = fromRpcSig(ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }));
-    });
-
-    it('accepts owner signature', async function () {
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('0');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal('0');
-
-      await this.mock.$safePermit(
-        this.token.address,
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
-      );
-
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(this.data.message.value);
-    });
-
-    it('revert on reused signature', async function () {
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('0');
-      // use valid signature and consume nounce
-      await this.mock.$safePermit(
-        this.token.address,
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
-      );
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      // invalid call does not revert for this token implementation
-      await this.token.permit(
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
-      );
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      // invalid call revert when called through the SafeERC20 library
-      await expectRevertCustomError(
-        this.mock.$safePermit(
-          this.token.address,
-          this.data.message.owner,
-          this.data.message.spender,
-          this.data.message.value,
-          this.data.message.deadline,
-          this.signature.v,
-          this.signature.r,
-          this.signature.s,
-        ),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-    });
-
-    it('revert on invalid signature', async function () {
-      // signature that is not valid for owner
-      const invalidSignature = {
-        v: 27,
-        r: '0x71753dc5ecb5b4bfc0e3bc530d79ce5988760ed3f3a234c86a5546491f540775',
-        s: '0x0049cedee5aed990aabed5ad6a9f6e3c565b63379894b5fa8b512eb2b79e485d',
-      };
-
-      // invalid call does not revert for this token implementation
-      await this.token.permit(
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        invalidSignature.v,
-        invalidSignature.r,
-        invalidSignature.s,
-      );
-
-      // invalid call revert when called through the SafeERC20 library
-      await expectRevertCustomError(
-        this.mock.$safePermit(
-          this.token.address,
-          this.data.message.owner,
-          this.data.message.spender,
-          this.data.message.value,
-          this.data.message.deadline,
-          invalidSignature.v,
-          invalidSignature.r,
-          invalidSignature.s,
-        ),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
-    });
   });
 
   describe('with usdt approval beaviour', function () {

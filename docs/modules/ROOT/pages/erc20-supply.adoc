@@ -57,27 +57,13 @@ As we can see, `_mint` makes it super easy to do this correctly.
 [[automating-the-reward]]
 == Automating the Reward
 
-So far our supply mechanism was triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook (see xref:extending-contracts.adoc#using-hooks[Using Hooks]).
+So far our supply mechanism was triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_update-address-address-uint256-[`_update`] function.
 
-Adding to the supply mechanism from the previous section, we can use this hook to mint a miner reward for every token transfer that is included in the blockchain.
+Adding to the supply mechanism from the previous section, we can use this function to mint a miner reward for every token transfer that is included in the blockchain.
 
-[source,solidity]
-----
-contract ERC20WithAutoMinerReward is ERC20 {
-    constructor() ERC20("Reward", "RWD") {}
-
-    function _mintMinerReward() internal {
-        _mint(block.coinbase, 1000);
-    }
-
-    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        if (!(from == address(0) && to == block.coinbase)) {
-          _mintMinerReward();
-        }
-        super._beforeTokenTransfer(from, to, value);
-    }
-}
-----
+```solidity
+include::api:example$ERC20WithAutoMinerReward.sol[]
+```
 
 [[wrapping-up]]
 == Wrapping Up

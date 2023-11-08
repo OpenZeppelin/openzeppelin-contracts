@@ -1,15 +1,14 @@
-import "helpers/helpers.spec"
-import "methods/IERC20.spec"
-import "methods/IERC3156.spec"
+import "helpers/helpers.spec";
+import "methods/IERC20.spec";
+import "methods/IERC3156FlashLender.spec";
+import "methods/IERC3156FlashBorrower.spec";
 
 methods {
     // non standard ERC3156 functions
-    flashFeeReceiver() returns (address) envfree
+    function flashFeeReceiver() external returns (address) envfree;
 
     // function summaries below
-    _mint(address account, uint256 amount)              => specMint(account, amount)
-    _burn(address account, uint256 amount)              => specBurn(account, amount)
-    _transfer(address from, address to, uint256 amount) => specTransfer(from, to, amount)
+    function _._update(address from, address to, uint256 amount) internal => specUpdate(from, to, amount) expect void ALL;
 }
 
 /*
@@ -17,13 +16,21 @@ methods {
 │ Ghost: track mint and burns in the CVL                                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost mapping(address => uint256)                     trackedMintAmount;
-ghost mapping(address => uint256)                     trackedBurnAmount;
-ghost mapping(address => mapping(address => uint256)) trackedTransferedAmount;
+ghost mapping(address => mathint)                     trackedMintAmount;
+ghost mapping(address => mathint)                     trackedBurnAmount;
+ghost mapping(address => mapping(address => mathint)) trackedTransferedAmount;
 
-function specMint(address account, uint256 amount)              returns bool { trackedMintAmount[account] = amount;        return true; }
-function specBurn(address account, uint256 amount)              returns bool { trackedBurnAmount[account] = amount;        return true; }
-function specTransfer(address from, address to, uint256 amount) returns bool { trackedTransferedAmount[from][to] = amount; return true; }
+function specUpdate(address from, address to, uint256 amount) {
+    if (from == 0 && to == 0) { assert(false); } // defensive
+
+    if (from == 0) {
+        trackedMintAmount[to] = amount;
+    } else if (to == 0) {
+        trackedBurnAmount[from] = amount;
+    } else {
+        trackedTransferedAmount[from][to] = amount;
+    }
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -42,7 +49,7 @@ rule checkMintAndBurn(env e) {
 
     flashLoan(e, receiver, token, amount, data);
 
-    assert trackedMintAmount[receiver] == amount;
-    assert trackedBurnAmount[receiver] == amount + (recipient == 0 ? fees : 0);
-    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == fees;
+    assert trackedMintAmount[receiver] == to_mathint(amount);
+    assert trackedBurnAmount[receiver] == amount + to_mathint(recipient == 0 ? fees : 0);
+    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == to_mathint(fees);
 }

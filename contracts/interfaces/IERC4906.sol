@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC4906.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC4906.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "./IERC165.sol";
-import "./IERC721.sol";
+import {IERC165} from "./IERC165.sol";
+import {IERC721} from "./IERC721.sol";
 
 /// @title EIP-721 Metadata Update Extension
 interface IERC4906 is IERC165, IERC721 {

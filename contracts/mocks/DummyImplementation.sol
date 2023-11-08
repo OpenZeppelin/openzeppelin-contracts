@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../proxy/ERC1967/ERC1967Utils.sol";
+import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
+import {StorageSlot} from "../utils/StorageSlot.sol";
 
 abstract contract Impl {
     function version() public pure virtual returns (string memory);

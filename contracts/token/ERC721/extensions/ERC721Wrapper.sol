@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Wrapper.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../ERC721.sol";
+import {IERC721, ERC721} from "../ERC721.sol";
+import {IERC721Receiver} from "../IERC721Receiver.sol";
 
 /**
  * @dev Extension of the ERC721 token contract to support token wrapping.
  *
- * Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is useful
- * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow the
- * wrapping of an existing "basic" ERC721 into a governance token.
- *
- * _Available since v4.9.0_
+ * Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is
+ * useful in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow
+ * the wrapping of an existing "basic" ERC721 into a governance token.
  */
 abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;
@@ -51,10 +50,9 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
-            if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
-                revert ERC721InsufficientApproval(_msgSender(), tokenId);
-            }
-            _burn(tokenId);
+            // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+            // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+            _update(address(0), tokenId, _msgSender());
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
             // slither-disable-next-line reentrancy-no-eth

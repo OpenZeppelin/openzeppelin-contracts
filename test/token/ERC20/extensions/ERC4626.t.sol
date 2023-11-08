@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC4626Test} from "erc4626-tests/ERC4626.test.sol";
 
-import {SafeCast} from "openzeppelin/utils/math/SafeCast.sol";
-import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";
-import {ERC4626} from "openzeppelin/token/ERC20/extensions/ERC4626.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 
-import {ERC20Mock} from "openzeppelin/mocks/token/ERC20Mock.sol";
-import {ERC4626Mock} from "openzeppelin/mocks/token/ERC4626Mock.sol";
-import {ERC4626OffsetMock} from "openzeppelin/mocks/token/ERC4626OffsetMock.sol";
+import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
+import {ERC4626Mock} from "@openzeppelin/contracts/mocks/token/ERC4626Mock.sol";
+import {ERC4626OffsetMock} from "@openzeppelin/contracts/mocks/token/ERC4626OffsetMock.sol";
 
 contract ERC4626VaultOffsetMock is ERC4626OffsetMock {
     constructor(

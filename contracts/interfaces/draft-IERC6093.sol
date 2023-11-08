@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/draft-IERC6093.sol)
+pragma solidity ^0.8.20;
 
 /**
  * @dev Standard ERC20 Errors
- * Interface of the ERC6093 custom errors for ERC20 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
  */
 interface IERC20Errors {
     /**
@@ -50,8 +50,7 @@ interface IERC20Errors {
 
 /**
  * @dev Standard ERC721 Errors
- * Interface of the ERC6093 custom errors for ERC721 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
  */
 interface IERC721Errors {
     /**
@@ -109,8 +108,7 @@ interface IERC721Errors {
 
 /**
  * @dev Standard ERC1155 Errors
- * Interface of the ERC6093 custom errors for ERC1155 tokens
- * as defined in https://eips.ethereum.org/EIPS/eip-6093
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
  */
 interface IERC1155Errors {
     /**
@@ -118,6 +116,7 @@ interface IERC1155Errors {
      * @param sender Address whose tokens are being transferred.
      * @param balance Current balance for the interacting account.
      * @param needed Minimum amount required to perform a transfer.
+     * @param tokenId Identifier number of a token.
      */
     error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
 
@@ -138,7 +137,7 @@ interface IERC1155Errors {
      * @param operator Address that may be allowed to operate on tokens without being their owner.
      * @param owner Address of the current owner of a token.
      */
-    error ERC1155InsufficientApprovalForAll(address operator, address owner);
+    error ERC1155MissingApprovalForAll(address operator, address owner);
 
     /**
      * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.

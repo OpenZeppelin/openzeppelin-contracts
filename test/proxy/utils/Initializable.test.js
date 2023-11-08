@@ -1,6 +1,7 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { expectRevertCustomError } = require('../../helpers/customError');
+const { MAX_UINT64 } = require('../../helpers/constants');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
@@ -41,13 +42,13 @@ contract('Initializable', function () {
       });
 
       it('initializer does not run again', async function () {
-        await expectRevertCustomError(this.contract.initialize(), 'AlreadyInitialized', []);
+        await expectRevertCustomError(this.contract.initialize(), 'InvalidInitialization', []);
       });
     });
 
     describe('nested under an initializer', function () {
       it('initializer modifier reverts', async function () {
-        await expectRevertCustomError(this.contract.initializerNested(), 'AlreadyInitialized', []);
+        await expectRevertCustomError(this.contract.initializerNested(), 'InvalidInitialization', []);
       });
 
       it('onlyInitializing modifier succeeds', async function () {
@@ -99,9 +100,9 @@ contract('Initializable', function () {
 
     it('cannot nest reinitializers', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
-      await expectRevertCustomError(this.contract.nestedReinitialize(2, 2), 'AlreadyInitialized', []);
-      await expectRevertCustomError(this.contract.nestedReinitialize(2, 3), 'AlreadyInitialized', []);
-      await expectRevertCustomError(this.contract.nestedReinitialize(3, 2), 'AlreadyInitialized', []);
+      await expectRevertCustomError(this.contract.nestedReinitialize(2, 2), 'InvalidInitialization', []);
+      await expectRevertCustomError(this.contract.nestedReinitialize(2, 3), 'InvalidInitialization', []);
+      await expectRevertCustomError(this.contract.nestedReinitialize(3, 2), 'InvalidInitialization', []);
     });
 
     it('can chain reinitializers', async function () {
@@ -120,18 +121,18 @@ contract('Initializable', function () {
     describe('contract locking', function () {
       it('prevents initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.initialize(), 'AlreadyInitialized', []);
+        await expectRevertCustomError(this.contract.initialize(), 'InvalidInitialization', []);
       });
 
       it('prevents re-initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.reinitialize(255), 'AlreadyInitialized', []);
+        await expectRevertCustomError(this.contract.reinitialize(255), 'InvalidInitialization', []);
       });
 
       it('can lock contract after initialization', async function () {
         await this.contract.initialize();
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.reinitialize(255), 'AlreadyInitialized', []);
+        await expectRevertCustomError(this.contract.reinitialize(255), 'InvalidInitialization', []);
       });
     });
   });
@@ -206,14 +207,14 @@ contract('Initializable', function () {
 
   describe('disabling initialization', function () {
     it('old and new patterns in bad sequence', async function () {
-      await expectRevertCustomError(DisableBad1.new(), 'AlreadyInitialized', []);
-      await expectRevertCustomError(DisableBad2.new(), 'AlreadyInitialized', []);
+      await expectRevertCustomError(DisableBad1.new(), 'InvalidInitialization', []);
+      await expectRevertCustomError(DisableBad2.new(), 'InvalidInitialization', []);
     });
 
     it('old and new patterns in good sequence', async function () {
       const ok = await DisableOk.new();
       await expectEvent.inConstruction(ok, 'Initialized', { version: '1' });
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '255' });
+      await expectEvent.inConstruction(ok, 'Initialized', { version: MAX_UINT64 });
     });
   });
 });

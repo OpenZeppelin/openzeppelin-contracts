@@ -4,11 +4,11 @@ const { OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../../../contracts/utils/math/SafeCast.sol";
-import "../../../contracts/utils/structs/Checkpoints.sol";
+import {Test} from "forge-std/Test.sol";
+import {SafeCast} from "../../../contracts/utils/math/SafeCast.sol";
+import {Checkpoints} from "../../../contracts/utils/structs/Checkpoints.sol";
 `;
 
 /* eslint-disable max-len */

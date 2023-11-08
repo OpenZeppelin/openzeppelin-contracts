@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Permit.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Permit.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "./IERC20Permit.sol";
-import "../ERC20.sol";
-import "../../../utils/cryptography/ECDSA.sol";
-import "../../../utils/cryptography/EIP712.sol";
-import "../../../utils/Nonces.sol";
+import {IERC20Permit} from "./IERC20Permit.sol";
+import {ERC20} from "../ERC20.sol";
+import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../../../utils/cryptography/EIP712.sol";
+import {Nonces} from "../../../utils/Nonces.sol";
 
 /**
  * @dev Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
@@ -16,12 +16,9 @@ import "../../../utils/Nonces.sol";
  * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
  * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
- *
- * _Available since v3.4._
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
-    // solhint-disable-next-line var-name-mixedcase
-    bytes32 private constant _PERMIT_TYPEHASH =
+    bytes32 private constant PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     /**
@@ -42,7 +39,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     constructor(string memory name) EIP712(name, "1") {}
 
     /**
-     * @dev See {IERC20Permit-permit}.
+     * @inheritdoc IERC20Permit
      */
     function permit(
         address owner,
@@ -57,7 +54,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
             revert ERC2612ExpiredSignature(deadline);
         }
 
-        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
@@ -70,14 +67,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     }
 
     /**
-     * @dev See {IERC20Permit-nonces}.
+     * @inheritdoc IERC20Permit
      */
     function nonces(address owner) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
         return super.nonces(owner);
     }
 
     /**
-     * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
+     * @inheritdoc IERC20Permit
      */
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {

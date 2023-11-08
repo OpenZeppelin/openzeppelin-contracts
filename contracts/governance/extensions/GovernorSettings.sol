@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorSettings.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorSettings.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../Governor.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for settings updatable through governance.
- *
- * _Available since v4.4._
  */
 abstract contract GovernorSettings is Governor {
     // amount of token
@@ -95,7 +93,6 @@ abstract contract GovernorSettings is Governor {
      * Emits a {VotingPeriodSet} event.
      */
     function _setVotingPeriod(uint32 newVotingPeriod) internal virtual {
-        // voting period must be at least one block long
         if (newVotingPeriod == 0) {
             revert GovernorInvalidVotingPeriod(0);
         }

@@ -23,13 +23,13 @@ contract('VestingWallet', function (accounts) {
   it('rejects zero address for beneficiary', async function () {
     await expectRevertCustomError(
       VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'VestingWalletInvalidBeneficiary',
+      'OwnableInvalidOwner',
       [constants.ZERO_ADDRESS],
     );
   });
 
   it('check vesting contract', async function () {
-    expect(await this.mock.beneficiary()).to.be.equal(beneficiary);
+    expect(await this.mock.owner()).to.be.equal(beneficiary);
     expect(await this.mock.start()).to.be.bignumber.equal(this.start);
     expect(await this.mock.duration()).to.be.bignumber.equal(duration);
     expect(await this.mock.end()).to.be.bignumber.equal(this.start.add(duration));

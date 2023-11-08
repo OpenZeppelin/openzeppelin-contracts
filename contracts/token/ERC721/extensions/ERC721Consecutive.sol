@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../ERC721.sol";
-import "../../../interfaces/IERC2309.sol";
-import "../../../utils/structs/BitMaps.sol";
-import "../../../utils/structs/Checkpoints.sol";
+import {ERC721} from "../ERC721.sol";
+import {IERC2309} from "../../../interfaces/IERC2309.sol";
+import {BitMaps} from "../../../utils/structs/BitMaps.sol";
+import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
@@ -19,15 +19,13 @@ import "../../../utils/structs/Checkpoints.sol";
  * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. The hooks will be only called once per batch, so you should take `batchSize` parameter into consideration
- * when relying on hooks.
+ * IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
+ * function through overrides will not be triggered when token are minted in batch. You may want to also override
+ * {_increaseBalance} or {_mintConsecutive} to account for these mints.
  *
- * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
- * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
+ * IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
+ * values during the {_mintConsecutive} execution if the super call is not called first. To be safe, execute the
  * super call before your custom logic.
- *
- * _Available since v4.8._
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;
@@ -120,61 +118,44 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
                 revert ERC721ExceededMaxBatchMint(batchSize, maxBatchSize);
             }
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, next, batchSize);
-
             // push an ownership checkpoint & emit event
             uint96 last = next + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
 
             // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
             // is attributing ownership of `batchSize` new tokens to account `to`.
-            __unsafe_increaseBalance(to, batchSize);
+            _increaseBalance(to, batchSize);
 
             emit ConsecutiveTransfer(next, last, address(0), to);
-
-            // hook after
-            _afterTokenTransfer(address(0), to, next, batchSize);
         }
 
         return next;
     }
 
     /**
-     * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
+     * @dev See {ERC721-_update}. Override version that restricts normal minting to after construction.
      *
-     * WARNING: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
-     * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
+     * WARNING: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
+     * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
-    function _mint(address to, uint256 tokenId) internal virtual override {
-        if (address(this).code.length == 0) {
+    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+        address previousOwner = super._update(to, tokenId, auth);
+
+        // only mint after construction
+        if (previousOwner == address(0) && address(this).code.length == 0) {
             revert ERC721ForbiddenMint();
         }
-        super._mint(to, tokenId);
-    }
 
-    /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
+        // record burn
         if (
             to == address(0) && // if we burn
-            firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId < _nextConsecutiveId() &&
-            !_sequentialBurn.get(firstTokenId)
-        ) // and the token was never marked as burnt
-        {
-            if (batchSize != 1) {
-                revert ERC721ForbiddenBatchBurn();
-            }
-            _sequentialBurn.set(firstTokenId);
+            tokenId < _nextConsecutiveId() && // and the tokenId was minted in a batch
+            !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
+        ) {
+            _sequentialBurn.set(tokenId);
         }
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
+
+        return previousOwner;
     }
 
     /**
