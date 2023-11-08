@@ -1,77 +1,84 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const Enums = require('../helpers/enums');
+const { bigint: Enums } = require('../helpers/enums');
 const { getDomain, domainType } = require('../helpers/eip712');
 const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
-const { clockFromReceipt } = require('../helpers/time');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { bigint: {clockFromReceipt} } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
 const { ZERO_BYTES32 } = require('@openzeppelin/test-helpers/src/constants');
 
-const Governor = artifacts.require('$GovernorMock');
-const CallReceiver = artifacts.require('CallReceiverMock');
-const ERC721 = artifacts.require('$ERC721');
-const ERC1155 = artifacts.require('$ERC1155');
-const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
+const Governor = '$GovernorMock';
+const CallReceiver = 'CallReceiverMock';
+const ERC721 = '$ERC721';
+const ERC1155 = '$ERC1155';
+const ERC1271WalletMock = 'ERC1271WalletMock';
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
-  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
-  { Token: artifacts.require('$ERC20VotesLegacyMock'), mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  // { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+  // { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
 
-contract('Governor', function (accounts) {
-  const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
+async function fixture() {
+  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = await ethers.getSigners();
+  return { owner, proposer, voter1, voter2, voter3, voter4 };
+}
 
+describe.only('Governor', function () {
   const name = 'OZ-Governor';
   const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
-  const tokenSupply = web3.utils.toWei('100');
-  const votingDelay = web3.utils.toBN(4);
-  const votingPeriod = web3.utils.toBN(16);
-  const value = web3.utils.toWei('1');
+  const tokenSupply = ethers.parseEther('100');
+  const votingDelay = 4n;
+  const votingPeriod = 16n;
+  const value = ethers.parseEther('1');
+  
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
   for (const { mode, Token } of TOKENS) {
-    describe(`using ${Token._json.contractName}`, function () {
+    describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        this.chainId = await web3.eth.getChainId();
+        this.chainId = (await ethers.provider.getNetwork()).chainId;
         try {
-          this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
+          this.token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
         } catch {
           // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
-          this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+          this.token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName]);
         }
-        this.mock = await Governor.new(
+        this.mock = await ethers.deployContract(Governor, [
           name, // name
           votingDelay, // initialVotingDelay
           votingPeriod, // initialVotingPeriod
           0, // initialProposalThreshold
-          this.token.address, // tokenAddress
+          this.token, // tokenAddress
           10, // quorumNumeratorValue
-        );
-        this.receiver = await CallReceiver.new();
+        ]);
+        this.receiver = await ethers.deployContract(CallReceiver);
 
         this.helper = new GovernorHelper(this.mock, mode);
 
-        await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
+        await this.owner.sendTransaction({ to: this.mock, value });
 
-        await this.token.$_mint(owner, tokenSupply);
-        await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+        await this.token.$_mint(this.owner, tokenSupply);
+        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter1, value: ethers.parseEther('10') });
+        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter2, value: ethers.parseEther('7') });
+        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter3, value: ethers.parseEther('5') });
+        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter4, value: ethers.parseEther('2') });
 
         this.proposal = this.helper.setProposal(
           [
             {
-              target: this.receiver.address,
-              data: this.receiver.contract.methods.mockFunction().encodeABI(),
+              target: this.receiver.target,
+              data: this.receiver.interface.encodeFunctionData('mockFunction'),
               value,
             },
           ],

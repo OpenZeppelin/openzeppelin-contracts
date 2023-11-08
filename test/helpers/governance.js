@@ -1,6 +1,7 @@
 const { web3 } = require('hardhat');
 const { forward } = require('../helpers/time');
 const { ProposalState } = require('./enums');
+const { ethers } = require('ethers');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -25,15 +26,19 @@ class GovernorHelper {
     this.mode = mode;
   }
 
-  delegate(delegation = {}, opts = null) {
+  connect(account) {
+    return new GovernorHelper(this.governor.connect(account), this.mode);
+  }
+
+  delegate(delegation) {
     return Promise.all([
-      delegation.token.delegate(delegation.to, { from: delegation.to }),
-      delegation.value && delegation.token.transfer(...concatOpts([delegation.to, delegation.value]), opts),
+      delegation.token.connect(delegation.to).delegate(delegation.to),
+      delegation.value && delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value),
       delegation.tokenId &&
         delegation.token
           .ownerOf(delegation.tokenId)
           .then(owner =>
-            delegation.token.transferFrom(...concatOpts([owner, delegation.to, delegation.tokenId], opts)),
+            delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
           ),
     ]);
   }
@@ -185,10 +190,8 @@ class GovernorHelper {
     const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
 
     // proposal id
-    const id = web3.utils.toBN(
-      web3.utils.keccak256(
-        web3.eth.abi.encodeParameters(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
-      ),
+    const id = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
     );
 
     this.currentProposal = {
