@@ -28,9 +28,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
  *
  * Since v4.9, this implementation introduces configurable virtual assets and shares to help developers mitigate that risk.
- * The `_decimalsOffset()` corresponds to an offset in the decimal representation between the underlying asset's decimals 
- * and the vault decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which 
- * itself determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default 
+ * The `_decimalsOffset()` corresponds to an offset in the decimal representation between the underlying asset's decimals
+ * and the vault decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which
+ * itself determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default
  * offset (0) makes it non-profitable even if an attacker is able to capture value from multiple user deposits, as a result
  * of the value being captured by the virtual shares (out of the attacker's donation) matching the attacker's expected gains.
  * With a larger offset, the attack becomes orders of magnitude more expensive than it is profitable. More details about the
