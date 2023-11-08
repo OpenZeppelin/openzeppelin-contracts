@@ -421,10 +421,11 @@ library Math {
         require(success, "ModularExponentiation: Failed at calculating the result");
         return abi.decode(result, (uint256));
     }
-    
+
     /**
      * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
      */
     function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
         return uint8(rounding) % 2 == 1;
     }
+}
