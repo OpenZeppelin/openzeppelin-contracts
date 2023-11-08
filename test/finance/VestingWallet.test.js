@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { bigint: time } = require('../helpers/time');
 const { min } = require('../helpers/math');
+const { Typed } = require('ethers');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
@@ -16,7 +17,7 @@ async function fixture() {
   return { mock, amount, duration, start, sender, beneficiary, accounts };
 }
 
-describe.only('VestingWallet', function () {
+describe('VestingWallet', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -43,18 +44,17 @@ describe.only('VestingWallet', function () {
       this.vestingFn = timestamp => min(this.amount, this.amount * (timestamp - this.start) / this.duration);
     });
 
-    describe.only('Eth vesting', function () {
-      before(async function () {
+    describe('Eth vesting', function () {
+      beforeEach(async function () {
+        await this.sender.sendTransaction({to: this.mock, value: this.amount});
+
         this.getBalance = signer => ethers.provider.getBalance(signer);
         this.checkRelease = async (tx, amount) => expect(tx)
-          .to.changeEtherBalances([this.beneficiary.address], [amount]);
+          .to.changeEtherBalances([this.beneficiary], [amount]);
         
         this.releasedEvent = 'EtherReleased'
         this.args = [];
-      });
-
-      beforeEach(async function () {
-        await this.sender.sendTransaction({to: this.mock, value: this.amount});
+        this.argsVerify = [];
       });
 
       shouldBehaveLikeVesting();
@@ -62,20 +62,21 @@ describe.only('VestingWallet', function () {
 
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
-        this.token = await ERC20.new('Name', 'Symbol');
+        this.token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
         this.getBalance = account => this.token.balanceOf(account);
         this.checkRelease = async (tx, amount) => {
           await expect(tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.mock.target, this.beneficiary.address, amount);
           await expect(tx)
-            .to.changeTokenBalances([this.mock, this.beneficiary], [-amount, amount]);
+            .to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
         }
         
-        await this.token.$_mint(this.mock.address, amount);
+        await this.token.$_mint(this.mock, this.amount);
 
-        this.releasedEvent = 'EtherReleased'
-        this.args = [];
+        this.releasedEvent = 'ERC20Released'
+        this.args = [Typed.address(this.token.target)];
+        this.argsVerify = [this.token.target];
       });
 
       shouldBehaveLikeVesting();
