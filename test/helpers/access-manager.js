@@ -68,7 +68,12 @@ async function prepareOperation(manager, { caller, target, calldata, delay }) {
 const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
 
 const hashOperation = (caller, target, data) =>
-  keccak256(AbiCoder.defaultAbiCoder().encode(['address', 'address', 'bytes'], [lazyGetAddress(caller), lazyGetAddress(target), data]));
+  keccak256(
+    AbiCoder.defaultAbiCoder().encode(
+      ['address', 'address', 'bytes'],
+      [lazyGetAddress(caller), lazyGetAddress(target), data],
+    ),
+  );
 
 module.exports = {
   buildBaseRoles,

@@ -73,12 +73,7 @@ describe('AuthorityUtils', function () {
           it(`returns (immediate=${immediate}, delay=${delay})`, async function () {
             await this.authority._setImmediate(immediate);
             await this.authority._setDelay(delay);
-            const result = await this.mock.$canCallWithDelay(
-              this.authority,
-              this.user,
-              this.other,
-              '0x12345678',
-            );
+            const result = await this.mock.$canCallWithDelay(this.authority, this.user, this.other, '0x12345678');
             expect(result.immediate).to.equal(immediate);
             expect(result.delay).to.be.equal(delay);
           });

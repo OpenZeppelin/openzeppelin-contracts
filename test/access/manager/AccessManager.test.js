@@ -381,9 +381,7 @@ contract('AccessManager', function () {
       });
 
       it('returns the ADMIN role if not set', async function () {
-        expect(await this.manager.getTargetFunctionRole(this.target, methodSelector)).to.equal(
-          this.roles.ADMIN.id,
-        );
+        expect(await this.manager.getTargetFunctionRole(this.target, methodSelector)).to.equal(this.roles.ADMIN.id);
       });
     });
 
@@ -1078,7 +1076,10 @@ contract('AccessManager', function () {
 
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
-            this.calldata = this.manager.interface.encodeFunctionData('updateAuthority(address,address)', [this.newManagedTarget.target, this.newAuthority.target]);
+            this.calldata = this.manager.interface.encodeFunctionData('updateAuthority(address,address)', [
+              this.newManagedTarget.target,
+              this.newAuthority.target,
+            ]);
           });
 
           shouldBehaveLikeNotDelayedAdminOperation();
@@ -1087,9 +1088,7 @@ contract('AccessManager', function () {
         it('changes the authority', async function () {
           expect(await this.newManagedTarget.authority()).to.be.equal(this.manager.target);
 
-          await expect(
-            this.manager.connect(this.admin).updateAuthority(this.newManagedTarget, this.newAuthority),
-          )
+          await expect(this.manager.connect(this.admin).updateAuthority(this.newManagedTarget, this.newAuthority))
             .to.emit(this.newManagedTarget, 'AuthorityUpdated') // Managed contract is responsible of notifying the change through an event
             .withArgs(this.newAuthority.target);
 
@@ -1157,9 +1156,7 @@ contract('AccessManager', function () {
           }
 
           await expect(
-            this.manager
-              .connect(this.admin)
-              .setTargetFunctionRole(this.target, [sigs[1]], this.roles.SOME_ADMIN.id),
+            this.manager.connect(this.admin).setTargetFunctionRole(this.target, [sigs[1]], this.roles.SOME_ADMIN.id),
           )
             .to.emit(this.manager, 'TargetFunctionRoleUpdated')
             .withArgs(this.target.target, sigs[1], this.roles.SOME_ADMIN.id);
@@ -1816,9 +1813,7 @@ contract('AccessManager', function () {
                     beforeGrantDelay() {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
-                        await expect(
-                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
-                        )
+                        await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
@@ -1834,9 +1829,7 @@ contract('AccessManager', function () {
                     beforeGrantDelay() {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
-                        await expect(
-                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
-                        )
+                        await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
@@ -1844,9 +1837,7 @@ contract('AccessManager', function () {
                     afterGrantDelay() {
                       it('reverts as AccessManagerUnauthorizedCall', async function () {
                         // prepareOperation is not used here because it alters the next block timestamp
-                        await expect(
-                          this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
-                        )
+                        await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                           .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                       });
@@ -1869,9 +1860,7 @@ contract('AccessManager', function () {
                   callerHasNoExecutionDelay() {
                     it('reverts as AccessManagerUnauthorizedCall', async function () {
                       // prepareOperation is not used here because it alters the next block timestamp
-                      await expect(
-                        this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48),
-                      )
+                      await expect(this.manager.connect(this.caller).schedule(this.target, this.calldata, MAX_UINT48))
                         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
                         .withArgs(this.caller.address, this.target.target, this.calldata.substring(0, 10));
                     });
@@ -2327,9 +2316,7 @@ contract('AccessManager', function () {
 
           describe('when caller is an admin', function () {
             it('succeeds', async function () {
-              await this.manager
-                .connect(this.roles.ADMIN.members[0])
-                .cancel(this.caller, this.target, this.calldata);
+              await this.manager.connect(this.roles.ADMIN.members[0]).cancel(this.caller, this.target, this.calldata);
             });
           });
 
@@ -2411,9 +2398,7 @@ contract('AccessManager', function () {
 
       it('relayed call (with role): reverts', async function () {
         await expect(
-          this.manager
-            .connect(this.user)
-            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
+          this.manager.connect(this.user).execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
         )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
           .withArgs(this.user.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2421,9 +2406,7 @@ contract('AccessManager', function () {
 
       it('relayed call (without role): reverts', async function () {
         await expect(
-          this.manager
-            .connect(this.other)
-            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
+          this.manager.connect(this.other).execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
         )
           .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
           .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2447,16 +2430,12 @@ contract('AccessManager', function () {
         });
 
         it('relayed call (with role): success', async function () {
-          await this.manager
-            .connect(this.user)
-            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
+          await this.manager.connect(this.user).execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): reverts', async function () {
           await expect(
-            this.manager
-              .connect(this.other)
-              .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
+            this.manager.connect(this.other).execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector),
           )
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCall')
             .withArgs(this.other.address, this.ownable.target, this.ownable.$_checkOwner.getFragment().selector);
@@ -2479,9 +2458,7 @@ contract('AccessManager', function () {
         });
 
         it('relayed call (with role): success', async function () {
-          await this.manager
-            .connect(this.user)
-            .execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
+          await this.manager.connect(this.user).execute(this.ownable, this.ownable.$_checkOwner.getFragment().selector);
         });
 
         it('relayed call (without role): success', async function () {
