@@ -35,7 +35,7 @@ describe('VestingWallet', function () {
   });
 
   describe('vesting schedule', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.schedule = Array(64)
         .fill()
         .map((_, i) => (BigInt(i) * this.duration) / 60n + this.start);
@@ -47,7 +47,7 @@ describe('VestingWallet', function () {
         await this.sender.sendTransaction({ to: this.mock, value: this.amount });
 
         this.getBalance = signer => ethers.provider.getBalance(signer);
-        this.checkRelease = async (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
+        this.checkRelease = (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
 
         this.releasedEvent = 'EtherReleased';
         this.args = [];
