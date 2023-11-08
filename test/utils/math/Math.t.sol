@@ -195,7 +195,7 @@ contract MathTest is Test {
                 expected = _mulmod(expected, b, m);
             }
 
-            assertEq(result, expected); 
+            assertEq(result, expected);
         }
     }
 
