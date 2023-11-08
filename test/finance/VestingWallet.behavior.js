@@ -1,10 +1,6 @@
 const { time } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
 
-function releasedEvent(token) {
-  return token ? 'ERC20Released' : 'EtherReleased';
-}
-
 function shouldBehaveLikeVesting() {
   it('check vesting schedule', async function () {
     for (const timestamp of this.schedule) {
@@ -21,7 +17,7 @@ function shouldBehaveLikeVesting() {
     {
       const tx = await this.mock.release(...this.args);
       await expect(tx)
-        .to.emit(this.mock, releasedEvent(this.token))
+        .to.emit(this.mock, this.releasedEvent)
         .withArgs(...this.argsVerify, 0);
 
       await this.checkRelease(tx, 0n);
@@ -32,8 +28,7 @@ function shouldBehaveLikeVesting() {
       const vested = this.vestingFn(timestamp);
 
       const tx = await this.mock.release(...this.args);
-      await expect(tx)
-        .to.emit(this.mock, releasedEvent(this.token))
+      await expect(tx).to.emit(this.mock, this.releasedEvent);
 
       await this.checkRelease(tx, vested - released);
       released = vested;

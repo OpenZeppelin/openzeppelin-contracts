@@ -24,9 +24,7 @@ describe('VestingWallet', function () {
 
   it('rejects zero address for beneficiary', async function () {
     const tx = ethers.deployContract('VestingWallet', [ethers.ZeroAddress, this.start, this.duration]);
-    await expect(tx)
-      .revertedWithCustomError(this.mock, 'OwnableInvalidOwner')
-      .withArgs(ethers.ZeroAddress);
+    await expect(tx).revertedWithCustomError(this.mock, 'OwnableInvalidOwner').withArgs(ethers.ZeroAddress);
   });
 
   it('check vesting contract', async function () {
@@ -40,19 +38,18 @@ describe('VestingWallet', function () {
     beforeEach(async function () {
       this.schedule = Array(64)
         .fill()
-        .map((_, i) => BigInt(i) * this.duration / 60n + this.start);
-      this.vestingFn = timestamp => min(this.amount, this.amount * (timestamp - this.start) / this.duration);
+        .map((_, i) => (BigInt(i) * this.duration) / 60n + this.start);
+      this.vestingFn = timestamp => min(this.amount, (this.amount * (timestamp - this.start)) / this.duration);
     });
 
     describe('Eth vesting', function () {
       beforeEach(async function () {
-        await this.sender.sendTransaction({to: this.mock, value: this.amount});
+        await this.sender.sendTransaction({ to: this.mock, value: this.amount });
 
         this.getBalance = signer => ethers.provider.getBalance(signer);
-        this.checkRelease = async (tx, amount) => expect(tx)
-          .to.changeEtherBalances([this.beneficiary], [amount]);
-        
-        this.releasedEvent = 'EtherReleased'
+        this.checkRelease = async (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
+
+        this.releasedEvent = 'EtherReleased';
         this.args = [];
         this.argsVerify = [];
       });
@@ -65,16 +62,13 @@ describe('VestingWallet', function () {
         this.token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
         this.getBalance = account => this.token.balanceOf(account);
         this.checkRelease = async (tx, amount) => {
-          await expect(tx)
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.mock.target, this.beneficiary.address, amount);
-          await expect(tx)
-            .to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
-        }
-        
+          await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.beneficiary.address, amount);
+          await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
+        };
+
         await this.token.$_mint(this.mock, this.amount);
 
-        this.releasedEvent = 'ERC20Released'
+        this.releasedEvent = 'ERC20Released';
         this.args = [Typed.address(this.token.target)];
         this.argsVerify = [this.token.target];
       });
