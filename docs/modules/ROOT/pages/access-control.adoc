@@ -173,15 +173,16 @@ include::api:example$access-control/AccessManagedERC20MintBase.sol[]
 
 NOTE: Make sure you fully understand how xref:api:access.adoc#AccessManager[`AccessManager`] works before using it or copy-pasting the examples from this guide.
 
-Once the managed contract has been deployed, it is now under the manager's control. The initial admin can then assign the minter role to an address and also allow the role to call the `mint` function. 
+Once the managed contract has been deployed, it is now under the manager's control. The initial admin can then assign the minter role to an address and also allow the role to call the `mint` function. For example, this is demonstrated in the following Javascript code using Ethers.js:
 
 ```javascript
 const MINTER = 42n; // Roles are uint64 (0 is reserved for the ADMIN_ROLE)
+const target = await myToken.getAddress();
 
 // Allow the minter role to call the function selector
 // corresponding to the mint function
 await manager.setTargetFunctionRole(
-    myToken.address,
+    target,
     ['0x40c10f19'], // bytes4(keccak256('mint(address,uint256)'))
     MINTER,
     { from: initialAdmin }
@@ -220,11 +221,13 @@ Closing and opening contracts don't alter any of their settings, neither permiss
 This mode is useful for incident response operations that require temporarily shutting down a contract in order to evaluate emergencies and reconfigure permissions.
 
 ```javascript
+const target = await myToken.getAddress();
+
 // Token's `restricted` functions closed
-await manager.setTargetClosed(myToken.address, true);
+await manager.setTargetClosed(target, true);
 
 // Token's `restricted` functions open
-await manager.setTargetClosed(myToken.address, false);
+await manager.setTargetClosed(target, false);
 ```
 
 WARNING: Even if an `AccessManager` defines permissions for a target function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManaged-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
@@ -264,7 +267,9 @@ The delayed admin actions are:
 Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the `onlyOwner` modifier should be called through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, even if the caller doesn't require a delay.
 
 ```javascript
-ownable.transferOwnership(accessManager.address, { from: owner });
+const manager = await accessManager.getAddress();
+
+await ownable.transferOwnership(manager, { from: owner });
 ```
 
 === Using with AccessControl
@@ -273,9 +278,11 @@ For systems already using xref:api:access.adoc#AccessControl[`AccessControl`], t
 
 ```javascript
 // Revoke old roles
-accessControl.revokeRoke(MINTER_ROLE, account, { from: admin });
+await accessControl.revokeRoke(MINTER_ROLE, account, { from: admin });
 
 // Grant the admin role to the access manager
-accessControl.grantRole(DEFAULT_ADMIN_ROLE, accessManager.address, { from: admin });
-accessControl.renounceRole(DEFAULT_ADMIN_ROLE, admin, { from: admin });
+const manager = await accessManager.getAddress();
+await accessControl.grantRole(DEFAULT_ADMIN_ROLE, manager, { from: admin });
+
+await accessControl.renounceRole(DEFAULT_ADMIN_ROLE, admin, { from: admin });
 ```
