@@ -21,13 +21,14 @@ const timelockSalt = (address, descriptionHash) =>
   '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
 class GovernorHelper {
-  constructor(governor, mode = 'blocknumber') {
+  constructor(governor, mode = 'blocknumber', proposal = undefined) {
     this.governor = governor;
     this.mode = mode;
+    this.currentProposal = proposal;
   }
 
   connect(account) {
-    return new GovernorHelper(this.governor.connect(account), this.mode);
+    return new GovernorHelper(this.governor.connect(account), this.mode, this.currentProposal);
   }
 
   delegate(delegation) {
@@ -43,14 +44,10 @@ class GovernorHelper {
     ]);
   }
 
-  propose(opts = null) {
+  propose() {
     const proposal = this.currentProposal;
 
-    return this.governor.methods[
-      proposal.useCompatibilityInterface
-        ? 'propose(address[],uint256[],string[],bytes[],string)'
-        : 'propose(address[],uint256[],bytes[],string)'
-    ](...concatOpts(proposal.fullProposal, opts));
+    return this.governor.propose(...proposal.fullProposal);
   }
 
   queue(opts = null) {
@@ -139,10 +136,10 @@ class GovernorHelper {
     return message;
   }
 
-  async waitForSnapshot(offset = 0) {
+  async waitForSnapshot(offset = 0n) {
     const proposal = this.currentProposal;
     const timepoint = await this.governor.proposalSnapshot(proposal.id);
-    return forward[this.mode](timepoint.addn(offset));
+    return forward[this.mode](timepoint + offset);
   }
 
   async waitForDeadline(offset = 0) {

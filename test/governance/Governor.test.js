@@ -7,7 +7,9 @@ const Wallet = require('ethereumjs-wallet').default;
 const { bigint: Enums } = require('../helpers/enums');
 const { getDomain, domainType } = require('../helpers/eip712');
 const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
-const { bigint: {clockFromReceipt} } = require('../helpers/time');
+const {
+  bigint: { clockFromReceipt },
+} = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
@@ -26,7 +28,7 @@ const TOKENS = [
 ];
 
 async function fixture() {
-  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = await ethers.getSigners();
+  const [owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
   return { owner, proposer, voter1, voter2, voter3, voter4 };
 }
 
@@ -39,7 +41,7 @@ describe.only('Governor', function () {
   const votingDelay = 4n;
   const votingPeriod = 16n;
   const value = ethers.parseEther('1');
-  
+
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -69,10 +71,18 @@ describe.only('Governor', function () {
         await this.owner.sendTransaction({ to: this.mock, value });
 
         await this.token.$_mint(this.owner, tokenSupply);
-        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter1, value: ethers.parseEther('10') });
-        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter2, value: ethers.parseEther('7') });
-        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter3, value: ethers.parseEther('5') });
-        await this.helper.connect(this.owner).delegate({ token: this.token, to: this.voter4, value: ethers.parseEther('2') });
+        await this.helper
+          .connect(this.owner)
+          .delegate({ token: this.token, to: this.voter1, value: ethers.parseEther('10') });
+        await this.helper
+          .connect(this.owner)
+          .delegate({ token: this.token, to: this.voter2, value: ethers.parseEther('7') });
+        await this.helper
+          .connect(this.owner)
+          .delegate({ token: this.token, to: this.voter3, value: ethers.parseEther('5') });
+        await this.helper
+          .connect(this.owner)
+          .delegate({ token: this.token, to: this.voter4, value: ethers.parseEther('2') });
 
         this.proposal = this.helper.setProposal(
           [
@@ -91,42 +101,41 @@ describe.only('Governor', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.be.equal(name);
-        expect(await this.mock.token()).to.be.equal(this.token.address);
-        expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
-        expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
-        expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
+        expect(await this.mock.token()).to.be.equal(this.token.target);
+        expect(await this.mock.votingDelay()).to.be.equal(votingDelay);
+        expect(await this.mock.votingPeriod()).to.be.equal(votingPeriod);
+        expect(await this.mock.quorum(0)).to.be.equal('0');
         expect(await this.mock.COUNTING_MODE()).to.be.equal('support=bravo&quorum=for,abstain');
       });
 
-      it('nominal workflow', async function () {
+      it.only('nominal workflow', async function () {
         // Before
-        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(constants.ZERO_ADDRESS);
-        expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
-        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(ethers.ZeroAddress);
+        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.equal(false);
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.equal(false);
+        expect(await ethers.provider.getBalance(this.mock)).to.be.equal(value);
+        expect(await ethers.provider.getBalance(this.receiver)).to.be.equal('0');
 
-        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.equal('0');
         expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
 
         // Run proposal
-        const txPropose = await this.helper.propose({ from: proposer });
+        const txPropose = await this.helper.connect(this.proposer).propose();
 
-        expectEvent(txPropose, 'ProposalCreated', {
-          proposalId: this.proposal.id,
-          proposer,
-          targets: this.proposal.targets,
-          // values: this.proposal.values,
-          signatures: this.proposal.signatures,
-          calldatas: this.proposal.data,
-          voteStart: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
-          voteEnd: web3.utils
-            .toBN(await clockFromReceipt[mode](txPropose.receipt))
-            .add(votingDelay)
-            .add(votingPeriod),
-          description: this.proposal.description,
-        });
+        await expect(txPropose)
+          .to.emit(this.mock, 'ProposalCreated')
+          .withArgs(
+            this.proposal.id,
+            this.proposer.address,
+            this.proposal.targets,
+            this.proposal.values,
+            this.proposal.signatures,
+            this.proposal.data,
+            (await clockFromReceipt[mode](txPropose)) + votingDelay,
+            (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+            this.proposal.description,
+          );
 
         await this.helper.waitForSnapshot();
 
