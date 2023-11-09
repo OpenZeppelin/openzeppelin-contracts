@@ -190,6 +190,7 @@ await manager.setTargetFunctionRole(
     ['0x40c10f19'], // bytes4(keccak256('mint(address,uint256)'))
     MINTER
 );
+```
 
 Even though each role has its own list of function permissions, each role member (`address`) has an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the AccessManager before they can be executed, either by calling to the target function or using the AccessManager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
 
