@@ -205,13 +205,13 @@ describe.only('Governor', function () {
               { name: 'support', type: 'uint8' },
               { name: 'voter', type: 'address' },
               { name: 'nonce', type: 'uint256' },
-            ]
-          }
+            ],
+          };
 
           return account.signTypedData(domain, types, message);
         };
 
-        it.only('votes with an EOA signature', async function () {
+        it('votes with an EOA signature', async function () {
           await this.token.connect(this.voter1).delegate(this.userEOA);
 
           const nonce = await this.mock.nonces(this.userEOA);
@@ -228,11 +228,7 @@ describe.only('Governor', function () {
             }),
           )
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(
-              this.userEOA.address, 
-              this.proposal.id, 
-              Enums.VoteType.For, 
-              ethers.parseEther('10'), '');
+            .withArgs(this.userEOA.address, this.proposal.id, Enums.VoteType.For, ethers.parseEther('10'), '');
 
           await this.helper.waitForDeadline();
           await this.helper.execute();
@@ -242,38 +238,32 @@ describe.only('Governor', function () {
           expect(await this.mock.nonces(this.userEOA)).to.be.equal(nonce + 1n);
         });
 
-        it('votes with a valid EIP-1271 signature', async function () {
-          const ERC1271WalletOwner = Wallet.generate();
-          ERC1271WalletOwner.address = web3.utils.toChecksumAddress(ERC1271WalletOwner.getAddressString());
+        it.only('votes with a valid EIP-1271 signature', async function () {
+          const wallet = await ethers.deployContract(ERC1271WalletMock, [this.userEOA]);
 
-          const wallet = await ERC1271WalletMock.new(ERC1271WalletOwner.address);
+          await this.token.connect(this.voter1).delegate(wallet);
 
-          await this.token.delegate(wallet.address, { from: voter1 });
-
-          const nonce = await this.mock.nonces(wallet.address);
+          const nonce = await this.mock.nonces(this.userEOA);
 
           // Run proposal
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          expectEvent(
+          await expect(
             await this.helper.vote({
               support: Enums.VoteType.For,
-              voter: wallet.address,
+              voter: wallet.target,
               nonce,
-              signature: sign(ERC1271WalletOwner.getPrivateKey()),
+              signature: sign(this.userEOA),
             }),
-            'VoteCast',
-            {
-              voter: wallet.address,
-              support: Enums.VoteType.For,
-            },
-          );
+          )
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(wallet.target, this.proposal.id, Enums.VoteType.For, ethers.parseEther('10'), '');
           await this.helper.waitForDeadline();
           await this.helper.execute();
 
           // After
-          expect(await this.mock.hasVoted(this.proposal.id, wallet.address)).to.be.equal(true);
-          expect(await this.mock.nonces(wallet.address)).to.be.bignumber.equal(nonce.addn(1));
+          expect(await this.mock.hasVoted(this.proposal.id, wallet)).to.be.equal(true);
+          expect(await this.mock.nonces(wallet)).to.be.equal(nonce + 1n);
         });
 
         afterEach('no other votes are cast', async function () {
