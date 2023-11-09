@@ -12,7 +12,7 @@ const {
 } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
+const { bigint: shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
 const { ZERO_BYTES32 } = require('@openzeppelin/test-helpers/src/constants');
 
 const Governor = '$GovernorMock';
@@ -238,7 +238,7 @@ describe.only('Governor', function () {
           expect(await this.mock.nonces(this.userEOA)).to.be.equal(nonce + 1n);
         });
 
-        it.only('votes with a valid EIP-1271 signature', async function () {
+        it('votes with a valid EIP-1271 signature', async function () {
           const wallet = await ethers.deployContract(ERC1271WalletMock, [this.userEOA]);
 
           await this.token.connect(this.voter1).delegate(wallet);
@@ -277,72 +277,67 @@ describe.only('Governor', function () {
         describe('on propose', function () {
           it('if proposal already exists', async function () {
             await this.helper.propose();
-            await expectRevertCustomError(this.helper.propose(), 'GovernorUnexpectedProposalState', [
-              this.proposal.id,
-              Enums.ProposalState.Pending,
-              ZERO_BYTES32,
-            ]);
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(this.proposal.id, Enums.ProposalState.Pending, ZERO_BYTES32);
           });
 
           it('if proposer has below threshold votes', async function () {
-            const votes = web3.utils.toWei('10');
-            const threshold = web3.utils.toWei('1000');
+            const votes = ethers.parseEther('10');
+            const threshold = ethers.parseEther('1000');
             await this.mock.$_setProposalThreshold(threshold);
-            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorInsufficientProposerVotes', [
-              voter1,
-              votes,
-              threshold,
-            ]);
+            await expect(this.helper.connect(this.voter1).propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInsufficientProposerVotes')
+              .withArgs(this.voter1.address, votes, threshold);
           });
         });
 
         describe('on vote', function () {
           it('if proposal does not exist', async function () {
-            await expectRevertCustomError(
-              this.helper.connect.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorNonexistentProposal',
-              [this.proposal.id],
-            );
+            await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorNonexistentProposal')
+              .withArgs(this.proposal.id);
           });
 
           it('if voting has not started', async function () {
             await this.helper.propose();
-            await expectRevertCustomError(
-              this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorUnexpectedProposalState',
-              [this.proposal.id, Enums.ProposalState.Pending, proposalStatesToBitMap([Enums.ProposalState.Active])],
-            );
+            await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                Enums.ProposalState.Pending,
+                proposalStatesToBitMap([Enums.ProposalState.Active]),
+              );
           });
 
           it('if support value is invalid', async function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
-            await expectRevertCustomError(
-              this.helper.vote({ support: web3.utils.toBN('255') }),
+            await expect(this.helper.vote({ support: 255 })).to.be.revertedWithCustomError(
+              this.mock,
               'GovernorInvalidVoteType',
-              [],
             );
           });
 
           it('if vote was already casted', async function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await expectRevertCustomError(
-              this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorAlreadyCastVote',
-              [voter1],
-            );
+            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVote')
+              .withArgs(this.voter1.address);
           });
 
           it('if voting is over', async function () {
             await this.helper.propose();
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(
-              this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorUnexpectedProposalState',
-              [this.proposal.id, Enums.ProposalState.Defeated, proposalStatesToBitMap([Enums.ProposalState.Active])],
-            );
+            await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                Enums.ProposalState.Defeated,
+                proposalStatesToBitMap([Enums.ProposalState.Active]),
+              );
           });
         });
 

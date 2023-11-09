@@ -226,7 +226,7 @@ function proposalStatesToBitMap(proposalStates, options = {}) {
   const statesCount = Object.keys(ProposalState).length;
   let result = 0;
 
-  const uniqueProposalStates = new Set(proposalStates.map(bn => bn.toNumber())); // Remove duplicates
+  const uniqueProposalStates = new Set(proposalStates); // Remove duplicates
   for (const state of uniqueProposalStates) {
     if (state < 0 || state >= statesCount) {
       expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
