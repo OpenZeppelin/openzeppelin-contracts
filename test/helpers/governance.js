@@ -60,14 +60,12 @@ class GovernorHelper {
         );
   }
 
-  execute(opts = null) {
+  execute() {
     const proposal = this.currentProposal;
 
     return proposal.useCompatibilityInterface
-      ? this.governor.methods['execute(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+      ? this.governor.execute(proposal.id)
+      : this.governor.execute(...proposal.shortProposal);
   }
 
   cancel(visibility = 'external', opts = null) {
@@ -91,7 +89,7 @@ class GovernorHelper {
     }
   }
 
-  vote(vote = {}, opts = null) {
+  vote(vote = {}) {
     const proposal = this.currentProposal;
 
     return vote.signature
@@ -99,24 +97,24 @@ class GovernorHelper {
         vote.params || vote.reason
         ? this.sign(vote).then(signature =>
             this.governor.castVoteWithReasonAndParamsBySig(
-              ...concatOpts(
-                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', signature],
-                opts,
-              ),
+              proposal.id,
+              vote.support,
+              vote.voter,
+              vote.reason || '',
+              vote.params || '',
+              signature,
             ),
           )
         : this.sign(vote).then(signature =>
-            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
+            this.governor.castVoteBySig(proposal.id, vote.support, vote.voter, signature),
           )
       : vote.params
       ? // otherwise if params
-        this.governor.castVoteWithReasonAndParams(
-          ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params], opts),
-        )
+        this.governor.castVoteWithReasonAndParams(proposal.id, vote.support, vote.reason || '', vote.params)
       : vote.reason
       ? // otherwise if reason
-        this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
-      : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
+        this.governor.castVoteWithReason(proposal.id, vote.support, vote.reason)
+      : this.governor.castVote(proposal.id, vote.support);
   }
 
   sign(vote = {}) {
@@ -142,10 +140,10 @@ class GovernorHelper {
     return forward[this.mode](timepoint + offset);
   }
 
-  async waitForDeadline(offset = 0) {
+  async waitForDeadline(offset = 0n) {
     const proposal = this.currentProposal;
     const timepoint = await this.governor.proposalDeadline(proposal.id);
-    return forward[this.mode](timepoint.addn(offset));
+    return forward[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0) {

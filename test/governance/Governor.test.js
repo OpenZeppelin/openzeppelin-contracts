@@ -139,52 +139,39 @@ describe.only('Governor', function () {
 
         await this.helper.waitForSnapshot();
 
-        expectEvent(
-          await this.helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 }),
-          'VoteCast',
-          {
-            voter: voter1,
-            support: Enums.VoteType.For,
-            reason: 'This is nice',
-            weight: web3.utils.toWei('10'),
-          },
-        );
+        await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For, reason: 'This is nice' }))
+          .to.emit(this.mock, 'VoteCast')
+          .withArgs(this.voter1.address, this.proposal.id, Enums.VoteType.For, ethers.parseEther('10'), 'This is nice');
 
-        expectEvent(await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }), 'VoteCast', {
-          voter: voter2,
-          support: Enums.VoteType.For,
-          weight: web3.utils.toWei('7'),
-        });
+        await expect(this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For }))
+          .to.emit(this.mock, 'VoteCast')
+          .withArgs(this.voter2.address, this.proposal.id, Enums.VoteType.For, web3.utils.toWei('7'), '');
 
-        expectEvent(await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }), 'VoteCast', {
-          voter: voter3,
-          support: Enums.VoteType.Against,
-          weight: web3.utils.toWei('5'),
-        });
+        await expect(this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against }))
+          .to.emit(this.mock, 'VoteCast')
+          .withArgs(this.voter3.address, this.proposal.id, Enums.VoteType.Against, web3.utils.toWei('5'), '');
 
-        expectEvent(await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }), 'VoteCast', {
-          voter: voter4,
-          support: Enums.VoteType.Abstain,
-          weight: web3.utils.toWei('2'),
-        });
+        await expect(this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain }))
+          .to.emit(this.mock, 'VoteCast')
+          .withArgs(this.voter4.address, this.proposal.id, Enums.VoteType.Abstain, web3.utils.toWei('2'), '');
 
         await this.helper.waitForDeadline();
 
         const txExecute = await this.helper.execute();
 
-        expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
+        await expect(txExecute).to.emit(this.mock, 'ProposalExecuted').withArgs(this.proposal.id);
 
-        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
+        await expect(txExecute).to.emit(this.receiver, 'MockFunctionCalled');
 
         // After
-        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(proposer);
-        expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
-        expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
-        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(this.proposer.address);
+        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.equal(true);
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.equal(true);
+        expect(await ethers.provider.getBalance(this.mock)).to.be.equal(0);
+        expect(await ethers.provider.getBalance(this.receiver)).to.be.equal(value);
 
-        expect(await this.mock.proposalEta(this.proposal.id)).to.be.bignumber.equal('0');
+        expect(await this.mock.proposalEta(this.proposal.id)).to.be.equal(0);
         expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
       });
 
@@ -343,7 +330,7 @@ describe.only('Governor', function () {
         describe('on vote', function () {
           it('if proposal does not exist', async function () {
             await expectRevertCustomError(
-              this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+              this.helper.connect.vote({ support: Enums.VoteType.For }, { from: voter1 }),
               'GovernorNonexistentProposal',
               [this.proposal.id],
             );
