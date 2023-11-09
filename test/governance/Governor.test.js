@@ -28,8 +28,8 @@ const TOKENS = [
 ];
 
 async function fixture() {
-  const [owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
-  return { owner, proposer, voter1, voter2, voter3, voter4 };
+  const [owner, proposer, voter1, voter2, voter3, voter4, receiverEOA] = await ethers.getSigners();
+  return { owner, proposer, voter1, voter2, voter3, voter4, receiverEOA };
 }
 
 describe.only('Governor', function () {
@@ -108,7 +108,7 @@ describe.only('Governor', function () {
         expect(await this.mock.COUNTING_MODE()).to.be.equal('support=bravo&quorum=for,abstain');
       });
 
-      it.only('nominal workflow', async function () {
+      it('nominal workflow', async function () {
         // Before
         expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(ethers.ZeroAddress);
         expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
@@ -175,33 +175,28 @@ describe.only('Governor', function () {
         expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
       });
 
-      it('send ethers', async function () {
-        const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
-
+      it.only('send ethers', async function () {
         this.proposal = this.helper.setProposal(
           [
             {
-              target: empty,
+              target: this.receiverEOA.address,
               value,
             },
           ],
           '<proposal description>',
         );
 
-        // Before
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
-        expect(await web3.eth.getBalance(empty)).to.be.bignumber.equal('0');
+        const ctt = await ethers.deployContract(CallReceiver);
+        await ctt.deploymentTransaction().wa
 
         // Run proposal
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.execute();
-
-        // After
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
-        expect(await web3.eth.getBalance(empty)).to.be.bignumber.equal(value);
+        await expect(async () => {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
+          return this.helper.execute();
+        }).to.changeEtherBalances([this.mock, this.receiverEOA], [-value, value]);
       });
 
       describe('vote with signature', function () {
