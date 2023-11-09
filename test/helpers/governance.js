@@ -50,14 +50,12 @@ class GovernorHelper {
     return this.governor.propose(...proposal.fullProposal);
   }
 
-  queue(opts = null) {
+  queue() {
     const proposal = this.currentProposal;
 
     return proposal.useCompatibilityInterface
-      ? this.governor.methods['queue(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+      ? this.governor.queue(proposal.id)
+      : this.governor.queue(...proposal.shortProposal);
   }
 
   execute() {
