@@ -1,27 +1,27 @@
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
-const { getDomain, domainType } = require('../helpers/eip712');
-const { MAX_UINT48 } = require('../helpers/constants');
-
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-
-const ERC2771ContextMock = artifacts.require('ERC2771ContextMock');
-const ERC2771Forwarder = artifacts.require('ERC2771Forwarder');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { getDomain } = require('../helpers/eip712');
+const { MAX_UINT48 } = require('../helpers/constants');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
-contract('ERC2771Context', function (accounts) {
-  const [, trustedForwarder] = accounts;
+async function fixture() {
+  const [trustedForwarderEOA, sender] = await ethers.getSigners();
 
+  const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
+  const recipient = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
+  const caller = await ethers.deployContract('ContextMockCaller', []);
+  const recipientFromEOA = await ethers.deployContract('ERC2771ContextMock', [trustedForwarderEOA]);
+  const domain = await getDomain(forwarder);
+
+  return { trustedForwarderEOA, sender, forwarder, recipient, caller, recipientFromEOA, domain };
+}
+
+describe('ERC2771Context', function () {
   beforeEach(async function () {
-    this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
-    this.recipient = await ERC2771ContextMock.new(this.forwarder.address);
-
-    this.domain = await getDomain(this.forwarder);
+    Object.assign(this, await loadFixture(fixture));
     this.types = {
-      EIP712Domain: domainType(this.domain),
       ForwardRequest: [
         { name: 'from', type: 'address' },
         { name: 'to', type: 'address' },
@@ -35,63 +35,48 @@ contract('ERC2771Context', function (accounts) {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.recipient.isTrustedForwarder(this.forwarder.address)).to.equal(true);
+    expect(await this.recipient.isTrustedForwarder(this.forwarder)).to.equal(true);
   });
 
   it('returns the trusted forwarder', async function () {
-    expect(await this.recipient.trustedForwarder()).to.equal(this.forwarder.address);
+    expect(await this.recipient.trustedForwarder()).to.equal(this.forwarder.target);
   });
 
   context('when called directly', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.context = this.recipient; // The Context behavior expects the contract in this.context
-      this.caller = await ContextMockCaller.new();
     });
 
-    shouldBehaveLikeRegularContext(...accounts);
+    shouldBehaveLikeRegularContext();
   });
 
   context('when receiving a relayed call', function () {
-    beforeEach(async function () {
-      this.wallet = Wallet.generate();
-      this.sender = web3.utils.toChecksumAddress(this.wallet.getAddressString());
-      this.data = {
-        types: this.types,
-        domain: this.domain,
-        primaryType: 'ForwardRequest',
-      };
-    });
-
     describe('msgSender', function () {
       it('returns the relayed transaction original sender', async function () {
-        const data = this.recipient.contract.methods.msgSender().encodeABI();
+        const data = this.recipient.interface.encodeFunctionData(this.recipient.msgSender.fragment, []);
 
         const req = {
-          from: this.sender,
-          to: this.recipient.address,
+          from: this.sender.address,
+          to: this.recipient.target,
           value: '0',
           gas: '100000',
-          nonce: (await this.forwarder.nonces(this.sender)).toString(),
+          nonce: await this.forwarder.nonces(this.sender),
           deadline: MAX_UINT48,
           data,
         };
 
-        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
-          data: { ...this.data, message: req },
-        });
+        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
+
         expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req);
-        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: this.sender });
+        await expect(this.forwarder.execute(req)).to.emit(this.recipient, 'Sender').withArgs(this.sender.address);
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
-        // The forwarder doesn't produce calls with calldata length less than 20 bytes
-        const recipient = await ERC2771ContextMock.new(trustedForwarder);
-
-        const { receipt } = await recipient.msgSender({ from: trustedForwarder });
-
-        await expectEvent(receipt, 'Sender', { sender: trustedForwarder });
+        // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.trustedForwarderEOA` is used instead.
+        await expect(this.recipientFromEOA.connect(this.trustedForwarderEOA).msgSender())
+          .to.emit(this.recipientFromEOA, 'Sender')
+          .withArgs(this.trustedForwarderEOA.address);
       });
     });
 
@@ -99,36 +84,36 @@ contract('ERC2771Context', function (accounts) {
       it('returns the relayed transaction original data', async function () {
         const integerValue = '42';
         const stringValue = 'OpenZeppelin';
-        const data = this.recipient.contract.methods.msgData(integerValue, stringValue).encodeABI();
+        const data = this.recipient.interface.encodeFunctionData(this.recipient.msgData.fragment, [
+          integerValue,
+          stringValue,
+        ]);
 
         const req = {
-          from: this.sender,
-          to: this.recipient.address,
+          from: this.sender.address,
+          to: this.recipient.target,
           value: '0',
           gas: '100000',
-          nonce: (await this.forwarder.nonces(this.sender)).toString(),
+          nonce: await this.forwarder.nonces(this.sender),
           deadline: MAX_UINT48,
           data,
         };
 
-        req.signature = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
-          data: { ...this.data, message: req },
-        });
+        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
         expect(await this.forwarder.verify(req)).to.equal(true);
 
-        const { tx } = await this.forwarder.execute(req);
-        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', { data, integerValue, stringValue });
+        await expect(this.forwarder.execute(req))
+          .to.emit(this.recipient, 'Data')
+          .withArgs(data, integerValue, stringValue);
       });
     });
 
     it('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
-      // The forwarder doesn't produce calls with calldata length less than 20 bytes
-      const recipient = await ERC2771ContextMock.new(trustedForwarder);
-
-      const { receipt } = await recipient.msgDataShort({ from: trustedForwarder });
-
-      const data = recipient.contract.methods.msgDataShort().encodeABI();
-      await expectEvent(receipt, 'DataShort', { data });
+      // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.trustedForwarderEOA` is used instead.
+      const data = this.recipient.interface.encodeFunctionData(this.recipient.msgDataShort.fragment, []);
+      await expect(this.recipientFromEOA.connect(this.trustedForwarderEOA).msgDataShort())
+        .to.emit(this.recipientFromEOA, 'DataShort')
+        .withArgs(data);
     });
   });
 });
