@@ -20,8 +20,8 @@ const ERC1271WalletMock = 'ERC1271WalletMock';
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
-  // { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  // { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
 
 describe.only('Governor', function () {
@@ -973,49 +973,47 @@ describe.only('Governor', function () {
         describe('ERC721', function () {
           const name = 'Non Fungible Token';
           const symbol = 'NFT';
-          const tokenId = web3.utils.toBN(1);
+          const tokenId = 1;
 
           beforeEach(async function () {
-            this.token = await ERC721.new(name, symbol);
-            await this.token.$_mint(owner, tokenId);
+            this.token = await ethers.deployContract(ERC721, [name, symbol]);
+            await this.token.$_mint(this.owner, tokenId);
           });
 
           it('can receive an ERC721 safeTransfer', async function () {
-            await this.token.safeTransferFrom(owner, this.mock.address, tokenId, { from: owner });
+            await this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock.target, tokenId);
           });
         });
 
         describe('ERC1155', function () {
           const uri = 'https://token-cdn-domain/{id}.json';
           const tokenIds = {
-            1: web3.utils.toBN(1000),
-            2: web3.utils.toBN(2000),
-            3: web3.utils.toBN(3000),
+            1: 1000,
+            2: 2000,
+            3: 3000,
           };
 
           beforeEach(async function () {
-            this.token = await ERC1155.new(uri);
-            await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+            this.token = await ethers.deployContract(ERC1155, [uri]);
+            await this.token.$_mintBatch(this.owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
           });
 
           it('can receive ERC1155 safeTransfer', async function () {
-            await this.token.safeTransferFrom(
-              owner,
-              this.mock.address,
+            await this.token.connect(this.owner).safeTransferFrom(
+              this.owner,
+              this.mock.target,
               ...Object.entries(tokenIds)[0], // id + amount
               '0x',
-              { from: owner },
             );
           });
 
           it('can receive ERC1155 safeBatchTransfer', async function () {
-            await this.token.safeBatchTransferFrom(
-              owner,
-              this.mock.address,
+            await this.token.connect(this.owner).safeBatchTransferFrom(
+              this.owner,
+              this.mock.target,
               Object.keys(tokenIds),
               Object.values(tokenIds),
               '0x',
-              { from: owner },
             );
           });
         });
