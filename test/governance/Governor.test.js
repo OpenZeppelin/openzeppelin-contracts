@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { bigint: Enums } = require('../helpers/enums');
 const { getDomain } = require('../helpers/eip712');
-const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
+const { bigint: GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
 const {
   bigint: { clockFromReceipt },
 } = require('../helpers/time');
@@ -24,7 +24,7 @@ const TOKENS = [
   { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
 
-describe.only('Governor', function () {
+describe('Governor', function () {
   const name = 'OZ-Governor';
   const version = '1';
   const tokenName = 'MockToken';
