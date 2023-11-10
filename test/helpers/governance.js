@@ -432,5 +432,5 @@ module.exports = {
   GovernorHelper,
   proposalStatesToBitMap,
   timelockSalt,
-  bigint: GovernorHelperBigInt
+  bigint: GovernorHelperBigInt,
 };

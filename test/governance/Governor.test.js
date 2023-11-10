@@ -1,4 +1,4 @@
-const { ethers, web3 } = require('hardhat');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -761,7 +761,7 @@ describe('Governor', function () {
       });
 
       describe('frontrun protection using description suffix', function () {
-        shouldPropose = () => {
+        const shouldPropose = () => {
           it('proposer can propose', async function () {
             const txPropose = await this.helper.connect(this.proposer).propose();
             await expect(txPropose)
@@ -882,7 +882,7 @@ describe('Governor', function () {
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setVotingDelay', [0])
+                data: this.mock.interface.encodeFunctionData('setVotingDelay', [0]),
               },
             ],
             '<proposal description>',
@@ -893,9 +893,7 @@ describe('Governor', function () {
           await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await helper.waitForDeadline();
 
-          await expect(helper.execute())
-            .to.emit(this.mock, 'VotingDelaySet')
-            .withArgs('4', '0');
+          await expect(helper.execute()).to.emit(this.mock, 'VotingDelaySet').withArgs('4', '0');
 
           expect(await this.mock.votingDelay()).to.be.equal('0');
         });
@@ -905,7 +903,7 @@ describe('Governor', function () {
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [32])
+                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [32]),
               },
             ],
             '<proposal description>',
@@ -916,9 +914,7 @@ describe('Governor', function () {
           await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await helper.waitForDeadline();
 
-          await expect(helper.execute())
-            .to.emit(this.mock, 'VotingPeriodSet')
-            .withArgs('16', '32');
+          await expect(helper.execute()).to.emit(this.mock, 'VotingPeriodSet').withArgs('16', '32');
 
           expect(await this.mock.votingPeriod()).to.be.equal('32');
         });
@@ -963,7 +959,7 @@ describe('Governor', function () {
 
           await expect(helper.execute())
             .to.emit(this.mock, 'ProposalThresholdSet')
-            .withArgs('0', '1000000000000000000')
+            .withArgs('0', '1000000000000000000');
 
           expect(await this.mock.proposalThreshold()).to.be.equal('1000000000000000000');
         });
@@ -1008,13 +1004,15 @@ describe('Governor', function () {
           });
 
           it('can receive ERC1155 safeBatchTransfer', async function () {
-            await this.token.connect(this.owner).safeBatchTransferFrom(
-              this.owner,
-              this.mock.target,
-              Object.keys(tokenIds),
-              Object.values(tokenIds),
-              '0x',
-            );
+            await this.token
+              .connect(this.owner)
+              .safeBatchTransferFrom(
+                this.owner,
+                this.mock.target,
+                Object.keys(tokenIds),
+                Object.values(tokenIds),
+                '0x',
+              );
           });
         });
       });
