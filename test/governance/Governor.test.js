@@ -763,7 +763,7 @@ describe.only('Governor', function () {
       describe('frontrun protection using description suffix', function () {
         describe('without protection', function () {
           describe('without suffix', function () {
-            it.only('proposer can propose', async function () {
+            it('proposer can propose', async function () {
               const txPropose = await this.helper.connect(this.proposer).propose();
               await expect(txPropose)
                 .to.emit(this.mock, 'ProposalCreated')
@@ -780,8 +780,21 @@ describe.only('Governor', function () {
                 )
             });
 
-            it('someone else can propose', async function () {
-              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
+            it.only('someone else can propose', async function () {
+              const txPropose = this.helper.connect(this.voter1).propose();
+              await expect(txPropose)
+                .to.emit(this.mock, 'ProposalCreated')
+                .withArgs(
+                  this.proposal.id,
+                  this.voter1.address,
+                  this.proposal.targets,
+                  this.proposal.values,
+                  this.proposal.signatures,
+                  this.proposal.data,
+                  (await clockFromReceipt[mode](txPropose)) + votingDelay,
+                  (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                  this.proposal.description,
+                )
             });
           });
 

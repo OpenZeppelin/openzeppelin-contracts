@@ -1,4 +1,5 @@
 const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
+const { ethers } = require('hardhat');
 
 const mapObject = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]));
 
@@ -23,7 +24,10 @@ module.exports = {
 // TODO: deprecate the old version in favor of this one
 module.exports.bigint = {
   clock: mapObject(module.exports.clock, fn => () => fn().then(BigInt)),
-  clockFromReceipt: mapObject(module.exports.clockFromReceipt, fn => receipt => fn(receipt).then(BigInt)),
+  clockFromReceipt: {
+    blocknumber: txPromisse => Promise.resolve(txPromisse).then(tx => tx.blockNumber).then(BigInt),
+    timestamp: tx => ethers.provider.getBlock(tx.blockNumber).then(block => block.timestamp)
+  },
   forward: module.exports.forward,
   duration: mapObject(module.exports.duration, fn => n => BigInt(fn(n))),
 };
