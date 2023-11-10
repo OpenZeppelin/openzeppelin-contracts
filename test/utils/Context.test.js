@@ -12,7 +12,7 @@ async function fixture() {
   return { sender, context, caller };
 }
 
-contract('Context', function () {
+describe('Context', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

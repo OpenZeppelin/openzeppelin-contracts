@@ -15,7 +15,7 @@ async function fixture() {
   return { alice, bob, eve, refundReceiver, other, forwarder, receiver, domain, timestamp };
 }
 
-contract('ERC2771Forwarder', function () {
+describe('ERC2771Forwarder', function () {
   const tamperedValues = {
     from: ethers.Wallet.createRandom().address,
     value: ethers.parseEther('0.5'),
