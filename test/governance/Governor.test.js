@@ -20,14 +20,9 @@ const ERC1271WalletMock = 'ERC1271WalletMock';
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
-  // { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  // { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
-
-async function fixture() {
-  const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
-  return { owner, proposer, voter1, voter2, voter3, voter4, userEOA };
-}
 
 describe.only('Governor', function () {
   const name = 'OZ-Governor';
@@ -39,57 +34,66 @@ describe.only('Governor', function () {
   const votingPeriod = 16n;
   const value = ethers.parseEther('1');
 
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
   for (const { mode, Token } of TOKENS) {
+    const deployToken = async () => {
+      try {
+        return await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
+      } catch {
+        // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
+        return ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName]);
+      }
+    };
+
+    const fixture = async () => {
+      const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
+      const token = await deployToken();
+      const mock = await ethers.deployContract(Governor, [
+        name, // name
+        votingDelay, // initialVotingDelay
+        votingPeriod, // initialVotingPeriod
+        0, // initialProposalThreshold
+        token, // tokenAddress
+        10, // quorumNumeratorValue
+      ]);
+      const receiver = await ethers.deployContract(CallReceiver);
+
+      const helperTmp = new GovernorHelper(mock, mode);
+
+      await owner.sendTransaction({ to: mock, value });
+
+      await token.$_mint(owner, tokenSupply);
+      await helperTmp
+        .connect(owner)
+        .delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
+      await helperTmp
+        .connect(owner)
+        .delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
+      await helperTmp
+        .connect(owner)
+        .delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
+      await helperTmp
+        .connect(owner)
+        .delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
+
+      const helper = helperTmp.setProposal(
+        [
+          {
+            target: receiver.target,
+            data: receiver.interface.encodeFunctionData('mockFunction'),
+            value,
+          },
+        ],
+        '<proposal description>',
+      );
+
+      const proposal = helper.currentProposal;
+
+      return { owner, proposer, voter1, voter2, voter3, voter4, userEOA, token, mock, receiver, helper, proposal };
+    };
+
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        try {
-          this.token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
-        } catch {
-          // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
-          this.token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName]);
-        }
-        this.mock = await ethers.deployContract(Governor, [
-          name, // name
-          votingDelay, // initialVotingDelay
-          votingPeriod, // initialVotingPeriod
-          0, // initialProposalThreshold
-          this.token, // tokenAddress
-          10, // quorumNumeratorValue
-        ]);
-        this.receiver = await ethers.deployContract(CallReceiver);
-
-        this.helper = new GovernorHelper(this.mock, mode);
-
-        await this.owner.sendTransaction({ to: this.mock, value });
-
-        await this.token.$_mint(this.owner, tokenSupply);
-        await this.helper
-          .connect(this.owner)
-          .delegate({ token: this.token, to: this.voter1, value: ethers.parseEther('10') });
-        await this.helper
-          .connect(this.owner)
-          .delegate({ token: this.token, to: this.voter2, value: ethers.parseEther('7') });
-        await this.helper
-          .connect(this.owner)
-          .delegate({ token: this.token, to: this.voter3, value: ethers.parseEther('5') });
-        await this.helper
-          .connect(this.owner)
-          .delegate({ token: this.token, to: this.voter4, value: ethers.parseEther('2') });
-
-        this.proposal = this.helper.setProposal(
-          [
-            {
-              target: this.receiver.target,
-              data: this.receiver.interface.encodeFunctionData('mockFunction'),
-              value,
-            },
-          ],
-          '<proposal description>',
-        );
+        Object.assign(this, await loadFixture(fixture));
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
@@ -172,7 +176,7 @@ describe.only('Governor', function () {
       });
 
       it('send ethers', async function () {
-        this.proposal = this.helper.setProposal(
+        const helper = this.helper.setProposal(
           [
             {
               target: this.userEOA.address,
@@ -184,11 +188,11 @@ describe.only('Governor', function () {
 
         // Run proposal
         await expect(async () => {
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await this.helper.waitForDeadline();
-          return this.helper.execute();
+          await helper.propose();
+          await helper.waitForSnapshot();
+          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await helper.waitForDeadline();
+          return helper.execute();
         }).to.changeEtherBalances([this.mock, this.userEOA], [-value, value]);
       });
 
@@ -456,7 +460,7 @@ describe.only('Governor', function () {
           });
 
           it('if receiver revert without reason', async function () {
-            this.helper.setProposal(
+            const helper = this.helper.setProposal(
               [
                 {
                   target: this.receiver.target,
@@ -466,15 +470,15 @@ describe.only('Governor', function () {
               '<proposal description>',
             );
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+            await helper.propose();
+            await helper.waitForSnapshot();
+            await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await helper.waitForDeadline();
+            await expect(helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
           });
 
           it('if receiver revert with reason', async function () {
-            this.helper.setProposal(
+            const helper = this.helper.setProposal(
               [
                 {
                   target: this.receiver.target,
@@ -484,11 +488,11 @@ describe.only('Governor', function () {
               '<proposal description>',
             );
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.execute()).to.be.revertedWith('CallReceiverMock: reverting');
+            await helper.propose();
+            await helper.waitForSnapshot();
+            await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await helper.waitForDeadline();
+            await expect(helper.execute()).to.be.revertedWith('CallReceiverMock: reverting');
           });
 
           it('if proposal was already executed', async function () {
@@ -715,44 +719,52 @@ describe.only('Governor', function () {
 
       describe('proposal length', function () {
         it('empty', async function () {
-          this.helper.setProposal([], '<proposal description>');
-          await expectRevertCustomError(this.helper.propose(), 'GovernorInvalidProposalLength', [0, 0, 0]);
+          const helper = this.helper.setProposal([], '<proposal description>');
+          await expect(helper.propose())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+            .withArgs(0, 0, 0);
         });
 
         it('mismatch #1', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             {
               targets: [],
-              values: [web3.utils.toWei('0')],
-              data: [this.receiver.contract.methods.mockFunction().encodeABI()],
+              values: [ethers.parseEther('0')],
+              data: [this.receiver.interface.encodeFunctionData('mockFunction')],
             },
             '<proposal description>',
           );
-          await expectRevertCustomError(this.helper.propose(), 'GovernorInvalidProposalLength', [0, 1, 1]);
+          await expect(helper.propose())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+            .withArgs(0, 1, 1);
         });
 
         it('mismatch #2', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             {
-              targets: [this.receiver.address],
+              targets: [this.receiver.target],
               values: [],
-              data: [this.receiver.contract.methods.mockFunction().encodeABI()],
+              data: [this.receiver.interface.encodeFunctionData('mockFunction')],
             },
             '<proposal description>',
           );
-          await expectRevertCustomError(this.helper.propose(), 'GovernorInvalidProposalLength', [1, 1, 0]);
+          await expect(helper.propose())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+            .withArgs(1, 1, 0);
         });
 
         it('mismatch #3', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             {
-              targets: [this.receiver.address],
-              values: [web3.utils.toWei('0')],
+              targets: [this.receiver.target],
+              values: [ethers.parseEther('0')],
               data: [],
             },
             '<proposal description>',
           );
-          await expectRevertCustomError(this.helper.propose(), 'GovernorInvalidProposalLength', [1, 0, 1]);
+          await expect(helper.propose())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+            .withArgs(1, 0, 1);
         });
       });
 

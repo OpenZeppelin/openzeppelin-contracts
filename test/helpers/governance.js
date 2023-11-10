@@ -13,10 +13,6 @@ function concatHex(...args) {
   return web3.utils.bytesToHex([].concat(...args.map(h => web3.utils.hexToBytes(h || '0x'))));
 }
 
-function concatOpts(args, opts = null) {
-  return opts ? args.concat(opts) : args;
-}
-
 const timelockSalt = (address, descriptionHash) =>
   '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
@@ -183,7 +179,7 @@ class GovernorHelper {
       ethers.AbiCoder.defaultAbiCoder().encode(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
     );
 
-    this.currentProposal = {
+    const currentProposal = {
       id,
       targets,
       values,
@@ -197,7 +193,7 @@ class GovernorHelper {
       useCompatibilityInterface,
     };
 
-    return this.currentProposal;
+    return new GovernorHelper(this.governor, this.mode, currentProposal);
   }
 }
 
