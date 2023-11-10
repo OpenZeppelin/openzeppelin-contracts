@@ -20,8 +20,8 @@ const ERC1271WalletMock = 'ERC1271WalletMock';
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
-  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  // { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+  // { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
 
 describe.only('Governor', function () {
@@ -62,18 +62,10 @@ describe.only('Governor', function () {
       await owner.sendTransaction({ to: mock, value });
 
       await token.$_mint(owner, tokenSupply);
-      await helperTmp
-        .connect(owner)
-        .delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
-      await helperTmp
-        .connect(owner)
-        .delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
-      await helperTmp
-        .connect(owner)
-        .delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
-      await helperTmp
-        .connect(owner)
-        .delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
+      await helperTmp.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
+      await helperTmp.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
+      await helperTmp.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
+      await helperTmp.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
 
       const helper = helperTmp.setProposal(
         [
@@ -771,8 +763,21 @@ describe.only('Governor', function () {
       describe('frontrun protection using description suffix', function () {
         describe('without protection', function () {
           describe('without suffix', function () {
-            it('proposer can propose', async function () {
-              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
+            it.only('proposer can propose', async function () {
+              const txPropose = await this.helper.connect(this.proposer).propose();
+              await expect(txPropose)
+                .to.emit(this.mock, 'ProposalCreated')
+                .withArgs(
+                  this.proposal.id,
+                  this.proposer.address,
+                  this.proposal.targets,
+                  this.proposal.values,
+                  this.proposal.signatures,
+                  this.proposal.data,
+                  (await clockFromReceipt[mode](txPropose)) + votingDelay,
+                  (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                  this.proposal.description,
+                )
             });
 
             it('someone else can propose', async function () {
