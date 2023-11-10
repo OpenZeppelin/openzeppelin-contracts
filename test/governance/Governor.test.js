@@ -761,221 +761,211 @@ describe.only('Governor', function () {
       });
 
       describe('frontrun protection using description suffix', function () {
+        shouldPropose = () => {
+          it('proposer can propose', async function () {
+            const txPropose = await this.helper.connect(this.proposer).propose();
+            await expect(txPropose)
+              .to.emit(this.mock, 'ProposalCreated')
+              .withArgs(
+                this.proposal.id,
+                this.proposer.address,
+                this.proposal.targets,
+                this.proposal.values,
+                this.proposal.signatures,
+                this.proposal.data,
+                (await clockFromReceipt[mode](txPropose)) + votingDelay,
+                (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                this.proposal.description,
+              );
+          });
+
+          it('someone else can propose', async function () {
+            const txPropose = this.helper.connect(this.voter1).propose();
+            await expect(txPropose)
+              .to.emit(this.mock, 'ProposalCreated')
+              .withArgs(
+                this.proposal.id,
+                this.voter1.address,
+                this.proposal.targets,
+                this.proposal.values,
+                this.proposal.signatures,
+                this.proposal.data,
+                (await clockFromReceipt[mode](txPropose)) + votingDelay,
+                (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                this.proposal.description,
+              );
+          });
+        };
+
         describe('without protection', function () {
           describe('without suffix', function () {
-            it('proposer can propose', async function () {
-              const txPropose = await this.helper.connect(this.proposer).propose();
-              await expect(txPropose)
-                .to.emit(this.mock, 'ProposalCreated')
-                .withArgs(
-                  this.proposal.id,
-                  this.proposer.address,
-                  this.proposal.targets,
-                  this.proposal.values,
-                  this.proposal.signatures,
-                  this.proposal.data,
-                  (await clockFromReceipt[mode](txPropose)) + votingDelay,
-                  (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
-                  this.proposal.description,
-                );
-            });
-
-            it('someone else can propose', async function () {
-              const txPropose = this.helper.connect(this.voter1).propose();
-              await expect(txPropose)
-                .to.emit(this.mock, 'ProposalCreated')
-                .withArgs(
-                  this.proposal.id,
-                  this.voter1.address,
-                  this.proposal.targets,
-                  this.proposal.values,
-                  this.proposal.signatures,
-                  this.proposal.data,
-                  (await clockFromReceipt[mode](txPropose)) + votingDelay,
-                  (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
-                  this.proposal.description,
-                );
-            });
+            shouldPropose();
           });
 
           describe('with different suffix', function () {
             beforeEach(async function () {
-              this.proposal = this.helper.setProposal(
+              this.helper = this.helper.setProposal(
                 [
                   {
-                    target: this.receiver.address,
-                    data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                    target: this.receiver.target,
+                    data: this.receiver.interface.encodeFunctionData('mockFunction'),
                     value,
                   },
                 ],
-                `<proposal description>#wrong-suffix=${proposer}`,
+                `<proposal description>#wrong-suffix=${this.proposer}`,
               );
+              this.proposal = this.helper.currentProposal;
             });
 
-            it('proposer can propose', async function () {
-              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
-            });
-
-            it('someone else can propose', async function () {
-              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
-            });
+            shouldPropose();
           });
 
           describe('with proposer suffix but bad address part', function () {
             beforeEach(async function () {
-              this.proposal = this.helper.setProposal(
+              this.helper = this.helper.setProposal(
                 [
                   {
-                    target: this.receiver.address,
-                    data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                    target: this.receiver.target,
+                    data: this.receiver.interface.encodeFunctionData('mockFunction'),
                     value,
                   },
                 ],
                 `<proposal description>#proposer=0x3C44CdDdB6a900fa2b585dd299e03d12FA429XYZ`, // XYZ are not a valid hex char
               );
+              this.proposal = this.helper.currentProposal;
             });
 
-            it('propose can propose', async function () {
-              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
-            });
-
-            it('someone else can propose', async function () {
-              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
-            });
+            shouldPropose();
           });
         });
 
         describe('with protection via proposer suffix', function () {
           beforeEach(async function () {
-            this.proposal = this.helper.setProposal(
+            this.helper = this.helper.setProposal(
               [
                 {
-                  target: this.receiver.address,
-                  data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                  target: this.receiver.target,
+                  data: this.receiver.interface.encodeFunctionData('mockFunction'),
                   value,
                 },
               ],
-              `<proposal description>#proposer=${proposer}`,
+              `<proposal description>#proposer=${this.proposer}`,
             );
+            this.proposal = this.helper.currentProposal;
           });
 
-          it('proposer can propose', async function () {
-            expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
-          });
-
-          it('someone else cannot propose', async function () {
-            await expectRevertCustomError(this.helper.propose({ from: voter1 }), 'GovernorRestrictedProposer', [
-              voter1,
-            ]);
-          });
+          shouldPropose();
         });
       });
 
       describe('onlyGovernance updates', function () {
         it('setVotingDelay is protected', async function () {
-          await expectRevertCustomError(this.mock.setVotingDelay('0', { from: owner }), 'GovernorOnlyExecutor', [
-            owner,
-          ]);
+          await expect(this.mock.connect(this.owner).setVotingDelay(0))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+            .withArgs(this.owner.address);
         });
 
         it('setVotingPeriod is protected', async function () {
-          await expectRevertCustomError(this.mock.setVotingPeriod('32', { from: owner }), 'GovernorOnlyExecutor', [
-            owner,
-          ]);
+          await expect(this.mock.connect(this.owner).setVotingPeriod(32))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+            .withArgs(this.owner.address);
         });
 
         it('setProposalThreshold is protected', async function () {
-          await expectRevertCustomError(
-            this.mock.setProposalThreshold('1000000000000000000', { from: owner }),
-            'GovernorOnlyExecutor',
-            [owner],
-          );
+          await expect(this.mock.connect(this.owner).setProposalThreshold('1000000000000000000'))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+            .withArgs(this.owner.address);
         });
 
         it('can setVotingDelay through governance', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             [
               {
-                target: this.mock.address,
-                data: this.mock.contract.methods.setVotingDelay('0').encodeABI(),
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('setVotingDelay', [0])
               },
             ],
             '<proposal description>',
           );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
+          await helper.propose();
+          await helper.waitForSnapshot();
+          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await helper.waitForDeadline();
 
-          expectEvent(await this.helper.execute(), 'VotingDelaySet', { oldVotingDelay: '4', newVotingDelay: '0' });
+          await expect(helper.execute())
+            .to.emit(this.mock, 'VotingDelaySet')
+            .withArgs('4', '0');
 
-          expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+          expect(await this.mock.votingDelay()).to.be.equal('0');
         });
 
         it('can setVotingPeriod through governance', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             [
               {
-                target: this.mock.address,
-                data: this.mock.contract.methods.setVotingPeriod('32').encodeABI(),
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [32])
               },
             ],
             '<proposal description>',
           );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
+          await helper.propose();
+          await helper.waitForSnapshot();
+          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await helper.waitForDeadline();
 
-          expectEvent(await this.helper.execute(), 'VotingPeriodSet', { oldVotingPeriod: '16', newVotingPeriod: '32' });
+          await expect(helper.execute())
+            .to.emit(this.mock, 'VotingPeriodSet')
+            .withArgs('16', '32');
 
-          expect(await this.mock.votingPeriod()).to.be.bignumber.equal('32');
+          expect(await this.mock.votingPeriod()).to.be.equal('32');
         });
 
         it('cannot setVotingPeriod to 0 through governance', async function () {
           const votingPeriod = 0;
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             [
               {
-                target: this.mock.address,
-                data: this.mock.contract.methods.setVotingPeriod(votingPeriod).encodeABI(),
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [votingPeriod]),
               },
             ],
             '<proposal description>',
           );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
+          await helper.propose();
+          await helper.waitForSnapshot();
+          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await helper.waitForDeadline();
 
-          await expectRevertCustomError(this.helper.execute(), 'GovernorInvalidVotingPeriod', [votingPeriod]);
+          await expect(helper.execute())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVotingPeriod')
+            .withArgs(votingPeriod);
         });
 
         it('can setProposalThreshold to 0 through governance', async function () {
-          this.helper.setProposal(
+          const helper = this.helper.setProposal(
             [
               {
-                target: this.mock.address,
-                data: this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI(),
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('setProposalThreshold', ['1000000000000000000']),
               },
             ],
             '<proposal description>',
           );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
+          await helper.propose();
+          await helper.waitForSnapshot();
+          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await helper.waitForDeadline();
 
-          expectEvent(await this.helper.execute(), 'ProposalThresholdSet', {
-            oldProposalThreshold: '0',
-            newProposalThreshold: '1000000000000000000',
-          });
+          await expect(helper.execute())
+            .to.emit(this.mock, 'ProposalThresholdSet')
+            .withArgs('0', '1000000000000000000')
 
-          expect(await this.mock.proposalThreshold()).to.be.bignumber.equal('1000000000000000000');
+          expect(await this.mock.proposalThreshold()).to.be.equal('1000000000000000000');
         });
       });
 
