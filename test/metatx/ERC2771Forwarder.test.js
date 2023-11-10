@@ -313,7 +313,7 @@ contract('ERC2771Forwarder', function () {
     });
 
     context('with tampered requests', function () {
-      beforeEach(async function () {
+      beforeEach(function () {
         this.idx = 1; // Tampered idx
       });
 

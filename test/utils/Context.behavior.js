@@ -19,7 +19,7 @@ function shouldBehaveLikeRegularContext() {
 
     let callData;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       callData = this.context.interface.encodeFunctionData(this.context.msgData.fragment, [integerValue, stringValue]);
     });
 
