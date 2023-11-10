@@ -66,22 +66,18 @@ class GovernorHelper {
       : this.governor.execute(...proposal.shortProposal);
   }
 
-  cancel(visibility = 'external', opts = null) {
+  cancel(visibility = 'external') {
     const proposal = this.currentProposal;
 
     switch (visibility) {
       case 'external':
-        if (proposal.useCompatibilityInterface) {
-          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
-        } else {
-          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
-            ...concatOpts(proposal.shortProposal, opts),
-          );
-        }
+        return proposal.useCompatibilityInterface
+          ? this.governor.cancel(proposal.id)
+          : this.governor.cancel(...proposal.shortProposal);
+
       case 'internal':
-        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+        return this.governor.$_cancel(...proposal.shortProposal);
+
       default:
         throw new Error(`unsupported visibility "${visibility}"`);
     }
