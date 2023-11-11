@@ -19,14 +19,14 @@ async function fixture() {
   return { upgradeableBeaconAdmin, anotherAccount, implementationV0, implementationV1 };
 }
 
-describe('BeaconProxy', function () {
+describe.only('BeaconProxy', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
   describe('bad beacon is not accepted', async function () {
     it('non-contract beacon', async function () {
-      const BeaconProxyFactory = await ethers.getContractFactory(BeaconProxy)
+      const BeaconProxyFactory = await ethers.getContractFactory(BeaconProxy);
       await expect(BeaconProxyFactory.deploy(this.anotherAccount, '0x'))
         .to.be.revertedWithCustomError(BeaconProxyFactory, 'ERC1967InvalidBeacon')
         .withArgs(this.anotherAccount);
@@ -101,22 +101,22 @@ describe('BeaconProxy', function () {
   });
 
   it('upgrade a proxy by upgrading its beacon', async function () {
-    const beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
+    const beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
 
     const value = '10';
-    const data = this.implementationV0.contract.methods.initializeNonPayableWithValue(value).encodeABI();
-    const proxy = await BeaconProxy.new(beacon.address, data);
+    const data = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);
+    const proxy = await ethers.deployContract(BeaconProxy, [beacon, data]);
 
-    const dummy = new DummyImplementation(proxy.address);
+    const dummy = await ethers.getContractAt(DummyImplementation, proxy);
 
     // test initial values
-    expect(await dummy.value()).to.bignumber.eq(value);
+    expect(await dummy.value()).to.eq(value);
 
     // test initial version
     expect(await dummy.version()).to.eq('V1');
 
     // upgrade beacon
-    await beacon.upgradeTo(this.implementationV1.address, { from: upgradeableBeaconAdmin });
+    await beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
 
     // test upgraded version
     expect(await dummy.version()).to.eq('V2');
