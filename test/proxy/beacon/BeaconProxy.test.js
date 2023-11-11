@@ -29,7 +29,7 @@ describe.only('BeaconProxy', function () {
       const BeaconProxyFactory = await ethers.getContractFactory(BeaconProxy);
       await expect(BeaconProxyFactory.deploy(this.anotherAccount, '0x'))
         .to.be.revertedWithCustomError(BeaconProxyFactory, 'ERC1967InvalidBeacon')
-        .withArgs(this.anotherAccount);
+        .withArgs(this.anotherAccount.address);
     });
 
     it('non-compliant beacon', async function () {
