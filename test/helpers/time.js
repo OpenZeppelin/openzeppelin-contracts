@@ -25,11 +25,15 @@ module.exports = {
 module.exports.bigint = {
   clock: mapObject(module.exports.clock, fn => () => fn().then(BigInt)),
   clockFromReceipt: {
-    blocknumber: txPromisse => Promise.resolve(txPromisse).then(tx => tx.blockNumber),
+    blocknumber: txPromisse =>
+      Promise.resolve(txPromisse)
+        .then(tx => tx.blockNumber)
+        .then(BigInt),
     timestamp: txPromisse =>
       Promise.resolve(txPromisse)
         .then(tx => ethers.provider.getBlock(tx.blockNumber))
-        .then(block => block.timestamp),
+        .then(block => block.timestamp)
+        .then(BigInt),
   },
   forward: module.exports.forward,
   duration: mapObject(module.exports.duration, fn => n => BigInt(fn(n))),

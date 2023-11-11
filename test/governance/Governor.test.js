@@ -30,8 +30,8 @@ describe('Governor', function () {
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = ethers.parseEther('100');
-  const votingDelay = 4;
-  const votingPeriod = 16;
+  const votingDelay = 4n;
+  const votingPeriod = 16n;
   const value = ethers.parseEther('1');
 
   for (const { mode, Token } of TOKENS) {
@@ -80,7 +80,20 @@ describe('Governor', function () {
 
       const proposal = helper.currentProposal;
 
-      return { owner, proposer, voter1, voter2, voter3, voter4, userEOA, token, mock, receiver, helper, proposal };
+      return {
+        owner,
+        proposer,
+        voter1,
+        voter2,
+        voter3,
+        voter4,
+        userEOA,
+        token,
+        mock,
+        receiver,
+        helper,
+        proposal,
+      };
     };
 
     describe(`using ${Token}`, function () {
