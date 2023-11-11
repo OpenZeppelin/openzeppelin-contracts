@@ -25,7 +25,7 @@ describe('BeaconProxy', function () {
   });
 
   describe('bad beacon is not accepted', async function () {
-    it.only('non-contract beacon', async function () {
+    it('non-contract beacon', async function () {
       const BeaconProxyFactory = await ethers.getContractFactory(BeaconProxy)
       await expect(BeaconProxyFactory.deploy(this.anotherAccount, '0x'))
         .to.be.revertedWithCustomError(BeaconProxyFactory, 'ERC1967InvalidBeacon')
@@ -33,16 +33,16 @@ describe('BeaconProxy', function () {
     });
 
     it('non-compliant beacon', async function () {
-      const beacon = await BadBeaconNoImpl.new();
-      await expectRevert.unspecified(BeaconProxy.new(beacon.address, '0x'));
+      const beacon = await ethers.deployContract(BadBeaconNoImpl);
+      await expect(ethers.deployContract(BeaconProxy, [beacon, '0x'])).to.be.reverted;
     });
 
     it('non-contract implementation', async function () {
-      const beacon = await BadBeaconNotContract.new();
-      const implementation = await beacon.implementation();
-      await expectRevertCustomError(BeaconProxy.new(beacon.address, '0x'), 'ERC1967InvalidImplementation', [
-        implementation,
-      ]);
+      const beacon = await ethers.deployContract(BadBeaconNotContract);
+      const BeaconProxyFactory = await ethers.getContractFactory('BeaconProxy');
+      await expect(BeaconProxyFactory.deploy(beacon.target, '0x'))
+        .to.be.revertedWithCustomError(BeaconProxyFactory, 'ERC1967InvalidImplementation')
+        .withArgs(await beacon.implementation());
     });
   });
 
