@@ -126,31 +126,31 @@ describe.only('BeaconProxy', function () {
     const value1 = '10';
     const value2 = '42';
 
-    const beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
+    const beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
 
-    const proxy1InitializeData = this.implementationV0.contract.methods
-      .initializeNonPayableWithValue(value1)
-      .encodeABI();
-    const proxy1 = await BeaconProxy.new(beacon.address, proxy1InitializeData);
+    const proxy1InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
+      value1,
+    ]);
+    const proxy1 = await ethers.deployContract(BeaconProxy, [beacon, proxy1InitializeData]);
 
-    const proxy2InitializeData = this.implementationV0.contract.methods
-      .initializeNonPayableWithValue(value2)
-      .encodeABI();
-    const proxy2 = await BeaconProxy.new(beacon.address, proxy2InitializeData);
+    const proxy2InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
+      value2,
+    ]);
+    const proxy2 = await ethers.deployContract(BeaconProxy, [beacon, proxy2InitializeData]);
 
-    const dummy1 = new DummyImplementation(proxy1.address);
-    const dummy2 = new DummyImplementation(proxy2.address);
+    const dummy1 = await ethers.getContractAt(DummyImplementation, proxy1);
+    const dummy2 = await ethers.getContractAt(DummyImplementation, proxy2);
 
     // test initial values
-    expect(await dummy1.value()).to.bignumber.eq(value1);
-    expect(await dummy2.value()).to.bignumber.eq(value2);
+    expect(await dummy1.value()).to.eq(value1);
+    expect(await dummy2.value()).to.eq(value2);
 
     // test initial version
     expect(await dummy1.version()).to.eq('V1');
     expect(await dummy2.version()).to.eq('V1');
 
     // upgrade beacon
-    await beacon.upgradeTo(this.implementationV1.address, { from: upgradeableBeaconAdmin });
+    await beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
 
     // test upgraded version
     expect(await dummy1.version()).to.eq('V2');
