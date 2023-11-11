@@ -16,7 +16,7 @@ async function fixture() {
   return { mock, amount, duration, start, sender, beneficiary };
 }
 
-describe('VestingWallet', function () {
+describe.only('VestingWallet', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -48,6 +48,12 @@ describe('VestingWallet', function () {
 
         this.getBalance = signer => ethers.provider.getBalance(signer);
         this.checkRelease = (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
+        this.setupFaillure = async () => {
+          const beneficiary = await ethers.deployContract('EtherReceiverMock');
+          await beneficiary.setAcceptEther(false);
+          await this.mock.connect(this.beneficiary).transferOwnership(beneficiary);
+          return { args: [], error: [this.mock, 'FailedInnerCall'] };
+        };
 
         this.releasedEvent = 'EtherReleased';
         this.args = [];
@@ -66,6 +72,14 @@ describe('VestingWallet', function () {
         this.checkRelease = async (tx, amount) => {
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.beneficiary.address, amount);
           await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
+        };
+        this.setupFaillure = async () => {
+          const token = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
+          await token.$_pause();
+          return {
+            args: [ethers.Typed.address(token)],
+            error: [token, 'EnforcedPause'],
+          };
         };
 
         this.releasedEvent = 'ERC20Released';
