@@ -1,23 +1,35 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { getSlot, BeaconSlot } = require('../../helpers/erc1967');
 
-const { expectRevertCustomError } = require('../../helpers/customError');
+const UpgradeableBeacon = 'UpgradeableBeacon';
+const BeaconProxy = 'BeaconProxy';
+const DummyImplementation = 'DummyImplementation';
+const DummyImplementationV2 = 'DummyImplementationV2';
+const BadBeaconNoImpl = 'BadBeaconNoImpl';
+const BadBeaconNotContract = 'BadBeaconNotContract';
 
-const { expect } = require('chai');
+async function fixture() {
+  const [upgradeableBeaconAdmin, anotherAccount] = await ethers.getSigners();
 
-const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
-const BeaconProxy = artifacts.require('BeaconProxy');
-const DummyImplementation = artifacts.require('DummyImplementation');
-const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
-const BadBeaconNoImpl = artifacts.require('BadBeaconNoImpl');
-const BadBeaconNotContract = artifacts.require('BadBeaconNotContract');
+  const implementationV0 = await ethers.deployContract(DummyImplementation);
+  const implementationV1 = await ethers.deployContract(DummyImplementationV2);
 
-contract('BeaconProxy', function (accounts) {
-  const [upgradeableBeaconAdmin, anotherAccount] = accounts;
+  return { upgradeableBeaconAdmin, anotherAccount, implementationV0, implementationV1 };
+}
+
+describe('BeaconProxy', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
   describe('bad beacon is not accepted', async function () {
-    it('non-contract beacon', async function () {
-      await expectRevertCustomError(BeaconProxy.new(anotherAccount, '0x'), 'ERC1967InvalidBeacon', [anotherAccount]);
+    it.only('non-contract beacon', async function () {
+      const BeaconProxyFactory = await ethers.getContractFactory(BeaconProxy)
+      await expect(BeaconProxyFactory.deploy(this.anotherAccount, '0x'))
+        .to.be.revertedWithCustomError(BeaconProxyFactory, 'ERC1967InvalidBeacon')
+        .withArgs(this.anotherAccount);
     });
 
     it('non-compliant beacon', async function () {
@@ -32,11 +44,6 @@ contract('BeaconProxy', function (accounts) {
         implementation,
       ]);
     });
-  });
-
-  before('deploy implementation', async function () {
-    this.implementationV0 = await DummyImplementation.new();
-    this.implementationV1 = await DummyImplementationV2.new();
   });
 
   describe('initialization', function () {
