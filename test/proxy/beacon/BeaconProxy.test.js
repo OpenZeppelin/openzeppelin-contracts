@@ -16,7 +16,9 @@ async function fixture() {
   const implementationV0 = await ethers.deployContract(DummyImplementation);
   const implementationV1 = await ethers.deployContract(DummyImplementationV2);
 
-  return { upgradeableBeaconAdmin, anotherAccount, implementationV0, implementationV1 };
+  const beacon = await ethers.deployContract(UpgradeableBeacon, [implementationV0, upgradeableBeaconAdmin]);
+
+  return { upgradeableBeaconAdmin, anotherAccount, implementationV0, implementationV1, beacon };
 }
 
 describe('BeaconProxy', function () {
@@ -59,13 +61,6 @@ describe('BeaconProxy', function () {
       };
     });
 
-    beforeEach('deploy beacon', async function () {
-      this.beacon = await ethers.deployContract(UpgradeableBeacon, [
-        this.implementationV0,
-        this.upgradeableBeaconAdmin,
-      ]);
-    });
-
     it('no initialization', async function () {
       this.proxy = await ethers.deployContract(BeaconProxy, [this.beacon, '0x']);
       await this.assertInitialized({ value: '0', balance: '0' });
@@ -101,60 +96,58 @@ describe('BeaconProxy', function () {
     });
   });
 
-  it('upgrade a proxy by upgrading its beacon', async function () {
-    const beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
+  describe('upgrade', async function () {
+    it('upgrade a proxy by upgrading its beacon', async function () {
+      const value = '10';
+      const data = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);
+      const proxy = await ethers.deployContract(BeaconProxy, [this.beacon, data]);
 
-    const value = '10';
-    const data = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);
-    const proxy = await ethers.deployContract(BeaconProxy, [beacon, data]);
+      const dummy = await ethers.getContractAt(DummyImplementation, proxy);
 
-    const dummy = await ethers.getContractAt(DummyImplementation, proxy);
+      // test initial values
+      expect(await dummy.value()).to.eq(value);
 
-    // test initial values
-    expect(await dummy.value()).to.eq(value);
+      // test initial version
+      expect(await dummy.version()).to.eq('V1');
 
-    // test initial version
-    expect(await dummy.version()).to.eq('V1');
+      // upgrade beacon
+      await this.beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
 
-    // upgrade beacon
-    await beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
+      // test upgraded version
+      expect(await dummy.version()).to.eq('V2');
+    });
 
-    // test upgraded version
-    expect(await dummy.version()).to.eq('V2');
-  });
+    it('upgrade 2 proxies by upgrading shared beacon', async function () {
+      const value1 = '10';
+      const value2 = '42';
 
-  it('upgrade 2 proxies by upgrading shared beacon', async function () {
-    const value1 = '10';
-    const value2 = '42';
+      const proxy1InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
+        value1,
+      ]);
+      const proxy1 = await ethers.deployContract(BeaconProxy, [this.beacon, proxy1InitializeData]);
 
-    const beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
+      const proxy2InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
+        value2,
+      ]);
+      const proxy2 = await ethers.deployContract(BeaconProxy, [this.beacon, proxy2InitializeData]);
 
-    const proxy1InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
-      value1,
-    ]);
-    const proxy1 = await ethers.deployContract(BeaconProxy, [beacon, proxy1InitializeData]);
+      const dummy1 = await ethers.getContractAt(DummyImplementation, proxy1);
+      const dummy2 = await ethers.getContractAt(DummyImplementation, proxy2);
 
-    const proxy2InitializeData = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [
-      value2,
-    ]);
-    const proxy2 = await ethers.deployContract(BeaconProxy, [beacon, proxy2InitializeData]);
+      // test initial values
+      expect(await dummy1.value()).to.eq(value1);
+      expect(await dummy2.value()).to.eq(value2);
 
-    const dummy1 = await ethers.getContractAt(DummyImplementation, proxy1);
-    const dummy2 = await ethers.getContractAt(DummyImplementation, proxy2);
+      // test initial version
+      expect(await dummy1.version()).to.eq('V1');
+      expect(await dummy2.version()).to.eq('V1');
 
-    // test initial values
-    expect(await dummy1.value()).to.eq(value1);
-    expect(await dummy2.value()).to.eq(value2);
+      // upgrade beacon
+      await this.beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
 
-    // test initial version
-    expect(await dummy1.version()).to.eq('V1');
-    expect(await dummy2.version()).to.eq('V1');
-
-    // upgrade beacon
-    await beacon.connect(this.upgradeableBeaconAdmin).upgradeTo(this.implementationV1);
-
-    // test upgraded version
-    expect(await dummy1.version()).to.eq('V2');
-    expect(await dummy2.version()).to.eq('V2');
+      // test upgraded version
+      expect(await dummy1.version()).to.eq('V2');
+      expect(await dummy2.version()).to.eq('V2');
+    });
   });
 });
