@@ -11,14 +11,14 @@ function labelToSlot(label) {
 
 function getSlot(address, slot) {
   return getStorageAt(
-    ethers.isAddress(address) ? address : address.address,
+    ethers.isAddress(address) ? address : address.target,
     ethers.isBytesLike(slot) ? slot : labelToSlot(slot),
   );
 }
 
 function setSlot(address, slot, value) {
   return setStorageAt(
-    ethers.isAddress(address) ? address : address.address,
+    ethers.isAddress(address) ? address : address.target,
     ethers.isBytesLike(slot) ? slot : labelToSlot(slot),
     value,
   );

@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { getSlot, BeaconSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, BeaconSlot } = require('../../helpers/erc1967');
 
 const UpgradeableBeacon = 'UpgradeableBeacon';
 const BeaconProxy = 'BeaconProxy';
@@ -49,24 +49,22 @@ describe.only('BeaconProxy', function () {
   describe('initialization', function () {
     before(function () {
       this.assertInitialized = async ({ value, balance }) => {
-        const beaconSlot = await getSlot(this.proxy, BeaconSlot);
-        const beaconAddress = web3.utils.toChecksumAddress(beaconSlot.substr(-40));
-        expect(beaconAddress).to.equal(this.beacon.address);
+        const beaconAddress = await getAddressInSlot(this.proxy, BeaconSlot);
+        expect(beaconAddress).to.equal(this.beacon.target);
 
-        const dummy = new DummyImplementation(this.proxy.address);
-        expect(await dummy.value()).to.bignumber.eq(value);
+        const dummy = await ethers.getContractAt(DummyImplementation, this.proxy);
+        expect(await dummy.value()).to.eq(value);
 
-        expect(await web3.eth.getBalance(this.proxy.address)).to.bignumber.eq(balance);
+        expect(await ethers.provider.getBalance(this.proxy)).to.eq(balance);
       };
     });
 
     beforeEach('deploy beacon', async function () {
-      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
+      this.beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
     });
 
-    it('no initialization', async function () {
-      const data = Buffer.from('');
-      this.proxy = await BeaconProxy.new(this.beacon.address, data);
+    it.only('no initialization', async function () {
+      this.proxy = await ethers.deployContract(BeaconProxy, [this.beacon, '0x']);
       await this.assertInitialized({ value: '0', balance: '0' });
     });
 
