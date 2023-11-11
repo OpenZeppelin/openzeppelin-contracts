@@ -19,7 +19,7 @@ async function fixture() {
   return { upgradeableBeaconAdmin, anotherAccount, implementationV0, implementationV1 };
 }
 
-describe.only('BeaconProxy', function () {
+describe('BeaconProxy', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -60,41 +60,44 @@ describe.only('BeaconProxy', function () {
     });
 
     beforeEach('deploy beacon', async function () {
-      this.beacon = await ethers.deployContract(UpgradeableBeacon, [this.implementationV0, this.upgradeableBeaconAdmin]);
+      this.beacon = await ethers.deployContract(UpgradeableBeacon, [
+        this.implementationV0,
+        this.upgradeableBeaconAdmin,
+      ]);
     });
 
-    it.only('no initialization', async function () {
+    it('no initialization', async function () {
       this.proxy = await ethers.deployContract(BeaconProxy, [this.beacon, '0x']);
       await this.assertInitialized({ value: '0', balance: '0' });
     });
 
     it('non-payable initialization', async function () {
       const value = '55';
-      const data = this.implementationV0.contract.methods.initializeNonPayableWithValue(value).encodeABI();
-      this.proxy = await BeaconProxy.new(this.beacon.address, data);
+      const data = this.implementationV0.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);
+      this.proxy = await ethers.deployContract(BeaconProxy, [this.beacon, data]);
       await this.assertInitialized({ value, balance: '0' });
     });
 
     it('payable initialization', async function () {
       const value = '55';
-      const data = this.implementationV0.contract.methods.initializePayableWithValue(value).encodeABI();
+      const data = this.implementationV0.interface.encodeFunctionData('initializePayableWithValue', [value]);
       const balance = '100';
-      this.proxy = await BeaconProxy.new(this.beacon.address, data, { value: balance });
+      this.proxy = await ethers.deployContract(BeaconProxy, [this.beacon, data], { value: balance });
       await this.assertInitialized({ value, balance });
     });
 
     it('reverting initialization due to value', async function () {
-      const data = Buffer.from('');
-      await expectRevertCustomError(
-        BeaconProxy.new(this.beacon.address, data, { value: '1' }),
+      const BeaconProxyFactory = await ethers.getContractFactory('BeaconProxy');
+      await expect(BeaconProxyFactory.deploy(this.beacon, '0x', { value: '1' })).to.be.revertedWithCustomError(
+        BeaconProxyFactory,
         'ERC1967NonPayable',
-        [],
       );
     });
 
     it('reverting initialization function', async function () {
-      const data = this.implementationV0.contract.methods.reverts().encodeABI();
-      await expectRevert(BeaconProxy.new(this.beacon.address, data), 'DummyImplementation reverted');
+      const data = this.implementationV0.interface.encodeFunctionData('reverts');
+      const BeaconProxyFactory = await ethers.getContractFactory('BeaconProxy');
+      await expect(BeaconProxyFactory.deploy(this.beacon, data)).to.be.revertedWith('DummyImplementation reverted');
     });
   });
 
