@@ -139,8 +139,8 @@ describe('Address', function () {
       });
 
       it('reverts when function does not exist', async function () {
-        const target = new ethers.Contract(this.target, ['function mockFunctionDoesNotExist()']);
-        const abiEncodedCall = target.interface.encodeFunctionData('mockFunctionDoesNotExist');
+        const target = new ethers.Interface(['function mockFunctionDoesNotExist()']);
+        const abiEncodedCall = target.encodeFunctionData('mockFunctionDoesNotExist');
 
         await expect(this.mock.$functionCall(this.target, abiEncodedCall)).to.be.revertedWithCustomError(
           this.mock,
