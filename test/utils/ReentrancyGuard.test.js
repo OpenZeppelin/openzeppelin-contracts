@@ -1,26 +1,31 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { expectRevertCustomError } = require('../helpers/customError');
+const ReentrancyMock = 'ReentrancyMock';
+const ReentrancyAttack = 'ReentrancyAttack';
 
-const ReentrancyMock = artifacts.require('ReentrancyMock');
-const ReentrancyAttack = artifacts.require('ReentrancyAttack');
+async function fixture() {
+  const reentrancyMock = await ethers.deployContract(ReentrancyMock);
+  expect(await reentrancyMock.counter()).to.be.equal('0');
 
-contract('ReentrancyGuard', function () {
+  return { reentrancyMock };
+}
+
+describe('ReentrancyGuard', function () {
   beforeEach(async function () {
-    this.reentrancyMock = await ReentrancyMock.new();
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('nonReentrant function can be called', async function () {
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
+    expect(await this.reentrancyMock.counter()).to.be.equal('0');
     await this.reentrancyMock.callback();
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('1');
+    expect(await this.reentrancyMock.counter()).to.be.equal('1');
   });
 
   it('does not allow remote callback', async function () {
-    const attacker = await ReentrancyAttack.new();
-    await expectRevert(this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call', []);
+    const attacker = await ethers.deployContract(ReentrancyAttack);
+    await expect(this.reentrancyMock.countAndCall(attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
   });
 
   it('_reentrancyGuardEntered should be true when guarded', async function () {
@@ -35,10 +40,13 @@ contract('ReentrancyGuard', function () {
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.
   it('does not allow local recursion', async function () {
-    await expectRevertCustomError(this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuardReentrantCall', []);
+    await expect(this.reentrancyMock.countLocalRecursive(10)).to.be.revertedWithCustomError(
+      this.reentrancyMock,
+      'ReentrancyGuardReentrantCall',
+    );
   });
 
   it('does not allow indirect local recursion', async function () {
-    await expectRevert(this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call', []);
+    await expect(this.reentrancyMock.countThisRecursive(10)).to.be.revertedWith('ReentrancyMock: failed call');
   });
 });
