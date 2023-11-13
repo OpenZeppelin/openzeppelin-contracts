@@ -1,27 +1,34 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { expectRevertCustomError } = require('../helpers/customError');
 
-const PausableMock = artifacts.require('PausableMock');
+const PausableMock = 'PausableMock';
 
-contract('Pausable', function (accounts) {
-  const [pauser] = accounts;
+async function fixture() {
+  const [pauser] = await ethers.getSigners();
 
+  const pausable = await ethers.deployContract(PausableMock);
+
+  return { pauser, pausable };
+}
+
+describe('Pausable', function () {
   beforeEach(async function () {
-    this.pausable = await PausableMock.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  context('when unpaused', function () {
+  describe('when unpaused', function () {
     beforeEach(async function () {
       expect(await this.pausable.paused()).to.equal(false);
     });
 
     it('can perform normal process in non-pause', async function () {
-      expect(await this.pausable.count()).to.be.bignumber.equal('0');
+      expect(await this.pausable.count()).to.be.equal('0');
 
       await this.pausable.normalProcess();
-      expect(await this.pausable.count()).to.be.bignumber.equal('1');
+      expect(await this.pausable.count()).to.be.equal('1');
     });
 
     it('cannot take drastic measure in non-pause', async function () {
@@ -29,17 +36,17 @@ contract('Pausable', function (accounts) {
       expect(await this.pausable.drasticMeasureTaken()).to.equal(false);
     });
 
-    context('when paused', function () {
+    describe('when paused', function () {
       beforeEach(async function () {
-        this.receipt = await this.pausable.pause({ from: pauser });
+        this.tx = await this.pausable.pause();
       });
 
-      it('emits a Paused event', function () {
-        expectEvent(this.receipt, 'Paused', { account: pauser });
+      it('emits a Paused event', async function () {
+        await expect(this.tx).to.emit(this.pausable, 'Paused').withArgs(this.pauser.address);
       });
 
       it('cannot perform normal process in pause', async function () {
-        await expectRevertCustomError(this.pausable.normalProcess(), 'EnforcedPause', []);
+        await expect(this.pausable.normalProcess()).to.be.revertedWithCustomError(this.pausable, 'EnforcedPause');
       });
 
       it('can take a drastic measure in a pause', async function () {
@@ -57,27 +64,27 @@ contract('Pausable', function (accounts) {
           expect(await this.pausable.paused()).to.equal(false);
         });
 
-        context('when unpaused', function () {
+        describe('when unpaused', function () {
           beforeEach(async function () {
-            this.receipt = await this.pausable.unpause({ from: pauser });
+            this.tx = await this.pausable.unpause();
           });
 
-          it('emits an Unpaused event', function () {
-            expectEvent(this.receipt, 'Unpaused', { account: pauser });
+          it('emits an Unpaused event', async function () {
+            await expect(this.tx).to.emit(this.pausable, 'Unpaused').withArgs(this.pauser.address);
           });
 
           it('should resume allowing normal process', async function () {
-            expect(await this.pausable.count()).to.be.bignumber.equal('0');
+            expect(await this.pausable.count()).to.be.equal('0');
             await this.pausable.normalProcess();
-            expect(await this.pausable.count()).to.be.bignumber.equal('1');
+            expect(await this.pausable.count()).to.be.equal('1');
           });
 
           it('should prevent drastic measure', async function () {
-            await expectRevertCustomError(this.pausable.drasticMeasure(), 'ExpectedPause', []);
+            await expect(this.pausable.drasticMeasure()).to.be.revertedWithCustomError(this.pausable, 'ExpectedPause');
           });
 
           it('reverts when re-unpausing', async function () {
-            await expectRevertCustomError(this.pausable.unpause(), 'ExpectedPause', []);
+            await expect(this.pausable.unpause()).to.be.revertedWithCustomError(this.pausable, 'ExpectedPause');
           });
         });
       });
