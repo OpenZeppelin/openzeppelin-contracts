@@ -11,8 +11,9 @@ async function fixture() {
   const [recipient, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract(Address);
+  const target = await ethers.deployContract(CallReceiverMock);
 
-  return { recipient, other, mock };
+  return { recipient, other, mock, target };
 }
 
 describe('Address', function () {
@@ -64,7 +65,7 @@ describe('Address', function () {
         });
       });
 
-      context('with contract recipient', function () {
+      describe('with contract recipient', function () {
         beforeEach(async function () {
           this.target = await ethers.deployContract(EtherReceiver);
         });
@@ -86,10 +87,6 @@ describe('Address', function () {
   });
 
   describe('functionCall', function () {
-    beforeEach(async function () {
-      this.target = await ethers.deployContract(CallReceiverMock);
-    });
-
     describe('with valid contract receiver', function () {
       it('calls the requested function', async function () {
         const abiEncodedCall = this.target.interface.encodeFunctionData('mockFunction');
@@ -161,10 +158,6 @@ describe('Address', function () {
   });
 
   describe('functionCallWithValue', function () {
-    beforeEach(async function () {
-      this.target = await ethers.deployContract(CallReceiverMock);
-    });
-
     describe('with zero value', function () {
       it('calls the requested function', async function () {
         const abiEncodedCall = this.target.interface.encodeFunctionData('mockFunction');
@@ -230,10 +223,6 @@ describe('Address', function () {
   });
 
   describe('functionStaticCall', function () {
-    beforeEach(async function () {
-      this.target = await ethers.deployContract(CallReceiverMock);
-    });
-
     it('calls the requested function', async function () {
       const abiEncodedCall = this.target.interface.encodeFunctionData('mockStaticFunction');
 
@@ -269,10 +258,6 @@ describe('Address', function () {
   });
 
   describe('functionDelegateCall', function () {
-    beforeEach(async function () {
-      this.target = await ethers.deployContract(CallReceiverMock);
-    });
-
     it('delegate calls the requested function', async function () {
       // pseudorandom values
       const slot = '0x93e4c53af435ddf777c3de84bb9a953a777788500e229a468ea1036496ab66a0';
