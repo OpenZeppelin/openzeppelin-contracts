@@ -36,7 +36,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      *
      * It's a good idea to use the same `name` that is defined as the ERC20 token name.
      */
-    constructor(string memory name) EIP712(name, "1") {}
+    constructor(string memory name, string memory symbol) EIP712(name, "1") ERC20(name, symbol) {}
 
     /**
      * @inheritdoc IERC20Permit
