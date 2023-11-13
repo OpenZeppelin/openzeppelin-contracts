@@ -1,69 +1,71 @@
-const { BN } = require('@openzeppelin/test-helpers');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC20MulticallMock = artifacts.require('$ERC20MulticallMock');
+const ERC20MulticallMock = '$ERC20MulticallMock';
 
-contract('Multicall', function (accounts) {
-  const [deployer, alice, bob] = accounts;
+async function fixture() {
+  const [deployer, alice, bob] = await ethers.getSigners();
+
   const amount = 12000;
+  const multicallToken = await ethers.deployContract(ERC20MulticallMock, ['name', 'symbol']);
+  await multicallToken.$_mint(deployer, amount);
 
+  return { deployer, alice, bob, amount, multicallToken };
+}
+
+describe('Multicall', function () {
   beforeEach(async function () {
-    this.multicallToken = await ERC20MulticallMock.new('name', 'symbol');
-    await this.multicallToken.$_mint(deployer, amount);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('batches function calls', async function () {
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
-    expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN('0'));
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
+    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal('0');
 
-    await this.multicallToken.multicall(
-      [
-        this.multicallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
-        this.multicallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
-      ],
-      { from: deployer },
-    );
+    await this.multicallToken.multicall([
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount / 2]),
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount / 3]),
+    ]);
 
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN(amount / 2));
-    expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN(amount / 3));
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(this.amount / 2);
+    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal(this.amount / 3);
   });
 
   it('returns an array with the result of each call', async function () {
-    const MulticallTest = artifacts.require('MulticallTest');
-    const multicallTest = await MulticallTest.new({ from: deployer });
-    await this.multicallToken.transfer(multicallTest.address, amount, { from: deployer });
-    expect(await this.multicallToken.balanceOf(multicallTest.address)).to.be.bignumber.equal(new BN(amount));
+    const MulticallMock = 'MulticallMock';
+    const multicallMock = await ethers.deployContract(MulticallMock);
+    await this.multicallToken.transfer(multicallMock, this.amount);
+    expect(await this.multicallToken.balanceOf(multicallMock)).to.be.equal(this.amount);
 
-    const recipients = [alice, bob];
-    const amounts = [amount / 2, amount / 3].map(n => new BN(n));
+    const recipients = [this.alice, this.bob];
+    const amounts = [this.amount / 2, this.amount / 3];
 
-    await multicallTest.checkReturnValues(this.multicallToken.address, recipients, amounts);
+    await multicallMock.checkReturnValues(this.multicallToken, recipients, amounts);
   });
 
   it('reverts previous calls', async function () {
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
 
-    const call = this.multicallToken.multicall(
-      [
-        this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-        this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-      ],
-      { from: deployer },
-    );
+    const call = this.multicallToken.multicall([
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
+    ]);
 
-    await expectRevertCustomError(call, 'ERC20InsufficientBalance', [deployer, 0, amount]);
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
+    await expect(call)
+      .to.be.revertedWithCustomError(this.multicallToken, 'ERC20InsufficientBalance')
+      .withArgs(this.deployer.address, 0, this.amount);
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
   });
 
   it('bubbles up revert reasons', async function () {
-    const call = this.multicallToken.multicall(
-      [
-        this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-        this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-      ],
-      { from: deployer },
-    );
+    const call = this.multicallToken.multicall([
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
+    ]);
 
-    await expectRevertCustomError(call, 'ERC20InsufficientBalance', [deployer, 0, amount]);
+    await expect(call)
+      .to.be.revertedWithCustomError(this.multicallToken, 'ERC20InsufficientBalance')
+      .withArgs(this.deployer.address, 0, this.amount);
   });
 });
