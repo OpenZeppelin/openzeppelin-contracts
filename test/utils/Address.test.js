@@ -8,7 +8,7 @@ const EtherReceiver = 'EtherReceiverMock';
 const CallReceiverMock = 'CallReceiverMock';
 
 async function fixture() {
-  const [recipient, other] = await ethers.getSigners();
+  const [recipient, other] = await ethers.getSigners()
 
   const mock = await ethers.deployContract(Address);
 
