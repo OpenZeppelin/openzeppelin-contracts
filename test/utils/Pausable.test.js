@@ -4,12 +4,10 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { expectRevertCustomError } = require('../helpers/customError');
 
-const PausableMock = 'PausableMock';
-
 async function fixture() {
   const [pauser] = await ethers.getSigners();
 
-  const pausable = await ethers.deployContract(PausableMock);
+  const pausable = await ethers.deployContract('PausableMock');
 
   return { pauser, pausable };
 }
@@ -25,10 +23,10 @@ describe('Pausable', function () {
     });
 
     it('can perform normal process in non-pause', async function () {
-      expect(await this.pausable.count()).to.be.equal('0');
+      expect(await this.pausable.count()).to.be.equal(0n);
 
       await this.pausable.normalProcess();
-      expect(await this.pausable.count()).to.be.equal('1');
+      expect(await this.pausable.count()).to.be.equal(1n);
     });
 
     it('cannot take drastic measure in non-pause', async function () {
@@ -74,9 +72,9 @@ describe('Pausable', function () {
           });
 
           it('should resume allowing normal process', async function () {
-            expect(await this.pausable.count()).to.be.equal('0');
+            expect(await this.pausable.count()).to.be.equal(0n);
             await this.pausable.normalProcess();
-            expect(await this.pausable.count()).to.be.equal('1');
+            expect(await this.pausable.count()).to.be.equal(1n);
           });
 
           it('should prevent drastic measure', async function () {

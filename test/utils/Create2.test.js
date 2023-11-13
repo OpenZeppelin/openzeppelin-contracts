@@ -2,24 +2,21 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const Create2 = '$Create2';
-const VestingWallet = 'VestingWallet';
-// This should be a contract that:
-// - has no constructor arguments
-// - has no immutable variable populated during construction
-const ConstructorLessBytecode = Create2;
-
 async function fixture() {
   const [deployerAccount, other] = await ethers.getSigners();
 
-  const factory = await ethers.deployContract(Create2);
+  const factory = await ethers.deployContract('$Create2');
   const encodedParams = ethers.AbiCoder.defaultAbiCoder()
     .encode(['address', 'uint64', 'uint64'], [other.address, 0, 0])
     .slice(2);
 
-  const VestingWalletFactory = await ethers.getContractFactory(VestingWallet);
+  const VestingWalletFactory = await ethers.getContractFactory('VestingWallet');
   const constructorByteCode = `${VestingWalletFactory.bytecode}${encodedParams}`;
-  const { bytecode: constructorLessBytecode } = await ethers.getContractFactory(ConstructorLessBytecode);
+
+  // This should be a contract that:
+  // - has no constructor arguments
+  // - has no immutable variable populated during construction
+  const { bytecode: constructorLessBytecode } = await ethers.getContractFactory('$Create2');
 
   return { deployerAccount, other, factory, encodedParams, constructorByteCode, constructorLessBytecode };
 }
@@ -84,7 +81,7 @@ describe('Create2', function () {
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
-      const instance = await ethers.getContractAt(VestingWallet, offChainComputed);
+      const instance = await ethers.getContractAt('VestingWallet', offChainComputed);
 
       expect(await instance.owner()).to.be.equal(this.other.address);
     });

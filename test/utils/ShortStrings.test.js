@@ -2,18 +2,16 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ShortStrings = '$ShortStrings';
-
 function length(sstr) {
   return parseInt(sstr.slice(64), 16);
 }
 
 function decode(sstr) {
-  return web3.utils.toUtf8(sstr).slice(0, length(sstr));
+  return ethers.toUtf8String(sstr).slice(0, length(sstr));
 }
 
 async function fixture() {
-  const mock = await ethers.deployContract(ShortStrings);
+  const mock = await ethers.deployContract('$ShortStrings');
   return { mock };
 }
 

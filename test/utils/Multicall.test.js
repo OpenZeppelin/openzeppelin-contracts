@@ -2,13 +2,11 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC20MulticallMock = '$ERC20MulticallMock';
-
 async function fixture() {
   const [deployer, alice, bob] = await ethers.getSigners();
 
-  const amount = 12000;
-  const multicallToken = await ethers.deployContract(ERC20MulticallMock, ['name', 'symbol']);
+  const amount = 12_000n;
+  const multicallToken = await ethers.deployContract('$ERC20MulticallMock', ['name', 'symbol']);
   await multicallToken.$_mint(deployer, amount);
 
   return { deployer, alice, bob, amount, multicallToken };
@@ -20,16 +18,16 @@ describe('Multicall', function () {
   });
 
   it('batches function calls', async function () {
-    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
-    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal('0');
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(0n);
+    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal(0n);
 
     await this.multicallToken.multicall([
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount / 2]),
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount / 3]),
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount / 2n]),
+      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount / 3n]),
     ]);
 
-    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(this.amount / 2);
-    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal(this.amount / 3);
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(this.amount / 2n);
+    expect(await this.multicallToken.balanceOf(this.bob)).to.be.equal(this.amount / 3n);
   });
 
   it('returns an array with the result of each call', async function () {
@@ -39,32 +37,32 @@ describe('Multicall', function () {
     expect(await this.multicallToken.balanceOf(multicallMock)).to.be.equal(this.amount);
 
     const recipients = [this.alice, this.bob];
-    const amounts = [this.amount / 2, this.amount / 3];
+    const amounts = [this.amount / 2n, this.amount / 3n];
 
     await multicallMock.checkReturnValues(this.multicallToken, recipients, amounts);
   });
 
   it('reverts previous calls', async function () {
-    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(0n);
 
-    const call = this.multicallToken.multicall([
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
-    ]);
-
-    await expect(call)
+    await expect(
+      this.multicallToken.multicall([
+        this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+        this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
+      ]),
+    )
       .to.be.revertedWithCustomError(this.multicallToken, 'ERC20InsufficientBalance')
       .withArgs(this.deployer.address, 0, this.amount);
-    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal('0');
+    expect(await this.multicallToken.balanceOf(this.alice)).to.be.equal(0n);
   });
 
   it('bubbles up revert reasons', async function () {
-    const call = this.multicallToken.multicall([
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
-      this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
-    ]);
-
-    await expect(call)
+    await expect(
+      this.multicallToken.multicall([
+        this.multicallToken.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+        this.multicallToken.interface.encodeFunctionData('transfer', [this.bob.address, this.amount]),
+      ]),
+    )
       .to.be.revertedWithCustomError(this.multicallToken, 'ERC20InsufficientBalance')
       .withArgs(this.deployer.address, 0, this.amount);
   });

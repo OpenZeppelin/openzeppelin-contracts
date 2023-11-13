@@ -2,12 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ReentrancyMock = 'ReentrancyMock';
-const ReentrancyAttack = 'ReentrancyAttack';
-
 async function fixture() {
-  const reentrancyMock = await ethers.deployContract(ReentrancyMock);
-  expect(await reentrancyMock.counter()).to.be.equal('0');
+  const reentrancyMock = await ethers.deployContract('ReentrancyMock');
+  expect(await reentrancyMock.counter()).to.be.equal(0n);
 
   return { reentrancyMock };
 }
@@ -18,13 +15,13 @@ describe('ReentrancyGuard', function () {
   });
 
   it('nonReentrant function can be called', async function () {
-    expect(await this.reentrancyMock.counter()).to.be.equal('0');
+    expect(await this.reentrancyMock.counter()).to.be.equal(0n);
     await this.reentrancyMock.callback();
-    expect(await this.reentrancyMock.counter()).to.be.equal('1');
+    expect(await this.reentrancyMock.counter()).to.be.equal(1n);
   });
 
   it('does not allow remote callback', async function () {
-    const attacker = await ethers.deployContract(ReentrancyAttack);
+    const attacker = await ethers.deployContract('ReentrancyAttack');
     await expect(this.reentrancyMock.countAndCall(attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
   });
 
