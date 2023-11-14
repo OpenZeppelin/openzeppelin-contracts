@@ -27,7 +27,7 @@ contract StorageSlotMock {
         return slot.getBooleanSlot().value;
     }
 
-    function getAddress(bytes32 slot) public view returns (address) {
+    function getAddressFromStorage(bytes32 slot) public view returns (address) {
         return slot.getAddressSlot().value;
     }
 

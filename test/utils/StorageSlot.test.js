@@ -1,15 +1,19 @@
-const { constants, BN } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const StorageSlotMock = artifacts.require('StorageSlotMock');
+const slot = ethers.id('some.storage.slot');
+const otherSlot = ethers.id('some.other.storage.slot');
 
-const slot = web3.utils.keccak256('some.storage.slot');
-const otherSlot = web3.utils.keccak256('some.other.storage.slot');
+async function fixture() {
+  const storage = await ethers.deployContract('StorageSlotMock');
+  const [, account] = await ethers.getSigners();
+  return { storage, account };
+}
 
-contract('StorageSlot', function (accounts) {
+describe('StorageSlot', function () {
   beforeEach(async function () {
-    this.store = await StorageSlotMock.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('boolean storage slot', function () {
@@ -18,116 +22,112 @@ contract('StorageSlot', function (accounts) {
     });
 
     it('set', async function () {
-      await this.store.setBoolean(slot, this.value);
+      await this.storage.setBoolean(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setBoolean(slot, this.value);
+        await this.storage.setBoolean(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getBoolean(slot)).to.be.equal(this.value);
+        expect(await this.storage.getBoolean(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getBoolean(otherSlot)).to.be.equal(false);
+        expect(await this.storage.getBoolean(otherSlot)).to.be.equal(false);
       });
     });
   });
 
   describe('address storage slot', function () {
-    beforeEach(async function () {
-      this.value = accounts[1];
-    });
-
     it('set', async function () {
-      await this.store.setAddress(slot, this.value);
+      await this.storage.setAddress(slot, this.account);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setAddress(slot, this.value);
+        await this.storage.setAddress(slot, this.account);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getAddress(slot)).to.be.equal(this.value);
+        expect(await this.storage.getAddressFromStorage(slot)).to.be.equal(this.account.address);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getAddress(otherSlot)).to.be.equal(constants.ZERO_ADDRESS);
+        expect(await this.storage.getAddressFromStorage(otherSlot)).to.be.equal(ethers.ZeroAddress);
       });
     });
   });
 
   describe('bytes32 storage slot', function () {
-    beforeEach(async function () {
-      this.value = web3.utils.keccak256('some byte32 value');
+    before(async function () {
+      this.value = ethers.id('some byte32 value');
     });
 
     it('set', async function () {
-      await this.store.setBytes32(slot, this.value);
+      await this.storage.setBytes32(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setBytes32(slot, this.value);
+        await this.storage.setBytes32(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getBytes32(slot)).to.be.equal(this.value);
+        expect(await this.storage.getBytes32(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getBytes32(otherSlot)).to.be.equal(constants.ZERO_BYTES32);
+        expect(await this.storage.getBytes32(otherSlot)).to.be.equal(ethers.ZeroHash);
       });
     });
   });
 
   describe('uint256 storage slot', function () {
-    beforeEach(async function () {
-      this.value = new BN(1742);
+    before(async function () {
+      this.value = 1742n;
     });
 
     it('set', async function () {
-      await this.store.setUint256(slot, this.value);
+      await this.storage.setUint256(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setUint256(slot, this.value);
+        await this.storage.setUint256(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getUint256(slot)).to.be.bignumber.equal(this.value);
+        expect(await this.storage.getUint256(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getUint256(otherSlot)).to.be.bignumber.equal('0');
+        expect(await this.storage.getUint256(otherSlot)).to.be.equal(0n);
       });
     });
   });
 
   describe('string storage slot', function () {
-    beforeEach(async function () {
+    before(async function () {
       this.value = 'lorem ipsum';
     });
 
     it('set', async function () {
-      await this.store.setString(slot, this.value);
+      await this.storage.setString(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setString(slot, this.value);
+        await this.storage.setString(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getString(slot)).to.be.equal(this.value);
+        expect(await this.storage.getString(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getString(otherSlot)).to.be.equal('');
+        expect(await this.storage.getString(otherSlot)).to.be.equal('');
       });
     });
   });
@@ -138,22 +138,22 @@ contract('StorageSlot', function (accounts) {
     });
 
     it('set', async function () {
-      await this.store.setStringStorage(slot, this.value);
+      await this.storage.setStringStorage(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setStringStorage(slot, this.value);
+        await this.storage.setStringStorage(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.stringMap(slot)).to.be.equal(this.value);
-        expect(await this.store.getStringStorage(slot)).to.be.equal(this.value);
+        expect(await this.storage.stringMap(slot)).to.be.equal(this.value);
+        expect(await this.storage.getStringStorage(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.stringMap(otherSlot)).to.be.equal('');
-        expect(await this.store.getStringStorage(otherSlot)).to.be.equal('');
+        expect(await this.storage.stringMap(otherSlot)).to.be.equal('');
+        expect(await this.storage.getStringStorage(otherSlot)).to.be.equal('');
       });
     });
   });
@@ -164,46 +164,46 @@ contract('StorageSlot', function (accounts) {
     });
 
     it('set', async function () {
-      await this.store.setBytes(slot, this.value);
+      await this.storage.setBytes(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setBytes(slot, this.value);
+        await this.storage.setBytes(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.getBytes(slot)).to.be.equal(this.value);
+        expect(await this.storage.getBytes(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.getBytes(otherSlot)).to.be.equal(null);
+        expect(await this.storage.getBytes(otherSlot)).to.be.equal('0x');
       });
     });
   });
 
   describe('bytes storage pointer', function () {
     beforeEach(async function () {
-      this.value = web3.utils.randomHex(128);
+      this.value = ethers.hexlify(ethers.randomBytes(128));
     });
 
     it('set', async function () {
-      await this.store.setBytesStorage(slot, this.value);
+      await this.storage.setBytesStorage(slot, this.value);
     });
 
     describe('get', function () {
       beforeEach(async function () {
-        await this.store.setBytesStorage(slot, this.value);
+        await this.storage.setBytesStorage(slot, this.value);
       });
 
       it('from right slot', async function () {
-        expect(await this.store.bytesMap(slot)).to.be.equal(this.value);
-        expect(await this.store.getBytesStorage(slot)).to.be.equal(this.value);
+        expect(await this.storage.bytesMap(slot)).to.be.equal(this.value);
+        expect(await this.storage.getBytesStorage(slot)).to.be.equal(this.value);
       });
 
       it('from other slot', async function () {
-        expect(await this.store.bytesMap(otherSlot)).to.be.equal(null);
-        expect(await this.store.getBytesStorage(otherSlot)).to.be.equal(null);
+        expect(await this.storage.bytesMap(otherSlot)).to.be.equal('0x');
+        expect(await this.storage.getBytesStorage(otherSlot)).to.be.equal('0x');
       });
     });
   });
