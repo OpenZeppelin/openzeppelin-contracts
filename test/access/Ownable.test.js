@@ -13,6 +13,12 @@ describe('Ownable', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  it('emits ownership transfer events during construction', async function () {
+    await expect(await this.ownable.deploymentTransaction())
+      .to.emit(this.ownable, 'OwnershipTransferred')
+      .withArgs(ethers.ZeroAddress, this.owner.address);
+  });
+
   it('rejects zero address for initialOwner', async function () {
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
       .to.be.revertedWithCustomError({ interface: this.ownable.interface }, 'OwnableInvalidOwner')

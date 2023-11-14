@@ -1,16 +1,14 @@
+const { keccak256, id, toBeHex, MaxUint256 } = require('ethers');
 const { artifacts } = require('hardhat');
 
 function namespaceId(contractName) {
   return `openzeppelin.storage.${contractName}`;
 }
 
-function namespaceLocation(id) {
-  const hashIdBN = web3.utils.toBN(web3.utils.keccak256(id)).subn(1); // keccak256(id) - 1
-  const hashIdHex = web3.utils.padLeft(web3.utils.numberToHex(hashIdBN), 64);
-
-  const mask = BigInt(web3.utils.padLeft('0x00', 64, 'f')); // ~0xff
-
-  return BigInt(web3.utils.keccak256(hashIdHex)) & mask;
+function namespaceLocation(value) {
+  const hashIdBN = BigInt(id(value)) - 1n; // keccak256(id) - 1
+  const mask = MaxUint256 - 0xffn; // ~0xff
+  return BigInt(keccak256(toBeHex(hashIdBN, 32))) & mask;
 }
 
 function namespaceSlot(contractName, offset) {

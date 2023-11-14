@@ -1,5 +1,3 @@
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
-const { expectRevertCustomError } = require('../../helpers/customError');
 const {
   LIKE_COMMON_IS_EXECUTING,
   LIKE_COMMON_GET_ACCESS,
@@ -18,13 +16,9 @@ const {
  */
 function shouldBehaveLikeDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      // Consume previously set delay
-      await mine();
-    });
-    testAsDelayedOperation();
-  };
+  testAsDelayedOperation.mineDelay = true;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testAsDelayedOperation;
   getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For testAsDelayedOperation
@@ -42,14 +36,12 @@ function shouldBehaveLikeDelayedAdminOperation() {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(
-              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-              'AccessManagerUnauthorizedAccount',
-              [
-                this.caller,
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+              .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
+              .withArgs(
+                this.caller.address,
                 this.roles.ADMIN.id, // Although PUBLIC is required, target function role doesn't apply to admin ops
-              ],
-            );
+              );
           });
         },
         specificRoleIsRequired: getAccessPath,
@@ -63,19 +55,20 @@ function shouldBehaveLikeDelayedAdminOperation() {
  */
 function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('set execution delay', async function () {
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
-    beforeEach('set execution delay', async function () {
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+
+  function testScheduleOperation(mineDelay) {
+    return function self() {
+      self.mineDelay = mineDelay;
+      beforeEach('set execution delay', async function () {
+        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+      });
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+    };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testScheduleOperation(true);
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
@@ -87,11 +80,12 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(
-              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-              'AccessManagerUnauthorizedAccount',
-              [this.caller, this.roles.ADMIN.id], // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
-            );
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+              .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
+              .withArgs(
+                this.caller.address,
+                this.roles.ADMIN.id, // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
+              );
           });
         },
         specificRoleIsRequired: getAccessPath,
@@ -105,19 +99,17 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
  */
 function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('set operation delay', async function () {
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
+
+  function afterGrantDelay() {
+    afterGrantDelay.mineDelay = true;
     beforeEach('set execution delay', async function () {
       this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
     });
     testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = afterGrantDelay;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = afterGrantDelay;
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;
@@ -129,11 +121,9 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
       testAsHasRole({
         publicRoleIsRequired() {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
-            await expectRevertCustomError(
-              web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-              'AccessManagerUnauthorizedAccount',
-              [this.caller, roleAdmin], // Role admin ops require the role's admin
-            );
+            await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+              .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
+              .withArgs(this.caller.address, roleAdmin);
           });
         },
         specificRoleIsRequired: getAccessPath,
@@ -150,11 +140,9 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
 function shouldBehaveLikeAManagedRestrictedOperation() {
   function revertUnauthorized() {
     it('reverts as AccessManagedUnauthorized', async function () {
-      await expectRevertCustomError(
-        web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller }),
-        'AccessManagedUnauthorized',
-        [this.caller],
-      );
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+        .to.be.revertedWithCustomError(this.target, 'AccessManagedUnauthorized')
+        .withArgs(this.caller.address);
     });
   }
 
@@ -166,20 +154,19 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     revertUnauthorized;
   getAccessPath.requiredRoleIsNotGranted = revertUnauthorized;
 
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      // Consume previously set delay
-      await mine();
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
-    beforeEach('consume previously set grant delay', async function () {
-      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-    });
-    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-  };
+  function testScheduleOperation(mineDelay) {
+    return function self() {
+      self.mineDelay = mineDelay;
+      beforeEach('sets execution delay', async function () {
+        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+      });
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+    };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testScheduleOperation(true);
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
 
   const isExecutingPath = LIKE_COMMON_IS_EXECUTING;
   isExecutingPath.notExecuting = revertUnauthorized;
@@ -191,11 +178,11 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
       callerIsNotTheManager: {
         publicRoleIsRequired() {
           it('succeeds called directly', async function () {
-            await web3.eth.sendTransaction({ to: this.target.address, data: this.calldata, from: this.caller });
+            await this.caller.sendTransaction({ to: this.target, data: this.calldata });
           });
 
           it('succeeds via execute', async function () {
-            await this.manager.execute(this.target.address, this.calldata, { from: this.caller });
+            await this.manager.connect(this.caller).execute(this.target, this.calldata);
           });
         },
         specificRoleIsRequired: getAccessPath,
