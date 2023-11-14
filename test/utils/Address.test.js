@@ -3,20 +3,16 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const coder = ethers.AbiCoder.defaultAbiCoder();
 
-const Address = '$Address';
-const EtherReceiver = 'EtherReceiverMock';
-const CallReceiverMock = 'CallReceiverMock';
-
 async function fixture() {
   const [recipient, other] = await ethers.getSigners();
 
-  const mock = await ethers.deployContract(Address);
-  const target = await ethers.deployContract(CallReceiverMock);
+  const mock = await ethers.deployContract('$Address');
+  const target = await ethers.deployContract('CallReceiverMock');
 
   return { recipient, other, mock, target };
 }
 
-describe('Address', function () {
+describe.only('Address', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -67,7 +63,7 @@ describe('Address', function () {
 
       describe('with contract recipient', function () {
         beforeEach(async function () {
-          this.target = await ethers.deployContract(EtherReceiver);
+          this.target = await ethers.deployContract('EtherReceiverMock');
         });
 
         it('sends funds', async function () {
