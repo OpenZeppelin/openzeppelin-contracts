@@ -13,7 +13,7 @@ async function fixture() {
   return { recipient, other, mock, target, targetEther };
 }
 
-describe.only('Address', function () {
+describe('Address', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -115,6 +115,7 @@ describe.only('Address', function () {
       });
 
       it('reverts when the called function runs out of gas', async function () {
+        if(process.env.COVERAGE) this.skip();
         const abiEncodedCall = this.target.interface.encodeFunctionData('mockFunctionOutOfGas');
 
         await expect(
