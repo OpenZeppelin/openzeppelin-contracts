@@ -8,8 +8,9 @@ async function fixture() {
 
   const mock = await ethers.deployContract('$Address');
   const target = await ethers.deployContract('CallReceiverMock');
+  const targetEther = await ethers.deployContract('EtherReceiverMock');
 
-  return { recipient, other, mock, target };
+  return { recipient, other, mock, target, targetEther };
 }
 
 describe.only('Address', function () {
@@ -62,18 +63,14 @@ describe.only('Address', function () {
       });
 
       describe('with contract recipient', function () {
-        beforeEach(async function () {
-          this.target = await ethers.deployContract('EtherReceiverMock');
-        });
-
         it('sends funds', async function () {
-          await this.target.setAcceptEther(true);
-          await expect(this.mock.$sendValue(this.target, funds)).to.changeEtherBalance(this.target, funds);
+          await this.targetEther.setAcceptEther(true);
+          await expect(this.mock.$sendValue(this.targetEther, funds)).to.changeEtherBalance(this.targetEther, funds);
         });
 
         it('reverts on recipient revert', async function () {
-          await this.target.setAcceptEther(false);
-          await expect(this.mock.$sendValue(this.target, funds)).to.be.revertedWithCustomError(
+          await this.targetEther.setAcceptEther(false);
+          await expect(this.mock.$sendValue(this.targetEther, funds)).to.be.revertedWithCustomError(
             this.mock,
             'FailedInnerCall',
           );
