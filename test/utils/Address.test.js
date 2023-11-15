@@ -115,7 +115,7 @@ describe('Address', function () {
       });
 
       it('reverts when the called function runs out of gas', async function () {
-        if(process.env.COVERAGE) this.skip();
+        if (process.env.COVERAGE) this.skip();
         const abiEncodedCall = this.target.interface.encodeFunctionData('mockFunctionOutOfGas');
 
         await expect(

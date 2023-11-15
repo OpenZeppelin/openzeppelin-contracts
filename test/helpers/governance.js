@@ -107,14 +107,14 @@ class GovernorHelper {
             this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
           )
       : vote.params
-      ? // otherwise if params
-        this.governor.castVoteWithReasonAndParams(
-          ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params], opts),
-        )
-      : vote.reason
-      ? // otherwise if reason
-        this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
-      : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
+        ? // otherwise if params
+          this.governor.castVoteWithReasonAndParams(
+            ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params], opts),
+          )
+        : vote.reason
+          ? // otherwise if reason
+            this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
+          : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
   }
 
   sign(vote = {}) {
