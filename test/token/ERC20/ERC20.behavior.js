@@ -347,7 +347,7 @@ function shouldBehaveLikeERC20Bigint(initialSupply, opts = {}) {
   describe('balanceOf', function () {
     describe('when the requested account has no tokens', function () {
       it('returns zero', async function () {
-        expect(await this.token.balanceOf(this.anotherAccount)).to.be.equal('0');
+        expect(await this.token.balanceOf(this.anotherAccount)).to.be.equal(0n);
       });
     });
 
