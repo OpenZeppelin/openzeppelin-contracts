@@ -15,7 +15,7 @@ async function fixture() {
     );
   };
 
-  return { owner, anotherAccount, otherAccount, createProxy };
+  return { owner, anotherAccount, otherAccounts, createProxy };
 }
 
 describe.only('TransparentUpgradeableProxy', function () {
