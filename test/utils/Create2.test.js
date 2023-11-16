@@ -5,20 +5,18 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 async function fixture() {
   const [deployerAccount, other] = await ethers.getSigners();
 
-  const factory = await ethers.deployContract('$Create2');
-  const encodedParams = ethers.AbiCoder.defaultAbiCoder()
-    .encode(['address', 'uint64', 'uint64'], [other.address, 0, 0])
-    .slice(2);
-
-  const VestingWalletFactory = await ethers.getContractFactory('VestingWallet');
-  const constructorByteCode = `${VestingWalletFactory.bytecode}${encodedParams}`;
+  const VestingWallet = await ethers.getContractFactory('VestingWallet');
+  const encodedParams = VestingWallet.interface.encodeDeploy([other.address, 0n, 0n]);
+  const constructorByteCode = `${VestingWallet.bytecode}${encodedParams.slice(2)}`;
 
   // This should be a contract that:
   // - has no constructor arguments
   // - has no immutable variable populated during construction
-  const { bytecode: constructorLessBytecode } = await ethers.getContractFactory('$Create2');
+  const Create2 = await ethers.getContractFactory('$Create2');
+  const factory = await Create2.deploy();
+  const constructorLessBytecode = Create2.bytecode;
 
-  return { deployerAccount, other, factory, encodedParams, constructorByteCode, constructorLessBytecode };
+  return { deployerAccount, other, factory, constructorByteCode, constructorLessBytecode };
 }
 
 describe('Create2', function () {
