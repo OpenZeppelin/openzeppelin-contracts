@@ -26,7 +26,7 @@ function setSlot(address, slot, value) {
 
 async function getAddressInSlot(address, slot) {
   const slotValue = await getSlot(address, slot);
-  return ethers.AbiCoder.defaultAbiCoder().decode(['address'], slotValue)
+  return ethers.AbiCoder.defaultAbiCoder().decode(['address'], slotValue)[0];
 }
 
 module.exports = {

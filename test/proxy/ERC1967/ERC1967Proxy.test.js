@@ -8,8 +8,8 @@ const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 
 describe.only('ERC1967Proxy', function () {
   // `undefined`, `null` and other false-ish opts will not be forwarded.
-  const createProxy = async function (implementation, initData) {
-    return ethers.deployContract('ERC1967Proxy', [implementation, initData]);
+  const createProxy = async function (implementation, initData, opts) {
+    return ethers.deployContract('ERC1967Proxy', [implementation, initData], opts);
   };
 
   shouldBehaveLikeProxy(createProxy);
