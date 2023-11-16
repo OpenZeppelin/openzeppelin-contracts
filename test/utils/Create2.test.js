@@ -7,7 +7,7 @@ async function fixture() {
 
   const VestingWallet = await ethers.getContractFactory('VestingWallet');
   const encodedParams = VestingWallet.interface.encodeDeploy([other.address, 0n, 0n]);
-  const constructorByteCode = `${VestingWallet.bytecode}${encodedParams.slice(2)}`;
+  const constructorByteCode = ethers.concat([VestingWallet.bytecode, encodedParams]);
 
   // This should be a contract that:
   // - has no constructor arguments
