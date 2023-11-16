@@ -3,32 +3,33 @@ const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
+  bigint: { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve },
 } = require('./ERC20.behavior');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
-const TOKENS = [
-  { Token: artifacts.require('$ERC20') },
-  { Token: artifacts.require('$ERC20ApprovalMock'), forcedApproval: true },
-];
+const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
 
-contract('ERC20', function (accounts) {
-  const [initialHolder, recipient] = accounts;
-
+describe.only('ERC20', function () {
   const name = 'My Token';
   const symbol = 'MTKN';
-  const initialSupply = new BN(100);
+  const initialSupply = 100n;
 
   for (const { Token, forcedApproval } of TOKENS) {
-    describe(`using ${Token._json.contractName}`, function () {
-      beforeEach(async function () {
-        this.token = await Token.new(name, symbol);
+    describe(`using ${Token}`, function () {
+      const fixture = async () => {
+        const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
+
+        const token = await ethers.deployContract(Token, [name, symbol]);
         await this.token.$_mint(initialHolder, initialSupply);
+
+        return { initialHolder, recipient, anotherAccount, token };
+      };
+
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
       });
 
-      shouldBehaveLikeERC20(initialSupply, accounts, { forcedApproval });
+      shouldBehaveLikeERC20(initialSupply, { forcedApproval });
 
       it('has a name', async function () {
         expect(await this.token.name()).to.equal(name);
@@ -119,7 +120,7 @@ contract('ERC20', function (accounts) {
           };
 
           describeBurn('for entire balance', initialSupply);
-          describeBurn('for less value than balance', initialSupply.subn(1));
+          describeBurn('for less value than balance', initialSupply - 1n);
         });
       });
 
@@ -167,9 +168,11 @@ contract('ERC20', function (accounts) {
       });
 
       describe('_transfer', function () {
-        shouldBehaveLikeERC20Transfer(initialHolder, recipient, initialSupply, function (from, to, value) {
-          return this.token.$_transfer(from, to, value);
-        });
+        beforeEach(function () {
+          this.transfer = this.token.$_transfer
+        })
+
+        shouldBehaveLikeERC20Transfer(initialSupply);
 
         describe('when the sender is the zero address', function () {
           it('reverts', async function () {
@@ -183,9 +186,11 @@ contract('ERC20', function (accounts) {
       });
 
       describe('_approve', function () {
-        shouldBehaveLikeERC20Approve(initialHolder, recipient, initialSupply, function (owner, spender, value) {
-          return this.token.$_approve(owner, spender, value);
-        });
+        beforeEach(function () {
+          this.approve = this.token.$_approve
+        })
+
+        shouldBehaveLikeERC20Approve(initialSupply);
 
         describe('when the owner is the zero address', function () {
           it('reverts', async function () {
