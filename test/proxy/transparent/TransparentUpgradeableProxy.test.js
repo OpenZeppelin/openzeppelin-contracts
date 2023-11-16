@@ -8,11 +8,7 @@ async function fixture() {
   const [owner, anotherAccount, ...otherAccounts] = await ethers.getSigners();
 
   const createProxy = function (logic, initData, opts = undefined) {
-    return ethers.deployContract(
-      'TransparentUpgradeableProxy',
-      [logic, owner, initData],
-      opts,
-    );
+    return ethers.deployContract('TransparentUpgradeableProxy', [logic, owner, initData], opts);
   };
 
   return { owner, anotherAccount, otherAccounts, createProxy };
@@ -25,8 +21,6 @@ describe.only('TransparentUpgradeableProxy', function () {
 
   shouldBehaveLikeProxy();
 
-  describe.skip('', function () {
-    // createProxy, owner, otherAccounts
-    shouldBehaveLikeTransparentUpgradeableProxy();
-  });
+  // createProxy, owner, otherAccounts
+  shouldBehaveLikeTransparentUpgradeableProxy();
 });
