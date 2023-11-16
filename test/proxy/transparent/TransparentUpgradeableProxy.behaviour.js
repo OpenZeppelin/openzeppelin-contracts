@@ -19,9 +19,8 @@ const DummyImplementation = artifacts.require('DummyImplementation');
 const ClashingImplementation = artifacts.require('ClashingImplementation');
 const Ownable = artifacts.require('Ownable');
 
-module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProxy, initialOwner, accounts) {
-  const [anotherAccount] = accounts;
-
+// createProxy, initialOwner, accounts
+module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   async function createProxyWithImpersonatedProxyAdmin(logic, initData, opts = undefined) {
     const proxy = await createProxy(logic, initData, opts);
 
@@ -80,9 +79,9 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('can overwrite the admin by the implementation', async function () {
       const dummy = new DummyImplementation(this.proxy.address);
-      await dummy.unsafeOverrideAdmin(anotherAccount);
+      await dummy.unsafeOverrideAdmin(this.anotherAccount);
       const ERC1967AdminSlotValue = await getAddressInSlot(this.proxy, AdminSlot);
-      expect(ERC1967AdminSlotValue).to.be.equal(anotherAccount);
+      expect(ERC1967AdminSlotValue).to.be.equal(this.anotherAccount);
 
       // Still allows previous admin to execute admin operations
       expect(ERC1967AdminSlotValue).to.not.equal(this.proxyAdminAddress);
@@ -147,7 +146,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         describe('when the sender is not the admin', function () {
           it('reverts', async function () {
             await expectRevert.unspecified(
-              this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from: anotherAccount }),
+              this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from: this.anotherAccount }),
             );
           });
         });
@@ -263,7 +262,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       });
 
       describe('when the sender is not the admin', function () {
-        const from = anotherAccount;
+        const from = this.anotherAccount;
 
         it('reverts', async function () {
           const behaviorV1 = await MigratableMockV1.new();
@@ -306,7 +305,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
       it('delegates the call to implementation when sender is not the admin', async function () {
         const receipt = await this.proxy.upgradeToAndCall(this.clashingImplV1, '0x', {
-          from: anotherAccount,
+          from: this.anotherAccount,
         });
         expectEvent.notEmitted(receipt, 'Upgraded');
         expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
@@ -385,7 +384,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const proxyInstance4 = new Implementation4(proxy.address);
 
       const data = '0x';
-      await web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data });
+      await web3.eth.sendTransaction({ to: proxy.address, from: this.anotherAccount, data });
 
       const res = await proxyInstance4.getValue();
       expect(res.toString()).to.eq('1');
@@ -402,7 +401,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       await proxy.upgradeToAndCall(instance2.address, '0x', { from: proxyAdminAddress });
 
       const data = '0x';
-      await expectRevert.unspecified(web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }));
+      await expectRevert.unspecified(web3.eth.sendTransaction({ to: proxy.address, from: this.anotherAccount, data }));
 
       const proxyInstance2 = new Implementation2(proxy.address);
       const res = await proxyInstance2.getValue();

@@ -86,8 +86,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, accounts) {
         const value = 10n ** 5n;
 
         it('reverts', async function () {
-          await expect(createProxy(this.implementation, this.initializeData, { value }))
-            .to.be.reverted
+          await expect(createProxy(this.implementation, this.initializeData, { value })).to.be.reverted;
         });
       });
     });
