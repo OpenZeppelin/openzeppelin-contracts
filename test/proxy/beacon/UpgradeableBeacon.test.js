@@ -1,54 +1,55 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { expectRevertCustomError } = require('../../helpers/customError');
+async function fixture() {
+  const [owner, other] = await ethers.getSigners();
 
-const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
-const Implementation1 = artifacts.require('Implementation1');
-const Implementation2 = artifacts.require('Implementation2');
+  const v1 = await ethers.deployContract('Implementation1');
+  const beacon = await ethers.deployContract('UpgradeableBeacon', [v1, owner]);
 
-contract('UpgradeableBeacon', function (accounts) {
-  const [owner, other] = accounts;
+  return { owner, other, beacon, v1 };
+}
 
-  it('cannot be created with non-contract implementation', async function () {
-    await expectRevertCustomError(UpgradeableBeacon.new(other, owner), 'BeaconInvalidImplementation', [other]);
+describe('UpgradeableBeacon', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  context('once deployed', async function () {
-    beforeEach('deploying beacon', async function () {
-      this.v1 = await Implementation1.new();
-      this.beacon = await UpgradeableBeacon.new(this.v1.address, owner);
-    });
+  it('cannot be created with non-contract implementation', async function () {
+    const UpgradeableBeacon = await ethers.getContractFactory('UpgradeableBeacon');
+    await expect(UpgradeableBeacon.deploy(this.other, this.owner))
+      .to.be.revertedWithCustomError(UpgradeableBeacon, 'BeaconInvalidImplementation')
+      .withArgs(this.other.address);
+  });
 
+  describe('once deployed', async function () {
     it('emits Upgraded event to the first implementation', async function () {
-      const beacon = await UpgradeableBeacon.new(this.v1.address, owner);
-      await expectEvent.inTransaction(beacon.contract.transactionHash, beacon, 'Upgraded', {
-        implementation: this.v1.address,
-      });
+      await expect(this.beacon.deploymentTransaction()).to.emit(this.beacon, 'Upgraded').withArgs(this.v1.target);
     });
 
     it('returns implementation', async function () {
-      expect(await this.beacon.implementation()).to.equal(this.v1.address);
+      expect(await this.beacon.implementation()).to.equal(this.v1.target);
     });
 
     it('can be upgraded by the owner', async function () {
-      const v2 = await Implementation2.new();
-      const receipt = await this.beacon.upgradeTo(v2.address, { from: owner });
-      expectEvent(receipt, 'Upgraded', { implementation: v2.address });
-      expect(await this.beacon.implementation()).to.equal(v2.address);
+      const v2 = await ethers.deployContract('Implementation2');
+      const tx = await this.beacon.connect(this.owner).upgradeTo(v2);
+      await expect(tx).to.emit(this.beacon, 'Upgraded').withArgs(v2.target);
+      expect(await this.beacon.implementation()).to.equal(v2.target);
     });
 
     it('cannot be upgraded to a non-contract', async function () {
-      await expectRevertCustomError(this.beacon.upgradeTo(other, { from: owner }), 'BeaconInvalidImplementation', [
-        other,
-      ]);
+      await expect(this.beacon.connect(this.owner).upgradeTo(this.other))
+        .to.be.revertedWithCustomError(this.beacon, 'BeaconInvalidImplementation')
+        .withArgs(this.other.address);
     });
 
     it('cannot be upgraded by other account', async function () {
-      const v2 = await Implementation2.new();
-      await expectRevertCustomError(this.beacon.upgradeTo(v2.address, { from: other }), 'OwnableUnauthorizedAccount', [
-        other,
-      ]);
+      const v2 = await ethers.deployContract('Implementation2');
+      await expect(this.beacon.connect(this.other).upgradeTo(v2))
+        .to.be.revertedWithCustomError(this.beacon, 'OwnableUnauthorizedAccount')
+        .withArgs(this.other.address);
     });
   });
 });
