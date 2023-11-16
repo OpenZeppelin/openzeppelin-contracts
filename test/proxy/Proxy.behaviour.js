@@ -1,27 +1,36 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
-const { getSlot, ImplementationSlot } = require('../helpers/erc1967');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
+const { expectRevert } = require('@openzeppelin/test-helpers');
+const { getSlot, getAddressInSlot, ImplementationSlot } = require('../helpers/erc1967');
+
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
 module.exports = function shouldBehaveLikeProxy(createProxy, accounts) {
-  it('cannot be initialized with a non-contract address', async function () {
-    const nonContractAddress = accounts[0];
-    const initializeData = Buffer.from('');
-    await expectRevert.unspecified(createProxy(nonContractAddress, initializeData));
+  const fixture = async () => {
+    const [nonContractAddress] = await ethers.getSigners();
+
+    const implementation = (await ethers.deployContract('DummyImplementation')).target;
+
+    return {nonContractAddress, implementation};
+  }
+
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  before('deploy implementation', async function () {
-    this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
+  it('cannot be initialized with a non-contract address', async function () {
+    const initializeData = '0x';
+    await expect(createProxy(this.nonContractAddress, initializeData)).to.be.reverted;
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-      expect(implementationAddress).to.be.equal(this.implementation);
+      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+      expect(implementationAddress).to.be.equal(this.implementation.target);
     });
 
     it('initializes the proxy', async function () {
