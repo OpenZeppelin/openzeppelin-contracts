@@ -18,9 +18,9 @@ function getSlot(address, slot) {
 
 function setSlot(address, slot, value) {
   return setStorageAt(
-    ethers.isAddress(address) ? address : address.address,
+    ethers.isAddress(address) ? address : address.address || address.target,
     ethers.isBytesLike(slot) ? slot : labelToSlot(slot),
-    value,
+    typeof value === 'string' ? value : value.address || value.target,
   );
 }
 
