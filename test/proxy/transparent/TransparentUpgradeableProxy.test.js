@@ -14,7 +14,7 @@ async function fixture() {
   return { owner, anotherAccount, otherAccounts, createProxy };
 }
 
-describe.only('TransparentUpgradeableProxy', function () {
+describe('TransparentUpgradeableProxy', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
