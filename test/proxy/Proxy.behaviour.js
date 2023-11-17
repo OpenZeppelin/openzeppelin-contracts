@@ -26,8 +26,7 @@ module.exports = function shouldBehaveLikeProxy() {
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-      expect(implementationAddress).to.be.equal(this.implementation.target);
+      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.implementation.target);
     });
 
     it('initializes the proxy', async function () {

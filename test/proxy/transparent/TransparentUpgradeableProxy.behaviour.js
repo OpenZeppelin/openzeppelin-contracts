@@ -33,8 +33,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
 
   describe('implementation', function () {
     it('returns the current implementation address', async function () {
-      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-      expect(implementationAddress).to.be.equal(this.implementationV0.target);
+      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.implementationV0.target);
     });
 
     it('delegates to the implementation', async function () {
@@ -92,8 +91,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
           });
 
           it('upgrades to the requested implementation', async function () {
-            const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-            expect(implementationAddress).to.be.equal(this.behavior.target);
+            expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.behavior.target);
           });
 
           it('emits an event', async function () {
