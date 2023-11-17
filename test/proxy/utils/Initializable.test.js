@@ -1,21 +1,17 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { expectRevertCustomError } = require('../../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { MAX_UINT64 } = require('../../helpers/constants');
 
-const InitializableMock = artifacts.require('InitializableMock');
-const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
-const ChildConstructorInitializableMock = artifacts.require('ChildConstructorInitializableMock');
-const ReinitializerMock = artifacts.require('ReinitializerMock');
-const SampleChild = artifacts.require('SampleChild');
-const DisableBad1 = artifacts.require('DisableBad1');
-const DisableBad2 = artifacts.require('DisableBad2');
-const DisableOk = artifacts.require('DisableOk');
+async function fixture() {
+  const contract = await ethers.deployContract('InitializableMock');
+  return { contract };
+}
 
-contract('Initializable', function () {
+describe('Initializable', function () {
   describe('basic testing without inheritance', function () {
     beforeEach('deploying', async function () {
-      this.contract = await InitializableMock.new();
+      Object.assign(this, await loadFixture(fixture));
     });
 
     describe('before initialize', function () {
@@ -42,13 +38,16 @@ contract('Initializable', function () {
       });
 
       it('initializer does not run again', async function () {
-        await expectRevertCustomError(this.contract.initialize(), 'InvalidInitialization', []);
+        await expect(this.contract.initialize()).to.be.revertedWithCustomError(this.contract, 'InvalidInitialization');
       });
     });
 
     describe('nested under an initializer', function () {
       it('initializer modifier reverts', async function () {
-        await expectRevertCustomError(this.contract.initializerNested(), 'InvalidInitialization', []);
+        await expect(this.contract.initializerNested()).to.be.revertedWithCustomError(
+          this.contract,
+          'InvalidInitialization',
+        );
       });
 
       it('onlyInitializing modifier succeeds', async function () {
@@ -58,18 +57,21 @@ contract('Initializable', function () {
     });
 
     it('cannot call onlyInitializable function outside the scope of an initializable function', async function () {
-      await expectRevertCustomError(this.contract.initializeOnlyInitializing(), 'NotInitializing', []);
+      await expect(this.contract.initializeOnlyInitializing()).to.be.revertedWithCustomError(
+        this.contract,
+        'NotInitializing',
+      );
     });
   });
 
   it('nested initializer can run during construction', async function () {
-    const contract2 = await ConstructorInitializableMock.new();
+    const contract2 = await ethers.deployContract('ConstructorInitializableMock');
     expect(await contract2.initializerRan()).to.equal(true);
     expect(await contract2.onlyInitializingRan()).to.equal(true);
   });
 
   it('multiple constructor levels can be initializers', async function () {
-    const contract2 = await ChildConstructorInitializableMock.new();
+    const contract2 = await ethers.deployContract('ChildConstructorInitializableMock');
     expect(await contract2.initializerRan()).to.equal(true);
     expect(await contract2.childInitializerRan()).to.equal(true);
     expect(await contract2.onlyInitializingRan()).to.equal(true);
@@ -77,110 +79,118 @@ contract('Initializable', function () {
 
   describe('reinitialization', function () {
     beforeEach('deploying', async function () {
-      this.contract = await ReinitializerMock.new();
+      this.contract = await ethers.deployContract('ReinitializerMock');
     });
 
     it('can reinitialize', async function () {
-      expect(await this.contract.counter()).to.be.bignumber.equal('0');
+      expect(await this.contract.counter()).to.be.equal(0n);
       await this.contract.initialize();
-      expect(await this.contract.counter()).to.be.bignumber.equal('1');
+      expect(await this.contract.counter()).to.be.equal(1n);
       await this.contract.reinitialize(2);
-      expect(await this.contract.counter()).to.be.bignumber.equal('2');
+      expect(await this.contract.counter()).to.be.equal(2n);
       await this.contract.reinitialize(3);
-      expect(await this.contract.counter()).to.be.bignumber.equal('3');
+      expect(await this.contract.counter()).to.be.equal(3n);
     });
 
     it('can jump multiple steps', async function () {
-      expect(await this.contract.counter()).to.be.bignumber.equal('0');
+      expect(await this.contract.counter()).to.be.equal(0n);
       await this.contract.initialize();
-      expect(await this.contract.counter()).to.be.bignumber.equal('1');
+      expect(await this.contract.counter()).to.be.equal(1n);
       await this.contract.reinitialize(128);
-      expect(await this.contract.counter()).to.be.bignumber.equal('2');
+      expect(await this.contract.counter()).to.be.equal(2n);
     });
 
     it('cannot nest reinitializers', async function () {
-      expect(await this.contract.counter()).to.be.bignumber.equal('0');
-      await expectRevertCustomError(this.contract.nestedReinitialize(2, 2), 'InvalidInitialization', []);
-      await expectRevertCustomError(this.contract.nestedReinitialize(2, 3), 'InvalidInitialization', []);
-      await expectRevertCustomError(this.contract.nestedReinitialize(3, 2), 'InvalidInitialization', []);
+      expect(await this.contract.counter()).to.be.equal(0n);
+      await expect(this.contract.nestedReinitialize(2, 2)).to.be.revertedWithCustomError(
+        this.contract,
+        'InvalidInitialization',
+      );
+      await expect(this.contract.nestedReinitialize(2, 3)).to.be.revertedWithCustomError(
+        this.contract,
+        'InvalidInitialization',
+      );
+      await expect(this.contract.nestedReinitialize(3, 2)).to.be.revertedWithCustomError(
+        this.contract,
+        'InvalidInitialization',
+      );
     });
 
     it('can chain reinitializers', async function () {
-      expect(await this.contract.counter()).to.be.bignumber.equal('0');
+      expect(await this.contract.counter()).to.be.equal(0n);
       await this.contract.chainReinitialize(2, 3);
-      expect(await this.contract.counter()).to.be.bignumber.equal('2');
+      expect(await this.contract.counter()).to.be.equal(2n);
     });
 
     it('_getInitializedVersion returns right version', async function () {
       await this.contract.initialize();
-      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('1');
+      expect(await this.contract.getInitializedVersion()).to.be.equal(1n);
       await this.contract.reinitialize(12);
-      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('12');
+      expect(await this.contract.getInitializedVersion()).to.be.equal(12n);
     });
 
     describe('contract locking', function () {
       it('prevents initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.initialize(), 'InvalidInitialization', []);
+        await expect(this.contract.initialize()).to.be.revertedWithCustomError(this.contract, 'InvalidInitialization');
       });
 
       it('prevents re-initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.reinitialize(255), 'InvalidInitialization', []);
+        await expect(this.contract.reinitialize(255n)).to.be.revertedWithCustomError(
+          this.contract,
+          'InvalidInitialization',
+        );
       });
 
       it('can lock contract after initialization', async function () {
         await this.contract.initialize();
         await this.contract.disableInitializers();
-        await expectRevertCustomError(this.contract.reinitialize(255), 'InvalidInitialization', []);
+        await expect(this.contract.reinitialize(255n)).to.be.revertedWithCustomError(
+          this.contract,
+          'InvalidInitialization',
+        );
       });
     });
   });
 
   describe('events', function () {
     it('constructor initialization emits event', async function () {
-      const contract = await ConstructorInitializableMock.new();
-
-      await expectEvent.inTransaction(contract.transactionHash, contract, 'Initialized', { version: '1' });
+      const contract = await ethers.deployContract('ConstructorInitializableMock');
+      await expect(contract.deploymentTransaction()).to.emit(contract, 'Initialized').withArgs(1n);
     });
 
     it('initialization emits event', async function () {
-      const contract = await ReinitializerMock.new();
+      const contract = await ethers.deployContract('ReinitializerMock');
 
-      const { receipt } = await contract.initialize();
-      expect(receipt.logs.filter(({ event }) => event === 'Initialized').length).to.be.equal(1);
-      expectEvent(receipt, 'Initialized', { version: '1' });
+      const tx = await contract.initialize();
+      await expect(tx).to.emit(contract, 'Initialized').withArgs(1n);
     });
 
     it('reinitialization emits event', async function () {
-      const contract = await ReinitializerMock.new();
+      const contract = await ethers.deployContract('ReinitializerMock');
 
-      const { receipt } = await contract.reinitialize(128);
-      expect(receipt.logs.filter(({ event }) => event === 'Initialized').length).to.be.equal(1);
-      expectEvent(receipt, 'Initialized', { version: '128' });
+      const tx = await contract.reinitialize(128);
+      await expect(tx).to.emit(contract, 'Initialized').withArgs(128n);
     });
 
     it('chained reinitialization emits multiple events', async function () {
-      const contract = await ReinitializerMock.new();
+      const contract = await ethers.deployContract('ReinitializerMock');
 
-      const { receipt } = await contract.chainReinitialize(2, 3);
-      expect(receipt.logs.filter(({ event }) => event === 'Initialized').length).to.be.equal(2);
-      expectEvent(receipt, 'Initialized', { version: '2' });
-      expectEvent(receipt, 'Initialized', { version: '3' });
+      const tx = await contract.chainReinitialize(2, 3);
+      await expect(tx).to.emit(contract, 'Initialized').withArgs(2n);
+      await expect(tx).to.emit(contract, 'Initialized').withArgs(3n);
     });
   });
 
   describe('complex testing with inheritance', function () {
-    const mother = '12';
+    const mother = 12n;
     const gramps = '56';
-    const father = '34';
-    const child = '78';
+    const father = 34n;
+    const child = 78n;
 
     beforeEach('deploying', async function () {
-      this.contract = await SampleChild.new();
-    });
-
-    beforeEach('initializing', async function () {
+      this.contract = await ethers.deployContract('SampleChild');
       await this.contract.initialize(mother, gramps, father, child);
     });
 
@@ -189,32 +199,35 @@ contract('Initializable', function () {
     });
 
     it('initializes mother', async function () {
-      expect(await this.contract.mother()).to.be.bignumber.equal(mother);
+      expect(await this.contract.mother()).to.be.equal(mother);
     });
 
     it('initializes gramps', async function () {
-      expect(await this.contract.gramps()).to.be.bignumber.equal(gramps);
+      expect(await this.contract.gramps()).to.be.equal(gramps);
     });
 
     it('initializes father', async function () {
-      expect(await this.contract.father()).to.be.bignumber.equal(father);
+      expect(await this.contract.father()).to.be.equal(father);
     });
 
     it('initializes child', async function () {
-      expect(await this.contract.child()).to.be.bignumber.equal(child);
+      expect(await this.contract.child()).to.be.equal(child);
     });
   });
 
   describe('disabling initialization', function () {
     it('old and new patterns in bad sequence', async function () {
-      await expectRevertCustomError(DisableBad1.new(), 'InvalidInitialization', []);
-      await expectRevertCustomError(DisableBad2.new(), 'InvalidInitialization', []);
+      const DisableBad1 = await ethers.getContractFactory('DisableBad1');
+      await expect(DisableBad1.deploy()).to.be.revertedWithCustomError(DisableBad1, 'InvalidInitialization');
+
+      const DisableBad2 = await ethers.getContractFactory('DisableBad2');
+      await expect(DisableBad2.deploy()).to.be.revertedWithCustomError(DisableBad2, 'InvalidInitialization');
     });
 
     it('old and new patterns in good sequence', async function () {
-      const ok = await DisableOk.new();
-      await expectEvent.inConstruction(ok, 'Initialized', { version: '1' });
-      await expectEvent.inConstruction(ok, 'Initialized', { version: MAX_UINT64 });
+      const ok = await ethers.deployContract('DisableOk');
+      await expect(ok.deploymentTransaction()).to.emit(ok, 'Initialized').withArgs(1n);
+      await expect(ok.deploymentTransaction()).to.emit(ok, 'Initialized').withArgs(MAX_UINT64);
     });
   });
 });
