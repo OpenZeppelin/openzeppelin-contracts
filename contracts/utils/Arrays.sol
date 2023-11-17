@@ -34,18 +34,37 @@ library Arrays {
 
             // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
             // because Math.average rounds towards zero (it does integer division with truncation).
-            if (unsafeAccess(array, mid).value > element) {
-                high = mid;
+            if (unsafeAccess(array, mid).value < element) {
+                // this cannot overflow because mid < high
+                unchecked {
+                    low = mid + 1;
+                }
             } else {
-                low = mid + 1;
+                high = mid;
             }
         }
 
-        // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
-        if (low > 0 && unsafeAccess(array, low - 1).value == element) {
-            return low - 1;
-        } else {
-            return low;
+        return low;
+    }
+
+    /**
+     * @dev Searches a sorted `array` and returns the last index that contains
+     * a value smaller or equal to `element`. If no such index exists (i.e. all
+     * values in the array are strictly greater than `element`), the array length is
+     * returned. Time complexity O(log n).
+     *
+     * `array` is expected to be sorted in ascending order, and to contain no
+     * repeated elements.
+     */
+    function findLowerBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
+        // following math cannot overflow
+        unchecked {
+            uint256 length = array.length;
+            if (element == type(uint256).max) {
+                return length == 0 ? 0 : length - 1;
+            }
+            uint256 upperBoundForNext = findUpperBound(array, element + 1);
+            return upperBoundForNext == 0 ? length : upperBoundForNext - 1;
         }
     }
 

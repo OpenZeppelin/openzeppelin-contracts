@@ -17,6 +17,10 @@ contract Uint256ArraysMock {
         return _array.findUpperBound(element);
     }
 
+    function findLowerBound(uint256 element) external view returns (uint256) {
+        return _array.findLowerBound(element);
+    }
+
     function unsafeAccess(uint256 pos) external view returns (uint256) {
         return _array.unsafeAccess(pos).value;
     }

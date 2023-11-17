@@ -11,9 +11,6 @@ const $Checkpoints = artifacts.require('$Checkpoints');
 // The library name may be 'Checkpoints' or 'CheckpointsUpgradeable'
 const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
 
-const first = array => (array.length ? array[0] : undefined);
-const last = array => (array.length ? array[array.length - 1] : undefined);
-
 contract('Checkpoints', function () {
   beforeEach(async function () {
     this.mock = await $Checkpoints.new();
@@ -85,17 +82,17 @@ contract('Checkpoints', function () {
         });
 
         it('returns latest value', async function () {
-          expect(await this.methods.latest()).to.be.bignumber.equal(last(this.checkpoints).value);
+          expect(await this.methods.latest()).to.be.bignumber.equal(this.checkpoints.at(-1).value);
 
           const ckpt = await this.methods.latestCheckpoint();
           expect(ckpt[0]).to.be.equal(true);
-          expect(ckpt[1]).to.be.bignumber.equal(last(this.checkpoints).key);
-          expect(ckpt[2]).to.be.bignumber.equal(last(this.checkpoints).value);
+          expect(ckpt[1]).to.be.bignumber.equal(this.checkpoints.at(-1).key);
+          expect(ckpt[2]).to.be.bignumber.equal(this.checkpoints.at(-1).value);
         });
 
         it('cannot push values in the past', async function () {
           await expectRevertCustomError(
-            this.methods.push(last(this.checkpoints).key - 1, '0'),
+            this.methods.push(this.checkpoints.at(-1).key - 1, '0'),
             'CheckpointUnorderedInsertion',
             [],
           );
@@ -108,7 +105,7 @@ contract('Checkpoints', function () {
           expect(await this.methods.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
 
           // update last key
-          await this.methods.push(last(this.checkpoints).key, newValue);
+          await this.methods.push(this.checkpoints.at(-1).key, newValue);
           expect(await this.methods.latest()).to.be.bignumber.equal(newValue);
 
           // check that length did not change
@@ -117,7 +114,7 @@ contract('Checkpoints', function () {
 
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = first(this.checkpoints.filter(x => i <= x.key))?.value || '0';
+            const value = this.checkpoints.find(x => i <= x.key)?.value || '0';
 
             expect(await this.methods.lowerLookup(i)).to.be.bignumber.equal(value);
           }
@@ -125,7 +122,7 @@ contract('Checkpoints', function () {
 
         it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
+            const value = this.checkpoints.findLast(x => i >= x.key)?.value || '0';
 
             expect(await this.methods.upperLookup(i)).to.be.bignumber.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.be.bignumber.equal(value);
@@ -147,7 +144,7 @@ contract('Checkpoints', function () {
           }
 
           for (let i = 0; i < 25; ++i) {
-            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || '0';
+            const value = allCheckpoints.findLast(x => i >= x.key)?.value || '0';
             expect(await this.methods.upperLookup(i)).to.be.bignumber.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.be.bignumber.equal(value);
           }
