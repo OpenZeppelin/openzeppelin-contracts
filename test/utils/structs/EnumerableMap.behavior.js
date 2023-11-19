@@ -3,12 +3,12 @@ const { ethers } = require('hardhat');
 
 const zip = (array1, array2) => array1.map((item, index) => [item, array2[index]]);
 
-function shouldBehaveLikeMap(zeroValue, events) {
+function shouldBehaveLikeMap(zeroValue, keyType, events) {
   async function expectMembersMatch(methods, keys, values) {
     expect(keys.length).to.equal(values.length);
     expect(await methods.length()).to.equal(keys.length);
-    expect([...await methods.keys()]).to.have.members(keys);
-    
+    expect([...(await methods.keys())]).to.have.members(keys);
+
     for (const index in keys) {
       const key = keys[index];
       const value = values[index];
@@ -17,7 +17,7 @@ function shouldBehaveLikeMap(zeroValue, events) {
       expect(await methods.get(key)).to.equal(value);
     }
 
-    expect(await Promise.all(keys.map((_, index) => methods.at(index)))).to.have.deep.members(zip(keys, values))
+    expect(await Promise.all(keys.map((_, index) => methods.at(index)))).to.have.deep.members(zip(keys, values));
   }
 
   it('starts empty', async function () {
@@ -131,11 +131,9 @@ function shouldBehaveLikeMap(zeroValue, events) {
       });
 
       it('missing value', async function () {
-        const key = ethers.hexlify(this.keyB);
-        await expect(this.methods.get(this.keyB)).to.be.revertedWithCustomError(this.map, 'EnumerableMapNonexistentKey')
-          .withArgs(
-          key.length == 66 ? key : ethers.zeroPadValue(key, 32),
-        );
+        await expect(this.methods.get(this.keyB))
+          .to.be.revertedWithCustomError(this.map, 'EnumerableMapNonexistentKey')
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([keyType], [this.keyB]));
       });
     });
 

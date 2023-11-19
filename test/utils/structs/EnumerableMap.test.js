@@ -49,9 +49,44 @@ describe.only('EnumerableMap', function () {
       Object.assign(this, await loadFixture(fixture));
     });
 
-    shouldBehaveLikeMap(0n, {
+    shouldBehaveLikeMap(0n, 'address', {
       setReturn: `return$set_EnumerableMap_AddressToUintMap_address_uint256`,
       removeReturn: `return$remove_EnumerableMap_AddressToUintMap_address`,
     });
+  });
+
+  // UintToAddressMap
+  describe('UintToAddressMap', function () {
+    const fixture = async () => {
+      const map = await ethers.deployContract('$EnumerableMap');
+
+      const [keyA, keyB, keyC] = [uintA, uintB, uintC];
+      const [valueA, valueB, valueC] = (await ethers.getSigners()).map(signer => signer.address);
+
+      const methods = getMethods(map, {
+        set: '$set(uint256,uint256,address)',
+        get: `$get_EnumerableMap_UintToAddressMap(uint256,uint256)`,
+        tryGet: `$tryGet_EnumerableMap_UintToAddressMap(uint256,uint256)`,
+        remove: `$remove_EnumerableMap_UintToAddressMap(uint256,uint256)`,
+        length: `$length_EnumerableMap_UintToAddressMap(uint256)`,
+        at: `$at_EnumerableMap_UintToAddressMap(uint256,uint256)`,
+        contains: `$contains_EnumerableMap_UintToAddressMap(uint256,uint256)`,
+        keys: `$keys_EnumerableMap_UintToAddressMap(uint256)`,
+      });
+
+      return { map, keyA, keyB, keyC, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeMap(
+      ethers.ZeroAddress, 'uint256',
+      {
+        setReturn: `return$set_EnumerableMap_UintToAddressMap_uint256_address`,
+        removeReturn: `return$remove_EnumerableMap_UintToAddressMap_uint256`,
+      },
+    );
   });
 });
