@@ -14,7 +14,7 @@ const getMethods = (map, fnSigs) => {
   );
 };
 
-describe.only('EnumerableMap', function () {
+describe('EnumerableMap', function () {
   const uintA = 7891n;
   const uintB = 451n;
   const uintC = 9592328n;
@@ -81,12 +81,107 @@ describe.only('EnumerableMap', function () {
       Object.assign(this, await loadFixture(fixture));
     });
 
-    shouldBehaveLikeMap(
-      ethers.ZeroAddress, 'uint256',
-      {
-        setReturn: `return$set_EnumerableMap_UintToAddressMap_uint256_address`,
-        removeReturn: `return$remove_EnumerableMap_UintToAddressMap_uint256`,
-      },
-    );
+    shouldBehaveLikeMap(ethers.ZeroAddress, 'uint256', {
+      setReturn: `return$set_EnumerableMap_UintToAddressMap_uint256_address`,
+      removeReturn: `return$remove_EnumerableMap_UintToAddressMap_uint256`,
+    });
+  });
+
+  // Bytes32ToBytes32Map
+  describe('Bytes32ToBytes32Map', function () {
+    const fixture = async () => {
+      const map = await ethers.deployContract('$EnumerableMap');
+
+      const [keyA, keyB, keyC] = [uintA, uintB, uintC].map(k =>
+        ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [k]),
+      );
+      const [valueA, valueB, valueC] = [bytesA, bytesB, bytesC];
+
+      const methods = getMethods(map, {
+        set: '$set(uint256,bytes32,bytes32)',
+        get: `$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)`,
+        tryGet: `$tryGet_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)`,
+        remove: `$remove_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)`,
+        length: `$length_EnumerableMap_Bytes32ToBytes32Map(uint256)`,
+        at: `$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)`,
+        contains: `$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)`,
+        keys: `$keys_EnumerableMap_Bytes32ToBytes32Map(uint256)`,
+      });
+
+      return { map, keyA, keyB, keyC, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeMap(ethers.ZeroHash, 'bytes32', {
+      setReturn: `return$set_EnumerableMap_Bytes32ToBytes32Map_bytes32_bytes32`,
+      removeReturn: `return$remove_EnumerableMap_Bytes32ToBytes32Map_bytes32`,
+    });
+  });
+
+  // UintToUintMap
+  describe('UintToUintMap', function () {
+    const fixture = async () => {
+      const map = await ethers.deployContract('$EnumerableMap');
+
+      const [keyA, keyB, keyC] = [uintA, uintB, uintC];
+      const [valueA, valueB, valueC] = [uintA, uintB, uintC].map(v => v + 1332n);
+
+      const methods = getMethods(map, {
+        set: '$set(uint256,uint256,uint256)',
+        get: `$get_EnumerableMap_UintToUintMap(uint256,uint256)`,
+        tryGet: `$tryGet_EnumerableMap_UintToUintMap(uint256,uint256)`,
+        remove: `$remove_EnumerableMap_UintToUintMap(uint256,uint256)`,
+        length: `$length_EnumerableMap_UintToUintMap(uint256)`,
+        at: `$at_EnumerableMap_UintToUintMap(uint256,uint256)`,
+        contains: `$contains_EnumerableMap_UintToUintMap(uint256,uint256)`,
+        keys: `$keys_EnumerableMap_UintToUintMap(uint256)`,
+      });
+
+      return { map, keyA, keyB, keyC, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeMap(0n, 'uint256', {
+      setReturn: `return$set_EnumerableMap_UintToUintMap_uint256_uint256`,
+      removeReturn: `return$remove_EnumerableMap_UintToUintMap_uint256`,
+    });
+  });
+
+  // Bytes32ToUintMap
+  describe('Bytes32ToUintMap', function () {
+    const fixture = async () => {
+      const map = await ethers.deployContract('$EnumerableMap');
+
+      const [keyA, keyB, keyC] = [bytesA, bytesB, bytesC];
+      const [valueA, valueB, valueC] = [uintA, uintB, uintC];
+
+      const methods = getMethods(map, {
+        set: '$set(uint256,bytes32,uint256)',
+        get: `$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)`,
+        tryGet: `$tryGet_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)`,
+        remove: `$remove_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)`,
+        length: `$length_EnumerableMap_Bytes32ToUintMap(uint256)`,
+        at: `$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)`,
+        contains: `$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)`,
+        keys: `$keys_EnumerableMap_Bytes32ToUintMap(uint256)`,
+      });
+
+      return { map, keyA, keyB, keyC, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeMap(0n, 'bytes32', {
+      setReturn: `return$set_EnumerableMap_Bytes32ToUintMap_bytes32_uint256`,
+      removeReturn: `return$remove_EnumerableMap_Bytes32ToUintMap_bytes32`,
+    });
   });
 });
