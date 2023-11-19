@@ -1,11 +1,10 @@
-
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-async function fixture () {
+async function fixture() {
   const bitmap = await ethers.deployContract('$BitMaps');
-  return {bitmap};
+  return { bitmap };
 }
 
 describe('BitMap', function () {

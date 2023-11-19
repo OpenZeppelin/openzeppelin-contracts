@@ -12,11 +12,10 @@ describe('Checkpoints', function () {
     describe(`Trace${length}`, function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');
-        methods = {
+        const methods = {
           at: (...args) => mock[`$at_Checkpoints_Trace${length}`](0, ...args),
           latest: (...args) => mock[`$latest_Checkpoints_Trace${length}`](0, ...args),
-          latestCheckpoint: (...args) =>
-            mock[`$latestCheckpoint_Checkpoints_Trace${length}`](0, ...args),
+          latestCheckpoint: (...args) => mock[`$latestCheckpoint_Checkpoints_Trace${length}`](0, ...args),
           length: (...args) => mock[`$length_Checkpoints_Trace${length}`](0, ...args),
           push: (...args) => mock[`$push(uint256,uint${256 - length},uint${length})`](0, ...args),
           lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${256 - length})`)(0, ...args),
@@ -26,7 +25,7 @@ describe('Checkpoints', function () {
         };
 
         return { methods };
-      }
+      };
 
       beforeEach(async function () {
         Object.assign(this, await loadFixture(fixture));
@@ -90,10 +89,8 @@ describe('Checkpoints', function () {
         });
 
         it('cannot push values in the past', async function () {
-          await expect(
-            this.methods.push(last(this.checkpoints).key - 1n, 0n),
-            'CheckpointUnorderedInsertion',
-          ).to.be.rejected;
+          await expect(this.methods.push(last(this.checkpoints).key - 1n, 0n), 'CheckpointUnorderedInsertion').to.be
+            .rejected;
         });
 
         it('can update last value', async function () {
