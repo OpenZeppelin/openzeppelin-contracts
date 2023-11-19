@@ -46,8 +46,11 @@ describe('VestingWallet', function () {
       beforeEach(async function () {
         await this.sender.sendTransaction({ to: this.mock, value: this.amount });
 
-        this.getBalance = signer => ethers.provider.getBalance(signer);
-        this.checkRelease = (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
+        this.getBalance = ethers.provider.getBalance;
+        this.checkRelease = async (tx, amount) => {
+          await expect(tx).to.emit(this.mock, 'EtherReleased').withArgs(amount);
+          await expect(tx).to.changeEtherBalances([this.mock, this.beneficiary], [-amount, amount])
+        }
         this.setupFaillure = async () => {
           const beneficiary = await ethers.deployContract('EtherReceiverMock');
           await beneficiary.setAcceptEther(false);
@@ -68,7 +71,7 @@ describe('VestingWallet', function () {
         this.token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
         await this.token.$_mint(this.mock, this.amount);
 
-        this.getBalance = account => this.token.balanceOf(account);
+        this.getBalance = this.token.balanceOf;
         this.checkRelease = async (tx, amount) => {
           await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.beneficiary.address, amount);
           await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
