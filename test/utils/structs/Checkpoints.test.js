@@ -1,12 +1,7 @@
-require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
-const { expectRevertCustomError } = require('../../helpers/customError.js');
-const { expectRevert } = require('@openzeppelin/test-helpers');
-
-const $Checkpoints = artifacts.require('$Checkpoints');
 
 // The library name may be 'Checkpoints' or 'CheckpointsUpgradeable'
 const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
@@ -14,13 +9,14 @@ const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
 const first = array => (array.length ? array[0] : undefined);
 const last = array => (array.length ? array[array.length - 1] : undefined);
 
-contract('Checkpoints', function () {
-  beforeEach(async function () {
-    this.mock = await $Checkpoints.new();
-  });
-
+describe.only('Checkpoints', function () {
   for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
+      const fixture = async () => {
+        const mock = await ethers.deployContract('$Checkpoints');
+        return { mock };
+      }
+
       beforeEach(async function () {
         this.methods = {
           at: (...args) => this.mock.methods[`$at_${libraryName}_Trace${length}(uint256,uint32)`](0, ...args),
@@ -34,6 +30,10 @@ contract('Checkpoints', function () {
           upperLookupRecent: (...args) =>
             this.mock.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args),
         };
+      });
+
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
       });
 
       describe('without checkpoints', function () {
