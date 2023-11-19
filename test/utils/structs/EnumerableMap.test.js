@@ -1,6 +1,5 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
 const { mapValues } = require('../../helpers/iterate');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
@@ -8,9 +7,9 @@ const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 const getMethods = (map, fnSigs) => {
   return mapValues(
     fnSigs,
-    m =>
+    fnSig =>
       (...args) =>
-        map.getFunction(m)(0, ...args),
+        map.getFunction(fnSig)(0, ...args),
   );
 };
 
