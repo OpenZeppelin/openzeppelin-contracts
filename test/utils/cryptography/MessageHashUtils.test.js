@@ -20,7 +20,7 @@ describe('MessageHashUtils', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  context('toEthSignedMessageHash', function () {
+  describe('toEthSignedMessageHash', function () {
     it('prefixes bytes32 data correctly', async function () {
       expect(await this.messageHashUtils.getFunction('$toEthSignedMessageHash(bytes32)')(this.messageHash)).to.equal(
         ethers.hashMessage(this.messageHash),
@@ -34,7 +34,7 @@ describe('MessageHashUtils', function () {
     });
   });
 
-  context('toDataWithIntendedValidatorHash', function () {
+  describe('toDataWithIntendedValidatorHash', function () {
     it('returns the digest correctly', async function () {
       expect(
         await this.messageHashUtils.$toDataWithIntendedValidatorHash(this.verifyingAddress, this.message),
@@ -42,7 +42,7 @@ describe('MessageHashUtils', function () {
     });
   });
 
-  context('toTypedDataHash', function () {
+  describe('toTypedDataHash', function () {
     it('returns the digest correctly', async function () {
       const domain = {
         name: 'Test',
