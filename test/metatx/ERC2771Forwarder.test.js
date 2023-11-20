@@ -24,7 +24,7 @@ async function fixture() {
     ],
   };
 
-  const makeRequest = async (override = {}, signer = sender) => {
+  const forgeRequest = async (override = {}, signer = sender) => {
     const req = {
       from: await signer.getAddress(),
       to: await receiver.getAddress(),
@@ -39,7 +39,7 @@ async function fixture() {
     return req;
   };
 
-  const estimateForwardCost = request =>
+  const estimateRequest = request =>
     ethers.provider.estimateGas({
       from: forwarder,
       to: request.to,
@@ -55,13 +55,14 @@ async function fixture() {
     accounts,
     forwarder,
     receiver,
-    makeRequest,
-    estimateForwardCost,
+    forgeRequest,
+    estimateRequest,
     domain,
     types,
   };
 }
 
+// values or function to tamper with a signed request.
 const tamperedValues = {
   from: ethers.Wallet.createRandom().address,
   to: ethers.Wallet.createRandom().address,
@@ -82,7 +83,7 @@ describe('ERC2771Forwarder', function () {
   describe('verify', function () {
     describe('with valid signature', function () {
       it('returns true without altering the nonce', async function () {
-        const request = await this.makeRequest();
+        const request = await this.forgeRequest();
         expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
         expect(await this.forwarder.verify(request)).to.be.equal(true);
         expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
@@ -92,7 +93,7 @@ describe('ERC2771Forwarder', function () {
     describe('with tampered values', function () {
       for (const [key, value] of Object.entries(tamperedValues)) {
         it(`returns false with tampered ${key}`, async function () {
-          const request = await this.makeRequest();
+          const request = await this.forgeRequest();
           request[key] = typeof value == 'function' ? value(request[key]) : value;
 
           expect(await this.forwarder.verify(request)).to.be.equal(false);
@@ -100,12 +101,12 @@ describe('ERC2771Forwarder', function () {
       }
 
       it('returns false with valid signature for non-current nonce', async function () {
-        const request = await this.makeRequest({ nonce: 1337n });
+        const request = await this.forgeRequest({ nonce: 1337n });
         expect(await this.forwarder.verify(request)).to.be.equal(false);
       });
 
       it('returns false with valid signature for expired deadline', async function () {
-        const request = await this.makeRequest({ deadline: (await time.clock.timestamp()) - 1n });
+        const request = await this.forgeRequest({ deadline: (await time.clock.timestamp()) - 1n });
         expect(await this.forwarder.verify(request)).to.be.equal(false);
       });
     });
@@ -114,7 +115,9 @@ describe('ERC2771Forwarder', function () {
   describe('execute', function () {
     describe('with valid requests', function () {
       it('emits an event and consumes nonce for a successful request', async function () {
-        const request = await this.makeRequest();
+        const request = await this.forgeRequest();
+
+        expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce);
 
         await expect(this.forwarder.execute(request))
           .to.emit(this.receiver, 'MockFunctionCalled')
@@ -125,7 +128,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       it('reverts with an unsuccessful request', async function () {
-        const request = await this.makeRequest({
+        const request = await this.forgeRequest({
           data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
         });
 
@@ -136,7 +139,7 @@ describe('ERC2771Forwarder', function () {
     describe('with tampered request', function () {
       for (const [key, value] of Object.entries(tamperedValues)) {
         it(`reverts with tampered ${key}`, async function () {
-          const request = await this.makeRequest();
+          const request = await this.forgeRequest();
           request[key] = typeof value == 'function' ? value(request[key]) : value;
 
           const promise = this.forwarder.execute(request, { value: key == 'value' ? value : 0 });
@@ -153,7 +156,7 @@ describe('ERC2771Forwarder', function () {
       }
 
       it('reverts with valid signature for non-current nonce', async function () {
-        const request = await this.makeRequest();
+        const request = await this.forgeRequest();
 
         // consume nonce
         await this.forwarder.execute(request);
@@ -173,7 +176,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       it('reverts with valid signature for expired deadline', async function () {
-        const request = await this.makeRequest({ deadline: (await time.clock.timestamp()) - 1n });
+        const request = await this.forgeRequest({ deadline: (await time.clock.timestamp()) - 1n });
 
         await expect(this.forwarder.execute(request))
           .to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderExpiredRequest')
@@ -181,7 +184,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       it('reverts with valid signature but mismatched value', async function () {
-        const request = await this.makeRequest({ value: 100n });
+        const request = await this.forgeRequest({ value: 100n });
 
         await expect(this.forwarder.execute(request))
           .to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderMismatchedValue')
@@ -190,7 +193,7 @@ describe('ERC2771Forwarder', function () {
     });
 
     it('bubbles out of gas', async function () {
-      const request = await this.makeRequest({
+      const request = await this.forgeRequest({
         data: this.receiver.interface.encodeFunctionData('mockFunctionOutOfGas'),
         gas: 1_000_000n,
       });
@@ -207,7 +210,7 @@ describe('ERC2771Forwarder', function () {
     });
 
     it('bubbles out of gas forced by the relayer', async function () {
-      const request = await this.makeRequest();
+      const request = await this.forgeRequest();
 
       // If there's an incentive behind executing requests, a malicious relayer could grief
       // the forwarder by executing requests and providing a top-level call gas limit that
@@ -216,7 +219,7 @@ describe('ERC2771Forwarder', function () {
       // We set the baseline to the gas limit consumed by a successful request if it was executed
       // normally. Note this includes the 21000 buffer that also the relayer will be charged to
       // start a request execution.
-      const estimate = await this.estimateForwardCost(request);
+      const estimate = await this.estimateRequest(request);
 
       // Because the relayer call consumes gas until the `CALL` opcode, the gas left after failing
       // the subcall won't enough to finish the top level call (after testing), so we add a
@@ -243,9 +246,9 @@ describe('ERC2771Forwarder', function () {
     const idx = 1; // index that will be tampered with
 
     beforeEach(async function () {
-      this.makeRequests = override =>
-        Promise.all(this.accounts.slice(0, requestCount).map(signer => this.makeRequest(override, signer)));
-      this.requests = await this.makeRequests({ value: 10n });
+      this.forgeRequests = override =>
+        Promise.all(this.accounts.slice(0, requestCount).map(signer => this.forgeRequest(override, signer)));
+      this.requests = await this.forgeRequests({ value: 10n });
       this.value = requestsValue(this.requests);
     });
 
@@ -279,7 +282,7 @@ describe('ERC2771Forwarder', function () {
     describe('with tampered requests', function () {
       it('reverts with mismatched value', async function () {
         // tamper value of one of the request + resign
-        this.requests[idx] = await this.makeRequest({ value: 100n }, this.accounts[1]);
+        this.requests[idx] = await this.forgeRequest({ value: 100n }, this.accounts[1]);
 
         await expect(this.forwarder.executeBatch(this.requests, this.another, { value: this.value }))
           .to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderMismatchedValue')
@@ -330,7 +333,7 @@ describe('ERC2771Forwarder', function () {
         });
 
         it('reverts with at least one valid signature for expired deadline', async function () {
-          this.requests[idx] = await this.makeRequest(
+          this.requests[idx] = await this.forgeRequest(
             { ...this.requests[idx], deadline: (await time.clock.timestamp()) - 1n },
             this.accounts[1],
           );
@@ -351,12 +354,8 @@ describe('ERC2771Forwarder', function () {
           it(`ignores a request with tampered ${key} and refunds its value`, async function () {
             this.requests[idx][key] = typeof value == 'function' ? value(this.requests[idx][key]) : value;
 
-            const promise = this.forwarder.executeBatch(this.requests, this.refundReceiver, {
-              value: requestsValue(this.requests),
-            });
-            await expect(promise).to.be.not.reverted;
-
-            const events = await promise
+            const events = await this.forwarder
+              .executeBatch(this.requests, this.refundReceiver, { value: requestsValue(this.requests) })
               .then(tx => tx.wait())
               .then(receipt =>
                 receipt.logs.filter(
@@ -387,7 +386,7 @@ describe('ERC2771Forwarder', function () {
         });
 
         it('ignores a request with a valid signature for expired deadline', async function () {
-          this.requests[idx] = await this.makeRequest(
+          this.requests[idx] = await this.forgeRequest(
             { ...this.requests[idx], deadline: (await time.clock.timestamp()) - 1n },
             this.accounts[1],
           );
@@ -416,7 +415,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       it('bubbles out of gas', async function () {
-        this.requests[idx] = await this.makeRequest({
+        this.requests[idx] = await this.forgeRequest({
           data: this.receiver.interface.encodeFunctionData('mockFunctionOutOfGas'),
           gas: 1_000_000n,
         });
@@ -441,7 +440,7 @@ describe('ERC2771Forwarder', function () {
         // Similarly to the single execute, a malicious relayer could grief requests.
 
         // We estimate until the selected request as if they were executed normally
-        const estimate = await Promise.all(this.requests.slice(0, idx + 1).map(this.estimateForwardCost)).then(gas =>
+        const estimate = await Promise.all(this.requests.slice(0, idx + 1).map(this.estimateRequest)).then(gas =>
           sum(...gas),
         );
 

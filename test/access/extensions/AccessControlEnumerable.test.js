@@ -1,17 +1,24 @@
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const {
   DEFAULT_ADMIN_ROLE,
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
 } = require('../AccessControl.behavior.js');
 
-const AccessControlEnumerable = artifacts.require('$AccessControlEnumerable');
+async function fixture() {
+  const [defaultAdmin, ...accounts] = await ethers.getSigners();
+  const mock = await ethers.deployContract('$AccessControlEnumerable');
+  await mock.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
+  return { mock, defaultAdmin, accounts };
+}
 
-contract('AccessControlEnumerable', function (accounts) {
+describe('AccessControlEnumerable', function () {
   beforeEach(async function () {
-    this.accessControl = await AccessControlEnumerable.new({ from: accounts[0] });
-    await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, accounts[0]);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeAccessControl(...accounts);
-  shouldBehaveLikeAccessControlEnumerable(...accounts);
+  shouldBehaveLikeAccessControl();
+  shouldBehaveLikeAccessControlEnumerable();
 });

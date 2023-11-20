@@ -11,10 +11,9 @@ const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 async function fixture() {
   const [sender] = await ethers.getSigners();
 
-  const forwarder = await ethers.deployContract('ERC2771Forwarder', ['ERC2771Forwarder']);
+  const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
-
   const domain = await getDomain(forwarder);
   const types = {
     ForwardRequest: [
@@ -28,14 +27,7 @@ async function fixture() {
     ],
   };
 
-  return {
-    sender,
-    forwarder,
-    forwarderAsSigner,
-    context,
-    domain,
-    types,
-  };
+  return { sender, forwarder, forwarderAsSigner, context, domain, types };
 }
 
 describe('ERC2771Context', function () {
@@ -71,7 +63,7 @@ describe('ERC2771Context', function () {
           deadline: MAX_UINT48,
         };
 
-        req.signature = this.sender.signTypedData(this.domain, this.types, req);
+        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
         expect(await this.forwarder.verify(req)).to.equal(true);
 
@@ -79,6 +71,7 @@ describe('ERC2771Context', function () {
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
+        // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
         await expect(this.context.connect(this.forwarderAsSigner).msgSender())
           .to.emit(this.context, 'Sender')
           .withArgs(this.forwarder.target);
@@ -115,6 +108,7 @@ describe('ERC2771Context', function () {
     it('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
       const data = this.context.interface.encodeFunctionData('msgDataShort');
 
+      // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
       await expect(await this.context.connect(this.forwarderAsSigner).msgDataShort())
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
