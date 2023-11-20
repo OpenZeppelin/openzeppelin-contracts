@@ -1,30 +1,35 @@
-require('@openzeppelin/test-helpers');
-const { toEthSignedMessageHash, toDataWithIntendedValidatorHash } = require('../../helpers/sign');
-const { domainSeparator, hashTypedData } = require('../../helpers/eip712');
-
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
 
-const MessageHashUtils = artifacts.require('$MessageHashUtils');
+const { toDataWithIntendedValidatorHash } = require('../../helpers/sign');
+const { domainSeparator, hashTypedData } = require('../../helpers/eip712');
 
-contract('MessageHashUtils', function () {
+async function fixture() {
+  const messageHashUtils = await ethers.deployContract('$MessageHashUtils');
+
+  const message = ethers.getBytes('0xabcd');
+  const messageHash = ethers.getBytes(ethers.sha256(message));
+  const verifyingAddress = ethers.Wallet.createRandom().address;
+
+  return { messageHashUtils, message, messageHash, verifyingAddress };
+}
+
+describe('MessageHashUtils', function () {
   beforeEach(async function () {
-    this.messageHashUtils = await MessageHashUtils.new();
-
-    this.message = '0x' + Buffer.from('abcd').toString('hex');
-    this.messageHash = web3.utils.sha3(this.message);
-    this.verifyingAddress = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
+    Object.assign(this, await loadFixture(fixture));
   });
 
   context('toEthSignedMessageHash', function () {
     it('prefixes bytes32 data correctly', async function () {
-      expect(await this.messageHashUtils.methods['$toEthSignedMessageHash(bytes32)'](this.messageHash)).to.equal(
-        toEthSignedMessageHash(this.messageHash),
+      expect(await this.messageHashUtils.getFunction('$toEthSignedMessageHash(bytes32)')(this.messageHash)).to.equal(
+        ethers.hashMessage(this.messageHash),
       );
     });
 
     it('prefixes dynamic length data correctly', async function () {
-      expect(await this.messageHashUtils.methods['$toEthSignedMessageHash(bytes)'](this.message)).to.equal(
-        toEthSignedMessageHash(this.message),
+      expect(await this.messageHashUtils.getFunction('$toEthSignedMessageHash(bytes)')(this.message)).to.equal(
+        ethers.hashMessage(this.message),
       );
     });
   });
@@ -45,8 +50,8 @@ contract('MessageHashUtils', function () {
         chainId: 1,
         verifyingContract: this.verifyingAddress,
       };
-      const structhash = web3.utils.randomHex(32);
-      const expectedDomainSeparator = await domainSeparator(domain);
+      const structhash = ethers.hexlify(ethers.randomBytes(32));
+      const expectedDomainSeparator = domainSeparator(domain);
       expect(await this.messageHashUtils.$toTypedDataHash(expectedDomainSeparator, structhash)).to.equal(
         hashTypedData(domain, structhash),
       );

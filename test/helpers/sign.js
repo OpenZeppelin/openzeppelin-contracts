@@ -1,3 +1,5 @@
+const { ethers } = require('hardhat');
+
 function toEthSignedMessageHash(messageHex) {
   const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
   const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${messageBuffer.length}`);
@@ -10,13 +12,12 @@ function toEthSignedMessageHash(messageHex) {
  * @param dataHex The data to be concatenated with the prefix and signed
  */
 function toDataWithIntendedValidatorHash(validatorAddress, dataHex) {
-  const validatorBuffer = Buffer.from(web3.utils.hexToBytes(validatorAddress));
-  const dataBuffer = Buffer.from(web3.utils.hexToBytes(dataHex));
-  const preambleBuffer = Buffer.from('\x19');
-  const versionBuffer = Buffer.from('\x00');
-  const ethMessage = Buffer.concat([preambleBuffer, versionBuffer, validatorBuffer, dataBuffer]);
-
-  return web3.utils.sha3(ethMessage);
+  const preambleBuffer = '\x19';
+  const versionBuffer = '\x00';
+  return ethers.solidityPackedKeccak256(
+    ['string', 'string', 'address', 'bytes'],
+    [preambleBuffer, versionBuffer, validatorAddress, dataHex],
+  );
 }
 
 /**

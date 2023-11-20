@@ -1,8 +1,9 @@
 const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { expect } = require('chai');
 const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 const { mapValues } = require('../../helpers/iterate');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 describe('EIP712', function () {
   const shortName = 'A Name';
