@@ -1,11 +1,5 @@
 const { ethers } = require('hardhat');
 
-function toEthSignedMessageHash(messageHex) {
-  const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
-  const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${messageBuffer.length}`);
-  return web3.utils.sha3(Buffer.concat([prefix, messageBuffer]));
-}
-
 /**
  * Create a signed data with intended validator according to the version 0 of EIP-191
  * @param validatorAddress The address of the validator
@@ -58,7 +52,6 @@ const getSignFor =
   };
 
 module.exports = {
-  toEthSignedMessageHash,
   toDataWithIntendedValidatorHash,
   getSignFor,
 };
