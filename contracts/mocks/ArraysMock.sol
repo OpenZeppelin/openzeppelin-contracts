@@ -13,12 +13,24 @@ contract Uint256ArraysMock {
         _array = array;
     }
 
-    function findUpperBound(uint256 element) external view returns (uint256) {
-        return _array.findUpperBound(element);
+    function findUpperBound(uint256 value) external view returns (uint256) {
+        return _array.findUpperBound(value);
     }
 
-    function findLowerBound(uint256 element) external view returns (uint256) {
-        return _array.findLowerBound(element);
+    function lowerBound(uint256 value) external view returns (uint256) {
+        return _array.lowerBound(value);
+    }
+
+    function upperBound(uint256 value) external view returns (uint256) {
+        return _array.upperBound(value);
+    }
+
+    function lowerBoundMemory(uint256[] memory array, uint256 value) external pure returns (uint256) {
+        return array.lowerBoundMemory(value);
+    }
+
+    function upperBoundMemory(uint256[] memory array, uint256 value) external pure returns (uint256) {
+        return array.upperBoundMemory(value);
     }
 
     function unsafeAccess(uint256 pos) external view returns (uint256) {
