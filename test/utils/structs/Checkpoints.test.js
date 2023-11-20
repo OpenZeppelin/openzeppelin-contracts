@@ -76,16 +76,13 @@ describe('Checkpoints', function () {
         });
 
         it('length', async function () {
-          expect(await this.methods.length()).to.be.equal(this.checkpoints.length.toString());
+          expect(await this.methods.length()).to.be.equal(this.checkpoints.length);
         });
 
         it('returns latest value', async function () {
-          expect(await this.methods.latest()).to.be.equal(last(this.checkpoints).value);
-
-          const ckpt = await this.methods.latestCheckpoint();
-          expect(ckpt[0]).to.be.equal(true);
-          expect(ckpt[1]).to.be.equal(last(this.checkpoints).key);
-          expect(ckpt[2]).to.be.equal(last(this.checkpoints).value);
+          const latest = last(this.checkpoints);
+          expect(await this.methods.latest()).to.be.equal(latest.value);
+          expect(await this.methods.latestCheckpoint()).to.have.ordered.members([true, latest.key, latest.value]);
         });
 
         it('cannot push values in the past', async function () {
@@ -97,14 +94,14 @@ describe('Checkpoints', function () {
           const newValue = 42n;
 
           // check length before the update
-          expect(await this.methods.length()).to.be.equal(this.checkpoints.length.toString());
+          expect(await this.methods.length()).to.be.equal(this.checkpoints.length);
 
           // update last key
           await this.methods.push(last(this.checkpoints).key, newValue);
           expect(await this.methods.latest()).to.be.equal(newValue);
 
           // check that length did not change
-          expect(await this.methods.length()).to.be.equal(this.checkpoints.length.toString());
+          expect(await this.methods.length()).to.be.equal(this.checkpoints.length);
         });
 
         it('lower lookup', async function () {

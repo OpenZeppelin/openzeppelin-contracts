@@ -18,9 +18,9 @@ describe('EnumerableMap', function () {
   const uintB = 451n;
   const uintC = 9592328n;
 
-  const bytesA = '0xdeadbeef'.padEnd(66, '0');
-  const bytesB = '0x0123456789'.padEnd(66, '0');
-  const bytesC = '0x42424242'.padEnd(66, '0');
+  const bytesA = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0xdeadbeefn]);
+  const bytesB = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x0123456789n]);
+  const bytesC = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x42424242n]);
 
   // AddressToUintMap
   describe('AddressToUintMap', function () {

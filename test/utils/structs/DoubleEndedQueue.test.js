@@ -19,10 +19,10 @@ async function fixture() {
 }
 
 describe('DoubleEndedQueue', function () {
-  const bytesA = '0xdeadbeef'.padEnd(66, '0');
-  const bytesB = '0x0123456789'.padEnd(66, '0');
-  const bytesC = '0x42424242'.padEnd(66, '0');
-  const bytesD = '0x171717'.padEnd(66, '0');
+  const bytesA = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0xdeadbeef]);
+  const bytesB = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x0123456789]);
+  const bytesC = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x42424242]);
+  const bytesD = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x171717]);
 
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
@@ -52,7 +52,7 @@ describe('DoubleEndedQueue', function () {
 
     it('getters', async function () {
       expect(await this.deque.$empty(0)).to.be.equal(false);
-      expect(await this.deque.$length(0)).to.be.equal(this.content.length.toString());
+      expect(await this.deque.$length(0)).to.be.equal(this.content.length);
       expect(await this.deque.$front(0)).to.be.equal(this.content[0]);
       expect(await this.deque.$back(0)).to.be.equal(this.content[this.content.length - 1]);
       expect(await this.getContent()).to.have.ordered.members(this.content);

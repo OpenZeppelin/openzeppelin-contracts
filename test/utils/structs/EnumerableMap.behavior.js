@@ -9,10 +9,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
     expect(await methods.length()).to.equal(keys.length);
     expect([...(await methods.keys())]).to.have.members(keys);
 
-    for (const index in keys) {
-      const key = keys[index];
-      const value = values[index];
-
+    for (const [key, value] of zip(keys, values)) {
       expect(await methods.contains(key)).to.equal(true);
       expect(await methods.get(key)).to.equal(value);
     }
@@ -139,15 +136,11 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
 
     describe('tryGet', function () {
       it('existing value', async function () {
-        const result = await this.methods.tryGet(this.keyA);
-        expect(result['0']).to.be.equal(true);
-        expect(result['1'].toString()).to.be.equal(this.valueA.toString());
+        expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([true, this.valueA]);
       });
 
       it('missing value', async function () {
-        const result = await this.methods.tryGet(this.keyB);
-        expect(result['0']).to.be.equal(false);
-        expect(result['1'].toString()).to.be.equal(zeroValue.toString());
+        expect(await this.methods.tryGet(this.keyB)).to.have.ordered.members([false, zeroValue]);
       });
     });
   });
