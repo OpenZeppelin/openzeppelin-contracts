@@ -1,11 +1,15 @@
 const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
 const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 const { mapValues } = require('../../helpers/iterate');
 
-describe('EIP712', function () {
+const EIP712Verifier = artifacts.require('$EIP712Verifier');
+const Clones = artifacts.require('$Clones');
+
+contract('EIP712', function (accounts) {
+  const [mailTo] = accounts;
+
   const shortName = 'A Name';
   const shortVersion = '1';
 
@@ -19,23 +23,16 @@ describe('EIP712', function () {
 
   for (const [shortOrLong, name, version] of cases) {
     describe(`with ${shortOrLong} name and version`, function () {
-      const fixture = async () => {
-        const [mailTo] = await ethers.getSigners();
+      beforeEach('deploying', async function () {
+        this.eip712 = await EIP712Verifier.new(name, version);
 
-        const eip712 = await ethers.deployContract('$EIP712Verifier', [name, version]);
-        const domain = {
+        this.domain = {
           name,
           version,
           chainId: await getChainId(),
-          verifyingContract: eip712.target,
+          verifyingContract: this.eip712.address,
         };
-        const _domainType = domainType(domain);
-
-        return { mailTo, eip712, domain, domainType: _domainType };
-      };
-
-      beforeEach('deploying', async function () {
-        Object.assign(this, await loadFixture(fixture));
+        this.domainType = domainType(this.domain);
       });
 
       describe('domain separator', function () {
@@ -55,12 +52,12 @@ describe('EIP712', function () {
           // the upgradeable contract variant is used and the initializer is invoked.
 
           it('adjusts when behind proxy', async function () {
-            const factory = await ethers.deployContract('$Clones');
-            const cloneAddress = await factory.$clone.staticCall(this.eip712);
-            await factory.$clone(this.eip712);
-            const clone = await ethers.getContractAt('$EIP712Verifier', cloneAddress);
+            const factory = await Clones.new();
+            const cloneReceipt = await factory.$clone(this.eip712.address);
+            const cloneAddress = cloneReceipt.logs.find(({ event }) => event === 'return$clone').args.instance;
+            const clone = new EIP712Verifier(cloneAddress);
 
-            const cloneDomain = { ...this.domain, verifyingContract: cloneAddress };
+            const cloneDomain = { ...this.domain, verifyingContract: clone.address };
 
             const reportedDomain = await getDomain(clone);
             expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
@@ -72,13 +69,13 @@ describe('EIP712', function () {
       });
 
       it('hash digest', async function () {
-        const structhash = ethers.hexlify(ethers.randomBytes(32));
+        const structhash = web3.utils.randomHex(32);
         expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
       });
 
       it('digest', async function () {
         const message = {
-          to: this.mailTo.address,
+          to: mailTo,
           contents: 'very interesting',
         };
 
