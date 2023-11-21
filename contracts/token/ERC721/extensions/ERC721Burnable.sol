@@ -7,8 +7,8 @@ import {ERC721} from "../ERC721.sol";
 import {Context} from "../../../utils/Context.sol";
 
 /**
- * @title ERC721 Burnable Token
- * @dev ERC721 Token that can be burned (destroyed).
+ * @title ERC-721 Burnable Token
+ * @dev ERC-721 Token that can be burned (destroyed).
  */
 abstract contract ERC721Burnable is Context, ERC721 {
     /**

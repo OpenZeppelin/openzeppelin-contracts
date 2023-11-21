@@ -43,7 +43,7 @@ Most software uses access control systems that are role-based: some users are re
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessControl[`AccessControl`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
 you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role.
 
-Here's a simple example of using `AccessControl` in an xref:erc20.adoc[`ERC20` token] to define a 'minter' role, which allows accounts that have it create new tokens:
+Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it create new tokens:
 
 [source,solidity]
 ----
@@ -54,7 +54,7 @@ NOTE: Make sure you fully understand how xref:api:access.adoc#AccessControl[`Acc
 
 While clear and explicit, this isn't anything we wouldn't have been able to achieve with `Ownable`. Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
 
-Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using the `onlyRole` modifier:
+Let's augment our ERC-20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using the `onlyRole` modifier:
 
 [source,solidity]
 ----
@@ -66,7 +66,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 [[granting-and-revoking]]
 === Granting and Revoking Roles
 
-The ERC20 token example above uses `_grantRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC-20 token example above uses `_grantRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
 
@@ -76,7 +76,7 @@ This mechanism can be used to create complex permissioning structures resembling
 
 Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], a recommended extension of `AccessControl` that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay in between steps.
 
-Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
+Let's take a look at the ERC-20 token example, this time taking advantage of the default admin role:
 
 [source,solidity]
 ----
@@ -165,7 +165,7 @@ OpenZeppelin Contracts provides xref:api:access.adoc#AccessManager[`AccessManage
 
 In order to restrict access to some functions of your contract, you should inherit from the xref:api:access.adoc#AccessManaged[`AccessManaged`] contract provided along with the manager. This provides the `restricted` modifier that can be used to protect any externally facing function. Note that you will have to specify the address of the AccessManager instance (xref:api:access.adoc#AccessManaged-constructor-address-[`initialAuthority`]) in the constructor so the `restricted` modifier knows which manager to use for checking permissions.
 
-Here's a simple example of an xref:tokens.adoc#ERC20[`ERC20` token] that defines a `mint` function that is restricted by an xref:api:access.adoc#AccessManager[`AccessManager`]:
+Here's a simple example of an xref:tokens.adoc#ERC20[ERC-20 token] that defines a `mint` function that is restricted by an xref:api:access.adoc#AccessManager[`AccessManager`]:
 
 ```solidity
 include::api:example$access-control/AccessManagedERC20MintBase.sol[]
