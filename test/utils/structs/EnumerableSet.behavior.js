@@ -10,14 +10,14 @@ function shouldBehaveLikeSet(events) {
   }
 
   it('starts empty', async function () {
-    expect(await this.methods.contains(this.valueA)).to.equal(false);
+    expect(await this.methods.contains(this.valueA)).to.be.false;
 
     await expectMembersMatch(this.methods, []);
   });
 
   describe('add', function () {
     it('adds a value', async function () {
-      await expect(this.methods.add(this.valueA)).to.emit(this.set, events.addReturn).withArgs(true);
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, events.addReturn).withArgs(true);
 
       await expectMembersMatch(this.methods, [this.valueA]);
     });
@@ -27,13 +27,13 @@ function shouldBehaveLikeSet(events) {
       await this.methods.add(this.valueB);
 
       await expectMembersMatch(this.methods, [this.valueA, this.valueB]);
-      expect(await this.methods.contains(this.valueC)).to.equal(false);
+      expect(await this.methods.contains(this.valueC)).to.be.false;
     });
 
     it('returns false when adding values already in the set', async function () {
       await this.methods.add(this.valueA);
 
-      await expect(this.methods.add(this.valueA)).to.emit(this.set, events.addReturn).withArgs(false);
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, events.addReturn).withArgs(false);
 
       await expectMembersMatch(this.methods, [this.valueA]);
     });
@@ -49,16 +49,16 @@ function shouldBehaveLikeSet(events) {
     it('removes added values', async function () {
       await this.methods.add(this.valueA);
 
-      await expect(this.methods.remove(this.valueA)).to.emit(this.set, events.removeReturn).withArgs(true);
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, events.removeReturn).withArgs(true);
 
-      expect(await this.methods.contains(this.valueA)).to.equal(false);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
       await expectMembersMatch(this.methods, []);
     });
 
     it('returns false when removing values not in the set', async function () {
-      await expect(this.methods.remove(this.valueA)).to.emit(this.set, events.removeReturn).withArgs(false);
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, events.removeReturn).withArgs(false);
 
-      expect(await this.methods.contains(this.valueA)).to.equal(false);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
     });
 
     it('adds and removes multiple values', async function () {
@@ -100,7 +100,7 @@ function shouldBehaveLikeSet(events) {
 
       await expectMembersMatch(this.methods, [this.valueA, this.valueC]);
 
-      expect(await this.methods.contains(this.valueB)).to.equal(false);
+      expect(await this.methods.contains(this.valueB)).to.be.false;
     });
   });
 }
