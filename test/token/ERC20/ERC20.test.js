@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const {
   bigint: { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve },
@@ -8,7 +9,7 @@ const {
 
 const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
 
-describe('ERC20', function () {
+describe.only('ERC20', function () {
   const name = 'My Token';
   const symbol = 'MTKN';
   const initialSupply = 100n;
@@ -39,7 +40,7 @@ describe('ERC20', function () {
       });
 
       it('has 18 decimals', async function () {
-        expect(await this.token.decimals()).to.be.equal('18');
+        expect(await this.token.decimals()).to.equal(18n);
       });
 
       describe('_mint', function () {
@@ -51,7 +52,9 @@ describe('ERC20', function () {
         });
 
         it('rejects overflow', async function () {
-          await expect(this.token.$_mint(this.recipient, ethers.MaxUint256)).to.be.revertedWithPanic(0x11);
+          await expect(this.token.$_mint(this.recipient, ethers.MaxUint256)).to.be.revertedWithPanic(
+            PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW,
+          );
         });
 
         describe('for a non zero account', function () {
@@ -61,11 +64,11 @@ describe('ERC20', function () {
 
           it('increments totalSupply', async function () {
             const expectedSupply = initialSupply + value;
-            expect(await this.token.totalSupply()).to.be.equal(expectedSupply);
+            await expect(await this.token.totalSupply()).to.equal(expectedSupply);
           });
 
           it('increments recipient balance', async function () {
-            expect(await this.token.balanceOf(this.recipient)).to.be.equal(value);
+            expect(await this.token.balanceOf(this.recipient)).to.equal(value);
           });
 
           it('emits Transfer event', async function () {
@@ -97,11 +100,15 @@ describe('ERC20', function () {
               });
 
               it('decrements totalSupply', async function () {
-                expect(await this.token.totalSupply()).to.be.equal(initialSupply - value);
+                expect(await this.token.totalSupply()).to.equal(initialSupply - value);
               });
 
               it('decrements initialHolder balance', async function () {
-                expect(await this.token.balanceOf(this.initialHolder)).to.be.equal(initialSupply - value);
+                expect(await this.token.balanceOf(this.initialHolder)).to.changeTokenBalance(
+                  this.token,
+                  this.initialHolder,
+                  -value,
+                );
               });
 
               it('emits Transfer event', async function () {
@@ -120,37 +127,51 @@ describe('ERC20', function () {
       describe('_update', function () {
         const value = 1n;
 
-        it('from is the zero address', async function () {
-          const balanceBefore = await this.token.balanceOf(this.initialHolder);
-          const totalSupply = await this.token.totalSupply();
+        beforeEach(async function () {
+          this.totalSupply = await this.token.totalSupply();
+        });
 
-          await expect(this.token.$_update(ethers.ZeroAddress, this.initialHolder, value))
+        it('from is the zero address', async function () {
+          const tx = this.token.$_update(ethers.ZeroAddress, this.initialHolder, value);
+          await expect(tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.initialHolder.address, value);
 
-          expect(await this.token.totalSupply()).to.be.equal(totalSupply + value);
-          expect(await this.token.balanceOf(this.initialHolder)).to.be.equal(balanceBefore + value);
+          expect(await this.token.totalSupply()).to.equal(this.totalSupply + value);
+          await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, value);
         });
 
         it('to is the zero address', async function () {
-          const balanceBefore = await this.token.balanceOf(this.initialHolder);
-          const totalSupply = await this.token.totalSupply();
-
-          await expect(this.token.$_update(this.initialHolder, ethers.ZeroAddress, value))
+          const tx = this.token.$_update(this.initialHolder, ethers.ZeroAddress, value);
+          await expect(tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.initialHolder.address, ethers.ZeroAddress, value);
-          expect(await this.token.totalSupply()).to.be.equal(totalSupply - value);
-          expect(await this.token.balanceOf(this.initialHolder)).to.be.equal(balanceBefore - value);
+
+          expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
+          await expect(tx).to.changeTokenBalance(this.initialHolder, -value);
         });
 
-        it('from and to are the zero address', async function () {
-          const totalSupply = await this.token.totalSupply();
+        describe('from and to are the same address', function () {
+          it('zero address', async function () {
+            const tx = await this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, value);
+            await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, ethers.ZeroAddress, value);
 
-          await expect(this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, value))
-            .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, ethers.ZeroAddress, value);
+            expect(await this.token.totalSupply()).to.equal(this.totalSupply);
+            await expect(tx).to.changeTokenBalance(this.token, ethers.ZeroAddress, 0n);
+          });
 
-          expect(await this.token.totalSupply()).to.be.equal(totalSupply);
+          describe('non zero address', function () {
+            it('reverts without balance', async function () {
+              await expect(this.token.$_update(this.recipient, this.recipient, value))
+                .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+                .withArgs(this.recipient.address, 0n, value);
+            });
+
+            it('executes with balance', async function () {
+              await expect(this.token.$_update(this.initialHolder, this.initialHolder, value))
+                .to.changeTokenBalance(this.token, this.initialHolder, 0n);
+            });
+          });
         });
       });
 
