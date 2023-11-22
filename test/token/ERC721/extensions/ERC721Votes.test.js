@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 
-const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
+const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior.old');
 
 const MODES = {
   blocknumber: artifacts.require('$ERC721Votes'),

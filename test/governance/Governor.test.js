@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { bigint: Enums } = require('../helpers/enums');
+const Enums = require('../helpers/enums');
 const { getDomain } = require('../helpers/eip712');
 const { bigint: GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
 const {
@@ -10,7 +10,7 @@ const {
 } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { bigint: shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
+const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
 
 const Governor = '$GovernorMock';
 const CallReceiver = 'CallReceiverMock';
@@ -793,7 +793,7 @@ describe('Governor', function () {
           });
 
           it('someone else can propose', async function () {
-            const txPropose = this.helper.connect(this.voter1).propose();
+            const txPropose = await this.helper.connect(this.voter1).propose();
             await expect(txPropose)
               .to.emit(this.mock, 'ProposalCreated')
               .withArgs(
@@ -816,7 +816,7 @@ describe('Governor', function () {
           });
 
           describe('with different suffix', function () {
-            beforeEach(async function () {
+            beforeEach(function () {
               this.helper = this.helper.setProposal(
                 [
                   {
@@ -834,7 +834,7 @@ describe('Governor', function () {
           });
 
           describe('with proposer suffix but bad address part', function () {
-            beforeEach(async function () {
+            beforeEach(function () {
               this.helper = this.helper.setProposal(
                 [
                   {
@@ -853,7 +853,7 @@ describe('Governor', function () {
         });
 
         describe('with protection via proposer suffix', function () {
-          beforeEach(async function () {
+          beforeEach(function () {
             this.helper = this.helper.setProposal(
               [
                 {
