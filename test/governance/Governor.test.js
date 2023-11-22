@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const Enums = require('../helpers/enums');
 const { getDomain } = require('../helpers/eip712');
-const { bigint: GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance.new');
 const {
   bigint: { clockFromReceipt },
 } = require('../helpers/time');

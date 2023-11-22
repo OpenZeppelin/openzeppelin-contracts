@@ -1,6 +1,7 @@
 const { web3 } = require('hardhat');
 const { forward } = require('../helpers/time');
 const { ProposalState } = require('./enums');
+const { ethers } = require('ethers');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -12,84 +13,110 @@ function concatHex(...args) {
   return web3.utils.bytesToHex([].concat(...args.map(h => web3.utils.hexToBytes(h || '0x'))));
 }
 
-function concatOpts(args, opts = null) {
-  return opts ? args.concat(opts) : args;
-}
-
 const timelockSalt = (address, descriptionHash) =>
   '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
 
-class GovernorHelper {
-  constructor(governor, mode = 'blocknumber') {
-    this.governor = governor;
-    this.mode = mode;
+/**
+ * Encodes a list ProposalStates into a bytes32 representation where each bit enabled corresponds to
+ * the underlying position in the `ProposalState` enum. For example:
+ *
+ * 0x000...10000
+ *   ^^^^^^------ ...
+ *         ^----- Succeeded
+ *          ^---- Defeated
+ *           ^--- Canceled
+ *            ^-- Active
+ *             ^- Pending
+ */
+function proposalStatesToBitMap(proposalStates, options = {}) {
+  if (!Array.isArray(proposalStates)) {
+    proposalStates = [proposalStates];
+  }
+  const statesCount = Object.keys(ProposalState).length;
+  let result = 0;
+
+  const uniqueProposalStates = new Set(proposalStates); // Remove duplicates
+  for (const state of uniqueProposalStates) {
+    if (state < 0 || state >= statesCount) {
+      expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
+    } else {
+      result |= 1 << state;
+    }
   }
 
-  delegate(delegation = {}, opts = null) {
+  if (options.inverted) {
+    const mask = 2 ** statesCount - 1;
+    result = result ^ mask;
+  }
+
+  const hex = web3.utils.numberToHex(result);
+  return web3.utils.padLeft(hex, 64);
+}
+
+class GovernorHelper {
+  constructor(governor, mode = 'blocknumber', proposal = undefined) {
+    this.governor = governor;
+    this.mode = mode;
+    this.currentProposal = proposal;
+  }
+
+  connect(account) {
+    return new GovernorHelper(this.governor.connect(account), this.mode, this.currentProposal);
+  }
+
+  delegate(delegation) {
     return Promise.all([
-      delegation.token.delegate(delegation.to, { from: delegation.to }),
-      delegation.value && delegation.token.transfer(...concatOpts([delegation.to, delegation.value]), opts),
+      delegation.token.connect(delegation.to).delegate(delegation.to),
+      delegation.value && delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value),
       delegation.tokenId &&
         delegation.token
           .ownerOf(delegation.tokenId)
           .then(owner =>
-            delegation.token.transferFrom(...concatOpts([owner, delegation.to, delegation.tokenId], opts)),
+            delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
           ),
     ]);
   }
 
-  propose(opts = null) {
+  propose() {
     const proposal = this.currentProposal;
 
-    return this.governor.methods[
-      proposal.useCompatibilityInterface
-        ? 'propose(address[],uint256[],string[],bytes[],string)'
-        : 'propose(address[],uint256[],bytes[],string)'
-    ](...concatOpts(proposal.fullProposal, opts));
+    return this.governor.propose(...proposal.fullProposal);
   }
 
-  queue(opts = null) {
+  queue() {
     const proposal = this.currentProposal;
 
     return proposal.useCompatibilityInterface
-      ? this.governor.methods['queue(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+      ? this.governor.queue(proposal.id)
+      : this.governor.queue(...proposal.shortProposal);
   }
 
-  execute(opts = null) {
+  execute() {
     const proposal = this.currentProposal;
 
     return proposal.useCompatibilityInterface
-      ? this.governor.methods['execute(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+      ? this.governor.execute(proposal.id)
+      : this.governor.execute(...proposal.shortProposal);
   }
 
-  cancel(visibility = 'external', opts = null) {
+  cancel(visibility = 'external') {
     const proposal = this.currentProposal;
 
     switch (visibility) {
       case 'external':
-        if (proposal.useCompatibilityInterface) {
-          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
-        } else {
-          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
-            ...concatOpts(proposal.shortProposal, opts),
-          );
-        }
+        return proposal.useCompatibilityInterface
+          ? this.governor.cancel(proposal.id)
+          : this.governor.cancel(...proposal.shortProposal);
+
       case 'internal':
-        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+        return this.governor.$_cancel(...proposal.shortProposal);
+
       default:
         throw new Error(`unsupported visibility "${visibility}"`);
     }
   }
 
-  vote(vote = {}, opts = null) {
+  vote(vote = {}) {
     const proposal = this.currentProposal;
 
     return vote.signature
@@ -97,24 +124,24 @@ class GovernorHelper {
         vote.params || vote.reason
         ? this.sign(vote).then(signature =>
             this.governor.castVoteWithReasonAndParamsBySig(
-              ...concatOpts(
-                [proposal.id, vote.support, vote.voter, vote.reason || '', vote.params || '', signature],
-                opts,
-              ),
+              proposal.id,
+              vote.support,
+              vote.voter,
+              vote.reason || '',
+              vote.params || '',
+              signature,
             ),
           )
         : this.sign(vote).then(signature =>
-            this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, vote.voter, signature], opts)),
+            this.governor.castVoteBySig(proposal.id, vote.support, vote.voter, signature),
           )
       : vote.params
       ? // otherwise if params
-        this.governor.castVoteWithReasonAndParams(
-          ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params], opts),
-        )
+        this.governor.castVoteWithReasonAndParams(proposal.id, vote.support, vote.reason || '', vote.params)
       : vote.reason
       ? // otherwise if reason
-        this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
-      : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
+        this.governor.castVoteWithReason(proposal.id, vote.support, vote.reason)
+      : this.governor.castVote(proposal.id, vote.support);
   }
 
   sign(vote = {}) {
@@ -134,16 +161,16 @@ class GovernorHelper {
     return message;
   }
 
-  async waitForSnapshot(offset = 0) {
+  async waitForSnapshot(offset = 0n) {
     const proposal = this.currentProposal;
     const timepoint = await this.governor.proposalSnapshot(proposal.id);
-    return forward[this.mode](timepoint.addn(offset));
+    return forward[this.mode](timepoint + offset);
   }
 
-  async waitForDeadline(offset = 0) {
+  async waitForDeadline(offset = 0n) {
     const proposal = this.currentProposal;
     const timepoint = await this.governor.proposalDeadline(proposal.id);
-    return forward[this.mode](timepoint.addn(offset));
+    return forward[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0) {
@@ -185,13 +212,11 @@ class GovernorHelper {
     const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
 
     // proposal id
-    const id = web3.utils.toBN(
-      web3.utils.keccak256(
-        web3.eth.abi.encodeParameters(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
-      ),
+    const id = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
     );
 
-    this.currentProposal = {
+    const currentProposal = {
       id,
       targets,
       values,
@@ -205,45 +230,8 @@ class GovernorHelper {
       useCompatibilityInterface,
     };
 
-    return this.currentProposal;
+    return new GovernorHelper(this.governor, this.mode, currentProposal);
   }
-}
-
-/**
- * Encodes a list ProposalStates into a bytes32 representation where each bit enabled corresponds to
- * the underlying position in the `ProposalState` enum. For example:
- *
- * 0x000...10000
- *   ^^^^^^------ ...
- *         ^----- Succeeded
- *          ^---- Defeated
- *           ^--- Canceled
- *            ^-- Active
- *             ^- Pending
- */
-function proposalStatesToBitMap(proposalStates, options = {}) {
-  if (!Array.isArray(proposalStates)) {
-    proposalStates = [proposalStates];
-  }
-  const statesCount = Object.keys(ProposalState).length;
-  let result = 0;
-
-  const uniqueProposalStates = new Set(proposalStates.map(bn => bn.toNumber())); // Remove duplicates
-  for (const state of uniqueProposalStates) {
-    if (state < 0 || state >= statesCount) {
-      expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
-    } else {
-      result |= 1 << state;
-    }
-  }
-
-  if (options.inverted) {
-    const mask = 2 ** statesCount - 1;
-    result = result ^ mask;
-  }
-
-  const hex = web3.utils.numberToHex(result);
-  return web3.utils.padLeft(hex, 64);
 }
 
 module.exports = {
