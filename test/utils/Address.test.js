@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require("@nomicfoundation/hardhat-chai-matchers/panic");
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const coder = ethers.AbiCoder.defaultAbiCoder();
 
@@ -88,28 +88,29 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.target, call))
           .to.emit(this.target, 'MockFunctionCalled')
-          .to.emit(this.mock, 'return$functionCall').withArgs(coder.encode(['string'], ['0x1234']));
+          .to.emit(this.mock, 'return$functionCall')
+          .withArgs(coder.encode(['string'], ['0x1234']));
       });
 
       it('calls the requested empty return function', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionEmptyReturn');
 
-        await expect(this.mock.$functionCall(this.target, call))
-          .to.emit(this.target, 'MockFunctionCalled');
+        await expect(this.mock.$functionCall(this.target, call)).to.emit(this.target, 'MockFunctionCalled');
       });
 
       it('reverts when the called function reverts with no reason', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
 
-        await expect(this.mock.$functionCall(this.target, call))
-          .to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
+          this.mock,
+          'FailedInnerCall',
+        );
       });
 
       it('reverts when the called function reverts, bubbling up the revert reason', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionRevertsReason');
 
-        await expect(this.mock.$functionCall(this.target, call))
-          .to.be.revertedWith('CallReceiverMock: reverting');
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWith('CallReceiverMock: reverting');
       });
 
       it('reverts when the called function runs out of gas', async function () {
@@ -117,23 +118,26 @@ describe('Address', function () {
 
         const call = this.target.interface.encodeFunctionData('mockFunctionOutOfGas');
 
-        await expect(this.mock.$functionCall(this.target, call, { gasLimit: 120_000n }))
-          .to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+        await expect(this.mock.$functionCall(this.target, call, { gasLimit: 120_000n })).to.be.revertedWithCustomError(
+          this.mock,
+          'FailedInnerCall',
+        );
       });
 
       it('reverts when the called function throws', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionThrows');
 
-        await expect(this.mock.$functionCall(this.target, call))
-          .to.be.revertedWithPanic(PANIC_CODES.ASSERTION_ERROR);
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithPanic(PANIC_CODES.ASSERTION_ERROR);
       });
 
       it('reverts when function does not exist', async function () {
         const interface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
         const call = interface.encodeFunctionData('mockFunctionDoesNotExist');
 
-        await expect(this.mock.$functionCall(this.target, call))
-          .to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
+          this.mock,
+          'FailedInnerCall',
+        );
       });
     });
 
@@ -177,14 +181,12 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.$functionCallWithValue(this.target, call, value);
 
-        await expect(tx)
-          .to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(this.target, value);
 
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
           .withArgs(coder.encode(['string'], ['0x1234']));
-
       });
 
       it('calls the requested function with transaction funds', async function () {
@@ -193,13 +195,11 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.connect(this.other).$functionCallWithValue(this.target, call, value, { value });
 
-        await expect(tx)
-          .to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(this.target, value);
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
           .withArgs(coder.encode(['string'], ['0x1234']));
-
       });
 
       it('reverts when calling non-payable functions', async function () {
@@ -207,8 +207,10 @@ describe('Address', function () {
 
         const call = this.target.interface.encodeFunctionData('mockFunctionNonPayable');
 
-        await expect(this.mock.$functionCallWithValue(this.target, call, value))
-          .to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+        await expect(this.mock.$functionCallWithValue(this.target, call, value)).to.be.revertedWithCustomError(
+          this.mock,
+          'FailedInnerCall',
+        );
       });
     });
   });
@@ -217,22 +219,22 @@ describe('Address', function () {
     it('calls the requested function', async function () {
       const call = this.target.interface.encodeFunctionData('mockStaticFunction');
 
-      expect(await this.mock.$functionStaticCall(this.target, call))
-        .to.equal(coder.encode(['string'], ['0x1234']));
+      expect(await this.mock.$functionStaticCall(this.target, call)).to.equal(coder.encode(['string'], ['0x1234']));
     });
 
     it('reverts on a non-static function', async function () {
       const call = this.target.interface.encodeFunctionData('mockFunction');
 
-      await expect(this.mock.$functionStaticCall(this.target, call))
-        .to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+      await expect(this.mock.$functionStaticCall(this.target, call)).to.be.revertedWithCustomError(
+        this.mock,
+        'FailedInnerCall',
+      );
     });
 
     it('bubbles up revert reason', async function () {
       const call = this.target.interface.encodeFunctionData('mockFunctionRevertsReason');
 
-      await expect(this.mock.$functionStaticCall(this.target, call))
-        .to.be.revertedWith('CallReceiverMock: reverting');
+      await expect(this.mock.$functionStaticCall(this.target, call)).to.be.revertedWith('CallReceiverMock: reverting');
     });
 
     it('reverts when address is not a contract', async function () {
@@ -263,8 +265,9 @@ describe('Address', function () {
     it('bubbles up revert reason', async function () {
       const call = this.target.interface.encodeFunctionData('mockFunctionRevertsReason');
 
-      await expect(this.mock.$functionDelegateCall(this.target, call))
-        .to.be.revertedWith('CallReceiverMock: reverting');
+      await expect(this.mock.$functionDelegateCall(this.target, call)).to.be.revertedWith(
+        'CallReceiverMock: reverting',
+      );
     });
 
     it('reverts when address is not a contract', async function () {
