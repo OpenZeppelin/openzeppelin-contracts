@@ -4,7 +4,7 @@ const { BN, constants, expectEvent, time } = require('@openzeppelin/test-helpers
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
-const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior.old');
+const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;

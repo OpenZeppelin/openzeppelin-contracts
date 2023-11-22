@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const {
   bigint: { clockFromReceipt },
 } = require('../../helpers/time');
-const { shouldBehaveLikeVotes } = require('./Votes.behavior');
+const { shouldBehaveLikeVotes } = require('./Votes.behavior.new');
 const { bigintSum: sum } = require('../../helpers/math');
 
 require('array.prototype.at/auto');
