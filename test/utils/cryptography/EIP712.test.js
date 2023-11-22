@@ -70,7 +70,7 @@ contract('EIP712', function (accounts) {
 
       it('hash digest', async function () {
         const structhash = web3.utils.randomHex(32);
-        expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
+        expect(await this.eip712.$_hashTypedDataV4(structhash)).to.equal(hashTypedData(this.domain, structhash));
       });
 
       it('digest', async function () {
@@ -94,11 +94,11 @@ contract('EIP712', function (accounts) {
       });
 
       it('name', async function () {
-        expect(await this.eip712.$_EIP712Name()).to.be.equal(name);
+        expect(await this.eip712.$_EIP712Name()).to.equal(name);
       });
 
       it('version', async function () {
-        expect(await this.eip712.$_EIP712Version()).to.be.equal(version);
+        expect(await this.eip712.$_EIP712Version()).to.equal(version);
       });
     });
   }

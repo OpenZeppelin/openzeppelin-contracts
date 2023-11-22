@@ -81,7 +81,7 @@ describe('ECDSA', function () {
 
       it('returns a different address', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
-        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.equal(this.signer.address);
+        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer.address);
       });
 
       it('reverts with invalid signature', async function () {
