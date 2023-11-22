@@ -51,7 +51,7 @@ describe('EIP712', function () {
             const clone = await factory
               .$clone(this.eip712)
               .then(tx => tx.wait())
-              .then(receipt => receipt.logs[0].args[0])
+              .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone').args.instance)
               .then(address => ethers.getContractAt('$EIP712Verifier', address));
 
             const expectedDomain = { ...this.domain, verifyingContract: clone.target };
