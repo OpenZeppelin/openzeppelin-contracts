@@ -65,7 +65,7 @@ describe('EIP712', function () {
 
       it('hash digest', async function () {
         const structhash = ethers.hexlify(ethers.randomBytes(32));
-        expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
+        expect(await this.eip712.$_hashTypedDataV4(structhash)).to.equal(hashTypedData(this.domain, structhash));
       });
 
       it('digest', async function () {
@@ -87,11 +87,11 @@ describe('EIP712', function () {
       });
 
       it('name', async function () {
-        expect(await this.eip712.$_EIP712Name()).to.be.equal(name);
+        expect(await this.eip712.$_EIP712Name()).to.equal(name);
       });
 
       it('version', async function () {
-        expect(await this.eip712.$_EIP712Version()).to.be.equal(version);
+        expect(await this.eip712.$_EIP712Version()).to.equal(version);
       });
     });
   }
