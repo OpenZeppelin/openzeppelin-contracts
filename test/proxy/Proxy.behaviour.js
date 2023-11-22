@@ -26,16 +26,16 @@ module.exports = function shouldBehaveLikeProxy() {
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.implementation.target);
+      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.implementation.target);
     });
 
     it('initializes the proxy', async function () {
-      const dummy = await ethers.getContractAt('DummyImplementation', this.proxy);
-      expect(await dummy.value()).to.be.equal(value);
+      const dummy = this.implementation.attach(this.proxy);
+      expect(await dummy.value()).to.equal(value);
     });
 
     it('has expected balance', async function () {
-      expect(await ethers.provider.getBalance(this.proxy)).to.be.equal(balance);
+      expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
@@ -44,7 +44,7 @@ module.exports = function shouldBehaveLikeProxy() {
 
     describe('when not sending balance', function () {
       beforeEach('creating proxy', async function () {
-        this.proxy = (await this.createProxy(this.implementation, initializeData)).target;
+        this.proxy = await this.createProxy(this.implementation, initializeData);
       });
 
       assertProxyInitialization({ value: 0n, balance: 0n });

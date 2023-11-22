@@ -5,11 +5,11 @@ module.exports = function shouldBehaveLikeClone() {
   const assertProxyInitialization = function ({ value, balance }) {
     it('initializes the proxy', async function () {
       const dummy = await ethers.getContractAt('DummyImplementation', this.proxy);
-      expect(await dummy.value()).to.be.equal(value);
+      expect(await dummy.value()).to.equal(value);
     });
 
     it('has expected balance', async function () {
-      expect(await ethers.provider.getBalance(this.proxy)).to.be.equal(balance);
+      expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
