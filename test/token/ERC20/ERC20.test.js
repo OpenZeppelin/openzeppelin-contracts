@@ -7,14 +7,12 @@ const {
   bigint: { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve },
 } = require('./ERC20.behavior');
 
-const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
-
-describe.only('ERC20', function () {
+describe('ERC20', function () {
   const name = 'My Token';
   const symbol = 'MTKN';
   const initialSupply = 100n;
 
-  for (const { Token, forcedApproval } of TOKENS) {
+  for (const [Token, forcedApproval] of [['$ERC20'], ['$ERC20ApprovalMock', true]]) {
     describe(`using ${Token}`, function () {
       const fixture = async () => {
         const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
@@ -148,7 +146,7 @@ describe.only('ERC20', function () {
             .withArgs(this.initialHolder.address, ethers.ZeroAddress, value);
 
           expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
-          await expect(tx).to.changeTokenBalance(this.initialHolder, -value);
+          await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, -value);
         });
 
         describe('from and to are the same address', function () {
@@ -168,8 +166,11 @@ describe.only('ERC20', function () {
             });
 
             it('executes with balance', async function () {
-              await expect(this.token.$_update(this.initialHolder, this.initialHolder, value))
-                .to.changeTokenBalance(this.token, this.initialHolder, 0n);
+              await expect(this.token.$_update(this.initialHolder, this.initialHolder, value)).to.changeTokenBalance(
+                this.token,
+                this.initialHolder,
+                0n,
+              );
             });
           });
         });
@@ -182,12 +183,10 @@ describe.only('ERC20', function () {
 
         shouldBehaveLikeERC20Transfer(initialSupply);
 
-        describe('when the sender is the zero address', function () {
-          it('reverts', async function () {
-            await expect(this.token.$_transfer(ethers.ZeroAddress, this.recipient, initialSupply))
-              .to.be.revertedWithCustomError(this.token, 'ERC20InvalidSender')
-              .withArgs(ethers.ZeroAddress);
-          });
+        it('reverts when the sender is the zero address', async function () {
+          await expect(this.token.$_transfer(ethers.ZeroAddress, this.recipient, initialSupply))
+            .to.be.revertedWithCustomError(this.token, 'ERC20InvalidSender')
+            .withArgs(ethers.ZeroAddress);
         });
       });
 
@@ -198,12 +197,10 @@ describe.only('ERC20', function () {
 
         shouldBehaveLikeERC20Approve(initialSupply);
 
-        describe('when the owner is the zero address', function () {
-          it('reverts', async function () {
-            await expect(this.token.$_approve(ethers.ZeroAddress, this.recipient, initialSupply))
-              .to.be.revertedWithCustomError(this.token, 'ERC20InvalidApprover')
-              .withArgs(ethers.ZeroAddress);
-          });
+        it('reverts when the owner is the zero address', async function () {
+          await expect(this.token.$_approve(ethers.ZeroAddress, this.recipient, initialSupply))
+            .to.be.revertedWithCustomError(this.token, 'ERC20InvalidApprover')
+            .withArgs(ethers.ZeroAddress);
         });
       });
     });
