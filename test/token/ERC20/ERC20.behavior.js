@@ -436,7 +436,7 @@ function shouldBehaveLikeERC20Bigint(initialSupply, opts = {}) {
               .withArgs(this.recipient.address, allowance, value);
           });
 
-          it('reverts when the token owner does not have enougth balance', async function () {
+          it('reverts when the token owner does not have enough balance', async function () {
             const value = allowance;
             await this.token.connect(this.initialHolder).transfer(this.anotherAccount, 2);
             await expect(
