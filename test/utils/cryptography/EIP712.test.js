@@ -1,26 +1,18 @@
 const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
-const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
+const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
-const { mapValues } = require('../../helpers/iterate');
 
 describe('EIP712', function () {
-  const shortName = 'A Name';
-  const shortVersion = '1';
-
-  const longName = 'A'.repeat(40);
-  const longVersion = 'B'.repeat(40);
-
-  const cases = [
-    ['short', shortName, shortVersion],
-    ['long', longName, longVersion],
-  ];
-
-  for (const [shortOrLong, name, version] of cases) {
+  for (const [shortOrLong, name, version] of [
+    ['short', 'A Name', '1'],
+    ['long', 'A'.repeat(40), 'B'.repeat(40)],
+  ]) {
     describe(`with ${shortOrLong} name and version`, function () {
       const fixture = async () => {
-        const [mailTo] = await ethers.getSigners();
+        const [from, to] = await ethers.getSigners();
 
         const eip712 = await ethers.deployContract('$EIP712Verifier', [name, version]);
         const domain = {
@@ -29,9 +21,8 @@ describe('EIP712', function () {
           chainId: await getChainId(),
           verifyingContract: eip712.target,
         };
-        const _domainType = domainType(domain);
 
-        return { mailTo, eip712, domain, domainType: _domainType };
+        return { from, to, eip712, domain };
       };
 
       beforeEach('deploying', async function () {
@@ -47,7 +38,7 @@ describe('EIP712', function () {
 
         it("can be rebuilt using EIP-5267's eip712Domain", async function () {
           const rebuildDomain = await getDomain(this.eip712);
-          expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
+          expect(rebuildDomain).to.be.deep.equal(this.domain);
         });
 
         if (shortOrLong === 'short') {
@@ -56,16 +47,17 @@ describe('EIP712', function () {
 
           it('adjusts when behind proxy', async function () {
             const factory = await ethers.deployContract('$Clones');
-            const cloneAddress = await factory.$clone.staticCall(this.eip712);
-            await factory.$clone(this.eip712);
-            const clone = await ethers.getContractAt('$EIP712Verifier', cloneAddress);
 
-            const cloneDomain = { ...this.domain, verifyingContract: cloneAddress };
+            const clone = await factory
+              .$clone(this.eip712)
+              .then(tx => tx.wait())
+              .then(receipt => receipt.logs[0].args[0])
+              .then(address => ethers.getContractAt('$EIP712Verifier', address));
 
-            const reportedDomain = await getDomain(clone);
-            expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
+            const expectedDomain = { ...this.domain, verifyingContract: clone.target };
+            expect(await getDomain(clone)).to.be.deep.equal(expectedDomain);
 
-            const expectedSeparator = await domainSeparator(cloneDomain);
+            const expectedSeparator = await domainSeparator(expectedDomain);
             expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
           });
         }
@@ -77,11 +69,6 @@ describe('EIP712', function () {
       });
 
       it('digest', async function () {
-        const message = {
-          to: this.mailTo.address,
-          contents: 'very interesting',
-        };
-
         const types = {
           Mail: [
             { name: 'to', type: 'address' },
@@ -89,11 +76,14 @@ describe('EIP712', function () {
           ],
         };
 
-        const signer = ethers.Wallet.createRandom();
-        const address = await signer.getAddress();
-        const signature = await signer.signTypedData(this.domain, types, message);
+        const message = {
+          to: this.to.address,
+          contents: 'very interesting',
+        };
 
-        await this.eip712.verify(signature, address, message.to, message.contents);
+        const signature = await this.from.signTypedData(this.domain, types, message);
+
+        await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.not.be.reverted;
       });
 
       it('name', async function () {
