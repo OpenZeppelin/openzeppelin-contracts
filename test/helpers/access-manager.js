@@ -1,23 +1,23 @@
-const { time } = require('@openzeppelin/test-helpers');
-const { MAX_UINT64 } = require('./constants');
-const { namespaceSlot } = require('./namespaced-storage');
 const {
-  time: { setNextBlockTimestamp },
-} = require('@nomicfoundation/hardhat-network-helpers');
+  bigint: { MAX_UINT64 },
+} = require('./constants');
+const { namespaceSlot } = require('./namespaced-storage');
+const { bigint: time } = require('./time');
+const { keccak256, AbiCoder } = require('ethers');
 
 function buildBaseRoles() {
   const roles = {
     ADMIN: {
-      id: web3.utils.toBN(0),
+      id: 0n,
     },
     SOME_ADMIN: {
-      id: web3.utils.toBN(17),
+      id: 17n,
     },
     SOME_GUARDIAN: {
-      id: web3.utils.toBN(35),
+      id: 35n,
     },
     SOME: {
-      id: web3.utils.toBN(42),
+      id: 42n,
     },
     PUBLIC: {
       id: MAX_UINT64,
@@ -53,23 +53,27 @@ const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
 /**
  * @requires this.{manager, caller, target, calldata}
  */
-async function scheduleOperation(manager, { caller, target, calldata, delay }) {
-  const timestamp = await time.latest();
-  const scheduledAt = timestamp.addn(1);
-  await setNextBlockTimestamp(scheduledAt); // Fix next block timestamp for predictability
-  const { receipt } = await manager.schedule(target, calldata, scheduledAt.add(delay), {
-    from: caller,
-  });
+async function prepareOperation(manager, { caller, target, calldata, delay }) {
+  const timestamp = await time.clock.timestamp();
+  const scheduledAt = timestamp + 1n;
+  await time.forward.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
 
   return {
-    receipt,
+    schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
     scheduledAt,
     operationId: hashOperation(caller, target, calldata),
   };
 }
 
+const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
+
 const hashOperation = (caller, target, data) =>
-  web3.utils.keccak256(web3.eth.abi.encodeParameters(['address', 'address', 'bytes'], [caller, target, data]));
+  keccak256(
+    AbiCoder.defaultAbiCoder().encode(
+      ['address', 'address', 'bytes'],
+      [lazyGetAddress(caller), lazyGetAddress(target), data],
+    ),
+  );
 
 module.exports = {
   buildBaseRoles,
@@ -78,6 +82,6 @@ module.exports = {
   EXPIRATION,
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
-  scheduleOperation,
+  prepareOperation,
   hashOperation,
 };
