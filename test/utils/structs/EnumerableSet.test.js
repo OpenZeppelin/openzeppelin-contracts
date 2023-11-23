@@ -1,79 +1,104 @@
-const EnumerableSet = artifacts.require('$EnumerableSet');
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { mapValues } = require('../../helpers/iterate');
+const { randomArray, generators } = require('../../helpers/random');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-const getMethods = ms => {
+const getMethods = (mock, fnSigs) => {
   return mapValues(
-    ms,
-    m =>
-      (self, ...args) =>
-        self.methods[m](0, ...args),
+    fnSigs,
+    fnSig =>
+      (...args) =>
+        mock.getFunction(fnSig)(0, ...args),
   );
 };
 
-// Get the name of the library. In the transpiled code it will be EnumerableSetUpgradeable.
-const library = EnumerableSet._json.contractName.replace(/^\$/, '');
-
-contract('EnumerableSet', function (accounts) {
-  beforeEach(async function () {
-    this.set = await EnumerableSet.new();
-  });
-
+describe('EnumerableSet', function () {
   // Bytes32Set
   describe('EnumerableBytes32Set', function () {
-    shouldBehaveLikeSet(
-      ['0xdeadbeef', '0x0123456789', '0x42424242'].map(e => e.padEnd(66, '0')),
-      getMethods({
+    const fixture = async () => {
+      const mock = await ethers.deployContract('$EnumerableSet');
+
+      const [valueA, valueB, valueC] = randomArray(generators.bytes32);
+
+      const methods = getMethods(mock, {
         add: '$add(uint256,bytes32)',
         remove: '$remove(uint256,bytes32)',
         contains: '$contains(uint256,bytes32)',
-        length: `$length_${library}_Bytes32Set(uint256)`,
-        at: `$at_${library}_Bytes32Set(uint256,uint256)`,
-        values: `$values_${library}_Bytes32Set(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_Bytes32Set_bytes32`,
-        removeReturn: `return$remove_${library}_Bytes32Set_bytes32`,
-      },
-    );
+        length: `$length_EnumerableSet_Bytes32Set(uint256)`,
+        at: `$at_EnumerableSet_Bytes32Set(uint256,uint256)`,
+        values: `$values_EnumerableSet_Bytes32Set(uint256)`,
+      });
+
+      return { mock, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeSet({
+      addReturn: `return$add_EnumerableSet_Bytes32Set_bytes32`,
+      removeReturn: `return$remove_EnumerableSet_Bytes32Set_bytes32`,
+    });
   });
 
   // AddressSet
   describe('EnumerableAddressSet', function () {
-    shouldBehaveLikeSet(
-      accounts,
-      getMethods({
+    const fixture = async () => {
+      const mock = await ethers.deployContract('$EnumerableSet');
+
+      const [valueA, valueB, valueC] = randomArray(generators.address);
+
+      const methods = getMethods(mock, {
         add: '$add(uint256,address)',
         remove: '$remove(uint256,address)',
         contains: '$contains(uint256,address)',
-        length: `$length_${library}_AddressSet(uint256)`,
-        at: `$at_${library}_AddressSet(uint256,uint256)`,
-        values: `$values_${library}_AddressSet(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_AddressSet_address`,
-        removeReturn: `return$remove_${library}_AddressSet_address`,
-      },
-    );
+        length: `$length_EnumerableSet_AddressSet(uint256)`,
+        at: `$at_EnumerableSet_AddressSet(uint256,uint256)`,
+        values: `$values_EnumerableSet_AddressSet(uint256)`,
+      });
+
+      return { mock, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeSet({
+      addReturn: `return$add_EnumerableSet_AddressSet_address`,
+      removeReturn: `return$remove_EnumerableSet_AddressSet_address`,
+    });
   });
 
   // UintSet
   describe('EnumerableUintSet', function () {
-    shouldBehaveLikeSet(
-      [1234, 5678, 9101112].map(e => web3.utils.toBN(e)),
-      getMethods({
+    const fixture = async () => {
+      const mock = await ethers.deployContract('$EnumerableSet');
+
+      const [valueA, valueB, valueC] = randomArray(generators.uint256);
+
+      const methods = getMethods(mock, {
         add: '$add(uint256,uint256)',
         remove: '$remove(uint256,uint256)',
         contains: '$contains(uint256,uint256)',
-        length: `$length_${library}_UintSet(uint256)`,
-        at: `$at_${library}_UintSet(uint256,uint256)`,
-        values: `$values_${library}_UintSet(uint256)`,
-      }),
-      {
-        addReturn: `return$add_${library}_UintSet_uint256`,
-        removeReturn: `return$remove_${library}_UintSet_uint256`,
-      },
-    );
+        length: `$length_EnumerableSet_UintSet(uint256)`,
+        at: `$at_EnumerableSet_UintSet(uint256,uint256)`,
+        values: `$values_EnumerableSet_UintSet(uint256)`,
+      });
+
+      return { mock, valueA, valueB, valueC, methods };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    shouldBehaveLikeSet({
+      addReturn: `return$add_EnumerableSet_UintSet_uint256`,
+      removeReturn: `return$remove_EnumerableSet_UintSet_uint256`,
+    });
   });
 });

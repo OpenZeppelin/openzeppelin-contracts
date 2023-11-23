@@ -95,7 +95,7 @@ library ECDSA {
     /**
      * @dev Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.
      *
-     * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]
+     * See https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signatures]
      */
     function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError, bytes32) {
         unchecked {

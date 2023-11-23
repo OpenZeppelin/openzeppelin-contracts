@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
+ * @dev https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
  * deploying minimal proxy contracts, also known as "clones".
  *
  * > To simply and cheaply clone contract functionality in an immutable way, this standard specifies

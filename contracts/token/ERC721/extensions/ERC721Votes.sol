@@ -7,7 +7,7 @@ import {ERC721} from "../ERC721.sol";
 import {Votes} from "../../../governance/utils/Votes.sol";
 
 /**
- * @dev Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
+ * @dev Extension of ERC-721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
  * as 1 vote unit.
  *
  * Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
