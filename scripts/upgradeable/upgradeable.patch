@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 549891e3f..a6b24078e 100644
+index 9ca41573f..57d6e3b5b 100644
 --- a/README.md
 +++ b/README.md
-@@ -23,6 +23,9 @@
+@@ -19,6 +19,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -72,7 +72,7 @@ index 549891e3f..a6b24078e 100644
  ## Overview
  
  ### Installation
-@@ -30,7 +33,7 @@
+@@ -26,7 +29,7 @@
  #### Hardhat, Truffle (npm)
  
  ```
@@ -81,7 +81,7 @@ index 549891e3f..a6b24078e 100644
  ```
  
  #### Foundry (git)
-@@ -42,10 +45,10 @@ $ npm install @openzeppelin/contracts
+@@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +94,7 @@ index 549891e3f..a6b24078e 100644
  
  ### Usage
  
-@@ -54,10 +57,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +110,7 @@ index 549891e3f..a6b24078e 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 9017953ca..f51c1d38b 100644
+index be3e741e3..877e942c2 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index 9017953ca..f51c1d38b 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "4.9.2",
+   "version": "5.0.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -140,7 +140,7 @@ index 9017953ca..f51c1d38b 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 644f6f531..ab8ba05ff 100644
+index 8e548cdd8..a60ee74fd 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -307,7 +307,7 @@ index 644f6f531..ab8ba05ff 100644
      }
  }
 diff --git a/package.json b/package.json
-index 3a1617c09..97e59c2d9 100644
+index c2c3a2675..3301b213d 100644
 --- a/package.json
 +++ b/package.json
 @@ -32,7 +32,7 @@
@@ -328,12 +328,12 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index faf01f1a3..b25171a56 100644
+index 75ca00b12..265e6c909 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -47,26 +47,6 @@ contract('EIP712', function (accounts) {
+@@ -40,27 +40,6 @@ describe('EIP712', function () {
            const rebuildDomain = await getDomain(this.eip712);
-           expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
+           expect(rebuildDomain).to.be.deep.equal(this.domain);
          });
 -
 -        if (shortOrLong === 'short') {
@@ -341,17 +341,18 @@ index faf01f1a3..b25171a56 100644
 -          // the upgradeable contract variant is used and the initializer is invoked.
 -
 -          it('adjusts when behind proxy', async function () {
--            const factory = await Clones.new();
--            const cloneReceipt = await factory.$clone(this.eip712.address);
--            const cloneAddress = cloneReceipt.logs.find(({ event }) => event === 'return$clone').args.instance;
--            const clone = new EIP712Verifier(cloneAddress);
+-            const factory = await ethers.deployContract('$Clones');
 -
--            const cloneDomain = { ...this.domain, verifyingContract: clone.address };
+-            const clone = await factory
+-              .$clone(this.eip712)
+-              .then(tx => tx.wait())
+-              .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone').args.instance)
+-              .then(address => ethers.getContractAt('$EIP712Verifier', address));
 -
--            const reportedDomain = await getDomain(clone);
--            expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
+-            const expectedDomain = { ...this.domain, verifyingContract: clone.target };
+-            expect(await getDomain(clone)).to.be.deep.equal(expectedDomain);
 -
--            const expectedSeparator = await domainSeparator(cloneDomain);
+-            const expectedSeparator = await domainSeparator(expectedDomain);
 -            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
 -          });
 -        }

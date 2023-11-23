@@ -7,15 +7,13 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
-const { getDomain, domainType } = require('../../helpers/eip712');
+const {
+  getDomain,
+  domainType,
+  types: { Delegation },
+} = require('../../helpers/eip712');
 const { clockFromReceipt } = require('../../helpers/time');
 const { expectRevertCustomError } = require('../../helpers/customError');
-
-const Delegation = [
-  { name: 'delegatee', type: 'address' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'expiry', type: 'uint256' },
-];
 
 const buildAndSignDelegation = (contract, message, pk) =>
   getDomain(contract)
