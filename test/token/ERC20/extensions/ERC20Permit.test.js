@@ -10,7 +10,12 @@ const Wallet = require('ethereumjs-wallet').default;
 
 const ERC20Permit = artifacts.require('$ERC20Permit');
 
-const { Permit, getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
+const {
+  types: { Permit },
+  getDomain,
+  domainType,
+  domainSeparator,
+} = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
 const { expectRevertCustomError } = require('../../../helpers/customError');
 
