@@ -5,28 +5,35 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 
+const LENGTHS = {
+  short: ['A Name', '1'],
+  long: ['A'.repeat(40), 'B'.repeat(40)],
+};
+
+const fixture = async () => {
+  const [from, to] = await ethers.getSigners();
+
+  const lengths = {};
+  for (const [shortOrLong, [name, version]] of Object.entries(LENGTHS)) {
+    lengths[shortOrLong] = { name, version };
+    lengths[shortOrLong].eip712 = await ethers.deployContract('$EIP712Verifier', [name, version]);
+    lengths[shortOrLong].domain = {
+      name,
+      version,
+      chainId: await getChainId(),
+      verifyingContract: lengths[shortOrLong].eip712.target,
+    };
+  }
+
+  return { from, to, lengths };
+};
+
 describe('EIP712', function () {
-  for (const [shortOrLong, name, version] of [
-    ['short', 'A Name', '1'],
-    ['long', 'A'.repeat(40), 'B'.repeat(40)],
-  ]) {
+  for (const [shortOrLong, [name, version]] of Object.entries(LENGTHS)) {
     describe(`with ${shortOrLong} name and version`, function () {
-      const fixture = async () => {
-        const [from, to] = await ethers.getSigners();
-
-        const eip712 = await ethers.deployContract('$EIP712Verifier', [name, version]);
-        const domain = {
-          name,
-          version,
-          chainId: await getChainId(),
-          verifyingContract: eip712.target,
-        };
-
-        return { from, to, eip712, domain };
-      };
-
       beforeEach('deploying', async function () {
         Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, this.lengths[shortOrLong]);
       });
 
       describe('domain separator', function () {
