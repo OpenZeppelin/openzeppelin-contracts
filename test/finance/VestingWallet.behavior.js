@@ -16,6 +16,10 @@ function shouldBehaveLikeVesting() {
     let released = 0n;
     {
       const tx = await this.mock.release(...this.args);
+      await expect(tx)
+        .to.emit(this.mock, this.releasedEvent)
+        .withArgs(...this.argsVerify, 0);
+
       await this.checkRelease(tx, 0n);
     }
 
@@ -24,6 +28,8 @@ function shouldBehaveLikeVesting() {
       const vested = this.vestingFn(timestamp);
 
       const tx = await this.mock.release(...this.args);
+      await expect(tx).to.emit(this.mock, this.releasedEvent);
+
       await this.checkRelease(tx, vested - released);
       released = vested;
     }

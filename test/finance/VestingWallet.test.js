@@ -30,6 +30,8 @@ async function fixture() {
         await mock.connect(beneficiary).transferOwnership(_beneficiary);
         return { args: [], error: [mock, 'FailedInnerCall'] };
       },
+      releasedEvent: 'EtherReleased',
+      argsVerify: [],
       args: [],
     },
     token: {
@@ -45,7 +47,8 @@ async function fixture() {
           error: [token, 'EnforcedPause'],
         };
       },
-
+      releasedEvent: 'ERC20Released',
+      argsVerify: [token.target],
       args: [ethers.Typed.address(token.target)],
     },
   };
@@ -56,7 +59,7 @@ async function fixture() {
 
   const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
 
-  return { mock, amount, duration, start, beneficiary, schedule, vestingFn, env };
+  return { mock, duration, start, beneficiary, schedule, vestingFn, env };
 }
 
 describe('VestingWallet', function () {
