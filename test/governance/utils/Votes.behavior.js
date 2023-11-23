@@ -6,7 +6,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const { shouldBehaveLikeEIP6372 } = require('./EIP6372.behavior');
+const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 const {
   getDomain,
   domainType,
@@ -26,7 +26,7 @@ const buildAndSignDelegation = (contract, message, pk) =>
     .then(data => fromRpcSig(ethSigUtil.signTypedMessage(pk, { data })));
 
 function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungible = true }) {
-  shouldBehaveLikeEIP6372(mode);
+  shouldBehaveLikeERC6372(mode);
 
   const getWeight = token => web3.utils.toBN(fungible ? token : 1);
 

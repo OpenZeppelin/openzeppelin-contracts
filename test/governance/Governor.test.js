@@ -14,7 +14,7 @@ const { clockFromReceipt } = require('../helpers/time');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
+const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
 const { ZERO_BYTES32 } = require('@openzeppelin/test-helpers/src/constants');
 
 const Governor = artifacts.require('$GovernorMock');
@@ -84,7 +84,7 @@ contract('Governor', function (accounts) {
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
-      shouldBehaveLikeEIP6372(mode);
+      shouldBehaveLikeERC6372(mode);
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.be.equal(name);

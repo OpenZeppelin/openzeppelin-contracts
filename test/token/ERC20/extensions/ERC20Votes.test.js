@@ -38,7 +38,7 @@ contract('ERC20Votes', function (accounts) {
         this.votes = this.token;
       });
 
-      // includes EIP6372 behavior check
+      // includes ERC6372 behavior check
       shouldBehaveLikeVotes(accounts, [1, 17, 42], { mode, fungible: true });
 
       it('initial nonce is 0', async function () {

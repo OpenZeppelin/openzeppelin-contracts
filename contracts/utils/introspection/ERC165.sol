@@ -8,7 +8,7 @@ import {IERC165} from "./IERC165.sol";
 /**
  * @dev Implementation of the {IERC165} interface.
  *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * Contracts that want to implement ERC-165 should inherit from this contract and override {supportsInterface} to check
  * for the additional interface id that will be supported. For example:
  *
  * ```solidity
