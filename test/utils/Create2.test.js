@@ -3,20 +3,23 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const [deployerAccount, other] = await ethers.getSigners();
+  const [deployer, other] = await ethers.getSigners();
 
-  const VestingWallet = await ethers.getContractFactory('VestingWallet');
-  const encodedParams = VestingWallet.interface.encodeDeploy([other.address, 0n, 0n]);
-  const constructorByteCode = ethers.concat([VestingWallet.bytecode, encodedParams]);
+  const factory = await ethers.deployContract('$Create2');
 
-  // This should be a contract that:
-  // - has no constructor arguments
-  // - has no immutable variable populated during construction
-  const Create2 = await ethers.getContractFactory('$Create2');
-  const factory = await Create2.deploy();
-  const constructorLessBytecode = Create2.bytecode;
+  // Bytecode for deploying a contract that includes a constructor.
+  // We use a vesting wallet, with 3 constructor arguments.
+  const constructorByteCode = await ethers
+    .getContractFactory('VestingWallet')
+    .then(({ bytecode, interface }) => ethers.concat([bytecode, interface.encodeDeploy([other.address, 0n, 0n])]));
 
-  return { deployerAccount, other, factory, constructorByteCode, constructorLessBytecode };
+  // Bytecode for deploying a contract that has no constructor log.
+  // Here we use the Create2 helper factory.
+  const constructorLessBytecode = await ethers
+    .getContractFactory('$Create2')
+    .then(({ bytecode, interface }) => ethers.concat([bytecode, interface.encodeDeploy([])]));
+
+  return { deployer, other, factory, constructorByteCode, constructorLessBytecode };
 }
 
 describe('Create2', function () {
@@ -42,10 +45,10 @@ describe('Create2', function () {
       const onChainComputed = await this.factory.$computeAddress(
         saltHex,
         ethers.keccak256(this.constructorByteCode),
-        ethers.Typed.address(this.deployerAccount),
+        ethers.Typed.address(this.deployer),
       );
       const offChainComputed = ethers.getCreate2Address(
-        this.deployerAccount.address,
+        this.deployer.address,
         saltHex,
         ethers.keccak256(this.constructorByteCode),
       );
@@ -61,7 +64,7 @@ describe('Create2', function () {
         ethers.keccak256(this.constructorLessBytecode),
       );
 
-      await expect(this.factory.$deploy(0, saltHex, this.constructorLessBytecode))
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorLessBytecode))
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
@@ -75,19 +78,19 @@ describe('Create2', function () {
         ethers.keccak256(this.constructorByteCode),
       );
 
-      await expect(this.factory.$deploy(0, saltHex, this.constructorByteCode))
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorByteCode))
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
       const instance = await ethers.getContractAt('VestingWallet', offChainComputed);
 
-      expect(await instance.owner()).to.be.equal(this.other.address);
+      expect(await instance.owner()).to.equal(this.other.address);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
-      const deposit = ethers.parseEther('2');
-      await this.deployerAccount.sendTransaction({ to: this.factory, value: deposit });
-      expect(await ethers.provider.getBalance(this.factory)).to.be.equal(deposit);
+      const value = 10n;
+
+      await this.deployer.sendTransaction({ to: this.factory, value });
 
       const offChainComputed = ethers.getCreate2Address(
         this.factory.target,
@@ -95,33 +98,37 @@ describe('Create2', function () {
         ethers.keccak256(this.constructorByteCode),
       );
 
-      await expect(this.factory.$deploy(deposit, saltHex, this.constructorByteCode))
+      expect(await ethers.provider.getBalance(this.factory)).to.equal(value);
+      expect(await ethers.provider.getBalance(offChainComputed)).to.equal(0n);
+
+      await expect(this.factory.$deploy(value, saltHex, this.constructorByteCode))
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
-      expect(await ethers.provider.getBalance(offChainComputed)).to.be.equal(deposit);
+      expect(await ethers.provider.getBalance(this.factory)).to.equal(0n);
+      expect(await ethers.provider.getBalance(offChainComputed)).to.equal(value);
     });
 
     it('fails deploying a contract in an existent address', async function () {
-      await expect(this.factory.$deploy(0, saltHex, this.constructorByteCode)).to.emit(this.factory, 'return$deploy');
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorByteCode)).to.emit(this.factory, 'return$deploy');
 
-      await expect(this.factory.$deploy(0, saltHex, this.constructorByteCode)).to.be.revertedWithCustomError(
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorByteCode)).to.be.revertedWithCustomError(
         this.factory,
         'Create2FailedDeployment',
       );
     });
 
     it('fails deploying a contract if the bytecode length is zero', async function () {
-      await expect(this.factory.$deploy(0, saltHex, '0x')).to.be.revertedWithCustomError(
+      await expect(this.factory.$deploy(0n, saltHex, '0x')).to.be.revertedWithCustomError(
         this.factory,
         'Create2EmptyBytecode',
       );
     });
 
     it('fails deploying a contract if factory contract does not have sufficient balance', async function () {
-      await expect(this.factory.$deploy(1, saltHex, this.constructorByteCode))
+      await expect(this.factory.$deploy(1n, saltHex, this.constructorByteCode))
         .to.be.revertedWithCustomError(this.factory, 'Create2InsufficientBalance')
-        .withArgs(0, 1);
+        .withArgs(0n, 1n);
     });
   });
 });

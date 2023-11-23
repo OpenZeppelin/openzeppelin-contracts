@@ -1,14 +1,15 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { generators } = require('../helpers/random');
 
 const slot = ethers.id('some.storage.slot');
 const otherSlot = ethers.id('some.other.storage.slot');
 
 async function fixture() {
-  const storage = await ethers.deployContract('StorageSlotMock');
-  const [, account] = await ethers.getSigners();
-  return { storage, account };
+  const [account] = await ethers.getSigners();
+  const mock = await ethers.deployContract('StorageSlotMock');
+  return { mock, account };
 }
 
 describe('StorageSlot', function () {
@@ -16,195 +17,58 @@ describe('StorageSlot', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('boolean storage slot', function () {
-    beforeEach(async function () {
-      this.value = true;
-    });
-
-    it('set', async function () {
-      await this.storage.setBoolean(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setBoolean(slot, this.value);
+  for (const { type, value, zero } of [
+    { type: 'Boolean', value: true, zero: false },
+    { type: 'Address', value: generators.address(), zero: ethers.ZeroAddress },
+    { type: 'Bytes32', value: generators.bytes32(), zero: ethers.ZeroHash },
+    { type: 'String', value: 'lorem ipsum', zero: '' },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
+  ]) {
+    describe(`${type} storage slot`, function () {
+      it('set', async function () {
+        await this.mock.getFunction(`set${type}Slot`)(slot, value);
       });
 
-      it('from right slot', async function () {
-        expect(await this.storage.getBoolean(slot)).to.be.equal(this.value);
-      });
+      describe('get', function () {
+        beforeEach(async function () {
+          await this.mock.getFunction(`set${type}Slot`)(slot, value);
+        });
 
-      it('from other slot', async function () {
-        expect(await this.storage.getBoolean(otherSlot)).to.be.equal(false);
-      });
-    });
-  });
+        it('from right slot', async function () {
+          expect(await this.mock.getFunction(`get${type}Slot`)(slot)).to.equal(value);
+        });
 
-  describe('address storage slot', function () {
-    it('set', async function () {
-      await this.storage.setAddress(slot, this.account);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setAddress(slot, this.account);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.getAddressFromStorage(slot)).to.be.equal(this.account.address);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.getAddressFromStorage(otherSlot)).to.be.equal(ethers.ZeroAddress);
+        it('from other slot', async function () {
+          expect(await this.mock.getFunction(`get${type}Slot`)(otherSlot)).to.equal(zero);
+        });
       });
     });
-  });
+  }
 
-  describe('bytes32 storage slot', function () {
-    before(async function () {
-      this.value = ethers.id('some byte32 value');
-    });
-
-    it('set', async function () {
-      await this.storage.setBytes32(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setBytes32(slot, this.value);
+  for (const { type, value, zero } of [
+    { type: 'String', value: 'lorem ipsum', zero: '' },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
+  ]) {
+    describe(`${type} storage pointer`, function () {
+      it('set', async function () {
+        await this.mock.getFunction(`set${type}Storage`)(slot, value);
       });
 
-      it('from right slot', async function () {
-        expect(await this.storage.getBytes32(slot)).to.be.equal(this.value);
-      });
+      describe('get', function () {
+        beforeEach(async function () {
+          await this.mock.getFunction(`set${type}Storage`)(slot, value);
+        });
 
-      it('from other slot', async function () {
-        expect(await this.storage.getBytes32(otherSlot)).to.be.equal(ethers.ZeroHash);
-      });
-    });
-  });
+        it('from right slot', async function () {
+          expect(await this.mock.getFunction(`${type.toLowerCase()}Map`)(slot)).to.equal(value);
+          expect(await this.mock.getFunction(`get${type}Storage`)(slot)).to.equal(value);
+        });
 
-  describe('uint256 storage slot', function () {
-    before(async function () {
-      this.value = 1742n;
-    });
-
-    it('set', async function () {
-      await this.storage.setUint256(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setUint256(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.getUint256(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.getUint256(otherSlot)).to.be.equal(0n);
+        it('from other slot', async function () {
+          expect(await this.mock.getFunction(`${type.toLowerCase()}Map`)(otherSlot)).to.equal(zero);
+          expect(await this.mock.getFunction(`get${type}Storage`)(otherSlot)).to.equal(zero);
+        });
       });
     });
-  });
-
-  describe('string storage slot', function () {
-    before(async function () {
-      this.value = 'lorem ipsum';
-    });
-
-    it('set', async function () {
-      await this.storage.setString(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setString(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.getString(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.getString(otherSlot)).to.be.equal('');
-      });
-    });
-  });
-
-  describe('string storage pointer', function () {
-    beforeEach(async function () {
-      this.value = 'lorem ipsum';
-    });
-
-    it('set', async function () {
-      await this.storage.setStringStorage(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setStringStorage(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.stringMap(slot)).to.be.equal(this.value);
-        expect(await this.storage.getStringStorage(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.stringMap(otherSlot)).to.be.equal('');
-        expect(await this.storage.getStringStorage(otherSlot)).to.be.equal('');
-      });
-    });
-  });
-
-  describe('bytes storage slot', function () {
-    beforeEach(async function () {
-      this.value = web3.utils.randomHex(128);
-    });
-
-    it('set', async function () {
-      await this.storage.setBytes(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setBytes(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.getBytes(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.getBytes(otherSlot)).to.be.equal('0x');
-      });
-    });
-  });
-
-  describe('bytes storage pointer', function () {
-    beforeEach(async function () {
-      this.value = ethers.hexlify(ethers.randomBytes(128));
-    });
-
-    it('set', async function () {
-      await this.storage.setBytesStorage(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.storage.setBytesStorage(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.storage.bytesMap(slot)).to.be.equal(this.value);
-        expect(await this.storage.getBytesStorage(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.storage.bytesMap(otherSlot)).to.be.equal('0x');
-        expect(await this.storage.getBytesStorage(otherSlot)).to.be.equal('0x');
-      });
-    });
-  });
+  }
 });

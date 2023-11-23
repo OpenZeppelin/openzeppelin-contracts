@@ -3,8 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const base64 = await ethers.deployContract('$Base64');
-  return { base64 };
+  const mock = await ethers.deployContract('$Base64');
+  return { mock };
 }
 
 describe('Strings', function () {
@@ -13,26 +13,17 @@ describe('Strings', function () {
   });
 
   describe('from bytes - base64', function () {
-    it('converts to base64 encoded string with double padding', async function () {
-      const TEST_MESSAGE = 'test';
-      const input = ethers.toUtf8Bytes(TEST_MESSAGE);
-      expect(await this.base64.$encode(input)).to.equal('dGVzdA==');
-    });
+    for (const { title, input, expected } of [
+      { title: 'converts to base64 encoded string with double padding', input: 'test', expected: 'dGVzdA==' },
+      { title: 'converts to base64 encoded string with single padding', input: 'test1', expected: 'dGVzdDE=' },
+      { title: 'converts to base64 encoded string without padding', input: 'test12', expected: 'dGVzdDEy' },
+      { title: 'empty bytes', input: '0x', expected: '' },
+    ])
+      it(title, async function () {
+        const raw = ethers.isBytesLike(input) ? input : ethers.toUtf8Bytes(input);
 
-    it('converts to base64 encoded string with single padding', async function () {
-      const TEST_MESSAGE = 'test1';
-      const input = ethers.toUtf8Bytes(TEST_MESSAGE);
-      expect(await this.base64.$encode(input)).to.equal('dGVzdDE=');
-    });
-
-    it('converts to base64 encoded string without padding', async function () {
-      const TEST_MESSAGE = 'test12';
-      const input = ethers.toUtf8Bytes(TEST_MESSAGE);
-      expect(await this.base64.$encode(input)).to.equal('dGVzdDEy');
-    });
-
-    it('empty bytes', async function () {
-      expect(await this.base64.$encode('0x')).to.equal('');
-    });
+        expect(await this.mock.$encode(raw)).to.equal(ethers.encodeBase64(raw));
+        expect(await this.mock.$encode(raw)).to.equal(expected);
+      });
   });
 });
