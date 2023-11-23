@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const Enums = require('../helpers/enums');
+const { bigint: Enums } = require('../helpers/enums');
 const { getDomain } = require('../helpers/eip712');
 const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance.new');
 const {
