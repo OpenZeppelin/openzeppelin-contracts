@@ -19,7 +19,7 @@ function shouldBehaveLikeERC20(initialSupply, accounts, opts = {}) {
   describe('balanceOf', function () {
     describe('when the requested account has no tokens', function () {
       it('returns zero', async function () {
-        expect(await this.token.balanceOf(anotherAccount)).to.be.bignumber.equal(0n);
+        expect(await this.token.balanceOf(anotherAccount)).to.be.bignumber.equal('0');
       });
     });
 
@@ -56,7 +56,7 @@ function shouldBehaveLikeERC20(initialSupply, accounts, opts = {}) {
             it('transfers the requested value', async function () {
               await this.token.transferFrom(tokenOwner, to, value, { from: spender });
 
-              expect(await this.token.balanceOf(tokenOwner)).to.be.bignumber.equal(0n);
+              expect(await this.token.balanceOf(tokenOwner)).to.be.bignumber.equal('0');
 
               expect(await this.token.balanceOf(to)).to.be.bignumber.equal(value);
             });
@@ -64,7 +64,7 @@ function shouldBehaveLikeERC20(initialSupply, accounts, opts = {}) {
             it('decreases the spender allowance', async function () {
               await this.token.transferFrom(tokenOwner, to, value, { from: spender });
 
-              expect(await this.token.allowance(tokenOwner, spender)).to.be.bignumber.equal(0n);
+              expect(await this.token.allowance(tokenOwner, spender)).to.be.bignumber.equal('0');
             });
 
             it('emits a transfer event', async function () {
@@ -223,7 +223,7 @@ function shouldBehaveLikeERC20Transfer(from, to, balance, transfer) {
       it('transfers the requested value', async function () {
         await transfer.call(this, from, to, value);
 
-        expect(await this.token.balanceOf(from)).to.be.bignumber.equal(0n);
+        expect(await this.token.balanceOf(from)).to.be.bignumber.equal('0');
 
         expect(await this.token.balanceOf(to)).to.be.bignumber.equal(value);
       });
@@ -241,7 +241,7 @@ function shouldBehaveLikeERC20Transfer(from, to, balance, transfer) {
 
         expect(await this.token.balanceOf(from)).to.be.bignumber.equal(balance);
 
-        expect(await this.token.balanceOf(to)).to.be.bignumber.equal(0n);
+        expect(await this.token.balanceOf(to)).to.be.bignumber.equal('0');
       });
 
       it('emits a transfer event', async function () {
@@ -604,8 +604,6 @@ function shouldBehaveLikeERC20ApproveBigint(supply) {
 
 module.exports = {
   shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
   bigint: {
     shouldBehaveLikeERC20: shouldBehaveLikeERC20Bigint,
     shouldBehaveLikeERC20Transfer: shouldBehaveLikeERC20TransferBigint,

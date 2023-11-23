@@ -16,7 +16,6 @@ contract('ERC20Wrapper', function (accounts) {
   const symbol = 'MTKN';
 
   const initialSupply = new BN(100);
-
   beforeEach(async function () {
     this.underlying = await ERC20Decimals.new(name, symbol, 9);
     await this.underlying.$_mint(initialHolder, initialSupply);
