@@ -27,7 +27,7 @@ async function fixture() {
   return { initialHolder, recipient, anotherAccount, tokens };
 }
 
-describe.only('ERC20', function () {
+describe('ERC20', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
