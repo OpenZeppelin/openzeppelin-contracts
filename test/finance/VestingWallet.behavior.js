@@ -34,6 +34,16 @@ function shouldBehaveLikeVesting() {
       released = vested;
     }
   });
+
+  it('should revert on transaction failure', async function () {
+    const { args, error } = await this.setupFailure();
+
+    for (const timestamp of this.schedule) {
+      await time.forward.timestamp(timestamp);
+
+      await expect(this.mock.release(...args)).to.be.revertedWithCustomError(...error);
+    }
+  });
 }
 
 module.exports = {
