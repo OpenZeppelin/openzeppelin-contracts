@@ -19,10 +19,11 @@ async function fixture() {
 }
 
 describe('DoubleEndedQueue', function () {
-  const bytesA = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0xdeadbeef]);
-  const bytesB = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x0123456789]);
-  const bytesC = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x42424242]);
-  const bytesD = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [0x171717]);
+  const coder = ethers.AbiCoder.defaultAbiCoder();
+  const bytesA = coder.encode(['uint256'], [0xdeadbeef]);
+  const bytesB = coder.encode(['uint256'], [0x0123456789]);
+  const bytesC = coder.encode(['uint256'], [0x42424242]);
+  const bytesD = coder.encode(['uint256'], [0x171717]);
 
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));

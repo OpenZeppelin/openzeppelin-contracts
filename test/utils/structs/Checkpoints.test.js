@@ -4,6 +4,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
 
+const last = array => (array.length ? array[array.length - 1] : undefined);
+
 describe('Checkpoints', function () {
   for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
@@ -113,7 +115,7 @@ describe('Checkpoints', function () {
 
         it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = this.checkpoints.findLast(x => i >= x.key)?.value || 0n;
+            const value = last(this.checkpoints.filter(x => i >= x.key))?.value || 0n;
 
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
@@ -135,7 +137,7 @@ describe('Checkpoints', function () {
           }
 
           for (let i = 0; i < 25; ++i) {
-            const value = allCheckpoints.findLast(x => i >= x.key)?.value || 0n;
+            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || 0n;
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
           }
