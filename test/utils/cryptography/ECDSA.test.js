@@ -10,23 +10,6 @@ function toSignature(signature) {
   return ethers.Signature.from(signature);
 }
 
-function split(signature) {
-  // ethers.Signature.from(signature) throw with non-canonical s or high v, so we do the parsing manually
-  const raw = ethers.getBytes(signature);
-  switch (raw.length) {
-    case 64:
-      return [ethers.dataSlice(signature, 0, 32), ethers.dataSlice(signature, 32, 64)];
-    case 65:
-      return [
-        ethers.dataSlice(signature, 0, 32),
-        ethers.dataSlice(signature, 32, 64),
-        ethers.dataSlice(signature, 64, 65),
-      ];
-    default:
-      expect.fail('Invalid signature length, cannot split');
-  }
-}
-
 async function fixture() {
   const [signer] = await ethers.getSigners();
   const mock = await ethers.deployContract('$ECDSA');
@@ -217,7 +200,9 @@ describe('ECDSA', function () {
       const highSSignature =
         '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
 
-      const [r, s, v] = split(highSSignature);
+      const r = ethers.dataSlice(highSSignature, 0, 32);
+      const s = ethers.dataSlice(highSSignature, 32, 64);
+      const v = ethers.dataSlice(highSSignature, 64, 65);
 
       await expect(this.mock.$recover(message, highSSignature))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
