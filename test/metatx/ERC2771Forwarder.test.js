@@ -1,6 +1,10 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
-const { getDomain, domainType } = require('../helpers/eip712');
+const {
+  getDomain,
+  domainType,
+  types: { ForwardRequest },
+} = require('../helpers/eip712');
 const { expectRevertCustomError } = require('../helpers/customError');
 
 const { constants, expectRevert, expectEvent, time } = require('@openzeppelin/test-helpers');
@@ -24,15 +28,7 @@ contract('ERC2771Forwarder', function (accounts) {
     this.domain = await getDomain(this.forwarder);
     this.types = {
       EIP712Domain: domainType(this.domain),
-      ForwardRequest: [
-        { name: 'from', type: 'address' },
-        { name: 'to', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'gas', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'deadline', type: 'uint48' },
-        { name: 'data', type: 'bytes' },
-      ],
+      ForwardRequest,
     };
 
     this.alice = Wallet.generate();
