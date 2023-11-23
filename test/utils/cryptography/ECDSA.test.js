@@ -6,8 +6,8 @@ const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const WRONG_MESSAGE = ethers.id('Nope');
 const NON_HASH_MESSAGE = '0xabcd';
 
-function toERC2098Format(signature) {
-  return ethers.Signature.from(signature).compactSerialized;
+function toSignature(signature) {
+  return ethers.Signature.from(signature);
 }
 
 function split(signature) {
@@ -15,15 +15,12 @@ function split(signature) {
   const raw = ethers.getBytes(signature);
   switch (raw.length) {
     case 64:
-      return [
-        ethers.hexlify(raw.slice(0, 32)), // r
-        ethers.hexlify(raw.slice(32, 64)), // vs
-      ];
+      return [ethers.dataSlice(signature, 0, 32), ethers.dataSlice(signature, 32, 64)];
     case 65:
       return [
-        raw[64], // v
-        ethers.hexlify(raw.slice(0, 32)), // r
-        ethers.hexlify(raw.slice(32, 64)), // s
+        ethers.dataSlice(signature, 0, 32),
+        ethers.dataSlice(signature, 32, 64),
+        ethers.dataSlice(signature, 64, 65),
       ];
     default:
       expect.fail('Invalid signature length, cannot split');
@@ -100,60 +97,57 @@ describe('ECDSA', function () {
       const signer = '0x2cc1166f6212628A0deEf2B33BEFB2187D35b86c';
       // eslint-disable-next-line max-len
       const signatureWithoutV =
-        '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
+        ethers.toBeHex(
+          0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892n,
+        );
 
       it('works with correct v value', async function () {
-        const v = '1b'; // 27 = 1b.
-        const signature = signatureWithoutV + v;
+        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
-        ).to.equal(signer);
+        const { r, s, yParityAndS: vs } = toSignature(signature);
+        expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
+          signer,
+        );
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(
-            TEST_MESSAGE,
-            ...split(toERC2098Format(signature)),
-          ),
-        ).to.equal(signer);
+        expect(await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(TEST_MESSAGE, r, vs)).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
-        const v = '1c'; // 28 = 1c.
-        const signature = signatureWithoutV + v;
+        const v = ethers.toBeHex(0x1c); // 28 = 1c.
+        const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
+        const { r, s, yParityAndS: vs } = toSignature(signature);
         expect(
-          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
+          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
         ).to.not.equal(signer);
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(
-            TEST_MESSAGE,
-            ...split(toERC2098Format(signature)),
-          ),
-        ).to.not.equal(signer);
+        expect(await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(TEST_MESSAGE, r, vs)).to.not.equal(
+          signer,
+        );
       });
 
       it('reverts wrong v values', async function () {
-        for (const v of ['00', '01']) {
-          const signature = signatureWithoutV + v;
+        for (const v of [ethers.toBeHex(0x00), ethers.toBeHex(0x01)]) {
+          const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
             'ECDSAInvalidSignature',
           );
 
+          const { r, s } = toSignature(signature);
           await expect(
-            this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
+            this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
           ).to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignature');
         }
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = '1b'; // 27 = 1b.
-        const signature = signatureWithoutV + v;
-        await expect(this.mock.$recover(TEST_MESSAGE, toERC2098Format(signature)))
+        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const signature = ethers.concat([signatureWithoutV, v]);
+        await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
       });
@@ -166,57 +160,52 @@ describe('ECDSA', function () {
         '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
       it('works with correct v value', async function () {
-        const v = '1c'; // 28 = 1c.
-        const signature = signatureWithoutV + v;
+        const v = ethers.toBeHex(0x1c); // 28 = 1c.
+        const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
-        ).to.equal(signer);
+        const { r, s, yParityAndS: vs } = toSignature(signature);
+        expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
+          signer,
+        );
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(
-            TEST_MESSAGE,
-            ...split(toERC2098Format(signature)),
-          ),
-        ).to.equal(signer);
+        expect(await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(TEST_MESSAGE, r, vs)).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
-        const v = '1b'; // 27 = 1b.
-        const signature = signatureWithoutV + v;
+        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
+        const { r, s, yParityAndS: vs } = toSignature(signature);
         expect(
-          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
+          await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
         ).to.not.equal(signer);
 
-        expect(
-          await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(
-            TEST_MESSAGE,
-            ...split(toERC2098Format(signature)),
-          ),
-        ).to.not.equal(signer);
+        expect(await this.mock.getFunction('$recover(bytes32,bytes32,bytes32)')(TEST_MESSAGE, r, vs)).to.not.equal(
+          signer,
+        );
       });
 
       it('reverts invalid v values', async function () {
-        for (const v of ['00', '01']) {
-          const signature = signatureWithoutV + v;
+        for (const v of [ethers.toBeHex(0x00), ethers.toBeHex(0x01)]) {
+          const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
             'ECDSAInvalidSignature',
           );
 
+          const { r, s } = toSignature(signature);
           await expect(
-            this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, ...split(signature)),
+            this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
           ).to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignature');
         }
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = '1c'; // 27 = 1b.
-        const signature = signatureWithoutV + v;
-        await expect(this.mock.$recover(TEST_MESSAGE, toERC2098Format(signature)))
+        const v = ethers.toBeHex(0x1c); // 27 = 1b.
+        const signature = ethers.concat([signatureWithoutV, v]);
+        await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
       });
@@ -228,14 +217,15 @@ describe('ECDSA', function () {
       const highSSignature =
         '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
 
-      const [v, r, s] = split(highSSignature);
+      const [r, s, v] = split(highSSignature);
+
       await expect(this.mock.$recover(message, highSSignature))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
         .withArgs(s);
       await expect(this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
         .withArgs(s);
-      expect(() => toERC2098Format(highSSignature)).to.throw('non-canonical s');
+      expect(() => toSignature(highSSignature)).to.throw('non-canonical s');
     });
   });
 });
