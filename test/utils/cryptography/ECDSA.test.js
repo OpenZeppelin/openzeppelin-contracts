@@ -80,12 +80,10 @@ describe('ECDSA', function () {
       const signer = '0x2cc1166f6212628A0deEf2B33BEFB2187D35b86c';
       // eslint-disable-next-line max-len
       const signatureWithoutV =
-        ethers.toBeHex(
-          0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892n,
-        );
+        '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
 
       it('works with correct v value', async function () {
-        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
@@ -98,7 +96,7 @@ describe('ECDSA', function () {
       });
 
       it('rejects incorrect v value', async function () {
-        const v = ethers.toBeHex(0x1c); // 28 = 1c.
+        const v = '0x1c'; // 28 = 1c.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
@@ -113,7 +111,7 @@ describe('ECDSA', function () {
       });
 
       it('reverts wrong v values', async function () {
-        for (const v of [ethers.toBeHex(0x00), ethers.toBeHex(0x01)]) {
+        for (const v of ['0x00', '0x01']) {
           const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
@@ -128,7 +126,7 @@ describe('ECDSA', function () {
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
@@ -143,7 +141,7 @@ describe('ECDSA', function () {
         '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
       it('works with correct v value', async function () {
-        const v = ethers.toBeHex(0x1c); // 28 = 1c.
+        const v = '0x1c'; // 28 = 1c.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
@@ -156,7 +154,7 @@ describe('ECDSA', function () {
       });
 
       it('rejects incorrect v value', async function () {
-        const v = ethers.toBeHex(0x1b); // 27 = 1b.
+        const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
@@ -171,7 +169,7 @@ describe('ECDSA', function () {
       });
 
       it('reverts invalid v values', async function () {
-        for (const v of [ethers.toBeHex(0x00), ethers.toBeHex(0x01)]) {
+        for (const v of ['0x00', '0x01']) {
           const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
@@ -186,7 +184,7 @@ describe('ECDSA', function () {
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = ethers.toBeHex(0x1c); // 27 = 1b.
+        const v = '0x1c'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
