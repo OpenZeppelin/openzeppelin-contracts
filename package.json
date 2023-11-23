@@ -80,7 +80,6 @@
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-ignore-warnings": "^0.2.0",
     "lodash.startcase": "^4.4.0",
-    "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "p-limit": "^3.1.0",
     "prettier": "^3.0.0",
