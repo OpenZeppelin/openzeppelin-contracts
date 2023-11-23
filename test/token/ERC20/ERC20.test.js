@@ -177,11 +177,9 @@ describe('ERC20', function () {
             });
 
             it('executes with balance', async function () {
-              await expect(this.token.$_update(this.initialHolder, this.initialHolder, value)).to.changeTokenBalance(
-                this.token,
-                this.initialHolder,
-                0n,
-              );
+              const tx = await this.token.$_update(this.initialHolder, this.initialHolder, value);
+              await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, 0n);
+              await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.initialHolder, this.initialHolder, value);
             });
           });
         });
