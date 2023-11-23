@@ -8,7 +8,7 @@ Security vulnerabilities should be disclosed to the project maintainers through 
 
 Responsible disclosure of security vulnerabilities is rewarded through a bug bounty program on [Immunefi].
 
-There is a bonus reward for issues introduced in release candidates that are reported before making it into a stable release.
+There is a bonus reward for issues introduced in release candidates that are reported before making it into a stable release. Learn more about release candidates at [`RELEASING.md`](./RELEASING.md).
 
 ## Security Patches
 
@@ -30,13 +30,14 @@ Only critical severity bug fixes will be backported to past major releases.
 
 | Version | Critical security fixes | Other security fixes |
 | ------- | ----------------------- | -------------------- |
-| 4.x     | :white_check_mark:      | :white_check_mark:   |
+| 5.x     | :white_check_mark:      | :white_check_mark:   |
+| 4.9     | :white_check_mark:      | :x:                  |
 | 3.4     | :white_check_mark:      | :x:                  |
-| 2.5     | :white_check_mark:      | :x:                  |
+| 2.5     | :x:                     | :x:                  |
 | < 2.0   | :x:                     | :x:                  |
 
 Note as well that the Solidity language itself only guarantees security updates for the latest release.
 
 ## Legal
 
-Smart contracts are a nascent technology and carry a high level of technical risk and uncertainty.  OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. Your use of the project is also governed by the terms found at www.openzeppelin.com/tos (the "Terms"). As set out in the Terms, you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use. This Security Policy in no way evidences or represents an on-going duty by any contributor, including OpenZeppelin, to correct any flaws or alert you to all or any of the potential risks of utilizing the project.
+Smart contracts are a nascent technology and carry a high level of technical risk and uncertainty. OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. Your use of the project is also governed by the terms found at www.openzeppelin.com/tos (the "Terms"). As set out in the Terms, you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use. This Security Policy in no way evidences or represents an on-going duty by any contributor, including OpenZeppelin, to correct any flaws or alert you to all or any of the potential risks of utilizing the project.
