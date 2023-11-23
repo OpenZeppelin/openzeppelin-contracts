@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+const { loadFixture } = require('@nomicfoundation/hardhat-toolbox/network-helpers');
 const { BN, constants, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256 } = constants;
@@ -118,6 +118,125 @@ contract('ERC20Permit', function (accounts) {
         'ERC2612ExpiredSignature',
         [deadline],
       );
+    });
+  });
+});
+
+describe('ERC20 Permit Signer Interaction via Wallet Interface', function () {
+  // We define a fixture to reuse the same setup in every test.
+  // We use loadFixture to run this setup once, snapshot that state,
+  // and reset Hardhat Network to that snapshot in every test.
+  async function deployFixture() {
+    const NAME = 'My Token';
+    const SYMBOL = 'MTKN';
+    const VERSION = '1'; // By default it is '1' on-chain.
+    const ONE_HOUR = 1 * 60 * 60;
+    const BILLION_ETHER = ethers.parseEther('1000000000');
+
+    // Contracts are deployed using the first signer/account by default
+    const [owner, otherAccount] = await ethers.getSigners();
+
+    const token = await ERC20Permit.new(NAME, SYMBOL, NAME);
+
+    const network = await ethers.provider.getNetwork();
+
+    const blockNumBefore = await ethers.provider.getBlockNumber();
+    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+    const timestampBefore = blockBefore?.timestamp;
+
+    let deadline = 0;
+
+    if (timestampBefore) {
+      deadline = timestampBefore + ONE_HOUR;
+    }
+
+    const EIP712DomainDefinition = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
+    ];
+
+    const PermitDefinition = [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ];
+
+    const tokenDomainData = {
+      name: await token.name(),
+      version: '1',
+      verifyingContract: token.address,
+      chainId: Number(network.chainId),
+    };
+
+    const message = {
+      owner: await owner.getAddress(),
+      spender: await otherAccount.getAddress(),
+      value: BILLION_ETHER,
+      nonce: Number(await token.nonces(await owner.getAddress())),
+      deadline: deadline,
+    };
+
+    const typedData = {
+      types: {
+        // EIP712Domain: EIP712DomainDefinition,
+        Permit: PermitDefinition,
+      },
+      domain: tokenDomainData,
+      primaryType: 'Permit',
+      message: message,
+    };
+
+    const signature = await owner.signTypedData(typedData.domain, typedData.types, typedData.message);
+
+    const verifiedAddress = ethers.verifyTypedData(typedData.domain, typedData.types, typedData.message, signature);
+
+    expect(verifiedAddress).to.equal(await owner.getAddress());
+
+    // Split the signature into v, r, and s values
+    const r = signature.slice(0, 66);
+    const s = '0x' + signature.slice(66, 130);
+    const v = '0x' + signature.slice(130, 132);
+
+    return {
+      token,
+      owner,
+      otherAccount,
+      BILLION_ETHER,
+      message,
+      signature,
+      r,
+      s,
+      v,
+    };
+  }
+
+  describe('Permit and Transfer Functionality', function () {
+    it('Should enables token transfer via EIP712 signed permits', async function () {
+      const { owner, token, otherAccount, BILLION_ETHER, message, r, s, v } = await loadFixture(deployFixture);
+
+      await token.$_mint(await owner.getAddress(), BILLION_ETHER);
+      expect(await token.balanceOf(await owner.getAddress())).to.equal(BILLION_ETHER);
+
+      await token.permit(
+        await owner.getAddress(),
+        await otherAccount.getAddress(),
+        message.value,
+        message.deadline,
+        v,
+        r,
+        s,
+        { from: otherAccount.address },
+      );
+
+      await token.transferFrom(await owner.getAddress(), await otherAccount.getAddress(), BILLION_ETHER, {
+        from: otherAccount.address,
+      });
+
+      expect(await token.balanceOf(await owner.getAddress())).to.equal(0);
     });
   });
 });
