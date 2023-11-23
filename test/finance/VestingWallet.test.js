@@ -49,8 +49,8 @@ describe('VestingWallet', function () {
         this.getBalance = ethers.provider.getBalance;
         this.checkRelease = async (tx, amount) => {
           await expect(tx).to.emit(this.mock, 'EtherReleased').withArgs(amount);
-          await expect(tx).to.changeEtherBalances([this.mock, this.beneficiary], [-amount, amount])
-        }
+          await expect(tx).to.changeEtherBalances([this.mock, this.beneficiary], [-amount, amount]);
+        };
         this.setupFaillure = async () => {
           const beneficiary = await ethers.deployContract('EtherReceiverMock');
           await beneficiary.setAcceptEther(false);
