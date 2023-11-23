@@ -234,7 +234,7 @@ function shouldBehaveLikeERC20Transfer(from, to, balance, transfer) {
     });
 
     describe('when the sender transfers zero tokens', function () {
-      const value = new BN(0n);
+      const value = new BN('0');
 
       it('transfers the requested value', async function () {
         await transfer.call(this, from, to, value);
