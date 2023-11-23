@@ -18,16 +18,18 @@ async function fixture() {
   await token.$_mint(mock, amount);
   await sender.sendTransaction({ to: mock, value: amount });
 
+  const pausableToken = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
+  const beneficiaryMock = await ethers.deployContract('EtherReceiverMock');
+
   const env = {
     eth: {
       checkRelease: async (tx, amount) => {
         await expect(tx).to.emit(mock, 'EtherReleased').withArgs(amount);
         await expect(tx).to.changeEtherBalances([mock, beneficiary], [-amount, amount]);
       },
-      setupFaillure: async () => {
-        const _beneficiary = await ethers.deployContract('EtherReceiverMock');
-        await _beneficiary.setAcceptEther(false);
-        await mock.connect(beneficiary).transferOwnership(_beneficiary);
+      setupFailure: async () => {
+        await beneficiaryMock.setAcceptEther(false);
+        await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
         return { args: [], error: [mock, 'FailedInnerCall'] };
       },
       releasedEvent: 'EtherReleased',
@@ -39,12 +41,11 @@ async function fixture() {
         await expect(tx).to.emit(token, 'Transfer').withArgs(mock.target, beneficiary.address, amount);
         await expect(tx).to.changeTokenBalances(token, [mock, beneficiary], [-amount, amount]);
       },
-      setupFaillure: async () => {
-        const token = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
-        await token.$_pause();
+      setupFailure: async () => {
+        await pausableToken.$_pause();
         return {
-          args: [ethers.Typed.address(token)],
-          error: [token, 'EnforcedPause'],
+          args: [ethers.Typed.address(pausableToken)],
+          error: [pausableToken, 'EnforcedPause'],
         };
       },
       releasedEvent: 'ERC20Released',
