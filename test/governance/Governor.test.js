@@ -24,81 +24,97 @@ const TOKENS = [
   { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
 ];
 
+const name = 'OZ-Governor';
+const version = '1';
+const tokenName = 'MockToken';
+const tokenSymbol = 'MTKN';
+const tokenSupply = ethers.parseEther('100');
+const votingDelay = 4n;
+const votingPeriod = 16n;
+const value = ethers.parseEther('1');
+
+async function deployToken(contractName) {
+  try {
+    return await ethers.deployContract(contractName, [tokenName, tokenSymbol, tokenName, version]);
+  } catch (error) {
+    if (error.message == 'incorrect number of arguments to constructor') {
+      // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
+      return ethers.deployContract(contractName, [tokenName, tokenSymbol, tokenName]);
+    }
+    throw error;
+  }
+}
+
+async function tokenPartial(contractName, mode, { owner, receiver, voter1, voter2, voter3, voter4 }) {
+  const token = await deployToken(contractName, [tokenName, tokenSymbol, version]);
+  const mock = await ethers.deployContract(Governor, [
+    name, // name
+    votingDelay, // initialVotingDelay
+    votingPeriod, // initialVotingPeriod
+    0, // initialProposalThreshold
+    token, // tokenAddress
+    10, // quorumNumeratorValue
+  ]);
+  const helperTmp = new GovernorHelper(mock, mode);
+  await owner.sendTransaction({ to: mock, value });
+  await token.$_mint(owner, tokenSupply);
+  await helperTmp.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
+  await helperTmp.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
+  await helperTmp.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
+  await helperTmp.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
+  const helper = helperTmp.setProposal(
+    [
+      {
+        target: receiver.target,
+        data: receiver.interface.encodeFunctionData('mockFunction'),
+        value,
+      },
+    ],
+    '<proposal description>',
+  );
+  return {
+    token,
+    mock,
+    helper,
+    proposal: helper.currentProposal,
+  };
+}
+
+async function fixture() {
+  const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
+
+  const receiver = await ethers.deployContract(CallReceiver);
+  const partials = {};
+  for (const { Token, mode } of TOKENS) {
+    partials[Token] = await tokenPartial(Token, mode, { owner, receiver, voter1, voter2, voter3, voter4 });
+  }
+
+  return {
+    owner,
+    proposer,
+    voter1,
+    voter2,
+    voter3,
+    voter4,
+    userEOA,
+    receiver,
+    partials,
+  };
+}
+
 describe('Governor', function () {
-  const name = 'OZ-Governor';
-  const version = '1';
-  const tokenName = 'MockToken';
-  const tokenSymbol = 'MTKN';
-  const tokenSupply = ethers.parseEther('100');
-  const votingDelay = 4n;
-  const votingPeriod = 16n;
-  const value = ethers.parseEther('1');
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
   for (const { mode, Token } of TOKENS) {
-    const deployToken = async () => {
-      try {
-        return await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
-      } catch {
-        // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
-        return ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName]);
-      }
-    };
-
-    const fixture = async () => {
-      const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
-      const token = await deployToken();
-      const mock = await ethers.deployContract(Governor, [
-        name, // name
-        votingDelay, // initialVotingDelay
-        votingPeriod, // initialVotingPeriod
-        0, // initialProposalThreshold
-        token, // tokenAddress
-        10, // quorumNumeratorValue
-      ]);
-      const receiver = await ethers.deployContract(CallReceiver);
-
-      const helperTmp = new GovernorHelper(mock, mode);
-
-      await owner.sendTransaction({ to: mock, value });
-
-      await token.$_mint(owner, tokenSupply);
-      await helperTmp.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
-      await helperTmp.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
-      await helperTmp.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
-      await helperTmp.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
-
-      const helper = helperTmp.setProposal(
-        [
-          {
-            target: receiver.target,
-            data: receiver.interface.encodeFunctionData('mockFunction'),
-            value,
-          },
-        ],
-        '<proposal description>',
-      );
-
-      const proposal = helper.currentProposal;
-
-      return {
-        owner,
-        proposer,
-        voter1,
-        voter2,
-        voter3,
-        voter4,
-        userEOA,
-        token,
-        mock,
-        receiver,
-        helper,
-        proposal,
-      };
-    };
-
     describe(`using ${Token}`, function () {
-      beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+      beforeEach(function () {
+        const partial = this.partials[Token];
+        this.token = partial.token;
+        this.mock = partial.mock;
+        this.helper = partial.helper;
+        this.proposal = partial.proposal;
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
@@ -224,7 +240,7 @@ describe('Governor', function () {
           await this.helper.propose();
           await this.helper.waitForSnapshot();
           await expect(
-            await this.helper.vote({
+            this.helper.vote({
               support: Enums.VoteType.For,
               voter: this.userEOA.address,
               nonce,
@@ -253,7 +269,7 @@ describe('Governor', function () {
           await this.helper.propose();
           await this.helper.waitForSnapshot();
           await expect(
-            await this.helper.vote({
+            this.helper.vote({
               support: Enums.VoteType.For,
               voter: wallet.target,
               nonce,
@@ -370,11 +386,10 @@ describe('Governor', function () {
           it('if signature does not match signer', async function () {
             const nonce = await this.mock.nonces(this.userEOA);
 
-            function tamper(str, index, input) {
-              const middle = Number.parseInt(str.slice(index + 2, index + 4), 16);
-              const middleStr = (middle ^ input).toString(16).padStart(2, '0');
-
-              return `${str.slice(0, index + 2)}${middleStr}${str.slice(index + 4)}`;
+            function tamper(str, index, mask) {
+              const arrayStr = ethers.toBeArray(BigInt(str));
+              arrayStr[index] ^= mask;
+              return ethers.hexlify(arrayStr);
             }
 
             const voteParams = {

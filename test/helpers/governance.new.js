@@ -1,20 +1,9 @@
-const { web3 } = require('hardhat');
+const { ethers } = require('hardhat');
 const { forward } = require('../helpers/time');
 const { ProposalState } = require('./enums');
-const { ethers } = require('ethers');
-
-function zip(...args) {
-  return Array(Math.max(...args.map(array => array.length)))
-    .fill()
-    .map((_, i) => args.map(array => array[i]));
-}
-
-function concatHex(...args) {
-  return web3.utils.bytesToHex([].concat(...args.map(h => web3.utils.hexToBytes(h || '0x'))));
-}
 
 const timelockSalt = (address, descriptionHash) =>
-  '0x' + web3.utils.toBN(address).shln(96).xor(web3.utils.toBN(descriptionHash)).toString(16, 64);
+  ethers.toBeHex((BigInt(address) << 96n) ^ BigInt(descriptionHash), 32);
 
 /**
  * Encodes a list ProposalStates into a bytes32 representation where each bit enabled corresponds to
@@ -49,8 +38,7 @@ function proposalStatesToBitMap(proposalStates, options = {}) {
     result = result ^ mask;
   }
 
-  const hex = web3.utils.numberToHex(result);
-  return web3.utils.padLeft(hex, 64);
+  return ethers.toBeHex(result, 32);
 }
 
 class GovernorHelper {
@@ -181,35 +169,28 @@ class GovernorHelper {
 
   /**
    * Specify a proposal either as
-   * 1) an array of objects [{ target, value, data, signature? }]
-   * 2) an object of arrays { targets: [], values: [], data: [], signatures?: [] }
+   * 1) an array of objects [{ target, value, data }]
+   * 2) an object of arrays { targets: [], values: [], data: [] }
    */
   setProposal(actions, description) {
-    let targets, values, signatures, data, useCompatibilityInterface;
+    let targets, values, data, useCompatibilityInterface;
 
     if (Array.isArray(actions)) {
       useCompatibilityInterface = actions.some(a => 'signature' in a);
       targets = actions.map(a => a.target);
       values = actions.map(a => a.value || '0');
-      signatures = actions.map(a => a.signature || '');
       data = actions.map(a => a.data || '0x');
     } else {
-      useCompatibilityInterface = Array.isArray(actions.signatures);
-      ({ targets, values, signatures = [], data } = actions);
+      ({ targets, values, data } = actions);
     }
 
-    const fulldata = zip(
-      signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)),
-      data,
-    ).map(hexs => concatHex(...hexs));
-
-    const descriptionHash = web3.utils.keccak256(description);
+    const descriptionHash = ethers.id(description);
 
     // condensed version for queueing end executing
-    const shortProposal = [targets, values, fulldata, descriptionHash];
+    const shortProposal = [targets, values, data, descriptionHash];
 
     // full version for proposing
-    const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
+    const fullProposal = [targets, values, data, description];
 
     // proposal id
     const id = ethers.keccak256(
@@ -220,9 +201,8 @@ class GovernorHelper {
       id,
       targets,
       values,
-      signatures,
+      signatures: [''],
       data,
-      fulldata,
       description,
       descriptionHash,
       shortProposal,
