@@ -93,16 +93,28 @@ describe('Arrays', function () {
   });
 
   describe('unsafeAccess', function () {
-    for (const [name, { artifact, elements }] of Object.entries({
+    const contractCases = {
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
       bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
       uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
-    })) {
-      it(name, async function () {
-        const contract = await ethers.deployContract(artifact, [elements]);
+    };
 
+    const fixture = async () => {
+      const contracts = {};
+      for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
+        contracts[name] = await ethers.deployContract(artifact, [elements]);
+      }
+      return { contracts };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    for (const [name, { elements }] of Object.entries(contractCases)) {
+      it(name, async function () {
         for (const i in elements) {
-          expect(await contract.unsafeAccess(i)).to.be.equal(elements[i]);
+          expect(await this.contracts[name].unsafeAccess(i)).to.be.equal(elements[i]);
         }
       });
     }
