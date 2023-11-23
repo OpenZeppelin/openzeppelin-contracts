@@ -1,4 +1,15 @@
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
+async function fixture() {
+  return { contextHelper: await ethers.deployContract('ContextMockCaller', []) };
+}
 function shouldBehaveLikeRegularContext() {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
   describe('msgSender', function () {
     it('returns the transaction sender when called from an EOA', async function () {
       await expect(this.context.connect(this.sender).msgSender())
@@ -7,32 +18,29 @@ function shouldBehaveLikeRegularContext() {
     });
 
     it('returns the transaction sender when called from another contract', async function () {
-      await expect(this.caller.connect(this.sender).callSender(this.context))
+      await expect(this.contextHelper.connect(this.sender).callSender(this.context))
         .to.emit(this.context, 'Sender')
-        .withArgs(this.caller.target);
+        .withArgs(this.contextHelper.target);
     });
   });
 
   describe('msgData', function () {
-    const integerValue = 42n;
-    const stringValue = 'OpenZeppelin';
-
-    let callData;
-
-    beforeEach(function () {
-      callData = this.context.interface.encodeFunctionData(this.context.msgData.fragment, [integerValue, stringValue]);
-    });
+    const args = [42n, 'OpenZeppelin'];
 
     it('returns the transaction data when called from an EOA', async function () {
-      await expect(this.context.msgData(integerValue, stringValue))
+      const callData = this.context.interface.encodeFunctionData('msgData', args);
+
+      await expect(this.context.msgData(...args))
         .to.emit(this.context, 'Data')
-        .withArgs(callData, integerValue, stringValue);
+        .withArgs(callData, ...args);
     });
 
     it('returns the transaction sender when from another contract', async function () {
-      await expect(this.caller.callData(this.context, integerValue, stringValue))
+      const callData = this.context.interface.encodeFunctionData('msgData', args);
+
+      await expect(this.contextHelper.callData(this.context, ...args))
         .to.emit(this.context, 'Data')
-        .withArgs(callData, integerValue, stringValue);
+        .withArgs(callData, ...args);
     });
   });
 }

@@ -1,15 +1,12 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
+const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
 async function fixture() {
   const [sender] = await ethers.getSigners();
-
   const context = await ethers.deployContract('ContextMock', []);
-  const caller = await ethers.deployContract('ContextMockCaller', []);
-
-  return { sender, context, caller };
+  return { sender, context };
 }
 
 describe('Context', function () {
