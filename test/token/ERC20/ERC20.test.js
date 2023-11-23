@@ -33,7 +33,7 @@ describe('ERC20', function () {
   });
 
   for (const { Token, forcedApproval } of TOKENS) {
-    describe(`${Token}`, function () {
+    describe(Token, function () {
       beforeEach(async function () {
         this.token = this.tokens[Token];
       });
@@ -179,7 +179,9 @@ describe('ERC20', function () {
             it('executes with balance', async function () {
               const tx = await this.token.$_update(this.initialHolder, this.initialHolder, value);
               await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, 0n);
-              await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.initialHolder, this.initialHolder, value);
+              await expect(tx)
+                .to.emit(this.token, 'Transfer')
+                .withArgs(this.initialHolder.address, this.initialHolder.address, value);
             });
           });
         });
