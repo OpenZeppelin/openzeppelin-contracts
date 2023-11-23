@@ -7,24 +7,35 @@ const {
   bigint: { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve },
 } = require('./ERC20.behavior');
 
-describe('ERC20', function () {
-  const name = 'My Token';
-  const symbol = 'MTKN';
-  const initialSupply = 100n;
+const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
 
-  for (const [Token, forcedApproval] of [['$ERC20'], ['$ERC20ApprovalMock', true]]) {
-    describe(`using ${Token}`, function () {
-      const fixture = async () => {
-        const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
+const name = 'My Token';
+const symbol = 'MTKN';
+const initialSupply = 100n;
 
-        const token = await ethers.deployContract(Token, [name, symbol]);
-        await token.$_mint(initialHolder, initialSupply);
+async function fixture() {
+  const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
 
-        return { initialHolder, recipient, anotherAccount, token };
-      };
+  const tokens = {};
+  for (const { Token } of TOKENS) {
+    const token = await ethers.deployContract(Token, [name, symbol]);
+    await token.$_mint(initialHolder, initialSupply);
 
+    tokens[Token] = token;
+  }
+
+  return { initialHolder, recipient, anotherAccount, tokens };
+}
+
+describe.only('ERC20', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
+  for (const { Token, forcedApproval } of TOKENS) {
+    describe(`${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        this.token = this.tokens[Token];
       });
 
       shouldBehaveLikeERC20(initialSupply, { forcedApproval });
