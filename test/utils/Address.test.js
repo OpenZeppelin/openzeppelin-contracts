@@ -40,7 +40,7 @@ describe('Address', function () {
         await this.other.sendTransaction({ to: this.mock, value: funds });
       });
 
-      describe('with EOA recipient', async function () {
+      describe('with EOA recipient', function () {
         it('sends 0 wei', async function () {
           await expect(this.mock.$sendValue(this.recipient, 0)).to.changeEtherBalance(this.recipient.address, 0);
         });
