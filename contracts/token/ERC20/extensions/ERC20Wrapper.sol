@@ -14,7 +14,7 @@ import {SafeERC20} from "../utils/SafeERC20.sol";
  * wrapping of an existing "basic" ERC-20 into a governance token.
  *
  * NOTE: Any mechanism in which the underlying token changes the {balanceOf} of an account without an explicit transfer
- * will desynchronize the wrapper's supply and its balance. See {_recover} for recovering value accrued to the wrapper.
+ * may desynchronize the wrapper's supply and its balance. See {_recover} for recovering value accrued to the wrapper.
  */
 abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;
