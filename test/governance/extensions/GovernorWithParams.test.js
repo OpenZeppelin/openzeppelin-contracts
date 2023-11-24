@@ -4,7 +4,11 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const Enums = require('../../helpers/enums');
-const { getDomain, domainType } = require('../../helpers/eip712');
+const {
+  getDomain,
+  domainType,
+  types: { ExtendedBallot },
+} = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
@@ -130,14 +134,7 @@ contract('GovernorWithParams', function (accounts) {
               primaryType: 'ExtendedBallot',
               types: {
                 EIP712Domain: domainType(domain),
-                ExtendedBallot: [
-                  { name: 'proposalId', type: 'uint256' },
-                  { name: 'support', type: 'uint8' },
-                  { name: 'voter', type: 'address' },
-                  { name: 'nonce', type: 'uint256' },
-                  { name: 'reason', type: 'string' },
-                  { name: 'params', type: 'bytes' },
-                ],
+                ExtendedBallot,
               },
               domain,
               message,
