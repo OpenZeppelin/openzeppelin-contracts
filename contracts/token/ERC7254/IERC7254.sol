@@ -1,6 +1,6 @@
  // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Interface of the ERC7254 standard as defined in the EIP.
