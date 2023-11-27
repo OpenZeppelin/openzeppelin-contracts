@@ -72,12 +72,11 @@ describe('ERC20', function () {
           });
 
           it('increments totalSupply', async function () {
-            const expectedSupply = initialSupply + value;
-            await expect(await this.token.totalSupply()).to.equal(expectedSupply);
+            await expect(await this.token.totalSupply()).to.equal(initialSupply + value);
           });
 
           it('increments recipient balance', async function () {
-            expect(await this.token.balanceOf(this.recipient)).to.equal(value);
+            await expect(this.tx).to.changeTokenBalance(this.token, this.recipient, value);
           });
 
           it('emits Transfer event', async function () {
@@ -113,11 +112,7 @@ describe('ERC20', function () {
               });
 
               it('decrements initialHolder balance', async function () {
-                expect(await this.token.balanceOf(this.initialHolder)).to.changeTokenBalance(
-                  this.token,
-                  this.initialHolder,
-                  -value,
-                );
+                await expect(this.tx).to.changeTokenBalance(this.token, this.initialHolder, -value);
               });
 
               it('emits Transfer event', async function () {
