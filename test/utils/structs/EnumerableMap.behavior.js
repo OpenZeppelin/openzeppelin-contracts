@@ -3,7 +3,7 @@ const { ethers } = require('hardhat');
 
 const zip = (array1, array2) => array1.map((item, index) => [item, array2[index]]);
 
-function shouldBehaveLikeMap(zeroValue, keyType, events) {
+function shouldBehaveLikeMap() {
   async function expectMembersMatch(methods, keys, values) {
     expect(keys.length).to.equal(values.length);
     expect(await methods.length()).to.equal(keys.length);
@@ -25,7 +25,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
 
   describe('set', function () {
     it('adds a key', async function () {
-      await expect(this.methods.set(this.keyA, this.valueA)).to.emit(this.mock, events.setReturn).withArgs(true);
+      await expect(this.methods.set(this.keyA, this.valueA)).to.emit(this.mock, this.events.setReturn).withArgs(true);
 
       await expectMembersMatch(this.methods, [this.keyA], [this.valueA]);
     });
@@ -41,7 +41,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
     it('returns false when adding keys already in the set', async function () {
       await this.methods.set(this.keyA, this.valueA);
 
-      await expect(this.methods.set(this.keyA, this.valueA)).to.emit(this.mock, events.setReturn).withArgs(false);
+      await expect(this.methods.set(this.keyA, this.valueA)).to.emit(this.mock, this.events.setReturn).withArgs(false);
 
       await expectMembersMatch(this.methods, [this.keyA], [this.valueA]);
     });
@@ -58,7 +58,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
     it('removes added keys', async function () {
       await this.methods.set(this.keyA, this.valueA);
 
-      await expect(this.methods.remove(this.keyA)).to.emit(this.mock, events.removeReturn).withArgs(true);
+      await expect(this.methods.remove(this.keyA)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
 
       expect(await this.methods.contains(this.keyA)).to.be.false;
       await expectMembersMatch(this.methods, [], []);
@@ -66,7 +66,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
 
     it('returns false when removing keys not in the set', async function () {
       await expect(await this.methods.remove(this.keyA))
-        .to.emit(this.mock, events.removeReturn)
+        .to.emit(this.mock, this.events.removeReturn)
         .withArgs(false);
 
       expect(await this.methods.contains(this.keyA)).to.be.false;
@@ -130,7 +130,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
       it('missing value', async function () {
         await expect(this.methods.get(this.keyB))
           .to.be.revertedWithCustomError(this.mock, 'EnumerableMapNonexistentKey')
-          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([keyType], [this.keyB]));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([this.keyType], [this.keyB]));
       });
     });
 
@@ -140,7 +140,7 @@ function shouldBehaveLikeMap(zeroValue, keyType, events) {
       });
 
       it('missing value', async function () {
-        expect(await this.methods.tryGet(this.keyB)).to.have.ordered.members([false, zeroValue]);
+        expect(await this.methods.tryGet(this.keyB)).to.have.ordered.members([false, this.zeroValue]);
       });
     });
   });
