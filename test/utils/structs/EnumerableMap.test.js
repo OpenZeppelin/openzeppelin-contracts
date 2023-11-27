@@ -36,7 +36,7 @@ async function fixture() {
 
         methods: getMethods(
           mock,
-          keyType == 'address'
+          testTypes.filter(t => keyType == t.keyType).length == 1
             ? {
                 set: `$set(uint256,${keyType},${valueType})`,
                 get: `$get(uint256,${keyType})`,
