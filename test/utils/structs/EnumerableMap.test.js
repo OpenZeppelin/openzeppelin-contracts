@@ -20,14 +20,7 @@ const testTypes = [formatType('bytes32', 'bytes32'), ...TYPES];
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableMap');
 
-  const values = mapValues(
-    {
-      uint256: generators.uint256,
-      address: generators.address,
-      bytes32: generators.bytes32,
-    },
-    randomArray,
-  );
+  const values = mapValues(generators, randomArray);
 
   const zeroValue = {
     uint256: 0n,
