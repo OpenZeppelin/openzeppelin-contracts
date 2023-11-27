@@ -13,29 +13,20 @@ const name = 'My Token';
 const symbol = 'MTKN';
 const initialSupply = 100n;
 
-async function fixture() {
-  const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
-
-  const tokens = {};
-  for (const { Token } of TOKENS) {
-    const token = await ethers.deployContract(Token, [name, symbol]);
-    await token.$_mint(initialHolder, initialSupply);
-
-    tokens[Token] = token;
-  }
-
-  return { initialHolder, recipient, anotherAccount, tokens };
-}
-
 describe('ERC20', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
   for (const { Token, forcedApproval } of TOKENS) {
     describe(Token, function () {
+      const fixture = async () => {
+        const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
+
+        const token = await ethers.deployContract(Token, [name, symbol]);
+        await token.$_mint(initialHolder, initialSupply);
+
+        return { initialHolder, recipient, anotherAccount, token };
+      }
+
       beforeEach(async function () {
-        this.token = this.tokens[Token];
+        Object.assign(this, await loadFixture(fixture));
       });
 
       shouldBehaveLikeERC20(initialSupply, { forcedApproval });
