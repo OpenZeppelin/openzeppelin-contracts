@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Interface for an ERC1820 implementer, as defined in the
- * https://eips.ethereum.org/EIPS/eip-1820#interface-implementation-erc1820implementerinterface[EIP].
+ * @dev Interface for an ERC-1820 implementer, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1820#interface-implementation-erc1820implementerinterface[ERC].
  * Used by contracts that will be registered as implementers in the
  * {IERC1820Registry}.
  */

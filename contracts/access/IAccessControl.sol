@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev External interface of AccessControl declared to support ERC165 detection.
+ * @dev External interface of AccessControl declared to support ERC-165 detection.
  */
 interface IAccessControl {
     /**
