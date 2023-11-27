@@ -4,7 +4,9 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const {
-  bigint: { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve },
+  shouldBehaveLikeERC20,
+  shouldBehaveLikeERC20Transfer,
+  shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
 const TOKENS = [{ Token: '$ERC20' }, { Token: '$ERC20ApprovalMock', forcedApproval: true }];
@@ -23,7 +25,7 @@ describe('ERC20', function () {
         await token.$_mint(initialHolder, initialSupply);
 
         return { initialHolder, recipient, anotherAccount, token };
-      }
+      };
 
       beforeEach(async function () {
         Object.assign(this, await loadFixture(fixture));
