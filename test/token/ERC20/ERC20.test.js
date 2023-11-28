@@ -129,7 +129,7 @@ describe('ERC20', function () {
         });
 
         it('from is the zero address', async function () {
-          const tx = this.token.$_update(ethers.ZeroAddress, this.initialHolder, value);
+          const tx = await this.token.$_update(ethers.ZeroAddress, this.initialHolder, value);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(ethers.ZeroAddress, this.initialHolder.address, value);
@@ -139,7 +139,7 @@ describe('ERC20', function () {
         });
 
         it('to is the zero address', async function () {
-          const tx = this.token.$_update(this.initialHolder, ethers.ZeroAddress, value);
+          const tx = await this.token.$_update(this.initialHolder, ethers.ZeroAddress, value);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.initialHolder.address, ethers.ZeroAddress, value);

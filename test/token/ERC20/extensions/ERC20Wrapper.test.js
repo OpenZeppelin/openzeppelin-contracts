@@ -179,7 +179,7 @@ describe('ERC20Wrapper', function () {
       await this.underlying.connect(this.initialHolder).approve(this.token, initialSupply);
       await this.token.connect(this.initialHolder).depositFor(this.initialHolder, initialSupply);
 
-      const tx = this.token.$_recover(this.recipient);
+      const tx = await this.token.$_recover(this.recipient);
       await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient.address, 0n);
 
       await expect(tx).to.changeTokenBalance(this.token, this.recipient, 0);
@@ -188,7 +188,7 @@ describe('ERC20Wrapper', function () {
     it('something to recover', async function () {
       await this.underlying.connect(this.initialHolder).transfer(this.token, initialSupply);
 
-      const tx = this.token.$_recover(this.recipient);
+      const tx = await this.token.$_recover(this.recipient);
       await expect(tx)
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.recipient.address, initialSupply);

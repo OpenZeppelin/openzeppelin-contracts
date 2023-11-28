@@ -44,8 +44,11 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             });
 
             it('transfers the requested value', async function () {
-              expect(await this.token.balanceOf(this.initialHolder)).to.equal(0n);
-              expect(await this.token.balanceOf(this.anotherAccount)).to.equal(value);
+              await expect(this.tx).to.changeTokenBalances(
+                this.token,
+                [this.initialHolder, this.anotherAccount],
+                [-value, value],
+              );
             });
 
             it('decreases the spender allowance', async function () {
@@ -174,8 +177,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('transfers the requested value', async function () {
-        expect(await this.token.balanceOf(this.initialHolder)).to.equal(0n);
-        expect(await this.token.balanceOf(this.recipient)).to.equal(value);
+        await expect(this.tx).to.changeTokenBalances(this.token, [this.initialHolder, this.recipient], [-value, value]);
       });
 
       it('emits a transfer event', async function () {
@@ -193,8 +195,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('transfers the requested value', async function () {
-        expect(await this.token.balanceOf(this.initialHolder)).to.equal(balance);
-        expect(await this.token.balanceOf(this.recipient)).to.equal(0n);
+        await expect(this.tx).to.changeTokenBalances(this.token, [this.initialHolder, this.recipient], [0n, 0n]);
       });
 
       it('emits a transfer event', async function () {
