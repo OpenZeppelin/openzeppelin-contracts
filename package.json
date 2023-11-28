@@ -49,7 +49,7 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.26.0",
     "@changesets/pre": "^2.0.0",
     "@changesets/read": "^0.5.9",
