@@ -317,6 +317,11 @@ interface IGovernor is IERC165, IERC6372 {
      * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.
+     *
+     * NOTE: The state of the Governor and `targets` may change since proposal creation until its execution. For example,
+     * the balance of this contract may change or its access control permissions may be modified, possibly compromising
+     * the proposal's ability to execute successfully (e.g. the governor doesn't have enough value to cover a proposal 
+     * with multiple transfers).
      */
     function propose(
         address[] memory targets,
