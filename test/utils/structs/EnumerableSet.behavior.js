@@ -1,6 +1,7 @@
 const { expect } = require('chai');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-function shouldBehaveLikeSet(events) {
+function shouldBehaveLikeSet() {
   async function expectMembersMatch(methods, values) {
     expect(await methods.length()).to.equal(values.length);
     for (const value of values) expect(await methods.contains(value)).to.be.true;
@@ -17,7 +18,7 @@ function shouldBehaveLikeSet(events) {
 
   describe('add', function () {
     it('adds a value', async function () {
-      await expect(this.methods.add(this.valueA)).to.emit(this.mock, events.addReturn).withArgs(true);
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, this.events.addReturn).withArgs(true);
 
       await expectMembersMatch(this.methods, [this.valueA]);
     });
@@ -33,7 +34,7 @@ function shouldBehaveLikeSet(events) {
     it('returns false when adding values already in the set', async function () {
       await this.methods.add(this.valueA);
 
-      await expect(this.methods.add(this.valueA)).to.emit(this.mock, events.addReturn).withArgs(false);
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, this.events.addReturn).withArgs(false);
 
       await expectMembersMatch(this.methods, [this.valueA]);
     });
@@ -41,7 +42,12 @@ function shouldBehaveLikeSet(events) {
 
   describe('at', function () {
     it('reverts when retrieving non-existent elements', async function () {
-      await expect(this.methods.at(0)).to.be.reverted;
+      await expect(this.methods.at(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('retrieves existing element', async function () {
+      await this.methods.add(this.valueA);
+      expect(await this.methods.at(0)).to.equal(this.valueA);
     });
   });
 
@@ -49,14 +55,14 @@ function shouldBehaveLikeSet(events) {
     it('removes added values', async function () {
       await this.methods.add(this.valueA);
 
-      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, events.removeReturn).withArgs(true);
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
 
       expect(await this.methods.contains(this.valueA)).to.be.false;
       await expectMembersMatch(this.methods, []);
     });
 
     it('returns false when removing values not in the set', async function () {
-      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, events.removeReturn).withArgs(false);
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, this.events.removeReturn).withArgs(false);
 
       expect(await this.methods.contains(this.valueA)).to.be.false;
     });
