@@ -51,7 +51,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.0",
-    "@changesets/pre": "^1.0.14",
+    "@changesets/pre": "^2.0.0",
     "@changesets/read": "^0.5.9",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
