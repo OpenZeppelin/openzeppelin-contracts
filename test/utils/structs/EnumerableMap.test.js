@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { mapValues } = require('../../helpers/iterate');
 const { randomArray, generators } = require('../../helpers/random');
+const { TYPES, formatType } = require('../../../scripts/generate/templates/EnumerableMap.opts');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
@@ -14,132 +15,77 @@ const getMethods = (mock, fnSigs) => {
   );
 };
 
+const testTypes = [formatType('bytes32', 'bytes32'), ...TYPES];
+
+async function fixture() {
+  const mock = await ethers.deployContract('$EnumerableMap');
+
+  const zeroValue = {
+    uint256: 0n,
+    address: ethers.ZeroAddress,
+    bytes32: ethers.ZeroHash,
+  };
+
+  const env = Object.fromEntries(
+    testTypes.map(({ name, keyType, valueType }) => [
+      name,
+      {
+        keyType,
+        keys: randomArray(generators[keyType]),
+        values: randomArray(generators[valueType]),
+
+        methods: getMethods(
+          mock,
+          testTypes.filter(t => keyType == t.keyType).length == 1
+            ? {
+                set: `$set(uint256,${keyType},${valueType})`,
+                get: `$get(uint256,${keyType})`,
+                tryGet: `$tryGet(uint256,${keyType})`,
+                remove: `$remove(uint256,${keyType})`,
+                length: `$length_EnumerableMap_${name}(uint256)`,
+                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                contains: `$contains(uint256,${keyType})`,
+                keys: `$keys_EnumerableMap_${name}(uint256)`,
+              }
+            : {
+                set: `$set(uint256,${keyType},${valueType})`,
+                get: `$get_EnumerableMap_${name}(uint256,${keyType})`,
+                tryGet: `$tryGet_EnumerableMap_${name}(uint256,${keyType})`,
+                remove: `$remove_EnumerableMap_${name}(uint256,${keyType})`,
+                length: `$length_EnumerableMap_${name}(uint256)`,
+                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                contains: `$contains_EnumerableMap_${name}(uint256,${keyType})`,
+                keys: `$keys_EnumerableMap_${name}(uint256)`,
+              },
+        ),
+
+        zeroValue: zeroValue[valueType],
+        events: {
+          setReturn: `return$set_EnumerableMap_${name}_${keyType}_${valueType}`,
+          removeReturn: `return$remove_EnumerableMap_${name}_${keyType}`,
+        },
+      },
+    ]),
+  );
+
+  return { mock, env };
+}
+
 describe('EnumerableMap', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
   // UintToAddressMap
-  describe('UintToAddressMap', function () {
-    const fixture = async () => {
-      const mock = await ethers.deployContract('$EnumerableMap');
-
-      const [keyA, keyB, keyC] = randomArray(generators.uint256);
-      const [valueA, valueB, valueC] = randomArray(generators.address);
-
-      const methods = getMethods(mock, {
-        set: '$set(uint256,uint256,address)',
-        get: '$get_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        tryGet: '$tryGet_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        remove: '$remove_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        length: '$length_EnumerableMap_UintToAddressMap(uint256)',
-        at: '$at_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        keys: '$keys_EnumerableMap_UintToAddressMap(uint256)',
+  for (const { name } of testTypes) {
+    describe(name, function () {
+      beforeEach(async function () {
+        Object.assign(this, this.env[name]);
+        [this.keyA, this.keyB, this.keyC] = this.keys;
+        [this.valueA, this.valueB, this.valueC] = this.values;
       });
 
-      return { mock, keyA, keyB, keyC, valueA, valueB, valueC, methods };
-    };
-
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
+      shouldBehaveLikeMap();
     });
-
-    shouldBehaveLikeMap(ethers.ZeroAddress, 'uint256', {
-      setReturn: 'return$set_EnumerableMap_UintToAddressMap_uint256_address',
-      removeReturn: 'return$remove_EnumerableMap_UintToAddressMap_uint256',
-    });
-  });
-
-  // Bytes32ToBytes32Map
-  describe('Bytes32ToBytes32Map', function () {
-    const fixture = async () => {
-      const mock = await ethers.deployContract('$EnumerableMap');
-
-      const [keyA, keyB, keyC] = randomArray(generators.bytes32);
-      const [valueA, valueB, valueC] = randomArray(generators.bytes32);
-
-      const methods = getMethods(mock, {
-        set: '$set(uint256,bytes32,bytes32)',
-        get: '$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        tryGet: '$tryGet_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        remove: '$remove_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        length: '$length_EnumerableMap_Bytes32ToBytes32Map(uint256)',
-        at: '$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)',
-        contains: '$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        keys: '$keys_EnumerableMap_Bytes32ToBytes32Map(uint256)',
-      });
-
-      return { mock, keyA, keyB, keyC, valueA, valueB, valueC, methods };
-    };
-
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
-    });
-
-    shouldBehaveLikeMap(ethers.ZeroHash, 'bytes32', {
-      setReturn: 'return$set_EnumerableMap_Bytes32ToBytes32Map_bytes32_bytes32',
-      removeReturn: 'return$remove_EnumerableMap_Bytes32ToBytes32Map_bytes32',
-    });
-  });
-
-  // UintToUintMap
-  describe('UintToUintMap', function () {
-    const fixture = async () => {
-      const mock = await ethers.deployContract('$EnumerableMap');
-
-      const [keyA, keyB, keyC] = randomArray(generators.uint256);
-      const [valueA, valueB, valueC] = randomArray(generators.uint256);
-
-      const methods = getMethods(mock, {
-        set: '$set(uint256,uint256,uint256)',
-        get: '$get_EnumerableMap_UintToUintMap(uint256,uint256)',
-        tryGet: '$tryGet_EnumerableMap_UintToUintMap(uint256,uint256)',
-        remove: '$remove_EnumerableMap_UintToUintMap(uint256,uint256)',
-        length: '$length_EnumerableMap_UintToUintMap(uint256)',
-        at: '$at_EnumerableMap_UintToUintMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_UintToUintMap(uint256,uint256)',
-        keys: '$keys_EnumerableMap_UintToUintMap(uint256)',
-      });
-
-      return { mock, keyA, keyB, keyC, valueA, valueB, valueC, methods };
-    };
-
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
-    });
-
-    shouldBehaveLikeMap(0n, 'uint256', {
-      setReturn: 'return$set_EnumerableMap_UintToUintMap_uint256_uint256',
-      removeReturn: 'return$remove_EnumerableMap_UintToUintMap_uint256',
-    });
-  });
-
-  // Bytes32ToUintMap
-  describe('Bytes32ToUintMap', function () {
-    const fixture = async () => {
-      const mock = await ethers.deployContract('$EnumerableMap');
-
-      const [keyA, keyB, keyC] = randomArray(generators.bytes32);
-      const [valueA, valueB, valueC] = randomArray(generators.uint256);
-
-      const methods = getMethods(mock, {
-        set: '$set(uint256,bytes32,uint256)',
-        get: '$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        tryGet: '$tryGet_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        remove: '$remove_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        length: '$length_EnumerableMap_Bytes32ToUintMap(uint256)',
-        at: '$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        keys: '$keys_EnumerableMap_Bytes32ToUintMap(uint256)',
-      });
-
-      return { mock, keyA, keyB, keyC, valueA, valueB, valueC, methods };
-    };
-
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
-    });
-
-    shouldBehaveLikeMap(0n, 'bytes32', {
-      setReturn: 'return$set_EnumerableMap_Bytes32ToUintMap_bytes32_uint256',
-      removeReturn: 'return$remove_EnumerableMap_Bytes32ToUintMap_bytes32',
-    });
-  });
+  }
 });
