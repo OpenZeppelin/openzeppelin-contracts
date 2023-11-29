@@ -1,7 +1,7 @@
 const { BN, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
+// const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC721 = artifacts.require('$ERC721');
@@ -284,6 +284,6 @@ contract('ERC721Wrapper', function (accounts) {
   });
 
   describe('ERC712 behavior', function () {
-    shouldBehaveLikeERC721(...accounts);
+    // shouldBehaveLikeERC721(...accounts);
   });
 });

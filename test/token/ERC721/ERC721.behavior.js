@@ -1,5 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 const {
@@ -15,6 +17,7 @@ const fourthTokenId = 4n;
 const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
+const RECEIVER_INCORRECT_VALUE = '0x42000000';
 
 function shouldBehaveLikeERC721() {
   shouldSupportInterfaces(['ERC165', 'ERC721']);
@@ -65,13 +68,13 @@ function shouldBehaveLikeERC721() {
 
       const transferWasSuccessful = function () {
         it('transfers the ownership of the given token ID to the given address', async function () {
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.toWhom.address);
+          expect(await this.token.ownerOf(tokenId)).to.equal(await this.toWhom.getAddress());
         });
 
         it('emits a Transfer event', async function () {
           await expect(this.tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.owner.address, this.toWhom.address, tokenId);
+            .withArgs(this.owner.address, await this.toWhom.getAddress(), tokenId);
         });
 
         it('clears the approval for the token ID with no event', async function () {
@@ -80,7 +83,7 @@ function shouldBehaveLikeERC721() {
         });
 
         it('adjusts owners balances', async function () {
-          expect(await this.token.balanceOf(this.owner)).to.equal(1n);
+          await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -1);
         });
 
         it('adjusts owners tokens by index', async function () {
@@ -146,7 +149,7 @@ function shouldBehaveLikeERC721() {
           });
 
           it('keeps the owner balance', async function () {
-            expect(await this.token.balanceOf(this.owner)).to.equal(2n);
+            await expect(this.tx).to.changeTokenBalance(this.token, this.owner, 0);
           });
 
           it('keeps same tokens by index', async function () {
@@ -191,53 +194,35 @@ function shouldBehaveLikeERC721() {
         });
       };
 
-      const shouldTransferSafely = function (transferFun, data, opts = {}) {
+      const shouldTransferSafely = function (data, opts = {}) {
         describe('to a user account', function () {
-          shouldTransferTokensByUsers(transferFun, opts);
+          shouldTransferTokensByUsers(opts);
         });
 
         describe('to a valid receiver contract', function () {
           beforeEach(async function () {
-            this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.None);
-            this.toWhom = this.receiver.address;
+            this.receiver = await ethers.deployContract('ERC721ReceiverMock', [RECEIVER_MAGIC_VALUE, RevertType.None]);
+            this.toWhom = this.receiver;
           });
 
-          shouldTransferTokensByUsers(transferFun, opts);
+          shouldTransferTokensByUsers(opts);
 
           it('calls onERC721Received', async function () {
-            const receipt = await transferFun.call(this, this.owner, this.receiver.address, tokenId, {
-              from: this.owner,
-            });
-
-            await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
-              operator: this.owner,
-              from: this.owner,
-              tokenId: tokenId,
-              data: data,
-            });
+            await expect(this.transfer(this.owner, this.owner, this.receiver, tokenId))
+              .to.emit(this.receiver, 'Received')
+              .withArgs(this.owner.address, this.owner.address, tokenId, data, anyValue);
           });
 
           it('calls onERC721Received from approved', async function () {
-            const receipt = await transferFun.call(this, this.owner, this.receiver.address, tokenId, {
-              from: this.approved,
-            });
-
-            await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
-              operator: this.approved,
-              from: this.owner,
-              tokenId: tokenId,
-              data: data,
-            });
+            await expect(this.transfer(this.approved, this.owner, this.receiver, tokenId))
+              .to.emit(this.receiver, 'Received')
+              .withArgs(this.approved.address, this.owner.address, tokenId, data, anyValue);
           });
 
-          describe('with an invalid token id', function () {
-            it('reverts', async function () {
-              await expectRevertCustomError(
-                transferFun.call(this, this.owner, this.receiver.address, nonExistentTokenId, { from: this.owner }),
-                'ERC721NonexistentToken',
-                [nonExistentTokenId],
-              );
-            });
+          it('reverts with an invalid token id', async function () {
+            await expect(this.transfer(this.owner, this.owner, this.receiver, nonExistentTokenId))
+              .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+              .withArgs(nonExistentTokenId);
           });
         });
       };
@@ -261,123 +246,123 @@ function shouldBehaveLikeERC721() {
         { fnName: '$_safeTransfer', opts: { unrestricted: true } },
       ]) {
         describe(`via ${fnName}`, function () {
-          const safeTransferFromWithData = function (from, to, tokenId, opts) {
-            return this.token.methods[fnName + '(address,address,uint256,bytes)'](from, to, tokenId, data, opts);
-          };
-
-          const safeTransferFromWithoutData = function (from, to, tokenId, opts) {
-            return this.token.methods[fnName + '(address,address,uint256)'](from, to, tokenId, opts);
-          };
-
-          describe('with data', function () {
-            shouldTransferSafely(safeTransferFromWithData, data, opts);
-          });
-
-          describe('without data', function () {
-            shouldTransferSafely(safeTransferFromWithoutData, null, opts);
-          });
-
-          describe('to a receiver contract returning unexpected value', function () {
-            it('reverts', async function () {
-              const invalidReceiver = await ERC721ReceiverMock.new('0x42', RevertType.None);
-              await expectRevertCustomError(
-                this.token.methods[fnName + '(address,address,uint256)'](this.owner, invalidReceiver.address, tokenId, {
-                  from: this.owner,
-                }),
-                'ERC721InvalidReceiver',
-                [invalidReceiver.address],
-              );
+          describe('WithData', function () {
+            beforeEach(function () {
+              this.transfer = (operator, from, to, tokenId) =>
+                this.token.connect(operator).getFunction(`${fnName}(address,address,uint256,bytes)`)(
+                  from,
+                  to,
+                  tokenId,
+                  data,
+                );
             });
+
+            shouldTransferSafely(data, opts);
           });
 
-          describe('to a receiver contract that reverts with message', function () {
-            it('reverts', async function () {
-              const revertingReceiver = await ERC721ReceiverMock.new(
+          describe('WithoutData', function () {
+            beforeEach(function () {
+              this.transfer = (operator, from, to, tokenId) =>
+                this.token.connect(operator).getFunction(`${fnName}(address,address,uint256)`)(from, to, tokenId);
+            });
+
+            shouldTransferSafely('0x', opts);
+          });
+
+          describe('reverts', function () {
+            it('to a receiver contract returning unexpected value', async function () {
+              const invalidReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+                RECEIVER_INCORRECT_VALUE,
+                RevertType.None,
+              ]);
+
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
+                  this.owner,
+                  invalidReceiver,
+                  tokenId,
+                ),
+              )
+                .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+                .withArgs(invalidReceiver.target);
+            });
+
+            it('to a receiver contract that reverts with message', async function () {
+              const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
                 RECEIVER_MAGIC_VALUE,
                 RevertType.RevertWithMessage,
-              );
-              await expectRevert(
-                this.token.methods[fnName + '(address,address,uint256)'](
-                  this.owner,
-                  revertingReceiver.address,
-                  tokenId,
-                  {
-                    from: this.owner,
-                  },
-                ),
-                'ERC721ReceiverMock: reverting',
-              );
-            });
-          });
+              ]);
 
-          describe('to a receiver contract that reverts without message', function () {
-            it('reverts', async function () {
-              const revertingReceiver = await ERC721ReceiverMock.new(
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
+                  this.owner,
+                  revertingReceiver,
+                  tokenId,
+                ),
+              ).to.be.revertedWith('ERC721ReceiverMock: reverting');
+            });
+
+            it('to a receiver contract that reverts without message', async function () {
+              const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
                 RECEIVER_MAGIC_VALUE,
                 RevertType.RevertWithoutMessage,
-              );
-              await expectRevertCustomError(
-                this.token.methods[fnName + '(address,address,uint256)'](
-                  this.owner,
-                  revertingReceiver.address,
-                  tokenId,
-                  {
-                    from: this.owner,
-                  },
-                ),
-                'ERC721InvalidReceiver',
-                [revertingReceiver.address],
-              );
-            });
-          });
+              ]);
 
-          describe('to a receiver contract that reverts with custom error', function () {
-            it('reverts', async function () {
-              const revertingReceiver = await ERC721ReceiverMock.new(
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
+                  this.owner,
+                  revertingReceiver,
+                  tokenId,
+                ),
+              )
+                .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+                .withArgs(revertingReceiver.target);
+            });
+
+            it('to a receiver contract that reverts with custom error', async function () {
+              const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
                 RECEIVER_MAGIC_VALUE,
                 RevertType.RevertWithCustomError,
-              );
-              await expectRevertCustomError(
-                this.token.methods[fnName + '(address,address,uint256)'](
-                  this.owner,
-                  revertingReceiver.address,
-                  tokenId,
-                  {
-                    from: this.owner,
-                  },
-                ),
-                'CustomError',
-                [RECEIVER_MAGIC_VALUE],
-              );
-            });
-          });
+              ]);
 
-          describe('to a receiver contract that panics', function () {
-            it('reverts', async function () {
-              const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.Panic);
-              await expectRevert.unspecified(
-                this.token.methods[fnName + '(address,address,uint256)'](
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
                   this.owner,
-                  revertingReceiver.address,
+                  revertingReceiver,
                   tokenId,
-                  {
-                    from: this.owner,
-                  },
                 ),
-              );
+              )
+                .to.be.revertedWithCustomError(revertingReceiver, 'CustomError')
+                .withArgs(RECEIVER_MAGIC_VALUE);
             });
-          });
 
-          describe('to a contract that does not implement the required function', function () {
-            it('reverts', async function () {
-              const nonReceiver = await CallReceiverMock.new();
-              await expectRevertCustomError(
-                this.token.methods[fnName + '(address,address,uint256)'](this.owner, nonReceiver.address, tokenId, {
-                  from: this.owner,
-                }),
-                'ERC721InvalidReceiver',
-                [nonReceiver.address],
-              );
+            it('to a receiver contract that panics', async function () {
+              const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+                RECEIVER_MAGIC_VALUE,
+                RevertType.Panic,
+              ]);
+
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
+                  this.owner,
+                  revertingReceiver,
+                  tokenId,
+                ),
+              ).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
+            });
+
+            it('to a contract that does not implement the required function', async function () {
+              const nonReceiver = await ethers.deployContract('CallReceiverMock');
+
+              await expect(
+                this.token.connect(this.owner).getFunction(`${fnName}(address,address,uint256)`)(
+                  this.owner,
+                  nonReceiver,
+                  tokenId,
+                ),
+              )
+                .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+                .withArgs(nonReceiver.target);
             });
           });
         });
@@ -388,92 +373,77 @@ function shouldBehaveLikeERC721() {
       const tokenId = fourthTokenId;
       const data = '0x42';
 
-      describe('via safeMint', function () {
-        // regular minting is tested in ERC721Mintable.test.js and others
-        it('calls onERC721Received — with data', async function () {
-          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.None);
-          const receipt = await this.token.$_safeMint(this.receiver.address, tokenId, data);
+      // regular minting is tested in ERC721Mintable.test.js and others
+      it('calls onERC721Received — with data', async function () {
+        this.receiver = await ethers.deployContract('ERC721ReceiverMock', [RECEIVER_MAGIC_VALUE, RevertType.None]);
+        await expect(this.token.getFunction('$_safeMint(address,uint256,bytes)')(this.receiver, tokenId, data))
+          .to.emit(this.receiver, 'Received')
+          .withArgs(anyValue, ethers.ZeroAddress, tokenId, data, anyValue);
+      });
 
-          await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
-            from: ethers.ZeroAddress,
-            tokenId: tokenId,
-            data: data,
-          });
+      it('calls onERC721Received — without data', async function () {
+        this.receiver = await ethers.deployContract('ERC721ReceiverMock', [RECEIVER_MAGIC_VALUE, RevertType.None]);
+        await expect(await this.token.$_safeMint(this.receiver, tokenId))
+          .to.emit(this.receiver, 'Received')
+          .withArgs(anyValue, ethers.ZeroAddress, tokenId, '0x', anyValue);
+      });
+
+      describe('reverts', function () {
+        it('to a receiver contract returning unexpected value', async function () {
+          const invalidReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+            RECEIVER_INCORRECT_VALUE,
+            RevertType.None,
+          ]);
+          await expect(this.token.$_safeMint(invalidReceiver, tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+            .withArgs(invalidReceiver.target);
         });
 
-        it('calls onERC721Received — without data', async function () {
-          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.None);
-          const receipt = await this.token.$_safeMint(this.receiver.address, tokenId);
-
-          await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
-            from: ethers.ZeroAddress,
-            tokenId: tokenId,
-          });
+        it('to a receiver contract that reverts with message', async function () {
+          const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+            RECEIVER_MAGIC_VALUE,
+            RevertType.RevertWithMessage,
+          ]);
+          await expect(this.token.$_safeMint(revertingReceiver, tokenId)).to.be.rejectedWith(
+            'ERC721ReceiverMock: reverting',
+          );
         });
 
-        describe('to a receiver contract returning unexpected value', function () {
-          it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverMock.new('0x42', RevertType.None);
-            await expectRevertCustomError(
-              this.token.$_safeMint(invalidReceiver.address, tokenId),
-              'ERC721InvalidReceiver',
-              [invalidReceiver.address],
-            );
-          });
+        it('to a receiver contract that reverts without message', async function () {
+          const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+            RECEIVER_MAGIC_VALUE,
+            RevertType.RevertWithoutMessage,
+          ]);
+          await expect(this.token.$_safeMint(revertingReceiver, tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+            .withArgs(revertingReceiver.target);
         });
 
-        describe('to a receiver contract that reverts with message', function () {
-          it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.RevertWithMessage);
-            await expectRevert(
-              this.token.$_safeMint(revertingReceiver.address, tokenId),
-              'ERC721ReceiverMock: reverting',
-            );
-          });
+        it('to a receiver contract that reverts with custom error', async function () {
+          const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+            RECEIVER_MAGIC_VALUE,
+            RevertType.RevertWithCustomError,
+          ]);
+          await expect(this.token.$_safeMint(revertingReceiver, tokenId))
+            .to.be.revertedWithCustomError(revertingReceiver, 'CustomError')
+            .withArgs(RECEIVER_MAGIC_VALUE);
         });
 
-        describe('to a receiver contract that reverts without message', function () {
-          it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(
-              RECEIVER_MAGIC_VALUE,
-              RevertType.RevertWithoutMessage,
-            );
-            await expectRevertCustomError(
-              this.token.$_safeMint(revertingReceiver.address, tokenId),
-              'ERC721InvalidReceiver',
-              [revertingReceiver.address],
-            );
-          });
+        it('to a receiver contract that panics', async function () {
+          const revertingReceiver = await ethers.deployContract('ERC721ReceiverMock', [
+            RECEIVER_MAGIC_VALUE,
+            RevertType.Panic,
+          ]);
+          await expect(this.token.$_safeMint(revertingReceiver, tokenId)).to.be.revertedWithPanic(
+            PANIC_CODES.DIVISION_BY_ZERO,
+          );
         });
 
-        describe('to a receiver contract that reverts with custom error', function () {
-          it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(
-              RECEIVER_MAGIC_VALUE,
-              RevertType.RevertWithCustomError,
-            );
-            await expectRevertCustomError(this.token.$_safeMint(revertingReceiver.address, tokenId), 'CustomError', [
-              RECEIVER_MAGIC_VALUE,
-            ]);
-          });
-        });
-
-        describe('to a receiver contract that panics', function () {
-          it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, RevertType.Panic);
-            await expectRevert.unspecified(this.token.$_safeMint(revertingReceiver.address, tokenId));
-          });
-        });
-
-        describe('to a contract that does not implement the required function', function () {
-          it('reverts', async function () {
-            const nonReceiver = await CallReceiverMock.new();
-            await expectRevertCustomError(
-              this.token.$_safeMint(nonReceiver.address, tokenId),
-              'ERC721InvalidReceiver',
-              [nonReceiver.address],
-            );
-          });
+        it('to a contract that does not implement the required function', async function () {
+          const nonReceiver = await ethers.deployContract('CallReceiverMock');
+          await expect(this.token.$_safeMint(nonReceiver, tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+            .withArgs(nonReceiver.target);
         });
       });
     });
@@ -481,213 +451,187 @@ function shouldBehaveLikeERC721() {
     describe('approve', function () {
       const tokenId = firstTokenId;
 
-      let receipt = null;
+      const itEmitsApprovalEvent = function () {
+        it('emits an approval event', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'Approval')
+            .withArgs(this.owner.address, this.address ?? ethers.ZeroAddress, tokenId);
+        });
+      };
 
       const itClearsApproval = function () {
         it('clears approval for the token', async function () {
           expect(await this.token.getApproved(tokenId)).to.equal(ethers.ZeroAddress);
         });
+
+        itEmitsApprovalEvent();
       };
 
-      const itApproves = function (address) {
+      const itApproves = function () {
         it('sets the approval for the target address', async function () {
-          expect(await this.token.getApproved(tokenId)).to.equal(address);
+          expect(await this.token.getApproved(tokenId)).to.equal(this.address);
         });
-      };
 
-      const itEmitsApprovalEvent = function (address) {
-        it('emits an approval event', async function () {
-          expectEvent(receipt, 'Approval', {
-            owner: this.owner,
-            approved: address,
-            tokenId: tokenId,
-          });
-        });
+        itEmitsApprovalEvent();
       };
 
       describe('when clearing approval', function () {
         describe('when there was no prior approval', function () {
           beforeEach(async function () {
-            receipt = await this.token.approve(ethers.ZeroAddress, tokenId, { from: this.owner });
+            this.tx = await this.token.connect(this.owner).approve(ethers.ZeroAddress, tokenId);
           });
 
           itClearsApproval();
-          itEmitsApprovalEvent(ethers.ZeroAddress);
         });
 
         describe('when there was a prior approval', function () {
           beforeEach(async function () {
-            await this.token.approve(this.approved, tokenId, { from: this.owner });
-            receipt = await this.token.approve(ethers.ZeroAddress, tokenId, { from: this.owner });
+            await this.token.connect(this.owner).approve(this.approved, tokenId);
+            this.tx = await this.token.connect(this.owner).approve(ethers.ZeroAddress, tokenId);
           });
 
           itClearsApproval();
-          itEmitsApprovalEvent(ethers.ZeroAddress);
         });
       });
 
       describe('when approving a non-zero address', function () {
         describe('when there was no prior approval', function () {
           beforeEach(async function () {
-            receipt = await this.token.approve(this.approved, tokenId, { from: this.owner });
+            this.tx = await this.token.connect(this.owner).approve(this.approved, tokenId);
+            this.address = this.approved.address;
           });
 
-          itApproves(this.approved);
-          itEmitsApprovalEvent(this.approved);
+          itApproves();
         });
 
         describe('when there was a prior approval to the same address', function () {
           beforeEach(async function () {
-            await this.token.approve(this.approved, tokenId, { from: this.owner });
-            receipt = await this.token.approve(this.approved, tokenId, { from: this.owner });
+            await this.token.connect(this.owner).approve(this.approved, tokenId);
+            this.tx = await this.token.connect(this.owner).approve(this.approved, tokenId);
+            this.address = this.approved.address;
           });
 
-          itApproves(this.approved);
-          itEmitsApprovalEvent(this.approved);
+          itApproves();
         });
 
         describe('when there was a prior approval to a different address', function () {
           beforeEach(async function () {
-            await this.token.approve(this.anotherApproved, tokenId, { from: this.owner });
-            receipt = await this.token.approve(this.anotherApproved, tokenId, { from: this.owner });
+            await this.token.connect(this.owner).approve(this.anotherApproved, tokenId);
+            this.tx = await this.token.connect(this.owner).approve(this.anotherApproved, tokenId);
+            this.address = this.anotherApproved.address;
           });
 
-          itApproves(this.anotherApproved);
-          itEmitsApprovalEvent(this.anotherApproved);
-        });
-      });
-
-      describe('when the sender does not own the given token ID', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.approve(this.approved, tokenId, { from: this.other }),
-            'ERC721InvalidApprover',
-            [this.other],
-          );
-        });
-      });
-
-      describe('when the sender is approved for the given token ID', function () {
-        it('reverts', async function () {
-          await this.token.approve(this.approved, tokenId, { from: this.owner });
-          await expectRevertCustomError(
-            this.token.approve(this.anotherApproved, tokenId, { from: this.approved }),
-            'ERC721InvalidApprover',
-            [this.approved],
-          );
+          itApproves();
         });
       });
 
       describe('when the sender is an operator', function () {
         beforeEach(async function () {
-          await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
-          receipt = await this.token.approve(this.approved, tokenId, { from: this.operator });
+          await this.token.connect(this.owner).setApprovalForAll(this.operator, true);
+          this.tx = await this.token.connect(this.operator).approve(this.approved, tokenId);
+          this.address = this.approved.address;
         });
 
-        itApproves(this.approved);
-        itEmitsApprovalEvent(this.approved);
+        itApproves();
       });
 
-      describe('when the given token ID does not exist', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.approve(this.approved, nonExistentTokenId, { from: this.operator }),
-            'ERC721NonexistentToken',
-            [nonExistentTokenId],
-          );
+      describe('reverts', function () {
+        it('when the sender does not own the given token ID', async function () {
+          await expect(this.token.connect(this.other).approve(this.approved, tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidApprover')
+            .withArgs(this.other.address);
+        });
+
+        it('when the sender is approved for the given token ID', async function () {
+          await this.token.connect(this.owner).approve(this.approved, tokenId);
+          await expect(this.token.connect(this.approved).approve(this.anotherApproved, tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidApprover')
+            .withArgs(this.approved.address);
+        });
+
+        it('when the given token ID does not exist', async function () {
+          await expect(this.token.connect(this.operator).approve(this.approved, nonExistentTokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+            .withArgs(nonExistentTokenId);
         });
       });
     });
 
     describe('setApprovalForAll', function () {
+      it('reverts when the operator is address zero', async function () {
+        await expect(this.token.connect(this.owner).setApprovalForAll(ethers.ZeroAddress, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC721InvalidOperator')
+          .withArgs(ethers.ZeroAddress);
+      });
+
       describe('when the operator willing to approve is not the owner', function () {
         describe('when there is no operator approval set by the sender', function () {
-          it('approves the operator', async function () {
-            await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
+          beforeEach(async function () {
+            this.tx = await this.token.connect(this.owner).setApprovalForAll(this.operator, true);
+          });
 
-            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.equal(true);
+          it('approves the operator', async function () {
+            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.be.true;
           });
 
           it('emits an approval event', async function () {
-            const receipt = await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
-
-            expectEvent(receipt, 'ApprovalForAll', {
-              owner: this.owner,
-              operator: this.operator,
-              approved: true,
-            });
+            await expect(this.tx)
+              .to.emit(this.token, 'ApprovalForAll')
+              .withArgs(this.owner.address, this.operator.address, true);
           });
         });
 
         describe('when the operator was set as not approved', function () {
           beforeEach(async function () {
-            await this.token.setApprovalForAll(this.operator, false, { from: this.owner });
+            await this.token.connect(this.owner).setApprovalForAll(this.operator, false);
           });
 
-          it('approves the operator', async function () {
-            await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
+          describe('approves the operator', function () {
+            beforeEach(async function () {
+              this.tx = await this.token.connect(this.owner).setApprovalForAll(this.operator, true);
+            });
 
-            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.equal(true);
-          });
+            it('approves the operator', async function () {
+              expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.be.true;
+            });
 
-          it('emits an approval event', async function () {
-            const receipt = await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
-
-            expectEvent(receipt, 'ApprovalForAll', {
-              owner: this.owner,
-              operator: this.operator,
-              approved: true,
+            it('emits an approval event', async function () {
+              await expect(this.tx)
+                .to.emit(this.token, 'ApprovalForAll')
+                .withArgs(this.owner.address, this.operator.address, true);
             });
           });
 
           it('can unset the operator approval', async function () {
-            await this.token.setApprovalForAll(this.operator, false, { from: this.owner });
-
-            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.equal(false);
+            await this.token.connect(this.owner).setApprovalForAll(this.operator, false);
+            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.be.false;
           });
         });
 
         describe('when the operator was already approved', function () {
           beforeEach(async function () {
-            await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
+            await this.token.connect(this.owner).setApprovalForAll(this.operator, true);
+            this.tx = await this.token.connect(this.owner).setApprovalForAll(this.operator, true);
           });
 
           it('keeps the approval to the given address', async function () {
-            await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
-
-            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.equal(true);
+            expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.be.true;
           });
 
           it('emits an approval event', async function () {
-            const receipt = await this.token.setApprovalForAll(this.operator, true, { from: this.owner });
-
-            expectEvent(receipt, 'ApprovalForAll', {
-              owner: this.owner,
-              operator: this.operator,
-              approved: true,
-            });
+            await expect(this.tx)
+              .to.emit(this.token, 'ApprovalForAll')
+              .withArgs(this.owner.address, this.operator.address, true);
           });
-        });
-      });
-
-      describe('when the operator is address zero', function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.setApprovalForAll(constants.ZERO_ADDRESS, true, { from: this.owner }),
-            'ERC721InvalidOperator',
-            [constants.ZERO_ADDRESS],
-          );
         });
       });
     });
 
     describe('getApproved', async function () {
-      describe('when token is not minted', async function () {
-        it('reverts', async function () {
-          await expectRevertCustomError(this.token.getApproved(nonExistentTokenId), 'ERC721NonexistentToken', [
-            nonExistentTokenId,
-          ]);
-        });
+      it('reverts when token is not minted', async function () {
+        await expect(this.token.getApproved(nonExistentTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+          .withArgs(nonExistentTokenId);
       });
 
       describe('when token has been minted ', async function () {
@@ -695,14 +639,9 @@ function shouldBehaveLikeERC721() {
           expect(await this.token.getApproved(firstTokenId)).to.equal(ethers.ZeroAddress);
         });
 
-        describe('when account has been approved', async function () {
-          beforeEach(async function () {
-            await this.token.approve(this.approved, firstTokenId, { from: this.owner });
-          });
-
-          it('returns approved account', async function () {
-            expect(await this.token.getApproved(firstTokenId)).to.equal(this.approved);
-          });
+        it('when account has been approved', async function () {
+          await this.token.connect(this.owner).approve(this.approved, firstTokenId);
+          expect(await this.token.getApproved(firstTokenId)).to.equal(this.approved.address);
         });
       });
     });
@@ -710,63 +649,65 @@ function shouldBehaveLikeERC721() {
 
   describe('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
-      await expectRevertCustomError(this.token.$_mint(ethers.ZeroAddress, firstTokenId), 'ERC721InvalidReceiver', [
-        ethers.ZeroAddress,
-      ]);
+      await expect(this.token.$_mint(ethers.ZeroAddress, firstTokenId))
+        .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+        .withArgs(ethers.ZeroAddress);
     });
 
     describe('with minted token', async function () {
       beforeEach(async function () {
-        this.receipt = await this.token.$_mint(this.owner, firstTokenId);
+        this.tx = await this.token.$_mint(this.owner, firstTokenId);
       });
 
-      it('emits a Transfer event', function () {
-        expectEvent(this.receipt, 'Transfer', { from: ethers.ZeroAddress, to: this.owner, tokenId: firstTokenId });
+      it('emits a Transfer event', async function () {
+        await expect(this.tx)
+          .to.emit(this.token, 'Transfer')
+          .withArgs(ethers.ZeroAddress, this.owner.address, firstTokenId);
       });
 
       it('creates the token', async function () {
-        expect(await this.token.balanceOf(this.owner)).to.be.bignumber.equal('1');
-        expect(await this.token.ownerOf(firstTokenId)).to.equal(this.owner);
+        await expect(this.tx).to.changeTokenBalance(this.token, this.owner, 1);
+        expect(await this.token.ownerOf(firstTokenId)).to.equal(this.owner.address);
       });
 
       it('reverts when adding a token id that already exists', async function () {
-        await expectRevertCustomError(this.token.$_mint(this.owner, firstTokenId), 'ERC721InvalidSender', [
-          ethers.ZeroAddress,
-        ]);
+        await expect(this.token.$_mint(this.owner, firstTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721InvalidSender')
+          .withArgs(ethers.ZeroAddress);
       });
     });
   });
 
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
-      await expectRevertCustomError(this.token.$_burn(nonExistentTokenId), 'ERC721NonexistentToken', [
-        nonExistentTokenId,
-      ]);
+      await expect(this.token.$_burn(nonExistentTokenId))
+        .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+        .withArgs(nonExistentTokenId);
     });
 
     describe('with minted tokens', function () {
       beforeEach(async function () {
         await this.token.$_mint(this.owner, firstTokenId);
-        await this.token.$_mint(this.owner, secondTokenId);
+        this.tx = await this.token.$_burn(firstTokenId);
       });
 
-      describe('with burnt token', function () {
-        beforeEach(async function () {
-          this.receipt = await this.token.$_burn(firstTokenId);
-        });
+      it('emits a Transfer event', async function () {
+        await expect(this.tx)
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.owner.address, ethers.ZeroAddress, firstTokenId);
+      });
 
-        it('emits a Transfer event', function () {
-          expectEvent(this.receipt, 'Transfer', { from: this.owner, to: ethers.ZeroAddress, tokenId: firstTokenId });
-        });
+      it('deletes the token', async function () {
+        await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -1);
+        await expect(this.token.ownerOf(firstTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+          .withArgs(firstTokenId);
+      });
 
-        it('deletes the token', async function () {
-          expect(await this.token.balanceOf(this.owner)).to.be.bignumber.equal('1');
-          await expectRevertCustomError(this.token.ownerOf(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
-        });
-
-        it('reverts when burning a token id that has been deleted', async function () {
-          await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
-        });
+      it('reverts when burning a token id that has been deleted', async function () {
+        await expect(this.token.$_burn(firstTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+          .withArgs(firstTokenId);
       });
     });
   });
@@ -919,21 +860,21 @@ function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherAppr
   });
 }
 
-function shouldBehaveLikeERC721Metadata(name, symbol, owner) {
+function shouldBehaveLikeERC721Metadata({ hasUri } = {}) {
   shouldSupportInterfaces(['ERC721Metadata']);
 
   describe('metadata', function () {
     it('has a name', async function () {
-      expect(await this.token.name()).to.equal(name);
+      expect(await this.token.name()).to.equal(this.name);
     });
 
     it('has a symbol', async function () {
-      expect(await this.token.symbol()).to.equal(symbol);
+      expect(await this.token.symbol()).to.equal(this.symbol);
     });
 
     describe('token URI', function () {
       beforeEach(async function () {
-        await this.token.$_mint(owner, firstTokenId);
+        await this.token.$_mint(this.owner, firstTokenId);
       });
 
       it('return empty string by default', async function () {
@@ -941,35 +882,30 @@ function shouldBehaveLikeERC721Metadata(name, symbol, owner) {
       });
 
       it('reverts when queried for non existent token id', async function () {
-        await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721NonexistentToken', [
-          nonExistentTokenId,
-        ]);
+        await expect(this.token.tokenURI(nonExistentTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+          .withArgs(nonExistentTokenId);
       });
 
-      describe('base URI', function () {
-        beforeEach(function () {
-          if (this.token.setBaseURI === undefined) {
-            this.skip();
-          }
-        });
+      if (hasUri)
+        describe('base URI', function () {
+          it('base URI can be set', async function () {
+            await this.token.setBaseURI(baseURI);
+            expect(await this.token.baseURI()).to.equal(baseURI);
+          });
 
-        it('base URI can be set', async function () {
-          await this.token.setBaseURI(baseURI);
-          expect(await this.token.baseURI()).to.equal(baseURI);
-        });
+          it('base URI is added as a prefix to the token URI', async function () {
+            await this.token.setBaseURI(baseURI);
+            expect(await this.token.tokenURI(firstTokenId)).to.equal(baseURI + firstTokenId.toString());
+          });
 
-        it('base URI is added as a prefix to the token URI', async function () {
-          await this.token.setBaseURI(baseURI);
-          expect(await this.token.tokenURI(firstTokenId)).to.equal(baseURI + firstTokenId.toString());
+          it('token URI can be changed by changing the base URI', async function () {
+            await this.token.setBaseURI(baseURI);
+            const newBaseURI = 'https://api.example.com/v2/';
+            await this.token.setBaseURI(newBaseURI);
+            expect(await this.token.tokenURI(firstTokenId)).to.equal(newBaseURI + firstTokenId.toString());
+          });
         });
-
-        it('token URI can be changed by changing the base URI', async function () {
-          await this.token.setBaseURI(baseURI);
-          const newBaseURI = 'https://api.example.com/v2/';
-          await this.token.setBaseURI(newBaseURI);
-          expect(await this.token.tokenURI(firstTokenId)).to.equal(newBaseURI + firstTokenId.toString());
-        });
-      });
     });
   });
 }

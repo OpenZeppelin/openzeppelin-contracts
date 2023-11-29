@@ -13,7 +13,7 @@ async function fixture() {
   return { owner, newOwner, approved, anotherApproved, operator, other, token, name, symbol };
 }
 
-describe.only('ERC721', function () {
+describe('ERC721', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
