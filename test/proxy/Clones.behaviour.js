@@ -107,7 +107,7 @@ module.exports = function shouldBehaveLikeClone() {
     describe('payable', function () {
       const expectedInitializedValue = 42n;
 
-      beforeEach(async function () {
+      beforeEach(function () {
         this.initializeData = this.implementation.interface.encodeFunctionData('initializePayableWithValue', [
           expectedInitializedValue,
         ]);

@@ -1,22 +1,9 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getAddressInSlot, ImplementationSlot } = require('../helpers/erc1967');
 
 module.exports = function shouldBehaveLikeProxy() {
-  const fixture = async () => {
-    const [nonContractAddress] = await ethers.getSigners();
-
-    const implementation = await ethers.deployContract('DummyImplementation');
-
-    return { nonContractAddress, implementation };
-  };
-
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
   it('cannot be initialized with a non-contract address', async function () {
     const initializeData = '0x';
     await expect(this.createProxy(this.nonContractAddress, initializeData))

@@ -7,11 +7,13 @@ const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgrad
 async function fixture() {
   const [owner, other, ...accounts] = await ethers.getSigners();
 
+  const implementation = await ethers.deployContract('DummyImplementation');
+
   const createProxy = function (logic, initData, opts = undefined) {
     return ethers.deployContract('TransparentUpgradeableProxy', [logic, owner, initData], opts);
   };
 
-  return { owner, other, accounts, createProxy };
+  return { nonContractAddress: owner, owner, other, accounts, implementation, createProxy };
 }
 
 describe('TransparentUpgradeableProxy', function () {
