@@ -14,7 +14,6 @@ const firstTokenId = 5042n;
 const secondTokenId = 79217n;
 const nonExistentTokenId = 13n;
 const fourthTokenId = 4n;
-const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 const RECEIVER_INCORRECT_VALUE = '0x42000000';
