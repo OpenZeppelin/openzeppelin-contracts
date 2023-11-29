@@ -318,7 +318,7 @@ interface IGovernor is IERC165, IERC6372 {
      *
      * Emits a {ProposalCreated} event.
      *
-     * NOTE: The state of the Governor and `targets` may change since the proposal creation until its execution.
+     * NOTE: The state of the Governor and `targets` may change between the proposal creation and its execution.
      * For example, the balance of this contract could be updated or its access control permissions may be modified,
      * possibly compromising the proposal's ability to execute successfully (e.g. the governor doesn't have enough
      * value to cover a proposal with multiple transfers).
