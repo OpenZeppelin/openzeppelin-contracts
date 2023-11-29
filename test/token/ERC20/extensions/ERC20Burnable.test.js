@@ -1,20 +1,26 @@
-const { BN } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldBehaveLikeERC20Burnable } = require('./ERC20Burnable.behavior');
-const ERC20Burnable = artifacts.require('$ERC20Burnable');
 
-contract('ERC20Burnable', function (accounts) {
-  const [owner, ...otherAccounts] = accounts;
+async function fixture() {
+  const [owner, burner] = await ethers.getSigners();
 
-  const initialBalance = new BN(1000);
+  const initialBalance = 1000n;
 
   const name = 'My Token';
   const symbol = 'MTKN';
 
+  const token = await ethers.deployContract('$ERC20Burnable', [name, symbol], owner);
+  await token.$_mint(owner, initialBalance);
+
+  return { owner, burner, initialBalance, name, symbol, token };
+}
+
+describe('ERC20Burnable', function () {
   beforeEach(async function () {
-    this.token = await ERC20Burnable.new(name, symbol, { from: owner });
-    await this.token.$_mint(owner, initialBalance);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeERC20Burnable(owner, initialBalance, otherAccounts);
+  shouldBehaveLikeERC20Burnable();
 });

@@ -1,111 +1,89 @@
-const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS } = constants;
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { expectRevertCustomError } = require('../../../helpers/customError');
 
-function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
+function shouldBehaveLikeERC20Burnable() {
   describe('burn', function () {
-    describe('when the given value is not greater than balance of the sender', function () {
-      context('for a zero value', function () {
-        shouldBurn(new BN(0));
-      });
+    it('reverts if not enougth balance', async function () {
+      const value = this.initialBalance + 1n;
+      await expect(this.token.connect(this.owner).burn(value))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+        .withArgs(this.owner.address, this.initialBalance, value);
+    });
 
-      context('for a non-zero value', function () {
-        shouldBurn(new BN(100));
-      });
-
+    describe('on success', function () {
       function shouldBurn(value) {
         beforeEach(async function () {
-          this.receipt = await this.token.burn(value, { from: owner });
+          this.tx = await this.token.connect(this.owner).burn(value);
         });
 
         it('burns the requested value', async function () {
-          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(initialBalance.sub(value));
+          await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -value);
         });
 
         it('emits a transfer event', async function () {
-          expectEvent(this.receipt, 'Transfer', {
-            from: owner,
-            to: ZERO_ADDRESS,
-            value: value,
-          });
+          await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.owner.address, ethers.ZeroAddress, value);
         });
       }
-    });
 
-    describe('when the given value is greater than the balance of the sender', function () {
-      const value = initialBalance.addn(1);
+      describe('for a zero value', function () {
+        shouldBurn(0n);
+      });
 
-      it('reverts', async function () {
-        await expectRevertCustomError(this.token.burn(value, { from: owner }), 'ERC20InsufficientBalance', [
-          owner,
-          initialBalance,
-          value,
-        ]);
+      describe('for a non-zero value', function () {
+        shouldBurn(100n);
       });
     });
   });
 
   describe('burnFrom', function () {
+    describe('reverts', function () {
+      it('if not enough balance', async function () {
+        const value = this.initialBalance + 1n;
+        await this.token.connect(this.owner).approve(this.burner, value);
+        await expect(this.token.connect(this.burner).burnFrom(this.owner, value))
+          .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+          .withArgs(this.owner.address, this.initialBalance, value);
+      });
+
+      it('if not enough allowance', async function () {
+        const allowance = 100n;
+        await this.token.connect(this.owner).approve(this.burner, allowance);
+        await expect(this.token.connect(this.burner).burnFrom(this.owner, allowance + 1n))
+          .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
+          .withArgs(this.burner.address, allowance, allowance + 1n);
+      });
+    });
+
     describe('on success', function () {
-      context('for a zero value', function () {
-        shouldBurnFrom(new BN(0));
-      });
-
-      context('for a non-zero value', function () {
-        shouldBurnFrom(new BN(100));
-      });
-
       function shouldBurnFrom(value) {
-        const originalAllowance = value.muln(3);
+        const originalAllowance = value * 3n;
 
         beforeEach(async function () {
-          await this.token.approve(burner, originalAllowance, { from: owner });
-          this.receipt = await this.token.burnFrom(owner, value, { from: burner });
+          await this.token.connect(this.owner).approve(this.burner, originalAllowance);
+          this.tx = await this.token.connect(this.burner).burnFrom(this.owner, value);
         });
 
         it('burns the requested value', async function () {
-          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(initialBalance.sub(value));
+          await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -value);
         });
 
         it('decrements allowance', async function () {
-          expect(await this.token.allowance(owner, burner)).to.be.bignumber.equal(originalAllowance.sub(value));
+          expect(await this.token.allowance(this.owner, this.burner)).to.equal(originalAllowance - value);
         });
 
         it('emits a transfer event', async function () {
-          expectEvent(this.receipt, 'Transfer', {
-            from: owner,
-            to: ZERO_ADDRESS,
-            value: value,
-          });
+          await expect(this.tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.owner.address, ethers.ZeroAddress, value);
         });
       }
-    });
 
-    describe('when the given value is greater than the balance of the sender', function () {
-      const value = initialBalance.addn(1);
-
-      it('reverts', async function () {
-        await this.token.approve(burner, value, { from: owner });
-        await expectRevertCustomError(this.token.burnFrom(owner, value, { from: burner }), 'ERC20InsufficientBalance', [
-          owner,
-          initialBalance,
-          value,
-        ]);
+      describe('for a zero value', function () {
+        shouldBurnFrom(0n);
       });
-    });
 
-    describe('when the given value is greater than the allowance', function () {
-      const allowance = new BN(100);
-
-      it('reverts', async function () {
-        await this.token.approve(burner, allowance, { from: owner });
-        await expectRevertCustomError(
-          this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
-          'ERC20InsufficientAllowance',
-          [burner, allowance, allowance.addn(1)],
-        );
+      describe('for a non-zero value', function () {
+        shouldBurnFrom(100n);
       });
     });
   });
