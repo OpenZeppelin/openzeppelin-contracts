@@ -159,7 +159,7 @@ For a call to be authorized, the caller must bear the role that is assigned to t
 
 image::access-manager-functions.svg[AccessManager functions]
 
-IMPORTANT: For a visual role explorer, the https://access-manager.openzeppelin.com/[Access Manager explorer] can be used for exploring the roles and permissions of a deployed AccessManager.
+IMPORTANT: For a visual role explorer, the https://access-manager.openzeppelin.com/[AccessManager explorer] can be used for exploring the roles and permissions of a deployed AccessManager. Connecting a wallet is supported to detect and display the roles granted and functions that are available to it.
 
 === Using `AccessManager`
 
