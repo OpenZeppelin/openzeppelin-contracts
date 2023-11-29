@@ -14,7 +14,7 @@ describe('Ownable', function () {
   });
 
   it('emits ownership transfer events during construction', async function () {
-    await expect(await this.ownable.deploymentTransaction())
+    await expect(this.ownable.deploymentTransaction())
       .to.emit(this.ownable, 'OwnershipTransferred')
       .withArgs(ethers.ZeroAddress, this.owner.address);
   });

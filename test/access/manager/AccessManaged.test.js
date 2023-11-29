@@ -32,7 +32,7 @@ describe('AccessManaged', function () {
   });
 
   it('sets authority and emits AuthorityUpdated event during construction', async function () {
-    await expect(await this.managed.deploymentTransaction())
+    await expect(this.managed.deploymentTransaction())
       .to.emit(this.managed, 'AuthorityUpdated')
       .withArgs(this.authority.target);
   });
