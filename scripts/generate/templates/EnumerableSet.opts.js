@@ -1,6 +1,6 @@
 const { capitalize } = require('../../helpers');
 
-const mapType = str => str == 'uint256' ? 'Uint' : capitalize(str);
+const mapType = str => (str == 'uint256' ? 'Uint' : capitalize(str));
 
 const formatType = type => ({
   name: `${mapType(type)}Set`,

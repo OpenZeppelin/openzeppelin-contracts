@@ -7,7 +7,10 @@ const min = (...values) => values.slice(1).reduce((x, y) => (x < y ? x : y), val
 
 // Cartesian product of a list of arrays
 const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
-const zip = (...arrays) => Array(max(...arrays.map(arg => arg.length))).fill(null).map((_, i) => arrays.map(arg => arg.at(i)));
+const zip = (...arrays) =>
+  Array(max(...arrays.map(arg => arg.length)))
+    .fill(null)
+    .map((_, i) => arrays.map(arg => arg.at(i)));
 
 module.exports = {
   mapValues,

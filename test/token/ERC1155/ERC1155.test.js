@@ -9,7 +9,7 @@ const initialURI = 'https://token-cdn-domain/{id}.json';
 
 async function fixture() {
   const [operator, holder, ...otherAccounts] = await ethers.getSigners();
-  const token = await ethers.deployContract('$ERC1155', [ initialURI ]);
+  const token = await ethers.deployContract('$ERC1155', [initialURI]);
   return { token, operator, holder, otherAccounts };
 }
 
@@ -174,7 +174,9 @@ describe('ERC1155', function () {
             tokenBatchIds,
           );
 
-          expect(holderBatchBalances).to.deep.equal(zip(mintValues, burnValues).map(([ mintValue, burnValue]) => mintValue - burnValue));
+          expect(holderBatchBalances).to.deep.equal(
+            zip(mintValues, burnValues).map(([mintValue, burnValue]) => mintValue - burnValue),
+          );
         });
       });
     });
@@ -185,8 +187,7 @@ describe('ERC1155', function () {
     const secondTokenID = 1337n;
 
     it('emits no URI event in constructor', async function () {
-      await expect(this.token.deploymentTransaction())
-        .to.not.emit(this.token, 'URI')
+      await expect(this.token.deploymentTransaction()).to.not.emit(this.token, 'URI');
     });
 
     it('sets the initial URI for all token types', async function () {
@@ -198,8 +199,7 @@ describe('ERC1155', function () {
       const newURI = 'https://token-cdn-domain/{locale}/{id}.json';
 
       it('emits no URI event', async function () {
-        await expect(this.token.$_setURI(newURI))
-          .to.not.emit(this.token, 'URI');
+        await expect(this.token.$_setURI(newURI)).to.not.emit(this.token, 'URI');
       });
 
       it('sets the new URI for all token types', async function () {
