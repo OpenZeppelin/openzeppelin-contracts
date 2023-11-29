@@ -1,289 +1,178 @@
-const { BN, expectEvent, constants } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-// const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
-const { expectRevertCustomError } = require('../../../helpers/customError');
+const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 
-const ERC721 = artifacts.require('$ERC721');
-const ERC721Wrapper = artifacts.require('$ERC721Wrapper');
-
-contract('ERC721Wrapper', function (accounts) {
-  const [initialHolder, anotherAccount, approvedAccount] = accounts;
+async function fixture() {
+  const [owner, newOwner, approved, anotherApproved, operator, other] = await ethers.getSigners();
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const firstTokenId = new BN(1);
-  const secondTokenId = new BN(2);
+  const firstTokenId = 1n;
+  const secondTokenId = 2n;
 
+  const underlying = await ethers.deployContract('$ERC721', [name, symbol]);
+  const token = await ethers.deployContract('$ERC721Wrapper', [`Wrapped ${name}`, `W${symbol}`, underlying]);
+
+  await underlying.$_safeMint(owner, firstTokenId);
+  await underlying.$_safeMint(owner, secondTokenId);
+
+  return {
+    owner,
+    newOwner,
+    approved,
+    anotherApproved,
+    operator,
+    other,
+    underlying,
+    token,
+    name,
+    symbol,
+    firstTokenId,
+    secondTokenId,
+  };
+}
+
+describe('ERC721Wrapper', function () {
   beforeEach(async function () {
-    this.underlying = await ERC721.new(name, symbol);
-    this.token = await ERC721Wrapper.new(`Wrapped ${name}`, `W${symbol}`, this.underlying.address);
-
-    await this.underlying.$_safeMint(initialHolder, firstTokenId);
-    await this.underlying.$_safeMint(initialHolder, secondTokenId);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('has a name', async function () {
-    expect(await this.token.name()).to.equal(`Wrapped ${name}`);
+    expect(await this.token.name()).to.equal(`Wrapped ${this.name}`);
   });
 
   it('has a symbol', async function () {
-    expect(await this.token.symbol()).to.equal(`W${symbol}`);
+    expect(await this.token.symbol()).to.equal(`W${this.symbol}`);
   });
 
   it('has underlying', async function () {
-    expect(await this.token.underlying()).to.be.bignumber.equal(this.underlying.address);
+    expect(await this.token.underlying()).to.be.equal(this.underlying.target);
   });
 
   describe('depositFor', function () {
+    beforeEach(function () {
+      this.deposits = async (receiver, tokenIds) => {
+        const tx = await this.token.connect(this.owner).depositFor(receiver, tokenIds);
+        for (const tokenId of tokenIds) {
+          await expect(tx)
+            .to.emit(this.underlying, 'Transfer')
+            .withArgs(this.owner.address, this.token.target, tokenId)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(ethers.ZeroAddress, receiver.address, tokenId);
+        }
+      };
+    });
+
     it('works with token approval', async function () {
-      await this.underlying.approve(this.token.address, firstTokenId, { from: initialHolder });
-
-      const { tx } = await this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: initialHolder,
-        to: this.token.address,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
+      await this.underlying.connect(this.owner).approve(this.token, this.firstTokenId);
+      await this.deposits(this.owner, [this.firstTokenId]);
     });
 
     it('works with approval for all', async function () {
-      await this.underlying.setApprovalForAll(this.token.address, true, { from: initialHolder });
-
-      const { tx } = await this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: initialHolder,
-        to: this.token.address,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
+      await this.underlying.connect(this.owner).setApprovalForAll(this.token, true);
+      await this.deposits(this.owner, [this.firstTokenId]);
     });
 
     it('works sending to another account', async function () {
-      await this.underlying.approve(this.token.address, firstTokenId, { from: initialHolder });
-
-      const { tx } = await this.token.depositFor(anotherAccount, [firstTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: initialHolder,
-        to: this.token.address,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: anotherAccount,
-        tokenId: firstTokenId,
-      });
+      await this.underlying.connect(this.owner).approve(this.token, this.firstTokenId);
+      await this.deposits(this.newOwner, [this.firstTokenId]);
     });
 
     it('works with multiple tokens', async function () {
-      await this.underlying.approve(this.token.address, firstTokenId, { from: initialHolder });
-      await this.underlying.approve(this.token.address, secondTokenId, { from: initialHolder });
-
-      const { tx } = await this.token.depositFor(initialHolder, [firstTokenId, secondTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: initialHolder,
-        to: this.token.address,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: initialHolder,
-        to: this.token.address,
-        tokenId: secondTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: secondTokenId,
-      });
+      await this.underlying.connect(this.owner).approve(this.token, this.firstTokenId);
+      await this.underlying.connect(this.owner).approve(this.token, this.secondTokenId);
+      await this.deposits(this.owner, [this.firstTokenId, this.secondTokenId]);
     });
 
-    it('reverts with missing approval', async function () {
-      await expectRevertCustomError(
-        this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder }),
-        'ERC721InsufficientApproval',
-        [this.token.address, firstTokenId],
-      );
+    it('reverts without approval', async function () {
+      await expect(this.token.connect(this.owner).depositFor(this.owner, [this.firstTokenId]))
+        .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
+        .withArgs(this.token.target, this.firstTokenId);
     });
   });
 
   describe('withdrawTo', function () {
     beforeEach(async function () {
-      await this.underlying.approve(this.token.address, firstTokenId, { from: initialHolder });
-      await this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder });
+      await this.underlying.connect(this.owner).approve(this.token, this.firstTokenId);
+      await this.token.connect(this.owner).depositFor(this.owner, [this.firstTokenId]);
+
+      this.witdraw = async (operator, receiver, tokenIds) => {
+        const tx = this.token.connect(operator).withdrawTo(receiver, tokenIds);
+        for (const tokenId of tokenIds) {
+          await expect(tx)
+            .to.emit(this.underlying, 'Transfer')
+            .withArgs(this.token.target, receiver.address, tokenId)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        }
+      };
     });
 
     it('works for an owner', async function () {
-      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: firstTokenId,
-      });
+      await this.witdraw(this.owner, this.owner, [this.firstTokenId]);
     });
 
     it('works for an approved', async function () {
-      await this.token.approve(approvedAccount, firstTokenId, { from: initialHolder });
-
-      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: approvedAccount });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: firstTokenId,
-      });
+      await this.token.connect(this.owner).approve(this.approved, this.firstTokenId);
+      await this.witdraw(this.approved, this.owner, [this.firstTokenId]);
     });
 
     it('works for an approved for all', async function () {
-      await this.token.setApprovalForAll(approvedAccount, true, { from: initialHolder });
-
-      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: approvedAccount });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: firstTokenId,
-      });
-    });
-
-    it("doesn't work for a non-owner nor approved", async function () {
-      await expectRevertCustomError(
-        this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }),
-        'ERC721InsufficientApproval',
-        [anotherAccount, firstTokenId],
-      );
+      await this.token.connect(this.owner).setApprovalForAll(this.approved, true);
+      await this.witdraw(this.approved, this.owner, [this.firstTokenId]);
     });
 
     it('works with multiple tokens', async function () {
-      await this.underlying.approve(this.token.address, secondTokenId, { from: initialHolder });
-      await this.token.depositFor(initialHolder, [secondTokenId], { from: initialHolder });
-
-      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId, secondTokenId], { from: initialHolder });
-
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: initialHolder,
-        tokenId: secondTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: secondTokenId,
-      });
+      await this.underlying.connect(this.owner).approve(this.token, this.secondTokenId);
+      await this.token.connect(this.owner).depositFor(this.owner, [this.secondTokenId]);
+      await this.witdraw(this.owner, this.owner, [this.firstTokenId, this.secondTokenId]);
     });
 
     it('works to another account', async function () {
-      const { tx } = await this.token.withdrawTo(anotherAccount, [firstTokenId], { from: initialHolder });
+      await this.witdraw(this.owner, this.newOwner, [this.firstTokenId]);
+    });
 
-      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
-        from: this.token.address,
-        to: anotherAccount,
-        tokenId: firstTokenId,
-      });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: initialHolder,
-        to: constants.ZERO_ADDRESS,
-        tokenId: firstTokenId,
-      });
+    it("doesn't work for a non-owner nor approved", async function () {
+      await expect(this.token.connect(this.other).withdrawTo(this.other, [this.firstTokenId]))
+        .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
+        .withArgs(this.other.address, this.firstTokenId);
     });
   });
 
   describe('onERC721Received', function () {
     it('only allows calls from underlying', async function () {
-      await expectRevertCustomError(
-        this.token.onERC721Received(
-          initialHolder,
-          this.token.address,
-          firstTokenId,
-          anotherAccount, // Correct data
-          { from: anotherAccount },
-        ),
-        'ERC721UnsupportedToken',
-        [anotherAccount],
-      );
+      await expect(this.token.connect(this.other).onERC721Received(this.owner, this.token, this.firstTokenId, '0x'))
+        .to.be.revertedWithCustomError(this.token, 'ERC721UnsupportedToken')
+        .withArgs(this.other.address);
     });
 
     it('mints a token to from', async function () {
-      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, {
-        from: initialHolder,
-      });
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
+      await expect(this.underlying.connect(this.owner).safeTransferFrom(this.owner, this.token, this.firstTokenId))
+        .to.emit(this.token, 'Transfer')
+        .withArgs(ethers.ZeroAddress, this.owner.address, this.firstTokenId);
     });
   });
 
   describe('_recover', function () {
     it('works if there is something to recover', async function () {
       // Should use `transferFrom` to avoid `onERC721Received` minting
-      await this.underlying.transferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
+      await this.underlying.connect(this.owner).transferFrom(this.owner, this.token, this.firstTokenId);
 
-      const { tx } = await this.token.$_recover(anotherAccount, firstTokenId);
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: anotherAccount,
-        tokenId: firstTokenId,
-      });
+      await expect(this.token.$_recover(this.newOwner, this.firstTokenId))
+        .to.emit(this.token, 'Transfer')
+        .withArgs(ethers.ZeroAddress, this.newOwner.address, this.firstTokenId);
     });
 
     it('reverts if there is nothing to recover', async function () {
-      const owner = await this.underlying.ownerOf(firstTokenId);
-      await expectRevertCustomError(this.token.$_recover(initialHolder, firstTokenId), 'ERC721IncorrectOwner', [
-        this.token.address,
-        firstTokenId,
-        owner,
-      ]);
+      await expect(this.token.$_recover(this.newOwner, this.firstTokenId))
+        .to.be.revertedWithCustomError(this.token, 'ERC721IncorrectOwner')
+        .withArgs(this.token.target, this.firstTokenId, this.owner.address);
     });
   });
 
   describe('ERC712 behavior', function () {
-    // shouldBehaveLikeERC721(...accounts);
+    shouldBehaveLikeERC721();
   });
 });
