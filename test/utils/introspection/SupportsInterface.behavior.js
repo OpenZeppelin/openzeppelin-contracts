@@ -1,6 +1,7 @@
 const { ethers } = require('ethers');
 const { expect } = require('chai');
 const { selector } = require('../../helpers/methods');
+const { mapValues } = require('../../helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
 const SIGNATURES = {
@@ -81,14 +82,11 @@ const SIGNATURES = {
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
-const INTERFACE_IDS = Object.fromEntries(
-  Object.entries(SIGNATURES).map(([name, signatures]) => [
-    name,
-    ethers.toBeHex(
-      signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
-      4,
-    ),
-  ]),
+const INTERFACE_IDS = mapValues(SIGNATURES, signatures =>
+  ethers.toBeHex(
+    signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
+    4,
+  ),
 );
 
 function shouldSupportInterfaces(interfaces = []) {
