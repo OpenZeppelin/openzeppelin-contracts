@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 function shouldBehaveLikeERC20Burnable() {
   describe('burn', function () {
-    it('reverts if not enougth balance', async function () {
+    it('reverts if not enough balance', async function () {
       const value = this.initialBalance + 1n;
       await expect(this.token.connect(this.owner).burn(value))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
