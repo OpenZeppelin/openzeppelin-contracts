@@ -72,9 +72,7 @@ function shouldBehaveLikeERC20Burnable() {
         });
 
         it('emits a transfer event', async function () {
-          await expect(this.tx)
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.owner.address, ethers.ZeroAddress, value);
+          await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.owner.address, ethers.ZeroAddress, value);
         });
       }
 

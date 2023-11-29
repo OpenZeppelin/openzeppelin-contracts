@@ -1,24 +1,33 @@
-const { ether } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
-const { expectRevertCustomError } = require('../../../helpers/customError');
 
-const ERC20Capped = artifacts.require('$ERC20Capped');
+async function fixture() {
+  const [user] = await ethers.getSigners();
 
-contract('ERC20Capped', function (accounts) {
-  const cap = ether('1000');
+  const cap = 1000n;
 
   const name = 'My Token';
   const symbol = 'MTKN';
 
+  const token = await ethers.deployContract('$ERC20Capped', [name, symbol, cap]);
+
+  return { user, cap, name, symbol, token };
+}
+
+describe('ERC20Capped', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
   it('requires a non-zero cap', async function () {
-    await expectRevertCustomError(ERC20Capped.new(name, symbol, 0), 'ERC20InvalidCap', [0]);
+    const ERC20Capped = await ethers.getContractFactory('$ERC20Capped');
+    await expect(ERC20Capped.deploy(this.name, this.symbol, 0))
+      .to.be.revertedWithCustomError(ERC20Capped, 'ERC20InvalidCap')
+      .withArgs(0);
   });
 
-  context('once deployed', async function () {
-    beforeEach(async function () {
-      this.token = await ERC20Capped.new(name, symbol, cap);
-    });
-
-    shouldBehaveLikeERC20Capped(accounts, cap);
-  });
+  shouldBehaveLikeERC20Capped();
 });
