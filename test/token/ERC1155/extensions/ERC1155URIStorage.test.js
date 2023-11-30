@@ -7,7 +7,7 @@ const baseUri = 'https://token.com/';
 const tokenId = 1n;
 const value = 3000n;
 
-describe(['ERC1155URIStorage'], function () {
+describe('ERC1155URIStorage', function () {
   describe('with base uri set', function () {
     async function fixture() {
       const [holder] = await ethers.getSigners();
