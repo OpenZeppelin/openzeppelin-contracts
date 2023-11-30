@@ -20,13 +20,13 @@ contract('SignedMath', function () {
 
   describe('max', function () {
     it('is correctly detected in both position', async function () {
-      testCommutative(this.mock.$min, -1234n, 5678n, [max(-1234n, 5678n)]);
+      await testCommutative(this.mock.$min, -1234n, 5678n, [max(-1234n, 5678n)]);
     });
   });
 
   describe('min', function () {
     it('is correctly detected in both position', async function () {
-      testCommutative(this.mock.$min, -1234n, 5678n, [min(-1234n, 5678n)]);
+      await testCommutative(this.mock.$min, -1234n, 5678n, [min(-1234n, 5678n)]);
     });
   });
 

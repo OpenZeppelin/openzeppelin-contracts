@@ -108,7 +108,7 @@ describe('Math', function () {
   });
 
   describe('tryMod', function () {
-    describe('modulos correctly', async function () {
+    describe('modulos correctly', function () {
       it('when the dividend is smaller than the divisor', async function () {
         const a = 284n;
         const b = 5678n;
@@ -143,13 +143,13 @@ describe('Math', function () {
 
   describe('max', function () {
     it('is correctly detected in both position', async function () {
-      testCommutative(this.mock.$max, 1234n, 5678n, [max(1234n, 5678n)]);
+      await testCommutative(this.mock.$max, 1234n, 5678n, [max(1234n, 5678n)]);
     });
   });
 
   describe('min', function () {
     it('is correctly detected in both position', async function () {
-      testCommutative(this.mock.$min, 1234n, 5678n, [min(1234n, 5678n)]);
+      await testCommutative(this.mock.$min, 1234n, 5678n, [min(1234n, 5678n)]);
     });
   });
 
@@ -240,7 +240,7 @@ describe('Math', function () {
       );
     });
 
-    describe('does round down', async function () {
+    describe('does round down', function () {
       it('small values', async function () {
         for (const rounding of RoundingDown) {
           expect(await this.mock.$mulDiv(3n, 4n, 5n, rounding)).to.equal(2n);
@@ -269,7 +269,7 @@ describe('Math', function () {
       });
     });
 
-    describe('does round up', async function () {
+    describe('does round up', function () {
       it('small values', async function () {
         for (const rounding of RoundingUp) {
           expect(await this.mock.$mulDiv(3n, 4n, 5n, rounding)).to.equal(3n);

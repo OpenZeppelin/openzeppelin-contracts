@@ -8,7 +8,7 @@ async function fixture() {
   return { mock };
 }
 
-contract('SafeCast', async function () {
+contract('SafeCast', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -58,13 +58,13 @@ contract('SafeCast', async function () {
 
     it('reverts when casting -1', async function () {
       await expect(this.mock.$toUint256(-1n))
-        .to.be.revertedWithCustomError(this.mock, `SafeCastOverflowedIntToUint`)
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntToUint')
         .withArgs(-1n);
     });
 
     it(`reverts when casting INT256_MIN (${ethers.MinInt256})`, async function () {
       await expect(this.mock.$toUint256(ethers.MinInt256))
-        .to.be.revertedWithCustomError(this.mock, `SafeCastOverflowedIntToUint`)
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntToUint')
         .withArgs(ethers.MinInt256);
     });
   });
