@@ -2,6 +2,7 @@ const { mapValues } = require('./iterate');
 
 const formatType = schema => Object.entries(schema).map(([name, type]) => ({ name, type }));
 
+module.exports.formatType = formatType;
 module.exports = mapValues(
   {
     EIP712Domain: {
