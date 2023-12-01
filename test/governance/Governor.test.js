@@ -3,14 +3,14 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../helpers/governance');
-const { Types, getDomain } = require('../helpers/eip712');
+const { types, getDomain } = require('../helpers/eip712');
 const { bigint: Enums } = require('../helpers/enums');
 const {
   bigint: { clockFromReceipt },
 } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
+const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -26,6 +26,8 @@ const tokenSupply = ethers.parseEther('100');
 const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
+
+const signBallot = account => (contract, message) => getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: types.Ballot }, message));
 
 async function deployToken(contractName) {
   try {
@@ -55,7 +57,6 @@ async function fixture() {
       token, // tokenAddress
       10n, // quorumNumeratorValue
     ]);
-    const domain = await getDomain(mock);
 
     await owner.sendTransaction({ to: mock, value });
     await token.$_mint(owner, tokenSupply);
@@ -66,7 +67,7 @@ async function fixture() {
     await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
     await helper.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
 
-    configs[Token] = { token, mock, domain, helper };
+    configs[Token] = { token, mock, helper };
   }
 
   return {
@@ -106,7 +107,7 @@ describe('Governor', function () {
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
-      shouldBehaveLikeEIP6372(mode);
+      shouldBehaveLikeERC6372(mode);
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
@@ -206,9 +207,6 @@ describe('Governor', function () {
       });
 
       describe('vote with signature', function () {
-        const sign = account => (contract, message) =>
-          getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: Types.Ballot }, message));
-
         it('votes with an EOA signature', async function () {
           await this.token.connect(this.voter1).delegate(this.userEOA);
 
@@ -222,7 +220,7 @@ describe('Governor', function () {
               support: Enums.VoteType.For,
               voter: this.userEOA.address,
               nonce,
-              signature: sign(this.userEOA),
+              signature: signBallot(this.userEOA),
             }),
           )
             .to.emit(this.mock, 'VoteCast')
@@ -251,7 +249,7 @@ describe('Governor', function () {
               support: Enums.VoteType.For,
               voter: wallet.target,
               nonce,
-              signature: sign(this.userEOA),
+              signature: signBallot(this.userEOA),
             }),
           )
             .to.emit(this.mock, 'VoteCast')
@@ -341,19 +339,6 @@ describe('Governor', function () {
 
         describe('on vote by signature', function () {
           beforeEach(async function () {
-            this.signature = async (contract, message) => {
-              const domain = await getDomain(contract);
-              const types = {
-                Ballot: [
-                  { name: 'proposalId', type: 'uint256' },
-                  { name: 'support', type: 'uint8' },
-                  { name: 'voter', type: 'address' },
-                  { name: 'nonce', type: 'uint256' },
-                ],
-              };
-              return this.userEOA.signTypedData(domain, types, message);
-            };
-
             await this.token.connect(this.voter1).delegate(this.userEOA);
 
             // Run proposal
@@ -374,10 +359,7 @@ describe('Governor', function () {
               support: Enums.VoteType.For,
               voter: this.userEOA.address,
               nonce,
-              signature: async (...params) => {
-                const sig = await this.signature(...params);
-                return tamper(sig, 42, 0xff);
-              },
+              signature: (...args) => signBallot(this.userEOA)(...args).then(sig => tamper(sig, 42, 0xff)),
             };
 
             await expect(this.helper.vote(voteParams))
@@ -392,7 +374,7 @@ describe('Governor', function () {
               support: Enums.VoteType.For,
               voter: this.userEOA.address,
               nonce: nonce + 1n,
-              signature: this.signature,
+              signature: signBallot(this.userEOA),
             };
 
             await expect(this.helper.vote(voteParams))

@@ -1,13 +1,15 @@
+require('array.prototype.at/auto');
+
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const {
   bigint: { clockFromReceipt },
 } = require('../../helpers/time');
-const { shouldBehaveLikeVotes } = require('./Votes.behavior.new');
-const { bigintSum: sum } = require('../../helpers/math');
+const { sum } = require('../../helpers/math');
 
-require('array.prototype.at/auto');
+const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
 const MODES = {
   blocknumber: '$VotesMock',
@@ -48,7 +50,7 @@ describe('Votes', function () {
       shouldBehaveLikeVotes(AMOUNTS, { mode, fungible: true });
 
       it('starts with zero votes', async function () {
-        expect(await this.votes.getTotalSupply()).to.equal(0);
+        expect(await this.votes.getTotalSupply()).to.equal(0n);
       });
 
       describe('performs voting operations', function () {
@@ -70,15 +72,15 @@ describe('Votes', function () {
         it('delegates', async function () {
           expect(await this.votes.getVotes(this.accounts[0])).to.equal(0n);
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.be.equal(ethers.ZeroAddress);
-          expect(await this.votes.delegates(this.accounts[1])).to.be.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
 
           await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[0]));
 
           expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[0].address]);
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.be.equal(this.accounts[0].address);
-          expect(await this.votes.delegates(this.accounts[1])).to.be.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
 
           await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
 
@@ -86,8 +88,8 @@ describe('Votes', function () {
             this.amounts[this.accounts[0].address] + this.amounts[this.accounts[1].address],
           );
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.be.equal(this.accounts[0].address);
-          expect(await this.votes.delegates(this.accounts[1])).to.be.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(this.accounts[0].address);
         });
 
         it('cross delegates', async function () {

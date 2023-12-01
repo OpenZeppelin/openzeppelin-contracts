@@ -74,20 +74,20 @@ class GovernorHelper {
 
     return vote.signature
       ? // if signature, and either params or reason →
-        vote.params || vote.reason
-        ? this.sign(vote).then(signature =>
-            this.governor.castVoteWithReasonAndParamsBySig(
-              proposal.id,
-              vote.support,
-              vote.voter,
-              vote.reason || '',
-              vote.params || '',
-              signature,
-            ),
-          )
-        : this.sign(vote).then(signature =>
-            this.governor.castVoteBySig(proposal.id, vote.support, vote.voter, signature),
-          )
+        vote.signature(this.governor, this.forgeMessage(vote))
+          .then(signature =>
+            vote.params || vote.reason
+            ?
+              this.governor.castVoteWithReasonAndParamsBySig(
+                proposal.id,
+                vote.support,
+                vote.voter,
+                vote.reason || '',
+                vote.params || '',
+                signature,
+              )
+            : this.governor.castVoteBySig(proposal.id, vote.support, vote.voter, signature)
+            )
       : vote.params
       ? // otherwise if params
         this.governor.castVoteWithReasonAndParams(proposal.id, vote.support, vote.reason || '', vote.params)
@@ -95,10 +95,6 @@ class GovernorHelper {
       ? // otherwise if reason
         this.governor.castVoteWithReason(proposal.id, vote.support, vote.reason)
       : this.governor.castVote(proposal.id, vote.support);
-  }
-
-  sign(vote = {}) {
-    return vote.signature(this.governor, this.forgeMessage(vote));
   }
 
   forgeMessage(vote = {}) {

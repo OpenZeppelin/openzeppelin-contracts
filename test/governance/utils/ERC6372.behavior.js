@@ -1,8 +1,7 @@
 const { clock } = require('../../helpers/time');
 
-// TODO: delete
-function shouldBehaveLikeEIP6372(mode = 'blocknumber') {
-  describe('should implement EIP6372', function () {
+function shouldBehaveLikeERC6372(mode = 'blocknumber') {
+  describe('should implement ERC-6372', function () {
     beforeEach(async function () {
       this.mock = this.mock ?? this.token ?? this.votes;
     });
@@ -20,5 +19,5 @@ function shouldBehaveLikeEIP6372(mode = 'blocknumber') {
 }
 
 module.exports = {
-  shouldBehaveLikeEIP6372,
+  shouldBehaveLikeERC6372,
 };

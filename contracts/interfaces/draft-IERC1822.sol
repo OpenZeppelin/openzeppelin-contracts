@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev ERC1822: Universal Upgradeable Proxy Standard (UUPS) documents a method for upgradeability through a simplified
+ * @dev ERC-1822: Universal Upgradeable Proxy Standard (UUPS) documents a method for upgradeability through a simplified
  * proxy whose upgrades are fully controlled by the current implementation.
  */
 interface IERC1822Proxiable {

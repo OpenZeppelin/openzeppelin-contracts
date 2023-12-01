@@ -1,9 +1,13 @@
+// Array of number or bigint
+const max = (...values) => values.slice(1).reduce((x, y) => (x > y ? x : y), values.at(0));
+const min = (...values) => values.slice(1).reduce((x, y) => (x < y ? x : y), values.at(0));
+const sum = (...values) => values.slice(1).reduce((x, y) => x + y, values.at(0));
+
 module.exports = {
-  // sum of integer / bigint
-  sum: (...args) => args.reduce((acc, n) => acc + n, 0), // TODO: remove in favor of the bigint version
-  bigintSum: (...args) => args.reduce((acc, n) => acc + n, 0n),
-  // min of integer / bigint
-  min: (...args) => args.slice(1).reduce((x, y) => (x < y ? x : y), args[0]),
-  // max of integer / bigint
-  max: (...args) => args.slice(1).reduce((x, y) => (x > y ? x : y), args[0]),
+  // re-export min, max & sum of integer / bignumber
+  min,
+  max,
+  sum,
+  // deprecated: BN version of sum
+  BNsum: (...args) => args.slice(1).reduce((x, y) => x.add(y), args.at(0)),
 };

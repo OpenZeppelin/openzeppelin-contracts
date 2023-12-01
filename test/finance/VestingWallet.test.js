@@ -13,7 +13,54 @@ async function fixture() {
 
   const [sender, beneficiary] = await ethers.getSigners();
   const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
-  return { mock, amount, duration, start, sender, beneficiary };
+
+  const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
+  await token.$_mint(mock, amount);
+  await sender.sendTransaction({ to: mock, value: amount });
+
+  const pausableToken = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
+  const beneficiaryMock = await ethers.deployContract('EtherReceiverMock');
+
+  const env = {
+    eth: {
+      checkRelease: async (tx, amount) => {
+        await expect(tx).to.emit(mock, 'EtherReleased').withArgs(amount);
+        await expect(tx).to.changeEtherBalances([mock, beneficiary], [-amount, amount]);
+      },
+      setupFailure: async () => {
+        await beneficiaryMock.setAcceptEther(false);
+        await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
+        return { args: [], error: [mock, 'FailedInnerCall'] };
+      },
+      releasedEvent: 'EtherReleased',
+      argsVerify: [],
+      args: [],
+    },
+    token: {
+      checkRelease: async (tx, amount) => {
+        await expect(tx).to.emit(token, 'Transfer').withArgs(mock.target, beneficiary.address, amount);
+        await expect(tx).to.changeTokenBalances(token, [mock, beneficiary], [-amount, amount]);
+      },
+      setupFailure: async () => {
+        await pausableToken.$_pause();
+        return {
+          args: [ethers.Typed.address(pausableToken)],
+          error: [pausableToken, 'EnforcedPause'],
+        };
+      },
+      releasedEvent: 'ERC20Released',
+      argsVerify: [token.target],
+      args: [ethers.Typed.address(token.target)],
+    },
+  };
+
+  const schedule = Array(64)
+    .fill()
+    .map((_, i) => (BigInt(i) * duration) / 60n + start);
+
+  const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
+
+  return { mock, duration, start, beneficiary, schedule, vestingFn, env };
 }
 
 describe('VestingWallet', function () {
@@ -35,23 +82,9 @@ describe('VestingWallet', function () {
   });
 
   describe('vesting schedule', function () {
-    beforeEach(function () {
-      this.schedule = Array(64)
-        .fill()
-        .map((_, i) => (BigInt(i) * this.duration) / 60n + this.start);
-      this.vestingFn = timestamp => min(this.amount, (this.amount * (timestamp - this.start)) / this.duration);
-    });
-
     describe('Eth vesting', function () {
       beforeEach(async function () {
-        await this.sender.sendTransaction({ to: this.mock, value: this.amount });
-
-        this.getBalance = signer => ethers.provider.getBalance(signer);
-        this.checkRelease = (tx, amount) => expect(tx).to.changeEtherBalances([this.beneficiary], [amount]);
-
-        this.releasedEvent = 'EtherReleased';
-        this.args = [];
-        this.argsVerify = [];
+        Object.assign(this, this.env.eth);
       });
 
       shouldBehaveLikeVesting();
@@ -59,18 +92,7 @@ describe('VestingWallet', function () {
 
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
-        this.token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
-        await this.token.$_mint(this.mock, this.amount);
-
-        this.getBalance = account => this.token.balanceOf(account);
-        this.checkRelease = async (tx, amount) => {
-          await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.beneficiary.address, amount);
-          await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-amount, amount]);
-        };
-
-        this.releasedEvent = 'ERC20Released';
-        this.args = [ethers.Typed.address(this.token.target)];
-        this.argsVerify = [this.token.target];
+        Object.assign(this, this.env.token);
       });
 
       shouldBehaveLikeVesting();
