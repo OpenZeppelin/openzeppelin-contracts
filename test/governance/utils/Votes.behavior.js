@@ -10,7 +10,7 @@ const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
   beforeEach(async function () {
     this.domain = await getDomain(this.votes);
-    [ this.alice, this.bob ] = this.accounts;
+    [this.alice, this.bob] = this.accounts;
   });
 
   shouldBehaveLikeERC6372(mode);
@@ -99,11 +99,17 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           await this.votes.$_mint(this.delegator.address, token);
           const weight = getWeight(token);
 
-          const { r, s, v } = await this.delegator.signTypedData(this.domain, { Delegation: types.Delegation }, {
-            delegatee: this.delegatee.address,
-            nonce,
-            expiry: ethers.MaxUint256,
-          }).then(ethers.Signature.from);
+          const { r, s, v } = await this.delegator
+            .signTypedData(
+              this.domain,
+              { Delegation: types.Delegation },
+              {
+                delegatee: this.delegatee.address,
+                nonce,
+                expiry: ethers.MaxUint256,
+              },
+            )
+            .then(ethers.Signature.from);
 
           expect(await this.votes.delegates(this.delegator.address)).to.equal(ethers.ZeroAddress);
 
@@ -125,11 +131,17 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         });
 
         it('rejects reused signature', async function () {
-          const { r, s, v } = await this.delegator.signTypedData(this.domain, { Delegation: types.Delegation }, {
-            delegatee: this.delegatee.address,
-            nonce,
-            expiry: ethers.MaxUint256,
-          }).then(ethers.Signature.from);
+          const { r, s, v } = await this.delegator
+            .signTypedData(
+              this.domain,
+              { Delegation: types.Delegation },
+              {
+                delegatee: this.delegatee.address,
+                nonce,
+                expiry: ethers.MaxUint256,
+              },
+            )
+            .then(ethers.Signature.from);
 
           await this.votes.delegateBySig(this.delegatee, nonce, ethers.MaxUint256, v, r, s);
 
@@ -139,11 +151,17 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         });
 
         it('rejects bad delegatee', async function () {
-          const { r, s, v } = await this.delegator.signTypedData(this.domain, { Delegation: types.Delegation }, {
-            delegatee: this.delegatee.address,
-            nonce,
-            expiry: ethers.MaxUint256,
-          }).then(ethers.Signature.from);
+          const { r, s, v } = await this.delegator
+            .signTypedData(
+              this.domain,
+              { Delegation: types.Delegation },
+              {
+                delegatee: this.delegatee.address,
+                nonce,
+                expiry: ethers.MaxUint256,
+              },
+            )
+            .then(ethers.Signature.from);
 
           const tx = await this.votes.delegateBySig(this.other, nonce, ethers.MaxUint256, v, r, s);
           const receipt = await tx.wait();
@@ -158,11 +176,17 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         });
 
         it('rejects bad nonce', async function () {
-          const { r, s, v } = await this.delegator.signTypedData(this.domain, { Delegation: types.Delegation }, {
-            delegatee: this.delegatee.address,
-            nonce: nonce + 1n,
-            expiry: ethers.MaxUint256,
-          }).then(ethers.Signature.from);
+          const { r, s, v } = await this.delegator
+            .signTypedData(
+              this.domain,
+              { Delegation: types.Delegation },
+              {
+                delegatee: this.delegatee.address,
+                nonce: nonce + 1n,
+                expiry: ethers.MaxUint256,
+              },
+            )
+            .then(ethers.Signature.from);
 
           await expect(this.votes.delegateBySig(this.delegatee, nonce + 1n, ethers.MaxUint256, v, r, s))
             .to.be.revertedWithCustomError(this.votes, 'InvalidAccountNonce')
@@ -171,11 +195,17 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         it('rejects expired permit', async function () {
           const expiry = (await time.clock.timestamp()) - 1n;
-          const { r, s, v } = await this.delegator.signTypedData(this.domain, { Delegation: types.Delegation }, {
-            delegatee: this.delegatee.address,
-            nonce,
-            expiry,
-          }).then(ethers.Signature.from);
+          const { r, s, v } = await this.delegator
+            .signTypedData(
+              this.domain,
+              { Delegation: types.Delegation },
+              {
+                delegatee: this.delegatee.address,
+                nonce,
+                expiry,
+              },
+            )
+            .then(ethers.Signature.from);
 
           await expect(this.votes.delegateBySig(this.delegatee, nonce, expiry, v, r, s))
             .to.be.revertedWithCustomError(this.votes, 'VotesExpiredSignature')

@@ -27,7 +27,8 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-const signBallot = account => (contract, message) => getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: types.Ballot }, message));
+const signBallot = account => (contract, message) =>
+  getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: types.Ballot }, message));
 
 async function deployToken(contractName) {
   try {
@@ -88,7 +89,7 @@ describe('Governor', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const { mode, Token } of TOKENS) {
+  for (const { Token, mode } of TOKENS) {
     describe(`using ${Token}`, function () {
       beforeEach(function () {
         // fetch relevant config
