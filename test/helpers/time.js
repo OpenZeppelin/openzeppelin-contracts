@@ -1,5 +1,5 @@
-const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
 const { ethers } = require('hardhat');
+const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
 
 const mapObject = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]));
 

@@ -2,21 +2,15 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { GovernorHelper } = require('../helpers/governance');
+const { Types, getDomain } = require('../helpers/eip712');
 const { bigint: Enums } = require('../helpers/enums');
-const { getDomain } = require('../helpers/eip712');
-const { GovernorHelper, proposalStatesToBitMap } = require('../helpers/governance.new');
 const {
   bigint: { clockFromReceipt },
 } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
-
-const Governor = '$GovernorMock';
-const CallReceiver = 'CallReceiverMock';
-const ERC721 = '$ERC721';
-const ERC1155 = '$ERC1155';
-const ERC1271WalletMock = 'ERC1271WalletMock';
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -45,48 +39,34 @@ async function deployToken(contractName) {
   }
 }
 
-async function tokenPartial(contractName, mode, { owner, receiver, voter1, voter2, voter3, voter4 }) {
-  const token = await deployToken(contractName, [tokenName, tokenSymbol, version]);
-  const mock = await ethers.deployContract(Governor, [
-    name, // name
-    votingDelay, // initialVotingDelay
-    votingPeriod, // initialVotingPeriod
-    0, // initialProposalThreshold
-    token, // tokenAddress
-    10, // quorumNumeratorValue
-  ]);
-  const helperTmp = new GovernorHelper(mock, mode);
-  await owner.sendTransaction({ to: mock, value });
-  await token.$_mint(owner, tokenSupply);
-  await helperTmp.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
-  await helperTmp.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
-  await helperTmp.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
-  await helperTmp.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
-  const helper = helperTmp.setProposal(
-    [
-      {
-        target: receiver.target,
-        data: receiver.interface.encodeFunctionData('mockFunction'),
-        value,
-      },
-    ],
-    '<proposal description>',
-  );
-  return {
-    token,
-    mock,
-    helper,
-    proposal: helper.currentProposal,
-  };
-}
-
 async function fixture() {
   const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
 
-  const receiver = await ethers.deployContract(CallReceiver);
-  const partials = {};
+  const receiver = await ethers.deployContract('CallReceiverMock');
+
+  const configs = {};
   for (const { Token, mode } of TOKENS) {
-    partials[Token] = await tokenPartial(Token, mode, { owner, receiver, voter1, voter2, voter3, voter4 });
+    const token = await deployToken(Token, [tokenName, tokenSymbol, version]);
+    const mock = await ethers.deployContract('$GovernorMock', [
+      name, // name
+      votingDelay, // initialVotingDelay
+      votingPeriod, // initialVotingPeriod
+      0n, // initialProposalThreshold
+      token, // tokenAddress
+      10n, // quorumNumeratorValue
+    ]);
+    const domain = await getDomain(mock);
+
+    await owner.sendTransaction({ to: mock, value });
+    await token.$_mint(owner, tokenSupply);
+
+    const helper = new GovernorHelper(mock, mode);
+    await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
+    await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
+    await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
+    await helper.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
+
+    configs[Token] = { token, mock, domain, helper };
   }
 
   return {
@@ -98,7 +78,7 @@ async function fixture() {
     voter4,
     userEOA,
     receiver,
-    partials,
+    configs,
   };
 }
 
@@ -110,36 +90,44 @@ describe('Governor', function () {
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token}`, function () {
       beforeEach(function () {
-        const partial = this.partials[Token];
-        this.token = partial.token;
-        this.mock = partial.mock;
-        this.helper = partial.helper;
-        this.proposal = partial.proposal;
+        // fetch relevant config
+        Object.assign(this, this.configs[Token]);
+        // initiate fresh proposal
+        this.proposal = this.helper.setProposal(
+          [
+            {
+              target: this.receiver.target,
+              data: this.receiver.interface.encodeFunctionData('mockFunction'),
+              value,
+            },
+          ],
+          '<proposal description>',
+        );
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
       shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
-        expect(await this.mock.name()).to.be.equal(name);
-        expect(await this.mock.token()).to.be.equal(this.token.target);
-        expect(await this.mock.votingDelay()).to.be.equal(votingDelay);
-        expect(await this.mock.votingPeriod()).to.be.equal(votingPeriod);
-        expect(await this.mock.quorum(0)).to.be.equal('0');
-        expect(await this.mock.COUNTING_MODE()).to.be.equal('support=bravo&quorum=for,abstain');
+        expect(await this.mock.name()).to.equal(name);
+        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.votingDelay()).to.equal(votingDelay);
+        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        expect(await this.mock.quorum(0)).to.equal(0n);
+        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo&quorum=for,abstain');
       });
 
       it('nominal workflow', async function () {
         // Before
-        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(ethers.ZeroAddress);
-        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.equal(false);
-        expect(await ethers.provider.getBalance(this.mock)).to.be.equal(value);
-        expect(await ethers.provider.getBalance(this.receiver)).to.be.equal('0');
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.equal(ethers.ZeroAddress);
+        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.false;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.false;
+        expect(await ethers.provider.getBalance(this.mock)).to.equal(value);
+        expect(await ethers.provider.getBalance(this.receiver)).to.equal(0n);
 
-        expect(await this.mock.proposalEta(this.proposal.id)).to.be.equal('0');
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
+        expect(await this.mock.proposalEta(this.proposal.id)).to.equal(0n);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.false;
 
         // Run proposal
         const txPropose = await this.helper.connect(this.proposer).propose();
@@ -185,19 +173,19 @@ describe('Governor', function () {
         await expect(txExecute).to.emit(this.receiver, 'MockFunctionCalled');
 
         // After
-        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(this.proposer.address);
-        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.equal(true);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.equal(true);
-        expect(await ethers.provider.getBalance(this.mock)).to.be.equal(0);
-        expect(await ethers.provider.getBalance(this.receiver)).to.be.equal(value);
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.equal(this.proposer.address);
+        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.true;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.true;
+        expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
+        expect(await ethers.provider.getBalance(this.receiver)).to.equal(value);
 
-        expect(await this.mock.proposalEta(this.proposal.id)).to.be.equal(0);
-        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.equal(false);
+        expect(await this.mock.proposalEta(this.proposal.id)).to.equal(0n);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.false;
       });
 
       it('send ethers', async function () {
-        const helper = this.helper.setProposal(
+        this.helper.setProposal(
           [
             {
               target: this.userEOA.address,
@@ -209,27 +197,17 @@ describe('Governor', function () {
 
         // Run proposal
         await expect(async () => {
-          await helper.propose();
-          await helper.waitForSnapshot();
-          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await helper.waitForDeadline();
-          return helper.execute();
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
+          return this.helper.execute();
         }).to.changeEtherBalances([this.mock, this.userEOA], [-value, value]);
       });
 
       describe('vote with signature', function () {
-        const sign = account => async (contract, message) => {
-          const domain = await getDomain(contract);
-          const types = {
-            Ballot: [
-              { name: 'proposalId', type: 'uint256' },
-              { name: 'support', type: 'uint8' },
-              { name: 'voter', type: 'address' },
-              { name: 'nonce', type: 'uint256' },
-            ],
-          };
-          return account.signTypedData(domain, types, message);
-        };
+        const sign = account => (contract, message) =>
+          getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: Types.Ballot }, message));
 
         it('votes with an EOA signature', async function () {
           await this.token.connect(this.voter1).delegate(this.userEOA);
@@ -254,12 +232,12 @@ describe('Governor', function () {
           await this.helper.execute();
 
           // After
-          expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.equal(true);
-          expect(await this.mock.nonces(this.userEOA)).to.be.equal(nonce + 1n);
+          expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
+          expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
         });
 
         it('votes with a valid EIP-1271 signature', async function () {
-          const wallet = await ethers.deployContract(ERC1271WalletMock, [this.userEOA]);
+          const wallet = await ethers.deployContract('ERC1271WalletMock', [this.userEOA]);
 
           await this.token.connect(this.voter1).delegate(wallet);
 
@@ -282,14 +260,14 @@ describe('Governor', function () {
           await this.helper.execute();
 
           // After
-          expect(await this.mock.hasVoted(this.proposal.id, wallet)).to.be.equal(true);
-          expect(await this.mock.nonces(wallet)).to.be.equal(nonce + 1n);
+          expect(await this.mock.hasVoted(this.proposal.id, wallet)).to.be.true;
+          expect(await this.mock.nonces(wallet)).to.equal(nonce + 1n);
         });
 
         afterEach('no other votes are cast', async function () {
-          expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.equal(false);
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.equal(false);
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.equal(false);
+          expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.false;
         });
       });
 
@@ -326,7 +304,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Pending,
-                proposalStatesToBitMap([Enums.ProposalState.Active]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Active]),
               );
           });
 
@@ -356,7 +334,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Defeated,
-                proposalStatesToBitMap([Enums.ProposalState.Active]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Active]),
               );
           });
         });
@@ -449,7 +427,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Active,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
 
@@ -462,7 +440,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Active,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
 
@@ -475,12 +453,12 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Active,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
 
           it('if receiver revert without reason', async function () {
-            const helper = this.helper.setProposal(
+            this.helper.setProposal(
               [
                 {
                   target: this.receiver.target,
@@ -490,15 +468,15 @@ describe('Governor', function () {
               '<proposal description>',
             );
 
-            await helper.propose();
-            await helper.waitForSnapshot();
-            await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-            await helper.waitForDeadline();
-            await expect(helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await this.helper.waitForDeadline();
+            await expect(this.helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
           });
 
           it('if receiver revert with reason', async function () {
-            const helper = this.helper.setProposal(
+            this.helper.setProposal(
               [
                 {
                   target: this.receiver.target,
@@ -508,11 +486,11 @@ describe('Governor', function () {
               '<proposal description>',
             );
 
-            await helper.propose();
-            await helper.waitForSnapshot();
-            await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-            await helper.waitForDeadline();
-            await expect(helper.execute()).to.be.revertedWith('CallReceiverMock: reverting');
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await this.helper.waitForDeadline();
+            await expect(this.helper.execute()).to.be.revertedWith('CallReceiverMock: reverting');
           });
 
           it('if proposal was already executed', async function () {
@@ -526,7 +504,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Executed,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
         });
@@ -541,19 +519,19 @@ describe('Governor', function () {
 
         it('Pending & Active', async function () {
           await this.helper.propose();
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Pending);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Pending);
           await this.helper.waitForSnapshot();
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Pending);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Pending);
           await this.helper.waitForSnapshot(1n);
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Active);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
         });
 
         it('Defeated', async function () {
           await this.helper.propose();
           await this.helper.waitForDeadline();
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Active);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
           await this.helper.waitForDeadline(1n);
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Defeated);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Defeated);
         });
 
         it('Succeeded', async function () {
@@ -561,9 +539,9 @@ describe('Governor', function () {
           await this.helper.waitForSnapshot();
           await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await this.helper.waitForDeadline();
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Active);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
           await this.helper.waitForDeadline(1n);
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Succeeded);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Succeeded);
         });
 
         it('Executed', async function () {
@@ -572,7 +550,7 @@ describe('Governor', function () {
           await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await this.helper.waitForDeadline();
           await this.helper.execute();
-          expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Executed);
+          expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Executed);
         });
       });
 
@@ -588,7 +566,7 @@ describe('Governor', function () {
             await this.helper.propose();
 
             await this.helper.cancel('internal');
-            expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Canceled);
+            expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Canceled);
 
             await this.helper.waitForSnapshot();
             await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
@@ -596,7 +574,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Canceled,
-                proposalStatesToBitMap([Enums.ProposalState.Active]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Active]),
               );
           });
 
@@ -606,7 +584,7 @@ describe('Governor', function () {
             await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
 
             await this.helper.cancel('internal');
-            expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Canceled);
+            expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Canceled);
 
             await this.helper.waitForDeadline();
             await expect(this.helper.execute())
@@ -614,7 +592,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Canceled,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
 
@@ -625,14 +603,14 @@ describe('Governor', function () {
             await this.helper.waitForDeadline();
 
             await this.helper.cancel('internal');
-            expect(await this.mock.state(this.proposal.id)).to.be.equal(Enums.ProposalState.Canceled);
+            expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Canceled);
 
             await expect(this.helper.execute())
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Canceled,
-                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
               );
           });
 
@@ -648,7 +626,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Executed,
-                proposalStatesToBitMap(
+                GovernorHelper.proposalStatesToBitMap(
                   [Enums.ProposalState.Canceled, Enums.ProposalState.Expired, Enums.ProposalState.Executed],
                   { inverted: true },
                 ),
@@ -686,7 +664,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Active,
-                proposalStatesToBitMap([Enums.ProposalState.Pending]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Pending]),
               );
           });
 
@@ -700,7 +678,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Active,
-                proposalStatesToBitMap([Enums.ProposalState.Pending]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Pending]),
               );
           });
 
@@ -715,7 +693,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Succeeded,
-                proposalStatesToBitMap([Enums.ProposalState.Pending]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Pending]),
               );
           });
 
@@ -731,7 +709,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 Enums.ProposalState.Executed,
-                proposalStatesToBitMap([Enums.ProposalState.Pending]),
+                GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Pending]),
               );
           });
         });
@@ -739,28 +717,29 @@ describe('Governor', function () {
 
       describe('proposal length', function () {
         it('empty', async function () {
-          const helper = this.helper.setProposal([], '<proposal description>');
-          await expect(helper.propose())
+          this.helper.setProposal([], '<proposal description>');
+
+          await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
             .withArgs(0, 0, 0);
         });
 
         it('mismatch #1', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             {
               targets: [],
-              values: [ethers.parseEther('0')],
+              values: [0n],
               data: [this.receiver.interface.encodeFunctionData('mockFunction')],
             },
             '<proposal description>',
           );
-          await expect(helper.propose())
+          await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
             .withArgs(0, 1, 1);
         });
 
         it('mismatch #2', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             {
               targets: [this.receiver.target],
               values: [],
@@ -768,21 +747,21 @@ describe('Governor', function () {
             },
             '<proposal description>',
           );
-          await expect(helper.propose())
+          await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
             .withArgs(1, 1, 0);
         });
 
         it('mismatch #3', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             {
               targets: [this.receiver.target],
-              values: [ethers.parseEther('0')],
+              values: [0n],
               data: [],
             },
             '<proposal description>',
           );
-          await expect(helper.propose())
+          await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
             .withArgs(1, 0, 1);
         });
@@ -792,6 +771,7 @@ describe('Governor', function () {
         const shouldPropose = () => {
           it('proposer can propose', async function () {
             const txPropose = await this.helper.connect(this.proposer).propose();
+
             await expect(txPropose)
               .to.emit(this.mock, 'ProposalCreated')
               .withArgs(
@@ -809,6 +789,7 @@ describe('Governor', function () {
 
           it('someone else can propose', async function () {
             const txPropose = await this.helper.connect(this.voter1).propose();
+
             await expect(txPropose)
               .to.emit(this.mock, 'ProposalCreated')
               .withArgs(
@@ -832,7 +813,7 @@ describe('Governor', function () {
 
           describe('with different suffix', function () {
             beforeEach(function () {
-              this.helper = this.helper.setProposal(
+              this.proposal = this.helper.setProposal(
                 [
                   {
                     target: this.receiver.target,
@@ -842,7 +823,6 @@ describe('Governor', function () {
                 ],
                 `<proposal description>#wrong-suffix=${this.proposer}`,
               );
-              this.proposal = this.helper.currentProposal;
             });
 
             shouldPropose();
@@ -850,7 +830,7 @@ describe('Governor', function () {
 
           describe('with proposer suffix but bad address part', function () {
             beforeEach(function () {
-              this.helper = this.helper.setProposal(
+              this.proposal = this.helper.setProposal(
                 [
                   {
                     target: this.receiver.target,
@@ -860,7 +840,6 @@ describe('Governor', function () {
                 ],
                 `<proposal description>#proposer=0x3C44CdDdB6a900fa2b585dd299e03d12FA429XYZ`, // XYZ are not a valid hex char
               );
-              this.proposal = this.helper.currentProposal;
             });
 
             shouldPropose();
@@ -869,7 +848,7 @@ describe('Governor', function () {
 
         describe('with protection via proposer suffix', function () {
           beforeEach(function () {
-            this.helper = this.helper.setProposal(
+            this.proposal = this.helper.setProposal(
               [
                 {
                   target: this.receiver.target,
@@ -879,7 +858,6 @@ describe('Governor', function () {
               ],
               `<proposal description>#proposer=${this.proposer}`,
             );
-            this.proposal = this.helper.currentProposal;
           });
 
           shouldPropose();
@@ -888,68 +866,69 @@ describe('Governor', function () {
 
       describe('onlyGovernance updates', function () {
         it('setVotingDelay is protected', async function () {
-          await expect(this.mock.connect(this.owner).setVotingDelay(0))
+          await expect(this.mock.connect(this.owner).setVotingDelay(0n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
             .withArgs(this.owner.address);
         });
 
         it('setVotingPeriod is protected', async function () {
-          await expect(this.mock.connect(this.owner).setVotingPeriod(32))
+          await expect(this.mock.connect(this.owner).setVotingPeriod(32n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
             .withArgs(this.owner.address);
         });
 
         it('setProposalThreshold is protected', async function () {
-          await expect(this.mock.connect(this.owner).setProposalThreshold('1000000000000000000'))
+          await expect(this.mock.connect(this.owner).setProposalThreshold(1000000000000000000n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
             .withArgs(this.owner.address);
         });
 
         it('can setVotingDelay through governance', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setVotingDelay', [0]),
+                data: this.mock.interface.encodeFunctionData('setVotingDelay', [0n]),
               },
             ],
             '<proposal description>',
           );
 
-          await helper.propose();
-          await helper.waitForSnapshot();
-          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await helper.waitForDeadline();
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
 
-          await expect(helper.execute()).to.emit(this.mock, 'VotingDelaySet').withArgs('4', '0');
+          await expect(this.helper.execute()).to.emit(this.mock, 'VotingDelaySet').withArgs(4n, 0n);
 
-          expect(await this.mock.votingDelay()).to.be.equal('0');
+          expect(await this.mock.votingDelay()).to.equal(0n);
         });
 
         it('can setVotingPeriod through governance', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [32]),
+                data: this.mock.interface.encodeFunctionData('setVotingPeriod', [32n]),
               },
             ],
             '<proposal description>',
           );
 
-          await helper.propose();
-          await helper.waitForSnapshot();
-          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await helper.waitForDeadline();
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
 
-          await expect(helper.execute()).to.emit(this.mock, 'VotingPeriodSet').withArgs('16', '32');
+          await expect(this.helper.execute()).to.emit(this.mock, 'VotingPeriodSet').withArgs(16n, 32n);
 
-          expect(await this.mock.votingPeriod()).to.be.equal('32');
+          expect(await this.mock.votingPeriod()).to.equal(32n);
         });
 
         it('cannot setVotingPeriod to 0 through governance', async function () {
-          const votingPeriod = 0;
-          const helper = this.helper.setProposal(
+          const votingPeriod = 0n;
+
+          this.helper.setProposal(
             [
               {
                 target: this.mock.target,
@@ -959,48 +938,46 @@ describe('Governor', function () {
             '<proposal description>',
           );
 
-          await helper.propose();
-          await helper.waitForSnapshot();
-          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await helper.waitForDeadline();
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
 
-          await expect(helper.execute())
+          await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVotingPeriod')
             .withArgs(votingPeriod);
         });
 
         it('can setProposalThreshold to 0 through governance', async function () {
-          const helper = this.helper.setProposal(
+          this.helper.setProposal(
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setProposalThreshold', ['1000000000000000000']),
+                data: this.mock.interface.encodeFunctionData('setProposalThreshold', [1000000000000000000n]),
               },
             ],
             '<proposal description>',
           );
 
-          await helper.propose();
-          await helper.waitForSnapshot();
-          await helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-          await helper.waitForDeadline();
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.waitForDeadline();
 
-          await expect(helper.execute())
+          await expect(this.helper.execute())
             .to.emit(this.mock, 'ProposalThresholdSet')
-            .withArgs('0', '1000000000000000000');
+            .withArgs(0n, 1000000000000000000n);
 
-          expect(await this.mock.proposalThreshold()).to.be.equal('1000000000000000000');
+          expect(await this.mock.proposalThreshold()).to.equal(1000000000000000000n);
         });
       });
 
       describe('safe receive', function () {
         describe('ERC721', function () {
-          const name = 'Non Fungible Token';
-          const symbol = 'NFT';
-          const tokenId = 1;
+          const tokenId = 1n;
 
           beforeEach(async function () {
-            this.token = await ethers.deployContract(ERC721, [name, symbol]);
+            this.token = await ethers.deployContract('$ERC721', ['Non Fungible Token', 'NFT']);
             await this.token.$_mint(this.owner, tokenId);
           });
 
@@ -1010,15 +987,14 @@ describe('Governor', function () {
         });
 
         describe('ERC1155', function () {
-          const uri = 'https://token-cdn-domain/{id}.json';
           const tokenIds = {
-            1: 1000,
-            2: 2000,
-            3: 3000,
+            1: 1000n,
+            2: 2000n,
+            3: 3000n,
           };
 
           beforeEach(async function () {
-            this.token = await ethers.deployContract(ERC1155, [uri]);
+            this.token = await ethers.deployContract('$ERC1155', ['https://token-cdn-domain/{id}.json']);
             await this.token.$_mintBatch(this.owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
           });
 
