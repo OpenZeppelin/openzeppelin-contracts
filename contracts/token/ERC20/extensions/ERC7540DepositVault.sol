@@ -34,16 +34,33 @@ abstract contract ERC7540DepositVault {
     }
 
     /**
-     * Need to add logic here
+     * @dev Finalizes a deposit request by minting shares to the receiver.
+     * The assets must already be transferred to the vault.
      */
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
-        return 0;
+        uint256 requestedAssets = pendingDepositRequest[receiver];
+        require(requestedAssets >= assets, "ERC7540: Deposit exceeds requested amount");
+        
+        // Calculate the number of shares to mint
+        uint256 shares = convertToShares(assets);
+        
+        // Mint the shares to the receiver
+        _mint(receiver, shares);
+
+        // Update the pending deposit request
+        pendingDepositRequest[receiver] -= assets;
+        
+        return shares;
     }
 
-    // Need to add logic here
-    function mint(uint256 shares, address receiver) public virtual returns (uint256) {
-        return 0;
+    /**
+     * @dev Mint function to handle asynchronous deposit requests.
+     * This function should revert as minting shares directly does not align with the asynchronous deposit workflow.
+     */
+    function mint(uint256, address) public override returns (uint256) {
+        revert("ERC7540: Direct minting not allowed in asynchronous deposit vaults");
     }
+
 
     /**
      * @dev Override previewDeposit to always revert.

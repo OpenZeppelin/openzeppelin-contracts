@@ -34,14 +34,29 @@ abstract contract ERC7540RedeemVault {
         emit RedeemRequest(msg.sender, operator, owner, shares);
     }
 
-    // Need to add logic here
-    function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256) {
-        return 0;
+    /**
+     * @dev Finalizes a redemption request by transferring assets to the receiver.
+     * Shares should already be locked in the vault.
+     */
+    function redeem(uint256 shares, address receiver, address owner) public override returns (uint256) {
+        uint256 requestedShares = pendingRedeemRequest[owner];
+        require(requestedShares >= shares, "ERC7540: Redeem exceeds requested amount");
+        
+        // Calculate the amount of assets to return
+        uint256 assets = convertToAssets(shares);
+
+        // Transfer assets to the receiver
+        _withdraw(owner, receiver, assets, shares);
+
+        // Update the pending redeem request
+        pendingRedeemRequest[owner] -= shares;
+
+        return assets;
     }
 
     // Need to add logic here
     function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256) {
-        return 0;
+        revert("ERC7540: Direct withdrawal not allowed in asynchronous redeem vaults");
     }
 
     /**
