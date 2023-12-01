@@ -2,7 +2,8 @@ require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 const { clock } = require('../../helpers/time');
-const { product, max } = require('../../helpers/iterate');
+const { product } = require('../../helpers/iterate');
+const { max } = require('../../helpers/math');
 
 const Time = artifacts.require('$Time');
 
