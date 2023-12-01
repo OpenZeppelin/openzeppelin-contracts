@@ -9,5 +9,5 @@ module.exports = {
   max,
   sum,
   // deprecated: BN version of sum
-  BNsum: (...args) => args.slice(1).reduce((x, y) => x.add(y), x.at(0)),
+  BNsum: (...args) => args.slice(1).reduce((x, y) => x.add(y), args.at(0)),
 };
