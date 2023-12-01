@@ -1,7 +1,8 @@
 const { ethers } = require('hardhat');
 const { forward } = require('./time');
 const { ProposalState } = require('./enums');
-const { unique /*zip*/ } = require('./iterate');
+const { selector } = require('./methods');
+const { unique, zip } = require('./iterate');
 
 const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
@@ -148,12 +149,10 @@ class GovernorHelper {
       ({ targets, values, signatures = [], data } = actions);
     }
 
-    // TODO
-    const fulldata = undefined;
-    // zip(
-    //   signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)),
-    //   data,
-    // ).map(hexs => concatHex(...hexs));
+    const fulldata = zip(
+      signatures.map(s => (s ? selector(s) : '0x')),
+      data,
+    ).map(ethers.concat);
 
     const descriptionHash = ethers.id(description);
 
@@ -161,7 +160,7 @@ class GovernorHelper {
     const shortProposal = [targets, values, data, descriptionHash];
 
     // full version for proposing
-    const fullProposal = [targets, values, data, description];
+    const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
 
     // proposal id
     const id = ethers.keccak256(

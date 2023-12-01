@@ -14,7 +14,7 @@ const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInte
 const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
 
 const MINDELAY = time.duration.days(1);
-const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
+const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
 const PROPOSER_ROLE = ethers.id('PROPOSER_ROLE');
 const EXECUTOR_ROLE = ethers.id('EXECUTOR_ROLE');
 const CANCELLER_ROLE = ethers.id('CANCELLER_ROLE');
