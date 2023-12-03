@@ -34,7 +34,7 @@ async function fixture() {
   };
 }
 
-describe.only('ERC721Wrapper', function () {
+describe('ERC721Wrapper', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
