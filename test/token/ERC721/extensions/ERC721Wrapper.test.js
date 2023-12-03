@@ -34,7 +34,7 @@ async function fixture() {
   };
 }
 
-describe('ERC721Wrapper', function () {
+describe.only('ERC721Wrapper', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -55,6 +55,12 @@ describe('ERC721Wrapper', function () {
     beforeEach(function () {
       this.deposits = async (receiver, tokenIds) => {
         const tx = await this.token.connect(this.owner).depositFor(receiver, tokenIds);
+        await expect(tx).to.changeTokenBalances(
+          this.underlying,
+          [this.owner, this.token],
+          [-tokenIds.length, tokenIds.length],
+        );
+        await expect(tx).to.changeTokenBalance(this.token, receiver, tokenIds.length);
         for (const tokenId of tokenIds) {
           await expect(tx)
             .to.emit(this.underlying, 'Transfer')
@@ -100,6 +106,12 @@ describe('ERC721Wrapper', function () {
 
       this.witdraw = async (operator, receiver, tokenIds) => {
         const tx = this.token.connect(operator).withdrawTo(receiver, tokenIds);
+        await expect(tx).to.changeTokenBalances(
+          this.underlying,
+          [this.token, receiver],
+          [-tokenIds.length, tokenIds.length],
+        );
+        await expect(tx).to.changeTokenBalance(this.token, this.owner, -tokenIds.length);
         for (const tokenId of tokenIds) {
           await expect(tx)
             .to.emit(this.underlying, 'Transfer')
@@ -149,7 +161,12 @@ describe('ERC721Wrapper', function () {
     });
 
     it('mints a token to from', async function () {
-      await expect(this.underlying.connect(this.owner).safeTransferFrom(this.owner, this.token, this.firstTokenId))
+      const tx = await this.underlying.connect(this.owner).safeTransferFrom(this.owner, this.token, this.firstTokenId);
+      await expect(tx).to.changeTokenBalances(this.underlying, [this.owner, this.token], [-1, 1]);
+      await expect(tx).to.changeTokenBalance(this.token, this.owner, 1);
+      await expect(tx)
+        .to.emit(this.underlying, 'Transfer')
+        .withArgs(this.owner.address, this.token.target, this.firstTokenId)
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.owner.address, this.firstTokenId);
     });
