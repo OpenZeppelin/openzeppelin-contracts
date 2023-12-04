@@ -70,7 +70,7 @@ contract('ERC721Consecutive', function (accounts) {
 
         it('balance & voting power are set', async function () {
           for (const account of accounts) {
-            const balance = sum(...batches.filter(({ receiver }) => receiver === account).map(({ amount }) => amount));
+            const balance = sum(...batches.filter(({ receiver }) => receiver === account).map(({ amount }) => amount)) ?? web3.utils.toBN(0);
 
             expect(await this.token.balanceOf(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
 
