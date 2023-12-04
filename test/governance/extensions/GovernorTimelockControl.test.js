@@ -111,7 +111,7 @@ describe('GovernorTimelockControl', function () {
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0n)).to.equal(0n);
 
-        expect(await this.mock.timelock()).to.equal(this.timelock);
+        expect(await this.mock.timelock()).to.equal(this.timelock.target);
       });
 
       it('nominal', async function () {

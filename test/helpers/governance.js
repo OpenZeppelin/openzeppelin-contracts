@@ -149,10 +149,7 @@ class GovernorHelper {
       ({ targets, values, signatures = [], data } = actions);
     }
 
-    const fulldata = zip(
-      signatures.map(s => (s ? selector(s) : '0x')),
-      data,
-    ).map(ethers.concat);
+    const fulldata = zip(signatures, data).map(([ s, d ]) => ethers.concat([ s ? selector(s) : '0x', d ]));
 
     const descriptionHash = ethers.id(description);
 
