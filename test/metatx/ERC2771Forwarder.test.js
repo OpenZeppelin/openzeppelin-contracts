@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain } = require('../helpers/eip712');
 const { bigint: time } = require('../helpers/time');
-const { bigintSum: sum } = require('../helpers/math');
+const { sum } = require('../helpers/math');
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
