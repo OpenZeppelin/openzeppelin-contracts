@@ -82,10 +82,10 @@ contract MyContract {
     using SignedMath for int256;
 
     function tryOperations(uint256 a, uint256 b) internal pure {
-        (bool overflowsAdd, uint256 resultAdd) = x.tryAdd(y);
-        (bool overflowsSub, uint256 resultSub) = x.trySub(y);
-        (bool overflowsMul, uint256 resultMul) = x.tryMul(y);
-        (bool overflowsDiv, uint256 resultDiv) = x.tryDiv(y);
+        (bool succededAdd, uint256 resultAdd) = x.tryAdd(y);
+        (bool succededSub, uint256 resultSub) = x.trySub(y);
+        (bool succededMul, uint256 resultMul) = x.tryMul(y);
+        (bool succededDiv, uint256 resultDiv) = x.tryDiv(y);
         // ...
     }
 
