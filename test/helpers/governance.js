@@ -141,7 +141,7 @@ class GovernorHelper {
     if (Array.isArray(actions)) {
       useCompatibilityInterface = actions.some(a => 'signature' in a);
       targets = actions.map(a => a.target);
-      values = actions.map(a => a.value || '0');
+      values = actions.map(a => a.value || 0n);
       signatures = actions.map(a => a.signature || '');
       data = actions.map(a => a.data || '0x');
     } else {
