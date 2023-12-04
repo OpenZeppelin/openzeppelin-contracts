@@ -10,13 +10,21 @@ const { max } = require('../../helpers/math');
 const { selector } = require('../../helpers/methods');
 const { hashOperation } = require('../../helpers/access-manager');
 
+function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
+  return {
+    id: hashOperation(sender, target, data),
+    operation: { target, value, data },
+    selector: data.slice(0, 10),
+  };
+}
+
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
 const name = 'OZ-Governor';
-const version = 1n;
+const version = '1';
 const tokenName = 'MockToken';
 const tokenSymbol = 'MTKN';
 const tokenSupply = ethers.parseEther('100');
@@ -57,14 +65,6 @@ async function fixture() {
   }
 
   return { admin, voter1, voter2, voter3, voter4, other, manager, receiver, configs };
-}
-
-function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
-  return {
-    id: hashOperation(sender, target, data),
-    operation: { target, value, data },
-    selector: data.slice(0, 10),
-  };
 }
 
 describe('GovernorTimelockAccess', function () {
