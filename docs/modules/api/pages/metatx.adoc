@@ -4,6 +4,7 @@
 :xref-ERC2771Context-isTrustedForwarder-address-: xref:metatx.adoc#ERC2771Context-isTrustedForwarder-address-
 :xref-ERC2771Context-_msgSender--: xref:metatx.adoc#ERC2771Context-_msgSender--
 :xref-ERC2771Context-_msgData--: xref:metatx.adoc#ERC2771Context-_msgData--
+:xref-ERC2771Context-_contextSuffixLength--: xref:metatx.adoc#ERC2771Context-_contextSuffixLength--
 :ERC2771Context: pass:normal[xref:metatx.adoc#ERC2771Context[`ERC2771Context`]]
 :xref-ERC2771Forwarder-constructor-string-: xref:metatx.adoc#ERC2771Forwarder-constructor-string-
 :xref-ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-
@@ -41,6 +42,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 :isTrustedForwarder: pass:normal[xref:#ERC2771Context-isTrustedForwarder-address-[`++isTrustedForwarder++`]]
 :_msgSender: pass:normal[xref:#ERC2771Context-_msgSender--[`++_msgSender++`]]
 :_msgData: pass:normal[xref:#ERC2771Context-_msgData--[`++_msgData++`]]
+:_contextSuffixLength: pass:normal[xref:#ERC2771Context-_contextSuffixLength--[`++_contextSuffixLength++`]]
 
 [.contract]
 [[ERC2771Context]]
@@ -59,6 +61,10 @@ specification adding the address size in bytes (20) to the calldata size. An exa
 behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`
 function only accessible if `msg.data.length == 0`.
 
+WARNING: The usage of `delegatecall` in this contract is dangerous and may result in context corruption.
+Any forwarded request to this contract triggering a `delegatecall` to itself will result in an invalid {_msgSender}
+recovery.
+
 [.contract-index]
 .Functions
 --
@@ -67,6 +73,7 @@ function only accessible if `msg.data.length == 0`.
 * {xref-ERC2771Context-isTrustedForwarder-address-}[`++isTrustedForwarder(forwarder)++`]
 * {xref-ERC2771Context-_msgSender--}[`++_msgSender()++`]
 * {xref-ERC2771Context-_msgData--}[`++_msgData()++`]
+* {xref-ERC2771Context-_contextSuffixLength--}[`++_contextSuffixLength()++`]
 
 --
 
@@ -88,7 +95,7 @@ Indicates whether any particular address is the trusted forwarder.
 
 [.contract-item]
 [[ERC2771Context-_msgSender--]]
-==== `[.contract-item-name]#++_msgSender++#++() → address sender++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_msgSender++#++() → address++` [.item-kind]#internal#
 
 Override for `msg.sender`. Defaults to the original `msg.sender` whenever
 a call is not performed by the trusted forwarder or the calldata length is less than
@@ -101,6 +108,12 @@ a call is not performed by the trusted forwarder or the calldata length is less 
 Override for `msg.data`. Defaults to the original `msg.data` whenever
 a call is not performed by the trusted forwarder or the calldata length is less than
 20 bytes (an address length).
+
+[.contract-item]
+[[ERC2771Context-_contextSuffixLength--]]
+==== `[.contract-item-name]#++_contextSuffixLength++#++() → uint256++` [.item-kind]#internal#
+
+ERC-2771 specifies the context as being a single address (20 bytes).
 
 == Utils
 

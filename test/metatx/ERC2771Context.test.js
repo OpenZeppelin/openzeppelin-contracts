@@ -13,7 +13,7 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 contract('ERC2771Context', function (accounts) {
-  const [, trustedForwarder] = accounts;
+  const [, trustedForwarder, other] = accounts;
 
   beforeEach(async function () {
     this.forwarder = await ERC2771Forwarder.new('ERC2771Forwarder');
@@ -130,5 +130,59 @@ contract('ERC2771Context', function (accounts) {
       const data = recipient.contract.methods.msgDataShort().encodeABI();
       await expectEvent(receipt, 'DataShort', { data });
     });
+  });
+
+  it('multicall poison attack', async function () {
+    const attacker = Wallet.generate();
+    const attackerAddress = attacker.getChecksumAddressString();
+    const nonce = await this.forwarder.nonces(attackerAddress);
+
+    const msgSenderCall = web3.eth.abi.encodeFunctionCall(
+      {
+        name: 'msgSender',
+        type: 'function',
+        inputs: [],
+      },
+      [],
+    );
+
+    const data = web3.eth.abi.encodeFunctionCall(
+      {
+        name: 'multicall',
+        type: 'function',
+        inputs: [
+          {
+            internalType: 'bytes[]',
+            name: 'data',
+            type: 'bytes[]',
+          },
+        ],
+      },
+      [[web3.utils.encodePacked({ value: msgSenderCall, type: 'bytes' }, { value: other, type: 'address' })]],
+    );
+
+    const req = {
+      from: attackerAddress,
+      to: this.recipient.address,
+      value: '0',
+      gas: '100000',
+      data,
+      nonce: Number(nonce),
+      deadline: MAX_UINT48,
+    };
+
+    req.signature = await ethSigUtil.signTypedMessage(attacker.getPrivateKey(), {
+      data: {
+        types: this.types,
+        domain: this.domain,
+        primaryType: 'ForwardRequest',
+        message: req,
+      },
+    });
+
+    expect(await this.forwarder.verify(req)).to.equal(true);
+
+    const receipt = await this.forwarder.execute(req);
+    await expectEvent.inTransaction(receipt.tx, ERC2771ContextMock, 'Sender', { sender: attackerAddress });
   });
 });
