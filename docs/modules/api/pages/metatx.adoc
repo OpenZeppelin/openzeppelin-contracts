@@ -3,6 +3,7 @@
 :xref-ERC2771Context-isTrustedForwarder-address-: xref:metatx.adoc#ERC2771Context-isTrustedForwarder-address-
 :xref-ERC2771Context-_msgSender--: xref:metatx.adoc#ERC2771Context-_msgSender--
 :xref-ERC2771Context-_msgData--: xref:metatx.adoc#ERC2771Context-_msgData--
+:xref-ERC2771Context-_contextSuffixLength--: xref:metatx.adoc#ERC2771Context-_contextSuffixLength--
 :ERC2771Context: pass:normal[xref:metatx.adoc#ERC2771Context[`ERC2771Context`]]
 :xref-MinimalForwarder-constructor--: xref:metatx.adoc#MinimalForwarder-constructor--
 :xref-MinimalForwarder-getNonce-address-: xref:metatx.adoc#MinimalForwarder-getNonce-address-
@@ -23,6 +24,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 :isTrustedForwarder: pass:normal[xref:#ERC2771Context-isTrustedForwarder-address-[`++isTrustedForwarder++`]]
 :_msgSender: pass:normal[xref:#ERC2771Context-_msgSender--[`++_msgSender++`]]
 :_msgData: pass:normal[xref:#ERC2771Context-_msgData--[`++_msgData++`]]
+:_contextSuffixLength: pass:normal[xref:#ERC2771Context-_contextSuffixLength--[`++_contextSuffixLength++`]]
 
 [.contract]
 [[ERC2771Context]]
@@ -35,6 +37,10 @@ import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 
 Context variant with ERC2771 support.
 
+WARNING: The usage of `delegatecall` in this contract is dangerous and may result in context corruption.
+Any forwarded request to this contract triggering a `delegatecall` to itself will result in an invalid {_msgSender}
+recovery.
+
 [.contract-index]
 .Functions
 --
@@ -42,6 +48,7 @@ Context variant with ERC2771 support.
 * {xref-ERC2771Context-isTrustedForwarder-address-}[`++isTrustedForwarder(forwarder)++`]
 * {xref-ERC2771Context-_msgSender--}[`++_msgSender()++`]
 * {xref-ERC2771Context-_msgData--}[`++_msgData()++`]
+* {xref-ERC2771Context-_contextSuffixLength--}[`++_contextSuffixLength()++`]
 
 --
 
@@ -55,11 +62,17 @@ Context variant with ERC2771 support.
 
 [.contract-item]
 [[ERC2771Context-_msgSender--]]
-==== `[.contract-item-name]#++_msgSender++#++() → address sender++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_msgSender++#++() → address++` [.item-kind]#internal#
 
 [.contract-item]
 [[ERC2771Context-_msgData--]]
 ==== `[.contract-item-name]#++_msgData++#++() → bytes++` [.item-kind]#internal#
+
+[.contract-item]
+[[ERC2771Context-_contextSuffixLength--]]
+==== `[.contract-item-name]#++_contextSuffixLength++#++() → uint256++` [.item-kind]#internal#
+
+ERC-2771 specifies the context as being a single address (20 bytes).
 
 == Utils
 
