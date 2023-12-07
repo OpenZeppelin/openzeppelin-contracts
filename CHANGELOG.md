@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 5.0.1 (2023-12-07)
+
+- `ERC2771Context` and `Context`: Introduce a `_contextPrefixLength()` getter, used to trim extra information appended to `msg.data`.
+- `Multicall`: Make aware of non-canonical context (i.e. `msg.sender` is not `_msgSender()`), allowing compatibility with `ERC2771Context`.
+
 ## 5.0.0 (2023-10-05)
 
 ### Additions Summary
