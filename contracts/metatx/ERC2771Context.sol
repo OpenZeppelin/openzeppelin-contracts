@@ -7,6 +7,10 @@ import "../utils/Context.sol";
 
 /**
  * @dev Context variant with ERC2771 support.
+ *
+ * WARNING: The usage of `delegatecall` in this contract is dangerous and may result in context corruption.
+ * Any forwarded request to this contract triggering a `delegatecall` to itself will result in an invalid {_msgSender}
+ * recovery.
  */
 abstract contract ERC2771Context is Context {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -21,23 +25,30 @@ abstract contract ERC2771Context is Context {
         return forwarder == _trustedForwarder;
     }
 
-    function _msgSender() internal view virtual override returns (address sender) {
-        if (isTrustedForwarder(msg.sender) && msg.data.length >= 20) {
-            // The assembly code is more direct than the Solidity version using `abi.decode`.
-            /// @solidity memory-safe-assembly
-            assembly {
-                sender := shr(96, calldataload(sub(calldatasize(), 20)))
-            }
+    function _msgSender() internal view virtual override returns (address) {
+        uint256 calldataLength = msg.data.length;
+        uint256 contextSuffixLength = _contextSuffixLength();
+        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
+            return address(bytes20(msg.data[calldataLength - contextSuffixLength:]));
         } else {
             return super._msgSender();
         }
     }
 
     function _msgData() internal view virtual override returns (bytes calldata) {
-        if (isTrustedForwarder(msg.sender) && msg.data.length >= 20) {
-            return msg.data[:msg.data.length - 20];
+        uint256 calldataLength = msg.data.length;
+        uint256 contextSuffixLength = _contextSuffixLength();
+        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
+            return msg.data[:calldataLength - contextSuffixLength];
         } else {
             return super._msgData();
         }
+    }
+
+    /**
+     * @dev ERC-2771 specifies the context as being a single address (20 bytes).
+     */
+    function _contextSuffixLength() internal view virtual override returns (uint256) {
+        return 20;
     }
 }
