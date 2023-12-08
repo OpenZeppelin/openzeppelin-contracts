@@ -7,7 +7,7 @@ import {ERC20} from "../ERC20.sol";
 import {Pausable} from "../../../utils/Pausable.sol";
 
 /**
- * @dev ERC20 token with pausable token transfers, minting and burning.
+ * @dev ERC-20 token with pausable token transfers, minting and burning.
  *
  * Useful for scenarios such as preventing trades until the end of an evaluation
  * period, or having an emergency switch for freezing all token transfers in the

@@ -1,10 +1,10 @@
-= Creating ERC20 Supply
+= Creating ERC-20 Supply
 
-In this guide, you will learn how to create an ERC20 token with a custom supply mechanism. We will showcase two idiomatic ways to use OpenZeppelin Contracts for this purpose that you will be able to apply to your smart contract development practice.
+In this guide, you will learn how to create an ERC-20 token with a custom supply mechanism. We will showcase two idiomatic ways to use OpenZeppelin Contracts for this purpose that you will be able to apply to your smart contract development practice.
 
-The standard interface implemented by tokens built on Ethereum is called ERC20, and Contracts includes a widely used implementation of it: the aptly named xref:api:token/ERC20.adoc[`ERC20`] contract. This contract, like the standard itself, is quite simple and bare-bones. In fact, if you try to deploy an instance of `ERC20` as-is it will be quite literally useless... it will have no supply! What use is a token with no supply?
+The standard interface implemented by tokens built on Ethereum is called ERC-20, and Contracts includes a widely used implementation of it: the aptly named xref:api:token/ERC20.adoc[`ERC20`] contract. This contract, like the standard itself, is quite simple and bare-bones. In fact, if you try to deploy an instance of `ERC20` as-is it will be quite literally useless... it will have no supply! What use is a token with no supply?
 
-The way that supply is created is not defined in the ERC20 document. Every token is free to experiment with its own mechanisms, ranging from the most decentralized to the most centralized, from the most naive to the most researched, and more.
+The way that supply is created is not defined in the ERC-20 document. Every token is free to experiment with its own mechanisms, ranging from the most decentralized to the most centralized, from the most naive to the most researched, and more.
 
 [[fixed-supply]]
 == Fixed Supply
@@ -37,7 +37,7 @@ Encapsulating state like this makes it safer to extend contracts. For instance, 
 [[rewarding-miners]]
 == Rewarding Miners
 
-The internal xref:api:token/ERC20.adoc#ERC20-_mint-address-uint256-[`_mint`] function is the key building block that allows us to write ERC20 extensions that implement a supply mechanism.
+The internal xref:api:token/ERC20.adoc#ERC20-_mint-address-uint256-[`_mint`] function is the key building block that allows us to write ERC-20 extensions that implement a supply mechanism.
 
 The mechanism we will implement is a token reward for the miners that produce Ethereum blocks. In Solidity, we can access the address of the current block's miner in the global variable `block.coinbase`. We will mint a token reward to this address whenever someone calls the function `mintMinerReward()` on our token. The mechanism may sound silly, but you never know what kind of dynamic this might result in, and it's worth analyzing and experimenting with!
 
@@ -68,4 +68,4 @@ include::api:example$ERC20WithAutoMinerReward.sol[]
 [[wrapping-up]]
 == Wrapping Up
 
-We've seen how to implement a ERC20 supply mechanism: internally through `_mint`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.
+We've seen how to implement a ERC-20 supply mechanism: internally through `_mint`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.

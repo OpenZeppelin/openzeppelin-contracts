@@ -3,8 +3,10 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
-const { Enum2 } = require('../../../helpers/enums');
-const RevertType = Enum2('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
+const {
+  bigint: { Enum },
+} = require('../../../helpers/enums.js');
+const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
 const name = 'My Token';
 const symbol = 'MTKN';

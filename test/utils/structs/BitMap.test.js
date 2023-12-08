@@ -1,15 +1,19 @@
-const { BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const BitMap = artifacts.require('$BitMaps');
+async function fixture() {
+  const bitmap = await ethers.deployContract('$BitMaps');
+  return { bitmap };
+}
 
-contract('BitMap', function () {
-  const keyA = new BN('7891');
-  const keyB = new BN('451');
-  const keyC = new BN('9592328');
+describe('BitMap', function () {
+  const keyA = 7891n;
+  const keyB = 451n;
+  const keyC = 9592328n;
 
   beforeEach(async function () {
-    this.bitmap = await BitMap.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('starts empty', async function () {
@@ -35,18 +39,18 @@ contract('BitMap', function () {
     });
 
     it('set several consecutive keys', async function () {
-      await this.bitmap.$setTo(0, keyA.addn(0), true);
-      await this.bitmap.$setTo(0, keyA.addn(1), true);
-      await this.bitmap.$setTo(0, keyA.addn(2), true);
-      await this.bitmap.$setTo(0, keyA.addn(3), true);
-      await this.bitmap.$setTo(0, keyA.addn(4), true);
-      await this.bitmap.$setTo(0, keyA.addn(2), false);
-      await this.bitmap.$setTo(0, keyA.addn(4), false);
-      expect(await this.bitmap.$get(0, keyA.addn(0))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(1))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(2))).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA.addn(3))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(4))).to.equal(false);
+      await this.bitmap.$setTo(0, keyA + 0n, true);
+      await this.bitmap.$setTo(0, keyA + 1n, true);
+      await this.bitmap.$setTo(0, keyA + 2n, true);
+      await this.bitmap.$setTo(0, keyA + 3n, true);
+      await this.bitmap.$setTo(0, keyA + 4n, true);
+      await this.bitmap.$setTo(0, keyA + 2n, false);
+      await this.bitmap.$setTo(0, keyA + 4n, false);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
   });
 
@@ -67,14 +71,14 @@ contract('BitMap', function () {
     });
 
     it('adds several consecutive keys', async function () {
-      await this.bitmap.$set(0, keyA.addn(0));
-      await this.bitmap.$set(0, keyA.addn(1));
-      await this.bitmap.$set(0, keyA.addn(3));
-      expect(await this.bitmap.$get(0, keyA.addn(0))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(1))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(2))).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA.addn(3))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(4))).to.equal(false);
+      await this.bitmap.$set(0, keyA + 0n);
+      await this.bitmap.$set(0, keyA + 1n);
+      await this.bitmap.$set(0, keyA + 3n);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
   });
 
@@ -89,15 +93,15 @@ contract('BitMap', function () {
     });
 
     it('removes consecutive added keys', async function () {
-      await this.bitmap.$set(0, keyA.addn(0));
-      await this.bitmap.$set(0, keyA.addn(1));
-      await this.bitmap.$set(0, keyA.addn(3));
-      await this.bitmap.$unset(0, keyA.addn(1));
-      expect(await this.bitmap.$get(0, keyA.addn(0))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(1))).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA.addn(2))).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA.addn(3))).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA.addn(4))).to.equal(false);
+      await this.bitmap.$set(0, keyA + 0n);
+      await this.bitmap.$set(0, keyA + 1n);
+      await this.bitmap.$set(0, keyA + 3n);
+      await this.bitmap.$unset(0, keyA + 1n);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(false);
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
 
     it('adds and removes multiple keys', async function () {

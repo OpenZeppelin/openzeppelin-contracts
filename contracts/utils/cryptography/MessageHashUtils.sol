@@ -9,12 +9,12 @@ import {Strings} from "../Strings.sol";
  * @dev Signature message hash utilities for producing digests to be consumed by {ECDSA} recovery or signing.
  *
  * The library provides methods for generating a hash of a message that conforms to the
- * https://eips.ethereum.org/EIPS/eip-191[EIP 191] and https://eips.ethereum.org/EIPS/eip-712[EIP 712]
+ * https://eips.ethereum.org/EIPS/eip-191[ERC-191] and https://eips.ethereum.org/EIPS/eip-712[EIP 712]
  * specifications.
  */
 library MessageHashUtils {
     /**
-     * @dev Returns the keccak256 digest of an EIP-191 signed data with version
+     * @dev Returns the keccak256 digest of an ERC-191 signed data with version
      * `0x45` (`personal_sign` messages).
      *
      * The digest is calculated by prefixing a bytes32 `messageHash` with
@@ -37,7 +37,7 @@ library MessageHashUtils {
     }
 
     /**
-     * @dev Returns the keccak256 digest of an EIP-191 signed data with version
+     * @dev Returns the keccak256 digest of an ERC-191 signed data with version
      * `0x45` (`personal_sign` messages).
      *
      * The digest is calculated by prefixing an arbitrary `message` with
@@ -52,7 +52,7 @@ library MessageHashUtils {
     }
 
     /**
-     * @dev Returns the keccak256 digest of an EIP-191 signed data with version
+     * @dev Returns the keccak256 digest of an ERC-191 signed data with version
      * `0x00` (data with intended validator).
      *
      * The digest is calculated by prefixing an arbitrary `data` with `"\x19\x00"` and the intended
@@ -65,7 +65,7 @@ library MessageHashUtils {
     }
 
     /**
-     * @dev Returns the keccak256 digest of an EIP-712 typed data (EIP-191 version `0x01`).
+     * @dev Returns the keccak256 digest of an EIP-712 typed data (ERC-191 version `0x01`).
      *
      * The digest is calculated from a `domainSeparator` and a `structHash`, by prefixing them with
      * `\x19\x01` and hashing the result. It corresponds to the hash signed by the

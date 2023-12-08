@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 /**
  * @title ERC1363Spender
  * @dev Interface for any contract that wants to support `approveAndCall`
- * from ERC1363 token contracts.
+ * from ERC-1363 token contracts.
  */
 interface IERC1363Spender {
     /**
