@@ -9,7 +9,7 @@ const { MAX_UINT48 } = require('../helpers/constants');
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 async function fixture() {
-  const [sender] = await ethers.getSigners();
+  const [sender, other] = await ethers.getSigners();
 
   const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
   const forwarderAsSigner = await impersonate(forwarder.target);
@@ -27,7 +27,7 @@ async function fixture() {
     ],
   };
 
-  return { sender, forwarder, forwarderAsSigner, context, domain, types };
+  return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
 
 describe('ERC2771Context', function () {
