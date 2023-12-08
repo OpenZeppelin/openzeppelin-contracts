@@ -3,7 +3,7 @@
 
 ## 4.9.5 (2023-12-08)
 
-- `Multicall`: Patch duplicated `Address.functionDelegateCall`
+- `Multicall`: Patch duplicated `Address.functionDelegateCall`.
 
 ## 4.9.4 (2023-12-07)
 
