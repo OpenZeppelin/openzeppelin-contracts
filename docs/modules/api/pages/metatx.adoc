@@ -28,7 +28,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.4/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.5/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -84,7 +84,7 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 
 [.contract]
 [[MinimalForwarder]]
-=== `++MinimalForwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.4/contracts/metatx/MinimalForwarder.sol[{github-icon},role=heading-link]
+=== `++MinimalForwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.5/contracts/metatx/MinimalForwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
