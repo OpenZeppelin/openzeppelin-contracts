@@ -1,20 +1,23 @@
-const { time } = require('@openzeppelin/test-helpers');
-const { MAX_UINT64 } = require('./constants');
-const { artifacts } = require('hardhat');
+const {
+  bigint: { MAX_UINT64 },
+} = require('./constants');
+const { namespaceSlot } = require('./namespaced-storage');
+const { bigint: time } = require('./time');
+const { keccak256, AbiCoder } = require('ethers');
 
 function buildBaseRoles() {
   const roles = {
     ADMIN: {
-      id: web3.utils.toBN(0),
+      id: 0n,
     },
     SOME_ADMIN: {
-      id: web3.utils.toBN(17),
+      id: 17n,
     },
     SOME_GUARDIAN: {
-      id: web3.utils.toBN(35),
+      id: 35n,
     },
     SOME: {
-      id: web3.utils.toBN(42),
+      id: 42n,
     },
     PUBLIC: {
       id: MAX_UINT64,
@@ -44,20 +47,33 @@ const formatAccess = access => [access[0], access[1].toString()];
 const MINSETBACK = time.duration.days(5);
 const EXPIRATION = time.duration.weeks(1);
 
-let EXECUTION_ID_STORAGE_SLOT = 3n;
-let CONSUMING_SCHEDULE_STORAGE_SLOT = 0n;
-try {
-  // Try to get the artifact paths, will throw if it doesn't exist
-  artifacts._getArtifactPathSync('AccessManagerUpgradeable');
-  artifacts._getArtifactPathSync('AccessManagedUpgradeable');
+const EXECUTION_ID_STORAGE_SLOT = namespaceSlot('AccessManager', 3n);
+const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
 
-  // ERC-7201 namespace location for AccessManager
-  EXECUTION_ID_STORAGE_SLOT += 0x40c6c8c28789853c7efd823ab20824bbd71718a8a5915e855f6f288c9a26ad00n;
-  // ERC-7201 namespace location for AccessManaged
-  CONSUMING_SCHEDULE_STORAGE_SLOT += 0xf3177357ab46d8af007ab3fdb9af81da189e1068fefdc0073dca88a2cab40a00n;
-} catch (_) {
-  // eslint-disable-next-line no-empty
+/**
+ * @requires this.{manager, caller, target, calldata}
+ */
+async function prepareOperation(manager, { caller, target, calldata, delay }) {
+  const timestamp = await time.clock.timestamp();
+  const scheduledAt = timestamp + 1n;
+  await time.forward.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
+
+  return {
+    schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
+    scheduledAt,
+    operationId: hashOperation(caller, target, calldata),
+  };
 }
+
+const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
+
+const hashOperation = (caller, target, data) =>
+  keccak256(
+    AbiCoder.defaultAbiCoder().encode(
+      ['address', 'address', 'bytes'],
+      [lazyGetAddress(caller), lazyGetAddress(target), data],
+    ),
+  );
 
 module.exports = {
   buildBaseRoles,
@@ -66,4 +82,6 @@ module.exports = {
   EXPIRATION,
   EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
+  prepareOperation,
+  hashOperation,
 };

@@ -14,8 +14,8 @@ interface IERC1363Spender {
      */
 
     /**
-     * @notice Handle the approval of ERC1363 tokens
-     * @dev Any ERC1363 smart contract calls this function on the recipient
+     * @notice Handle the approval of ERC-1363 tokens
+     * @dev Any ERC-1363 smart contract calls this function on the recipient
      * after an `approve`. This function MAY throw to revert and reject the
      * approval. Return of other than the magic value MUST result in the
      * transaction being reverted.

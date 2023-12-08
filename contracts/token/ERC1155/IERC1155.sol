@@ -6,8 +6,8 @@ pragma solidity ^0.8.20;
 import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
- * @dev Required interface of an ERC1155 compliant contract, as defined in the
- * https://eips.ethereum.org/EIPS/eip-1155[EIP].
+ * @dev Required interface of an ERC-1155 compliant contract, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1155[ERC].
  */
 interface IERC1155 is IERC165 {
     /**

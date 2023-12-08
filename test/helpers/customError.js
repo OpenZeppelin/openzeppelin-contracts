@@ -1,3 +1,5 @@
+// DEPRECATED: replace with hardhat-toolbox chai matchers.
+
 const { expect } = require('chai');
 
 /** Revert handler that supports custom errors. */

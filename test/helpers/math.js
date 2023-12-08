@@ -1,6 +1,7 @@
 module.exports = {
   // sum of integer / bignumber
   sum: (...args) => args.reduce((acc, n) => acc + n, 0),
+  bigintSum: (...args) => args.reduce((acc, n) => acc + n, 0n),
   BNsum: (...args) => args.reduce((acc, n) => acc.add(n), web3.utils.toBN(0)),
   // min of integer / bignumber
   min: (...args) => args.slice(1).reduce((x, y) => (x < y ? x : y), args[0]),

@@ -26,7 +26,7 @@ contract('ERC721Votes', function (accounts) {
         this.votes = await artifact.new(name, symbol, name, version);
       });
 
-      // includes EIP6372 behavior check
+      // includes ERC6372 behavior check
       shouldBehaveLikeVotes(accounts, tokens, { mode, fungible: false });
 
       describe('balanceOf', function () {

@@ -10,15 +10,13 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { batchInBlock } = require('../../../helpers/txpool');
-const { getDomain, domainType } = require('../../../helpers/eip712');
+const {
+  getDomain,
+  domainType,
+  types: { Delegation },
+} = require('../../../helpers/eip712');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 const { expectRevertCustomError } = require('../../../helpers/customError');
-
-const Delegation = [
-  { name: 'delegatee', type: 'address' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'expiry', type: 'uint256' },
-];
 
 const MODES = {
   blocknumber: artifacts.require('$ERC20Votes'),
@@ -40,7 +38,7 @@ contract('ERC20Votes', function (accounts) {
         this.votes = this.token;
       });
 
-      // includes EIP6372 behavior check
+      // includes ERC6372 behavior check
       shouldBehaveLikeVotes(accounts, [1, 17, 42], { mode, fungible: true });
 
       it('initial nonce is 0', async function () {
