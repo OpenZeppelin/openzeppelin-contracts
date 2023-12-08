@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 4.9.5 (2023-12-08)
+
+- `Multicall`: Patch duplicated `Address.functionDelegateCall`
+
 ## 4.9.4 (2023-12-07)
 
 - `ERC2771Context` and `Context`: Introduce a `_contextPrefixLength()` getter, used to trim extra information appended to `msg.data`.
