@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Context} from "../utils/Context.sol";
-
 /**
  * @dev Contract module which provides a basic access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
@@ -17,7 +15,7 @@ import {Context} from "../utils/Context.sol";
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner.
  */
-abstract contract Ownable is Context {
+abstract contract Ownable {
     address private _owner;
 
     /**
@@ -61,8 +59,8 @@ abstract contract Ownable is Context {
      * @dev Throws if the sender is not the owner.
      */
     function _checkOwner() internal view virtual {
-        if (owner() != _msgSender()) {
-            revert OwnableUnauthorizedAccount(_msgSender());
+        if (owner() != msg.sender) {
+            revert OwnableUnauthorizedAccount(msg.sender);
         }
     }
 
