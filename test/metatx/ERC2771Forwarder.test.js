@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain } = require('../helpers/eip712');
-const { formatType } = require('../helpers/eip712-types');
+const { ForwardRequest } = require('../helpers/eip712-types');
 const { bigint: time } = require('../helpers/time');
 const { sum } = require('../helpers/math');
 
@@ -13,17 +13,7 @@ async function fixture() {
   const forwarder = await ethers.deployContract('ERC2771Forwarder', ['ERC2771Forwarder']);
   const receiver = await ethers.deployContract('CallReceiverMockTrustingForwarder', [forwarder]);
   const domain = await getDomain(forwarder);
-  const types = {
-    ForwardRequest: formatType({
-      from: 'address',
-      to: 'address',
-      value: 'uint256',
-      gas: 'uint256',
-      nonce: 'uint256',
-      deadline: 'uint48',
-      data: 'bytes',
-    }),
-  };
+  const types = { ForwardRequest };
 
   const forgeRequest = async (override = {}, signer = sender) => {
     const req = {
