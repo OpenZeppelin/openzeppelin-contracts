@@ -22,53 +22,42 @@ const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 const defaultDelay = time.duration.days(2n);
 
-async function fixture() {
-  const [deployer, owner, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
-
-  const receiver = await ethers.deployContract('CallReceiverMock');
-
-  const configs = {};
-  for (const { Token, mode } of TOKENS) {
-    const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
-    const predictGovernor = await deployer
-      .getNonce()
-      .then(nonce => ethers.getCreateAddress({ from: deployer.address, nonce: nonce + 1 }));
-    const timelock = await ethers.deployContract('CompTimelock', [predictGovernor, defaultDelay]);
-    const mock = await ethers.deployContract('$GovernorTimelockCompoundMock', [
-      name,
-      votingDelay,
-      votingPeriod,
-      0n,
-      timelock,
-      token,
-      0n,
-    ]);
-
-    await owner.sendTransaction({ to: timelock, value });
-    await token.$_mint(owner, tokenSupply);
-
-    const helper = new GovernorHelper(mock, mode);
-    await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
-    await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
-    await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
-    await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
-
-    configs[Token] = { token, mock, timelock, helper };
-  }
-
-  return { deployer, owner, voter1, voter2, voter3, voter4, other, receiver, configs };
-}
-
 describe('GovernorTimelockCompound', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [deployer, owner, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-  for (const { Token } of TOKENS) {
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const predictGovernor = await deployer
+        .getNonce()
+        .then(nonce => ethers.getCreateAddress({ from: deployer.address, nonce: nonce + 1 }));
+      const timelock = await ethers.deployContract('CompTimelock', [predictGovernor, defaultDelay]);
+      const mock = await ethers.deployContract('$GovernorTimelockCompoundMock', [
+        name,
+        votingDelay,
+        votingPeriod,
+        0n,
+        timelock,
+        token,
+        0n,
+      ]);
+
+      await owner.sendTransaction({ to: timelock, value });
+      await token.$_mint(owner, tokenSupply);
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
+
+      return { deployer, owner, voter1, voter2, voter3, voter4, other, receiver, token, mock, timelock, helper };
+    };
+
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        // fetch relevant config
-        Object.assign(this, this.configs[Token]);
+        Object.assign(this, await loadFixture(fixture));
 
         // default proposal
         this.proposal = this.helper.setProposal(

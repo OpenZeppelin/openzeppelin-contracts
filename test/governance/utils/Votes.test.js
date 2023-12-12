@@ -8,6 +8,7 @@ const {
   bigint: { clockFromReceipt },
 } = require('../../helpers/time');
 const { sum } = require('../../helpers/math');
+const { zip } = require('../../helpers/iterate');
 
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
@@ -18,33 +19,28 @@ const MODES = {
 
 const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
 
-async function fixture() {
-  const [delegator, delegatee, ...accounts] = await ethers.getSigners();
-
-  const name = 'My Vote';
-  const version = '1';
-
-  const mocks = {};
-  for (const [mode, artifact] of Object.entries(MODES)) {
-    mocks[mode] = await ethers.deployContract(artifact, [name, version]);
-  }
-
-  return { delegator, delegatee, accounts, name, version, mocks };
-}
-
 describe('Votes', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-    this.amounts = {};
-    for (const [index, amount] of AMOUNTS.entries()) {
-      this.amounts[this.accounts[index].address] = amount;
-    }
-  });
+  for (const [mode, artifact] of Object.entries(MODES)) {
+    const fixture = async () => {
+      const [delegator, delegatee, ...accounts] = await ethers.getSigners();
 
-  for (const [mode] of Object.entries(MODES)) {
+      const amounts = Object.fromEntries(
+        zip(
+          accounts.slice(0, AMOUNTS.length).map(({ address }) => address),
+          AMOUNTS,
+        ),
+      );
+
+      const name = 'My Vote';
+      const version = '1';
+      const votes = await ethers.deployContract(artifact, [name, version]);
+
+      return { delegator, delegatee, accounts, amounts, votes, name, version };
+    };
+
     describe(`vote with ${mode}`, function () {
-      beforeEach(function () {
-        this.votes = this.mocks[mode];
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
       });
 
       shouldBehaveLikeVotes(AMOUNTS, { mode, fungible: true });

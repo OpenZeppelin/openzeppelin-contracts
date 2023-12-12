@@ -23,57 +23,48 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-async function fixture() {
-  const [owner, voter1, voter2, voter3, voter4] = await ethers.getSigners();
-
-  const receiver = await ethers.deployContract('CallReceiverMock');
-
-  const configs = {};
-  for (const { Token, mode } of TOKENS) {
-    const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
-    const mock = await ethers.deployContract('$GovernorMock', [
-      name, // name
-      votingDelay, // initialVotingDelay
-      votingPeriod, // initialVotingPeriod
-      0n, // initialProposalThreshold
-      token, // tokenAddress
-      10n, // quorumNumeratorValue
-    ]);
-
-    await owner.sendTransaction({ to: mock, value });
-    await Promise.all([NFT0, NFT1, NFT2, NFT3, NFT4].map(tokenId => token.$_mint(owner, tokenId)));
-
-    const helper = new GovernorHelper(mock, mode);
-    await helper.connect(owner).delegate({ token, to: voter1, tokenId: NFT0 });
-    await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT1 });
-    await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT2 });
-    await helper.connect(owner).delegate({ token, to: voter3, tokenId: NFT3 });
-    await helper.connect(owner).delegate({ token, to: voter4, tokenId: NFT4 });
-
-    configs[Token] = { token, mock, helper };
-  }
-
-  return {
-    owner,
-    voter1,
-    voter2,
-    voter3,
-    voter4,
-    receiver,
-    configs,
-  };
-}
-
 describe('GovernorERC721', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [owner, voter1, voter2, voter3, voter4] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-  for (const { Token } of TOKENS) {
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const mock = await ethers.deployContract('$GovernorMock', [
+        name, // name
+        votingDelay, // initialVotingDelay
+        votingPeriod, // initialVotingPeriod
+        0n, // initialProposalThreshold
+        token, // tokenAddress
+        10n, // quorumNumeratorValue
+      ]);
+
+      await owner.sendTransaction({ to: mock, value });
+      await Promise.all([NFT0, NFT1, NFT2, NFT3, NFT4].map(tokenId => token.$_mint(owner, tokenId)));
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, tokenId: NFT0 });
+      await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT1 });
+      await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT2 });
+      await helper.connect(owner).delegate({ token, to: voter3, tokenId: NFT3 });
+      await helper.connect(owner).delegate({ token, to: voter4, tokenId: NFT4 });
+
+      return {
+        owner,
+        voter1,
+        voter2,
+        voter3,
+        voter4,
+        receiver,
+        token,
+        mock,
+        helper,
+      };
+    };
+
     describe(`using ${Token}`, function () {
-      beforeEach(function () {
-        // fetch relevant config
-        Object.assign(this, this.configs[Token]);
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [

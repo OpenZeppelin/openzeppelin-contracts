@@ -27,56 +27,45 @@ const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 const delay = 3600n;
 
-async function fixture() {
-  const [deployer, owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
-
-  const receiver = await ethers.deployContract('CallReceiverMock');
-
-  const configs = {};
-  for (const { Token, mode } of TOKENS) {
-    const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
-    const timelock = await ethers.deployContract('TimelockController', [delay, [], [], deployer]);
-    const mock = await ethers.deployContract('$GovernorStorageMock', [
-      name,
-      votingDelay,
-      votingPeriod,
-      0n,
-      timelock,
-      token,
-      0n,
-    ]);
-
-    await owner.sendTransaction({ to: timelock, value });
-    await token.$_mint(owner, tokenSupply);
-    await timelock.grantRole(PROPOSER_ROLE, mock);
-    await timelock.grantRole(PROPOSER_ROLE, owner);
-    await timelock.grantRole(CANCELLER_ROLE, mock);
-    await timelock.grantRole(CANCELLER_ROLE, owner);
-    await timelock.grantRole(EXECUTOR_ROLE, ethers.ZeroAddress);
-    await timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
-
-    const helper = new GovernorHelper(mock, mode);
-    await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
-    await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
-    await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
-    await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
-
-    configs[Token] = { token, timelock, mock, helper };
-  }
-
-  return { deployer, owner, proposer, voter1, voter2, voter3, voter4, receiver, configs };
-}
-
 describe('GovernorStorage', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [deployer, owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-  for (const { Token } of TOKENS) {
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const timelock = await ethers.deployContract('TimelockController', [delay, [], [], deployer]);
+      const mock = await ethers.deployContract('$GovernorStorageMock', [
+        name,
+        votingDelay,
+        votingPeriod,
+        0n,
+        timelock,
+        token,
+        0n,
+      ]);
+
+      await owner.sendTransaction({ to: timelock, value });
+      await token.$_mint(owner, tokenSupply);
+      await timelock.grantRole(PROPOSER_ROLE, mock);
+      await timelock.grantRole(PROPOSER_ROLE, owner);
+      await timelock.grantRole(CANCELLER_ROLE, mock);
+      await timelock.grantRole(CANCELLER_ROLE, owner);
+      await timelock.grantRole(EXECUTOR_ROLE, ethers.ZeroAddress);
+      await timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
+
+      return { deployer, owner, proposer, voter1, voter2, voter3, voter4, receiver, token, timelock, mock, helper };
+    };
+
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        // fetch relevant config
-        Object.assign(this, this.configs[Token]);
+        Object.assign(this, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [

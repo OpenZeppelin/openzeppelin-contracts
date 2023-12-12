@@ -32,51 +32,41 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-async function fixture() {
-  const [admin, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
-
-  const manager = await ethers.deployContract('$AccessManager', [admin]);
-  const receiver = await ethers.deployContract('$AccessManagedTarget', [manager]);
-
-  const configs = {};
-  for (const { Token, mode } of TOKENS) {
-    const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
-    const mock = await ethers.deployContract('$GovernorTimelockAccessMock', [
-      name,
-      votingDelay,
-      votingPeriod,
-      0n,
-      manager,
-      0n,
-      token,
-      0n,
-    ]);
-
-    await admin.sendTransaction({ to: mock, value });
-    await token.$_mint(admin, tokenSupply);
-
-    const helper = new GovernorHelper(mock, mode);
-    await helper.connect(admin).delegate({ token, to: voter1, value: ethers.parseEther('10') });
-    await helper.connect(admin).delegate({ token, to: voter2, value: ethers.parseEther('7') });
-    await helper.connect(admin).delegate({ token, to: voter3, value: ethers.parseEther('5') });
-    await helper.connect(admin).delegate({ token, to: voter4, value: ethers.parseEther('2') });
-
-    configs[Token] = { token, mock, helper };
-  }
-
-  return { admin, voter1, voter2, voter3, voter4, other, manager, receiver, configs };
-}
-
 describe('GovernorTimelockAccess', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
   for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [admin, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
+
+      const manager = await ethers.deployContract('$AccessManager', [admin]);
+      const receiver = await ethers.deployContract('$AccessManagedTarget', [manager]);
+
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const mock = await ethers.deployContract('$GovernorTimelockAccessMock', [
+        name,
+        votingDelay,
+        votingPeriod,
+        0n,
+        manager,
+        0n,
+        token,
+        0n,
+      ]);
+
+      await admin.sendTransaction({ to: mock, value });
+      await token.$_mint(admin, tokenSupply);
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(admin).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(admin).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(admin).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(admin).delegate({ token, to: voter4, value: ethers.parseEther('2') });
+
+      return { admin, voter1, voter2, voter3, voter4, other, manager, receiver, token, mock, helper };
+    };
+
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        // fetch relevant config
-        Object.assign(this, this.configs[Token]);
+        Object.assign(this, await loadFixture(fixture));
 
         // restricted proposal
         this.restricted = prepareOperation({

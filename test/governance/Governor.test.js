@@ -42,58 +42,49 @@ async function deployToken(contractName) {
   }
 }
 
-async function fixture() {
-  const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
-
-  const receiver = await ethers.deployContract('CallReceiverMock');
-
-  const configs = {};
-  for (const { Token, mode } of TOKENS) {
-    const token = await deployToken(Token, [tokenName, tokenSymbol, version]);
-    const mock = await ethers.deployContract('$GovernorMock', [
-      name, // name
-      votingDelay, // initialVotingDelay
-      votingPeriod, // initialVotingPeriod
-      0n, // initialProposalThreshold
-      token, // tokenAddress
-      10n, // quorumNumeratorValue
-    ]);
-
-    await owner.sendTransaction({ to: mock, value });
-    await token.$_mint(owner, tokenSupply);
-
-    const helper = new GovernorHelper(mock, mode);
-    await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
-    await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
-    await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
-    await helper.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
-
-    configs[Token] = { token, mock, helper };
-  }
-
-  return {
-    owner,
-    proposer,
-    voter1,
-    voter2,
-    voter3,
-    voter4,
-    userEOA,
-    receiver,
-    configs,
-  };
-}
-
 describe('Governor', function () {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
   for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
+
+      const token = await deployToken(Token, [tokenName, tokenSymbol, version]);
+      const mock = await ethers.deployContract('$GovernorMock', [
+        name, // name
+        votingDelay, // initialVotingDelay
+        votingPeriod, // initialVotingPeriod
+        0n, // initialProposalThreshold
+        token, // tokenAddress
+        10n, // quorumNumeratorValue
+      ]);
+
+      await owner.sendTransaction({ to: mock, value });
+      await token.$_mint(owner, tokenSupply);
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token: token, to: voter4, value: ethers.parseEther('2') });
+
+      return {
+        owner,
+        proposer,
+        voter1,
+        voter2,
+        voter3,
+        voter4,
+        userEOA,
+        receiver,
+        token,
+        mock,
+        helper,
+      };
+    };
+
     describe(`using ${Token}`, function () {
-      beforeEach(function () {
-        // fetch relevant config
-        Object.assign(this, this.configs[Token]);
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [
