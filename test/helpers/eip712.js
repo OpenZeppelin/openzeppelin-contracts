@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const { EIP712Domain } = require('./eip712-types');
+const types = require('./eip712-types');
 
 async function getDomain(contract) {
   const { fields, name, version, chainId, verifyingContract, salt, extensions } = await contract.eip712Domain();
@@ -17,7 +17,7 @@ async function getDomain(contract) {
     salt,
   };
 
-  for (const [i, { name }] of EIP712Domain.entries()) {
+  for (const [i, { name }] of types.EIP712Domain.entries()) {
     if (!(fields & (1 << i))) {
       delete domain[name];
     }
@@ -27,7 +27,7 @@ async function getDomain(contract) {
 }
 
 function domainType(domain) {
-  return EIP712Domain.filter(({ name }) => domain[name] !== undefined);
+  return types.EIP712Domain.filter(({ name }) => domain[name] !== undefined);
 }
 
 function hashTypedData(domain, structHash) {
@@ -42,4 +42,5 @@ module.exports = {
   domainType,
   domainSeparator: ethers.TypedDataEncoder.hashDomain,
   hashTypedData,
+  ...types,
 };

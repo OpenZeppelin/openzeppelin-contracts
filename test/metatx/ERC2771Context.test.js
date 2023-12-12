@@ -3,8 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../helpers/account');
-const { getDomain } = require('../helpers/eip712');
-const { ForwardRequest } = require('../helpers/eip712-types');
+const { getDomain, ForwardRequest } = require('../helpers/eip712');
 const { MAX_UINT48 } = require('../helpers/constants');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');

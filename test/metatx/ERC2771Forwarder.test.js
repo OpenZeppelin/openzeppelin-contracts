@@ -2,8 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain } = require('../helpers/eip712');
-const { ForwardRequest } = require('../helpers/eip712-types');
+const { getDomain, ForwardRequest } = require('../helpers/eip712');
 const { bigint: time } = require('../helpers/time');
 const { sum } = require('../helpers/math');
 
