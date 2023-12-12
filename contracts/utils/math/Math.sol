@@ -20,9 +20,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     * @dev Returns the addition of two unsigned integers, with an success flag (no overflow).
      */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             uint256 c = a + b;
             if (c < a) return (false, 0);
@@ -31,9 +31,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     * @dev Returns the subtraction of two unsigned integers, with an success flag (no overflow).
      */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function trySub(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b > a) return (false, 0);
             return (true, a - b);
@@ -41,9 +41,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     * @dev Returns the multiplication of two unsigned integers, with an success flag (no overflow).
      */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
             // benefit is lost if 'b' is also tested.
@@ -56,9 +56,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     * @dev Returns the division of two unsigned integers, with a success flag (no division by zero).
      */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
@@ -66,9 +66,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     * @dev Returns the remainder of dividing two unsigned integers, with a success flag (no division by zero).
      */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a % b);

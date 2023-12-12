@@ -1,94 +1,51 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { MIN_INT256, MAX_INT256 } = constants;
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { min, max } = require('../../helpers/math');
 
-const SignedMath = artifacts.require('$SignedMath');
+async function testCommutative(fn, lhs, rhs, expected, ...extra) {
+  expect(await fn(lhs, rhs, ...extra)).to.deep.equal(expected);
+  expect(await fn(rhs, lhs, ...extra)).to.deep.equal(expected);
+}
+
+async function fixture() {
+  const mock = await ethers.deployContract('$SignedMath');
+  return { mock };
+}
 
 contract('SignedMath', function () {
-  const min = new BN('-1234');
-  const max = new BN('5678');
-
   beforeEach(async function () {
-    this.math = await SignedMath.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('max', function () {
-    it('is correctly detected in first argument position', async function () {
-      expect(await this.math.$max(max, min)).to.be.bignumber.equal(max);
-    });
-
-    it('is correctly detected in second argument position', async function () {
-      expect(await this.math.$max(min, max)).to.be.bignumber.equal(max);
+    it('is correctly detected in both position', async function () {
+      await testCommutative(this.mock.$max, -1234n, 5678n, max(-1234n, 5678n));
     });
   });
 
   describe('min', function () {
-    it('is correctly detected in first argument position', async function () {
-      expect(await this.math.$min(min, max)).to.be.bignumber.equal(min);
-    });
-
-    it('is correctly detected in second argument position', async function () {
-      expect(await this.math.$min(max, min)).to.be.bignumber.equal(min);
+    it('is correctly detected in both position', async function () {
+      await testCommutative(this.mock.$min, -1234n, 5678n, min(-1234n, 5678n));
     });
   });
 
   describe('average', function () {
-    function bnAverage(a, b) {
-      return a.add(b).divn(2);
-    }
-
     it('is correctly calculated with various input', async function () {
-      const valuesX = [
-        new BN('0'),
-        new BN('3'),
-        new BN('-3'),
-        new BN('4'),
-        new BN('-4'),
-        new BN('57417'),
-        new BN('-57417'),
-        new BN('42304'),
-        new BN('-42304'),
-        MIN_INT256,
-        MAX_INT256,
-      ];
-
-      const valuesY = [
-        new BN('0'),
-        new BN('5'),
-        new BN('-5'),
-        new BN('2'),
-        new BN('-2'),
-        new BN('57417'),
-        new BN('-57417'),
-        new BN('42304'),
-        new BN('-42304'),
-        MIN_INT256,
-        MAX_INT256,
-      ];
-
-      for (const x of valuesX) {
-        for (const y of valuesY) {
-          expect(await this.math.$average(x, y)).to.be.bignumber.equal(
-            bnAverage(x, y),
-            `Bad result for average(${x}, ${y})`,
-          );
+      for (const x of [ethers.MinInt256, -57417n, -42304n, -4n, -3n, 0n, 3n, 4n, 42304n, 57417n, ethers.MaxInt256]) {
+        for (const y of [ethers.MinInt256, -57417n, -42304n, -5n, -2n, 0n, 2n, 5n, 42304n, 57417n, ethers.MaxInt256]) {
+          expect(await this.mock.$average(x, y)).to.equal((x + y) / 2n);
         }
       }
     });
   });
 
   describe('abs', function () {
-    for (const n of [
-      MIN_INT256,
-      MIN_INT256.addn(1),
-      new BN('-1'),
-      new BN('0'),
-      new BN('1'),
-      MAX_INT256.subn(1),
-      MAX_INT256,
-    ]) {
+    const abs = x => (x < 0n ? -x : x);
+
+    for (const n of [ethers.MinInt256, ethers.MinInt256 + 1n, -1n, 0n, 1n, ethers.MaxInt256 - 1n, ethers.MaxInt256]) {
       it(`correctly computes the absolute value of ${n}`, async function () {
-        expect(await this.math.$abs(n)).to.be.bignumber.equal(n.abs());
+        expect(await this.mock.$abs(n)).to.equal(abs(n));
       });
     }
   });
