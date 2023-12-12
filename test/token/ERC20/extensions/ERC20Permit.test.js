@@ -4,19 +4,16 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, domainSeparator } = require('../../../helpers/eip712');
 const { Permit } = require('../../../helpers/eip712-types');
-const { getChainId } = require('../../../helpers/chainid');
 const {
   bigint: { clock, duration },
 } = require('../../../helpers/time');
 
+const name = 'My Token';
+const symbol = 'MTKN';
+const initialSupply = 100n;
+
 async function fixture() {
   const [initialHolder, spender, owner, other] = await ethers.getSigners();
-
-  const name = 'My Token';
-  const symbol = 'MTKN';
-
-  const initialSupply = 100n;
-  const chainId = await getChainId();
 
   const token = await ethers.deployContract('$ERC20Permit', [name, symbol, name]);
   await token.$_mint(initialHolder, initialSupply);
@@ -26,10 +23,6 @@ async function fixture() {
     spender,
     owner,
     other,
-    name,
-    symbol,
-    initialSupply,
-    chainId,
     token,
   };
 }
@@ -79,27 +72,19 @@ describe('ERC20Permit', function () {
     });
 
     it('rejects reused signature', async function () {
-      const sig = await this.buildData(this.token).then(({ domain, types, message }) =>
-        this.owner.signTypedData(domain, types, message),
-      );
-
-      const { r, s, v } = ethers.Signature.from(sig);
+      const { v, r, s, serialized } = await this.buildData(this.token)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
 
       await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
 
-      const domain = await getDomain(this.token);
-      const types = { Permit };
-      const message = {
-        owner: this.owner.address,
-        spender: this.spender.address,
-        value,
-        nonce: nonce + 1n,
-        deadline: maxDeadline,
-      };
+      const recovered = await this.buildData(this.token).then(({ domain, types, message }) =>
+        ethers.verifyTypedData(domain, types, { ...message, nonce: nonce + 1n, deadline: maxDeadline }, serialized),
+      );
 
       await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
         .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
-        .withArgs(ethers.verifyTypedData(domain, types, message, sig), this.owner.address);
+        .withArgs(recovered, this.owner.address);
     });
 
     it('rejects other signature', async function () {

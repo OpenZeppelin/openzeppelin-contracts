@@ -2,17 +2,17 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const name = 'My Token';
+const symbol = 'MTKN';
+const initialSupply = 100n;
+
 async function fixture() {
   const [holder, recipient, approved] = await ethers.getSigners();
-
-  const initialSupply = 100n;
-  const name = 'My Token';
-  const symbol = 'MTKN';
 
   const token = await await ethers.deployContract('$ERC20Pausable', [name, symbol]);
   await token.$_mint(holder, initialSupply);
 
-  return { holder, recipient, approved, initialSupply, name, symbol, token };
+  return { holder, recipient, approved, token };
 }
 
 describe('ERC20Pausable', function () {
@@ -23,25 +23,29 @@ describe('ERC20Pausable', function () {
   describe('pausable token', function () {
     describe('transfer', function () {
       it('allows to transfer when unpaused', async function () {
-        await expect(
-          this.token.connect(this.holder).transfer(this.recipient, this.initialSupply),
-        ).to.changeTokenBalances(this.token, [this.holder, this.recipient], [-this.initialSupply, this.initialSupply]);
+        await expect(this.token.connect(this.holder).transfer(this.recipient, initialSupply)).to.changeTokenBalances(
+          this.token,
+          [this.holder, this.recipient],
+          [-initialSupply, initialSupply],
+        );
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
         await this.token.$_pause();
         await this.token.$_unpause();
 
-        await expect(
-          this.token.connect(this.holder).transfer(this.recipient, this.initialSupply),
-        ).to.changeTokenBalances(this.token, [this.holder, this.recipient], [-this.initialSupply, this.initialSupply]);
+        await expect(this.token.connect(this.holder).transfer(this.recipient, initialSupply)).to.changeTokenBalances(
+          this.token,
+          [this.holder, this.recipient],
+          [-initialSupply, initialSupply],
+        );
       });
 
       it('reverts when trying to transfer when paused', async function () {
         await this.token.$_pause();
 
         await expect(
-          this.token.connect(this.holder).transfer(this.recipient, this.initialSupply),
+          this.token.connect(this.holder).transfer(this.recipient, initialSupply),
         ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
       });
     });
