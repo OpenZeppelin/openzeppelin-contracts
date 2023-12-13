@@ -49,7 +49,7 @@ library MerkleProof {
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = hashPair(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -60,7 +60,7 @@ library MerkleProof {
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = hashPair(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -138,7 +138,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = hashPair(a, b);
         }
 
         if (totalHashes > 0) {
@@ -194,7 +194,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = hashPair(a, b);
         }
 
         if (totalHashes > 0) {
@@ -214,7 +214,7 @@ library MerkleProof {
     /**
      * @dev Sorts the pair (a, b) and hashes the result.
      */
-    function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
+    function hashPair(bytes32 a, bytes32 b) internal pure returns (bytes32) {
         return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
     }
 

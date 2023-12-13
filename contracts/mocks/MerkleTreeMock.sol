@@ -9,8 +9,8 @@ contract MerkleTreeMock {
 
     MerkleTree.TreeWithHistory private _tree;
 
-    constructor(uint256 _depth, uint256 _length) {
-        _tree.initialize(_depth, _length);
+    constructor(uint256 _depth, uint256 _length, bytes32 _zero) {
+        _tree.initialize(_depth, _length, _zero);
     }
 
     function insert(bytes32 leaf) public returns (uint256) {

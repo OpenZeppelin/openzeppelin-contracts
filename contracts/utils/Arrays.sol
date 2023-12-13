@@ -108,7 +108,7 @@ library Arrays {
      *
      * WARNING: Only use if you are certain `pos` is lower than the array length.
      */
-    function unsafeMemoryAccess(uint256[] memory arr, uint256 pos) internal pure returns (uint256 res) {
+    function unsafeMemoryAccess(address[] memory arr, uint256 pos) internal pure returns (address res) {
         assembly {
             res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
         }
@@ -119,9 +119,53 @@ library Arrays {
      *
      * WARNING: Only use if you are certain `pos` is lower than the array length.
      */
-    function unsafeMemoryAccess(address[] memory arr, uint256 pos) internal pure returns (address res) {
+    function unsafeMemoryAccess(bytes32[] memory arr, uint256 pos) internal pure returns (bytes32 res) {
         assembly {
             res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     *
+     * WARNING: Only use if you are certain `pos` is lower than the array length.
+     */
+    function unsafeMemoryAccess(uint256[] memory arr, uint256 pos) internal pure returns (uint256 res) {
+        assembly {
+            res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(address[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(bytes32[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(uint256[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
         }
     }
 }

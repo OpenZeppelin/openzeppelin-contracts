@@ -1,86 +1,86 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
-const { MerkleTree } = require('merkletreejs');
-const keccak256 = require('keccak256');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
-const MerkleTreeMock = artifacts.require('MerkleTreeMock');
+// TODO: when working with merkle tree construction, ordering of the leaves should be disabled.
+const makeTree = (leafs = [ethers.ZeroHash]) => StandardMerkleTree.of(leafs.map(leaf => [leaf]), ['bytes32']);
+
+const MAX_DEPTH = 255n;
+const DEPTH = 4n; // 16 slots
+const LENGTH = 8n;
+const ZERO = makeTree().leafHash([ ethers.ZeroHash ]);
+
+async function fixture () {
+  return { mock: await ethers.deployContract('MerkleTreeMock', [ DEPTH, LENGTH, ZERO ]) };
+}
 
 describe('Merklee tree', function () {
-  const DEPTH = new BN(4);
-  const LENGTH = new BN(10);
-
   beforeEach(async function () {
-    this.contract = await MerkleTreeMock.new(DEPTH, LENGTH);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('depth is limited', async function () {
-    await expectRevert(
-      MerkleTreeMock.new(256, LENGTH),
-      'MerkleTree: invalid length',
-    );
+    await expect(ethers.deployContract('MerkleTreeMock', [256n, LENGTH, ZERO]))
+      .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'MerkleTreeInvalidDepth')
+      .withArgs(256n, MAX_DEPTH);
   });
 
   it('setup', async function () {
-    const leafs = Array(2 ** DEPTH).fill(constants.ZERO_BYTES32);
-    const merkleTree = new MerkleTree(leafs, keccak256, { sortPairs: true });
+    const merkleTree = makeTree(Array(2 ** Number(DEPTH)).fill(ethers.ZeroHash));
 
-    expect(await this.contract.getDepth()).to.be.bignumber.equal(DEPTH);
-    expect(await this.contract.getLength()).to.be.bignumber.equal(LENGTH);
-    expect(await this.contract.currentRootIndex()).to.be.bignumber.equal('0');
-    expect(await this.contract.nextLeafIndex()).to.be.bignumber.equal('0');
-
-    expect(await this.contract.getLastRoot()).to.be.equal(merkleTree.getHexRoot());
-    for (let i = 0; i < DEPTH; ++i) {
-      expect(await this.contract.zeros(i)).to.be.equal(merkleTree.getHexLayers()[i][0]);
-      expect(await this.contract.sides(i)).to.be.equal(constants.ZERO_BYTES32);
-    }
+    expect(await this.mock.getDepth()).to.equal(DEPTH);
+    expect(await this.mock.getLength()).to.equal(LENGTH);
+    expect(await this.mock.currentRootIndex()).to.equal(0n);
+    expect(await this.mock.nextLeafIndex()).to.equal(0n);
+    expect(await this.mock.getLastRoot()).to.equal(merkleTree.root);
 
     for (let i = 0; i < LENGTH; ++i) {
-      expect(await this.contract.roots(i)).to.be.equal(i === 0 ? merkleTree.getHexRoot() : constants.ZERO_BYTES32);
+      expect(await this.mock.roots(i)).to.equal(i === 0 ? merkleTree.root : ethers.ZeroHash);
     }
 
-    expect(await this.contract.isKnownRoot(merkleTree.getHexRoot())).to.be.equal(true);
-    expect(await this.contract.isKnownRoot(constants.ZERO_BYTES32)).to.be.equal(false);
+    expect(await this.mock.isKnownRoot(merkleTree.root)).to.be.true;
+    expect(await this.mock.isKnownRoot(ethers.ZeroHash)).to.be.false;
   });
 
   describe('insert', function () {
     it('tree is correctly updated', async function () {
-      const leafs = Array(2 ** DEPTH).fill(constants.ZERO_BYTES32);
+      const leafs = Array(2 ** Number(DEPTH)).fill(ethers.ZeroHash);
       const roots = [];
 
-      // for each entry
-      for (const i of Object.keys(leafs).map(Number)) {
+      // for each leaf slot
+      for (const i in leafs) {
         // generate random leaf
-        leafs[i] = web3.utils.randomHex(32);
-        const merkleTree = new MerkleTree(leafs, keccak256, { sortPairs: true });
+        leafs[i] = ethers.randomBytes(32);
 
-        // insert leaf
-        await this.contract.insert(leafs[i]);
+        // update leaf list and rebuild tree.
+        const merkleTree = makeTree(leafs);
+
+        // insert value in tree
+        await this.mock.insert(merkleTree.leafHash([ leafs[i] ]));
 
         // check tree
-        expect(await this.contract.currentRootIndex()).to.be.bignumber.equal(((i + 1) % LENGTH).toString());
-        expect(await this.contract.nextLeafIndex()).to.be.bignumber.equal((i + 1).toString());
-        expect(await this.contract.getLastRoot()).to.be.equal(merkleTree.getHexRoot());
+        expect(await this.mock.currentRootIndex()).to.equal((BigInt(i) + 1n) % LENGTH);
+        expect(await this.mock.nextLeafIndex()).to.equal(BigInt(i) + 1n);
+        expect(await this.mock.getLastRoot()).to.equal(merkleTree.root);
 
         // check root history
-        roots.push(merkleTree.getHexRoot());
-        for (const root of roots.slice(0, -LENGTH)) {
-          expect(await this.contract.isKnownRoot(root)).to.be.equal(false);
+        roots.push(merkleTree.root);
+        for (const root of roots.slice(0, -Number(LENGTH))) {
+          expect(await this.mock.isKnownRoot(root)).to.be.false;
         }
-        for (const root of roots.slice(-LENGTH)) {
-          expect(await this.contract.isKnownRoot(root)).to.be.equal(true);
+        for (const root of roots.slice(-Number(LENGTH))) {
+          expect(await this.mock.isKnownRoot(root)).to.be.true;
         }
       }
     });
 
     it('revert when tree is full', async function () {
-      for (let i = 0; i < 2 ** DEPTH; ++i) {
-        await this.contract.insert(constants.ZERO_BYTES32);
+      for (let i = 0; i < 2 ** Number(DEPTH); ++i) {
+        await this.mock.insert(ethers.ZeroHash);
       }
-      await expectRevert(
-        this.contract.insert(constants.ZERO_BYTES32),
-        'Full()',
-      );
+      await expect(this.mock.insert(ethers.ZeroHash))
+        .to.be.revertedWithCustomError(this.mock, 'MerkleTreeFull');
     });
   });
 });
