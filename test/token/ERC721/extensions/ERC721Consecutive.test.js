@@ -54,15 +54,7 @@ describe('ERC721Consecutive', function () {
                   batch.receiver.address /* toAddress */,
                 );
             } else {
-              // ".to.not.emit" doesn't check the parameters
-              // await expect(this.token.deploymentTransaction())
-              //   .to.not.emit(this.token, 'ConsecutiveTransfer')
-              //   .withArgs(
-              //     first, /* fromTokenId */
-              //     first + batch.amount - 1n, /* toTokenId */
-              //     ethers.ZeroAddress, /* fromAddress */
-              //     batch.receiver, /* toAddress */
-              //   );
+              // ".to.not.emit" only looks at event name, and doesn't check the parameters
             }
             first += batch.amount;
           }
