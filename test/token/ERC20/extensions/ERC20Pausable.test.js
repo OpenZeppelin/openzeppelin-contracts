@@ -9,7 +9,7 @@ const initialSupply = 100n;
 async function fixture() {
   const [holder, recipient, approved] = await ethers.getSigners();
 
-  const token = await await ethers.deployContract('$ERC20Pausable', [name, symbol]);
+  const token = await ethers.deployContract('$ERC20Pausable', [name, symbol]);
   await token.$_mint(holder, initialSupply);
 
   return { holder, recipient, approved, token };
