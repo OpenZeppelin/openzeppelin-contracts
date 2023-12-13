@@ -4,11 +4,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const Enums = require('../../helpers/enums');
-const {
-  getDomain,
-  domainType,
-  types: { ExtendedBallot },
-} = require('../../helpers/eip712');
+const { getDomain, domainType, ExtendedBallot } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
