@@ -1,13 +1,13 @@
-= ERC 721
+= ERC-721
 
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc721
 
-This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-721[ERC721 Non-Fungible Token Standard].
+This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-721[ERC-721 Non-Fungible Token Standard].
 
-TIP: For a walk through on how to create an ERC721 token read our xref:ROOT:erc721.adoc[ERC721 guide].
+TIP: For a walk through on how to create an ERC-721 token read our xref:ROOT:erc721.adoc[ERC-721 guide].
 
-The EIP specifies four interfaces:
+The ERC specifies four interfaces:
 
 * {IERC721}: Core functionality required in all compliant implementation.
 * {IERC721Metadata}: Optional extension that adds name, symbol, and token URI, almost always included.
@@ -22,13 +22,15 @@ OpenZeppelin Contracts provides implementations of all four interfaces:
 
 Additionally there are a few of other extensions:
 
+* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC-2309] for minting batchs of tokens during construction, in accordance with ERC-721.
 * {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
 * {ERC721Votes}: Support for voting and vote delegation.
-* {ERC721Royalty}: A way to signal royalty information following ERC2981.
+* {ERC721Royalty}: A way to signal royalty information following ERC-2981.
 * {ERC721Pausable}: A primitive to pause contract operation.
 * {ERC721Burnable}: A way for token holders to burn their own tokens.
+* {ERC721Wrapper}: Wrapper to create an ERC-721 backed by another ERC-721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
 
-NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc721.adoc#Presets[ERC721 Presets] (such as {ERC721PresetMinterPauserAutoId}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC-721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
 
 == Core
 
@@ -50,17 +52,15 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC721Burnable}}
 
+{{ERC721Consecutive}}
+
 {{ERC721URIStorage}}
 
 {{ERC721Votes}}
 
 {{ERC721Royalty}}
 
-== Presets
-
-These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
-
-{{ERC721PresetMinterPauserAutoId}}
+{{ERC721Wrapper}}
 
 == Utilities
 

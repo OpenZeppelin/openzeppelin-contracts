@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/math/SignedMath.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/SignedMath.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Standard signed math utilities missing in the Solidity language.
@@ -11,7 +11,7 @@ library SignedMath {
      * @dev Returns the largest of two signed numbers.
      */
     function max(int256 a, int256 b) internal pure returns (int256) {
-        return a >= b ? a : b;
+        return a > b ? a : b;
     }
 
     /**

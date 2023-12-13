@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Burnable.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Burnable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../ERC20.sol";
-import "../../../utils/Context.sol";
+import {ERC20} from "../ERC20.sol";
+import {Context} from "../../../utils/Context.sol";
 
 /**
  * @dev Extension of {ERC20} that allows token holders to destroy both their own
@@ -13,27 +13,27 @@ import "../../../utils/Context.sol";
  */
 abstract contract ERC20Burnable is Context, ERC20 {
     /**
-     * @dev Destroys `amount` tokens from the caller.
+     * @dev Destroys a `value` amount of tokens from the caller.
      *
      * See {ERC20-_burn}.
      */
-    function burn(uint256 amount) public virtual {
-        _burn(_msgSender(), amount);
+    function burn(uint256 value) public virtual {
+        _burn(_msgSender(), value);
     }
 
     /**
-     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
-     * allowance.
+     * @dev Destroys a `value` amount of tokens from `account`, deducting from
+     * the caller's allowance.
      *
      * See {ERC20-_burn} and {ERC20-allowance}.
      *
      * Requirements:
      *
      * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `amount`.
+     * `value`.
      */
-    function burnFrom(address account, uint256 amount) public virtual {
-        _spendAllowance(account, _msgSender(), amount);
-        _burn(account, amount);
+    function burnFrom(address account, uint256 value) public virtual {
+        _spendAllowance(account, _msgSender(), value);
+        _burn(account, value);
     }
 }

@@ -20,9 +20,9 @@ For example, imagine you want to change xref:api:access.adoc#AccessControl[`Acce
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract ModifiedAccessControl is AccessControl {
     // Override the revokeRole function
@@ -48,9 +48,9 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract ModifiedAccessControl is AccessControl {
     function revokeRole(bytes32 role, address account) public override {
@@ -66,66 +66,12 @@ contract ModifiedAccessControl is AccessControl {
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
 
-NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overridden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
+NOTE: The same rule is implemented and extended in xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], an extension that also adds enforced security measures for the `DEFAULT_ADMIN_ROLE`.
 
-[[using-hooks]]
-== Using Hooks
+== Security
 
-Sometimes, in order to extend a parent contract you will need to override multiple related functions, which leads to code duplication and increased likelihood of bugs.
+The maintainers of OpenZeppelin Contracts are mainly concerned with the correctness and security of the code as published in the library, and the combinations of base contracts with the official extensions from the library.
 
-For example, consider implementing safe xref:api:token/ERC20.adoc#ERC20[`ERC20`] transfers in the style of xref:api:token/ERC721.adoc#IERC721Receiver[`IERC721Receiver`]. You may think overriding xref:api:token/ERC20.adoc#ERC20-transfer-address-uint256-[`transfer`] and xref:api:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-[`transferFrom`] would be enough, but what about  xref:api:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-[`_transfer`] and xref:api:token/ERC20.adoc#ERC20-_mint-address-uint256-[`_mint`]? To prevent you from having to deal with these details, we introduced **hooks**.
+Custom overrides, and those of hooks in particular, may break some important assumptions and introduce vulnerabilities in otherwise secure code. While we try to ensure the contracts remain secure in the face of a wide range of potential customizations, this is done in a best-effort manner. While we try to document all important assumptions, this should not be relied upon. Custom overrides should be carefully reviewed and checked against the source code of the contract they are customizing so as to fully understand their impact and guarantee their security.
 
-Hooks are simply functions that are called before or after some action takes place. They provide a centralized point to _hook into_ and extend the original behavior.
-
-Here's how you would implement the `IERC721Receiver` pattern in `ERC20`, using the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook:
-
-```solidity
-pragma solidity ^0.8.0;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-contract ERC20WithSafeTransfer is ERC20 {
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal virtual override
-    {
-        super._beforeTokenTransfer(from, to, amount);
-
-        require(_validRecipient(to), "ERC20WithSafeTransfer: invalid recipient");
-    }
-
-    function _validRecipient(address to) private view returns (bool) {
-        ...
-    }
-    
-    ...
-}
-```
-
-Using hooks this way leads to cleaner and safer code, without having to rely on a deep understanding of the parent's internals.
-
-[NOTE]
-====
-Hooks are a new feature of OpenZeppelin Contracts v3.0.0, and we're eager to learn how you plan to use them!
-
-So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721`], xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777`] and xref:api:token/ERC1155.adoc#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155`]. If you have ideas for new hooks, let us know!
-====
-
-=== Rules of Hooks
-
-There's a few guidelines you should follow when writing code that uses hooks in order to prevent issues. They are very simple, but do make sure you follow them:
-
-1. Whenever you override a parent's hook, re-apply the `virtual` attribute to the hook. That will allow child contracts to add more functionality to the hook.
-2. **Always** call the parent's hook in your override using `super`. This will make sure all hooks in the inheritance tree are called: contracts like xref:api:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`] rely on this behavior.
-
-```solidity
-contract MyToken is ERC20 {
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal virtual override // Add virtual here!
-    {
-        super._beforeTokenTransfer(from, to, amount); // Call parent hook
-        ...
-    }
-}
-```
-That's it! Enjoy simpler code using hooks!
-
+The way functions interact internally should not be assumed to stay stable across releases of the library. For example, a function that is used in one context in a particular release may not be used in the same context in the next release. Contracts that override functions should revalidate their assumptions when updating the version of OpenZeppelin Contracts they are built on.

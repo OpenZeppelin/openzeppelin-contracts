@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -euo pipefail
+shopt -s globstar
 
-OUTDIR=docs/modules/api/pages/
+OUTDIR="$(node -p 'require("./docs/config.js").outputDir')"
 
 if [ ! -d node_modules ]; then
   npm ci
@@ -10,14 +11,16 @@ fi
 
 rm -rf "$OUTDIR"
 
-solidity-docgen \
-  -t docs \
-  -o "$OUTDIR" \
-  -e contracts/mocks,contracts/examples \
-  --output-structure readmes \
-  --helpers ./docs/helpers.js \
-  --solc-module ./scripts/prepare-docs-solc.js
+hardhat docgen
 
-rm -f "$OUTDIR"/token/*/presets.md
+# copy examples and adjust imports
+examples_source_dir="contracts/mocks/docs"
+examples_target_dir="docs/modules/api/examples"
+
+for f in "$examples_source_dir"/**/*.sol; do
+  name="${f/#"$examples_source_dir/"/}"
+  mkdir -p "$examples_target_dir/$(dirname "$name")"
+  sed -Ee '/^import/s|"(\.\./)+|"@openzeppelin/contracts/|' "$f" > "$examples_target_dir/$name"
+done
 
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"

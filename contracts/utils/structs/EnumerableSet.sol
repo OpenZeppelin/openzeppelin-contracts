@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/structs/EnumerableSet.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/EnumerableSet.sol)
+// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Library for managing
@@ -14,7 +15,7 @@ pragma solidity ^0.8.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * ```
+ * ```solidity
  * contract Example {
  *     // Add the library methods
  *     using EnumerableSet for EnumerableSet.AddressSet;
@@ -29,10 +30,12 @@ pragma solidity ^0.8.0;
  *
  * [WARNING]
  * ====
- *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
- *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure
+ * unusable.
+ * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
  *
- *  In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
+ * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an
+ * array of EnumerableSet.
  * ====
  */
 library EnumerableSet {
@@ -48,9 +51,9 @@ library EnumerableSet {
     struct Set {
         // Storage of set values
         bytes32[] _values;
-        // Position of the value in the `values` array, plus 1 because index 0
-        // means a value is not in the set.
-        mapping(bytes32 => uint256) _indexes;
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
+        mapping(bytes32 value => uint256) _positions;
     }
 
     /**
@@ -64,7 +67,7 @@ library EnumerableSet {
             set._values.push(value);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            set._indexes[value] = set._values.length;
+            set._positions[value] = set._values.length;
             return true;
         } else {
             return false;
@@ -78,32 +81,32 @@ library EnumerableSet {
      * present.
      */
     function _remove(Set storage set, bytes32 value) private returns (bool) {
-        // We read and store the value's index to prevent multiple reads from the same storage slot
-        uint256 valueIndex = set._indexes[value];
+        // We cache the value's position to prevent multiple reads from the same storage slot
+        uint256 position = set._positions[value];
 
-        if (valueIndex != 0) {
+        if (position != 0) {
             // Equivalent to contains(set, value)
             // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
             // the array, and then remove the last element (sometimes called as 'swap and pop').
             // This modifies the order of the array, as noted in {at}.
 
-            uint256 toDeleteIndex = valueIndex - 1;
+            uint256 valueIndex = position - 1;
             uint256 lastIndex = set._values.length - 1;
 
-            if (lastIndex != toDeleteIndex) {
+            if (valueIndex != lastIndex) {
                 bytes32 lastValue = set._values[lastIndex];
 
-                // Move the last value to the index where the value to delete is
-                set._values[toDeleteIndex] = lastValue;
-                // Update the index for the moved value
-                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex
+                // Move the lastValue to the index where the value to delete is
+                set._values[valueIndex] = lastValue;
+                // Update the tracked position of the lastValue (that was just moved)
+                set._positions[lastValue] = position;
             }
 
             // Delete the slot where the moved value was stored
             set._values.pop();
 
-            // Delete the index for the deleted slot
-            delete set._indexes[value];
+            // Delete the tracked position for the deleted slot
+            delete set._positions[value];
 
             return true;
         } else {
@@ -115,7 +118,7 @@ library EnumerableSet {
      * @dev Returns true if the value is in the set. O(1).
      */
     function _contains(Set storage set, bytes32 value) private view returns (bool) {
-        return set._indexes[value] != 0;
+        return set._positions[value] != 0;
     }
 
     /**
@@ -214,7 +217,15 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
-        return _values(set._inner);
+        bytes32[] memory store = _values(set._inner);
+        bytes32[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
     }
 
     // AddressSet
@@ -325,7 +336,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Returns the number of values on the set. O(1).
+     * @dev Returns the number of values in the set. O(1).
      */
     function length(UintSet storage set) internal view returns (uint256) {
         return _length(set._inner);

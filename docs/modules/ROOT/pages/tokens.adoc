@@ -24,9 +24,8 @@ In a nutshell, when dealing with non-fungibles (like your house) you care about 
 
 Even though the concept of a token is simple, they have a variety of complexities in the implementation. Because everything in Ethereum is just a smart contract, and there are no rules about what smart contracts have to do, the community has developed a variety of *standards* (called EIPs or ERCs) for documenting how a contract can interoperate with other contracts.
 
-You've probably heard of the ERC20 or ERC721 token standards, and that's why you're here. Head to our specialized guides to learn more about these:
+You've probably heard of the ERC-20 or ERC-721 token standards, and that's why you're here. Head to our specialized guides to learn more about these:
 
- * xref:erc20.adoc[ERC20]: the most widespread token standard for fungible assets, albeit somewhat limited by its simplicity.
- * xref:erc721.adoc[ERC721]: the de-facto solution for non-fungible tokens, often used for collectibles and games.
- * xref:erc777.adoc[ERC777]: a richer standard for fungible tokens, enabling new use cases and building on past learnings. Backwards compatible with ERC20.
- * xref:erc1155.adoc[ERC1155]: a novel standard for multi-tokens, allowing for a single contract to represent multiple fungible and non-fungible tokens, along with batched operations for increased gas efficiency.
+ * xref:erc20.adoc[ERC-20]: the most widespread token standard for fungible assets, albeit somewhat limited by its simplicity.
+ * xref:erc721.adoc[ERC-721]: the de-facto solution for non-fungible tokens, often used for collectibles and games.
+ * xref:erc1155.adoc[ERC-1155]: a novel standard for multi-tokens, allowing for a single contract to represent multiple fungible and non-fungible tokens, along with batched operations for increased gas efficiency.

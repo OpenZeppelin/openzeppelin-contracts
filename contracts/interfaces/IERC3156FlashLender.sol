@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (interfaces/IERC3156FlashLender.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC3156FlashLender.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IERC3156FlashBorrower.sol";
+import {IERC3156FlashBorrower} from "./IERC3156FlashBorrower.sol";
 
 /**
- * @dev Interface of the ERC3156 FlashLender, as defined in
+ * @dev Interface of the ERC-3156 FlashLender, as defined in
  * https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
- *
- * _Available since v4.1._
  */
 interface IERC3156FlashLender {
     /**

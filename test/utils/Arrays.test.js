@@ -1,87 +1,122 @@
-require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ArraysImpl = artifacts.require('ArraysImpl');
+const { randomArray, generators } = require('../helpers/random');
 
-contract('Arrays', function (accounts) {
+// See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+const lowerBound = (array, value) => {
+  const i = array.findIndex(element => value <= element);
+  return i == -1 ? array.length : i;
+};
+
+// See https://en.cppreference.com/w/cpp/algorithm/upper_bound
+// const upperBound = (array, value) => {
+//   const i = array.findIndex(element => value < element);
+//   return i == -1 ? array.length : i;
+// };
+
+const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
+
+describe('Arrays', function () {
   describe('findUpperBound', function () {
-    context('Even number of elements', function () {
-      const EVEN_ELEMENTS_ARRAY = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    for (const [title, { array, tests }] of Object.entries({
+      'Even number of elements': {
+        array: [11n, 12n, 13n, 14n, 15n, 16n, 17n, 18n, 19n, 20n],
+        tests: {
+          'basic case': 16n,
+          'first element': 11n,
+          'last element': 20n,
+          'searched value is over the upper boundary': 32n,
+          'searched value is under the lower boundary': 2n,
+        },
+      },
+      'Odd number of elements': {
+        array: [11n, 12n, 13n, 14n, 15n, 16n, 17n, 18n, 19n, 20n, 21n],
+        tests: {
+          'basic case': 16n,
+          'first element': 11n,
+          'last element': 21n,
+          'searched value is over the upper boundary': 32n,
+          'searched value is under the lower boundary': 2n,
+        },
+      },
+      'Array with gap': {
+        array: [11n, 12n, 13n, 14n, 15n, 20n, 21n, 22n, 23n, 24n],
+        tests: {
+          'search value in gap': 17n,
+        },
+      },
+      'Array with duplicated elements': {
+        array: [0n, 10n, 10n, 10n, 10n, 10n, 10n, 10n, 20n],
+        tests: {
+          'search value is duplicated': 10n,
+        },
+      },
+      'Array with duplicated first element': {
+        array: [10n, 10n, 10n, 10n, 10n, 10n, 10n, 20n],
+        tests: {
+          'search value is duplicated first element': 10n,
+        },
+      },
+      'Array with duplicated last element': {
+        array: [0n, 10n, 10n, 10n, 10n, 10n, 10n, 10n],
+        tests: {
+          'search value is duplicated last element': 10n,
+        },
+      },
+      'Empty array': {
+        array: [],
+        tests: {
+          'always returns 0 for empty array': 10n,
+        },
+      },
+    })) {
+      describe(title, function () {
+        const fixture = async () => {
+          return { mock: await ethers.deployContract('Uint256ArraysMock', [array]) };
+        };
 
-      beforeEach(async function () {
-        this.arrays = await ArraysImpl.new(EVEN_ELEMENTS_ARRAY);
-      });
+        beforeEach(async function () {
+          Object.assign(this, await loadFixture(fixture));
+        });
 
-      it('returns correct index for the basic case', async function () {
-        expect(await this.arrays.findUpperBound(16)).to.be.bignumber.equal('5');
+        for (const [name, input] of Object.entries(tests)) {
+          it(name, async function () {
+            // findUpperBound does not support duplicated
+            if (hasDuplicates(array)) this.skip();
+            expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+          });
+        }
       });
+    }
+  });
 
-      it('returns 0 for the first element', async function () {
-        expect(await this.arrays.findUpperBound(11)).to.be.bignumber.equal('0');
-      });
+  describe('unsafeAccess', function () {
+    const contractCases = {
+      address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
+      bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
+      uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
+    };
 
-      it('returns index of the last element', async function () {
-        expect(await this.arrays.findUpperBound(20)).to.be.bignumber.equal('9');
-      });
+    const fixture = async () => {
+      const contracts = {};
+      for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
+        contracts[name] = await ethers.deployContract(artifact, [elements]);
+      }
+      return { contracts };
+    };
 
-      it('returns first index after last element if searched value is over the upper boundary', async function () {
-        expect(await this.arrays.findUpperBound(32)).to.be.bignumber.equal('10');
-      });
-
-      it('returns 0 for the element under the lower boundary', async function () {
-        expect(await this.arrays.findUpperBound(2)).to.be.bignumber.equal('0');
-      });
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
     });
 
-    context('Odd number of elements', function () {
-      const ODD_ELEMENTS_ARRAY = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-
-      beforeEach(async function () {
-        this.arrays = await ArraysImpl.new(ODD_ELEMENTS_ARRAY);
+    for (const [name, { elements }] of Object.entries(contractCases)) {
+      it(name, async function () {
+        for (const i in elements) {
+          expect(await this.contracts[name].unsafeAccess(i)).to.be.equal(elements[i]);
+        }
       });
-
-      it('returns correct index for the basic case', async function () {
-        expect(await this.arrays.findUpperBound(16)).to.be.bignumber.equal('5');
-      });
-
-      it('returns 0 for the first element', async function () {
-        expect(await this.arrays.findUpperBound(11)).to.be.bignumber.equal('0');
-      });
-
-      it('returns index of the last element', async function () {
-        expect(await this.arrays.findUpperBound(21)).to.be.bignumber.equal('10');
-      });
-
-      it('returns first index after last element if searched value is over the upper boundary', async function () {
-        expect(await this.arrays.findUpperBound(32)).to.be.bignumber.equal('11');
-      });
-
-      it('returns 0 for the element under the lower boundary', async function () {
-        expect(await this.arrays.findUpperBound(2)).to.be.bignumber.equal('0');
-      });
-    });
-
-    context('Array with gap', function () {
-      const WITH_GAP_ARRAY = [11, 12, 13, 14, 15, 20, 21, 22, 23, 24];
-
-      beforeEach(async function () {
-        this.arrays = await ArraysImpl.new(WITH_GAP_ARRAY);
-      });
-
-      it('returns index of first element in next filled range', async function () {
-        expect(await this.arrays.findUpperBound(17)).to.be.bignumber.equal('5');
-      });
-    });
-
-    context('Empty array', function () {
-      beforeEach(async function () {
-        this.arrays = await ArraysImpl.new([]);
-      });
-
-      it('always returns 0 for empty array', async function () {
-        expect(await this.arrays.findUpperBound(10)).to.be.bignumber.equal('0');
-      });
-    });
+    }
   });
 });

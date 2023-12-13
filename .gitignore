@@ -54,11 +54,19 @@ allFiredEvents
 .coverage_cache
 .coverage_contracts
 
-# hardhat
-cache
-artifacts
+# hardat-exposed
+contracts-exposed
+
+# Hardhat
+/cache
+/artifacts
+
+# Foundry
+/out
+/cache_forge
 
 # Certora
 .certora*
 .last_confs
 certora_*
+.zip-output-url.txt

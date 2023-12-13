@@ -1,110 +1,74 @@
-const { constants, BN } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { generators } = require('../helpers/random');
 
-const StorageSlotMock = artifacts.require('StorageSlotMock');
+const slot = ethers.id('some.storage.slot');
+const otherSlot = ethers.id('some.other.storage.slot');
 
-const slot = web3.utils.keccak256('some.storage.slot');
-const otherSlot = web3.utils.keccak256('some.other.storage.slot');
+async function fixture() {
+  const [account] = await ethers.getSigners();
+  const mock = await ethers.deployContract('StorageSlotMock');
+  return { mock, account };
+}
 
-contract('StorageSlot', function (accounts) {
+describe('StorageSlot', function () {
   beforeEach(async function () {
-    this.store = await StorageSlotMock.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('boolean storage slot', function () {
-    beforeEach(async function () {
-      this.value = true;
-    });
-
-    it('set', async function () {
-      await this.store.setBoolean(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.store.setBoolean(slot, this.value);
+  for (const { type, value, zero } of [
+    { type: 'Boolean', value: true, zero: false },
+    { type: 'Address', value: generators.address(), zero: ethers.ZeroAddress },
+    { type: 'Bytes32', value: generators.bytes32(), zero: ethers.ZeroHash },
+    { type: 'String', value: 'lorem ipsum', zero: '' },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
+  ]) {
+    describe(`${type} storage slot`, function () {
+      it('set', async function () {
+        await this.mock.getFunction(`set${type}Slot`)(slot, value);
       });
 
-      it('from right slot', async function () {
-        expect(await this.store.getBoolean(slot)).to.be.equal(this.value);
-      });
+      describe('get', function () {
+        beforeEach(async function () {
+          await this.mock.getFunction(`set${type}Slot`)(slot, value);
+        });
 
-      it('from other slot', async function () {
-        expect(await this.store.getBoolean(otherSlot)).to.be.equal(false);
-      });
-    });
-  });
+        it('from right slot', async function () {
+          expect(await this.mock.getFunction(`get${type}Slot`)(slot)).to.equal(value);
+        });
 
-  describe('address storage slot', function () {
-    beforeEach(async function () {
-      this.value = accounts[1];
-    });
-
-    it('set', async function () {
-      await this.store.setAddress(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.store.setAddress(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.store.getAddress(slot)).to.be.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.store.getAddress(otherSlot)).to.be.equal(constants.ZERO_ADDRESS);
+        it('from other slot', async function () {
+          expect(await this.mock.getFunction(`get${type}Slot`)(otherSlot)).to.equal(zero);
+        });
       });
     });
-  });
+  }
 
-  describe('bytes32 storage slot', function () {
-    beforeEach(async function () {
-      this.value = web3.utils.keccak256('some byte32 value');
-    });
-
-    it('set', async function () {
-      await this.store.setBytes32(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.store.setBytes32(slot, this.value);
+  for (const { type, value, zero } of [
+    { type: 'String', value: 'lorem ipsum', zero: '' },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
+  ]) {
+    describe(`${type} storage pointer`, function () {
+      it('set', async function () {
+        await this.mock.getFunction(`set${type}Storage`)(slot, value);
       });
 
-      it('from right slot', async function () {
-        expect(await this.store.getBytes32(slot)).to.be.equal(this.value);
-      });
+      describe('get', function () {
+        beforeEach(async function () {
+          await this.mock.getFunction(`set${type}Storage`)(slot, value);
+        });
 
-      it('from other slot', async function () {
-        expect(await this.store.getBytes32(otherSlot)).to.be.equal(constants.ZERO_BYTES32);
-      });
-    });
-  });
+        it('from right slot', async function () {
+          expect(await this.mock.getFunction(`${type.toLowerCase()}Map`)(slot)).to.equal(value);
+          expect(await this.mock.getFunction(`get${type}Storage`)(slot)).to.equal(value);
+        });
 
-  describe('uint256 storage slot', function () {
-    beforeEach(async function () {
-      this.value = new BN(1742);
-    });
-
-    it('set', async function () {
-      await this.store.setUint256(slot, this.value);
-    });
-
-    describe('get', function () {
-      beforeEach(async function () {
-        await this.store.setUint256(slot, this.value);
-      });
-
-      it('from right slot', async function () {
-        expect(await this.store.getUint256(slot)).to.be.bignumber.equal(this.value);
-      });
-
-      it('from other slot', async function () {
-        expect(await this.store.getUint256(otherSlot)).to.be.bignumber.equal('0');
+        it('from other slot', async function () {
+          expect(await this.mock.getFunction(`${type.toLowerCase()}Map`)(otherSlot)).to.equal(zero);
+          expect(await this.mock.getFunction(`get${type}Storage`)(otherSlot)).to.equal(zero);
+        });
       });
     });
-  });
+  }
 });

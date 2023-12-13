@@ -1,57 +1,72 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const MulticallTokenMock = artifacts.require('MulticallTokenMock');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-contract('MulticallToken', function (accounts) {
-  const [deployer, alice, bob] = accounts;
-  const amount = 12000;
+async function fixture() {
+  const [holder, alice, bruce] = await ethers.getSigners();
 
+  const amount = 12_000n;
+  const helper = await ethers.deployContract('MulticallHelper');
+  const mock = await ethers.deployContract('$ERC20MulticallMock', ['name', 'symbol']);
+  await mock.$_mint(holder, amount);
+
+  return { holder, alice, bruce, amount, mock, helper };
+}
+
+describe('Multicall', function () {
   beforeEach(async function () {
-    this.multicallToken = await MulticallTokenMock.new(new BN(amount), { from: deployer });
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('batches function calls', async function () {
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
-    expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN('0'));
+    expect(await this.mock.balanceOf(this.alice)).to.equal(0n);
+    expect(await this.mock.balanceOf(this.bruce)).to.equal(0n);
 
-    await this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
-    ], { from: deployer });
+    await expect(
+      this.mock.multicall([
+        this.mock.interface.encodeFunctionData('transfer', [this.alice.address, this.amount / 2n]),
+        this.mock.interface.encodeFunctionData('transfer', [this.bruce.address, this.amount / 3n]),
+      ]),
+    )
+      .to.emit(this.mock, 'Transfer')
+      .withArgs(this.holder.address, this.alice.address, this.amount / 2n)
+      .to.emit(this.mock, 'Transfer')
+      .withArgs(this.holder.address, this.bruce.address, this.amount / 3n);
 
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN(amount / 2));
-    expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN(amount / 3));
+    expect(await this.mock.balanceOf(this.alice)).to.equal(this.amount / 2n);
+    expect(await this.mock.balanceOf(this.bruce)).to.equal(this.amount / 3n);
   });
 
   it('returns an array with the result of each call', async function () {
-    const MulticallTest = artifacts.require('MulticallTest');
-    const multicallTest = await MulticallTest.new({ from: deployer });
-    await this.multicallToken.transfer(multicallTest.address, amount, { from: deployer });
-    expect(await this.multicallToken.balanceOf(multicallTest.address)).to.be.bignumber.equal(new BN(amount));
+    await this.mock.transfer(this.helper, this.amount);
+    expect(await this.mock.balanceOf(this.helper)).to.equal(this.amount);
 
-    const recipients = [alice, bob];
-    const amounts = [amount / 2, amount / 3].map(n => new BN(n));
-
-    await multicallTest.testReturnValues(this.multicallToken.address, recipients, amounts);
+    await this.helper.checkReturnValues(this.mock, [this.alice, this.bruce], [this.amount / 2n, this.amount / 3n]);
   });
 
   it('reverts previous calls', async function () {
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
+    expect(await this.mock.balanceOf(this.alice)).to.equal(0n);
 
-    const call = this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-    ], { from: deployer });
+    await expect(
+      this.mock.multicall([
+        this.mock.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+        this.mock.interface.encodeFunctionData('transfer', [this.bruce.address, this.amount]),
+      ]),
+    )
+      .to.be.revertedWithCustomError(this.mock, 'ERC20InsufficientBalance')
+      .withArgs(this.holder.address, 0, this.amount);
 
-    await expectRevert(call, 'ERC20: transfer amount exceeds balance');
-    expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
+    expect(await this.mock.balanceOf(this.alice)).to.equal(0n);
   });
 
   it('bubbles up revert reasons', async function () {
-    const call = this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-    ], { from: deployer });
-
-    await expectRevert(call, 'ERC20: transfer amount exceeds balance');
+    await expect(
+      this.mock.multicall([
+        this.mock.interface.encodeFunctionData('transfer', [this.alice.address, this.amount]),
+        this.mock.interface.encodeFunctionData('transfer', [this.bruce.address, this.amount]),
+      ]),
+    )
+      .to.be.revertedWithCustomError(this.mock, 'ERC20InsufficientBalance')
+      .withArgs(this.holder.address, 0, this.amount);
   });
 });

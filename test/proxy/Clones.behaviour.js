@@ -1,35 +1,29 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
 
-const DummyImplementation = artifacts.require('DummyImplementation');
-
-module.exports = function shouldBehaveLikeClone (createClone) {
-  before('deploy implementation', async function () {
-    this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
-  });
-
+module.exports = function shouldBehaveLikeClone() {
   const assertProxyInitialization = function ({ value, balance }) {
     it('initializes the proxy', async function () {
-      const dummy = new DummyImplementation(this.proxy);
-      expect(await dummy.value()).to.be.bignumber.equal(value.toString());
+      const dummy = await ethers.getContractAt('DummyImplementation', this.proxy);
+      expect(await dummy.value()).to.equal(value);
     });
 
     it('has expected balance', async function () {
-      expect(await web3.eth.getBalance(this.proxy)).to.be.bignumber.equal(balance.toString());
+      expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
   describe('initialization without parameters', function () {
     describe('non payable', function () {
-      const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract.methods['initializeNonPayable()']().encodeABI();
+      const expectedInitializedValue = 10n;
+
+      beforeEach(async function () {
+        this.initializeData = await this.implementation.interface.encodeFunctionData('initializeNonPayable');
+      });
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData)
-          ).address;
+          this.proxy = await this.createClone(this.initializeData);
         });
 
         assertProxyInitialization({
@@ -39,25 +33,24 @@ module.exports = function shouldBehaveLikeClone (createClone) {
       });
 
       describe('when sending some balance', function () {
-        const value = 10e5;
+        const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expectRevert.unspecified(
-            createClone(this.implementation, initializeData, { value }),
-          );
+          await expect(this.createClone(this.initializeData, { value })).to.be.reverted;
         });
       });
     });
 
     describe('payable', function () {
-      const expectedInitializedValue = 100;
-      const initializeData = new DummyImplementation('').contract.methods['initializePayable()']().encodeABI();
+      const expectedInitializedValue = 100n;
+
+      beforeEach(async function () {
+        this.initializeData = await this.implementation.interface.encodeFunctionData('initializePayable');
+      });
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData)
-          ).address;
+          this.proxy = await this.createClone(this.initializeData);
         });
 
         assertProxyInitialization({
@@ -67,12 +60,10 @@ module.exports = function shouldBehaveLikeClone (createClone) {
       });
 
       describe('when sending some balance', function () {
-        const value = 10e5;
+        const value = 10n ** 6n;
 
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData, { value })
-          ).address;
+          this.proxy = await this.createClone(this.initializeData, { value });
         });
 
         assertProxyInitialization({
@@ -85,15 +76,17 @@ module.exports = function shouldBehaveLikeClone (createClone) {
 
   describe('initialization with parameters', function () {
     describe('non payable', function () {
-      const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract
-        .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
+      const expectedInitializedValue = 10n;
+
+      beforeEach(async function () {
+        this.initializeData = await this.implementation.interface.encodeFunctionData('initializeNonPayableWithValue', [
+          expectedInitializedValue,
+        ]);
+      });
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData)
-          ).address;
+          this.proxy = await this.createClone(this.initializeData);
         });
 
         assertProxyInitialization({
@@ -103,26 +96,26 @@ module.exports = function shouldBehaveLikeClone (createClone) {
       });
 
       describe('when sending some balance', function () {
-        const value = 10e5;
+        const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expectRevert.unspecified(
-            createClone(this.implementation, initializeData, { value }),
-          );
+          await expect(this.createClone(this.initializeData, { value })).to.be.reverted;
         });
       });
     });
 
     describe('payable', function () {
-      const expectedInitializedValue = 42;
-      const initializeData = new DummyImplementation('').contract
-        .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
+      const expectedInitializedValue = 42n;
+
+      beforeEach(function () {
+        this.initializeData = this.implementation.interface.encodeFunctionData('initializePayableWithValue', [
+          expectedInitializedValue,
+        ]);
+      });
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData)
-          ).address;
+          this.proxy = await this.createClone(this.initializeData);
         });
 
         assertProxyInitialization({
@@ -132,12 +125,10 @@ module.exports = function shouldBehaveLikeClone (createClone) {
       });
 
       describe('when sending some balance', function () {
-        const value = 10e5;
+        const value = 10n ** 6n;
 
         beforeEach('creating proxy', async function () {
-          this.proxy = (
-            await createClone(this.implementation, initializeData, { value })
-          ).address;
+          this.proxy = await this.createClone(this.initializeData, { value });
         });
 
         assertProxyInitialization({
