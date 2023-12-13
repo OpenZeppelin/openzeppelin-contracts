@@ -33,7 +33,7 @@ describe('ERC721Consecutive', function () {
           batches.map(({ amount }) => amount),
         ]);
 
-        return { accounts, alice, bruce, chris, receiver, batches, delegates, token };
+        return { alice, bruce, chris, receiver, batches, delegates, token };
       }
 
       beforeEach(async function () {
@@ -74,7 +74,7 @@ describe('ERC721Consecutive', function () {
         });
 
         it('balance & voting power are set', async function () {
-          for (const account of this.accounts) {
+          for (const account of await ethers.getSigners()) {
             const balance =
               sum(...this.batches.filter(({ receiver }) => receiver === account).map(({ amount }) => amount)) ?? 0n;
 
