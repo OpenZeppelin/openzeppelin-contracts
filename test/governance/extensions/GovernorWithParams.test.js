@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { bigint: Enums } = require('../../helpers/enums');
-const { getDomain, types } = require('../../helpers/eip712');
+const { getDomain, ExtendedBallot } = require('../../helpers/eip712');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -135,7 +135,7 @@ describe('GovernorWithParams', function () {
             params: params.encoded,
             signature: (contract, message) =>
               getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot: types.ExtendedBallot }, message),
+                this.other.signTypedData(domain, { ExtendedBallot }, message),
               ),
           };
 
@@ -170,7 +170,7 @@ describe('GovernorWithParams', function () {
             params: params.encoded,
             signature: (contract, message) =>
               getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot: types.ExtendedBallot }, message),
+                this.other.signTypedData(domain, { ExtendedBallot }, message),
               ),
           };
 
@@ -204,7 +204,7 @@ describe('GovernorWithParams', function () {
             // tampered signature
             signature: (contract, message) =>
               getDomain(contract)
-                .then(domain => this.other.signTypedData(domain, { ExtendedBallot: types.ExtendedBallot }, message))
+                .then(domain => this.other.signTypedData(domain, { ExtendedBallot }, message))
                 .then(signature => {
                   const tamperedSig = ethers.toBeArray(signature);
                   tamperedSig[42] ^= 0xff;
@@ -236,7 +236,7 @@ describe('GovernorWithParams', function () {
             params: params.encoded,
             signature: (contract, message) =>
               getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot: types.ExtendedBallot }, message),
+                this.other.signTypedData(domain, { ExtendedBallot }, message),
               ),
           };
 

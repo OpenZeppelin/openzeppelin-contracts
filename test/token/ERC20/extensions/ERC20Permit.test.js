@@ -1,41 +1,38 @@
-/* eslint-disable */
-
-const { BN, constants, time } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { MAX_UINT256 } = constants;
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { fromRpcSig } = require('ethereumjs-util');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
-
-const ERC20Permit = artifacts.require('$ERC20Permit');
-
+const { getDomain, domainSeparator, Permit } = require('../../../helpers/eip712');
 const {
-  types: { Permit },
-  getDomain,
-  domainType,
-  domainSeparator,
-} = require('../../../helpers/eip712');
-const { getChainId } = require('../../../helpers/chainid');
-const { expectRevertCustomError } = require('../../../helpers/customError');
+  bigint: { clock, duration },
+} = require('../../../helpers/time');
 
-contract('ERC20Permit', function (accounts) {
-  const [initialHolder, spender] = accounts;
+const name = 'My Token';
+const symbol = 'MTKN';
+const initialSupply = 100n;
 
-  const name = 'My Token';
-  const symbol = 'MTKN';
+async function fixture() {
+  const [initialHolder, spender, owner, other] = await ethers.getSigners();
 
-  const initialSupply = new BN(100);
+  const token = await ethers.deployContract('$ERC20Permit', [name, symbol, name]);
+  await token.$_mint(initialHolder, initialSupply);
 
+  return {
+    initialHolder,
+    spender,
+    owner,
+    other,
+    token,
+  };
+}
+
+describe('ERC20Permit', function () {
   beforeEach(async function () {
-    this.chainId = await getChainId();
-
-    this.token = await ERC20Permit.new(name, symbol, name);
-    await this.token.$_mint(initialHolder, initialSupply);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('initial nonce is 0', async function () {
-    expect(await this.token.nonces(initialHolder)).to.be.bignumber.equal('0');
+    expect(await this.token.nonces(this.initialHolder)).to.equal(0n);
   });
 
   it('domain separator', async function () {
@@ -43,81 +40,72 @@ contract('ERC20Permit', function (accounts) {
   });
 
   describe('permit', function () {
-    const wallet = Wallet.generate();
+    const value = 42n;
+    const nonce = 0n;
+    const maxDeadline = ethers.MaxUint256;
 
-    const owner = wallet.getAddressString();
-    const value = new BN(42);
-    const nonce = 0;
-    const maxDeadline = MAX_UINT256;
-
-    const buildData = (contract, deadline = maxDeadline) =>
-      getDomain(contract).then(domain => ({
-        primaryType: 'Permit',
-        types: { EIP712Domain: domainType(domain), Permit },
-        domain,
-        message: { owner, spender, value, nonce, deadline },
-      }));
+    beforeEach(function () {
+      this.buildData = (contract, deadline = maxDeadline) =>
+        getDomain(contract).then(domain => ({
+          domain,
+          types: { Permit },
+          message: {
+            owner: this.owner.address,
+            spender: this.spender.address,
+            value,
+            nonce,
+            deadline,
+          },
+        }));
+    });
 
     it('accepts owner signature', async function () {
-      const { v, r, s } = await buildData(this.token)
-        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+      const { v, r, s } = await this.buildData(this.token)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
 
-      await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+      await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
 
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+      expect(await this.token.nonces(this.owner)).to.equal(1n);
+      expect(await this.token.allowance(this.owner, this.spender)).to.equal(value);
     });
 
     it('rejects reused signature', async function () {
-      const sig = await buildData(this.token).then(data =>
-        ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }),
+      const { v, r, s, serialized } = await this.buildData(this.token)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
+
+      await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
+
+      const recovered = await this.buildData(this.token).then(({ domain, types, message }) =>
+        ethers.verifyTypedData(domain, types, { ...message, nonce: nonce + 1n, deadline: maxDeadline }, serialized),
       );
-      const { r, s, v } = fromRpcSig(sig);
 
-      await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
-
-      const domain = await getDomain(this.token);
-      const typedMessage = {
-        primaryType: 'Permit',
-        types: { EIP712Domain: domainType(domain), Permit },
-        domain,
-        message: { owner, spender, value, nonce: nonce + 1, deadline: maxDeadline },
-      };
-
-      await expectRevertCustomError(
-        this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC2612InvalidSigner',
-        [ethSigUtil.recoverTypedSignature({ data: typedMessage, sig }), owner],
-      );
+      await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
+        .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
+        .withArgs(recovered, this.owner.address);
     });
 
     it('rejects other signature', async function () {
-      const otherWallet = Wallet.generate();
+      const { v, r, s } = await this.buildData(this.token)
+        .then(({ domain, types, message }) => this.other.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
 
-      const { v, r, s } = await buildData(this.token)
-        .then(data => ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data }))
-        .then(fromRpcSig);
-
-      await expectRevertCustomError(
-        this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC2612InvalidSigner',
-        [await otherWallet.getAddressString(), owner],
-      );
+      await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
+        .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
+        .withArgs(this.other.address, this.owner.address);
     });
 
     it('rejects expired permit', async function () {
-      const deadline = (await time.latest()) - time.duration.weeks(1);
+      const deadline = (await clock.timestamp()) - duration.weeks(1);
 
-      const { v, r, s } = await buildData(this.token, deadline)
-        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+      const { v, r, s } = await this.buildData(this.token, deadline)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
 
-      await expectRevertCustomError(
-        this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC2612ExpiredSignature',
-        [deadline],
-      );
+      await expect(this.token.permit(this.owner, this.spender, value, deadline, v, r, s))
+        .to.be.revertedWithCustomError(this.token, 'ERC2612ExpiredSignature')
+        .withArgs(deadline);
     });
   });
 });

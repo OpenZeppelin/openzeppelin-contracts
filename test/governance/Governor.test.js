@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../helpers/governance');
-const { types, getDomain } = require('../helpers/eip712');
+const { getDomain, Ballot } = require('../helpers/eip712');
 const { bigint: Enums } = require('../helpers/enums');
 const {
   bigint: { clockFromReceipt },
@@ -28,7 +28,7 @@ const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
 const signBallot = account => (contract, message) =>
-  getDomain(contract).then(domain => account.signTypedData(domain, { Ballot: types.Ballot }, message));
+  getDomain(contract).then(domain => account.signTypedData(domain, { Ballot }, message));
 
 async function deployToken(contractName) {
   try {

@@ -38,9 +38,9 @@ function hashTypedData(domain, structHash) {
 }
 
 module.exports = {
-  types,
   getDomain,
   domainType,
   domainSeparator: ethers.TypedDataEncoder.hashDomain,
   hashTypedData,
+  ...types,
 };

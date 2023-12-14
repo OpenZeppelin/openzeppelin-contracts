@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { bigint: time } = require('../../helpers/time');
-const { types, getDomain } = require('../../helpers/eip712');
+const { getDomain, Delegation } = require('../../helpers/eip712');
 
 const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 
@@ -102,7 +102,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
-              { Delegation: types.Delegation },
+              { Delegation },
               {
                 delegatee: this.delegatee.address,
                 nonce,
@@ -134,7 +134,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
-              { Delegation: types.Delegation },
+              { Delegation },
               {
                 delegatee: this.delegatee.address,
                 nonce,
@@ -154,7 +154,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
-              { Delegation: types.Delegation },
+              { Delegation },
               {
                 delegatee: this.delegatee.address,
                 nonce,
@@ -179,7 +179,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
-              { Delegation: types.Delegation },
+              { Delegation },
               {
                 delegatee: this.delegatee.address,
                 nonce: nonce + 1n,
@@ -198,7 +198,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
-              { Delegation: types.Delegation },
+              { Delegation },
               {
                 delegatee: this.delegatee.address,
                 nonce,
