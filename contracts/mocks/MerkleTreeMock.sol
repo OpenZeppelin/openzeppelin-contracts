@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/structs/MerkleTree.sol";
+import {MerkleTree} from "../utils/structs/MerkleTree.sol";
 
 contract MerkleTreeMock {
     using MerkleTree for MerkleTree.TreeWithHistory;

@@ -31,7 +31,7 @@ library MerkleTree {
      * @dev Maximum supported depth. Beyond that, some checks will fail to properly work.
      * This should be enough for any realistic usecase.
      */
-    uint256 private constant _MAX_DEPTH = 255;
+    uint256 private constant MAX_DEPTH = 255;
 
     /**
      * @dev Leaf cannot be inserted because the tree is full.
@@ -82,8 +82,8 @@ library MerkleTree {
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
-        if (depth > _MAX_DEPTH) {
-            revert MerkleTreeInvalidDepth(depth, _MAX_DEPTH);
+        if (depth > MAX_DEPTH) {
+            revert MerkleTreeInvalidDepth(depth, MAX_DEPTH);
         }
 
         // Store depth & length in the dynamic array
