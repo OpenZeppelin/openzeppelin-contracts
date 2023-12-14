@@ -1,12 +1,10 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { ZERO_ADDRESS } = constants;
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-const { expectRevertCustomError } = require('../../helpers/customError');
 
 function shouldBehaveLikeERC2981() {
-  const royaltyFraction = new BN('10');
+  const royaltyFraction = 10n;
 
   shouldSupportInterfaces(['ERC2981']);
 
@@ -16,64 +14,54 @@ function shouldBehaveLikeERC2981() {
     });
 
     it('checks royalty is set', async function () {
-      const royalty = new BN((this.salePrice * royaltyFraction) / 10000);
-
-      const initInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
-
-      expect(initInfo[0]).to.be.equal(this.account1);
-      expect(initInfo[1]).to.be.bignumber.equal(royalty);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([
+        this.account1.address,
+        (this.salePrice * royaltyFraction) / 10_000n,
+      ]);
     });
 
     it('updates royalty amount', async function () {
-      const newPercentage = new BN('25');
+      const newFraction = 25n;
 
-      // Updated royalty check
-      await this.token.$_setDefaultRoyalty(this.account1, newPercentage);
-      const royalty = new BN((this.salePrice * newPercentage) / 10000);
-      const newInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
+      await this.token.$_setDefaultRoyalty(this.account1, newFraction);
 
-      expect(newInfo[0]).to.be.equal(this.account1);
-      expect(newInfo[1]).to.be.bignumber.equal(royalty);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([
+        this.account1.address,
+        (this.salePrice * newFraction) / 10_000n,
+      ]);
     });
 
     it('holds same royalty value for different tokens', async function () {
-      const newPercentage = new BN('20');
-      await this.token.$_setDefaultRoyalty(this.account1, newPercentage);
+      const newFraction = 20n;
 
-      const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
-      const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
+      await this.token.$_setDefaultRoyalty(this.account1, newFraction);
 
-      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal(
+        await this.token.royaltyInfo(this.tokenId2, this.salePrice),
+      );
     });
 
     it('Remove royalty information', async function () {
-      const newValue = new BN('0');
+      const newValue = 0n;
       await this.token.$_deleteDefaultRoyalty();
 
-      const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
-      const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
-      // Test royalty info is still persistent across all tokens
-      expect(token1Info[0]).to.be.bignumber.equal(token2Info[0]);
-      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
-      // Test information was deleted
-      expect(token1Info[0]).to.be.equal(ZERO_ADDRESS);
-      expect(token1Info[1]).to.be.bignumber.equal(newValue);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([ethers.ZeroAddress, newValue]);
+
+      expect(await this.token.royaltyInfo(this.tokenId2, this.salePrice)).to.deep.equal([ethers.ZeroAddress, newValue]);
     });
 
     it('reverts if invalid parameters', async function () {
       const royaltyDenominator = await this.token.$_feeDenominator();
-      await expectRevertCustomError(
-        this.token.$_setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction),
-        'ERC2981InvalidDefaultRoyaltyReceiver',
-        [ZERO_ADDRESS],
-      );
 
-      const anotherRoyaltyFraction = new BN('11000');
-      await expectRevertCustomError(
-        this.token.$_setDefaultRoyalty(this.account1, anotherRoyaltyFraction),
-        'ERC2981InvalidDefaultRoyalty',
-        [anotherRoyaltyFraction, royaltyDenominator],
-      );
+      await expect(this.token.$_setDefaultRoyalty(ethers.ZeroAddress, royaltyFraction))
+        .to.be.revertedWithCustomError(this.token, 'ERC2981InvalidDefaultRoyaltyReceiver')
+        .withArgs(ethers.ZeroAddress);
+
+      const anotherRoyaltyFraction = 11000n;
+
+      await expect(this.token.$_setDefaultRoyalty(this.account1, anotherRoyaltyFraction))
+        .to.be.revertedWithCustomError(this.token, 'ERC2981InvalidDefaultRoyalty')
+        .withArgs(anotherRoyaltyFraction, royaltyDenominator);
     });
   });
 
@@ -83,83 +71,78 @@ function shouldBehaveLikeERC2981() {
     });
 
     it('updates royalty amount', async function () {
-      const newPercentage = new BN('25');
-      let royalty = new BN((this.salePrice * royaltyFraction) / 10000);
-      // Initial royalty check
-      const initInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
+      const newFraction = 25n;
 
-      expect(initInfo[0]).to.be.equal(this.account1);
-      expect(initInfo[1]).to.be.bignumber.equal(royalty);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([
+        this.account1.address,
+        (this.salePrice * royaltyFraction) / 10_000n,
+      ]);
 
-      // Updated royalty check
-      await this.token.$_setTokenRoyalty(this.tokenId1, this.account1, newPercentage);
-      royalty = new BN((this.salePrice * newPercentage) / 10000);
-      const newInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
+      await this.token.$_setTokenRoyalty(this.tokenId1, this.account1, newFraction);
 
-      expect(newInfo[0]).to.be.equal(this.account1);
-      expect(newInfo[1]).to.be.bignumber.equal(royalty);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([
+        this.account1.address,
+        (this.salePrice * newFraction) / 10_000n,
+      ]);
     });
 
     it('holds different values for different tokens', async function () {
-      const newPercentage = new BN('20');
-      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, newPercentage);
+      const newFraction = 20n;
 
-      const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
-      const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, newFraction);
 
-      // must be different even at the same this.salePrice
-      expect(token1Info[1]).to.not.be.bignumber.equal(token2Info[1]);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.not.deep.equal(
+        await this.token.royaltyInfo(this.tokenId2, this.salePrice),
+      );
     });
 
     it('reverts if invalid parameters', async function () {
       const royaltyDenominator = await this.token.$_feeDenominator();
-      await expectRevertCustomError(
-        this.token.$_setTokenRoyalty(this.tokenId1, ZERO_ADDRESS, royaltyFraction),
-        'ERC2981InvalidTokenRoyaltyReceiver',
-        [this.tokenId1.toString(), ZERO_ADDRESS],
-      );
 
-      const anotherRoyaltyFraction = new BN('11000');
-      await expectRevertCustomError(
-        this.token.$_setTokenRoyalty(this.tokenId1, this.account1, anotherRoyaltyFraction),
-        'ERC2981InvalidTokenRoyalty',
-        [this.tokenId1.toString(), anotherRoyaltyFraction, royaltyDenominator],
-      );
+      await expect(this.token.$_setTokenRoyalty(this.tokenId1, ethers.ZeroAddress, royaltyFraction))
+        .to.be.revertedWithCustomError(this.token, 'ERC2981InvalidTokenRoyaltyReceiver')
+        .withArgs(this.tokenId1, ethers.ZeroAddress);
+
+      const anotherRoyaltyFraction = 11000n;
+
+      await expect(this.token.$_setTokenRoyalty(this.tokenId1, this.account1, anotherRoyaltyFraction))
+        .to.be.revertedWithCustomError(this.token, 'ERC2981InvalidTokenRoyalty')
+        .withArgs(this.tokenId1, anotherRoyaltyFraction, royaltyDenominator);
     });
 
     it('can reset token after setting royalty', async function () {
-      const newPercentage = new BN('30');
-      const royalty = new BN((this.salePrice * newPercentage) / 10000);
-      await this.token.$_setTokenRoyalty(this.tokenId1, this.account2, newPercentage);
+      const newFraction = 30n;
 
-      const tokenInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
+      await this.token.$_setTokenRoyalty(this.tokenId1, this.account2, newFraction);
 
       // Tokens must have own information
-      expect(tokenInfo[1]).to.be.bignumber.equal(royalty);
-      expect(tokenInfo[0]).to.be.equal(this.account2);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.deep.equal([
+        this.account2.address,
+        (this.salePrice * newFraction) / 10_000n,
+      ]);
 
-      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, new BN('0'));
-      const result = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, 0n);
+
       // Token must not share default information
-      expect(result[0]).to.be.equal(this.account1);
-      expect(result[1]).to.be.bignumber.equal(new BN('0'));
+      expect(await this.token.royaltyInfo(this.tokenId2, this.salePrice)).to.deep.equal([this.account1.address, 0n]);
     });
 
     it('can hold default and token royalty information', async function () {
-      const newPercentage = new BN('30');
-      const royalty = new BN((this.salePrice * newPercentage) / 10000);
+      const newFraction = 30n;
 
-      await this.token.$_setTokenRoyalty(this.tokenId2, this.account2, newPercentage);
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account2, newFraction);
 
-      const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
-      const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
       // Tokens must not have same values
-      expect(token1Info[1]).to.not.be.bignumber.equal(token2Info[1]);
-      expect(token1Info[0]).to.not.be.equal(token2Info[0]);
+      expect(await this.token.royaltyInfo(this.tokenId1, this.salePrice)).to.not.deep.equal([
+        this.account2.address,
+        (this.salePrice * newFraction) / 10_000n,
+      ]);
 
       // Updated token must have new values
-      expect(token2Info[0]).to.be.equal(this.account2);
-      expect(token2Info[1]).to.be.bignumber.equal(royalty);
+      expect(await this.token.royaltyInfo(this.tokenId2, this.salePrice)).to.deep.equal([
+        this.account2.address,
+        (this.salePrice * newFraction) / 10_000n,
+      ]);
     });
   });
 }
