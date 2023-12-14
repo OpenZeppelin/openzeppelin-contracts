@@ -22,7 +22,7 @@ const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
 describe('Votes', function () {
   for (const [mode, artifact] of Object.entries(MODES)) {
     const fixture = async () => {
-      const [delegator, delegatee, ...accounts] = await ethers.getSigners();
+      const accounts = await ethers.getSigners();
 
       const amounts = Object.fromEntries(
         zip(
@@ -35,7 +35,7 @@ describe('Votes', function () {
       const version = '1';
       const votes = await ethers.deployContract(artifact, [name, version]);
 
-      return { delegator, delegatee, accounts, amounts, votes, name, version };
+      return { accounts, amounts, votes, name, version };
     };
 
     describe(`vote with ${mode}`, function () {

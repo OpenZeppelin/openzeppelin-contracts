@@ -9,8 +9,8 @@ const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 
 function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
   beforeEach(async function () {
+    [this.delegator, this.delegatee, this.alice, this.bob, this.other] = this.accounts;
     this.domain = await getDomain(this.votes);
-    [this.alice, this.bob] = this.accounts;
   });
 
   shouldBehaveLikeERC6372(mode);
@@ -90,9 +90,6 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
       });
 
       describe('with signature', function () {
-        beforeEach(function () {
-          [this.delegatee, this.other] = this.accounts;
-        });
         const nonce = 0n;
 
         it('accept signed delegation', async function () {

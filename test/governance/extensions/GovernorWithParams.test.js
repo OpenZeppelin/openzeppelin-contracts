@@ -134,9 +134,7 @@ describe('GovernorWithParams', function () {
             reason: 'no particular reason',
             params: params.encoded,
             signature: (contract, message) =>
-              getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot }, message),
-              ),
+              getDomain(contract).then(domain => this.other.signTypedData(domain, { ExtendedBallot }, message)),
           };
 
           // Vote
@@ -169,9 +167,7 @@ describe('GovernorWithParams', function () {
             reason: 'no particular reason',
             params: params.encoded,
             signature: (contract, message) =>
-              getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot }, message),
-              ),
+              getDomain(contract).then(domain => this.other.signTypedData(domain, { ExtendedBallot }, message)),
           };
 
           // Vote
@@ -235,9 +231,7 @@ describe('GovernorWithParams', function () {
             reason: 'no particular reason',
             params: params.encoded,
             signature: (contract, message) =>
-              getDomain(contract).then(domain =>
-                this.other.signTypedData(domain, { ExtendedBallot }, message),
-              ),
+              getDomain(contract).then(domain => this.other.signTypedData(domain, { ExtendedBallot }, message)),
           };
 
           // Vote

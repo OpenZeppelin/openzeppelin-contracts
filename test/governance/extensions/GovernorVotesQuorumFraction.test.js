@@ -1,7 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { bigint: Enums } = require('../../helpers/enums');
