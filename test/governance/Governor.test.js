@@ -5,9 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { GovernorHelper } = require('../helpers/governance');
 const { getDomain, Ballot } = require('../helpers/eip712');
 const { bigint: Enums } = require('../helpers/enums');
-const {
-  bigint: { clockFromReceipt },
-} = require('../helpers/time');
+const { bigint: time } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
@@ -134,8 +132,8 @@ describe('Governor', function () {
             this.proposal.values,
             this.proposal.signatures,
             this.proposal.data,
-            (await clockFromReceipt[mode](txPropose)) + votingDelay,
-            (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+            (await time.clockFromReceipt[mode](txPropose)) + votingDelay,
+            (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
             this.proposal.description,
           );
 
@@ -755,8 +753,8 @@ describe('Governor', function () {
                 this.proposal.values,
                 this.proposal.signatures,
                 this.proposal.data,
-                (await clockFromReceipt[mode](txPropose)) + votingDelay,
-                (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                (await time.clockFromReceipt[mode](txPropose)) + votingDelay,
+                (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
                 this.proposal.description,
               );
           });
@@ -773,8 +771,8 @@ describe('Governor', function () {
                 this.proposal.values,
                 this.proposal.signatures,
                 this.proposal.data,
-                (await clockFromReceipt[mode](txPropose)) + votingDelay,
-                (await clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+                (await time.clockFromReceipt[mode](txPropose)) + votingDelay,
+                (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
                 this.proposal.description,
               );
           });

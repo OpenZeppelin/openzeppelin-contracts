@@ -4,9 +4,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const {
-  bigint: { clockFromReceipt },
-} = require('../../helpers/time');
+const { bigint: time } = require('../../helpers/time');
 const { sum } = require('../../helpers/math');
 const { zip } = require('../../helpers/iterate');
 
@@ -58,7 +56,7 @@ describe('Votes', function () {
         });
 
         it('reverts if block number >= current block', async function () {
-          const lastTxTimepoint = await clockFromReceipt[mode](this.txs.at(-1));
+          const lastTxTimepoint = await time.clockFromReceipt[mode](this.txs.at(-1));
           const clock = await this.votes.clock();
           await expect(this.votes.getPastTotalSupply(lastTxTimepoint))
             .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')

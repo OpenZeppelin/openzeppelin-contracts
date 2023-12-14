@@ -1,4 +1,4 @@
-const { clock } = require('../../helpers/time');
+const { bigint: time } = require('../../helpers/time');
 
 function shouldBehaveLikeERC6372(mode = 'blocknumber') {
   describe('should implement ERC-6372', function () {
@@ -7,7 +7,7 @@ function shouldBehaveLikeERC6372(mode = 'blocknumber') {
     });
 
     it('clock is correct', async function () {
-      expect(await this.mock.clock()).to.equal(await clock[mode]());
+      expect(await this.mock.clock()).to.equal(await time.clock[mode]());
     });
 
     it('CLOCK_MODE is correct', async function () {
