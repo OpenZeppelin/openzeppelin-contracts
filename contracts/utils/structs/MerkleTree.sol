@@ -39,7 +39,7 @@ library MerkleTree {
     error MerkleTreeFull();
 
     /**
-     * @dev Merkle tree cannot be initialized because requrest depth is to large.
+     * @dev Merkle tree cannot be initialized because requested depth is to large.
      */
     error MerkleTreeInvalidDepth(uint256 depth, uint256 maxDepth);
 
