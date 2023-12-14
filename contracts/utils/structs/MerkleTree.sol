@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import { MerkleProof } from "../cryptography/MerkleProof.sol";
-import { Arrays } from "../Arrays.sol";
+import {MerkleProof} from "../cryptography/MerkleProof.sol";
+import {Arrays} from "../Arrays.sol";
 
 /**
  * @dev A complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a non-zero
@@ -64,12 +64,7 @@ library MerkleTree {
     /**
      * @dev Initialize using the default hash
      */
-    function initialize(
-        TreeWithHistory storage self,
-        uint256 depth,
-        uint256 length,
-        bytes32 zero
-    ) internal {
+    function initialize(TreeWithHistory storage self, uint256 depth, uint256 length, bytes32 zero) internal {
         return initialize(self, depth, length, zero, MerkleProof.hashPair);
     }
 

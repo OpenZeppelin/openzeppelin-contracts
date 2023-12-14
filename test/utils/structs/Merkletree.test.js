@@ -4,15 +4,19 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
 // TODO: when working with merkle tree construction, ordering of the leaves should be disabled.
-const makeTree = (leafs = [ethers.ZeroHash]) => StandardMerkleTree.of(leafs.map(leaf => [leaf]), ['bytes32']);
+const makeTree = (leafs = [ethers.ZeroHash]) =>
+  StandardMerkleTree.of(
+    leafs.map(leaf => [leaf]),
+    ['bytes32'],
+  );
 
 const MAX_DEPTH = 255n;
 const DEPTH = 4n; // 16 slots
 const LENGTH = 8n;
-const ZERO = makeTree().leafHash([ ethers.ZeroHash ]);
+const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
-async function fixture () {
-  return { mock: await ethers.deployContract('MerkleTreeMock', [ DEPTH, LENGTH, ZERO ]) };
+async function fixture() {
+  return { mock: await ethers.deployContract('MerkleTreeMock', [DEPTH, LENGTH, ZERO]) };
 }
 
 describe('Merklee tree', function () {
@@ -57,7 +61,7 @@ describe('Merklee tree', function () {
         const merkleTree = makeTree(leafs);
 
         // insert value in tree
-        await this.mock.insert(merkleTree.leafHash([ leafs[i] ]));
+        await this.mock.insert(merkleTree.leafHash([leafs[i]]));
 
         // check tree
         expect(await this.mock.currentRootIndex()).to.equal((BigInt(i) + 1n) % LENGTH);
@@ -79,8 +83,7 @@ describe('Merklee tree', function () {
       for (let i = 0; i < 2 ** Number(DEPTH); ++i) {
         await this.mock.insert(ethers.ZeroHash);
       }
-      await expect(this.mock.insert(ethers.ZeroHash))
-        .to.be.revertedWithCustomError(this.mock, 'MerkleTreeFull');
+      await expect(this.mock.insert(ethers.ZeroHash)).to.be.revertedWithCustomError(this.mock, 'MerkleTreeFull');
     });
   });
 });
