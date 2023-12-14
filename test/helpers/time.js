@@ -1,6 +1,5 @@
 const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
-
-const mapObject = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]));
+const { mapValues } = require('./iterate');
 
 module.exports = {
   clock: {
@@ -22,8 +21,8 @@ module.exports = {
 
 // TODO: deprecate the old version in favor of this one
 module.exports.bigint = {
-  clock: mapObject(module.exports.clock, fn => () => fn().then(BigInt)),
-  clockFromReceipt: mapObject(module.exports.clockFromReceipt, fn => receipt => fn(receipt).then(BigInt)),
+  clock: mapValues(module.exports.clock, fn => () => fn().then(BigInt)),
+  clockFromReceipt: mapValues(module.exports.clockFromReceipt, fn => receipt => fn(receipt).then(BigInt)),
   forward: module.exports.forward,
-  duration: mapObject(module.exports.duration, fn => n => BigInt(fn(n))),
+  duration: mapValues(module.exports.duration, fn => n => BigInt(fn(n))),
 };
