@@ -42,17 +42,11 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             const value = initialSupply;
 
             beforeEach(async function () {
-              this.tx = await this.token
-                .connect(this.recipient)
-                .transferFrom(this.holder, this.other, value);
+              this.tx = await this.token.connect(this.recipient).transferFrom(this.holder, this.other, value);
             });
 
             it('transfers the requested value', async function () {
-              await expect(this.tx).to.changeTokenBalances(
-                this.token,
-                [this.holder, this.other],
-                [-value, value],
-              );
+              await expect(this.tx).to.changeTokenBalances(this.token, [this.holder, this.other], [-value, value]);
             });
 
             it('decreases the spender allowance', async function () {
@@ -85,9 +79,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
           it('reverts when the token owner does not have enough balance', async function () {
             const value = initialSupply;
             await this.token.connect(this.holder).transfer(this.other, 1n);
-            await expect(
-              this.token.connect(this.recipient).transferFrom(this.holder, this.other, value),
-            )
+            await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
               .withArgs(this.holder.address, value - 1n, value);
           });
@@ -102,9 +94,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
 
           it('reverts when the token owner has enough balance', async function () {
             const value = initialSupply;
-            await expect(
-              this.token.connect(this.recipient).transferFrom(this.holder, this.other, value),
-            )
+            await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
               .withArgs(this.recipient.address, allowance, value);
           });
@@ -112,9 +102,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
           it('reverts when the token owner does not have enough balance', async function () {
             const value = allowance;
             await this.token.connect(this.holder).transfer(this.other, 2);
-            await expect(
-              this.token.connect(this.recipient).transferFrom(this.holder, this.other, value),
-            )
+            await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
               .withArgs(this.holder.address, value - 1n, value);
           });
@@ -123,9 +111,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
         describe('when the spender has unlimited allowance', function () {
           beforeEach(async function () {
             await this.token.connect(this.holder).approve(this.recipient, ethers.MaxUint256);
-            this.tx = await this.token
-              .connect(this.recipient)
-              .transferFrom(this.holder, this.other, 1n);
+            this.tx = await this.token.connect(this.recipient).transferFrom(this.holder, this.other, 1n);
           });
 
           it('does not decrease the spender allowance', async function () {

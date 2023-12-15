@@ -132,9 +132,7 @@ describe('ERC20', function () {
 
         it('from is the zero address', async function () {
           const tx = await this.token.$_update(ethers.ZeroAddress, this.holder, value);
-          await expect(tx)
-            .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, this.holder.address, value);
+          await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.holder.address, value);
 
           expect(await this.token.totalSupply()).to.equal(this.totalSupply + value);
           await expect(tx).to.changeTokenBalance(this.token, this.holder, value);
@@ -142,9 +140,7 @@ describe('ERC20', function () {
 
         it('to is the zero address', async function () {
           const tx = await this.token.$_update(this.holder, ethers.ZeroAddress, value);
-          await expect(tx)
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, ethers.ZeroAddress, value);
+          await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder.address, ethers.ZeroAddress, value);
 
           expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
           await expect(tx).to.changeTokenBalance(this.token, this.holder, -value);

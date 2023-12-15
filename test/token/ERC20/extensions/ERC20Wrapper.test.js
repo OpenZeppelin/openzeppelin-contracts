@@ -12,7 +12,7 @@ const initialSupply = 100n;
 async function fixture() {
   // this.accounts is used by shouldBehaveLikeERC20
   const accounts = await ethers.getSigners();
-  const [holder, recipient, other] = accounts
+  const [holder, recipient, other] = accounts;
 
   const underlying = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
   await underlying.$_mint(holder, initialSupply);
