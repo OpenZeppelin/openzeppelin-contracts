@@ -2,11 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
-const {
-  bigint: { Enum },
-} = require('../../../helpers/enums.js');
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
+const { bigint: { RevertType } } = require('../../../helpers/enums.js');
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -14,15 +12,21 @@ const value = 1000n;
 const data = '0x123456';
 
 async function fixture() {
-  const [holder, other] = await ethers.getSigners();
+  // this.accounts is used by shouldBehaveLikeERC20
+  const accounts = await ethers.getSigners();
+  const [holder, other] = accounts;
+
   const receiver = await ethers.deployContract('ERC1363ReceiverMock');
   const spender = await ethers.deployContract('ERC1363SpenderMock');
   const token = await ethers.deployContract('$ERC1363', [name, symbol]);
+
   await token.$_mint(holder, value);
+
   return {
-    token,
+    accounts,
     holder,
     other,
+    token,
     receiver,
     spender,
     selectors: {
@@ -37,8 +41,7 @@ describe('ERC1363', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  // TODO: check ERC20 behavior when behavior is migrated to ethers
-
+  shouldBehaveLikeERC20(value);
   shouldSupportInterfaces(['ERC165', 'ERC1363']);
 
   describe('transferAndCall', function () {

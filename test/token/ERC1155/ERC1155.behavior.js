@@ -4,10 +4,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 const { expectRevertCustomError } = require('../../helpers/customError');
-const { Enum } = require('../../helpers/enums');
+const { RevertType } = require('../../helpers/enums');
 
 const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
 function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
