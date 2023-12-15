@@ -10,11 +10,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { batchInBlock } = require('../../../helpers/txpool');
-const {
-  getDomain,
-  domainType,
-  types: { Delegation },
-} = require('../../../helpers/eip712');
+const { getDomain, domainType, Delegation } = require('../../../helpers/eip712');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 const { expectRevertCustomError } = require('../../../helpers/customError');
 

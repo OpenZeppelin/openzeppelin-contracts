@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../helpers/account');
-const { getDomain } = require('../helpers/eip712');
+const { getDomain, ForwardRequest } = require('../helpers/eip712');
 const { MAX_UINT48 } = require('../helpers/constants');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
@@ -15,17 +15,7 @@ async function fixture() {
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
-  const types = {
-    ForwardRequest: [
-      { name: 'from', type: 'address' },
-      { name: 'to', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'gas', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint48' },
-      { name: 'data', type: 'bytes' },
-    ],
-  };
+  const types = { ForwardRequest };
 
   return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
