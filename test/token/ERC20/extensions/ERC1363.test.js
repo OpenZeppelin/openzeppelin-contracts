@@ -41,8 +41,12 @@ describe('ERC1363', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeERC20(value);
   shouldSupportInterfaces(['ERC165', 'ERC1363']);
+  shouldBehaveLikeERC20(value);
+  // Note: transferAndCall(address,uint256) fails "shouldBehaveLikeERC20Transfer" because it revert on EOAs
+  // Note: transferAndCall(address,uint256,bytes) fails "shouldBehaveLikeERC20Transfer" because it revert on EOAs
+  // Note: approveAndCall(address,uint256) fails "shouldBehaveLikeERC20Approve" because it revert on EOAs
+  // Note: approveAndCall(address,uint256,bytes) fails "shouldBehaveLikeERC20Approve" because it revert on EOAs
 
   describe('transferAndCall', function () {
     it('to an EOA', async function () {
