@@ -1,24 +1,22 @@
-require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { clock } = require('../../helpers/time');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const {
+  bigint: { clock },
+} = require('../../helpers/time');
+
 const { product } = require('../../helpers/iterate');
 const { max } = require('../../helpers/math');
-
-const Time = artifacts.require('$Time');
 
 const MAX_UINT32 = 1n << (32n - 1n);
 const MAX_UINT48 = 1n << (48n - 1n);
 const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 const asUint = (value, size) => {
-  if (typeof value != 'bigint') {
-    value = BigInt(value);
-  }
-  // chai does not support bigint :/
-  if (value < 0 || value >= 1n << BigInt(size)) {
-    throw new Error(`value is not a valid uint${size}`);
-  }
+  value = ethers.toBigInt(value);
+  size = ethers.toBigInt(size);
+  expect(value).to.be.greaterThanOrEqual(0n, `value is not a valid uint${size}`);
+  expect(value).to.be.lessThan(1n << size, `value is not a valid uint${size}`);
   return value;
 };
 
@@ -40,18 +38,23 @@ const effectSamplesForTimepoint = timepoint => [
   MAX_UINT48,
 ];
 
+async function fixture() {
+  const mock = await ethers.deployContract('$Time');
+  return { mock };
+}
+
 contract('Time', function () {
   beforeEach(async function () {
-    this.mock = await Time.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('clocks', function () {
     it('timestamp', async function () {
-      expect(await this.mock.$timestamp()).to.be.bignumber.equal(web3.utils.toBN(await clock.timestamp()));
+      expect(await this.mock.$timestamp()).to.equal(await clock.timestamp());
     });
 
     it('block number', async function () {
-      expect(await this.mock.$blockNumber()).to.be.bignumber.equal(web3.utils.toBN(await clock.blocknumber()));
+      expect(await this.mock.$blockNumber()).to.equal(await clock.blocknumber());
     });
   });
 
@@ -63,28 +66,28 @@ contract('Time', function () {
       const delay = 1272825341158973505578n;
 
       it('pack', async function () {
-        const packed = await this.mock.$pack(valueBefore, valueAfter, effect);
-        expect(packed).to.be.bignumber.equal(delay.toString());
-
-        const packed2 = packDelay({ valueBefore, valueAfter, effect });
-        expect(packed2).to.be.equal(delay);
+        expect(await this.mock.$pack(valueBefore, valueAfter, effect)).to.equal(delay);
+        expect(packDelay({ valueBefore, valueAfter, effect })).to.equal(delay);
       });
 
       it('unpack', async function () {
-        const unpacked = await this.mock.$unpack(delay);
-        expect(unpacked[0]).to.be.bignumber.equal(valueBefore.toString());
-        expect(unpacked[1]).to.be.bignumber.equal(valueAfter.toString());
-        expect(unpacked[2]).to.be.bignumber.equal(effect.toString());
+        expect(await this.mock.$unpack(delay)).to.deep.equal([valueBefore, valueAfter, effect]);
 
-        const unpacked2 = unpackDelay(delay);
-        expect(unpacked2).to.be.deep.equal({ valueBefore, valueAfter, effect });
+        expect(unpackDelay(delay)).to.deep.equal({
+          valueBefore,
+          valueAfter,
+          effect,
+        });
       });
     });
 
     it('toDelay', async function () {
       for (const value of [...SOME_VALUES, MAX_UINT32]) {
-        const delay = await this.mock.$toDelay(value).then(unpackDelay);
-        expect(delay).to.be.deep.equal({ valueBefore: 0n, valueAfter: value, effect: 0n });
+        expect(await this.mock.$toDelay(value).then(unpackDelay)).to.deep.equal({
+          valueBefore: 0n,
+          valueAfter: value,
+          effect: 0n,
+        });
       }
     });
 
@@ -95,15 +98,14 @@ contract('Time', function () {
 
       for (const effect of effectSamplesForTimepoint(timepoint)) {
         const isPast = effect <= timepoint;
-
         const delay = packDelay({ valueBefore, valueAfter, effect });
 
-        expect(await this.mock.$get(delay)).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
-
-        const result = await this.mock.$getFull(delay);
-        expect(result[0]).to.be.bignumber.equal(String(isPast ? valueAfter : valueBefore));
-        expect(result[1]).to.be.bignumber.equal(String(isPast ? 0n : valueAfter));
-        expect(result[2]).to.be.bignumber.equal(String(isPast ? 0n : effect));
+        expect(await this.mock.$get(delay)).to.equal(isPast ? valueAfter : valueBefore);
+        expect(await this.mock.$getFull(delay)).to.deep.equal([
+          isPast ? valueAfter : valueBefore,
+          isPast ? 0n : valueAfter,
+          isPast ? 0n : effect,
+        ]);
       }
     });
 
@@ -119,22 +121,16 @@ contract('Time', function () {
           const expectedvalueBefore = isPast ? valueAfter : valueBefore;
           const expectedSetback = max(minSetback, expectedvalueBefore - newvalueAfter, 0n);
 
-          const result = await this.mock.$withUpdate(
-            packDelay({ valueBefore, valueAfter, effect }),
-            newvalueAfter,
-            minSetback,
-          );
-
-          expect(result[0]).to.be.bignumber.equal(
-            String(
-              packDelay({
-                valueBefore: expectedvalueBefore,
-                valueAfter: newvalueAfter,
-                effect: timepoint + expectedSetback,
-              }),
-            ),
-          );
-          expect(result[1]).to.be.bignumber.equal(String(timepoint + expectedSetback));
+          expect(
+            await this.mock.$withUpdate(packDelay({ valueBefore, valueAfter, effect }), newvalueAfter, minSetback),
+          ).to.deep.equal([
+            packDelay({
+              valueBefore: expectedvalueBefore,
+              valueAfter: newvalueAfter,
+              effect: timepoint + expectedSetback,
+            }),
+            timepoint + expectedSetback,
+          ]);
         }
     });
   });
