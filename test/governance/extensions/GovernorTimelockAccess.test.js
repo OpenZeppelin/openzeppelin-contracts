@@ -14,7 +14,7 @@ function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
   return {
     id: hashOperation(sender, target, data),
     operation: { target, value, data },
-    selector: data.slice(0, 10),
+    selector: data.slice(0, 10).padEnd(10, '0'),
   };
 }
 
