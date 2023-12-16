@@ -850,7 +850,7 @@ describe('Governor', function () {
         });
 
         it('setProposalThreshold is protected', async function () {
-          await expect(this.mock.connect(this.owner).setProposalThreshold(1000000000000000000n))
+          await expect(this.mock.connect(this.owner).setProposalThreshold(1_000_000_000_000_000_000n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
             .withArgs(this.owner.address);
         });
@@ -925,7 +925,7 @@ describe('Governor', function () {
             [
               {
                 target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setProposalThreshold', [1000000000000000000n]),
+                data: this.mock.interface.encodeFunctionData('setProposalThreshold', [1_000_000_000_000_000_000n]),
               },
             ],
             '<proposal description>',
@@ -938,9 +938,9 @@ describe('Governor', function () {
 
           await expect(this.helper.execute())
             .to.emit(this.mock, 'ProposalThresholdSet')
-            .withArgs(0n, 1000000000000000000n);
+            .withArgs(0n, 1_000_000_000_000_000_000n);
 
-          expect(await this.mock.proposalThreshold()).to.equal(1000000000000000000n);
+          expect(await this.mock.proposalThreshold()).to.equal(1_000_000_000_000_000_000n);
         });
       });
 
