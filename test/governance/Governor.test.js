@@ -122,6 +122,7 @@ describe('Governor', function () {
 
         // Run proposal
         const txPropose = await this.helper.connect(this.proposer).propose();
+        const timepoint = await time.clockFromReceipt[mode](txPropose);
 
         await expect(txPropose)
           .to.emit(this.mock, 'ProposalCreated')
@@ -132,8 +133,8 @@ describe('Governor', function () {
             this.proposal.values,
             this.proposal.signatures,
             this.proposal.data,
-            (await time.clockFromReceipt[mode](txPropose)) + votingDelay,
-            (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod,
+            timepoint + votingDelay,
+            timepoint + votingDelay + votingPeriod,
             this.proposal.description,
           );
 
