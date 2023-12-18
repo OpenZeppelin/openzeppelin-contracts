@@ -71,32 +71,28 @@ class GovernorHelper {
     }
   }
 
-  vote(vote = {}) {
-    const proposal = this.currentProposal;
+  async vote(vote = {}) {
+    let method = 'castVote'; // default
+    let args = [this.currentProposal.id, vote.support]; // base
 
-    return vote.signature
-      ? // if signature, and either params or reason →
-        vote
-          .signature(this.governor, this.forgeMessage(vote))
-          .then(signature =>
-            vote.params || vote.reason
-              ? this.governor.castVoteWithReasonAndParamsBySig(
-                  proposal.id,
-                  vote.support,
-                  vote.voter,
-                  vote.reason || '',
-                  vote.params || '',
-                  signature,
-                )
-              : this.governor.castVoteBySig(proposal.id, vote.support, vote.voter, signature),
-          )
-      : vote.params
-      ? // otherwise if params
-        this.governor.castVoteWithReasonAndParams(proposal.id, vote.support, vote.reason || '', vote.params)
-      : vote.reason
-      ? // otherwise if reason
-        this.governor.castVoteWithReason(proposal.id, vote.support, vote.reason)
-      : this.governor.castVote(proposal.id, vote.support);
+    if (vote.signature) {
+      const sign = await vote.signature(this.governor, this.forgeMessage(vote));
+      if (vote.params || vote.reason) {
+        method = 'castVoteWithReasonAndParamsBySig';
+        args.push(vote.voter, vote.reason || '', vote.params || '', sign);
+      } else {
+        method = 'castVoteBySig';
+        args.push(vote.voter, sign);
+      }
+    } else if (vote.params) {
+      method = 'castVoteWithReasonAndParams';
+      args.push(vote.reason || '', vote.params);
+    } else if (vote.reason) {
+      method = 'castVoteWithReason';
+      args.push(vote.reason);
+    }
+
+    return await this.governor[method](...args);
   }
 
   forgeMessage(vote = {}) {
