@@ -29,13 +29,7 @@ class GovernorHelper {
       this.values = actions.map(a => a.value || 0n);
       this.data = actions.map(a => a.data || '0x');
     } else {
-      (
-        {
-          targets: this.targets,
-          values: this.values,
-          data: this.data
-        } = actions
-      );
+      ({ targets: this.targets, values: this.values, data: this.data } = actions);
     }
     this.description = description;
     return this;
