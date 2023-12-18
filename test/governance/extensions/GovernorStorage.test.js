@@ -104,14 +104,14 @@ describe('GovernorStorage', function () {
             this.proposal.id,
             this.proposal.targets,
             this.proposal.values,
-            this.proposal.fulldata,
+            this.proposal.data,
             this.proposal.descriptionHash,
           ]);
 
           expect(await this.mock.proposalDetails(this.proposal.id)).to.deep.equal([
             this.proposal.targets,
             this.proposal.values,
-            this.proposal.fulldata,
+            this.proposal.data,
             this.proposal.descriptionHash,
           ]);
         });
