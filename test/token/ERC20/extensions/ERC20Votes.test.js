@@ -424,9 +424,9 @@ describe('ERC20Votes', function () {
         describe('getPastVotes', function () {
           it('reverts if block number >= current block', async function () {
             const clock = await this.token.clock();
-            await expect(this.token.getPastVotes(this.other1, 50000000000n))
+            await expect(this.token.getPastVotes(this.other1, 50_000_000_000n))
               .to.be.revertedWithCustomError(this.token, 'ERC5805FutureLookup')
-              .withArgs(50000000000n, clock);
+              .withArgs(50_000_000_000n, clock);
           });
 
           it('returns 0 if there are no checkpoints', async function () {
@@ -487,9 +487,9 @@ describe('ERC20Votes', function () {
 
         it('reverts if block number >= current block', async function () {
           const clock = await this.token.clock();
-          await expect(this.token.getPastTotalSupply(50000000000n))
+          await expect(this.token.getPastTotalSupply(50_000_000_000n))
             .to.be.revertedWithCustomError(this.token, 'ERC5805FutureLookup')
-            .withArgs(50000000000n, clock);
+            .withArgs(50_000_000_000n, clock);
         });
 
         it('returns 0 if there are no checkpoints', async function () {
