@@ -4,10 +4,10 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { GovernorHelper } = require('../helpers/governance');
-const time = require('../helpers/time');
 const {
   bigint: { OperationState },
 } = require('../helpers/enums');
+const time = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
