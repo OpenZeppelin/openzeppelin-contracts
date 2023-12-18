@@ -1,8 +1,7 @@
 const { ethers } = require('hardhat');
 const { forward } = require('./time');
 const { ProposalState } = require('./enums');
-const { selector } = require('./methods');
-const { unique, zip } = require('./iterate');
+const { unique } = require('./iterate');
 
 const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
@@ -91,17 +90,33 @@ class GovernorHelper {
   }
 
   queue() {
+<<<<<<< HEAD
     return this.governor.queue(...this.shortProposal);
   }
 
   execute() {
     return this.governor.execute(...this.shortProposal);
+=======
+    const proposal = this.currentProposal;
+
+    return this.governor.queue(...proposal.shortProposal);
+  }
+
+  execute() {
+    const proposal = this.currentProposal;
+
+    return this.governor.execute(...proposal.shortProposal);
+>>>>>>> f2086aab17a8ff68fc4da4d8f4a433128bfddae4
   }
 
   cancel(visibility = 'external') {
     switch (visibility) {
       case 'external':
+<<<<<<< HEAD
         return this.governor.cancel(...this.shortProposal);
+=======
+        return this.governor.cancel(...proposal.shortProposal);
+>>>>>>> f2086aab17a8ff68fc4da4d8f4a433128bfddae4
 
       case 'internal':
         return this.governor.$_cancel(...this.shortProposal);
@@ -151,6 +166,7 @@ class GovernorHelper {
     return forward.timestamp(timestamp + offset);
   }
 
+<<<<<<< HEAD
   /// Other helpers
   forgeMessage(vote = {}) {
     const message = { proposalId: this.id, support: vote.support, voter: vote.voter, nonce: vote.nonce };
@@ -161,6 +177,53 @@ class GovernorHelper {
     }
 
     return message;
+=======
+  /**
+   * Specify a proposal either as
+   * 1) an array of objects [{ target, value, data }]
+   * 2) an object of arrays { targets: [], values: [], data: [] }
+   */
+  setProposal(actions, description) {
+    let targets, values, data;
+
+    if (Array.isArray(actions)) {
+      targets = actions.map(a => a.target);
+      values = actions.map(a => a.value || 0n);
+      data = actions.map(a => a.data || '0x');
+    } else {
+      ({ targets, values, data } = actions);
+    }
+
+    const fulldata = data.map(d => ethers.concat(['0x', d]));
+
+    const descriptionHash = ethers.id(description);
+
+    // condensed version for queueing end executing
+    const shortProposal = [targets, values, data, descriptionHash];
+
+    // full version for proposing
+    const fullProposal = [targets, values, ...[], data, description];
+
+    // proposal id
+    const id = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
+    );
+
+    this.currentProposal = {
+      id,
+      targets,
+      values,
+      signatures: [''], // Backwards compatibility with ProposalCreated event
+      data,
+      fulldata,
+      description,
+      descriptionHash,
+      shortProposal,
+      fullProposal,
+    };
+
+    return this.currentProposal;
+>>>>>>> f2086aab17a8ff68fc4da4d8f4a433128bfddae4
   }
 
   /**
