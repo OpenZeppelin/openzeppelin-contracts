@@ -14,7 +14,7 @@ const TOKENS = [
 const name = 'My Vote';
 const symbol = 'MTKN';
 const version = '1';
-const tokens = [10000000000000000000000000n, 10n, 20n, 30n];
+const tokens = [ethers.parseEther('10000000'), 10n, 20n, 30n];
 
 describe('ERC721Votes', function () {
   for (const { Token, mode } of TOKENS) {
