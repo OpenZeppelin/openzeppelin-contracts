@@ -300,8 +300,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         it('returns the latest block if >= last checkpoint block', async function () {
           const delegate = await this.votes.connect(this.alice).delegate(this.bob);
           const timepoint = await time.clockFromReceipt[mode](delegate);
-          await mine();
-          await mine();
+          await mine(2);
 
           const latest = await this.votes.getVotes(this.bob);
           expect(await this.votes.getPastVotes(this.bob, timepoint)).to.equal(latest);
@@ -312,8 +311,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           await mine();
           const delegate = await this.votes.connect(this.alice).delegate(this.bob);
           const timepoint = await time.clockFromReceipt[mode](delegate);
-          await mine();
-          await mine();
+          await mine(2);
 
           expect(await this.votes.getPastVotes(this.bob, timepoint - 1n)).to.equal(0n);
         });

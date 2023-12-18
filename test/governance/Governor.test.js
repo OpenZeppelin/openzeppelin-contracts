@@ -741,7 +741,7 @@ describe('Governor', function () {
       });
 
       describe('frontrun protection using description suffix', function () {
-        const shouldPropose = () => {
+        function shouldPropose() {
           it('proposer can propose', async function () {
             const txPropose = await this.helper.connect(this.proposer).propose();
 
@@ -777,7 +777,7 @@ describe('Governor', function () {
                 this.proposal.description,
               );
           });
-        };
+        }
 
         describe('without protection', function () {
           describe('without suffix', function () {

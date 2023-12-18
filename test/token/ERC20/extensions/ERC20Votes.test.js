@@ -436,8 +436,7 @@ describe('ERC20Votes', function () {
           it('returns the latest block if >= last checkpoint block', async function () {
             const tx = await this.token.connect(this.holder).delegate(this.other1);
             const timepoint = await time.clockFromReceipt[mode](tx);
-            await mine();
-            await mine();
+            await mine(2);
 
             expect(await this.token.getPastVotes(this.other1, timepoint)).to.equal(supply);
             expect(await this.token.getPastVotes(this.other1, timepoint + 1n)).to.equal(supply);
@@ -447,8 +446,7 @@ describe('ERC20Votes', function () {
             await mine();
             const tx = await this.token.connect(this.holder).delegate(this.other1);
             const timepoint = await time.clockFromReceipt[mode](tx);
-            await mine();
-            await mine();
+            await mine(2);
 
             expect(await this.token.getPastVotes(this.other1, timepoint - 1n)).to.equal(0n);
             expect(await this.token.getPastVotes(this.other1, timepoint + 1n)).to.equal(supply);
@@ -456,17 +454,13 @@ describe('ERC20Votes', function () {
 
           it('generally returns the voting balance at the appropriate checkpoint', async function () {
             const t1 = await this.token.connect(this.holder).delegate(this.other1);
-            await mine();
-            await mine();
+            await mine(2);
             const t2 = await this.token.connect(this.holder).transfer(this.other2, 10);
-            await mine();
-            await mine();
+            await mine(2);
             const t3 = await this.token.connect(this.holder).transfer(this.other2, 10);
-            await mine();
-            await mine();
+            await mine(2);
             const t4 = await this.token.connect(this.other2).transfer(this.holder, 20);
-            await mine();
-            await mine();
+            await mine(2);
 
             t1.timepoint = await time.clockFromReceipt[mode](t1);
             t2.timepoint = await time.clockFromReceipt[mode](t2);
@@ -505,8 +499,7 @@ describe('ERC20Votes', function () {
         it('returns the latest block if >= last checkpoint block', async function () {
           const tx = await this.token.$_mint(this.holder, supply);
           const timepoint = await time.clockFromReceipt[mode](tx);
-          await mine();
-          await mine();
+          await mine(2);
 
           expect(await this.token.getPastTotalSupply(timepoint)).to.equal(supply);
           expect(await this.token.getPastTotalSupply(timepoint + 1n)).to.equal(supply);
@@ -516,8 +509,7 @@ describe('ERC20Votes', function () {
           await mine();
           const tx = await this.token.$_mint(this.holder, supply);
           const timepoint = await time.clockFromReceipt[mode](tx);
-          await mine();
-          await mine();
+          await mine(2);
 
           expect(await this.token.getPastTotalSupply(timepoint - 1n)).to.equal(0n);
           expect(await this.token.getPastTotalSupply(timepoint + 1n)).to.equal(supply);
@@ -525,17 +517,13 @@ describe('ERC20Votes', function () {
 
         it('generally returns the voting balance at the appropriate checkpoint', async function () {
           const t1 = await this.token.$_mint(this.holder, supply);
-          await mine();
-          await mine();
+          await mine(2);
           const t2 = await this.token.$_burn(this.holder, 10n);
-          await mine();
-          await mine();
+          await mine(2);
           const t3 = await this.token.$_burn(this.holder, 10n);
-          await mine();
-          await mine();
+          await mine(2);
           const t4 = await this.token.$_mint(this.holder, 20n);
-          await mine();
-          await mine();
+          await mine(2);
 
           t1.timepoint = await time.clockFromReceipt[mode](t1);
           t2.timepoint = await time.clockFromReceipt[mode](t2);

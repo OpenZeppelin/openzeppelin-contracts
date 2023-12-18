@@ -134,8 +134,7 @@ describe('ERC721Votes', function () {
           const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
           const timepoint = await time.clockFromReceipt[mode](tx);
 
-          await mine();
-          await mine();
+          await mine(2);
 
           expect(await this.votes.getPastTotalSupply(timepoint - 1n)).to.equal(1n);
           expect(await this.votes.getPastTotalSupply(timepoint + 1n)).to.equal(1n);
@@ -152,17 +151,13 @@ describe('ERC721Votes', function () {
           const total = await this.votes.balanceOf(this.holder);
 
           const t1 = await this.votes.connect(this.holder).delegate(this.other1);
-          await mine();
-          await mine();
+          await mine(2);
           const t2 = await this.votes.connect(this.holder).transferFrom(this.holder, this.other2, tokens[0]);
-          await mine();
-          await mine();
+          await mine(2);
           const t3 = await this.votes.connect(this.holder).transferFrom(this.holder, this.other2, tokens[2]);
-          await mine();
-          await mine();
+          await mine(2);
           const t4 = await this.votes.connect(this.other2).transferFrom(this.other2, this.holder, tokens[2]);
-          await mine();
-          await mine();
+          await mine(2);
 
           t1.timepoint = await time.clockFromReceipt[mode](t1);
           t2.timepoint = await time.clockFromReceipt[mode](t2);
