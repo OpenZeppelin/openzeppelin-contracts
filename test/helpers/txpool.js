@@ -1,5 +1,6 @@
 const { network } = require('hardhat');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+const { unique } = require('./iterate');
 
 async function batchInBlock(txs) {
   try {
@@ -12,8 +13,7 @@ async function batchInBlock(txs) {
     // fetch receipts
     const receipts = await Promise.all(responses.map(response => response.wait()));
     // Sanity check, all tx should be in the same block
-    const minedBlocks = new Set(receipts.map(receipt => receipt.blockNumber));
-    expect(minedBlocks.size).to.equal(1);
+    expect(unique(receipts.map(receipt => receipt.blockNumber))).to.have.lengthOf(1);
     // return responses
     return receipts;
   } finally {
