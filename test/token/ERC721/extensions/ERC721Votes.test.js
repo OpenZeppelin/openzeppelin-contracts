@@ -1,181 +1,192 @@
-/* eslint-disable */
-
-const { expectEvent, time } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { clock, clockFromReceipt } = require('../../../helpers/time');
+const { bigint: time } = require('../../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
-const MODES = {
-  blocknumber: artifacts.require('$ERC721Votes'),
+const TOKENS = [
+  { Token: '$ERC721Votes', mode: 'blocknumber' },
   // no timestamp mode for ERC721Votes yet
-};
+];
 
-contract('ERC721Votes', function (accounts) {
-  const [account1, account2, other1, other2] = accounts;
+const name = 'My Vote';
+const symbol = 'MTKN';
+const version = '1';
+const tokens = [ethers.parseEther('10000000'), 10n, 20n, 30n];
 
-  const name = 'My Vote';
-  const symbol = 'MTKN';
-  const version = '1';
-  const tokens = ['10000000000000000000000000', '10', '20', '30'].map(n => web3.utils.toBN(n));
+describe('ERC721Votes', function () {
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      // accounts is required by shouldBehaveLikeVotes
+      const accounts = await ethers.getSigners();
+      const [holder, recipient, other1, other2] = accounts;
 
-  for (const [mode, artifact] of Object.entries(MODES)) {
+      const token = await ethers.deployContract(Token, [name, symbol, name, version]);
+
+      return { accounts, holder, recipient, other1, other2, token };
+    };
+
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        this.votes = await artifact.new(name, symbol, name, version);
+        Object.assign(this, await loadFixture(fixture));
+        this.votes = this.token;
       });
 
       // includes ERC6372 behavior check
-      shouldBehaveLikeVotes(accounts, tokens, { mode, fungible: false });
+      shouldBehaveLikeVotes(tokens, { mode, fungible: false });
 
       describe('balanceOf', function () {
         beforeEach(async function () {
-          await this.votes.$_mint(account1, tokens[0]);
-          await this.votes.$_mint(account1, tokens[1]);
-          await this.votes.$_mint(account1, tokens[2]);
-          await this.votes.$_mint(account1, tokens[3]);
+          await this.votes.$_mint(this.holder, tokens[0]);
+          await this.votes.$_mint(this.holder, tokens[1]);
+          await this.votes.$_mint(this.holder, tokens[2]);
+          await this.votes.$_mint(this.holder, tokens[3]);
         });
 
         it('grants to initial account', async function () {
-          expect(await this.votes.balanceOf(account1)).to.be.bignumber.equal('4');
+          expect(await this.votes.balanceOf(this.holder)).to.equal(4n);
         });
       });
 
       describe('transfers', function () {
         beforeEach(async function () {
-          await this.votes.$_mint(account1, tokens[0]);
+          await this.votes.$_mint(this.holder, tokens[0]);
         });
 
         it('no delegation', async function () {
-          const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
-          expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
+          await expect(this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]))
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .to.not.emit(this.token, 'DelegateVotesChanged');
 
-          this.account1Votes = '0';
-          this.account2Votes = '0';
+          this.holderVotes = 0n;
+          this.recipientVotes = 0n;
         });
 
         it('sender delegation', async function () {
-          await this.votes.delegate(account1, { from: account1 });
+          await this.votes.connect(this.holder).delegate(this.holder);
 
-          const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
-          expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousVotes: '1', newVotes: '0' });
+          const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.holder.address, 1n, 0n);
 
-          const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-          expect(
-            receipt.logs
-              .filter(({ event }) => event == 'DelegateVotesChanged')
-              .every(({ logIndex }) => transferLogIndex < logIndex),
-          ).to.be.equal(true);
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
 
-          this.account1Votes = '0';
-          this.account2Votes = '0';
+          this.holderVotes = 0n;
+          this.recipientVotes = 0n;
         });
 
         it('receiver delegation', async function () {
-          await this.votes.delegate(account2, { from: account2 });
+          await this.votes.connect(this.recipient).delegate(this.recipient);
 
-          const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
-          expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousVotes: '0', newVotes: '1' });
+          const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.recipient.address, 0n, 1n);
 
-          const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-          expect(
-            receipt.logs
-              .filter(({ event }) => event == 'DelegateVotesChanged')
-              .every(({ logIndex }) => transferLogIndex < logIndex),
-          ).to.be.equal(true);
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
 
-          this.account1Votes = '0';
-          this.account2Votes = '1';
+          this.holderVotes = 0n;
+          this.recipientVotes = 1n;
         });
 
         it('full delegation', async function () {
-          await this.votes.delegate(account1, { from: account1 });
-          await this.votes.delegate(account2, { from: account2 });
+          await this.votes.connect(this.holder).delegate(this.holder);
+          await this.votes.connect(this.recipient).delegate(this.recipient);
 
-          const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
-          expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: tokens[0] });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousVotes: '1', newVotes: '0' });
-          expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousVotes: '0', newVotes: '1' });
+          const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.holder.address, 1n, 0n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.recipient.address, 0n, 1n);
 
-          const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-          expect(
-            receipt.logs
-              .filter(({ event }) => event == 'DelegateVotesChanged')
-              .every(({ logIndex }) => transferLogIndex < logIndex),
-          ).to.be.equal(true);
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
 
-          this.account1Votes = '0';
-          this.account2Votes = '1';
+          this.holderVotes = 0;
+          this.recipientVotes = 1n;
         });
 
         it('returns the same total supply on transfers', async function () {
-          await this.votes.delegate(account1, { from: account1 });
+          await this.votes.connect(this.holder).delegate(this.holder);
 
-          const { receipt } = await this.votes.transferFrom(account1, account2, tokens[0], { from: account1 });
-          const timepoint = await clockFromReceipt[mode](receipt);
+          const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
+          const timepoint = await time.clockFromReceipt[mode](tx);
 
-          await time.advanceBlock();
-          await time.advanceBlock();
+          await mine(2);
 
-          expect(await this.votes.getPastTotalSupply(timepoint - 1)).to.be.bignumber.equal('1');
-          expect(await this.votes.getPastTotalSupply(timepoint + 1)).to.be.bignumber.equal('1');
+          expect(await this.votes.getPastTotalSupply(timepoint - 1n)).to.equal(1n);
+          expect(await this.votes.getPastTotalSupply(timepoint + 1n)).to.equal(1n);
 
-          this.account1Votes = '0';
-          this.account2Votes = '0';
+          this.holderVotes = 0n;
+          this.recipientVotes = 0n;
         });
 
         it('generally returns the voting balance at the appropriate checkpoint', async function () {
-          await this.votes.$_mint(account1, tokens[1]);
-          await this.votes.$_mint(account1, tokens[2]);
-          await this.votes.$_mint(account1, tokens[3]);
+          await this.votes.$_mint(this.holder, tokens[1]);
+          await this.votes.$_mint(this.holder, tokens[2]);
+          await this.votes.$_mint(this.holder, tokens[3]);
 
-          const total = await this.votes.balanceOf(account1);
+          const total = await this.votes.balanceOf(this.holder);
 
-          const t1 = await this.votes.delegate(other1, { from: account1 });
-          await time.advanceBlock();
-          await time.advanceBlock();
-          const t2 = await this.votes.transferFrom(account1, other2, tokens[0], { from: account1 });
-          await time.advanceBlock();
-          await time.advanceBlock();
-          const t3 = await this.votes.transferFrom(account1, other2, tokens[2], { from: account1 });
-          await time.advanceBlock();
-          await time.advanceBlock();
-          const t4 = await this.votes.transferFrom(other2, account1, tokens[2], { from: other2 });
-          await time.advanceBlock();
-          await time.advanceBlock();
+          const t1 = await this.votes.connect(this.holder).delegate(this.other1);
+          await mine(2);
+          const t2 = await this.votes.connect(this.holder).transferFrom(this.holder, this.other2, tokens[0]);
+          await mine(2);
+          const t3 = await this.votes.connect(this.holder).transferFrom(this.holder, this.other2, tokens[2]);
+          await mine(2);
+          const t4 = await this.votes.connect(this.other2).transferFrom(this.other2, this.holder, tokens[2]);
+          await mine(2);
 
-          t1.timepoint = await clockFromReceipt[mode](t1.receipt);
-          t2.timepoint = await clockFromReceipt[mode](t2.receipt);
-          t3.timepoint = await clockFromReceipt[mode](t3.receipt);
-          t4.timepoint = await clockFromReceipt[mode](t4.receipt);
+          t1.timepoint = await time.clockFromReceipt[mode](t1);
+          t2.timepoint = await time.clockFromReceipt[mode](t2);
+          t3.timepoint = await time.clockFromReceipt[mode](t3);
+          t4.timepoint = await time.clockFromReceipt[mode](t4);
 
-          expect(await this.votes.getPastVotes(other1, t1.timepoint - 1)).to.be.bignumber.equal('0');
-          expect(await this.votes.getPastVotes(other1, t1.timepoint)).to.be.bignumber.equal(total);
-          expect(await this.votes.getPastVotes(other1, t1.timepoint + 1)).to.be.bignumber.equal(total);
-          expect(await this.votes.getPastVotes(other1, t2.timepoint)).to.be.bignumber.equal('3');
-          expect(await this.votes.getPastVotes(other1, t2.timepoint + 1)).to.be.bignumber.equal('3');
-          expect(await this.votes.getPastVotes(other1, t3.timepoint)).to.be.bignumber.equal('2');
-          expect(await this.votes.getPastVotes(other1, t3.timepoint + 1)).to.be.bignumber.equal('2');
-          expect(await this.votes.getPastVotes(other1, t4.timepoint)).to.be.bignumber.equal('3');
-          expect(await this.votes.getPastVotes(other1, t4.timepoint + 1)).to.be.bignumber.equal('3');
+          expect(await this.votes.getPastVotes(this.other1, t1.timepoint - 1n)).to.equal(0n);
+          expect(await this.votes.getPastVotes(this.other1, t1.timepoint)).to.equal(total);
+          expect(await this.votes.getPastVotes(this.other1, t1.timepoint + 1n)).to.equal(total);
+          expect(await this.votes.getPastVotes(this.other1, t2.timepoint)).to.equal(3n);
+          expect(await this.votes.getPastVotes(this.other1, t2.timepoint + 1n)).to.equal(3n);
+          expect(await this.votes.getPastVotes(this.other1, t3.timepoint)).to.equal(2n);
+          expect(await this.votes.getPastVotes(this.other1, t3.timepoint + 1n)).to.equal(2n);
+          expect(await this.votes.getPastVotes(this.other1, t4.timepoint)).to.equal('3');
+          expect(await this.votes.getPastVotes(this.other1, t4.timepoint + 1n)).to.equal(3n);
 
-          this.account1Votes = '0';
-          this.account2Votes = '0';
+          this.holderVotes = 0n;
+          this.recipientVotes = 0n;
         });
 
         afterEach(async function () {
-          expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(this.account1Votes);
-          expect(await this.votes.getVotes(account2)).to.be.bignumber.equal(this.account2Votes);
+          expect(await this.votes.getVotes(this.holder)).to.equal(this.holderVotes);
+          expect(await this.votes.getVotes(this.recipient)).to.equal(this.recipientVotes);
 
           // need to advance 2 blocks to see the effect of a transfer on "getPastVotes"
-          const timepoint = await clock[mode]();
-          await time.advanceBlock();
-          expect(await this.votes.getPastVotes(account1, timepoint)).to.be.bignumber.equal(this.account1Votes);
-          expect(await this.votes.getPastVotes(account2, timepoint)).to.be.bignumber.equal(this.account2Votes);
+          const timepoint = await time.clock[mode]();
+          await mine();
+          expect(await this.votes.getPastVotes(this.holder, timepoint)).to.equal(this.holderVotes);
+          expect(await this.votes.getPastVotes(this.recipient, timepoint)).to.equal(this.recipientVotes);
         });
       });
     });

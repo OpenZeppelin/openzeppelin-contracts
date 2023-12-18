@@ -1,66 +1,66 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
-const { clockFromReceipt } = require('../../helpers/time');
-const { expectRevertCustomError } = require('../../helpers/customError');
-
-const Governor = artifacts.require('$GovernorPreventLateQuorumMock');
-const CallReceiver = artifacts.require('CallReceiverMock');
+const { bigint: Enums } = require('../../helpers/enums');
+const { bigint: time } = require('../../helpers/time');
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
-  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
+  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
-contract('GovernorPreventLateQuorum', function (accounts) {
-  const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
+const name = 'OZ-Governor';
+const version = '1';
+const tokenName = 'MockToken';
+const tokenSymbol = 'MTKN';
+const tokenSupply = ethers.parseEther('100');
+const votingDelay = 4n;
+const votingPeriod = 16n;
+const lateQuorumVoteExtension = 8n;
+const quorum = ethers.parseEther('1');
+const value = ethers.parseEther('1');
 
-  const name = 'OZ-Governor';
-  const version = '1';
-  const tokenName = 'MockToken';
-  const tokenSymbol = 'MTKN';
-  const tokenSupply = web3.utils.toWei('100');
-  const votingDelay = web3.utils.toBN(4);
-  const votingPeriod = web3.utils.toBN(16);
-  const lateQuorumVoteExtension = web3.utils.toBN(8);
-  const quorum = web3.utils.toWei('1');
-  const value = web3.utils.toWei('1');
+describe('GovernorPreventLateQuorum', function () {
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-  for (const { mode, Token } of TOKENS) {
-    describe(`using ${Token._json.contractName}`, function () {
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const mock = await ethers.deployContract('$GovernorPreventLateQuorumMock', [
+        name, // name
+        votingDelay, // initialVotingDelay
+        votingPeriod, // initialVotingPeriod
+        0n, // initialProposalThreshold
+        token, // tokenAddress
+        lateQuorumVoteExtension,
+        quorum,
+      ]);
+
+      await owner.sendTransaction({ to: mock, value });
+      await token.$_mint(owner, tokenSupply);
+
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
+
+      return { owner, proposer, voter1, voter2, voter3, voter4, receiver, token, mock, helper };
+    };
+
+    describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        this.owner = owner;
-        this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
-        this.mock = await Governor.new(
-          name,
-          votingDelay,
-          votingPeriod,
-          0,
-          this.token.address,
-          lateQuorumVoteExtension,
-          quorum,
-        );
-        this.receiver = await CallReceiver.new();
-
-        this.helper = new GovernorHelper(this.mock, mode);
-
-        await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
-
-        await this.token.$_mint(owner, tokenSupply);
-        await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
-
-        // default proposal
+        Object.assign(this, await loadFixture(fixture));
+        // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [
             {
-              target: this.receiver.address,
+              target: this.receiver.target,
+              data: this.receiver.interface.encodeFunctionData('mockFunction'),
               value,
-              data: this.receiver.contract.methods.mockFunction().encodeABI(),
             },
           ],
           '<proposal description>',
@@ -68,110 +68,101 @@ contract('GovernorPreventLateQuorum', function (accounts) {
       });
 
       it('deployment check', async function () {
-        expect(await this.mock.name()).to.be.equal(name);
-        expect(await this.mock.token()).to.be.equal(this.token.address);
-        expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
-        expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
-        expect(await this.mock.quorum(0)).to.be.bignumber.equal(quorum);
-        expect(await this.mock.lateQuorumVoteExtension()).to.be.bignumber.equal(lateQuorumVoteExtension);
+        expect(await this.mock.name()).to.equal(name);
+        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.votingDelay()).to.equal(votingDelay);
+        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        expect(await this.mock.quorum(0)).to.equal(quorum);
+        expect(await this.mock.lateQuorumVoteExtension()).to.equal(lateQuorumVoteExtension);
       });
 
       it('nominal workflow unaffected', async function () {
-        const txPropose = await this.helper.propose({ from: proposer });
+        const txPropose = await this.helper.connect(this.proposer).propose();
         await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-        await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-        await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against });
+        await this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain });
         await this.helper.waitForDeadline();
         await this.helper.execute();
 
-        expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
-        expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
-        expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
-        expect(await this.mock.hasVoted(this.proposal.id, voter3)).to.be.equal(true);
-        expect(await this.mock.hasVoted(this.proposal.id, voter4)).to.be.equal(true);
+        expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.true;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.true;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter3)).to.be.true;
+        expect(await this.mock.hasVoted(this.proposal.id, this.voter4)).to.be.true;
 
-        await this.mock.proposalVotes(this.proposal.id).then(results => {
-          expect(results.forVotes).to.be.bignumber.equal(web3.utils.toWei('17'));
-          expect(results.againstVotes).to.be.bignumber.equal(web3.utils.toWei('5'));
-          expect(results.abstainVotes).to.be.bignumber.equal(web3.utils.toWei('2'));
-        });
+        expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([
+          ethers.parseEther('5'), // againstVotes
+          ethers.parseEther('17'), // forVotes
+          ethers.parseEther('2'), // abstainVotes
+        ]);
 
-        const voteStart = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
-        const voteEnd = web3.utils
-          .toBN(await clockFromReceipt[mode](txPropose.receipt))
-          .add(votingDelay)
-          .add(votingPeriod);
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(voteStart);
-        expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(voteEnd);
+        const voteStart = (await time.clockFromReceipt[mode](txPropose)) + votingDelay;
+        const voteEnd = (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod;
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(voteStart);
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(voteEnd);
 
-        expectEvent(txPropose, 'ProposalCreated', {
-          proposalId: this.proposal.id,
-          proposer,
-          targets: this.proposal.targets,
-          // values: this.proposal.values.map(value => web3.utils.toBN(value)),
-          signatures: this.proposal.signatures,
-          calldatas: this.proposal.data,
-          voteStart,
-          voteEnd,
-          description: this.proposal.description,
-        });
+        await expect(txPropose)
+          .to.emit(this.mock, 'ProposalCreated')
+          .withArgs(
+            this.proposal.id,
+            this.proposer.address,
+            this.proposal.targets,
+            this.proposal.values,
+            this.proposal.signatures,
+            this.proposal.data,
+            voteStart,
+            voteEnd,
+            this.proposal.description,
+          );
       });
 
       it('Delay is extended to prevent last minute take-over', async function () {
-        const txPropose = await this.helper.propose({ from: proposer });
+        const txPropose = await this.helper.connect(this.proposer).propose();
 
         // compute original schedule
-        const startBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
-        const endBlock = web3.utils
-          .toBN(await clockFromReceipt[mode](txPropose.receipt))
-          .add(votingDelay)
-          .add(votingPeriod);
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
-        expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(endBlock);
-
+        const snapshotTimepoint = (await time.clockFromReceipt[mode](txPropose)) + votingDelay;
+        const deadlineTimepoint = (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod;
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(snapshotTimepoint);
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(deadlineTimepoint);
         // wait for the last minute to vote
-        await this.helper.waitForDeadline(-1);
-        const txVote = await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+        await this.helper.waitForDeadline(-1n);
+        const txVote = await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
 
         // cannot execute yet
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
+        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
 
         // compute new extended schedule
-        const extendedDeadline = web3.utils
-          .toBN(await clockFromReceipt[mode](txVote.receipt))
-          .add(lateQuorumVoteExtension);
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
-        expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(extendedDeadline);
+        const extendedDeadline = (await time.clockFromReceipt[mode](txVote)) + lateQuorumVoteExtension;
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(snapshotTimepoint);
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(extendedDeadline);
 
         // still possible to vote
-        await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter1 });
+        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.Against });
 
         await this.helper.waitForDeadline();
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
-        await this.helper.waitForDeadline(+1);
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
+        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
+        await this.helper.waitForDeadline(1n);
+        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Defeated);
 
         // check extension event
-        expectEvent(txVote, 'ProposalExtended', { proposalId: this.proposal.id, extendedDeadline });
+        await expect(txVote).to.emit(this.mock, 'ProposalExtended').withArgs(this.proposal.id, extendedDeadline);
       });
 
       describe('onlyGovernance updates', function () {
         it('setLateQuorumVoteExtension is protected', async function () {
-          await expectRevertCustomError(
-            this.mock.setLateQuorumVoteExtension(0, { from: owner }),
-            'GovernorOnlyExecutor',
-            [owner],
-          );
+          await expect(this.mock.connect(this.owner).setLateQuorumVoteExtension(0n))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+            .withArgs(this.owner.address);
         });
 
         it('can setLateQuorumVoteExtension through governance', async function () {
           this.helper.setProposal(
             [
               {
-                target: this.mock.address,
-                data: this.mock.contract.methods.setLateQuorumVoteExtension('0').encodeABI(),
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [0n]),
               },
             ],
             '<proposal description>',
@@ -179,15 +170,14 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await this.helper.waitForDeadline();
 
-          expectEvent(await this.helper.execute(), 'LateQuorumVoteExtensionSet', {
-            oldVoteExtension: lateQuorumVoteExtension,
-            newVoteExtension: '0',
-          });
+          await expect(this.helper.execute())
+            .to.emit(this.mock, 'LateQuorumVoteExtensionSet')
+            .withArgs(lateQuorumVoteExtension, 0n);
 
-          expect(await this.mock.lateQuorumVoteExtension()).to.be.bignumber.equal('0');
+          expect(await this.mock.lateQuorumVoteExtension()).to.equal(0n);
         });
       });
     });

@@ -1,90 +1,100 @@
-const { constants } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { clockFromReceipt } = require('../../helpers/time');
-const { BNsum } = require('../../helpers/math');
-const { expectRevertCustomError } = require('../../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-require('array.prototype.at/auto');
+const { bigint: time } = require('../../helpers/time');
+const { sum } = require('../../helpers/math');
+const { zip } = require('../../helpers/iterate');
 
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
 const MODES = {
-  blocknumber: artifacts.require('$VotesMock'),
-  timestamp: artifacts.require('$VotesTimestampMock'),
+  blocknumber: '$VotesMock',
+  timestamp: '$VotesTimestampMock',
 };
 
-contract('Votes', function (accounts) {
-  const [account1, account2, account3] = accounts;
-  const amounts = {
-    [account1]: web3.utils.toBN('10000000000000000000000000'),
-    [account2]: web3.utils.toBN('10'),
-    [account3]: web3.utils.toBN('20'),
-  };
+const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
 
-  const name = 'My Vote';
-  const version = '1';
-
+describe('Votes', function () {
   for (const [mode, artifact] of Object.entries(MODES)) {
+    const fixture = async () => {
+      const accounts = await ethers.getSigners();
+
+      const amounts = Object.fromEntries(
+        zip(
+          accounts.slice(0, AMOUNTS.length).map(({ address }) => address),
+          AMOUNTS,
+        ),
+      );
+
+      const name = 'My Vote';
+      const version = '1';
+      const votes = await ethers.deployContract(artifact, [name, version]);
+
+      return { accounts, amounts, votes, name, version };
+    };
+
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        this.votes = await artifact.new(name, version);
+        Object.assign(this, await loadFixture(fixture));
       });
 
-      shouldBehaveLikeVotes(accounts, Object.values(amounts), { mode, fungible: true });
+      shouldBehaveLikeVotes(AMOUNTS, { mode, fungible: true });
 
       it('starts with zero votes', async function () {
-        expect(await this.votes.getTotalSupply()).to.be.bignumber.equal('0');
+        expect(await this.votes.getTotalSupply()).to.equal(0n);
       });
 
       describe('performs voting operations', function () {
         beforeEach(async function () {
           this.txs = [];
-          for (const [account, amount] of Object.entries(amounts)) {
+          for (const [account, amount] of Object.entries(this.amounts)) {
             this.txs.push(await this.votes.$_mint(account, amount));
           }
         });
 
         it('reverts if block number >= current block', async function () {
-          const lastTxTimepoint = await clockFromReceipt[mode](this.txs.at(-1).receipt);
+          const lastTxTimepoint = await time.clockFromReceipt[mode](this.txs.at(-1));
           const clock = await this.votes.clock();
-          await expectRevertCustomError(this.votes.getPastTotalSupply(lastTxTimepoint + 1), 'ERC5805FutureLookup', [
-            lastTxTimepoint + 1,
-            clock,
-          ]);
+          await expect(this.votes.getPastTotalSupply(lastTxTimepoint))
+            .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
+            .withArgs(lastTxTimepoint, clock);
         });
 
         it('delegates', async function () {
-          expect(await this.votes.getVotes(account1)).to.be.bignumber.equal('0');
-          expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
-          expect(await this.votes.delegates(account1)).to.be.equal(constants.ZERO_ADDRESS);
-          expect(await this.votes.delegates(account2)).to.be.equal(constants.ZERO_ADDRESS);
+          expect(await this.votes.getVotes(this.accounts[0])).to.equal(0n);
+          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
 
-          await this.votes.delegate(account1, account1);
+          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[0]));
 
-          expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account1]);
-          expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
-          expect(await this.votes.delegates(account1)).to.be.equal(account1);
-          expect(await this.votes.delegates(account2)).to.be.equal(constants.ZERO_ADDRESS);
+          expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[0].address]);
+          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
 
-          await this.votes.delegate(account2, account1);
+          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
 
-          expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account1].add(amounts[account2]));
-          expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
-          expect(await this.votes.delegates(account1)).to.be.equal(account1);
-          expect(await this.votes.delegates(account2)).to.be.equal(account1);
+          expect(await this.votes.getVotes(this.accounts[0])).to.equal(
+            this.amounts[this.accounts[0].address] + this.amounts[this.accounts[1].address],
+          );
+          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(this.accounts[0].address);
         });
 
         it('cross delegates', async function () {
-          await this.votes.delegate(account1, account2);
-          await this.votes.delegate(account2, account1);
+          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[1].address));
+          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0].address));
 
-          expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account2]);
-          expect(await this.votes.getVotes(account2)).to.be.bignumber.equal(amounts[account1]);
+          expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[1].address]);
+          expect(await this.votes.getVotes(this.accounts[1])).to.equal(this.amounts[this.accounts[0].address]);
         });
 
         it('returns total amount of votes', async function () {
-          const totalSupply = BNsum(...Object.values(amounts));
-          expect(await this.votes.getTotalSupply()).to.be.bignumber.equal(totalSupply);
+          const totalSupply = sum(...Object.values(this.amounts));
+          expect(await this.votes.getTotalSupply()).to.equal(totalSupply);
         });
       });
     });
