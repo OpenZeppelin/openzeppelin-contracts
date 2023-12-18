@@ -1,8 +1,7 @@
 const { ethers } = require('hardhat');
 const { forward } = require('./time');
 const { ProposalState } = require('./enums');
-const { selector } = require('./methods');
-const { unique, zip } = require('./iterate');
+const { unique } = require('./iterate');
 
 const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
@@ -41,17 +40,13 @@ class GovernorHelper {
   queue() {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface
-      ? this.governor.queue(proposal.id)
-      : this.governor.queue(...proposal.shortProposal);
+    return this.governor.queue(...proposal.shortProposal);
   }
 
   execute() {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface
-      ? this.governor.execute(proposal.id)
-      : this.governor.execute(...proposal.shortProposal);
+    return this.governor.execute(...proposal.shortProposal);
   }
 
   cancel(visibility = 'external') {
@@ -59,9 +54,7 @@ class GovernorHelper {
 
     switch (visibility) {
       case 'external':
-        return proposal.useCompatibilityInterface
-          ? this.governor.cancel(proposal.id)
-          : this.governor.cancel(...proposal.shortProposal);
+        return this.governor.cancel(...proposal.shortProposal);
 
       case 'internal':
         return this.governor.$_cancel(...proposal.shortProposal);
@@ -132,20 +125,17 @@ class GovernorHelper {
    * 2) an object of arrays { targets: [], values: [], data: [] }
    */
   setProposal(actions, description) {
-    let targets, values, signatures, data, useCompatibilityInterface;
+    let targets, values, data;
 
     if (Array.isArray(actions)) {
-      useCompatibilityInterface = actions.some(a => 'signature' in a);
       targets = actions.map(a => a.target);
       values = actions.map(a => a.value || 0n);
-      signatures = actions.map(a => a.signature || '');
       data = actions.map(a => a.data || '0x');
     } else {
-      useCompatibilityInterface = Array.isArray(actions.signatures);
-      ({ targets, values, signatures = [], data } = actions);
+      ({ targets, values, data } = actions);
     }
 
-    const fulldata = zip(signatures, data).map(([s, d]) => ethers.concat([s ? selector(s) : '0x', d]));
+    const fulldata = data.map(d => ethers.concat(['0x', d]));
 
     const descriptionHash = ethers.id(description);
 
@@ -153,7 +143,7 @@ class GovernorHelper {
     const shortProposal = [targets, values, data, descriptionHash];
 
     // full version for proposing
-    const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
+    const fullProposal = [targets, values, ...[], data, description];
 
     // proposal id
     const id = ethers.keccak256(
@@ -164,14 +154,13 @@ class GovernorHelper {
       id,
       targets,
       values,
-      signatures,
+      signatures: [''], // Backwards compatibility with ProposalCreated event
       data,
       fulldata,
       description,
       descriptionHash,
       shortProposal,
       fullProposal,
-      useCompatibilityInterface,
     };
 
     return this.currentProposal;
