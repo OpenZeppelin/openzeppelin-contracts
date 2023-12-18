@@ -122,11 +122,10 @@ describe('GovernorPreventLateQuorum', function () {
         const txPropose = await this.helper.connect(this.proposer).propose();
 
         // compute original schedule
-        const startBlock = (await time.clockFromReceipt[mode](txPropose)) + votingDelay;
-        const endBlock = (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod;
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(startBlock);
-        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(endBlock);
-
+        const snapshotTimepoint = (await time.clockFromReceipt[mode](txPropose)) + votingDelay;
+        const deadlineTimepoint = (await time.clockFromReceipt[mode](txPropose)) + votingDelay + votingPeriod;
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(snapshotTimepoint);
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(deadlineTimepoint);
         // wait for the last minute to vote
         await this.helper.waitForDeadline(-1n);
         const txVote = await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
@@ -136,7 +135,7 @@ describe('GovernorPreventLateQuorum', function () {
 
         // compute new extended schedule
         const extendedDeadline = (await time.clockFromReceipt[mode](txVote)) + lateQuorumVoteExtension;
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(startBlock);
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.equal(snapshotTimepoint);
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(extendedDeadline);
 
         // still possible to vote
