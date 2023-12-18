@@ -3,8 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { bigint: time } = require('../helpers/time');
 const { sum } = require('../helpers/math');
+const time = require('../helpers/time');
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();

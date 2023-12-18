@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 
 const {
   shouldBehaveLikeAccessControl,

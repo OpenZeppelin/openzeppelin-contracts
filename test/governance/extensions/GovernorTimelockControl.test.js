@@ -5,7 +5,7 @@ const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
 const { bigint: Enums } = require('../../helpers/enums');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },

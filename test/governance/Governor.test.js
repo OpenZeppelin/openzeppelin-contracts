@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { GovernorHelper } = require('../helpers/governance');
 const { getDomain, Ballot } = require('../helpers/eip712');
 const { bigint: Enums } = require('../helpers/enums');
-const { bigint: time } = require('../helpers/time');
+const time = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');

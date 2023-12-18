@@ -33,7 +33,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers');
 const { MAX_UINT48 } = require('../../helpers/constants');
 const { impersonate } = require('../../helpers/account');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 const { ZeroAddress: ZERO_ADDRESS, Wallet, toBeHex, id } = require('ethers');
 
 const { address: someAddress } = Wallet.createRandom();

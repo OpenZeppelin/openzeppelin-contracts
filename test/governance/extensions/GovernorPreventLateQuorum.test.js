@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { bigint: Enums } = require('../../helpers/enums');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },

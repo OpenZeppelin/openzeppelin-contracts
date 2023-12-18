@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { bigint: time } = require('../helpers/time');
+const time = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 

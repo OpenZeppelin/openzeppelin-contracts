@@ -4,7 +4,7 @@ const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers'
 
 const { getDomain, Delegation } = require('../../../helpers/eip712');
 const { batchInBlock } = require('../../../helpers/txpool');
-const { bigint: time } = require('../../../helpers/time');
+const time = require('../../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 

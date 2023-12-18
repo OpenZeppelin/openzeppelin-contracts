@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { bigint: time } = require('../helpers/time');
+const time = require('../helpers/time');
 const { min } = require('../helpers/math');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');

@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { bigint: time } = require('../helpers/time');
+const time = require('../helpers/time');
 
 function shouldBehaveLikeVesting() {
   it('check vesting schedule', async function () {

@@ -5,7 +5,7 @@ const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { bigint: Enums } = require('../../helpers/enums');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 const { max } = require('../../helpers/math');
 const { selector } = require('../../helpers/methods');
 const { hashOperation } = require('../../helpers/access-manager');

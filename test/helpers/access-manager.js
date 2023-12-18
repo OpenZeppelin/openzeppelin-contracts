@@ -1,9 +1,7 @@
-const {
-  bigint: { MAX_UINT64 },
-} = require('./constants');
-const { namespaceSlot } = require('./namespaced-storage');
-const { bigint: time } = require('./time');
 const { keccak256, AbiCoder } = require('ethers');
+const { namespaceSlot } = require('./namespaced-storage');
+const { MAX_UINT64 } = require('./constants');
+const time = require('./time');
 
 function buildBaseRoles() {
   const roles = {
