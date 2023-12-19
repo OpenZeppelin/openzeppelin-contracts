@@ -172,7 +172,7 @@ jobs:
         id: artifact
         # Replace with actions/upload-artifact@v3 when
         # https://github.com/actions/download-artifact/pull/194 gets released
-        uses: actions/download-artifact@e9ef242655d12993efdcda9058dee2db83a2cb9b
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110
         with:
           name: ${{ github.ref_name }}
       - name: Check integrity
