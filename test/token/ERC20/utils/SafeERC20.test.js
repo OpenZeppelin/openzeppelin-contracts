@@ -14,7 +14,17 @@ async function fixture() {
   const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
   const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
 
-  return { hasNoCode, owner, receiver, spender, mock, erc20ReturnFalseMock, erc20ReturnTrueMock, erc20NoReturnMock, erc20ForceApproveMock };
+  return {
+    hasNoCode,
+    owner,
+    receiver,
+    spender,
+    mock,
+    erc20ReturnFalseMock,
+    erc20ReturnTrueMock,
+    erc20NoReturnMock,
+    erc20ForceApproveMock,
+  };
 }
 
 describe('SafeERC20', function () {
@@ -41,14 +51,12 @@ describe('SafeERC20', function () {
 
     it('reverts on increaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n))
-        .to.be.revertedWithoutReason();
+      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
     });
 
     it('reverts on decreaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n))
-        .to.be.revertedWithoutReason();
+      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
     });
 
     it('reverts on forceApprove', async function () {
