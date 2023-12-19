@@ -1,80 +1,75 @@
-const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { expectRevertCustomError } = require('../../../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC721Burnable = artifacts.require('$ERC721Burnable');
+const name = 'Non Fungible Token';
+const symbol = 'NFT';
+const tokenId = 1n;
+const otherTokenId = 2n;
+const unknownTokenId = 3n;
 
-contract('ERC721Burnable', function (accounts) {
-  const [owner, approved, another] = accounts;
+async function fixture() {
+  const [owner, approved, another] = await ethers.getSigners();
+  const token = await ethers.deployContract('$ERC721Burnable', [name, symbol]);
+  return { owner, approved, another, token };
+}
 
-  const firstTokenId = new BN(1);
-  const secondTokenId = new BN(2);
-  const unknownTokenId = new BN(3);
-
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
-
+describe('ERC721Burnable', function () {
   beforeEach(async function () {
-    this.token = await ERC721Burnable.new(name, symbol);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('like a burnable ERC721', function () {
     beforeEach(async function () {
-      await this.token.$_mint(owner, firstTokenId);
-      await this.token.$_mint(owner, secondTokenId);
+      await this.token.$_mint(this.owner, tokenId);
+      await this.token.$_mint(this.owner, otherTokenId);
     });
 
     describe('burn', function () {
-      const tokenId = firstTokenId;
-      let receipt = null;
-
       describe('when successful', function () {
-        beforeEach(async function () {
-          receipt = await this.token.burn(tokenId, { from: owner });
-        });
+        it('emits a burn event, burns the given token ID and adjusts the balance of the owner', async function () {
+          const balanceBefore = await this.token.balanceOf(this.owner);
 
-        it('burns the given token ID and adjusts the balance of the owner', async function () {
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
-          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
-        });
+          await expect(this.token.connect(this.owner).burn(tokenId))
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
 
-        it('emits a burn event', async function () {
-          expectEvent(receipt, 'Transfer', {
-            from: owner,
-            to: constants.ZERO_ADDRESS,
-            tokenId: tokenId,
-          });
+          await expect(this.token.ownerOf(tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+            .withArgs(tokenId);
+
+          expect(await this.token.balanceOf(this.owner)).to.equal(balanceBefore - 1n);
         });
       });
 
       describe('when there is a previous approval burned', function () {
         beforeEach(async function () {
-          await this.token.approve(approved, tokenId, { from: owner });
-          receipt = await this.token.burn(tokenId, { from: owner });
+          await this.token.connect(this.owner).approve(this.approved, tokenId);
+          await this.token.connect(this.owner).burn(tokenId);
         });
 
         context('getApproved', function () {
           it('reverts', async function () {
-            await expectRevertCustomError(this.token.getApproved(tokenId), 'ERC721NonexistentToken', [tokenId]);
+            await expect(this.token.getApproved(tokenId))
+              .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+              .withArgs(tokenId);
           });
         });
       });
 
       describe('when there is no previous approval burned', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(tokenId, { from: another }), 'ERC721InsufficientApproval', [
-            another,
-            tokenId,
-          ]);
+          await expect(this.token.connect(this.another).burn(tokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
+            .withArgs(this.another.address, tokenId);
         });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(unknownTokenId, { from: owner }), 'ERC721NonexistentToken', [
-            unknownTokenId,
-          ]);
+          await expect(this.token.connect(this.owner).burn(unknownTokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+            .withArgs(unknownTokenId);
         });
       });
     });

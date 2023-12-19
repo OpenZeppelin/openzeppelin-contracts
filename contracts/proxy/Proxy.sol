@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (proxy/Proxy.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (proxy/Proxy.sol)
 
 pragma solidity ^0.8.20;
 
@@ -45,8 +45,8 @@ abstract contract Proxy {
     }
 
     /**
-     * @dev This is a virtual function that should be overridden so it returns the address to which the fallback function
-     * and {_fallback} should delegate.
+     * @dev This is a virtual function that should be overridden so it returns the address to which the fallback
+     * function and {_fallback} should delegate.
      */
     function _implementation() internal view virtual returns (address);
 

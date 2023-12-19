@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.20;
 
@@ -9,8 +9,8 @@ import {BitMaps} from "../../../utils/structs/BitMaps.sol";
 import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
- * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
- * https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
+ * @dev Implementation of the ERC-2309 "Consecutive Transfer Extension" as defined in
+ * https://eips.ethereum.org/EIPS/eip-2309[ERC-2309].
  *
  * This extension allows the minting of large batches of tokens, during contract construction only. For upgradeable
  * contracts this implies that batch minting is only available during proxy deployment, and not in subsequent upgrades.
@@ -19,12 +19,12 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. The hooks will be only called once per batch, so you should take `batchSize` parameter into consideration
- * when relying on hooks.
+ * IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
+ * function through overrides will not be triggered when token are minted in batch. You may want to also override
+ * {_increaseBalance} or {_mintConsecutive} to account for these mints.
  *
- * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
- * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
+ * IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
+ * values during the {_mintConsecutive} execution if the super call is not called first. To be safe, execute the
  * super call before your custom logic.
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
@@ -37,7 +37,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     /**
      * @dev Batch mint is restricted to the constructor.
      * Any batch mint not emitting the {IERC721-Transfer} event outside of the constructor
-     * is non-ERC721 compliant.
+     * is non ERC-721 compliant.
      */
     error ERC721ForbiddenBatchMint();
 
@@ -94,7 +94,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * - `batchSize` must not be greater than {_maxBatchSize}.
      * - The function is called in the constructor of the contract (directly or indirectly).
      *
-     * CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done inside of the
+     * CAUTION: Does not emit a `Transfer` event. This is ERC-721 compliant as long as it is done inside of the
      * constructor, which is enforced by this function.
      *
      * CAUTION: Does not invoke `onERC721Received` on the receiver.

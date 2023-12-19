@@ -6,6 +6,8 @@
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
 
+IMPORTANT: OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at xref:backwards-compatibility.adoc[Backwards Compatibility].
+
 == Overview
 
 [[install]]
@@ -16,8 +18,6 @@
 ```console
 $ npm install @openzeppelin/contracts
 ```
-
-OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
 
 ==== Foundry (git)
 

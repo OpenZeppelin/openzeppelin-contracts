@@ -1,70 +1,65 @@
-const { expectEvent, constants } = require('@openzeppelin/test-helpers');
-const { expectRevertCustomError } = require('../../helpers/customError');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { getAddressInSlot, setSlot, ImplementationSlot, AdminSlot, BeaconSlot } = require('../../helpers/erc1967');
 
-const { ZERO_ADDRESS } = constants;
+async function fixture() {
+  const [, admin, anotherAccount] = await ethers.getSigners();
 
-const ERC1967Utils = artifacts.require('$ERC1967Utils');
+  const utils = await ethers.deployContract('$ERC1967Utils');
+  const v1 = await ethers.deployContract('DummyImplementation');
+  const v2 = await ethers.deployContract('CallReceiverMock');
 
-const V1 = artifacts.require('DummyImplementation');
-const V2 = artifacts.require('CallReceiverMock');
-const UpgradeableBeaconMock = artifacts.require('UpgradeableBeaconMock');
-const UpgradeableBeaconReentrantMock = artifacts.require('UpgradeableBeaconReentrantMock');
+  return { admin, anotherAccount, utils, v1, v2 };
+}
 
-contract('ERC1967Utils', function (accounts) {
-  const [, admin, anotherAccount] = accounts;
-  const EMPTY_DATA = '0x';
-
+describe('ERC1967Utils', function () {
   beforeEach('setup', async function () {
-    this.utils = await ERC1967Utils.new();
-    this.v1 = await V1.new();
-    this.v2 = await V2.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('IMPLEMENTATION_SLOT', function () {
     beforeEach('set v1 implementation', async function () {
-      await setSlot(this.utils, ImplementationSlot, this.v1.address);
+      await setSlot(this.utils, ImplementationSlot, this.v1);
     });
 
     describe('getImplementation', function () {
       it('returns current implementation and matches implementation slot value', async function () {
-        expect(await this.utils.$getImplementation()).to.equal(this.v1.address);
-        expect(await getAddressInSlot(this.utils.address, ImplementationSlot)).to.equal(this.v1.address);
+        expect(await this.utils.$getImplementation()).to.equal(this.v1.target);
+        expect(await getAddressInSlot(this.utils, ImplementationSlot)).to.equal(this.v1.target);
       });
     });
 
     describe('upgradeToAndCall', function () {
       it('sets implementation in storage and emits event', async function () {
-        const newImplementation = this.v2.address;
-        const receipt = await this.utils.$upgradeToAndCall(newImplementation, EMPTY_DATA);
+        const newImplementation = this.v2;
+        const tx = await this.utils.$upgradeToAndCall(newImplementation, '0x');
 
-        expect(await getAddressInSlot(this.utils.address, ImplementationSlot)).to.equal(newImplementation);
-        expectEvent(receipt, 'Upgraded', { implementation: newImplementation });
+        expect(await getAddressInSlot(this.utils, ImplementationSlot)).to.equal(newImplementation.target);
+        await expect(tx).to.emit(this.utils, 'Upgraded').withArgs(newImplementation.target);
       });
 
       it('reverts when implementation does not contain code', async function () {
-        await expectRevertCustomError(
-          this.utils.$upgradeToAndCall(anotherAccount, EMPTY_DATA),
-          'ERC1967InvalidImplementation',
-          [anotherAccount],
-        );
+        await expect(this.utils.$upgradeToAndCall(this.anotherAccount, '0x'))
+          .to.be.revertedWithCustomError(this.utils, 'ERC1967InvalidImplementation')
+          .withArgs(this.anotherAccount.address);
       });
 
       describe('when data is empty', function () {
         it('reverts when value is sent', async function () {
-          await expectRevertCustomError(
-            this.utils.$upgradeToAndCall(this.v2.address, EMPTY_DATA, { value: 1 }),
+          await expect(this.utils.$upgradeToAndCall(this.v2, '0x', { value: 1 })).to.be.revertedWithCustomError(
+            this.utils,
             'ERC1967NonPayable',
-            [],
           );
         });
       });
 
       describe('when data is not empty', function () {
         it('delegates a call to the new implementation', async function () {
-          const initializeData = this.v2.contract.methods.mockFunction().encodeABI();
-          const receipt = await this.utils.$upgradeToAndCall(this.v2.address, initializeData);
-          await expectEvent.inTransaction(receipt.tx, await V2.at(this.utils.address), 'MockFunctionCalled');
+          const initializeData = this.v2.interface.encodeFunctionData('mockFunction');
+          const tx = await this.utils.$upgradeToAndCall(this.v2, initializeData);
+          await expect(tx).to.emit(await ethers.getContractAt('CallReceiverMock', this.utils), 'MockFunctionCalled');
         });
       });
     });
@@ -72,99 +67,94 @@ contract('ERC1967Utils', function (accounts) {
 
   describe('ADMIN_SLOT', function () {
     beforeEach('set admin', async function () {
-      await setSlot(this.utils, AdminSlot, admin);
+      await setSlot(this.utils, AdminSlot, this.admin);
     });
 
     describe('getAdmin', function () {
       it('returns current admin and matches admin slot value', async function () {
-        expect(await this.utils.$getAdmin()).to.equal(admin);
-        expect(await getAddressInSlot(this.utils.address, AdminSlot)).to.equal(admin);
+        expect(await this.utils.$getAdmin()).to.equal(this.admin.address);
+        expect(await getAddressInSlot(this.utils, AdminSlot)).to.equal(this.admin.address);
       });
     });
 
     describe('changeAdmin', function () {
       it('sets admin in storage and emits event', async function () {
-        const newAdmin = anotherAccount;
-        const receipt = await this.utils.$changeAdmin(newAdmin);
+        const newAdmin = this.anotherAccount;
+        const tx = await this.utils.$changeAdmin(newAdmin);
 
-        expect(await getAddressInSlot(this.utils.address, AdminSlot)).to.equal(newAdmin);
-        expectEvent(receipt, 'AdminChanged', { previousAdmin: admin, newAdmin: newAdmin });
+        expect(await getAddressInSlot(this.utils, AdminSlot)).to.equal(newAdmin.address);
+        await expect(tx).to.emit(this.utils, 'AdminChanged').withArgs(this.admin.address, newAdmin.address);
       });
 
       it('reverts when setting the address zero as admin', async function () {
-        await expectRevertCustomError(this.utils.$changeAdmin(ZERO_ADDRESS), 'ERC1967InvalidAdmin', [ZERO_ADDRESS]);
+        await expect(this.utils.$changeAdmin(ethers.ZeroAddress))
+          .to.be.revertedWithCustomError(this.utils, 'ERC1967InvalidAdmin')
+          .withArgs(ethers.ZeroAddress);
       });
     });
   });
 
   describe('BEACON_SLOT', function () {
     beforeEach('set beacon', async function () {
-      this.beacon = await UpgradeableBeaconMock.new(this.v1.address);
-      await setSlot(this.utils, BeaconSlot, this.beacon.address);
+      this.beacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v1]);
+      await setSlot(this.utils, BeaconSlot, this.beacon);
     });
 
     describe('getBeacon', function () {
       it('returns current beacon and matches beacon slot value', async function () {
-        expect(await this.utils.$getBeacon()).to.equal(this.beacon.address);
-        expect(await getAddressInSlot(this.utils.address, BeaconSlot)).to.equal(this.beacon.address);
+        expect(await this.utils.$getBeacon()).to.equal(this.beacon.target);
+        expect(await getAddressInSlot(this.utils, BeaconSlot)).to.equal(this.beacon.target);
       });
     });
 
     describe('upgradeBeaconToAndCall', function () {
       it('sets beacon in storage and emits event', async function () {
-        const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
-        const receipt = await this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA);
+        const newBeacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v2]);
+        const tx = await this.utils.$upgradeBeaconToAndCall(newBeacon, '0x');
 
-        expect(await getAddressInSlot(this.utils.address, BeaconSlot)).to.equal(newBeacon.address);
-        expectEvent(receipt, 'BeaconUpgraded', { beacon: newBeacon.address });
+        expect(await getAddressInSlot(this.utils, BeaconSlot)).to.equal(newBeacon.target);
+        await expect(tx).to.emit(this.utils, 'BeaconUpgraded').withArgs(newBeacon.target);
       });
 
       it('reverts when beacon does not contain code', async function () {
-        await expectRevertCustomError(
-          this.utils.$upgradeBeaconToAndCall(anotherAccount, EMPTY_DATA),
-          'ERC1967InvalidBeacon',
-          [anotherAccount],
-        );
+        await expect(this.utils.$upgradeBeaconToAndCall(this.anotherAccount, '0x'))
+          .to.be.revertedWithCustomError(this.utils, 'ERC1967InvalidBeacon')
+          .withArgs(this.anotherAccount.address);
       });
 
       it("reverts when beacon's implementation does not contain code", async function () {
-        const newBeacon = await UpgradeableBeaconMock.new(anotherAccount);
+        const newBeacon = await ethers.deployContract('UpgradeableBeaconMock', [this.anotherAccount]);
 
-        await expectRevertCustomError(
-          this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA),
-          'ERC1967InvalidImplementation',
-          [anotherAccount],
-        );
+        await expect(this.utils.$upgradeBeaconToAndCall(newBeacon, '0x'))
+          .to.be.revertedWithCustomError(this.utils, 'ERC1967InvalidImplementation')
+          .withArgs(this.anotherAccount.address);
       });
 
       describe('when data is empty', function () {
         it('reverts when value is sent', async function () {
-          const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
-          await expectRevertCustomError(
-            this.utils.$upgradeBeaconToAndCall(newBeacon.address, EMPTY_DATA, { value: 1 }),
+          const newBeacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v2]);
+          await expect(this.utils.$upgradeBeaconToAndCall(newBeacon, '0x', { value: 1 })).to.be.revertedWithCustomError(
+            this.utils,
             'ERC1967NonPayable',
-            [],
           );
         });
       });
 
       describe('when data is not empty', function () {
         it('delegates a call to the new implementation', async function () {
-          const initializeData = this.v2.contract.methods.mockFunction().encodeABI();
-          const newBeacon = await UpgradeableBeaconMock.new(this.v2.address);
-          const receipt = await this.utils.$upgradeBeaconToAndCall(newBeacon.address, initializeData);
-          await expectEvent.inTransaction(receipt.tx, await V2.at(this.utils.address), 'MockFunctionCalled');
+          const initializeData = this.v2.interface.encodeFunctionData('mockFunction');
+          const newBeacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v2]);
+          const tx = await this.utils.$upgradeBeaconToAndCall(newBeacon, initializeData);
+          await expect(tx).to.emit(await ethers.getContractAt('CallReceiverMock', this.utils), 'MockFunctionCalled');
         });
       });
 
       describe('reentrant beacon implementation() call', function () {
         it('sees the new beacon implementation', async function () {
-          const newBeacon = await UpgradeableBeaconReentrantMock.new();
-          await expectRevertCustomError(
-            this.utils.$upgradeBeaconToAndCall(newBeacon.address, '0x'),
-            'BeaconProxyBeaconSlotAddress',
-            [newBeacon.address],
-          );
+          const newBeacon = await ethers.deployContract('UpgradeableBeaconReentrantMock');
+          await expect(this.utils.$upgradeBeaconToAndCall(newBeacon, '0x'))
+            .to.be.revertedWithCustomError(newBeacon, 'BeaconProxyBeaconSlotAddress')
+            .withArgs(newBeacon.target);
         });
       });
     });

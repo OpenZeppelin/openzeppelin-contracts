@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC1363.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,10 +7,10 @@ import {IERC20} from "./IERC20.sol";
 import {IERC165} from "./IERC165.sol";
 
 /**
- * @dev Interface of an ERC1363 compliant contract, as defined in the
- * https://eips.ethereum.org/EIPS/eip-1363[EIP].
+ * @dev Interface of an ERC-1363 compliant contract, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1363[ERC].
  *
- * Defines a interface for ERC20 tokens that supports executing recipient
+ * Defines a interface for ERC-20 tokens that supports executing recipient
  * code after `transfer` or `transferFrom`, or spender code after `approve`.
  */
 interface IERC1363 is IERC165, IERC20 {

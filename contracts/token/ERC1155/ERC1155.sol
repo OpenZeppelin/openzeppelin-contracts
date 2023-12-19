@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.20;
 
@@ -49,7 +49,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *
      * This implementation returns the same URI for *all* token types. It relies
      * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the ERC].
      *
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
@@ -132,7 +132,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
+     * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from`
+     * (or `to`) is the zero address.
      *
      * Emits a {TransferSingle} event if the arrays contain one element, and {TransferBatch} otherwise.
      *
@@ -181,9 +182,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev Version of {_update} that performs the token acceptance check by calling {IERC1155Receiver-onERC1155Received}
-     * or {IERC1155Receiver-onERC1155BatchReceived} on the receiver address if it contains code (eg. is a smart contract
-     * at the moment of execution).
+     * @dev Version of {_update} that performs the token acceptance check by calling
+     * {IERC1155Receiver-onERC1155Received} or {IERC1155Receiver-onERC1155BatchReceived} on the receiver address if it
+     * contains code (eg. is a smart contract at the moment of execution).
      *
      * IMPORTANT: Overriding this function is discouraged because it poses a reentrancy risk from the receiver. So any
      * update to the contract state after this function would break the check-effect-interaction pattern. Consider
@@ -262,7 +263,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     /**
      * @dev Sets a new URI for all token types, by relying on the token type ID
      * substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the ERC].
      *
      * By this mechanism, any occurrence of the `\{id\}` substring in either the
      * URI or any of the values in the JSON file at said URI will be replaced by
@@ -393,7 +394,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
                 }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    // non-ERC1155Receiver implementer
+                    // non-IERC1155Receiver implementer
                     revert ERC1155InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly
@@ -427,7 +428,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
                 }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    // non-ERC1155Receiver implementer
+                    // non-IERC1155Receiver implementer
                     revert ERC1155InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly
