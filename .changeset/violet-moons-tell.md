@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`AccessControlEnumerable`: add `getRoleMembers` method to return all accounts that have `role`
+`AccessControlEnumerable`: Add a `getRoleMembers` method to return all accounts that have `role`.
