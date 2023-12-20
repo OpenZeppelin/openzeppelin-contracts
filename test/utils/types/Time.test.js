@@ -90,7 +90,7 @@ contract('Time', function () {
     });
 
     it('get & getFull', async function () {
-      const timepoint = await time.clock.timestamp().then(BigInt);
+      const timepoint = await time.clock.timestamp();
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
@@ -108,7 +108,7 @@ contract('Time', function () {
     });
 
     it('withUpdate', async function () {
-      const timepoint = await time.clock.timestamp().then(BigInt);
+      const timepoint = await time.clock.timestamp();
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;
