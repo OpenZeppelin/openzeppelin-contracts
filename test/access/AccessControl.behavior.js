@@ -241,15 +241,14 @@ function shouldBehaveLikeAccessControlEnumerable() {
       const expectedMembers = [this.authorized.address, this.otherAuthorized.address];
 
       const memberCount = await this.mock.getRoleMemberCount(ROLE);
-      expect(memberCount).to.equal(expectedMembers.length);
-
-      const bearers = [];
+      const members = [];
       for (let i = 0; i < memberCount; ++i) {
-        bearers.push(await this.mock.getRoleMember(ROLE, i));
+        members.push(await this.mock.getRoleMember(ROLE, i));
       }
 
-      expect(bearers).to.have.members(expectedMembers);
-      expect(await this.accessControl.getRoleMembers(ROLE)).to.have.members(expectedMembers);
+      expect(memberCount).to.equal(expectedMembers.length);
+      expect(members).to.deep.equal(expectedMembers);
+      expect(await this.mock.getRoleMembers(ROLE)).to.deep.equal(expectedMembers);
     });
 
     it('role enumeration should be in sync after renounceRole call', async function () {
