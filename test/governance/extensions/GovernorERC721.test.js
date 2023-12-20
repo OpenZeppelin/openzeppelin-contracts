@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
+const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC721Votes', mode: 'blocknumber' },
@@ -95,21 +95,21 @@ describe('GovernorERC721', function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
 
-        await expect(this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For }))
+        await expect(this.helper.connect(this.voter1).vote({ support: VoteType.For }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter1.address, this.proposal.id, Enums.VoteType.For, 1n, '');
+          .withArgs(this.voter1.address, this.proposal.id, VoteType.For, 1n, '');
 
-        await expect(this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For }))
+        await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter2.address, this.proposal.id, Enums.VoteType.For, 2n, '');
+          .withArgs(this.voter2.address, this.proposal.id, VoteType.For, 2n, '');
 
-        await expect(this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against }))
+        await expect(this.helper.connect(this.voter3).vote({ support: VoteType.Against }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter3.address, this.proposal.id, Enums.VoteType.Against, 1n, '');
+          .withArgs(this.voter3.address, this.proposal.id, VoteType.Against, 1n, '');
 
-        await expect(this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain }))
+        await expect(this.helper.connect(this.voter4).vote({ support: VoteType.Abstain }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter4.address, this.proposal.id, Enums.VoteType.Abstain, 1n, '');
+          .withArgs(this.voter4.address, this.proposal.id, VoteType.Abstain, 1n, '');
 
         await this.helper.waitForDeadline();
         await this.helper.execute();

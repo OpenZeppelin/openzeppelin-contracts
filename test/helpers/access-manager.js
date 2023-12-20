@@ -1,6 +1,6 @@
-const { keccak256, AbiCoder } = require('ethers');
-const { namespaceSlot } = require('./namespaced-storage');
+const { ethers } = require('hardhat');
 const { MAX_UINT64 } = require('./constants');
+const { namespaceSlot } = require('./namespaced-storage');
 const time = require('./time');
 
 function buildBaseRoles() {
@@ -54,7 +54,7 @@ const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
 async function prepareOperation(manager, { caller, target, calldata, delay }) {
   const timestamp = await time.clock.timestamp();
   const scheduledAt = timestamp + 1n;
-  await time.forward.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
+  await time.advanceTo.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
 
   return {
     schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
@@ -66,8 +66,8 @@ async function prepareOperation(manager, { caller, target, calldata, delay }) {
 const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
 
 const hashOperation = (caller, target, data) =>
-  keccak256(
-    AbiCoder.defaultAbiCoder().encode(
+  ethers.keccak256(
+    ethers.AbiCoder.defaultAbiCoder().encode(
       ['address', 'address', 'bytes'],
       [lazyGetAddress(caller), lazyGetAddress(target), data],
     ),

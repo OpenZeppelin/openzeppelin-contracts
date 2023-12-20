@@ -87,11 +87,11 @@ describe('AccessManaged', function () {
         const timestamp = await time.clock.timestamp();
         const scheduledAt = timestamp + 1n;
         const when = scheduledAt + delay;
-        await time.forward.timestamp(scheduledAt, false);
+        await time.advanceTo.timestamp(scheduledAt, false);
         await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
 
         // Set execution date
-        await time.forward.timestamp(when, false);
+        await time.advanceTo.timestamp(when, false);
 
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();

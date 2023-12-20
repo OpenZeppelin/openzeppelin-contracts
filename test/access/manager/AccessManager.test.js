@@ -911,7 +911,7 @@ contract('AccessManager', function () {
           beforeEach('sets old delay', async function () {
             this.role = this.roles.SOME;
             await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
           });
 
@@ -923,7 +923,7 @@ contract('AccessManager', function () {
               .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
           });
         });
@@ -934,7 +934,7 @@ contract('AccessManager', function () {
           beforeEach('sets old delay', async function () {
             this.role = this.roles.SOME;
             await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
           });
 
@@ -949,7 +949,7 @@ contract('AccessManager', function () {
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-              await time.forward.timestamp(MINSETBACK);
+              await time.advance.timestamp(MINSETBACK);
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
             });
           });
@@ -972,7 +972,7 @@ contract('AccessManager', function () {
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + setback);
 
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-              await time.forward.timestamp(setback);
+              await time.advance.timestamp(setback);
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
             });
           });
@@ -997,7 +997,7 @@ contract('AccessManager', function () {
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
           });
 
@@ -1009,7 +1009,7 @@ contract('AccessManager', function () {
               .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
           });
         });
@@ -1020,7 +1020,7 @@ contract('AccessManager', function () {
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
-            await time.forward.timestamp(MINSETBACK);
+            await time.advance.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
           });
 
@@ -1035,7 +1035,7 @@ contract('AccessManager', function () {
                 .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-              await time.forward.timestamp(MINSETBACK);
+              await time.advance.timestamp(MINSETBACK);
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
             });
           });
@@ -1058,7 +1058,7 @@ contract('AccessManager', function () {
                 .withArgs(target, newDelay, setTargetAdminDelayAt + setback);
 
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-              await time.forward.timestamp(setback);
+              await time.advance.timestamp(setback);
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
             });
           });
@@ -1204,7 +1204,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 this.grantDelay = time.duration.weeks(2);
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, this.grantDelay);
-                await time.forward.timestamp(MINSETBACK);
+                await time.advance.timestamp(MINSETBACK);
 
                 // Grant role
                 this.executionDelay = time.duration.days(3);
@@ -1278,7 +1278,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 this.grantDelay = 0;
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, this.grantDelay);
-                await time.forward.timestamp(MINSETBACK);
+                await time.advance.timestamp(MINSETBACK);
               });
 
               it('immediately grants the role to the user', async function () {
@@ -1325,7 +1325,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 const grantDelay = time.duration.weeks(2);
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, grantDelay);
-                await time.forward.timestamp(MINSETBACK);
+                await time.advance.timestamp(MINSETBACK);
               });
 
               describe('when increasing the execution delay', function () {
@@ -1442,7 +1442,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 const grantDelay = 0;
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, grantDelay);
-                await time.forward.timestamp(MINSETBACK);
+                await time.advance.timestamp(MINSETBACK);
               });
 
               describe('when increasing the execution delay', function () {
@@ -1941,7 +1941,7 @@ contract('AccessManager', function () {
       expect(expectedOperationId).to.equal(op1.operationId);
 
       // Consume
-      await time.forward.timestamp(this.delay);
+      await time.advance.timestamp(this.delay);
       await this.manager.$_consumeScheduledOp(expectedOperationId);
 
       // Check nonce
@@ -2165,7 +2165,7 @@ contract('AccessManager', function () {
         delay,
       });
       await schedule();
-      await time.forward.timestamp(delay);
+      await time.advance.timestamp(delay);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
@@ -2190,7 +2190,7 @@ contract('AccessManager', function () {
       // remove the execution delay
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
 
-      await time.forward.timestamp(delay);
+      await time.advance.timestamp(delay);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
@@ -2216,7 +2216,7 @@ contract('AccessManager', function () {
         delay,
       });
       await schedule();
-      await time.forward.timestamp(delay);
+      await time.advance.timestamp(delay);
       await this.manager.connect(this.caller).execute(this.target, this.calldata);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled')

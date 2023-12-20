@@ -1,7 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { getAddressInSlot, BeaconSlot } = require('../../helpers/erc1967');
+
+const { getAddressInSlot, BeaconSlot } = require('../../helpers/storage');
 
 async function fixture() {
   const [admin, other] = await ethers.getSigners();

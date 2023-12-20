@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
+const { ProposalState, VoteType } = require('../../helpers/enums');
 const time = require('../../helpers/time');
 
 const TOKENS = [
@@ -77,7 +77,7 @@ describe('GovernorVotesQuorumFraction', function () {
       it('quroum reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
         await this.helper.execute();
       });
@@ -85,14 +85,14 @@ describe('GovernorVotesQuorumFraction', function () {
       it('quroum not reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
         await expect(this.helper.execute())
           .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
           .withArgs(
             this.proposal.id,
-            Enums.ProposalState.Defeated,
-            GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+            ProposalState.Defeated,
+            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
           );
       });
 
@@ -116,7 +116,7 @@ describe('GovernorVotesQuorumFraction', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
           await expect(this.helper.execute()).to.emit(this.mock, 'QuorumNumeratorUpdated').withArgs(ratio, newRatio);
@@ -150,7 +150,7 @@ describe('GovernorVotesQuorumFraction', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
           const quorumDenominator = await this.mock.quorumDenominator();

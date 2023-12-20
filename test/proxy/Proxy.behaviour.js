@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 
-const { getAddressInSlot, ImplementationSlot } = require('../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot } = require('../helpers/storage');
 
 module.exports = function shouldBehaveLikeProxy() {
   it('cannot be initialized with a non-contract address', async function () {

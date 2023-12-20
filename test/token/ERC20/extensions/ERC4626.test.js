@@ -3,9 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const {
-  bigint: { Enum },
-} = require('../../../helpers/enums');
+const { Enum } = require('../../../helpers/enums');
 
 const name = 'My Token';
 const symbol = 'MTKN';

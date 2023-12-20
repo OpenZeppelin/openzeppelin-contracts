@@ -7,6 +7,7 @@ const BeaconLabel = 'eip1967.proxy.beacon';
 
 const erc1967slot = label => ethers.toBeHex(ethers.toBigInt(ethers.id(label)) - 1n);
 const erc7201slot = label => ethers.toBeHex(ethers.toBigInt(ethers.keccak256(erc1967slot(label))) & ~0xffn);
+const erc7201format = contractName => `openzeppelin.storage.${contractName}`;
 
 const getSlot = (address, slot) =>
   (ethers.isAddressable(address) ? address.getAddress() : Promise.resolve(address)).then(address =>
@@ -31,6 +32,7 @@ module.exports = {
   BeaconSlot: erc1967slot(BeaconLabel),
   erc1967slot,
   erc7201slot,
+  erc7201format,
   setSlot,
   getSlot,
   getAddressInSlot,

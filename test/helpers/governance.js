@@ -1,5 +1,5 @@
 const { ethers } = require('hardhat');
-const { forward } = require('./time');
+const { advanceTo } = require('./time');
 const { ProposalState } = require('./enums');
 const { unique } = require('./iterate');
 
@@ -131,17 +131,17 @@ class GovernorHelper {
   /// Clock helpers
   async waitForSnapshot(offset = 0n) {
     const timepoint = await this.governor.proposalSnapshot(this.id);
-    return forward[this.mode](timepoint + offset);
+    return advanceTo[this.mode](timepoint + offset);
   }
 
   async waitForDeadline(offset = 0n) {
     const timepoint = await this.governor.proposalDeadline(this.id);
-    return forward[this.mode](timepoint + offset);
+    return advanceTo[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0n) {
     const timestamp = await this.governor.proposalEta(this.id);
-    return forward.timestamp(timestamp + offset);
+    return advanceTo.timestamp(timestamp + offset);
   }
 
   /// Other helpers
@@ -172,7 +172,7 @@ class GovernorHelper {
     if (!Array.isArray(proposalStates)) {
       proposalStates = [proposalStates];
     }
-    const statesCount = BigInt(Object.keys(ProposalState).length);
+    const statesCount = ethers.toBigInt(Object.keys(ProposalState).length);
     let result = 0n;
 
     for (const state of unique(...proposalStates)) {

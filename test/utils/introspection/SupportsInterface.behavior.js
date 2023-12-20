@@ -1,5 +1,6 @@
-const { ethers } = require('ethers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+
 const { selector } = require('../../helpers/methods');
 
 const INVALID_ID = '0xffffffff';
@@ -85,7 +86,7 @@ const INTERFACE_IDS = Object.fromEntries(
   Object.entries(SIGNATURES).map(([name, signatures]) => [
     name,
     ethers.toBeHex(
-      signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
+      signatures.reduce((id, fnSig) => id ^ ethers.toBigInt(selector(fnSig)), 0n),
       4,
     ),
   ]),

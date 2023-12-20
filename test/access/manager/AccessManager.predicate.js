@@ -146,7 +146,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has not taken effect yet`, function () {
     beforeEach(`set next block timestamp before ${type} takes effect`, async function () {
-      await time.forward.timestamp(this.delayEffect - 1n, !!before.mineDelay);
+      await time.advanceTo.timestamp(this.delayEffect - 1n, !!before.mineDelay);
     });
 
     before();
@@ -154,7 +154,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has taken effect`, function () {
     beforeEach(`set next block timestamp when ${type} takes effect`, async function () {
-      await time.forward.timestamp(this.delayEffect, !!after.mineDelay);
+      await time.advanceTo.timestamp(this.delayEffect, !!after.mineDelay);
     });
 
     after();
@@ -187,7 +187,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time before operation is ready', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule - 1n, !!before.mineDelay);
+        await time.advanceTo.timestamp(schedule - 1n, !!before.mineDelay);
       });
 
       before();
@@ -197,7 +197,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation is ready for execution', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule, !!after.mineDelay);
+        await time.advanceTo.timestamp(schedule, !!after.mineDelay);
       });
 
       after();
@@ -207,7 +207,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation expired', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
+        await time.advanceTo.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
       });
 
       expired();

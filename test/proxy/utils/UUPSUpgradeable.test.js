@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot } = require('../../helpers/storage');
 
 async function fixture() {
   const implInitial = await ethers.deployContract('UUPSUpgradeableMock');
