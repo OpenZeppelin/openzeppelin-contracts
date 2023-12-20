@@ -3,9 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, domainSeparator, Permit } = require('../../../helpers/eip712');
-const {
-  bigint: { clock, duration },
-} = require('../../../helpers/time');
+const { bigint: time } = require('../../../helpers/time');
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -97,7 +95,7 @@ describe('ERC20Permit', function () {
     });
 
     it('rejects expired permit', async function () {
-      const deadline = (await clock.timestamp()) - duration.weeks(1);
+      const deadline = (await time.clock.timestamp()) - time.duration.weeks(1);
 
       const { v, r, s } = await this.buildData(this.token, deadline)
         .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
