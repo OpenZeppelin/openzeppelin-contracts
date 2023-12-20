@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const { expect } = require('hardhat');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 function shouldBehaveLikeSet() {

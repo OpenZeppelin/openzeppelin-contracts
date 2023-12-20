@@ -1,5 +1,4 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+const { ethers, expect } = require('hardhat');
 
 const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 const { impersonate } = require('../../helpers/account');

@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const { expect } = require('hardhat');
 const { selector, interfaceId } = require('../../helpers/methods');
 const { mapValues } = require('../../helpers/iterate');
 

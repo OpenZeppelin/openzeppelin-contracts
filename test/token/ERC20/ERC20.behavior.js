@@ -1,5 +1,4 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+const { ethers, expect } = require('hardhat');
 
 function shouldBehaveLikeERC20(initialSupply, opts = {}) {
   const { forcedApproval } = opts;

@@ -1,7 +1,6 @@
+const { expect } = require('hardhat');
 const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-
-const { expect } = require('chai');
 
 const { expectRevertCustomError } = require('../../helpers/customError');
 

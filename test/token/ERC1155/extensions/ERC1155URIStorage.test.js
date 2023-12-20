@@ -1,7 +1,5 @@
+const { expect } = require('hardhat');
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
-
-const { expect } = require('chai');
-const { artifacts } = require('hardhat');
 
 const ERC1155URIStorage = artifacts.require('$ERC1155URIStorage');
 
