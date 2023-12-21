@@ -5,10 +5,8 @@ const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 const {
-  bigint: { Enum },
+  bigint: { RevertType },
 } = require('../../helpers/enums');
-
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
 const firstTokenId = 5042n;
 const secondTokenId = 79217n;
