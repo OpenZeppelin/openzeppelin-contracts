@@ -2,11 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const {
-  bigint: { Enum },
+  bigint: { RevertType },
 } = require('../../helpers/enums');
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
 function shouldBehaveLikeERC1155() {
   const firstTokenId = 1n;
