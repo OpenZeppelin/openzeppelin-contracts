@@ -1,4 +1,4 @@
-const { artifacts } = require('hardhat');
+const { ethers, artifacts } = require('hardhat');
 const { erc7201slot } = require('./erc1967');
 
 function namespaceId(contractName) {
@@ -9,7 +9,7 @@ function namespaceSlot(contractName, offset) {
   try {
     // Try to get the artifact paths, will throw if it doesn't exist
     artifacts._getArtifactPathSync(`${contractName}Upgradeable`);
-    return offset + erc7201slot(namespaceId(contractName));
+    return offset + ethers.toBigInt(erc7201slot(namespaceId(contractName)));
   } catch (_) {
     return offset;
   }
