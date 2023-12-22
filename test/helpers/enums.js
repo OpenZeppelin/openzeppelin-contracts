@@ -14,6 +14,7 @@ function createExport(Enum) {
     VoteType: Enum('Against', 'For', 'Abstain'),
     Rounding: Enum('Floor', 'Ceil', 'Trunc', 'Expand'),
     OperationState: Enum('Unset', 'Waiting', 'Ready', 'Done'),
+    RevertType: Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic'),
   };
 }
 
