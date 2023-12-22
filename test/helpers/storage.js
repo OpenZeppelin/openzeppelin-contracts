@@ -21,6 +21,16 @@ const setSlot = (address, slot, value) =>
 const getAddressInSlot = (address, slot) =>
   getSlot(address, slot).then(slotValue => ethers.AbiCoder.defaultAbiCoder().decode(['address'], slotValue)[0]);
 
+const upgradeableSlot = (contractName, offset) => {
+  try {
+    // Try to get the artifact paths, will throw if it doesn't exist
+    artifacts._getArtifactPathSync(`${contractName}Upgradeable`);
+    return offset + ethers.toBigInt(erc7201slot(erc7201format(contractName)));
+  } catch (_) {
+    return offset;
+  }
+};
+
 module.exports = {
   ImplementationLabel,
   AdminLabel,
@@ -34,4 +44,5 @@ module.exports = {
   setSlot,
   getSlot,
   getAddressInSlot,
+  upgradeableSlot,
 };
