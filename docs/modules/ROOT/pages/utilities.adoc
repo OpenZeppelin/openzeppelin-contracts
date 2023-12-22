@@ -186,16 +186,15 @@ contract Box is Multicall {
 }
 ----
 
-This is how to call the `multicall` function using Truffle, allowing `foo` and `bar` to be called in a single transaction:
+This is how to call the `multicall` function using Ethers.js, allowing `foo` and `bar` to be called in a single transaction:
 [source,javascript]
 ----
 // scripts/foobar.js
 
-const Box = artifacts.require('Box');
-const instance = await Box.new();
+const instance = await ethers.deployContract("Box");
 
 await instance.multicall([
-    instance.contract.methods.foo().encodeABI(),
-    instance.contract.methods.bar().encodeABI()
+    instance.interface.encodeFunctionData("foo"),
+    instance.interface.encodeFunctionData("bar")
 ]);
 ----
