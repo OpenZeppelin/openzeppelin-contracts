@@ -181,7 +181,7 @@ describe('ECDSA', function () {
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = '0x1c'; // 27 = 1b.
+        const v = '0x1b'; // 28 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
 
         const { compactSerialized } = ethers.Signature.from(signature);
