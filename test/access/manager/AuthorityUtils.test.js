@@ -1,5 +1,5 @@
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
   const [user, other] = await ethers.getSigners();

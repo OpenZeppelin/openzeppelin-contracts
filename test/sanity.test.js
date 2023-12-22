@@ -1,4 +1,5 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {

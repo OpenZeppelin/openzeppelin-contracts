@@ -1,4 +1,5 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture, getStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../../helpers/account');

@@ -1,7 +1,8 @@
-const { bigint: time } = require('../../helpers/time');
+const { ethers } = require('hardhat');
+
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
-const { ethers } = require('hardhat');
+const { bigint: time } = require('../../helpers/time');
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
