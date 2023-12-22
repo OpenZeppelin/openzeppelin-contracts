@@ -32,7 +32,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
-For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use https://defender.openzeppelin.com/v2/#/actions/executable[Defender Transaction Proposals] as an alternative interface.
+For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference[Defender Transaction Proposals] as an alternative interface.
 
 In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.
 
