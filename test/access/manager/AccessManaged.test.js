@@ -1,7 +1,8 @@
-const { bigint: time } = require('../../helpers/time');
+const { ethers } = require('hardhat');
+
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
-const { ethers } = require('hardhat');
+const { bigint: time } = require('../../helpers/time');
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
@@ -84,14 +85,13 @@ describe('AccessManaged', function () {
         const calldata = this.managed.interface.encodeFunctionData(fn, []);
 
         // Schedule
-        const timestamp = await time.clock.timestamp();
-        const scheduledAt = timestamp + 1n;
+        const scheduledAt = (await time.clock.timestamp()) + 1n;
         const when = scheduledAt + delay;
-        await time.forward.timestamp(scheduledAt, false);
+        await time.increaseTo.timestamp(scheduledAt, false);
         await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
 
         // Set execution date
-        await time.forward.timestamp(when, false);
+        await time.increaseTo.timestamp(when, false);
 
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();

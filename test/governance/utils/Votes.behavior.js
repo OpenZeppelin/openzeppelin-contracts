@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { bigint: time } = require('../../helpers/time');
 const { getDomain, Delegation } = require('../../helpers/eip712');
+const { bigint: time } = require('../../helpers/time');
 
 const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 

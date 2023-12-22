@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { min, max } = require('../../helpers/math');
 
 async function testCommutative(fn, lhs, rhs, expected, ...extra) {

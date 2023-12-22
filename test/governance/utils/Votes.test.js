@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { bigint: time } = require('../../helpers/time');
 const { sum } = require('../../helpers/math');
 const { zip } = require('../../helpers/iterate');
+const { bigint: time } = require('../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 

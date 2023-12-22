@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
-const { forward } = require('./time');
 const { ProposalState } = require('./enums');
 const { unique } = require('./iterate');
+const time = require('./time');
 
 const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
@@ -131,17 +131,17 @@ class GovernorHelper {
   /// Clock helpers
   async waitForSnapshot(offset = 0n) {
     const timepoint = await this.governor.proposalSnapshot(this.id);
-    return forward[this.mode](timepoint + offset);
+    return time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForDeadline(offset = 0n) {
     const timepoint = await this.governor.proposalDeadline(this.id);
-    return forward[this.mode](timepoint + offset);
+    return time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0n) {
     const timestamp = await this.governor.proposalEta(this.id);
-    return forward.timestamp(timestamp + offset);
+    return time.increaseTo.timestamp(timestamp + offset);
   }
 
   /// Other helpers

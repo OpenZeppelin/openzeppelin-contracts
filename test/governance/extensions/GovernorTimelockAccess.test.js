@@ -595,7 +595,7 @@ describe('GovernorTimelockAccess', function () {
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(original.currentProposal.id);
 
-          await time.clock.timestamp().then(clock => time.forward.timestamp(max(clock + 1n, eta)));
+          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
 
           await expect(original.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
@@ -621,7 +621,7 @@ describe('GovernorTimelockAccess', function () {
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
 
-          await time.clock.timestamp().then(clock => time.forward.timestamp(max(clock + 1n, eta)));
+          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
 
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
@@ -639,14 +639,11 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.waitForSnapshot();
           await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
           await this.helper.waitForDeadline();
-          // await this.helper.queue();
 
-          // const eta = await this.mock.proposalEta(this.proposal.id);
           await expect(this.helper.cancel('internal'))
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
 
-          // await time.forward.timestamp(eta);
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(

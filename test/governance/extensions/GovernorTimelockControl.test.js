@@ -374,7 +374,7 @@ describe('GovernorTimelockControl', function () {
 
             await this.timelock.connect(this.owner).schedule(...call, delay);
 
-            await time.clock.timestamp().then(clock => time.forward.timestamp(clock + delay));
+            await time.increaseBy.timestamp(delay);
 
             // Error bubbled up from Governor
             await expect(this.timelock.connect(this.owner).execute(...call)).to.be.revertedWithCustomError(

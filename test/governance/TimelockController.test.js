@@ -329,7 +329,7 @@ describe('TimelockController', function () {
 
           it('revert if execution comes too early 2/2', async function () {
             // -1 is too tight, test sometime fails
-            await this.mock.getTimestamp(this.operation.id).then(clock => time.forward.timestamp(clock - 5n));
+            await this.mock.getTimestamp(this.operation.id).then(clock => time.increaseTo.timestamp(clock - 5n));
 
             await expect(
               this.mock
@@ -348,7 +348,7 @@ describe('TimelockController', function () {
 
           describe('on time', function () {
             beforeEach(async function () {
-              await this.mock.getTimestamp(this.operation.id).then(clock => time.forward.timestamp(clock));
+              await this.mock.getTimestamp(this.operation.id).then(time.increaseTo.timestamp);
             });
 
             it('executor can reveal', async function () {
@@ -407,7 +407,7 @@ describe('TimelockController', function () {
                 );
 
               // Advance on time to make the operation executable
-              await this.mock.getTimestamp(reentrantOperation.id).then(clock => time.forward.timestamp(clock));
+              await this.mock.getTimestamp(reentrantOperation.id).then(time.increaseTo.timestamp);
 
               // Grant executor role to the reentrant contract
               await this.mock.connect(this.admin).grantRole(EXECUTOR_ROLE, reentrant);
@@ -667,7 +667,7 @@ describe('TimelockController', function () {
 
           it('revert if execution comes too early 2/2', async function () {
             // -1 is to tight, test sometime fails
-            await this.mock.getTimestamp(this.operation.id).then(clock => time.forward.timestamp(clock - 5n));
+            await this.mock.getTimestamp(this.operation.id).then(clock => time.increaseTo.timestamp(clock - 5n));
 
             await expect(
               this.mock
@@ -686,7 +686,7 @@ describe('TimelockController', function () {
 
           describe('on time', function () {
             beforeEach(async function () {
-              await this.mock.getTimestamp(this.operation.id).then(clock => time.forward.timestamp(clock));
+              await this.mock.getTimestamp(this.operation.id).then(time.increaseTo.timestamp);
             });
 
             it('executor can reveal', async function () {
@@ -800,7 +800,7 @@ describe('TimelockController', function () {
                 );
 
               // Advance on time to make the operation executable
-              await this.mock.getTimestamp(reentrantBatchOperation.id).then(clock => time.forward.timestamp(clock));
+              await this.mock.getTimestamp(reentrantBatchOperation.id).then(time.increaseTo.timestamp);
 
               // Grant executor role to the reentrant contract
               await this.mock.connect(this.admin).grantRole(EXECUTOR_ROLE, reentrant);
@@ -883,7 +883,7 @@ describe('TimelockController', function () {
               MINDELAY,
             );
 
-          await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+          await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
           await expect(
             this.mock
@@ -965,7 +965,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       await expect(
         this.mock
@@ -1016,7 +1016,7 @@ describe('TimelockController', function () {
           MINDELAY,
         );
 
-      await this.mock.getTimestamp(this.operation2.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(this.operation2.id).then(time.increaseTo.timestamp);
     });
 
     it('cannot execute before dependency', async function () {
@@ -1073,7 +1073,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       await this.mock
         .connect(this.executor)
@@ -1095,7 +1095,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       await expect(
         this.mock
@@ -1117,7 +1117,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       // Targeted function reverts with a panic code (0x1) + the timelock bubble the panic code
       await expect(
@@ -1140,7 +1140,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       await expect(
         this.mock
@@ -1164,7 +1164,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
       expect(await ethers.provider.getBalance(this.callreceivermock)).to.equal(0n);
@@ -1192,7 +1192,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
       expect(await ethers.provider.getBalance(this.callreceivermock)).to.equal(0n);
@@ -1220,7 +1220,7 @@ describe('TimelockController', function () {
         .connect(this.proposer)
         .schedule(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, MINDELAY);
 
-      await this.mock.getTimestamp(operation.id).then(clock => time.forward.timestamp(clock));
+      await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
       expect(await ethers.provider.getBalance(this.callreceivermock)).to.equal(0n);
