@@ -641,19 +641,17 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     beforeEach(async function () {
       await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(ethers.ZeroAddress);
       this.expectedSchedule = (await time.clock.timestamp()) + this.delay;
-      this.delayNotPassed = this.expectedSchedule;
-      this.delayPassed = this.expectedSchedule + 1n;
     });
 
     it('reverts if caller is not default admin', async function () {
-      await time.increaseTo.timestamp(this.delayPassed, false);
+      await time.increaseBy.timestamp(this.delay + 1n, false);
       await expect(
         this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.other),
       ).to.be.revertedWithCustomError(this.mock, 'AccessControlBadConfirmation');
     });
 
     it("renouncing the admin role when not an admin doesn't affect the schedule", async function () {
-      await time.increaseTo.timestamp(this.delayPassed, false);
+      await time.increaseBy.timestamp(this.delay + 1n, false);
       await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
       const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
@@ -662,7 +660,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     });
 
     it('keeps defaultAdmin consistent with hasRole if another non-defaultAdmin user renounces the DEFAULT_ADMIN_ROLE', async function () {
-      await time.increaseTo.timestamp(this.delayPassed, false);
+      await time.increaseBy.timestamp(this.delay + 1n, false);
 
       // This passes because it's a noop
       await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
@@ -672,7 +670,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     });
 
     it('renounces role', async function () {
-      await time.increaseTo.timestamp(this.delayPassed, false);
+      await time.increaseBy.timestamp(this.delay + 1n, false);
       await expect(this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin))
         .to.emit(this.mock, 'RoleRevoked')
         .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.defaultAdmin.address);
@@ -687,7 +685,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     });
 
     it('allows to recover access using the internal _grantRole', async function () {
-      await time.increaseTo.timestamp(this.delayPassed, false);
+      await time.increaseBy.timestamp(this.delay + 1n, false);
       await this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin);
 
       await expect(this.mock.connect(this.defaultAdmin).$_grantRole(DEFAULT_ADMIN_ROLE, this.other))
@@ -701,7 +699,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         [0n, 'equal'],
       ]) {
         it(`reverts if block.timestamp is ${tag} to schedule`, async function () {
-          await time.increaseTo.timestamp(this.delayNotPassed + fromSchedule, false);
+          await time.increaseBy.timestamp(this.delay + fromSchedule, false);
           await expect(this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin))
             .to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminDelay')
             .withArgs(this.expectedSchedule);
