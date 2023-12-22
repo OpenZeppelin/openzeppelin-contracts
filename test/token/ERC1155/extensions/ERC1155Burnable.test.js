@@ -1,5 +1,4 @@
 const { ethers, expect } = require('hardhat');
-const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const ids = [42n, 1137n];
