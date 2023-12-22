@@ -1,4 +1,5 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

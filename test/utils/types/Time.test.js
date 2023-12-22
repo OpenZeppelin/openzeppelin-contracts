@@ -1,9 +1,11 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const time = require('../../helpers/time');
 
 const { product } = require('../../helpers/iterate');
 const { max } = require('../../helpers/math');
+const time = require('../../helpers/time');
+
 
 const MAX_UINT32 = 1n << (32n - 1n);
 const MAX_UINT48 = 1n << (48n - 1n);

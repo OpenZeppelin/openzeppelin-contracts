@@ -1,4 +1,5 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { MAX_UINT64 } = require('../../helpers/constants');
 
 describe('Initializable', function () {

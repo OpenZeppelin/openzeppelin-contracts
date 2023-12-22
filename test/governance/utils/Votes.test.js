@@ -1,8 +1,9 @@
-const { ethers, expect } = require('hardhat');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { zip } = require('../../helpers/iterate');
 const { sum } = require('../../helpers/math');
+const { zip } = require('../../helpers/iterate');
 const time = require('../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');

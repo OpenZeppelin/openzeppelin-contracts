@@ -1,3 +1,5 @@
+const { expect } = require('chai');
+
 const {
   LIKE_COMMON_IS_EXECUTING,
   LIKE_COMMON_GET_ACCESS,

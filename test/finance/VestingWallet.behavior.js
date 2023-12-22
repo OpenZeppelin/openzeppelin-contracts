@@ -1,4 +1,4 @@
-const { expect } = require('hardhat');
+const { expect } = require('chai');
 const time = require('../helpers/time');
 
 function shouldBehaveLikeVesting() {
