@@ -15,27 +15,4 @@ extendEnvironment(hre => {
     const filteredSignersAsPromise = originalGetSigners().then(signers => signers.slice(1));
     hre.ethers.getSigners = () => filteredSignersAsPromise;
   }
-
-  // override hre.contract
-  const originalContract = hre.contract;
-  hre.contract = function (name, body) {
-    originalContract.call(this, name, accounts => {
-      let snapshot;
-
-      before(async function () {
-        // reset the state of the chain in between contract test suites
-        // TODO: this should be removed when migration to ethers is over
-        const { takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
-        snapshot = await takeSnapshot();
-      });
-
-      after(async function () {
-        // reset the state of the chain in between contract test suites
-        // TODO: this should be removed when migration to ethers is over
-        await snapshot.restore();
-      });
-
-      body(accounts.slice(1));
-    });
-  };
 });
