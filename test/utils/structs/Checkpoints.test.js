@@ -1,5 +1,4 @@
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+const { ethers, expect } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');

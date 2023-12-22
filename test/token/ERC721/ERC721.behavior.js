@@ -1,12 +1,9 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+const { ethers, expect } = require('hardhat');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 const { Enum } = require('../../helpers/enums');
-
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
 
 const firstTokenId = 5042n;
 const secondTokenId = 79217n;

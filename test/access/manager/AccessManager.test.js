@@ -2,9 +2,8 @@ const { ethers, expect } = require('hardhat');
 const { loadFixture, getStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../../helpers/account');
-const { selector } = require('../../helpers/methods');
 const { MAX_UINT48 } = require('../../helpers/constants');
-const { generators } = require('../../helpers/random');
+const { selector } = require('../../helpers/methods');
 const time = require('../../helpers/time');
 
 const {
@@ -34,8 +33,6 @@ const {
   testAsHasRole,
   testAsGetAccess,
 } = require('./AccessManager.predicate');
-
-const someAddress = generators.address();
 
 async function fixture() {
   const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
@@ -146,7 +143,7 @@ contract('AccessManager', function () {
         closed() {
           it('should return false and no delay', async function () {
             const { immediate, delay } = await this.manager.canCall(
-              someAddress,
+              this.other,
               this.target,
               this.calldata.substring(0, 10),
             );
@@ -765,11 +762,7 @@ contract('AccessManager', function () {
 
     describe('#hashOperation', function () {
       it('returns an operationId', async function () {
-        const calldata = '0x123543';
-        const address = someAddress;
-
-        const args = [this.user.address, address, calldata];
-
+        const args = [this.user.address, this.other.address, '0x123543'];
         expect(await this.manager.hashOperation(...args)).to.equal(hashOperation(...args));
       });
     });
@@ -911,7 +904,7 @@ contract('AccessManager', function () {
           beforeEach('sets old delay', async function () {
             this.role = this.roles.SOME;
             await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
           });
 
@@ -923,7 +916,7 @@ contract('AccessManager', function () {
               .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
           });
         });
@@ -934,7 +927,7 @@ contract('AccessManager', function () {
           beforeEach('sets old delay', async function () {
             this.role = this.roles.SOME;
             await this.manager.$_setGrantDelay(this.role.id, oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
           });
 
@@ -949,7 +942,7 @@ contract('AccessManager', function () {
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-              await time.advance.timestamp(MINSETBACK);
+              await time.increaseBy.timestamp(MINSETBACK);
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
             });
           });
@@ -972,7 +965,7 @@ contract('AccessManager', function () {
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + setback);
 
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(oldDelay);
-              await time.advance.timestamp(setback);
+              await time.increaseBy.timestamp(setback);
               expect(await this.manager.getRoleGrantDelay(this.role.id)).to.equal(newDelay);
             });
           });
@@ -982,7 +975,7 @@ contract('AccessManager', function () {
       describe('#setTargetAdminDelay', function () {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
-            const args = [someAddress, time.duration.days(3)];
+            const args = [this.other.address, time.duration.days(3)];
             const method = this.manager.interface.getFunction('setTargetAdminDelay(address,uint32)');
             this.calldata = this.manager.interface.encodeFunctionData(method, args);
           });
@@ -993,11 +986,11 @@ contract('AccessManager', function () {
         describe('when increasing the delay', function () {
           const oldDelay = time.duration.days(10);
           const newDelay = time.duration.days(11);
-          const target = someAddress;
+          const target = this.other.address;
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
           });
 
@@ -1009,18 +1002,18 @@ contract('AccessManager', function () {
               .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
           });
         });
 
         describe('when reducing the delay', function () {
           const oldDelay = time.duration.days(10);
-          const target = someAddress;
+          const target = this.other.address;
 
           beforeEach('sets old delay', async function () {
             await this.manager.$_setTargetAdminDelay(target, oldDelay);
-            await time.advance.timestamp(MINSETBACK);
+            await time.increaseBy.timestamp(MINSETBACK);
             expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
           });
 
@@ -1035,7 +1028,7 @@ contract('AccessManager', function () {
                 .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-              await time.advance.timestamp(MINSETBACK);
+              await time.increaseBy.timestamp(MINSETBACK);
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
             });
           });
@@ -1058,7 +1051,7 @@ contract('AccessManager', function () {
                 .withArgs(target, newDelay, setTargetAdminDelayAt + setback);
 
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
-              await time.advance.timestamp(setback);
+              await time.increaseBy.timestamp(setback);
               expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
             });
           });
@@ -1098,7 +1091,7 @@ contract('AccessManager', function () {
       describe('#setTargetClosed', function () {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
-            const args = [someAddress, true];
+            const args = [this.other.address, true];
             const method = this.manager.interface.getFunction('setTargetClosed(address,bool)');
             this.calldata = this.manager.interface.encodeFunctionData(method, args);
           });
@@ -1128,7 +1121,7 @@ contract('AccessManager', function () {
       describe('#setTargetFunctionRole', function () {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
-            const args = [someAddress, ['0x12345678'], 443342];
+            const args = [this.other.address, ['0x12345678'], 443342];
             const method = this.manager.interface.getFunction('setTargetFunctionRole(address,bytes4[],uint64)');
             this.calldata = this.manager.interface.encodeFunctionData(method, args);
           });
@@ -1184,7 +1177,7 @@ contract('AccessManager', function () {
         describe('#grantRole', function () {
           describe('restrictions', function () {
             beforeEach('set method and args', function () {
-              const args = [ANOTHER_ROLE, someAddress, 0];
+              const args = [ANOTHER_ROLE, this.other.address, 0];
               const method = this.manager.interface.getFunction('grantRole(uint64,address,uint32)');
               this.calldata = this.manager.interface.encodeFunctionData(method, args);
             });
@@ -1204,7 +1197,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 this.grantDelay = time.duration.weeks(2);
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, this.grantDelay);
-                await time.advance.timestamp(MINSETBACK);
+                await time.increaseBy.timestamp(MINSETBACK);
 
                 // Grant role
                 this.executionDelay = time.duration.days(3);
@@ -1278,7 +1271,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 this.grantDelay = 0;
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, this.grantDelay);
-                await time.advance.timestamp(MINSETBACK);
+                await time.increaseBy.timestamp(MINSETBACK);
               });
 
               it('immediately grants the role to the user', async function () {
@@ -1325,7 +1318,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 const grantDelay = time.duration.weeks(2);
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, grantDelay);
-                await time.advance.timestamp(MINSETBACK);
+                await time.increaseBy.timestamp(MINSETBACK);
               });
 
               describe('when increasing the execution delay', function () {
@@ -1442,7 +1435,7 @@ contract('AccessManager', function () {
                 // Delay granting
                 const grantDelay = 0;
                 await this.manager.$_setGrantDelay(ANOTHER_ROLE, grantDelay);
-                await time.advance.timestamp(MINSETBACK);
+                await time.increaseBy.timestamp(MINSETBACK);
               });
 
               describe('when increasing the execution delay', function () {
@@ -1559,7 +1552,7 @@ contract('AccessManager', function () {
         describe('#revokeRole', function () {
           describe('restrictions', function () {
             beforeEach('set method and args', async function () {
-              const args = [ANOTHER_ROLE, someAddress];
+              const args = [ANOTHER_ROLE, this.other.address];
               const method = this.manager.interface.getFunction('revokeRole(uint64,address)');
               this.calldata = this.manager.interface.encodeFunctionData(method, args);
 
@@ -1687,7 +1680,7 @@ contract('AccessManager', function () {
 
           it('reverts if renouncing with bad caller confirmation', async function () {
             await expect(
-              this.manager.connect(this.caller).renounceRole(this.role.id, someAddress),
+              this.manager.connect(this.caller).renounceRole(this.role.id, this.other),
             ).to.be.revertedWithCustomError(this.manager, 'AccessManagerBadConfirmation');
           });
         });
@@ -1941,7 +1934,7 @@ contract('AccessManager', function () {
       expect(expectedOperationId).to.equal(op1.operationId);
 
       // Consume
-      await time.advance.timestamp(this.delay);
+      await time.increaseBy.timestamp(this.delay);
       await this.manager.$_consumeScheduledOp(expectedOperationId);
 
       // Check nonce
@@ -2165,7 +2158,7 @@ contract('AccessManager', function () {
         delay,
       });
       await schedule();
-      await time.advance.timestamp(delay);
+      await time.increaseBy.timestamp(delay);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
@@ -2190,7 +2183,7 @@ contract('AccessManager', function () {
       // remove the execution delay
       await this.manager.$_grantRole(this.role.id, this.caller, 0, 0);
 
-      await time.advance.timestamp(delay);
+      await time.increaseBy.timestamp(delay);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.emit(this.manager, 'OperationExecuted')
         .withArgs(operationId, 1n);
@@ -2216,7 +2209,7 @@ contract('AccessManager', function () {
         delay,
       });
       await schedule();
-      await time.advance.timestamp(delay);
+      await time.increaseBy.timestamp(delay);
       await this.manager.connect(this.caller).execute(this.target, this.calldata);
       await expect(this.manager.connect(this.caller).execute(this.target, this.calldata))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled')

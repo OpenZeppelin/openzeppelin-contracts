@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { MAX_UINT64 } = require('./constants');
 const { namespaceSlot } = require('./namespaced-storage');
-const time = require('./time');
+const { bigint: time } = require('./time');
 
 function buildBaseRoles() {
   const roles = {
@@ -52,9 +52,8 @@ const CONSUMING_SCHEDULE_STORAGE_SLOT = namespaceSlot('AccessManaged', 0n);
  * @requires this.{manager, caller, target, calldata}
  */
 async function prepareOperation(manager, { caller, target, calldata, delay }) {
-  const timestamp = await time.clock.timestamp();
-  const scheduledAt = timestamp + 1n;
-  await time.advanceTo.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
+  const scheduledAt = (await time.clock.timestamp()) + 1n;
+  await time.increaseTo.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
 
   return {
     schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),

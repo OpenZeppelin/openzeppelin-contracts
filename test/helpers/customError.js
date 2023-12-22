@@ -1,6 +1,6 @@
 // DEPRECATED: replace with hardhat-toolbox chai matchers.
 
-const { expect } = require('chai');
+const { expect } = require('hardhat');
 
 /** Revert handler that supports custom errors. */
 async function expectRevertCustomError(promise, expectedErrorName, args) {

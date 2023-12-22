@@ -1,5 +1,4 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+const { ethers, expect } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');

@@ -32,7 +32,7 @@ describe('AccessManaged', function () {
   });
 
   it('sets authority and emits AuthorityUpdated event during construction', async function () {
-    await expect(await this.managed.deploymentTransaction())
+    await expect(this.managed.deploymentTransaction())
       .to.emit(this.managed, 'AuthorityUpdated')
       .withArgs(this.authority.target);
   });
@@ -84,14 +84,13 @@ describe('AccessManaged', function () {
         const calldata = this.managed.interface.encodeFunctionData(fn, []);
 
         // Schedule
-        const timestamp = await time.clock.timestamp();
-        const scheduledAt = timestamp + 1n;
+        const scheduledAt = (await time.clock.timestamp()) + 1n;
         const when = scheduledAt + delay;
-        await time.advanceTo.timestamp(scheduledAt, false);
+        await time.increaseTo.timestamp(scheduledAt, false);
         await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
 
         // Set execution date
-        await time.advanceTo.timestamp(when, false);
+        await time.increaseTo.timestamp(when, false);
 
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();
