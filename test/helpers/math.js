@@ -8,6 +8,4 @@ module.exports = {
   min,
   max,
   sum,
-  // deprecated: BN version of sum
-  BNsum: (...args) => args.slice(1).reduce((x, y) => x.add(y), args.at(0)),
 };
