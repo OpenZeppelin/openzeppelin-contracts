@@ -641,8 +641,6 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     beforeEach(async function () {
       await this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(ethers.ZeroAddress);
       this.expectedSchedule = (await time.clock.timestamp()) + this.delay;
-      this.delayNotPassed = this.expectedSchedule;
-      this.delayPassed = this.expectedSchedule + 1n;
     });
 
     it('reverts if caller is not default admin', async function () {
