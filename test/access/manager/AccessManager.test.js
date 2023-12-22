@@ -72,11 +72,8 @@ async function fixture() {
   }
 
   return {
-    // TODO: Check if all signers are actually used
     admin,
     roleAdmin,
-    roleGuardian,
-    member,
     user,
     other,
     roles,
