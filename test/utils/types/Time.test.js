@@ -40,7 +40,7 @@ async function fixture() {
   return { mock };
 }
 
-contract('Time', function () {
+describe('Time', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

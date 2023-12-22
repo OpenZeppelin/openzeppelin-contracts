@@ -1,7 +1,8 @@
 const { ethers } = require('hardhat');
+
 const { MAX_UINT64 } = require('./constants');
 const { namespaceSlot } = require('./namespaced-storage');
-const { bigint: time } = require('./time');
+const time = require('./time');
 
 function buildBaseRoles() {
   const roles = {

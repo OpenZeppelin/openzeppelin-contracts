@@ -98,9 +98,7 @@ async function fixture() {
 // The predicates can be identified by the `testAs*` prefix while the behaviors
 // are prefixed with `shouldBehave*`. The common assertions for predicates are
 // defined as constants.
-contract('AccessManager', function () {
-  // const [admin, manager, guardian, member, user, other] = accounts;
-
+describe('AccessManager', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -986,50 +984,48 @@ contract('AccessManager', function () {
         describe('when increasing the delay', function () {
           const oldDelay = time.duration.days(10);
           const newDelay = time.duration.days(11);
-          const target = this.other.address;
 
           beforeEach('sets old delay', async function () {
-            await this.manager.$_setTargetAdminDelay(target, oldDelay);
+            await this.manager.$_setTargetAdminDelay(this.other, oldDelay);
             await time.increaseBy.timestamp(MINSETBACK);
-            expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
+            expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(oldDelay);
           });
 
           it('increases the delay after minsetback', async function () {
-            const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+            const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
             const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
             expect(txResponse)
               .to.emit(this.manager, 'TargetAdminDelayUpdated')
-              .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
+              .withArgs(this.other.address, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
-            expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
+            expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(oldDelay);
             await time.increaseBy.timestamp(MINSETBACK);
-            expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
+            expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(newDelay);
           });
         });
 
         describe('when reducing the delay', function () {
           const oldDelay = time.duration.days(10);
-          const target = this.other.address;
 
           beforeEach('sets old delay', async function () {
-            await this.manager.$_setTargetAdminDelay(target, oldDelay);
+            await this.manager.$_setTargetAdminDelay(this.other, oldDelay);
             await time.increaseBy.timestamp(MINSETBACK);
-            expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
+            expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(oldDelay);
           });
 
           describe('when the delay difference is shorter than minimum setback', function () {
             const newDelay = oldDelay - 1n;
 
             it('increases the delay after minsetback', async function () {
-              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
               const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
               expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
-                .withArgs(target, newDelay, setTargetAdminDelayAt + MINSETBACK);
+                .withArgs(this.other.address, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
-              expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
+              expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(oldDelay);
               await time.increaseBy.timestamp(MINSETBACK);
-              expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
+              expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(newDelay);
             });
           });
 
@@ -1043,16 +1039,16 @@ contract('AccessManager', function () {
             it('increases the delay after delay difference', async function () {
               const setback = oldDelay - newDelay;
 
-              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(target, newDelay);
+              const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
               const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
 
               expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
-                .withArgs(target, newDelay, setTargetAdminDelayAt + setback);
+                .withArgs(this.other.address, newDelay, setTargetAdminDelayAt + setback);
 
-              expect(await this.manager.getTargetAdminDelay(target)).to.equal(oldDelay);
+              expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(oldDelay);
               await time.increaseBy.timestamp(setback);
-              expect(await this.manager.getTargetAdminDelay(target)).to.equal(newDelay);
+              expect(await this.manager.getTargetAdminDelay(this.other)).to.equal(newDelay);
             });
           });
         });
