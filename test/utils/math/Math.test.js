@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { Rounding } = require('../../helpers/enums.js');
+const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];

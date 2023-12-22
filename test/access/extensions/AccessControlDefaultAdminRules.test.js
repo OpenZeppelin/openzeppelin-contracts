@@ -7,7 +7,7 @@ const time = require('../../helpers/time');
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
-} = require('../AccessControl.behavior.js');
+} = require('../AccessControl.behavior');
 
 async function fixture() {
   const delay = time.duration.hours(10);
