@@ -1,5 +1,5 @@
 const { ethers } = require('hardhat');
-const { getStorageAt, setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
 const ImplementationLabel = 'eip1967.proxy.implementation';
 const AdminLabel = 'eip1967.proxy.admin';
@@ -10,9 +10,7 @@ const erc7201slot = label => ethers.toBeHex(ethers.toBigInt(ethers.keccak256(erc
 const erc7201format = contractName => `openzeppelin.storage.${contractName}`;
 
 const getSlot = (address, slot) =>
-  (ethers.isAddressable(address) ? address.getAddress() : Promise.resolve(address)).then(address =>
-    getStorageAt(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot)),
-  );
+  ethers.provider.getStorage(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot));
 
 const setSlot = (address, slot, value) =>
   Promise.all([

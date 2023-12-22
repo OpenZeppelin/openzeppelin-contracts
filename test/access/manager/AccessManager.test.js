@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture, getStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../../helpers/account');
 const { MAX_UINT48 } = require('../../helpers/constants');
@@ -2189,9 +2189,9 @@ describe('AccessManager', function () {
     });
 
     it('keeps the original _executionId after finishing the call', async function () {
-      const executionIdBefore = await getStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT);
+      const executionIdBefore = await ethers.provider.getStorage(this.manager, EXECUTION_ID_STORAGE_SLOT);
       await this.manager.connect(this.caller).execute(this.target, this.calldata);
-      const executionIdAfter = await getStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT);
+      const executionIdAfter = await ethers.provider.getStorage(this.manager, EXECUTION_ID_STORAGE_SLOT);
       expect(executionIdBefore).to.equal(executionIdAfter);
     });
 

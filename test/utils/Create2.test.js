@@ -68,7 +68,7 @@ describe('Create2', function () {
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
-      expect(this.constructorLessBytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
+      expect(this.constructorLessBytecode).to.include((await ethers.provider.getCode(offChainComputed)).slice(2));
     });
 
     it('deploys a contract with constructor arguments', async function () {

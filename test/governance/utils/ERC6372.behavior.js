@@ -1,3 +1,5 @@
+const { expect } = require('chai');
+
 const time = require('../../helpers/time');
 
 function shouldBehaveLikeERC6372(mode = 'blocknumber') {
