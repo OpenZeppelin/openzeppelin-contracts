@@ -229,6 +229,12 @@ describe('Math', function () {
       const exponent = 200n;
       const modulus = 50n;
       const result = 1n;
+
+      await expect(this.mock.$modExp(base, exponent, modulus)).to.not.be.revertedWithCustomError(
+        this.mock,
+        'MathModExpCannotBeCalculated',
+      );
+
       expect(await this.mock.$modExp(base, exponent, modulus)).to.be.equal(result);
     });
 
