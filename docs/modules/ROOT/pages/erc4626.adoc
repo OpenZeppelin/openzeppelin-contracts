@@ -1,16 +1,16 @@
-= ERC4626
+= ERC-4626
 :stem: latexmath
 
-https://eips.ethereum.org/EIPS/eip-4626[ERC4626] is an extension of xref:erc20.adoc[ERC20] that proposes a standard interface for token vaults. This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
+https://eips.ethereum.org/EIPS/eip-4626[ERC-4626] is an extension of xref:erc20.adoc[ERC-20] that proposes a standard interface for token vaults. This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
 
-We provide a base implementation of ERC4626 that includes a simple vault. This contract is designed in a way that allows developers to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC4626. We will also discuss common customizations of the vault.
+We provide a base implementation of ERC-4626 that includes a simple vault. This contract is designed in a way that allows developers to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC-4626. We will also discuss common customizations of the vault.
 
 [[inflation-attack]]
 == Security concern: Inflation attack
 
 === Visualizing the vault
 
-In exchange for the assets deposited into an ERC4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.
+In exchange for the assets deposited into an ERC-4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.
 
 - If a vault has 100 tokens to back 200 shares, then each share is worth 0.5 assets.
 - If a vault has 200 tokens to back 100 shares, then each share is worth 2.0 assets.
@@ -195,7 +195,7 @@ stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
 [[fees]]
 == Custom behavior: Adding fees to the vault
 
-In an ERC4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps. In both cases it is essential to remain compliant with the ERC4626 requirements with regard to the preview functions.
+In an ERC-4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps. In both cases it is essential to remain compliant with the ERC-4626 requirements with regard to the preview functions.
 
 For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `previewDeposit(100)`. Similarly, `previewMint` should account for the fees that the user will have to pay on top of share's cost.
 

@@ -1,30 +1,20 @@
 const { network } = require('hardhat');
-const { promisify } = require('util');
-
-const queue = promisify(setImmediate);
-
-async function countPendingTransactions() {
-  return parseInt(await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending']));
-}
+const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+const { unique } = require('./iterate');
 
 async function batchInBlock(txs) {
   try {
     // disable auto-mining
     await network.provider.send('evm_setAutomine', [false]);
     // send all transactions
-    const promises = txs.map(fn => fn());
-    // wait for node to have all pending transactions
-    while (txs.length > (await countPendingTransactions())) {
-      await queue();
-    }
+    const responses = await Promise.all(txs.map(fn => fn()));
     // mine one block
-    await network.provider.send('evm_mine');
+    await mine();
     // fetch receipts
-    const receipts = await Promise.all(promises);
+    const receipts = await Promise.all(responses.map(response => response.wait()));
     // Sanity check, all tx should be in the same block
-    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
-    expect(minedBlocks.size).to.equal(1);
-
+    expect(unique(receipts.map(receipt => receipt.blockNumber))).to.have.lengthOf(1);
+    // return responses
     return receipts;
   } finally {
     // enable auto-mining
@@ -33,6 +23,5 @@ async function batchInBlock(txs) {
 }
 
 module.exports = {
-  countPendingTransactions,
   batchInBlock,
 };

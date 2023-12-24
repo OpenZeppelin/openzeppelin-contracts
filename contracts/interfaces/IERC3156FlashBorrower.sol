@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Interface of the ERC3156 FlashBorrower, as defined in
+ * @dev Interface of the ERC-3156 FlashBorrower, as defined in
  * https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
  */
 interface IERC3156FlashBorrower {

@@ -5,37 +5,32 @@ const ImplementationLabel = 'eip1967.proxy.implementation';
 const AdminLabel = 'eip1967.proxy.admin';
 const BeaconLabel = 'eip1967.proxy.beacon';
 
-function labelToSlot(label) {
-  return ethers.toBeHex(BigInt(ethers.keccak256(ethers.toUtf8Bytes(label))) - 1n);
-}
+const erc1967slot = label => ethers.toBeHex(ethers.toBigInt(ethers.id(label)) - 1n);
+const erc7201slot = label => ethers.toBeHex(ethers.toBigInt(ethers.keccak256(erc1967slot(label))) & ~0xffn);
 
-function getSlot(address, slot) {
-  return getStorageAt(
-    ethers.isAddress(address) ? address : address.address,
-    ethers.isBytesLike(slot) ? slot : labelToSlot(slot),
+const getSlot = (address, slot) =>
+  (ethers.isAddressable(address) ? address.getAddress() : Promise.resolve(address)).then(address =>
+    getStorageAt(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot)),
   );
-}
 
-function setSlot(address, slot, value) {
-  return setStorageAt(
-    ethers.isAddress(address) ? address : address.address,
-    ethers.isBytesLike(slot) ? slot : labelToSlot(slot),
-    value,
-  );
-}
+const setSlot = (address, slot, value) =>
+  Promise.all([
+    ethers.isAddressable(address) ? address.getAddress() : Promise.resolve(address),
+    ethers.isAddressable(value) ? value.getAddress() : Promise.resolve(value),
+  ]).then(([address, value]) => setStorageAt(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot), value));
 
-async function getAddressInSlot(address, slot) {
-  const slotValue = await getSlot(address, slot);
-  return ethers.getAddress(slotValue.substring(slotValue.length - 40));
-}
+const getAddressInSlot = (address, slot) =>
+  getSlot(address, slot).then(slotValue => ethers.AbiCoder.defaultAbiCoder().decode(['address'], slotValue)[0]);
 
 module.exports = {
   ImplementationLabel,
   AdminLabel,
   BeaconLabel,
-  ImplementationSlot: labelToSlot(ImplementationLabel),
-  AdminSlot: labelToSlot(AdminLabel),
-  BeaconSlot: labelToSlot(BeaconLabel),
+  ImplementationSlot: erc1967slot(ImplementationLabel),
+  AdminSlot: erc1967slot(AdminLabel),
+  BeaconSlot: erc1967slot(BeaconLabel),
+  erc1967slot,
+  erc7201slot,
   setSlot,
   getSlot,
   getAddressInSlot,

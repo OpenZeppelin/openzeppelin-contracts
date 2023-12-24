@@ -1,71 +1,75 @@
-const expectEvent = require('@openzeppelin/test-helpers/src/expectEvent');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-require('@openzeppelin/test-helpers');
+async function fixture() {
+  const [sender, other] = await ethers.getSigners();
 
-const Nonces = artifacts.require('$Nonces');
+  const mock = await ethers.deployContract('$Nonces');
 
-contract('Nonces', function (accounts) {
-  const [sender, other] = accounts;
+  return { sender, other, mock };
+}
 
+describe('Nonces', function () {
   beforeEach(async function () {
-    this.nonces = await Nonces.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('gets a nonce', async function () {
-    expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('0');
+    expect(await this.mock.nonces(this.sender)).to.equal(0n);
   });
 
   describe('_useNonce', function () {
     it('increments a nonce', async function () {
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('0');
+      expect(await this.mock.nonces(this.sender)).to.equal(0n);
 
-      const { receipt } = await this.nonces.$_useNonce(sender);
-      expectEvent(receipt, 'return$_useNonce', ['0']);
+      await expect(await this.mock.$_useNonce(this.sender))
+        .to.emit(this.mock, 'return$_useNonce')
+        .withArgs(0n);
 
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
+      expect(await this.mock.nonces(this.sender)).to.equal(1n);
     });
 
     it("increments only sender's nonce", async function () {
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('0');
-      expect(await this.nonces.nonces(other)).to.be.bignumber.equal('0');
+      expect(await this.mock.nonces(this.sender)).to.equal(0n);
+      expect(await this.mock.nonces(this.other)).to.equal(0n);
 
-      await this.nonces.$_useNonce(sender);
+      await this.mock.$_useNonce(this.sender);
 
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
-      expect(await this.nonces.nonces(other)).to.be.bignumber.equal('0');
+      expect(await this.mock.nonces(this.sender)).to.equal(1n);
+      expect(await this.mock.nonces(this.other)).to.equal(0n);
     });
   });
 
   describe('_useCheckedNonce', function () {
     it('increments a nonce', async function () {
-      const currentNonce = await this.nonces.nonces(sender);
-      expect(currentNonce).to.be.bignumber.equal('0');
+      const currentNonce = await this.mock.nonces(this.sender);
 
-      await this.nonces.$_useCheckedNonce(sender, currentNonce);
+      expect(currentNonce).to.equal(0n);
 
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
+      await this.mock.$_useCheckedNonce(this.sender, currentNonce);
+
+      expect(await this.mock.nonces(this.sender)).to.equal(1n);
     });
 
     it("increments only sender's nonce", async function () {
-      const currentNonce = await this.nonces.nonces(sender);
+      const currentNonce = await this.mock.nonces(this.sender);
 
-      expect(currentNonce).to.be.bignumber.equal('0');
-      expect(await this.nonces.nonces(other)).to.be.bignumber.equal('0');
+      expect(currentNonce).to.equal(0n);
+      expect(await this.mock.nonces(this.other)).to.equal(0n);
 
-      await this.nonces.$_useCheckedNonce(sender, currentNonce);
+      await this.mock.$_useCheckedNonce(this.sender, currentNonce);
 
-      expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
-      expect(await this.nonces.nonces(other)).to.be.bignumber.equal('0');
+      expect(await this.mock.nonces(this.sender)).to.equal(1n);
+      expect(await this.mock.nonces(this.other)).to.equal(0n);
     });
 
     it('reverts when nonce is not the expected', async function () {
-      const currentNonce = await this.nonces.nonces(sender);
-      await expectRevertCustomError(
-        this.nonces.$_useCheckedNonce(sender, currentNonce.addn(1)),
-        'InvalidAccountNonce',
-        [sender, currentNonce],
-      );
+      const currentNonce = await this.mock.nonces(this.sender);
+
+      await expect(this.mock.$_useCheckedNonce(this.sender, currentNonce + 1n))
+        .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
+        .withArgs(this.sender.address, currentNonce);
     });
   });
 });

@@ -1,239 +1,229 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-
-const SafeERC20 = artifacts.require('$SafeERC20');
-const ERC20ReturnFalseMock = artifacts.require('$ERC20ReturnFalseMock');
-const ERC20ReturnTrueMock = artifacts.require('$ERC20'); // default implementation returns true
-const ERC20NoReturnMock = artifacts.require('$ERC20NoReturnMock');
-const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
-
-const { expectRevertCustomError } = require('../../../helpers/customError');
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
 
-contract('SafeERC20', function (accounts) {
-  const [hasNoCode, receiver, spender] = accounts;
+async function fixture() {
+  const [hasNoCode, owner, receiver, spender] = await ethers.getSigners();
 
+  const mock = await ethers.deployContract('$SafeERC20');
+  const erc20ReturnFalseMock = await ethers.deployContract('$ERC20ReturnFalseMock', [name, symbol]);
+  const erc20ReturnTrueMock = await ethers.deployContract('$ERC20', [name, symbol]); // default implementation returns true
+  const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
+  const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
+
+  return {
+    hasNoCode,
+    owner,
+    receiver,
+    spender,
+    mock,
+    erc20ReturnFalseMock,
+    erc20ReturnTrueMock,
+    erc20NoReturnMock,
+    erc20ForceApproveMock,
+  };
+}
+
+describe('SafeERC20', function () {
   before(async function () {
-    this.mock = await SafeERC20.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   describe('with address that has no contract code', function () {
     beforeEach(async function () {
-      this.token = { address: hasNoCode };
+      this.token = this.hasNoCode;
     });
 
     it('reverts on transfer', async function () {
-      await expectRevertCustomError(this.mock.$safeTransfer(this.token.address, receiver, 0), 'AddressEmptyCode', [
-        this.token.address,
-      ]);
+      await expect(this.mock.$safeTransfer(this.token, this.receiver, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .withArgs(this.token.address);
     });
 
     it('reverts on transferFrom', async function () {
-      await expectRevertCustomError(
-        this.mock.$safeTransferFrom(this.token.address, this.mock.address, receiver, 0),
-        'AddressEmptyCode',
-        [this.token.address],
-      );
+      await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .withArgs(this.token.address);
     });
 
     it('reverts on increaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expectRevert.unspecified(this.mock.$safeIncreaseAllowance(this.token.address, spender, 0));
+      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
     });
 
     it('reverts on decreaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, spender, 0));
+      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
     });
 
     it('reverts on forceApprove', async function () {
-      await expectRevertCustomError(this.mock.$forceApprove(this.token.address, spender, 0), 'AddressEmptyCode', [
-        this.token.address,
-      ]);
+      await expect(this.mock.$forceApprove(this.token, this.spender, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .withArgs(this.token.address);
     });
   });
 
   describe('with token that returns false on all calls', function () {
     beforeEach(async function () {
-      this.token = await ERC20ReturnFalseMock.new(name, symbol);
+      this.token = this.erc20ReturnFalseMock;
     });
 
     it('reverts on transfer', async function () {
-      await expectRevertCustomError(
-        this.mock.$safeTransfer(this.token.address, receiver, 0),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
+      await expect(this.mock.$safeTransfer(this.token, this.receiver, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token.target);
     });
 
     it('reverts on transferFrom', async function () {
-      await expectRevertCustomError(
-        this.mock.$safeTransferFrom(this.token.address, this.mock.address, receiver, 0),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
+      await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token.target);
     });
 
     it('reverts on increaseAllowance', async function () {
-      await expectRevertCustomError(
-        this.mock.$safeIncreaseAllowance(this.token.address, spender, 0),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
+      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token.target);
     });
 
     it('reverts on decreaseAllowance', async function () {
-      await expectRevertCustomError(
-        this.mock.$safeDecreaseAllowance(this.token.address, spender, 0),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
+      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token.target);
     });
 
     it('reverts on forceApprove', async function () {
-      await expectRevertCustomError(
-        this.mock.$forceApprove(this.token.address, spender, 0),
-        'SafeERC20FailedOperation',
-        [this.token.address],
-      );
+      await expect(this.mock.$forceApprove(this.token, this.spender, 0n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token.target);
     });
   });
 
   describe('with token that returns true on all calls', function () {
     beforeEach(async function () {
-      this.token = await ERC20ReturnTrueMock.new(name, symbol);
+      this.token = this.erc20ReturnTrueMock;
     });
 
-    shouldOnlyRevertOnErrors(accounts);
+    shouldOnlyRevertOnErrors();
   });
 
   describe('with token that returns no boolean values', function () {
     beforeEach(async function () {
-      this.token = await ERC20NoReturnMock.new(name, symbol);
+      this.token = this.erc20NoReturnMock;
     });
 
-    shouldOnlyRevertOnErrors(accounts);
+    shouldOnlyRevertOnErrors();
   });
 
   describe('with usdt approval beaviour', function () {
-    const spender = hasNoCode;
-
     beforeEach(async function () {
-      this.token = await ERC20ForceApproveMock.new(name, symbol);
+      this.token = this.erc20ForceApproveMock;
     });
 
     describe('with initial approval', function () {
       beforeEach(async function () {
-        await this.token.$_approve(this.mock.address, spender, 100);
+        await this.token.$_approve(this.mock, this.spender, 100n);
       });
 
       it('safeIncreaseAllowance works', async function () {
-        await this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
-        expect(this.token.allowance(this.mock.address, spender, 90));
+        await this.mock.$safeIncreaseAllowance(this.token, this.spender, 10n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(110n);
       });
 
       it('safeDecreaseAllowance works', async function () {
-        await this.mock.$safeDecreaseAllowance(this.token.address, spender, 10);
-        expect(this.token.allowance(this.mock.address, spender, 110));
+        await this.mock.$safeDecreaseAllowance(this.token, this.spender, 10n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(90n);
       });
 
       it('forceApprove works', async function () {
-        await this.mock.$forceApprove(this.token.address, spender, 200);
-        expect(this.token.allowance(this.mock.address, spender, 200));
+        await this.mock.$forceApprove(this.token, this.spender, 200n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(200n);
       });
     });
   });
 });
 
-function shouldOnlyRevertOnErrors([owner, receiver, spender]) {
+function shouldOnlyRevertOnErrors() {
   describe('transfers', function () {
     beforeEach(async function () {
-      await this.token.$_mint(owner, 100);
-      await this.token.$_mint(this.mock.address, 100);
-      await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
+      await this.token.$_mint(this.owner, 100n);
+      await this.token.$_mint(this.mock, 100n);
+      await this.token.$_approve(this.owner, this.mock, ethers.MaxUint256);
     });
 
     it("doesn't revert on transfer", async function () {
-      const { tx } = await this.mock.$safeTransfer(this.token.address, receiver, 10);
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: this.mock.address,
-        to: receiver,
-        value: '10',
-      });
+      await expect(this.mock.$safeTransfer(this.token, this.receiver, 10n))
+        .to.emit(this.token, 'Transfer')
+        .withArgs(this.mock.target, this.receiver.address, 10n);
     });
 
     it("doesn't revert on transferFrom", async function () {
-      const { tx } = await this.mock.$safeTransferFrom(this.token.address, owner, receiver, 10);
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: owner,
-        to: receiver,
-        value: '10',
-      });
+      await expect(this.mock.$safeTransferFrom(this.token, this.owner, this.receiver, 10n))
+        .to.emit(this.token, 'Transfer')
+        .withArgs(this.owner.address, this.receiver.address, 10n);
     });
   });
 
   describe('approvals', function () {
     context('with zero allowance', function () {
       beforeEach(async function () {
-        await this.token.$_approve(this.mock.address, spender, 0);
+        await this.token.$_approve(this.mock, this.spender, 0n);
       });
 
       it("doesn't revert when force approving a non-zero allowance", async function () {
-        await this.mock.$forceApprove(this.token.address, spender, 100);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('100');
+        await this.mock.$forceApprove(this.token, this.spender, 100n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(100n);
       });
 
       it("doesn't revert when force approving a zero allowance", async function () {
-        await this.mock.$forceApprove(this.token.address, spender, 0);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('0');
+        await this.mock.$forceApprove(this.token, this.spender, 0n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(0n);
       });
 
       it("doesn't revert when increasing the allowance", async function () {
-        await this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('10');
+        await this.mock.$safeIncreaseAllowance(this.token, this.spender, 10n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(10n);
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await expectRevertCustomError(
-          this.mock.$safeDecreaseAllowance(this.token.address, spender, 10),
-          'SafeERC20FailedDecreaseAllowance',
-          [spender, 0, 10],
-        );
+        await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 10n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedDecreaseAllowance')
+          .withArgs(this.spender.address, 0n, 10n);
       });
     });
 
     context('with non-zero allowance', function () {
       beforeEach(async function () {
-        await this.token.$_approve(this.mock.address, spender, 100);
+        await this.token.$_approve(this.mock, this.spender, 100n);
       });
 
       it("doesn't revert when force approving a non-zero allowance", async function () {
-        await this.mock.$forceApprove(this.token.address, spender, 20);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('20');
+        await this.mock.$forceApprove(this.token, this.spender, 20n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(20n);
       });
 
       it("doesn't revert when force approving a zero allowance", async function () {
-        await this.mock.$forceApprove(this.token.address, spender, 0);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('0');
+        await this.mock.$forceApprove(this.token, this.spender, 0n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(0n);
       });
 
       it("doesn't revert when increasing the allowance", async function () {
-        await this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('110');
+        await this.mock.$safeIncreaseAllowance(this.token, this.spender, 10n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(110n);
       });
 
       it("doesn't revert when decreasing the allowance to a positive value", async function () {
-        await this.mock.$safeDecreaseAllowance(this.token.address, spender, 50);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('50');
+        await this.mock.$safeDecreaseAllowance(this.token, this.spender, 50n);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(50n);
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await expectRevertCustomError(
-          this.mock.$safeDecreaseAllowance(this.token.address, spender, 200),
-          'SafeERC20FailedDecreaseAllowance',
-          [spender, 100, 200],
-        );
+        await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 200n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedDecreaseAllowance')
+          .withArgs(this.spender.address, 100n, 200n);
       });
     });
   });
