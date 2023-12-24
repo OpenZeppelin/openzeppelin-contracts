@@ -225,20 +225,20 @@ describe('Math', function () {
 
   describe('modExp', function () {
     it('is correctly calculating modulus', async function () {
-      const base = new BN('3');
-      const exponent = new BN('200');
-      const modulus = new BN('50');
-      const result = new BN('1');
-      expect(await this.math.$modExp(base, exponent, modulus)).to.be.bignumber.equal(result);
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 50n;
+      const result = 1n;
+      expect(await this.mock.$modExp(base, exponent, modulus)).to.be.equal(result);
     });
 
     it('is correctly reverting when modulus is zero', async function () {
-      const base = new BN('3');
-      const exponent = new BN('200');
-      const modulus = new BN('0');
-      await expectRevert(
-        this.math.$modExp(base, exponent, modulus),
-        "ModularExponentiation: Can't calculate for modulus equal to zero",
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 0n;
+      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithCustomError(
+        this.mock,
+        'MathModulusEqualsZero',
       );
     });
   });

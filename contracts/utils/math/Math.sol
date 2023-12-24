@@ -11,6 +11,8 @@ library Math {
      * @dev Muldiv operation overflow.
      */
     error MathOverflowedMulDiv();
+    error MathModulusEqualsZero();
+    error MathModExpCannotBeCalculated();
 
     enum Rounding {
         Floor, // Toward negative infinity
@@ -422,9 +424,13 @@ library Math {
      * - result should be obtained successfully
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
-        require(m != 0, "ModularExponentiation: Can't calculate for modulus equal to zero");
+        if (m == 0) {
+            revert MathModulusEqualsZero();
+        }
         (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
-        require(success, "ModularExponentiation: Failed at calculating the result");
+        if (!success) {
+            revert MathModExpCannotBeCalculated();
+        }
         return abi.decode(result, (uint256));
     }
 
