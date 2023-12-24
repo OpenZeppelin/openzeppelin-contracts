@@ -11,7 +11,13 @@ library Math {
      * @dev Muldiv operation overflow.
      */
     error MathOverflowedMulDiv();
+    /**
+     * @dev Modulus zero in Mod Exp operation.
+     */
     error MathModulusEqualsZero();
+    /**
+     * @dev Static call to Mod Exp precompile fails.
+     */
     error MathModExpCannotBeCalculated();
 
     enum Rounding {
