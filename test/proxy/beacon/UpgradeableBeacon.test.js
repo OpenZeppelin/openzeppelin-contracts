@@ -20,36 +20,36 @@ describe('UpgradeableBeacon', function () {
   it('cannot be created with non-contract implementation', async function () {
     await expect(ethers.deployContract('UpgradeableBeacon', [this.other, this.admin]))
       .to.be.revertedWithCustomError(this.beacon, 'BeaconInvalidImplementation')
-      .withArgs(this.other.address);
+      .withArgs(this.other);
   });
 
   describe('once deployed', async function () {
     it('emits Upgraded event to the first implementation', async function () {
-      await expect(this.beacon.deploymentTransaction()).to.emit(this.beacon, 'Upgraded').withArgs(this.v1.target);
+      await expect(this.beacon.deploymentTransaction()).to.emit(this.beacon, 'Upgraded').withArgs(this.v1);
     });
 
     it('returns implementation', async function () {
-      expect(await this.beacon.implementation()).to.equal(this.v1.target);
+      expect(await this.beacon.implementation()).to.equal(this.v1);
     });
 
     it('can be upgraded by the admin', async function () {
       await expect(this.beacon.connect(this.admin).upgradeTo(this.v2))
         .to.emit(this.beacon, 'Upgraded')
-        .withArgs(this.v2.target);
+        .withArgs(this.v2);
 
-      expect(await this.beacon.implementation()).to.equal(this.v2.target);
+      expect(await this.beacon.implementation()).to.equal(this.v2);
     });
 
     it('cannot be upgraded to a non-contract', async function () {
       await expect(this.beacon.connect(this.admin).upgradeTo(this.other))
         .to.be.revertedWithCustomError(this.beacon, 'BeaconInvalidImplementation')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('cannot be upgraded by other account', async function () {
       await expect(this.beacon.connect(this.other).upgradeTo(this.v2))
         .to.be.revertedWithCustomError(this.beacon, 'OwnableUnauthorizedAccount')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
   });
 });

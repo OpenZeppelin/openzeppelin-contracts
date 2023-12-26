@@ -5,7 +5,7 @@ const {
   DEFAULT_ADMIN_ROLE,
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
-} = require('../AccessControl.behavior.js');
+} = require('../AccessControl.behavior');
 
 async function fixture() {
   const [defaultAdmin, ...accounts] = await ethers.getSigners();

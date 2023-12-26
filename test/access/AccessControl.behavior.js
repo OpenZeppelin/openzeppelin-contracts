@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 
-const { bigint: time } = require('../helpers/time');
+const time = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
@@ -38,7 +38,7 @@ function shouldBehaveLikeAccessControl() {
     it('non-admin cannot grant role to other accounts', async function () {
       await expect(this.mock.connect(this.other).grantRole(ROLE, this.authorized))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+        .withArgs(this.other, DEFAULT_ADMIN_ROLE);
     });
 
     it('accounts can be granted a role multiple times', async function () {
@@ -68,7 +68,7 @@ function shouldBehaveLikeAccessControl() {
       it('admin can revoke role', async function () {
         await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized))
           .to.emit(this.mock, 'RoleRevoked')
-          .withArgs(ROLE, this.authorized.address, this.defaultAdmin.address);
+          .withArgs(ROLE, this.authorized, this.defaultAdmin);
 
         expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
       });
@@ -76,7 +76,7 @@ function shouldBehaveLikeAccessControl() {
       it('non-admin cannot revoke role', async function () {
         await expect(this.mock.connect(this.other).revokeRole(ROLE, this.authorized))
           .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-          .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+          .withArgs(this.other, DEFAULT_ADMIN_ROLE);
       });
 
       it('a role can be revoked multiple times', async function () {
@@ -106,7 +106,7 @@ function shouldBehaveLikeAccessControl() {
       it('bearer can renounce role', async function () {
         await expect(this.mock.connect(this.authorized).renounceRole(ROLE, this.authorized))
           .to.emit(this.mock, 'RoleRevoked')
-          .withArgs(ROLE, this.authorized.address, this.authorized.address);
+          .withArgs(ROLE, this.authorized, this.authorized);
 
         expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
       });
@@ -145,26 +145,26 @@ function shouldBehaveLikeAccessControl() {
     it('the new admin can grant roles', async function () {
       await expect(this.mock.connect(this.otherAdmin).grantRole(ROLE, this.authorized))
         .to.emit(this.mock, 'RoleGranted')
-        .withArgs(ROLE, this.authorized.address, this.otherAdmin.address);
+        .withArgs(ROLE, this.authorized, this.otherAdmin);
     });
 
     it('the new admin can revoke roles', async function () {
       await this.mock.connect(this.otherAdmin).grantRole(ROLE, this.authorized);
       await expect(this.mock.connect(this.otherAdmin).revokeRole(ROLE, this.authorized))
         .to.emit(this.mock, 'RoleRevoked')
-        .withArgs(ROLE, this.authorized.address, this.otherAdmin.address);
+        .withArgs(ROLE, this.authorized, this.otherAdmin);
     });
 
     it("a role's previous admins no longer grant roles", async function () {
       await expect(this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.defaultAdmin.address, OTHER_ROLE);
+        .withArgs(this.defaultAdmin, OTHER_ROLE);
     });
 
     it("a role's previous admins no longer revoke roles", async function () {
       await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.defaultAdmin.address, OTHER_ROLE);
+        .withArgs(this.defaultAdmin, OTHER_ROLE);
     });
   });
 
@@ -180,13 +180,13 @@ function shouldBehaveLikeAccessControl() {
     it("revert if sender doesn't have role #1", async function () {
       await expect(this.mock.connect(this.other).$_checkRole(ROLE))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, ROLE);
+        .withArgs(this.other, ROLE);
     });
 
     it("revert if sender doesn't have role #2", async function () {
       await expect(this.mock.connect(this.authorized).$_checkRole(OTHER_ROLE))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.authorized.address, OTHER_ROLE);
+        .withArgs(this.authorized, OTHER_ROLE);
     });
   });
 
@@ -271,7 +271,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     describe(`${getter}()`, function () {
       it('has a default set to the initial default admin', async function () {
         const value = await this.mock[getter]();
-        expect(value).to.equal(this.defaultAdmin.address);
+        expect(value).to.equal(this.defaultAdmin);
         expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, value)).to.be.true;
       });
 
@@ -284,7 +284,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         await this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer();
 
         const value = await this.mock[getter]();
-        expect(value).to.equal(this.newDefaultAdmin.address);
+        expect(value).to.equal(this.newDefaultAdmin);
       });
     });
   }
@@ -312,7 +312,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
           await time.increaseTo.timestamp(firstSchedule + fromSchedule);
 
           const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+          expect(newAdmin).to.equal(this.newDefaultAdmin);
           expect(schedule).to.equal(firstSchedule);
         });
       }
@@ -429,7 +429,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     it('reverts if called by non default admin accounts', async function () {
       await expect(this.mock.connect(this.other).beginDefaultAdminTransfer(this.newDefaultAdmin))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+        .withArgs(this.other, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is no pending delay nor pending admin transfer', function () {
@@ -440,10 +440,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         await time.increaseTo.timestamp(nextBlockTimestamp, false); // set timestamp but don't mine the block yet
         await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin))
           .to.emit(this.mock, 'DefaultAdminTransferScheduled')
-          .withArgs(this.newDefaultAdmin.address, acceptSchedule);
+          .withArgs(this.newDefaultAdmin, acceptSchedule);
 
         const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
-        expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+        expect(newAdmin).to.equal(this.newDefaultAdmin);
         expect(schedule).to.equal(acceptSchedule);
       });
     });
@@ -470,7 +470,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
           );
           const newSchedule = (await time.clock.timestamp()) + this.delay;
           const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(this.other.address);
+          expect(newAdmin).to.equal(this.other);
           expect(schedule).to.equal(newSchedule);
         });
       }
@@ -513,11 +513,11 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
           const expectedAcceptSchedule = nextBlockTimestamp + expectedDelay;
           await expect(this.mock.connect(this.defaultAdmin).beginDefaultAdminTransfer(this.newDefaultAdmin))
             .to.emit(this.mock, 'DefaultAdminTransferScheduled')
-            .withArgs(this.newDefaultAdmin.address, expectedAcceptSchedule);
+            .withArgs(this.newDefaultAdmin, expectedAcceptSchedule);
 
           // Check that the schedule corresponds with the new delay
           const { newAdmin, schedule: transferSchedule } = await this.mock.pendingDefaultAdmin();
-          expect(newAdmin).to.equal(this.newDefaultAdmin.address);
+          expect(newAdmin).to.equal(this.newDefaultAdmin);
           expect(transferSchedule).to.equal(expectedAcceptSchedule);
         });
       }
@@ -534,7 +534,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       await time.increaseTo.timestamp(this.acceptSchedule + 1n, false);
       await expect(this.mock.connect(this.other).acceptDefaultAdminTransfer())
         .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     describe('when caller is pending default admin and delay has passed', function () {
@@ -546,14 +546,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         // Emit events
         await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
           .to.emit(this.mock, 'RoleRevoked')
-          .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.newDefaultAdmin.address)
+          .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin, this.newDefaultAdmin)
           .to.emit(this.mock, 'RoleGranted')
-          .withArgs(DEFAULT_ADMIN_ROLE, this.newDefaultAdmin.address, this.newDefaultAdmin.address);
+          .withArgs(DEFAULT_ADMIN_ROLE, this.newDefaultAdmin, this.newDefaultAdmin);
 
         // Storage changes
         expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
         expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.newDefaultAdmin)).to.be.true;
-        expect(await this.mock.owner()).to.equal(this.newDefaultAdmin.address);
+        expect(await this.mock.owner()).to.equal(this.newDefaultAdmin);
 
         // Resets pending default admin and schedule
         const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();
@@ -581,7 +581,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     it('reverts if called by non default admin accounts', async function () {
       await expect(this.mock.connect(this.other).cancelDefaultAdminTransfer())
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+        .withArgs(this.other, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is a pending default admin transfer', function () {
@@ -619,7 +619,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         // Previous pending default admin should not be able to accept after cancellation.
         await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
           .to.be.revertedWithCustomError(this.mock, 'AccessControlInvalidDefaultAdmin')
-          .withArgs(this.newDefaultAdmin.address);
+          .withArgs(this.newDefaultAdmin);
       });
     });
 
@@ -666,14 +666,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
-      expect(await this.mock.defaultAdmin()).to.be.equal(this.defaultAdmin.address);
+      expect(await this.mock.defaultAdmin()).to.be.equal(this.defaultAdmin);
     });
 
     it('renounces role', async function () {
       await time.increaseBy.timestamp(this.delay + 1n, false);
       await expect(this.mock.connect(this.defaultAdmin).renounceRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin))
         .to.emit(this.mock, 'RoleRevoked')
-        .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin.address, this.defaultAdmin.address);
+        .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin, this.defaultAdmin);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
       expect(await this.mock.defaultAdmin()).to.be.equal(ethers.ZeroAddress);
@@ -690,7 +690,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
 
       await expect(this.mock.connect(this.defaultAdmin).$_grantRole(DEFAULT_ADMIN_ROLE, this.other))
         .to.emit(this.mock, 'RoleGranted')
-        .withArgs(DEFAULT_ADMIN_ROLE, this.other.address, this.defaultAdmin.address);
+        .withArgs(DEFAULT_ADMIN_ROLE, this.other, this.defaultAdmin);
     });
 
     describe('schedule not passed', function () {
@@ -712,7 +712,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     it('reverts if called by non default admin accounts', async function () {
       await expect(this.mock.connect(this.other).changeDefaultAdminDelay(time.duration.hours(4)))
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+        .withArgs(this.other, DEFAULT_ADMIN_ROLE);
     });
 
     for (const [delayDifference, delayChangeType] of [
@@ -810,7 +810,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
     it('reverts if called by non default admin accounts', async function () {
       await expect(this.mock.connect(this.other).rollbackDefaultAdminDelay())
         .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-        .withArgs(this.other.address, DEFAULT_ADMIN_ROLE);
+        .withArgs(this.other, DEFAULT_ADMIN_ROLE);
     });
 
     describe('when there is a pending delay', function () {

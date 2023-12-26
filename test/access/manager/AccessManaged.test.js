@@ -1,8 +1,9 @@
 const { ethers } = require('hardhat');
-
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { impersonate } = require('../../helpers/account');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
@@ -35,7 +36,7 @@ describe('AccessManaged', function () {
   it('sets authority and emits AuthorityUpdated event during construction', async function () {
     await expect(this.managed.deploymentTransaction())
       .to.emit(this.managed, 'AuthorityUpdated')
-      .withArgs(this.authority.target);
+      .withArgs(this.authority);
   });
 
   describe('restricted modifier', function () {
@@ -53,7 +54,7 @@ describe('AccessManaged', function () {
     it('reverts when role is not granted', async function () {
       await expect(this.managed.connect(this.other)[this.selector]())
         .to.be.revertedWithCustomError(this.managed, 'AccessManagedUnauthorized')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('panics in short calldata', async function () {
@@ -103,21 +104,21 @@ describe('AccessManaged', function () {
     it('reverts if the caller is not the authority', async function () {
       await expect(this.managed.connect(this.other).setAuthority(this.other))
         .to.be.revertedWithCustomError(this.managed, 'AccessManagedUnauthorized')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('reverts if the new authority is not a valid authority', async function () {
       await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.other))
         .to.be.revertedWithCustomError(this.managed, 'AccessManagedInvalidAuthority')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('sets authority and emits AuthorityUpdated event', async function () {
       await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.anotherAuthority))
         .to.emit(this.managed, 'AuthorityUpdated')
-        .withArgs(this.anotherAuthority.target);
+        .withArgs(this.anotherAuthority);
 
-      expect(await this.managed.authority()).to.equal(this.anotherAuthority.target);
+      expect(await this.managed.authority()).to.equal(this.anotherAuthority);
     });
   });
 
@@ -136,7 +137,7 @@ describe('AccessManaged', function () {
       await expect(this.managed.connect(this.other).fnRestricted())
         .to.emit(this.authorityObserveIsConsuming, 'ConsumeScheduledOpCalled')
         .withArgs(
-          this.other.address,
+          this.other,
           this.managed.interface.encodeFunctionData(fnRestricted, []),
           isConsumingScheduledOp.selector,
         );

@@ -1,3 +1,5 @@
+const { expect } = require('chai');
+
 const {
   LIKE_COMMON_IS_EXECUTING,
   LIKE_COMMON_GET_ACCESS,
@@ -39,7 +41,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(
-                this.caller.address,
+                this.caller,
                 this.roles.ADMIN.id, // Although PUBLIC is required, target function role doesn't apply to admin ops
               );
           });
@@ -83,7 +85,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(
-                this.caller.address,
+                this.caller,
                 this.roles.ADMIN.id, // Although PUBLIC_ROLE is required, admin ops are not subject to target function roles
               );
           });
@@ -123,7 +125,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, roleAdmin);
+              .withArgs(this.caller, roleAdmin);
           });
         },
         specificRoleIsRequired: getAccessPath,
@@ -142,7 +144,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
     it('reverts as AccessManagedUnauthorized', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.target, 'AccessManagedUnauthorized')
-        .withArgs(this.caller.address);
+        .withArgs(this.caller);
     });
   }
 

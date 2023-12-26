@@ -3,8 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { bigint: time } = require('../helpers/time');
 const { sum } = require('../helpers/math');
+const time = require('../helpers/time');
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
@@ -140,7 +140,7 @@ describe('ERC2771Forwarder', function () {
           } else {
             await expect(promise)
               .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-              .withArgs(request.to, this.forwarder.target);
+              .withArgs(request.to, this.forwarder);
           }
         });
       }
@@ -299,7 +299,7 @@ describe('ERC2771Forwarder', function () {
             } else {
               await expect(promise)
                 .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-                .withArgs(this.requests[idx].to, this.forwarder.target);
+                .withArgs(this.requests[idx].to, this.forwarder);
             }
           });
         }

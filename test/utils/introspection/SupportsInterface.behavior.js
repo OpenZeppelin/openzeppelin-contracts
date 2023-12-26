@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { selector, interfaceId } = require('../../helpers/methods');
+const { interfaceId } = require('../../helpers/methods');
 const { mapValues } = require('../../helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
@@ -123,15 +123,6 @@ function shouldSupportInterfaces(interfaces = []) {
 
         // Check the presence of each function in the contract's interface
         for (const fnSig of SIGNATURES[k]) {
-          // TODO: Remove Truffle case when ethersjs migration is done
-          if (this.contractUnderTest.abi) {
-            const fnSelector = selector(fnSig);
-            return expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSelector).length).to.equal(
-              1,
-              `did not find ${fnSig}`,
-            );
-          }
-
           expect(this.contractUnderTest.interface.hasFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }

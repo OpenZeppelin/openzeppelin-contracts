@@ -1,9 +1,10 @@
 const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
 const { impersonate } = require('../../helpers/account');
-const { bigint: time } = require('../../helpers/time');
+const time = require('../../helpers/time');
 
 // ============ COMMON PREDICATES ============
 
@@ -17,7 +18,7 @@ const LIKE_COMMON_IS_EXECUTING = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };
@@ -30,7 +31,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay: undefined, // Diverges if there's an operation delay or not
@@ -40,7 +41,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay() {
@@ -71,7 +72,7 @@ const LIKE_COMMON_GET_ACCESS = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };

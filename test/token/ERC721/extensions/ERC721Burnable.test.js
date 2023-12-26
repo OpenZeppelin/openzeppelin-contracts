@@ -32,7 +32,7 @@ describe('ERC721Burnable', function () {
 
           await expect(this.token.connect(this.owner).burn(tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+            .withArgs(this.owner, ethers.ZeroAddress, tokenId);
 
           await expect(this.token.ownerOf(tokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
@@ -61,7 +61,7 @@ describe('ERC721Burnable', function () {
         it('reverts', async function () {
           await expect(this.token.connect(this.another).burn(tokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
-            .withArgs(this.another.address, tokenId);
+            .withArgs(this.another, tokenId);
         });
       });
 

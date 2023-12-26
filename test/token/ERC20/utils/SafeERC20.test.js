@@ -40,13 +40,13 @@ describe('SafeERC20', function () {
     it('reverts on transfer', async function () {
       await expect(this.mock.$safeTransfer(this.token, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-        .withArgs(this.token.address);
+        .withArgs(this.token);
     });
 
     it('reverts on transferFrom', async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-        .withArgs(this.token.address);
+        .withArgs(this.token);
     });
 
     it('reverts on increaseAllowance', async function () {
@@ -62,7 +62,7 @@ describe('SafeERC20', function () {
     it('reverts on forceApprove', async function () {
       await expect(this.mock.$forceApprove(this.token, this.spender, 0n))
         .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-        .withArgs(this.token.address);
+        .withArgs(this.token);
     });
   });
 
@@ -74,31 +74,31 @@ describe('SafeERC20', function () {
     it('reverts on transfer', async function () {
       await expect(this.mock.$safeTransfer(this.token, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
 
     it('reverts on transferFrom', async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
 
     it('reverts on increaseAllowance', async function () {
       await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
 
     it('reverts on decreaseAllowance', async function () {
       await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
 
     it('reverts on forceApprove', async function () {
       await expect(this.mock.$forceApprove(this.token, this.spender, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
   });
 
@@ -157,13 +157,13 @@ function shouldOnlyRevertOnErrors() {
     it("doesn't revert on transfer", async function () {
       await expect(this.mock.$safeTransfer(this.token, this.receiver, 10n))
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.mock.target, this.receiver.address, 10n);
+        .withArgs(this.mock, this.receiver, 10n);
     });
 
     it("doesn't revert on transferFrom", async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.owner, this.receiver, 10n))
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, this.receiver.address, 10n);
+        .withArgs(this.owner, this.receiver, 10n);
     });
   });
 
@@ -191,7 +191,7 @@ function shouldOnlyRevertOnErrors() {
       it('reverts when decreasing the allowance', async function () {
         await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 10n))
           .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedDecreaseAllowance')
-          .withArgs(this.spender.address, 0n, 10n);
+          .withArgs(this.spender, 0n, 10n);
       });
     });
 
@@ -223,7 +223,7 @@ function shouldOnlyRevertOnErrors() {
       it('reverts when decreasing the allowance to a negative value', async function () {
         await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 200n))
           .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedDecreaseAllowance')
-          .withArgs(this.spender.address, 100n, 200n);
+          .withArgs(this.spender, 100n, 200n);
       });
     });
   });

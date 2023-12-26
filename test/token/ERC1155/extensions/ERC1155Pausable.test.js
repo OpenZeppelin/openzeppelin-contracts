@@ -8,7 +8,7 @@ async function fixture() {
   return { token, holder, operator, receiver, other };
 }
 
-contract('ERC1155Pausable', function () {
+describe('ERC1155Pausable', function () {
   const firstTokenId = 37n;
   const firstTokenValue = 42n;
   const secondTokenId = 19842n;

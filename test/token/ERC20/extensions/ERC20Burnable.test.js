@@ -26,7 +26,7 @@ describe('ERC20Burnable', function () {
 
       await expect(this.token.connect(this.owner).burn(value))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-        .withArgs(this.owner.address, this.initialBalance, value);
+        .withArgs(this.owner, this.initialBalance, value);
     });
 
     describe('on success', function () {
@@ -44,9 +44,7 @@ describe('ERC20Burnable', function () {
           });
 
           it('emits a transfer event', async function () {
-            await expect(this.tx)
-              .to.emit(this.token, 'Transfer')
-              .withArgs(this.owner.address, ethers.ZeroAddress, value);
+            await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.owner, ethers.ZeroAddress, value);
           });
         });
       }
@@ -62,7 +60,7 @@ describe('ERC20Burnable', function () {
 
         await expect(this.token.connect(this.burner).burnFrom(this.owner, value))
           .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-          .withArgs(this.owner.address, this.initialBalance, value);
+          .withArgs(this.owner, this.initialBalance, value);
       });
 
       it('if not enough allowance', async function () {
@@ -72,7 +70,7 @@ describe('ERC20Burnable', function () {
 
         await expect(this.token.connect(this.burner).burnFrom(this.owner, allowance + 1n))
           .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
-          .withArgs(this.burner.address, allowance, allowance + 1n);
+          .withArgs(this.burner, allowance, allowance + 1n);
       });
     });
 
@@ -98,9 +96,7 @@ describe('ERC20Burnable', function () {
           });
 
           it('emits a transfer event', async function () {
-            await expect(this.tx)
-              .to.emit(this.token, 'Transfer')
-              .withArgs(this.owner.address, ethers.ZeroAddress, value);
+            await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.owner, ethers.ZeroAddress, value);
           });
         });
       }

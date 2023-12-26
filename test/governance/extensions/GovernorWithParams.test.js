@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
+const { VoteType } = require('../../helpers/enums');
 const { getDomain, ExtendedBallot } = require('../../helpers/eip712');
 
 const TOKENS = [
@@ -65,7 +65,7 @@ describe('GovernorWithParams', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
       });
@@ -73,10 +73,10 @@ describe('GovernorWithParams', function () {
       it('nominal is unaffected', async function () {
         await this.helper.connect(this.proposer).propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For, reason: 'This is nice' });
-        await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
-        await this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against });
-        await this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For, reason: 'This is nice' });
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter3).vote({ support: VoteType.Against });
+        await this.helper.connect(this.voter4).vote({ support: VoteType.Abstain });
         await this.helper.waitForDeadline();
         await this.helper.execute();
 
@@ -95,7 +95,7 @@ describe('GovernorWithParams', function () {
 
         await expect(
           this.helper.connect(this.voter2).vote({
-            support: Enums.VoteType.For,
+            support: VoteType.For,
             reason: 'no particular reason',
             params: params.encoded,
           }),
@@ -106,7 +106,7 @@ describe('GovernorWithParams', function () {
           .withArgs(
             this.voter2.address,
             this.proposal.id,
-            Enums.VoteType.For,
+            VoteType.For,
             weight,
             'no particular reason',
             params.encoded,
@@ -128,7 +128,7 @@ describe('GovernorWithParams', function () {
           const nonce = await this.mock.nonces(this.other);
           const data = {
             proposalId: this.proposal.id,
-            support: Enums.VoteType.For,
+            support: VoteType.For,
             voter: this.other.address,
             nonce,
             reason: 'no particular reason',
@@ -161,7 +161,7 @@ describe('GovernorWithParams', function () {
           const nonce = await this.mock.nonces(this.other);
           const data = {
             proposalId: this.proposal.id,
-            support: Enums.VoteType.For,
+            support: VoteType.For,
             voter: wallet.target,
             nonce,
             reason: 'no particular reason',
@@ -192,7 +192,7 @@ describe('GovernorWithParams', function () {
           const nonce = await this.mock.nonces(this.other);
           const data = {
             proposalId: this.proposal.id,
-            support: Enums.VoteType.For,
+            support: VoteType.For,
             voter: this.other.address,
             nonce,
             reason: 'no particular reason',
@@ -225,7 +225,7 @@ describe('GovernorWithParams', function () {
           const nonce = await this.mock.nonces(this.other);
           const data = {
             proposalId: this.proposal.id,
-            support: Enums.VoteType.For,
+            support: VoteType.For,
             voter: this.other.address,
             nonce: nonce + 1n,
             reason: 'no particular reason',

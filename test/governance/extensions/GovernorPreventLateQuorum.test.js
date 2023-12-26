@@ -3,8 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
-const { bigint: time } = require('../../helpers/time');
+const { ProposalState, VoteType } = require('../../helpers/enums');
+const time = require('../../helpers/time');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -69,7 +69,7 @@ describe('GovernorPreventLateQuorum', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.equal(quorum);
@@ -79,10 +79,10 @@ describe('GovernorPreventLateQuorum', function () {
       it('nominal workflow unaffected', async function () {
         const txPropose = await this.helper.connect(this.proposer).propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-        await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
-        await this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against });
-        await this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter3).vote({ support: VoteType.Against });
+        await this.helper.connect(this.voter4).vote({ support: VoteType.Abstain });
         await this.helper.waitForDeadline();
         await this.helper.execute();
 
@@ -107,7 +107,7 @@ describe('GovernorPreventLateQuorum', function () {
           .to.emit(this.mock, 'ProposalCreated')
           .withArgs(
             this.proposal.id,
-            this.proposer.address,
+            this.proposer,
             this.proposal.targets,
             this.proposal.values,
             this.proposal.signatures,
@@ -128,10 +128,10 @@ describe('GovernorPreventLateQuorum', function () {
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(deadlineTimepoint);
         // wait for the last minute to vote
         await this.helper.waitForDeadline(-1n);
-        const txVote = await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
+        const txVote = await this.helper.connect(this.voter2).vote({ support: VoteType.For });
 
         // cannot execute yet
-        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
+        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Active);
 
         // compute new extended schedule
         const extendedDeadline = (await time.clockFromReceipt[mode](txVote)) + lateQuorumVoteExtension;
@@ -139,12 +139,12 @@ describe('GovernorPreventLateQuorum', function () {
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(extendedDeadline);
 
         // still possible to vote
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.Against });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.Against });
 
         await this.helper.waitForDeadline();
-        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Active);
+        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Active);
         await this.helper.waitForDeadline(1n);
-        expect(await this.mock.state(this.proposal.id)).to.equal(Enums.ProposalState.Defeated);
+        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Defeated);
 
         // check extension event
         await expect(txVote).to.emit(this.mock, 'ProposalExtended').withArgs(this.proposal.id, extendedDeadline);
@@ -154,7 +154,7 @@ describe('GovernorPreventLateQuorum', function () {
         it('setLateQuorumVoteExtension is protected', async function () {
           await expect(this.mock.connect(this.owner).setLateQuorumVoteExtension(0n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('can setLateQuorumVoteExtension through governance', async function () {
@@ -170,7 +170,7 @@ describe('GovernorPreventLateQuorum', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
           await expect(this.helper.execute())

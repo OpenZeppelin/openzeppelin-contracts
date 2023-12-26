@@ -35,7 +35,7 @@ describe('ERC721Wrapper', function () {
   });
 
   it('has underlying', async function () {
-    expect(await this.token.underlying()).to.equal(this.underlying.target);
+    expect(await this.token.underlying()).to.equal(this.underlying);
   });
 
   describe('depositFor', function () {
@@ -44,9 +44,9 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.owner).depositFor(this.owner, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.owner.address, this.token.target, tokenId)
+        .withArgs(this.owner, this.token, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.owner.address, tokenId);
+        .withArgs(ethers.ZeroAddress, this.owner, tokenId);
     });
 
     it('works with approval for all', async function () {
@@ -54,9 +54,9 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.owner).depositFor(this.owner, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.owner.address, this.token.target, tokenId)
+        .withArgs(this.owner, this.token, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.owner.address, tokenId);
+        .withArgs(ethers.ZeroAddress, this.owner, tokenId);
     });
 
     it('works sending to another account', async function () {
@@ -64,9 +64,9 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.owner).depositFor(this.other, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.owner.address, this.token.target, tokenId)
+        .withArgs(this.owner, this.token, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.other.address, tokenId);
+        .withArgs(ethers.ZeroAddress, this.other, tokenId);
     });
 
     it('works with multiple tokens', async function () {
@@ -75,19 +75,19 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.owner).depositFor(this.owner, [tokenId, otherTokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.owner.address, this.token.target, tokenId)
+        .withArgs(this.owner, this.token, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.owner.address, tokenId)
+        .withArgs(ethers.ZeroAddress, this.owner, tokenId)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.owner.address, this.token.target, otherTokenId)
+        .withArgs(this.owner, this.token, otherTokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.owner.address, otherTokenId);
+        .withArgs(ethers.ZeroAddress, this.owner, otherTokenId);
     });
 
     it('reverts with missing approval', async function () {
       await expect(this.token.connect(this.owner).depositFor(this.owner, [tokenId]))
         .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
-        .withArgs(this.token.target, tokenId);
+        .withArgs(this.token, tokenId);
     });
   });
 
@@ -100,9 +100,9 @@ describe('ERC721Wrapper', function () {
     it('works for an owner', async function () {
       await expect(this.token.connect(this.owner).withdrawTo(this.owner, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.owner.address, tokenId)
+        .withArgs(this.token, this.owner, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId);
     });
 
     it('works for an approved', async function () {
@@ -110,9 +110,9 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.approved).withdrawTo(this.owner, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.owner.address, tokenId)
+        .withArgs(this.token, this.owner, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId);
     });
 
     it('works for an approved for all', async function () {
@@ -120,15 +120,15 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.approved).withdrawTo(this.owner, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.owner.address, tokenId)
+        .withArgs(this.token, this.owner, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId);
     });
 
     it("doesn't work for a non-owner nor approved", async function () {
       await expect(this.token.connect(this.other).withdrawTo(this.owner, [tokenId]))
         .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
-        .withArgs(this.other.address, tokenId);
+        .withArgs(this.other, tokenId);
     });
 
     it('works with multiple tokens', async function () {
@@ -137,21 +137,21 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.connect(this.owner).withdrawTo(this.owner, [tokenId, otherTokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.owner.address, tokenId)
+        .withArgs(this.token, this.owner, tokenId)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.owner.address, tokenId)
+        .withArgs(this.token, this.owner, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId)
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId);
     });
 
     it('works to another account', async function () {
       await expect(this.token.connect(this.owner).withdrawTo(this.other, [tokenId]))
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.other.address, tokenId)
+        .withArgs(this.token, this.other, tokenId)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.owner.address, ethers.ZeroAddress, tokenId);
+        .withArgs(this.owner, ethers.ZeroAddress, tokenId);
     });
   });
 
@@ -166,13 +166,13 @@ describe('ERC721Wrapper', function () {
         ),
       )
         .to.be.revertedWithCustomError(this.token, 'ERC721UnsupportedToken')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('mints a token to from', async function () {
       await expect(this.underlying.connect(this.owner).safeTransferFrom(this.owner, this.token, tokenId))
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.owner.address, tokenId);
+        .withArgs(ethers.ZeroAddress, this.owner, tokenId);
     });
   });
 
@@ -183,7 +183,7 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.$_recover(this.other, tokenId))
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.other.address, tokenId);
+        .withArgs(ethers.ZeroAddress, this.other, tokenId);
     });
 
     it('reverts if there is nothing to recover', async function () {
@@ -191,7 +191,7 @@ describe('ERC721Wrapper', function () {
 
       await expect(this.token.$_recover(holder, tokenId))
         .to.be.revertedWithCustomError(this.token, 'ERC721IncorrectOwner')
-        .withArgs(this.token.target, tokenId, holder);
+        .withArgs(this.token, tokenId, holder);
     });
   });
 

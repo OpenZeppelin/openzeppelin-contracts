@@ -3,12 +3,12 @@ const { time, mine, mineUpTo } = require('@nomicfoundation/hardhat-network-helpe
 const { mapValues } = require('./iterate');
 
 const clock = {
-  blocknumber: () => time.latestBlock(),
-  timestamp: () => time.latest(),
+  blocknumber: () => time.latestBlock().then(ethers.toBigInt),
+  timestamp: () => time.latest().then(ethers.toBigInt),
 };
 const clockFromReceipt = {
-  blocknumber: receipt => Promise.resolve(receipt.blockNumber),
-  timestamp: receipt => ethers.provider.getBlock(receipt.blockNumber).then(block => block.timestamp),
+  blocknumber: receipt => Promise.resolve(ethers.toBigInt(receipt.blockNumber)),
+  timestamp: receipt => ethers.provider.getBlock(receipt.blockNumber).then(block => ethers.toBigInt(block.timestamp)),
 };
 const increaseBy = {
   blockNumber: mine,
@@ -19,7 +19,7 @@ const increaseTo = {
   blocknumber: mineUpTo,
   timestamp: (to, mine = true) => (mine ? time.increaseTo(to) : time.setNextBlockTimestamp(to)),
 };
-const duration = time.duration;
+const duration = mapValues(time.duration, fn => n => ethers.toBigInt(fn(ethers.toNumber(n))));
 
 module.exports = {
   clock,
@@ -27,13 +27,4 @@ module.exports = {
   increaseBy,
   increaseTo,
   duration,
-};
-
-// TODO: deprecate the old version in favor of this one
-module.exports.bigint = {
-  clock: mapValues(clock, fn => () => fn().then(ethers.toBigInt)),
-  clockFromReceipt: mapValues(clockFromReceipt, fn => receipt => fn(receipt).then(ethers.toBigInt)),
-  increaseBy: increaseBy,
-  increaseTo: increaseTo,
-  duration: mapValues(duration, fn => n => ethers.toBigInt(fn(ethers.toNumber(n)))),
 };

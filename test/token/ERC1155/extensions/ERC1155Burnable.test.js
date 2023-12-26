@@ -37,7 +37,7 @@ describe('ERC1155Burnable', function () {
     it("unapproved accounts cannot burn the holder's tokens", async function () {
       await expect(this.token.connect(this.other).burn(this.holder, ids[0], values[0] - 1n))
         .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
-        .withArgs(this.other.address, this.holder.address);
+        .withArgs(this.other, this.holder);
     });
   });
 
@@ -60,7 +60,7 @@ describe('ERC1155Burnable', function () {
     it("unapproved accounts cannot burn the holder's tokens", async function () {
       await expect(this.token.connect(this.other).burnBatch(this.holder, ids, [values[0] - 1n, values[1] - 2n]))
         .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
-        .withArgs(this.other.address, this.holder.address);
+        .withArgs(this.other, this.holder);
     });
   });
 });

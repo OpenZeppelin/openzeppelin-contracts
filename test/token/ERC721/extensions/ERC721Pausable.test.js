@@ -68,7 +68,7 @@ describe('ERC721Pausable', function () {
 
     describe('ownerOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
-        expect(await this.token.ownerOf(tokenId)).to.equal(this.owner.address);
+        expect(await this.token.ownerOf(tokenId)).to.equal(this.owner);
       });
     });
 

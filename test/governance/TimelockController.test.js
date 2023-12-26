@@ -4,10 +4,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { GovernorHelper } = require('../helpers/governance');
-const { bigint: time } = require('../helpers/time');
-const {
-  bigint: { OperationState },
-} = require('../helpers/enums');
+const { OperationState } = require('../helpers/enums');
+const time = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
@@ -234,7 +232,7 @@ describe('TimelockController', function () {
               ),
           )
             .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-            .withArgs(this.other.address, PROPOSER_ROLE);
+            .withArgs(this.other, PROPOSER_ROLE);
         });
 
         it('enforce minimum delay', async function () {
@@ -380,7 +378,7 @@ describe('TimelockController', function () {
                   ),
               )
                 .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-                .withArgs(this.other.address, EXECUTOR_ROLE);
+                .withArgs(this.other, EXECUTOR_ROLE);
             });
 
             it('prevents reentrancy execution', async function () {
@@ -457,7 +455,7 @@ describe('TimelockController', function () {
                 .withArgs(
                   nonReentrantOperation.id,
                   0n,
-                  getAddress(nonReentrantOperation.target),
+                  getAddress(nonReentrantOperation),
                   nonReentrantOperation.value,
                   nonReentrantOperation.data,
                 );
@@ -587,7 +585,7 @@ describe('TimelockController', function () {
               ),
           )
             .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-            .withArgs(this.other.address, PROPOSER_ROLE);
+            .withArgs(this.other, PROPOSER_ROLE);
         });
 
         it('enforce minimum delay', async function () {
@@ -725,7 +723,7 @@ describe('TimelockController', function () {
                   ),
               )
                 .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-                .withArgs(this.other.address, EXECUTOR_ROLE);
+                .withArgs(this.other, EXECUTOR_ROLE);
             });
 
             it('length mismatch #1', async function () {
@@ -939,7 +937,7 @@ describe('TimelockController', function () {
       it('prevent non-canceller from canceling', async function () {
         await expect(this.mock.connect(this.other).cancel(this.operation.id))
           .to.be.revertedWithCustomError(this.mock, 'AccessControlUnauthorizedAccount')
-          .withArgs(this.other.address, CANCELLER_ROLE);
+          .withArgs(this.other, CANCELLER_ROLE);
       });
     });
   });
@@ -948,7 +946,7 @@ describe('TimelockController', function () {
     it('prevent unauthorized maintenance', async function () {
       await expect(this.mock.connect(this.other).updateDelay(0n))
         .to.be.revertedWithCustomError(this.mock, 'TimelockUnauthorizedCaller')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('timelock scheduled maintenance', async function () {
