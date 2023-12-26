@@ -81,7 +81,7 @@ describe('ERC20Permit', function () {
 
       await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
         .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
-        .withArgs(recovered, this.owner.address);
+        .withArgs(recovered, this.owner);
     });
 
     it('rejects other signature', async function () {
@@ -91,7 +91,7 @@ describe('ERC20Permit', function () {
 
       await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
         .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
-        .withArgs(this.other.address, this.owner.address);
+        .withArgs(this.other, this.owner);
     });
 
     it('rejects expired permit', async function () {

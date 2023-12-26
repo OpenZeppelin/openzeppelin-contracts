@@ -94,12 +94,12 @@ describe('GovernorTimelockAccess', function () {
 
       it('post deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0n)).to.equal(0n);
 
-        expect(await this.mock.accessManager()).to.equal(this.manager.target);
+        expect(await this.mock.accessManager()).to.equal(this.manager);
       });
 
       it('sets base delay (seconds)', async function () {
@@ -108,7 +108,7 @@ describe('GovernorTimelockAccess', function () {
         // Only through governance
         await expect(this.mock.connect(this.voter1).setBaseDelaySeconds(baseDelay))
           .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-          .withArgs(this.voter1.address);
+          .withArgs(this.voter1);
 
         this.proposal = await this.helper.setProposal(
           [
@@ -136,7 +136,7 @@ describe('GovernorTimelockAccess', function () {
         // Only through governance
         await expect(this.mock.connect(this.voter1).setAccessManagerIgnored(this.other, selectors, true))
           .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-          .withArgs(this.voter1.address);
+          .withArgs(this.voter1);
 
         // Ignore
         await this.helper.setProposal(
@@ -161,7 +161,7 @@ describe('GovernorTimelockAccess', function () {
         for (const selector of selectors) {
           await expect(ignoreReceipt)
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.other.address, selector, true);
+            .withArgs(this.other, selector, true);
           expect(await this.mock.isAccessManagerIgnored(this.other, selector)).to.be.true;
         }
 
@@ -189,7 +189,7 @@ describe('GovernorTimelockAccess', function () {
         for (const selector of selectors) {
           await expect(unignoreReceipt)
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.other.address, selector, false);
+            .withArgs(this.other, selector, false);
           expect(await this.mock.isAccessManagerIgnored(this.other, selector)).to.be.false;
         }
       });
@@ -218,7 +218,7 @@ describe('GovernorTimelockAccess', function () {
 
         const tx = this.helper.execute();
         for (const selector of selectors) {
-          await expect(tx).to.emit(this.mock, 'AccessManagerIgnoredSet').withArgs(this.mock.target, selector, true);
+          await expect(tx).to.emit(this.mock, 'AccessManagerIgnoredSet').withArgs(this.mock, selector, true);
           expect(await this.mock.isAccessManagerIgnored(this.mock, selector)).to.be.true;
         }
       });
@@ -717,13 +717,13 @@ describe('GovernorTimelockAccess', function () {
         it('internal setter', async function () {
           await expect(this.mock.$_setAccessManagerIgnored(this.receiver, this.restricted.selector, true))
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.receiver.target, this.restricted.selector, true);
+            .withArgs(this.receiver, this.restricted.selector, true);
 
           expect(await this.mock.isAccessManagerIgnored(this.receiver, this.restricted.selector)).to.be.true;
 
           await expect(this.mock.$_setAccessManagerIgnored(this.mock, '0x12341234', false))
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.mock.target, '0x12341234', false);
+            .withArgs(this.mock, '0x12341234', false);
 
           expect(await this.mock.isAccessManagerIgnored(this.mock, '0x12341234')).to.be.false;
         });
@@ -792,7 +792,7 @@ describe('GovernorTimelockAccess', function () {
 
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-            .withArgs(this.manager.target, 0n, amount);
+            .withArgs(this.manager, 0n, amount);
 
           await this.mock.$_setAccessManagerIgnored(target, selector, true);
 
@@ -802,9 +802,7 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
-          await expect(this.helper.execute())
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.mock.target, this.voter4.address, amount);
+          await expect(this.helper.execute()).to.emit(this.token, 'Transfer').withArgs(this.mock, this.voter4, amount);
         });
       });
 

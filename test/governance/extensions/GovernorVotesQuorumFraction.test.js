@@ -63,7 +63,7 @@ describe('GovernorVotesQuorumFraction', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.equal(0n);
@@ -100,7 +100,7 @@ describe('GovernorVotesQuorumFraction', function () {
         it('updateQuorumNumerator is protected', async function () {
           await expect(this.mock.connect(this.owner).updateQuorumNumerator(newRatio))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('can updateQuorumNumerator through governance', async function () {

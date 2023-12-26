@@ -84,7 +84,7 @@ describe('Create2', function () {
 
       const instance = await ethers.getContractAt('VestingWallet', offChainComputed);
 
-      expect(await instance.owner()).to.equal(this.other.address);
+      expect(await instance.owner()).to.equal(this.other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {

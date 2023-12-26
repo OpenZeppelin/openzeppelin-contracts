@@ -8,12 +8,12 @@ module.exports = function shouldBehaveLikeProxy() {
     const initializeData = '0x';
     await expect(this.createProxy(this.nonContractAddress, initializeData))
       .to.be.revertedWithCustomError(await ethers.getContractFactory('ERC1967Proxy'), 'ERC1967InvalidImplementation')
-      .withArgs(this.nonContractAddress.address);
+      .withArgs(this.nonContractAddress);
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.implementation.target);
+      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.implementation);
     });
 
     it('initializes the proxy', async function () {

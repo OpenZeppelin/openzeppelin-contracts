@@ -44,7 +44,7 @@ describe('ECDSA', function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.mock.$recover(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer.address);
+        expect(await this.mock.$recover(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns signer address with correct signature for arbitrary length message', async function () {
@@ -52,12 +52,12 @@ describe('ECDSA', function () {
         const signature = await this.signer.signMessage(NON_HASH_MESSAGE);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.mock.$recover(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer.address);
+        expect(await this.mock.$recover(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns a different address', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
-        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer.address);
+        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer);
       });
 
       it('reverts with invalid signature', async function () {

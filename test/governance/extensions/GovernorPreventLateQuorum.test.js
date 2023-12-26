@@ -69,7 +69,7 @@ describe('GovernorPreventLateQuorum', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.equal(quorum);
@@ -107,7 +107,7 @@ describe('GovernorPreventLateQuorum', function () {
           .to.emit(this.mock, 'ProposalCreated')
           .withArgs(
             this.proposal.id,
-            this.proposer.address,
+            this.proposer,
             this.proposal.targets,
             this.proposal.values,
             this.proposal.signatures,
@@ -154,7 +154,7 @@ describe('GovernorPreventLateQuorum', function () {
         it('setLateQuorumVoteExtension is protected', async function () {
           await expect(this.mock.connect(this.owner).setLateQuorumVoteExtension(0n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('can setLateQuorumVoteExtension through governance', async function () {

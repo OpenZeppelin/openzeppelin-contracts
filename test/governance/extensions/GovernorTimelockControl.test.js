@@ -95,12 +95,12 @@ describe('GovernorTimelockControl', function () {
 
       it('post deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0n)).to.equal(0n);
 
-        expect(await this.mock.timelock()).to.equal(this.timelock.target);
+        expect(await this.mock.timelock()).to.equal(this.timelock);
       });
 
       it('nominal', async function () {
@@ -303,7 +303,7 @@ describe('GovernorTimelockControl', function () {
                 .relay(this.token, 0n, this.token.interface.encodeFunctionData('transfer', [this.other.address, 1n])),
             )
               .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-              .withArgs(this.owner.address);
+              .withArgs(this.owner);
           });
 
           it('can be executed through governance', async function () {
@@ -332,7 +332,7 @@ describe('GovernorTimelockControl', function () {
 
             await expect(txExecute).to.changeTokenBalances(this.token, [this.mock, this.other], [-1n, 1n]);
 
-            await expect(txExecute).to.emit(this.token, 'Transfer').withArgs(this.mock.target, this.other.address, 1n);
+            await expect(txExecute).to.emit(this.token, 'Transfer').withArgs(this.mock, this.other, 1n);
           });
 
           it('is payable and can transfer eth to EOA', async function () {
@@ -397,7 +397,7 @@ describe('GovernorTimelockControl', function () {
           it('is protected', async function () {
             await expect(this.mock.connect(this.owner).updateTimelock(this.newTimelock))
               .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-              .withArgs(this.owner.address);
+              .withArgs(this.owner);
           });
 
           it('can be executed through governance to', async function () {
@@ -420,9 +420,9 @@ describe('GovernorTimelockControl', function () {
 
             await expect(this.helper.execute())
               .to.emit(this.mock, 'TimelockChange')
-              .withArgs(this.timelock.target, this.newTimelock.target);
+              .withArgs(this.timelock, this.newTimelock);
 
-            expect(await this.mock.timelock()).to.equal(this.newTimelock.target);
+            expect(await this.mock.timelock()).to.equal(this.newTimelock);
           });
         });
 

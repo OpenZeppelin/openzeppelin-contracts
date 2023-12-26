@@ -101,7 +101,7 @@ describe('Governor', function () {
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.equal(0n);
@@ -128,7 +128,7 @@ describe('Governor', function () {
           .to.emit(this.mock, 'ProposalCreated')
           .withArgs(
             this.proposal.id,
-            this.proposer.address,
+            this.proposer,
             this.proposal.targets,
             this.proposal.values,
             this.proposal.signatures,
@@ -142,19 +142,19 @@ describe('Governor', function () {
 
         await expect(this.helper.connect(this.voter1).vote({ support: VoteType.For, reason: 'This is nice' }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter1.address, this.proposal.id, VoteType.For, ethers.parseEther('10'), 'This is nice');
+          .withArgs(this.voter1, this.proposal.id, VoteType.For, ethers.parseEther('10'), 'This is nice');
 
         await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter2.address, this.proposal.id, VoteType.For, ethers.parseEther('7'), '');
+          .withArgs(this.voter2, this.proposal.id, VoteType.For, ethers.parseEther('7'), '');
 
         await expect(this.helper.connect(this.voter3).vote({ support: VoteType.Against }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter3.address, this.proposal.id, VoteType.Against, ethers.parseEther('5'), '');
+          .withArgs(this.voter3, this.proposal.id, VoteType.Against, ethers.parseEther('5'), '');
 
         await expect(this.helper.connect(this.voter4).vote({ support: VoteType.Abstain }))
           .to.emit(this.mock, 'VoteCast')
-          .withArgs(this.voter4.address, this.proposal.id, VoteType.Abstain, ethers.parseEther('2'), '');
+          .withArgs(this.voter4, this.proposal.id, VoteType.Abstain, ethers.parseEther('2'), '');
 
         await this.helper.waitForDeadline();
 
@@ -165,7 +165,7 @@ describe('Governor', function () {
         await expect(txExecute).to.emit(this.receiver, 'MockFunctionCalled');
 
         // After
-        expect(await this.mock.proposalProposer(this.proposal.id)).to.equal(this.proposer.address);
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.equal(this.proposer);
         expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
         expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.true;
         expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.true;
@@ -215,7 +215,7 @@ describe('Governor', function () {
             }),
           )
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.userEOA.address, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+            .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
 
           await this.helper.waitForDeadline();
           await this.helper.execute();
@@ -244,7 +244,7 @@ describe('Governor', function () {
             }),
           )
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(wallet.target, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+            .withArgs(wallet, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
           await this.helper.waitForDeadline();
           await this.helper.execute();
 
@@ -275,7 +275,7 @@ describe('Governor', function () {
             await this.mock.$_setProposalThreshold(threshold);
             await expect(this.helper.connect(this.voter1).propose())
               .to.be.revertedWithCustomError(this.mock, 'GovernorInsufficientProposerVotes')
-              .withArgs(this.voter1.address, votes, threshold);
+              .withArgs(this.voter1, votes, threshold);
           });
         });
 
@@ -312,7 +312,7 @@ describe('Governor', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await expect(this.helper.connect(this.voter1).vote({ support: VoteType.For }))
               .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVote')
-              .withArgs(this.voter1.address);
+              .withArgs(this.voter1);
           });
 
           it('if voting is over', async function () {
@@ -625,7 +625,7 @@ describe('Governor', function () {
 
             await expect(this.helper.connect(this.owner).cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyProposer')
-              .withArgs(this.owner.address);
+              .withArgs(this.owner);
           });
 
           it('after vote started', async function () {
@@ -749,7 +749,7 @@ describe('Governor', function () {
               .to.emit(this.mock, 'ProposalCreated')
               .withArgs(
                 this.proposal.id,
-                this.proposer.address,
+                this.proposer,
                 this.proposal.targets,
                 this.proposal.values,
                 this.proposal.signatures,
@@ -767,7 +767,7 @@ describe('Governor', function () {
               .to.emit(this.mock, 'ProposalCreated')
               .withArgs(
                 this.proposal.id,
-                this.voter1.address,
+                this.voter1,
                 this.proposal.targets,
                 this.proposal.values,
                 this.proposal.signatures,
@@ -841,19 +841,19 @@ describe('Governor', function () {
         it('setVotingDelay is protected', async function () {
           await expect(this.mock.connect(this.owner).setVotingDelay(0n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('setVotingPeriod is protected', async function () {
           await expect(this.mock.connect(this.owner).setVotingPeriod(32n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('setProposalThreshold is protected', async function () {
           await expect(this.mock.connect(this.owner).setProposalThreshold(1_000_000_000_000_000_000n))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.owner);
         });
 
         it('can setVotingDelay through governance', async function () {
@@ -955,7 +955,7 @@ describe('Governor', function () {
           });
 
           it('can receive an ERC721 safeTransfer', async function () {
-            await this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock.target, tokenId);
+            await this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock, tokenId);
           });
         });
 
@@ -974,7 +974,7 @@ describe('Governor', function () {
           it('can receive ERC1155 safeTransfer', async function () {
             await this.token.connect(this.owner).safeTransferFrom(
               this.owner,
-              this.mock.target,
+              this.mock,
               ...Object.entries(tokenIds)[0], // id + amount
               '0x',
             );
@@ -983,13 +983,7 @@ describe('Governor', function () {
           it('can receive ERC1155 safeBatchTransfer', async function () {
             await this.token
               .connect(this.owner)
-              .safeBatchTransferFrom(
-                this.owner,
-                this.mock.target,
-                Object.keys(tokenIds),
-                Object.values(tokenIds),
-                '0x',
-              );
+              .safeBatchTransferFrom(this.owner, this.mock, Object.keys(tokenIds), Object.values(tokenIds), '0x');
           });
         });
       });

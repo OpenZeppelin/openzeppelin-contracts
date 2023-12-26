@@ -71,7 +71,7 @@ describe('Votes', function () {
 
           expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[0].address]);
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0]);
           expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
 
           await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
@@ -80,13 +80,13 @@ describe('Votes', function () {
             this.amounts[this.accounts[0].address] + this.amounts[this.accounts[1].address],
           );
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0].address);
-          expect(await this.votes.delegates(this.accounts[1])).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0]);
+          expect(await this.votes.delegates(this.accounts[1])).to.equal(this.accounts[0]);
         });
 
         it('cross delegates', async function () {
-          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[1].address));
-          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0].address));
+          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[1]));
+          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
 
           expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[1].address]);
           expect(await this.votes.getVotes(this.accounts[1])).to.equal(this.amounts[this.accounts[0].address]);

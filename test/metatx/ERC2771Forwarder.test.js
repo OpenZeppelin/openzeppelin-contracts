@@ -140,7 +140,7 @@ describe('ERC2771Forwarder', function () {
           } else {
             await expect(promise)
               .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-              .withArgs(request.to, this.forwarder.target);
+              .withArgs(request.to, this.forwarder);
           }
         });
       }
@@ -299,7 +299,7 @@ describe('ERC2771Forwarder', function () {
             } else {
               await expect(promise)
                 .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-                .withArgs(this.requests[idx].to, this.forwarder.target);
+                .withArgs(this.requests[idx].to, this.forwarder);
             }
           });
         }

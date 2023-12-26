@@ -18,7 +18,7 @@ const LIKE_COMMON_IS_EXECUTING = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };
@@ -31,7 +31,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay: undefined, // Diverges if there's an operation delay or not
@@ -41,7 +41,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay() {
@@ -72,7 +72,7 @@ const LIKE_COMMON_GET_ACCESS = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };

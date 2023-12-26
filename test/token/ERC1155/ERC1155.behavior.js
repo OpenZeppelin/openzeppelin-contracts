@@ -116,9 +116,7 @@ function shouldBehaveLikeERC1155() {
       });
 
       it('emits an ApprovalForAll log', async function () {
-        await expect(this.tx)
-          .to.emit(this.token, 'ApprovalForAll')
-          .withArgs(this.holder.address, this.proxy.address, true);
+        await expect(this.tx).to.emit(this.token, 'ApprovalForAll').withArgs(this.holder, this.proxy, true);
       });
 
       it('can unset approval for an operator', async function () {
@@ -146,7 +144,7 @@ function shouldBehaveLikeERC1155() {
             .safeTransferFrom(this.holder, this.recipient, firstTokenId, firstTokenValue + 1n, '0x'),
         )
           .to.be.revertedWithCustomError(this.token, 'ERC1155InsufficientBalance')
-          .withArgs(this.holder.address, firstTokenValue, firstTokenValue + 1n, firstTokenId);
+          .withArgs(this.holder, firstTokenValue, firstTokenValue + 1n, firstTokenId);
       });
 
       it('reverts when transferring to zero address', async function () {
@@ -171,13 +169,7 @@ function shouldBehaveLikeERC1155() {
         it('emits a TransferSingle log', async function () {
           await expect(this.tx)
             .to.emit(this.token, 'TransferSingle')
-            .withArgs(
-              this.args.operator.address ?? this.args.operator.target ?? this.args.operator,
-              this.args.from.address ?? this.args.from.target ?? this.args.from,
-              this.args.to.address ?? this.args.to.target ?? this.args.to,
-              this.args.id,
-              this.args.value,
-            );
+            .withArgs(this.args.operator, this.args.from, this.args.to, this.args.id, this.args.value);
         });
       }
 
@@ -217,7 +209,7 @@ function shouldBehaveLikeERC1155() {
                 .safeTransferFrom(this.holder, this.recipient, firstTokenId, firstTokenValue, '0x'),
             )
               .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
-              .withArgs(this.proxy.address, this.holder.address);
+              .withArgs(this.proxy, this.holder);
           });
         });
 
@@ -276,14 +268,7 @@ function shouldBehaveLikeERC1155() {
           it('calls onERC1155Received', async function () {
             await expect(this.tx)
               .to.emit(this.receiver, 'Received')
-              .withArgs(
-                this.args.operator.address,
-                this.args.from.address,
-                this.args.id,
-                this.args.value,
-                this.args.data,
-                anyValue,
-              );
+              .withArgs(this.args.operator, this.args.from, this.args.id, this.args.value, this.args.data, anyValue);
           });
         });
 
@@ -307,14 +292,7 @@ function shouldBehaveLikeERC1155() {
           it('calls onERC1155Received', async function () {
             await expect(this.tx)
               .to.emit(this.receiver, 'Received')
-              .withArgs(
-                this.args.operator.address,
-                this.args.from.address,
-                this.args.id,
-                this.args.value,
-                this.args.data,
-                anyValue,
-              );
+              .withArgs(this.args.operator, this.args.from, this.args.id, this.args.value, this.args.data, anyValue);
           });
         });
       });
@@ -333,7 +311,7 @@ function shouldBehaveLikeERC1155() {
               .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
           )
             .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
-            .withArgs(receiver.target);
+            .withArgs(receiver);
         });
       });
 
@@ -368,7 +346,7 @@ function shouldBehaveLikeERC1155() {
                 .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
             )
               .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
-              .withArgs(receiver.target);
+              .withArgs(receiver);
           });
         });
 
@@ -409,7 +387,7 @@ function shouldBehaveLikeERC1155() {
 
       describe('to a contract that does not implement the required function', function () {
         it('reverts', async function () {
-          const invalidReceiver = this.token.target;
+          const invalidReceiver = this.token;
 
           await expect(
             this.token
@@ -441,7 +419,7 @@ function shouldBehaveLikeERC1155() {
             ),
         )
           .to.be.revertedWithCustomError(this.token, 'ERC1155InsufficientBalance')
-          .withArgs(this.holder.address, secondTokenValue, secondTokenValue + 1n, secondTokenId);
+          .withArgs(this.holder, secondTokenValue, secondTokenValue + 1n, secondTokenId);
       });
 
       it("reverts when ids array length doesn't match values array length", async function () {
@@ -508,13 +486,7 @@ function shouldBehaveLikeERC1155() {
         it('emits a TransferBatch log', async function () {
           await expect(this.tx)
             .to.emit(this.token, 'TransferBatch')
-            .withArgs(
-              this.args.operator.address ?? this.args.operator.target ?? this.args.operator,
-              this.args.from.address ?? this.args.from.target ?? this.args.from,
-              this.args.to.address ?? this.args.to.target ?? this.args.to,
-              this.args.ids,
-              this.args.values,
-            );
+            .withArgs(this.args.operator, this.args.from, this.args.to, this.args.ids, this.args.values);
         });
       }
 
@@ -555,7 +527,7 @@ function shouldBehaveLikeERC1155() {
                 ),
             )
               .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
-              .withArgs(this.proxy.address, this.holder.address);
+              .withArgs(this.proxy, this.holder);
           });
         });
 
@@ -614,14 +586,7 @@ function shouldBehaveLikeERC1155() {
           it('calls onERC1155BatchReceived', async function () {
             await expect(this.tx)
               .to.emit(this.receiver, 'BatchReceived')
-              .withArgs(
-                this.holder.address,
-                this.holder.address,
-                this.args.ids,
-                this.args.values,
-                this.args.data,
-                anyValue,
-              );
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
           });
         });
 
@@ -645,14 +610,7 @@ function shouldBehaveLikeERC1155() {
           it('calls onERC1155Received', async function () {
             await expect(this.tx)
               .to.emit(this.receiver, 'BatchReceived')
-              .withArgs(
-                this.holder.address,
-                this.holder.address,
-                this.args.ids,
-                this.args.values,
-                this.args.data,
-                anyValue,
-              );
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
           });
         });
       });
@@ -677,7 +635,7 @@ function shouldBehaveLikeERC1155() {
               ),
           )
             .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
-            .withArgs(receiver.target);
+            .withArgs(receiver);
         });
       });
 
@@ -724,7 +682,7 @@ function shouldBehaveLikeERC1155() {
                 ),
             )
               .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
-              .withArgs(receiver.target);
+              .withArgs(receiver);
           });
         });
 
@@ -777,7 +735,7 @@ function shouldBehaveLikeERC1155() {
 
       describe('to a contract that does not implement the required function', function () {
         it('reverts', async function () {
-          const invalidReceiver = this.token.target;
+          const invalidReceiver = this.token;
 
           await expect(
             this.token
