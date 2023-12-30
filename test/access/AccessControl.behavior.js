@@ -18,7 +18,7 @@ function shouldBehaveLikeAccessControl() {
 
   describe('default admin', function () {
     it('deployer has default admin role', async function () {
-      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.equal(true);
+      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
     });
 
     it("other roles's admin is the default admin role", async function () {

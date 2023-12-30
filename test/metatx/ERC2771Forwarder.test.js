@@ -75,7 +75,7 @@ describe('ERC2771Forwarder', function () {
       it('returns true without altering the nonce', async function () {
         const request = await this.forgeRequest();
         expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
-        expect(await this.forwarder.verify(request)).to.be.equal(true);
+        expect(await this.forwarder.verify(request)).to.be.true;
         expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
       });
     });
@@ -245,7 +245,7 @@ describe('ERC2771Forwarder', function () {
     describe('with valid requests', function () {
       it('sanity', async function () {
         for (const request of this.requests) {
-          expect(await this.forwarder.verify(request)).to.be.equal(true);
+          expect(await this.forwarder.verify(request)).to.be.true;
         }
       });
 

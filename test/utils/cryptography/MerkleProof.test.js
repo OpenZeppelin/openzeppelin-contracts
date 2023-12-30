@@ -27,16 +27,16 @@ describe('MerkleProof', function () {
       const hash = merkleTree.leafHash(['A']);
       const proof = merkleTree.getProof(['A']);
 
-      expect(await this.mock.$verify(proof, root, hash)).to.equal(true);
-      expect(await this.mock.$verifyCalldata(proof, root, hash)).to.equal(true);
+      expect(await this.mock.$verify(proof, root, hash)).to.be.true;
+      expect(await this.mock.$verifyCalldata(proof, root, hash)).to.be.true;
 
       // For demonstration, it is also possible to create valid proofs for certain 64-byte values *not* in elements:
       const noSuchLeaf = hashPair(
         ethers.toBeArray(merkleTree.leafHash(['A'])),
         ethers.toBeArray(merkleTree.leafHash(['B'])),
       );
-      expect(await this.mock.$verify(proof.slice(1), root, noSuchLeaf)).to.equal(true);
-      expect(await this.mock.$verifyCalldata(proof.slice(1), root, noSuchLeaf)).to.equal(true);
+      expect(await this.mock.$verify(proof.slice(1), root, noSuchLeaf)).to.be.true;
+      expect(await this.mock.$verifyCalldata(proof.slice(1), root, noSuchLeaf)).to.be.true;
     });
 
     it('returns false for an invalid Merkle proof', async function () {
@@ -72,8 +72,8 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = merkleTree.getMultiProof(toElements('bdf'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
-      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.equal(true);
-      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.equal(true);
+      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.true;
+      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.true;
     });
 
     it('returns false for an invalid Merkle multi proof', async function () {
@@ -139,16 +139,16 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = merkleTree.getMultiProof(toElements('a'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
-      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.equal(true);
-      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.equal(true);
+      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.true;
+      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.true;
     });
 
     it('limit case: can prove empty leaves', async function () {
       const merkleTree = StandardMerkleTree.of(toElements('abcd'), ['string']);
 
       const root = merkleTree.root;
-      expect(await this.mock.$multiProofVerify([root], [], root, [])).to.equal(true);
-      expect(await this.mock.$multiProofVerifyCalldata([root], [], root, [])).to.equal(true);
+      expect(await this.mock.$multiProofVerify([root], [], root, [])).to.be.true;
+      expect(await this.mock.$multiProofVerifyCalldata([root], [], root, [])).to.be.true;
     });
 
     it('reverts processing manipulated proofs with a zero-value node at depth 1', async function () {

@@ -25,7 +25,7 @@ describe('BitMap', function () {
   describe('setTo', function () {
     it('set a key to true', async function () {
       await this.bitmap.$setTo(0, keyA, true);
-      expect(await this.bitmap.$get(0, keyA)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
       expect(await this.bitmap.$get(0, keyB)).to.equal(false);
       expect(await this.bitmap.$get(0, keyC)).to.equal(false);
     });
@@ -46,10 +46,10 @@ describe('BitMap', function () {
       await this.bitmap.$setTo(0, keyA + 4n, true);
       await this.bitmap.$setTo(0, keyA + 2n, false);
       await this.bitmap.$setTo(0, keyA + 4n, false);
-      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
   });
@@ -57,7 +57,7 @@ describe('BitMap', function () {
   describe('set', function () {
     it('adds a key', async function () {
       await this.bitmap.$set(0, keyA);
-      expect(await this.bitmap.$get(0, keyA)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
       expect(await this.bitmap.$get(0, keyB)).to.equal(false);
       expect(await this.bitmap.$get(0, keyC)).to.equal(false);
     });
@@ -65,8 +65,8 @@ describe('BitMap', function () {
     it('adds several keys', async function () {
       await this.bitmap.$set(0, keyA);
       await this.bitmap.$set(0, keyB);
-      expect(await this.bitmap.$get(0, keyA)).to.equal(true);
-      expect(await this.bitmap.$get(0, keyB)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
+      expect(await this.bitmap.$get(0, keyB)).to.be.true;
       expect(await this.bitmap.$get(0, keyC)).to.equal(false);
     });
 
@@ -74,10 +74,10 @@ describe('BitMap', function () {
       await this.bitmap.$set(0, keyA + 0n);
       await this.bitmap.$set(0, keyA + 1n);
       await this.bitmap.$set(0, keyA + 3n);
-      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
-      expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
   });
@@ -88,7 +88,7 @@ describe('BitMap', function () {
       await this.bitmap.$set(0, keyB);
       await this.bitmap.$unset(0, keyA);
       expect(await this.bitmap.$get(0, keyA)).to.equal(false);
-      expect(await this.bitmap.$get(0, keyB)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyB)).to.be.true;
       expect(await this.bitmap.$get(0, keyC)).to.equal(false);
     });
 
@@ -97,10 +97,10 @@ describe('BitMap', function () {
       await this.bitmap.$set(0, keyA + 1n);
       await this.bitmap.$set(0, keyA + 3n);
       await this.bitmap.$unset(0, keyA + 1n);
-      expect(await this.bitmap.$get(0, keyA + 0n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 1n)).to.equal(false);
       expect(await this.bitmap.$get(0, keyA + 2n)).to.equal(false);
-      expect(await this.bitmap.$get(0, keyA + 3n)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 4n)).to.equal(false);
     });
 
@@ -141,9 +141,9 @@ describe('BitMap', function () {
 
       // [A, C]
 
-      expect(await this.bitmap.$get(0, keyA)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
       expect(await this.bitmap.$get(0, keyB)).to.equal(false);
-      expect(await this.bitmap.$get(0, keyC)).to.equal(true);
+      expect(await this.bitmap.$get(0, keyC)).to.be.true;
     });
   });
 });
