@@ -76,10 +76,10 @@ describe('VestingWallet', function () {
   });
 
   it('check vesting contract', async function () {
-    expect(await this.mock.owner()).to.be.equal(this.beneficiary);
-    expect(await this.mock.start()).to.be.equal(this.start);
-    expect(await this.mock.duration()).to.be.equal(this.duration);
-    expect(await this.mock.end()).to.be.equal(this.start + this.duration);
+    expect(await this.mock.owner()).to.equal(this.beneficiary);
+    expect(await this.mock.start()).to.equal(this.start);
+    expect(await this.mock.duration()).to.equal(this.duration);
+    expect(await this.mock.end()).to.equal(this.start + this.duration);
   });
 
   describe('vesting schedule', function () {

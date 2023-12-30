@@ -26,7 +26,7 @@ describe('ERC20Wrapper', function () {
   });
 
   afterEach('Underlying balance', async function () {
-    expect(await this.underlying.balanceOf(this.token)).to.be.equal(await this.token.totalSupply());
+    expect(await this.underlying.balanceOf(this.token)).to.equal(await this.token.totalSupply());
   });
 
   it('has a name', async function () {
@@ -38,17 +38,17 @@ describe('ERC20Wrapper', function () {
   });
 
   it('has the same decimals as the underlying token', async function () {
-    expect(await this.token.decimals()).to.be.equal(decimals);
+    expect(await this.token.decimals()).to.equal(decimals);
   });
 
   it('decimals default back to 18 if token has no metadata', async function () {
     const noDecimals = await ethers.deployContract('CallReceiverMock');
     const token = await ethers.deployContract('$ERC20Wrapper', [`Wrapped ${name}`, `W${symbol}`, noDecimals]);
-    expect(await token.decimals()).to.be.equal(18n);
+    expect(await token.decimals()).to.equal(18n);
   });
 
   it('has underlying', async function () {
-    expect(await this.token.underlying()).to.be.equal(this.underlying);
+    expect(await this.token.underlying()).to.equal(this.underlying);
   });
 
   describe('deposit', function () {

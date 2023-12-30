@@ -666,7 +666,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
-      expect(await this.mock.defaultAdmin()).to.be.equal(this.defaultAdmin);
+      expect(await this.mock.defaultAdmin()).to.equal(this.defaultAdmin);
     });
 
     it('renounces role', async function () {
@@ -676,7 +676,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin, this.defaultAdmin);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
-      expect(await this.mock.defaultAdmin()).to.be.equal(ethers.ZeroAddress);
+      expect(await this.mock.defaultAdmin()).to.equal(ethers.ZeroAddress);
       expect(await this.mock.owner()).to.equal(ethers.ZeroAddress);
 
       const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();

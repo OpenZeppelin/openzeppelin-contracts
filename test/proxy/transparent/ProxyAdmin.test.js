@@ -47,7 +47,7 @@ describe('ProxyAdmin', function () {
     context('with authorized account', function () {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, '0x');
-        expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.v2);
+        expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.v2);
       });
     });
   });
@@ -74,7 +74,7 @@ describe('ProxyAdmin', function () {
         it('upgrades implementation', async function () {
           const data = this.v2.interface.encodeFunctionData('initializeNonPayableWithValue', [1337n]);
           await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data);
-          expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.v2);
+          expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.v2);
         });
       });
     });
