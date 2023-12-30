@@ -24,24 +24,18 @@ function shouldBehaveLikeERC721() {
     });
 
     describe('balanceOf', function () {
-      describe('when the given address owns some tokens', function () {
-        it('returns the amount of tokens owned by the given address', async function () {
-          expect(await this.token.balanceOf(this.owner)).to.equal(2n);
-        });
+      it('when the given address owns some tokens', async function () {
+        expect(await this.token.balanceOf(this.owner)).to.equal(2n);
       });
 
-      describe('when the given address does not own any tokens', function () {
-        it('returns 0', async function () {
-          expect(await this.token.balanceOf(this.other)).to.equal(0n);
-        });
+      it('when the given address does not own any tokens', async function () {
+        expect(await this.token.balanceOf(this.other)).to.equal(0n);
       });
 
-      describe('when querying the zero address', function () {
-        it('throws', async function () {
-          await expect(this.token.balanceOf(ethers.ZeroAddress))
-            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidOwner')
-            .withArgs(ethers.ZeroAddress);
-        });
+      it('when querying the zero address', async function () {
+        await expect(this.token.balanceOf(ethers.ZeroAddress))
+          .to.be.revertedWithCustomError(this.token, 'ERC721InvalidOwner')
+          .withArgs(ethers.ZeroAddress);
       });
     });
 

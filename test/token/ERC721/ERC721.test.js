@@ -9,7 +9,11 @@ const symbol = 'NFT';
 async function fixture() {
   const [owner, newOwner, approved, operator, other] = await ethers.getSigners();
   return {
-    owner, newOwner, approved, operator, other,
+    owner,
+    newOwner,
+    approved,
+    operator,
+    other,
     token: await ethers.deployContract('$ERC721', [name, symbol]),
   };
 }
