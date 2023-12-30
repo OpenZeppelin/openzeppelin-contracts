@@ -60,7 +60,7 @@ function shouldBehaveLikeAccessControl() {
       );
     });
 
-    context('with granted role', function () {
+    describe('with granted role', function () {
       beforeEach(async function () {
         await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });
@@ -98,7 +98,7 @@ function shouldBehaveLikeAccessControl() {
       );
     });
 
-    context('with granted role', function () {
+    describe('with granted role', function () {
       beforeEach(async function () {
         await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });

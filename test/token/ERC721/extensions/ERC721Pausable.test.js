@@ -19,7 +19,7 @@ describe('ERC721Pausable', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  context('when token is paused', function () {
+  describe('when token is paused', function () {
     beforeEach(async function () {
       await this.token.$_mint(this.owner, tokenId);
       await this.token.$_pause();
