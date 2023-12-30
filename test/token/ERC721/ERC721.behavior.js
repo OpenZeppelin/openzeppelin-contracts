@@ -40,22 +40,14 @@ function shouldBehaveLikeERC721() {
     });
 
     describe('ownerOf', function () {
-      describe('when the given token ID was tracked by this token', function () {
-        const tokenId = firstTokenId;
-
-        it('returns the owner of the given token ID', async function () {
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.owner);
-        });
+      it('when the given token ID was tracked by this token', async function () {
+        expect(await this.token.ownerOf(firstTokenId)).to.equal(this.owner);
       });
 
-      describe('when the given token ID was not tracked by this token', function () {
-        const tokenId = nonExistentTokenId;
-
-        it('reverts', async function () {
-          await expect(this.token.ownerOf(tokenId))
-            .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
-            .withArgs(tokenId);
-        });
+      it('when the given token ID was not tracked by this token', async function () {
+        await expect(this.token.ownerOf(nonExistentTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
+          .withArgs(nonExistentTokenId);
       });
     });
 
