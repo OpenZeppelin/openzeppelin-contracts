@@ -86,18 +86,18 @@ describe('ERC2771Forwarder', function () {
           const request = await this.forgeRequest();
           request[key] = typeof value == 'function' ? value(request[key]) : value;
 
-          expect(await this.forwarder.verify(request)).to.be.equal(false);
+          expect(await this.forwarder.verify(request)).to.be.false;
         });
       }
 
       it('returns false with valid signature for non-current nonce', async function () {
         const request = await this.forgeRequest({ nonce: 1337n });
-        expect(await this.forwarder.verify(request)).to.be.equal(false);
+        expect(await this.forwarder.verify(request)).to.be.false;
       });
 
       it('returns false with valid signature for expired deadline', async function () {
         const request = await this.forgeRequest({ deadline: (await time.clock.timestamp()) - 1n });
-        expect(await this.forwarder.verify(request)).to.be.equal(false);
+        expect(await this.forwarder.verify(request)).to.be.false;
       });
     });
   });

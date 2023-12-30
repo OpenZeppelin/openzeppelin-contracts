@@ -40,7 +40,7 @@ describe('AuthorityUtils', function () {
           this.other,
           '0x12345678',
         );
-        expect(immediate).to.equal(false);
+        expect(immediate).to.be.false;
         expect(delay).to.be.equal(0n);
       });
     });
@@ -94,7 +94,7 @@ describe('AuthorityUtils', function () {
           this.other,
           '0x12345678',
         );
-        expect(immediate).to.equal(false);
+        expect(immediate).to.be.false;
         expect(delay).to.be.equal(0n);
       });
     });

@@ -47,8 +47,8 @@ describe('MerkleProof', function () {
       const hash = correctMerkleTree.leafHash(['a']);
       const proof = otherMerkleTree.getProof(['d']);
 
-      expect(await this.mock.$verify(proof, root, hash)).to.equal(false);
-      expect(await this.mock.$verifyCalldata(proof, root, hash)).to.equal(false);
+      expect(await this.mock.$verify(proof, root, hash)).to.be.false;
+      expect(await this.mock.$verifyCalldata(proof, root, hash)).to.be.false;
     });
 
     it('returns false for a Merkle proof of invalid length', async function () {
@@ -59,8 +59,8 @@ describe('MerkleProof', function () {
       const proof = merkleTree.getProof(['a']);
       const badProof = proof.slice(0, proof.length - 5);
 
-      expect(await this.mock.$verify(badProof, root, leaf)).to.equal(false);
-      expect(await this.mock.$verifyCalldata(badProof, root, leaf)).to.equal(false);
+      expect(await this.mock.$verify(badProof, root, leaf)).to.be.false;
+      expect(await this.mock.$verifyCalldata(badProof, root, leaf)).to.be.false;
     });
   });
 
@@ -84,8 +84,8 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = otherMerkleTree.getMultiProof(toElements('ghi'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
-      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.equal(false);
-      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.equal(false);
+      expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.false;
+      expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.false;
     });
 
     it('revert with invalid multi proof #1', async function () {

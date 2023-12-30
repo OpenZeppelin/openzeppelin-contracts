@@ -52,7 +52,7 @@ function shouldBehaveLikeAccessControl() {
 
   describe('revoking', function () {
     it('roles that are not had can be revoked', async function () {
-      expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+      expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
 
       await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
         this.mock,
@@ -70,7 +70,7 @@ function shouldBehaveLikeAccessControl() {
           .to.emit(this.mock, 'RoleRevoked')
           .withArgs(ROLE, this.authorized, this.defaultAdmin);
 
-        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
       });
 
       it('non-admin cannot revoke role', async function () {
@@ -108,7 +108,7 @@ function shouldBehaveLikeAccessControl() {
           .to.emit(this.mock, 'RoleRevoked')
           .withArgs(ROLE, this.authorized, this.authorized);
 
-        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
       });
 
       it('only the sender can renounce their roles', async function () {
