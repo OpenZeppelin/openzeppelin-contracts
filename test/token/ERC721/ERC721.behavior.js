@@ -82,7 +82,6 @@ function shouldBehaveLikeERC721() {
         it('adjusts owners tokens by index', async function () {
           if (!this.token.tokenOfOwnerByIndex) return;
 
-          await this.tx();
           expect(await this.token.tokenOfOwnerByIndex(this.to, 0n)).to.equal(tokenId);
           expect(await this.token.tokenOfOwnerByIndex(this.owner, 0n)).to.not.equal(tokenId);
         });

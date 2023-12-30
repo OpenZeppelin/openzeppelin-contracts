@@ -11,14 +11,14 @@ const otherTokenId = 2n;
 
 async function fixture() {
   const accounts = await ethers.getSigners();
-  const [owner, approved, other] = accounts;
+  const [owner, newOwner, approved, operator, other] = accounts;
 
   const underlying = await ethers.deployContract('$ERC721', [name, symbol]);
   await underlying.$_safeMint(owner, tokenId);
   await underlying.$_safeMint(owner, otherTokenId);
   const token = await ethers.deployContract('$ERC721Wrapper', [`Wrapped ${name}`, `W${symbol}`, underlying]);
 
-  return { accounts, owner, approved, other, underlying, token };
+  return { owner, newOwner, approved, operator, other, underlying, token };
 }
 
 describe('ERC721Wrapper', function () {
