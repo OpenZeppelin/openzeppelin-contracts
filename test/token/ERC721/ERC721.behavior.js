@@ -14,11 +14,6 @@ const fourthTokenId = 4n;
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
 function shouldBehaveLikeERC721() {
-  beforeEach(async function () {
-    const [owner, newOwner, approved, operator, other] = this.accounts;
-    Object.assign(this, { owner, newOwner, approved, operator, other });
-  });
-
   shouldSupportInterfaces(['ERC165', 'ERC721']);
 
   describe('with minted tokens', function () {
@@ -748,11 +743,6 @@ function shouldBehaveLikeERC721() {
 }
 
 function shouldBehaveLikeERC721Enumerable() {
-  beforeEach(async function () {
-    const [owner, newOwner, approved, operator, other] = this.accounts;
-    Object.assign(this, { owner, newOwner, approved, operator, other });
-  });
-
   shouldSupportInterfaces(['ERC721Enumerable']);
 
   describe('with minted tokens', function () {

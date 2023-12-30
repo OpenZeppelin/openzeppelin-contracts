@@ -7,13 +7,14 @@ const name = 'Non Fungible Token';
 const symbol = 'NFT';
 
 async function fixture() {
+  const [owner, newOwner, approved, operator, other] = await ethers.getSigners();
   return {
-    accounts: await ethers.getSigners(),
+    owner, newOwner, approved, operator, other,
     token: await ethers.deployContract('$ERC721', [name, symbol]),
   };
 }
 
-describe('ERC721', function () {
+describe.only('ERC721', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
