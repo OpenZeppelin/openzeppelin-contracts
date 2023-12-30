@@ -5,7 +5,7 @@ const {
   shouldBehaveLikeERC721,
   shouldBehaveLikeERC721Metadata,
   shouldBehaveLikeERC721Enumerable,
-} = require('./ERC721.behavior');
+} = require('../ERC721.behavior');
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';
