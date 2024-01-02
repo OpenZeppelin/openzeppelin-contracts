@@ -18,7 +18,7 @@ function shouldBehaveLikeAccessControl() {
 
   describe('default admin', function () {
     it('deployer has default admin role', async function () {
-      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.equal(true);
+      expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
     });
 
     it("other roles's admin is the default admin role", async function () {
@@ -52,7 +52,7 @@ function shouldBehaveLikeAccessControl() {
 
   describe('revoking', function () {
     it('roles that are not had can be revoked', async function () {
-      expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+      expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
 
       await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
         this.mock,
@@ -60,7 +60,7 @@ function shouldBehaveLikeAccessControl() {
       );
     });
 
-    context('with granted role', function () {
+    describe('with granted role', function () {
       beforeEach(async function () {
         await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });
@@ -70,7 +70,7 @@ function shouldBehaveLikeAccessControl() {
           .to.emit(this.mock, 'RoleRevoked')
           .withArgs(ROLE, this.authorized, this.defaultAdmin);
 
-        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
       });
 
       it('non-admin cannot revoke role', async function () {
@@ -98,7 +98,7 @@ function shouldBehaveLikeAccessControl() {
       );
     });
 
-    context('with granted role', function () {
+    describe('with granted role', function () {
       beforeEach(async function () {
         await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
       });
@@ -108,7 +108,7 @@ function shouldBehaveLikeAccessControl() {
           .to.emit(this.mock, 'RoleRevoked')
           .withArgs(ROLE, this.authorized, this.authorized);
 
-        expect(await this.mock.hasRole(ROLE, this.authorized)).to.equal(false);
+        expect(await this.mock.hasRole(ROLE, this.authorized)).to.be.false;
       });
 
       it('only the sender can renounce their roles', async function () {
@@ -666,7 +666,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       await this.mock.connect(this.other).renounceRole(DEFAULT_ADMIN_ROLE, this.other);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
-      expect(await this.mock.defaultAdmin()).to.be.equal(this.defaultAdmin);
+      expect(await this.mock.defaultAdmin()).to.equal(this.defaultAdmin);
     });
 
     it('renounces role', async function () {
@@ -676,7 +676,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
         .withArgs(DEFAULT_ADMIN_ROLE, this.defaultAdmin, this.defaultAdmin);
 
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.false;
-      expect(await this.mock.defaultAdmin()).to.be.equal(ethers.ZeroAddress);
+      expect(await this.mock.defaultAdmin()).to.equal(ethers.ZeroAddress);
       expect(await this.mock.owner()).to.equal(ethers.ZeroAddress);
 
       const { newAdmin, schedule } = await this.mock.pendingDefaultAdmin();

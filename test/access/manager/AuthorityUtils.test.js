@@ -40,8 +40,8 @@ describe('AuthorityUtils', function () {
           this.other,
           '0x12345678',
         );
-        expect(immediate).to.equal(false);
-        expect(delay).to.be.equal(0n);
+        expect(immediate).to.be.false;
+        expect(delay).to.equal(0n);
       });
     });
 
@@ -60,7 +60,7 @@ describe('AuthorityUtils', function () {
           '0x12345678',
         );
         expect(immediate).to.equal(this.immediate);
-        expect(delay).to.be.equal(0n);
+        expect(delay).to.equal(0n);
       });
     });
 
@@ -76,7 +76,7 @@ describe('AuthorityUtils', function () {
             await this.authority._setDelay(delay);
             const result = await this.mock.$canCallWithDelay(this.authority, this.user, this.other, '0x12345678');
             expect(result.immediate).to.equal(immediate);
-            expect(result.delay).to.be.equal(delay);
+            expect(result.delay).to.equal(delay);
           });
         }
       }
@@ -94,8 +94,8 @@ describe('AuthorityUtils', function () {
           this.other,
           '0x12345678',
         );
-        expect(immediate).to.equal(false);
-        expect(delay).to.be.equal(0n);
+        expect(immediate).to.be.false;
+        expect(delay).to.equal(0n);
       });
     });
   });

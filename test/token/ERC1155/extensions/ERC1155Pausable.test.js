@@ -18,7 +18,7 @@ describe('ERC1155Pausable', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  context('when token is paused', function () {
+  describe('when token is paused', function () {
     beforeEach(async function () {
       await this.token.connect(this.holder).setApprovalForAll(this.operator, true);
       await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');

@@ -124,7 +124,7 @@ function shouldBehaveLikeMap() {
 
     describe('get', function () {
       it('existing value', async function () {
-        expect(await this.methods.get(this.keyA)).to.be.equal(this.valueA);
+        expect(await this.methods.get(this.keyA)).to.equal(this.valueA);
       });
 
       it('missing value', async function () {

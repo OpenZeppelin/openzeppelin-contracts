@@ -36,7 +36,7 @@ describe('ProxyAdmin', function () {
   });
 
   describe('without data', function () {
-    context('with unauthorized account', function () {
+    describe('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         await expect(this.proxyAdmin.connect(this.other).upgradeAndCall(this.proxy, this.v2, '0x'))
           .to.be.revertedWithCustomError(this.proxyAdmin, 'OwnableUnauthorizedAccount')
@@ -44,16 +44,16 @@ describe('ProxyAdmin', function () {
       });
     });
 
-    context('with authorized account', function () {
+    describe('with authorized account', function () {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, '0x');
-        expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.v2);
+        expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.v2);
       });
     });
   });
 
   describe('with data', function () {
-    context('with unauthorized account', function () {
+    describe('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         const data = this.v1.interface.encodeFunctionData('initializeNonPayableWithValue', [1337n]);
         await expect(this.proxyAdmin.connect(this.other).upgradeAndCall(this.proxy, this.v2, data))
@@ -62,19 +62,19 @@ describe('ProxyAdmin', function () {
       });
     });
 
-    context('with authorized account', function () {
-      context('with invalid callData', function () {
+    describe('with authorized account', function () {
+      describe('with invalid callData', function () {
         it('fails to upgrade', async function () {
           const data = '0x12345678';
           await expect(this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data)).to.be.reverted;
         });
       });
 
-      context('with valid callData', function () {
+      describe('with valid callData', function () {
         it('upgrades implementation', async function () {
           const data = this.v2.interface.encodeFunctionData('initializeNonPayableWithValue', [1337n]);
           await this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data);
-          expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.be.equal(this.v2);
+          expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.v2);
         });
       });
     });

@@ -85,7 +85,7 @@ describe('Arrays', function () {
           it(name, async function () {
             // findUpperBound does not support duplicated
             if (hasDuplicates(array)) this.skip();
-            expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+            expect(await this.mock.findUpperBound(input)).to.equal(lowerBound(array, input));
           });
         }
       });
@@ -114,7 +114,7 @@ describe('Arrays', function () {
     for (const [name, { elements }] of Object.entries(contractCases)) {
       it(name, async function () {
         for (const i in elements) {
-          expect(await this.contracts[name].unsafeAccess(i)).to.be.equal(elements[i]);
+          expect(await this.contracts[name].unsafeAccess(i)).to.equal(elements[i]);
         }
       });
     }

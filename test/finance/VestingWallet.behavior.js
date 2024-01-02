@@ -7,8 +7,8 @@ function shouldBehaveLikeVesting() {
       await time.increaseTo.timestamp(timestamp);
       const vesting = this.vestingFn(timestamp);
 
-      expect(await this.mock.vestedAmount(...this.args, timestamp)).to.be.equal(vesting);
-      expect(await this.mock.releasable(...this.args)).to.be.equal(vesting);
+      expect(await this.mock.vestedAmount(...this.args, timestamp)).to.equal(vesting);
+      expect(await this.mock.releasable(...this.args)).to.equal(vesting);
     }
   });
 
