@@ -1,10 +1,17 @@
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
-const ERC165 = artifacts.require('$ERC165');
+async function fixture() {
+  return {
+    mock: await ethers.deployContract('$ERC165'),
+  };
+}
 
-contract('ERC165', function () {
+describe('ERC165', function () {
   beforeEach(async function () {
-    this.mock = await ERC165.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
   shouldSupportInterfaces(['ERC165']);

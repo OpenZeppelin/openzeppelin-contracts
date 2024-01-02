@@ -51,7 +51,7 @@ describe('ERC721Consecutive', function () {
                   first /* fromTokenId */,
                   first + batch.amount - 1n /* toTokenId */,
                   ethers.ZeroAddress /* fromAddress */,
-                  batch.receiver.address /* toAddress */,
+                  batch.receiver /* toAddress */,
                 );
             } else {
               // ".to.not.emit" only looks at event name, and doesn't check the parameters
@@ -125,7 +125,7 @@ describe('ERC721Consecutive', function () {
 
           await expect(this.token.$_mint(this.alice, tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, this.alice.address, tokenId);
+            .withArgs(ethers.ZeroAddress, this.alice, tokenId);
         });
 
         it('cannot mint a token that has been batched minted', async function () {
@@ -145,13 +145,13 @@ describe('ERC721Consecutive', function () {
         it('core takes over ownership on transfer', async function () {
           await this.token.connect(this.alice).transferFrom(this.alice, this.receiver, tokenId);
 
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.receiver.address);
+          expect(await this.token.ownerOf(tokenId)).to.equal(this.receiver);
         });
 
         it('tokens can be burned and re-minted #1', async function () {
           await expect(this.token.connect(this.alice).$_burn(tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.alice.address, ethers.ZeroAddress, tokenId);
+            .withArgs(this.alice, ethers.ZeroAddress, tokenId);
 
           await expect(this.token.ownerOf(tokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
@@ -159,9 +159,9 @@ describe('ERC721Consecutive', function () {
 
           await expect(this.token.$_mint(this.bruce, tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, this.bruce.address, tokenId);
+            .withArgs(ethers.ZeroAddress, this.bruce, tokenId);
 
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.bruce.address);
+          expect(await this.token.ownerOf(tokenId)).to.equal(this.bruce);
         });
 
         it('tokens can be burned and re-minted #2', async function () {
@@ -174,14 +174,14 @@ describe('ERC721Consecutive', function () {
           // mint
           await expect(this.token.$_mint(this.alice, tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, this.alice.address, tokenId);
+            .withArgs(ethers.ZeroAddress, this.alice, tokenId);
 
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.alice.address);
+          expect(await this.token.ownerOf(tokenId)).to.equal(this.alice);
 
           // burn
           await expect(await this.token.$_burn(tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.alice.address, ethers.ZeroAddress, tokenId);
+            .withArgs(this.alice, ethers.ZeroAddress, tokenId);
 
           await expect(this.token.ownerOf(tokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
@@ -190,9 +190,9 @@ describe('ERC721Consecutive', function () {
           // re-mint
           await expect(this.token.$_mint(this.bruce, tokenId))
             .to.emit(this.token, 'Transfer')
-            .withArgs(ethers.ZeroAddress, this.bruce.address, tokenId);
+            .withArgs(ethers.ZeroAddress, this.bruce, tokenId);
 
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.bruce.address);
+          expect(await this.token.ownerOf(tokenId)).to.equal(this.bruce);
         });
       });
     });

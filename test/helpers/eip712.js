@@ -1,4 +1,4 @@
-const { ethers } = require('ethers');
+const { ethers } = require('hardhat');
 const types = require('./eip712-types');
 
 async function getDomain(contract) {
@@ -11,8 +11,7 @@ async function getDomain(contract) {
   const domain = {
     name,
     version,
-    // TODO: remove check when contracts are all migrated to ethers
-    chainId: web3.utils.isBN(chainId) ? chainId.toNumber() : chainId,
+    chainId,
     verifyingContract,
     salt,
   };

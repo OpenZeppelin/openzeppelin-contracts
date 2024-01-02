@@ -4,7 +4,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { formatType } = require('../../helpers/eip712-types');
-const { getChainId } = require('../../helpers/chainid');
 
 const LENGTHS = {
   short: ['A Name', '1'],
@@ -21,7 +20,7 @@ const fixture = async () => {
     lengths[shortOrLong].domain = {
       name,
       version,
-      chainId: await getChainId(),
+      chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
       verifyingContract: lengths[shortOrLong].eip712.target,
     };
   }

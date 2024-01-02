@@ -1,112 +1,104 @@
-const { BN } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { expectRevertCustomError } = require('../../../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC1155Pausable = artifacts.require('$ERC1155Pausable');
+async function fixture() {
+  const [holder, operator, receiver, other] = await ethers.getSigners();
+  const token = await ethers.deployContract('$ERC1155Pausable', ['https://token-cdn-domain/{id}.json']);
+  return { token, holder, operator, receiver, other };
+}
 
-contract('ERC1155Pausable', function (accounts) {
-  const [holder, operator, receiver, other] = accounts;
-
-  const uri = 'https://token.com';
+describe('ERC1155Pausable', function () {
+  const firstTokenId = 37n;
+  const firstTokenValue = 42n;
+  const secondTokenId = 19842n;
+  const secondTokenValue = 23n;
 
   beforeEach(async function () {
-    this.token = await ERC1155Pausable.new(uri);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   context('when token is paused', function () {
-    const firstTokenId = new BN('37');
-    const firstTokenValue = new BN('42');
-
-    const secondTokenId = new BN('19842');
-    const secondTokenValue = new BN('23');
-
     beforeEach(async function () {
-      await this.token.setApprovalForAll(operator, true, { from: holder });
-      await this.token.$_mint(holder, firstTokenId, firstTokenValue, '0x');
-
+      await this.token.connect(this.holder).setApprovalForAll(this.operator, true);
+      await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
       await this.token.$_pause();
     });
 
     it('reverts when trying to safeTransferFrom from holder', async function () {
-      await expectRevertCustomError(
-        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenValue, '0x', { from: holder }),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token
+          .connect(this.holder)
+          .safeTransferFrom(this.holder, this.receiver, firstTokenId, firstTokenValue, '0x'),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to safeTransferFrom from operator', async function () {
-      await expectRevertCustomError(
-        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenValue, '0x', { from: operator }),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token
+          .connect(this.operator)
+          .safeTransferFrom(this.holder, this.receiver, firstTokenId, firstTokenValue, '0x'),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to safeBatchTransferFrom from holder', async function () {
-      await expectRevertCustomError(
-        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenValue], '0x', { from: holder }),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token
+          .connect(this.holder)
+          .safeBatchTransferFrom(this.holder, this.receiver, [firstTokenId], [firstTokenValue], '0x'),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to safeBatchTransferFrom from operator', async function () {
-      await expectRevertCustomError(
-        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenValue], '0x', {
-          from: operator,
-        }),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token
+          .connect(this.operator)
+          .safeBatchTransferFrom(this.holder, this.receiver, [firstTokenId], [firstTokenValue], '0x'),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevertCustomError(
-        this.token.$_mint(holder, secondTokenId, secondTokenValue, '0x'),
+      await expect(this.token.$_mint(this.holder, secondTokenId, secondTokenValue, '0x')).to.be.revertedWithCustomError(
+        this.token,
         'EnforcedPause',
-        [],
       );
     });
 
     it('reverts when trying to mintBatch', async function () {
-      await expectRevertCustomError(
-        this.token.$_mintBatch(holder, [secondTokenId], [secondTokenValue], '0x'),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token.$_mintBatch(this.holder, [secondTokenId], [secondTokenValue], '0x'),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to burn', async function () {
-      await expectRevertCustomError(this.token.$_burn(holder, firstTokenId, firstTokenValue), 'EnforcedPause', []);
+      await expect(this.token.$_burn(this.holder, firstTokenId, firstTokenValue)).to.be.revertedWithCustomError(
+        this.token,
+        'EnforcedPause',
+      );
     });
 
     it('reverts when trying to burnBatch', async function () {
-      await expectRevertCustomError(
-        this.token.$_burnBatch(holder, [firstTokenId], [firstTokenValue]),
-        'EnforcedPause',
-        [],
-      );
+      await expect(
+        this.token.$_burnBatch(this.holder, [firstTokenId], [firstTokenValue]),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     describe('setApprovalForAll', function () {
       it('approves an operator', async function () {
-        await this.token.setApprovalForAll(other, true, { from: holder });
-        expect(await this.token.isApprovedForAll(holder, other)).to.equal(true);
+        await this.token.connect(this.holder).setApprovalForAll(this.other, true);
+        expect(await this.token.isApprovedForAll(this.holder, this.other)).to.be.true;
       });
     });
 
     describe('balanceOf', function () {
       it('returns the token value owned by the given address', async function () {
-        const balance = await this.token.balanceOf(holder, firstTokenId);
-        expect(balance).to.be.bignumber.equal(firstTokenValue);
+        expect(await this.token.balanceOf(this.holder, firstTokenId)).to.equal(firstTokenValue);
       });
     });
 
     describe('isApprovedForAll', function () {
       it('returns the approval of the operator', async function () {
-        expect(await this.token.isApprovedForAll(holder, operator)).to.equal(true);
+        expect(await this.token.isApprovedForAll(this.holder, this.operator)).to.be.true;
       });
     });
   });

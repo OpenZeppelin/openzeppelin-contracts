@@ -56,7 +56,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             it('emits a transfer event', async function () {
               await expect(this.tx)
                 .to.emit(this.token, 'Transfer')
-                .withArgs(this.holder.address, this.other.address, value);
+                .withArgs(this.holder, this.other, value);
             });
 
             if (forcedApproval) {
@@ -81,7 +81,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             await this.token.connect(this.holder).transfer(this.other, 1n);
             await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-              .withArgs(this.holder.address, value - 1n, value);
+              .withArgs(this.holder, value - 1n, value);
           });
         });
 
@@ -96,7 +96,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             const value = initialSupply;
             await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
-              .withArgs(this.recipient.address, allowance, value);
+              .withArgs(this.recipient, allowance, value);
           });
 
           it('reverts when the token owner does not have enough balance', async function () {
@@ -104,7 +104,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             await this.token.connect(this.holder).transfer(this.other, 2);
             await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
               .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-              .withArgs(this.holder.address, value - 1n, value);
+              .withArgs(this.holder, value - 1n, value);
           });
         });
 
@@ -156,7 +156,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       const value = balance + 1n;
       await expect(this.transfer(this.holder, this.recipient, value))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-        .withArgs(this.holder.address, balance, value);
+        .withArgs(this.holder, balance, value);
     });
 
     describe('when the sender transfers all balance', function () {
@@ -171,9 +171,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('emits a transfer event', async function () {
-        await expect(this.tx)
-          .to.emit(this.token, 'Transfer')
-          .withArgs(this.holder.address, this.recipient.address, value);
+        await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.holder, this.recipient, value);
       });
     });
 
@@ -189,9 +187,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('emits a transfer event', async function () {
-        await expect(this.tx)
-          .to.emit(this.token, 'Transfer')
-          .withArgs(this.holder.address, this.recipient.address, value);
+        await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.holder, this.recipient, value);
       });
     });
   });
@@ -211,7 +207,7 @@ function shouldBehaveLikeERC20Approve(supply) {
       it('emits an approval event', async function () {
         await expect(this.approve(this.holder, this.recipient, value))
           .to.emit(this.token, 'Approval')
-          .withArgs(this.holder.address, this.recipient.address, value);
+          .withArgs(this.holder, this.recipient, value);
       });
 
       it('approves the requested value when there was no approved value before', async function () {
@@ -234,7 +230,7 @@ function shouldBehaveLikeERC20Approve(supply) {
       it('emits an approval event', async function () {
         await expect(this.approve(this.holder, this.recipient, value))
           .to.emit(this.token, 'Approval')
-          .withArgs(this.holder.address, this.recipient.address, value);
+          .withArgs(this.holder, this.recipient, value);
       });
 
       it('approves the requested value when there was no approved value before', async function () {

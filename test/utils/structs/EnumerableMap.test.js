@@ -1,5 +1,6 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { mapValues } = require('../../helpers/iterate');
 const { randomArray, generators } = require('../../helpers/random');
 const { TYPES, formatType } = require('../../../scripts/generate/templates/EnumerableMap.opts');
