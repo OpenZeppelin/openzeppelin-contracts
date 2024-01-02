@@ -109,9 +109,7 @@ describe('ERC20', function () {
               });
 
               it('emits Transfer event', async function () {
-                await expect(this.tx)
-                  .to.emit(this.token, 'Transfer')
-                  .withArgs(this.holder, ethers.ZeroAddress, value);
+                await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.holder, ethers.ZeroAddress, value);
               });
             });
           };

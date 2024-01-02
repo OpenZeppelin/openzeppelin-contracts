@@ -54,9 +54,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             });
 
             it('emits a transfer event', async function () {
-              await expect(this.tx)
-                .to.emit(this.token, 'Transfer')
-                .withArgs(this.holder, this.other, value);
+              await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.holder, this.other, value);
             });
 
             if (forcedApproval) {
