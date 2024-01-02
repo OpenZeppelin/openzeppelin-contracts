@@ -37,6 +37,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * {IERC1363Receiver-onTransferReceived}
      */
     function transferAndCall(address to, uint256 value) public virtual returns (bool) {
         return transferAndCall(to, value, "");
@@ -44,6 +47,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * {IERC1363Receiver-onTransferReceived}
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
         transfer(to, value);
@@ -53,6 +59,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * {IERC1363Receiver-onTransferReceived}
      */
     function transferFromAndCall(address from, address to, uint256 value) public virtual returns (bool) {
         return transferFromAndCall(from, to, value, "");
@@ -60,6 +69,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * {IERC1363Receiver-onTransferReceived}
      */
     function transferFromAndCall(
         address from,
@@ -74,6 +86,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `spender` is an account without code or the spender contract does not implement
+     * {IERC1363Spender-onApprovalReceived}
      */
     function approveAndCall(address spender, uint256 value) public virtual returns (bool) {
         return approveAndCall(spender, value, "");
@@ -81,6 +96,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @inheritdoc IERC1363
+     *
+     * @notice Reverts if `spender` is an account without code or the spender contract does not implement
+     * {IERC1363Spender-onApprovalReceived}
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
         approve(spender, value);
