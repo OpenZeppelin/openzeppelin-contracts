@@ -26,7 +26,7 @@ describe('ERC2771Context', function () {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.context.isTrustedForwarder(this.forwarder)).to.equal(true);
+    expect(await this.context.isTrustedForwarder(this.forwarder)).to.be.true;
   });
 
   it('returns the trusted forwarder', async function () {
@@ -55,7 +55,7 @@ describe('ERC2771Context', function () {
 
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
         await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
@@ -87,7 +87,7 @@ describe('ERC2771Context', function () {
 
         req.signature = this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
@@ -126,7 +126,7 @@ describe('ERC2771Context', function () {
 
     req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-    expect(await this.forwarder.verify(req)).to.equal(true);
+    expect(await this.forwarder.verify(req)).to.be.true;
 
     await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
