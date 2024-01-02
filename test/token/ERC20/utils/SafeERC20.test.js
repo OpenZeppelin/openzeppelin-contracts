@@ -6,24 +6,31 @@ const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
 
 async function fixture() {
-  const [hasNoCode, owner, receiver, spender] = await ethers.getSigners();
+  const [hasNoCode, owner, receiver, spender, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$SafeERC20');
   const erc20ReturnFalseMock = await ethers.deployContract('$ERC20ReturnFalseMock', [name, symbol]);
   const erc20ReturnTrueMock = await ethers.deployContract('$ERC20', [name, symbol]); // default implementation returns true
   const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
   const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
+  const erc1363Mock = await ethers.deployContract('$ERC1363', [name, symbol]);
+  const erc1363Receiver = await ethers.deployContract('$ERC1363ReceiverMock');
+  const erc1363Spender = await ethers.deployContract('$ERC1363SpenderMock');
 
   return {
     hasNoCode,
     owner,
     receiver,
     spender,
+    other,
     mock,
     erc20ReturnFalseMock,
     erc20ReturnTrueMock,
     erc20NoReturnMock,
     erc20ForceApproveMock,
+    erc1363Mock,
+    erc1363Receiver,
+    erc1363Spender,
   };
 }
 
@@ -146,142 +153,93 @@ describe('SafeERC20', function () {
   });
 
   describe('with ERC1363', function () {
-    const value = web3.utils.toBN(100);
+    const value = 100n;
     const data = '0x12345678';
 
     beforeEach(async function () {
-      this.token = await ERC1363.new(name, symbol);
+      this.token = this.erc1363Mock;
     });
 
-    shouldOnlyRevertOnErrors(accounts);
+    shouldOnlyRevertOnErrors();
 
     describe('transferAndCall', function () {
       it('cannot transferAndCall to an EOA directly', async function () {
-        await this.token.$_mint(owner, 100);
+        await this.token.$_mint(this.owner, 100n);
 
-        await expectRevertCustomError(
-          this.token.methods['transferAndCall(address,uint256,bytes)'](receiver, value, data, { from: owner }),
-          'ERC1363InvalidReceiver',
-          [receiver],
-        );
+        await expect(this.token.connect(this.owner).transferAndCall(this.receiver, value, ethers.Typed.bytes(data)))
+          .to.be.revertedWithCustomError(this.token, 'ERC1363InvalidReceiver')
+          .withArgs(this.receiver);
       });
 
       it('can transferAndCall to an EOA using helper', async function () {
-        await this.token.$_mint(this.mock.address, value);
+        await this.token.$_mint(this.mock, value);
 
-        const { tx } = await this.mock.$transferAndCallRelaxed(this.token.address, receiver, value, data);
-        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-          from: this.mock.address,
-          to: receiver,
-          value,
-        });
+        await expect(this.mock.$transferAndCallRelaxed(this.token, this.receiver, value, data))
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.mock, this.receiver, value);
       });
 
       it('can transferAndCall to an ERC1363Receiver using helper', async function () {
-        const receiver = await ERC1363ReceiverMock.new();
+        await this.token.$_mint(this.mock, value);
 
-        await this.token.$_mint(this.mock.address, value);
-
-        const { tx } = await this.mock.$transferAndCallRelaxed(this.token.address, receiver.address, value, data);
-        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-          from: this.mock.address,
-          to: receiver.address,
-          value,
-        });
-        await expectEvent.inTransaction(tx, receiver, 'Received', {
-          operator: this.mock.address,
-          from: this.mock.address,
-          value,
-          data,
-        });
+        await expect(this.mock.$transferAndCallRelaxed(this.token, this.erc1363Receiver, value, data))
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.mock, this.erc1363Receiver, value)
+          .to.emit(this.erc1363Receiver, 'Received')
+          .withArgs(this.mock, this.mock, value, data);
       });
     });
 
     describe('transferFromAndCall', function () {
       it('cannot transferFromAndCall to an EOA directly', async function () {
-        await this.token.$_mint(owner, value);
-        await this.token.approve(other, constants.MAX_UINT256, { from: owner });
+        await this.token.$_mint(this.owner, value);
+        await this.token.$_approve(this.owner, this.other, ethers.MaxUint256);
 
-        await expectRevertCustomError(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](owner, receiver, value, data, {
-            from: other,
-          }),
-          'ERC1363InvalidReceiver',
-          [receiver],
-        );
+        await expect(this.token.connect(this.other).transferFromAndCall(this.owner, this.receiver, value, ethers.Typed.bytes(data)))
+          .to.be.revertedWithCustomError(this.token, 'ERC1363InvalidReceiver')
+          .withArgs(this.receiver);
       });
 
       it('can transferFromAndCall to an EOA using helper', async function () {
-        await this.token.$_mint(owner, value);
-        await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
+        await this.token.$_mint(this.owner, value);
+        await this.token.$_approve(this.owner, this.mock, ethers.MaxUint256);
 
-        const { tx } = await this.mock.$transferFromAndCallRelaxed(this.token.address, owner, receiver, value, data);
-        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-          from: owner,
-          to: receiver,
-          value,
-        });
+        await expect(this.mock.$transferFromAndCallRelaxed(this.token, this.owner, this.receiver, value, data))
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.owner, this.receiver, value);
       });
 
       it('can transferFromAndCall to an ERC1363Receiver using helper', async function () {
-        const receiver = await ERC1363ReceiverMock.new();
+        await this.token.$_mint(this.owner, value);
+        await this.token.$_approve(this.owner, this.mock, ethers.MaxUint256);
 
-        await this.token.$_mint(owner, value);
-        await this.token.approve(this.mock.address, constants.MAX_UINT256, { from: owner });
-
-        const { tx } = await this.mock.$transferFromAndCallRelaxed(
-          this.token.address,
-          owner,
-          receiver.address,
-          value,
-          data,
-        );
-        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-          from: owner,
-          to: receiver.address,
-          value,
-        });
-        await expectEvent.inTransaction(tx, receiver, 'Received', {
-          operator: this.mock.address,
-          from: owner,
-          value,
-          data,
-        });
+        await expect(this.mock.$transferFromAndCallRelaxed(this.token, this.owner, this.erc1363Receiver, value, data))
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.owner, this.erc1363Receiver, value)
+          .to.emit(this.erc1363Receiver, 'Received')
+          .withArgs(this.mock, this.owner, value, data);
       });
     });
 
     describe('approveAndCall', function () {
       it('cannot approveAndCall to an EOA directly', async function () {
-        await expectRevertCustomError(
-          this.token.methods['approveAndCall(address,uint256,bytes)'](receiver, value, data),
-          'ERC1363InvalidSpender',
-          [receiver],
-        );
+        await expect(this.token.approveAndCall(this.receiver, value, ethers.Typed.bytes(data)))
+          .to.revertedWithCustomError(this.token, 'ERC1363InvalidSpender')
+          .withArgs(this.receiver);
       });
 
       it('can approveAndCall to an EOA using helper', async function () {
-        const { tx } = await this.mock.$approveAndCallRelaxed(this.token.address, receiver, value, data);
-        await expectEvent.inTransaction(tx, this.token, 'Approval', {
-          owner: this.mock.address,
-          spender: receiver,
-          value,
-        });
+        await expect(this.mock.$approveAndCallRelaxed(this.token, this.receiver, value, data))
+          .to.emit(this.token, 'Approval')
+          .withArgs(this.mock, this.receiver, value);
       });
 
       it('can approveAndCall to an ERC1363Spender using helper', async function () {
-        const spender = await ERC1363SpenderMock.new();
-
-        const { tx } = await this.mock.$approveAndCallRelaxed(this.token.address, spender.address, value, data);
-        await expectEvent.inTransaction(tx, this.token, 'Approval', {
-          owner: this.mock.address,
-          spender: spender.address,
-          value,
-        });
-        await expectEvent.inTransaction(tx, spender, 'Approved', {
-          owner: this.mock.address,
-          value,
-          data,
-        });
+        await expect(this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, value, data))
+          .to.emit(this.token, 'Approval')
+          .withArgs(this.mock, this.erc1363Spender, value)
+          .to.emit(this.erc1363Spender, 'Approved')
+          .withArgs(this.mock, value, data);
       });
     });
   });

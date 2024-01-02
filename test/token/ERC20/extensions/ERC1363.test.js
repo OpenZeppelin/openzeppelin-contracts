@@ -4,9 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
-const {
-  bigint: { RevertType },
-} = require('../../../helpers/enums.js');
+const { RevertType } = require('../../../helpers/enums.js');
 
 const name = 'My Token';
 const symbol = 'MTKN';
