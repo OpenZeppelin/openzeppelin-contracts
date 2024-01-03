@@ -169,7 +169,7 @@ function shouldBehaveLikeERC721() {
             beforeEach(async function () {
               this.tx = await this.token
                 .connect(this.other)
-                [fragment](this.owner, this.other, tokenId, ...(opts.extra ?? []));
+                [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
             });
 
             transferWasSuccessful();
