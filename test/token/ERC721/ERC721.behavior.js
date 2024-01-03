@@ -86,11 +86,11 @@ function shouldBehaveLikeERC721(extraTxTests) {
       //  - extra: extra arguments
       //  - unrestricted: operator does not need to be allowed
       const shouldTransferTokensByUsers = function (fragment, opts = {}) {
+        const extra = opts.extra ?? [];
+
         describe('when called by the owner', function () {
           beforeEach(async function () {
-            this.tx = await this.token
-              .connect(this.owner)
-              [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
+            this.tx = await this.token.connect(this.owner)[fragment](this.owner, this.to, tokenId, ...extra);
           });
 
           transferWasSuccessful();
@@ -98,9 +98,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
 
         describe('when called by the approved individual', function () {
           beforeEach(async function () {
-            this.tx = await this.token
-              .connect(this.approved)
-              [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
+            this.tx = await this.token.connect(this.approved)[fragment](this.owner, this.to, tokenId, ...extra);
           });
 
           transferWasSuccessful();
@@ -108,9 +106,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
 
         describe('when called by the operator', function () {
           beforeEach(async function () {
-            this.tx = await this.token
-              .connect(this.operator)
-              [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
+            this.tx = await this.token.connect(this.operator)[fragment](this.owner, this.to, tokenId, ...extra);
           });
 
           transferWasSuccessful();
@@ -119,9 +115,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
         describe('when called by the owner without an approved user', function () {
           beforeEach(async function () {
             await this.token.connect(this.owner).approve(ethers.ZeroAddress, tokenId);
-            this.tx = await this.token
-              .connect(this.operator)
-              [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
+            this.tx = await this.token.connect(this.operator)[fragment](this.owner, this.to, tokenId, ...extra);
           });
 
           transferWasSuccessful();
@@ -129,9 +123,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
 
         describe('when sent to the owner', function () {
           beforeEach(async function () {
-            this.tx = await this.token
-              .connect(this.owner)
-              [fragment](this.owner, this.owner, tokenId, ...(opts.extra ?? []));
+            this.tx = await this.token.connect(this.owner)[fragment](this.owner, this.owner, tokenId, ...extra);
           });
 
           it('keeps ownership of the token', async function () {
@@ -156,9 +148,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
         if (opts.unrestricted)
           describe('when the address of the previous owner is incorrect', function () {
             beforeEach(async function () {
-              this.tx = await this.token
-                .connect(this.other)
-                [fragment](this.owner, this.to, tokenId, ...(opts.extra ?? []));
+              this.tx = await this.token.connect(this.other)[fragment](this.owner, this.to, tokenId, ...extra);
             });
 
             transferWasSuccessful();
@@ -166,36 +156,26 @@ function shouldBehaveLikeERC721(extraTxTests) {
 
         describe('reverts', function () {
           it('when the address of the previous owner is incorrect', async function () {
-            await expect(
-              this.token.connect(this.owner)[fragment](this.other, this.other, tokenId, ...(opts.extra ?? [])),
-            )
+            await expect(this.token.connect(this.owner)[fragment](this.other, this.other, tokenId, ...extra))
               .to.be.revertedWithCustomError(this.token, 'ERC721IncorrectOwner')
               .withArgs(this.other, tokenId, this.owner);
           });
 
           if (!opts.unrestricted)
             it('when the sender is not authorized for the token id', async function () {
-              await expect(
-                this.token.connect(this.other)[fragment](this.owner, this.other, tokenId, ...(opts.extra ?? [])),
-              )
+              await expect(this.token.connect(this.other)[fragment](this.owner, this.other, tokenId, ...extra))
                 .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
                 .withArgs(this.other, tokenId);
             });
 
           it('when the given token ID does not exist', async function () {
-            await expect(
-              this.token
-                .connect(this.owner)
-                [fragment](this.owner, this.other, nonExistentTokenId, ...(opts.extra ?? [])),
-            )
+            await expect(this.token.connect(this.owner)[fragment](this.owner, this.other, nonExistentTokenId, ...extra))
               .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
               .withArgs(nonExistentTokenId);
           });
 
           it('when the address to transfer the token to is the zero address', async function () {
-            await expect(
-              this.token.connect(this.owner)[fragment](this.owner, ethers.ZeroAddress, tokenId, ...(opts.extra ?? [])),
-            )
+            await expect(this.token.connect(this.owner)[fragment](this.owner, ethers.ZeroAddress, tokenId, ...extra))
               .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
               .withArgs(ethers.ZeroAddress);
           });
@@ -206,6 +186,8 @@ function shouldBehaveLikeERC721(extraTxTests) {
       // - extra: extra arguments
       // - unrestricted: operator does not need to be allowed
       const shouldTransferSafely = function (fragment, data, opts = {}) {
+        const extra = opts.extra ?? [];
+
         // sanity
         it('function exists', async function () {
           expect(this.token.interface.hasFunction(fragment)).to.be.true;
@@ -223,25 +205,19 @@ function shouldBehaveLikeERC721(extraTxTests) {
           shouldTransferTokensByUsers(fragment, opts);
 
           it('calls onERC721Received', async function () {
-            await expect(this.token.connect(this.owner)[fragment](this.owner, this.to, tokenId, ...(opts.extra ?? [])))
+            await expect(this.token.connect(this.owner)[fragment](this.owner, this.to, tokenId, ...extra))
               .to.emit(this.to, 'Received')
               .withArgs(this.owner, this.owner, tokenId, data, anyValue);
           });
 
           it('calls onERC721Received from approved', async function () {
-            await expect(
-              this.token.connect(this.approved)[fragment](this.owner, this.to, tokenId, ...(opts.extra ?? [])),
-            )
+            await expect(this.token.connect(this.approved)[fragment](this.owner, this.to, tokenId, ...extra))
               .to.emit(this.to, 'Received')
               .withArgs(this.approved, this.owner, tokenId, data, anyValue);
           });
 
           it('with an invalid token id', async function () {
-            await expect(
-              this.token
-                .connect(this.approved)
-                [fragment](this.owner, this.to, nonExistentTokenId, ...(opts.extra ?? [])),
-            )
+            await expect(this.token.connect(this.approved)[fragment](this.owner, this.to, nonExistentTokenId, ...extra))
               .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
               .withArgs(nonExistentTokenId);
           });
