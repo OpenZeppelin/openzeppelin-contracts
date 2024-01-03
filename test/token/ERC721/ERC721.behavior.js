@@ -80,13 +80,16 @@ function shouldBehaveLikeERC721() {
         });
 
         it('adjusts owners tokens by index', async function () {
-          if (!this.token.tokenOfOwnerByIndex) return;
+          if (!this.token.tokenOfOwnerByIndex) this.skip();
 
           expect(await this.token.tokenOfOwnerByIndex(this.to, 0n)).to.equal(tokenId);
           expect(await this.token.tokenOfOwnerByIndex(this.owner, 0n)).to.not.equal(tokenId);
         });
       };
 
+      // opts:
+      //  - extra: extra arguments
+      //  - unrestricted: operator does not need to be allowed
       const shouldTransferTokensByUsers = function (fragment, opts = {}) {
         describe('when called by the owner', function () {
           beforeEach(async function () {
@@ -153,13 +156,24 @@ function shouldBehaveLikeERC721() {
           });
 
           it('keeps same tokens by index', async function () {
-            if (!this.token.tokenOfOwnerByIndex) return;
+            if (!this.token.tokenOfOwnerByIndex) this.skip();
 
             expect(await Promise.all([0n, 1n].map(i => this.token.tokenOfOwnerByIndex(this.owner, i)))).to.have.members(
               [firstTokenId, secondTokenId],
             );
           });
         });
+
+        if (opts.unrestricted)
+          describe('when the address of the previous owner is incorrect', function () {
+            beforeEach(async function () {
+              this.tx = await this.token
+                .connect(this.other)
+                [fragment](this.owner, this.other, tokenId, ...(opts.extra ?? []));
+            });
+
+            transferWasSuccessful();
+          });
 
         describe('reverts', function () {
           it('when the address of the previous owner is incorrect', async function () {
@@ -170,17 +184,14 @@ function shouldBehaveLikeERC721() {
               .withArgs(this.other, tokenId, this.owner);
           });
 
-          it('when the sender is not authorized for the token id', async function () {
-            if (opts.unrestricted) {
-              await this.token.connect(this.other)[fragment](this.owner, this.other, tokenId, ...(opts.extra ?? []));
-            } else {
+          if (!opts.unrestricted)
+            it('when the sender is not authorized for the token id', async function () {
               await expect(
                 this.token.connect(this.other)[fragment](this.owner, this.other, tokenId, ...(opts.extra ?? [])),
               )
                 .to.be.revertedWithCustomError(this.token, 'ERC721InsufficientApproval')
                 .withArgs(this.other, tokenId);
-            }
-          });
+            });
 
           it('when the given token ID does not exist', async function () {
             await expect(
@@ -202,6 +213,9 @@ function shouldBehaveLikeERC721() {
         });
       };
 
+      // opts:
+      // - extra: extra arguments
+      // - unrestricted: operator does not need to be allowed
       const shouldTransferSafely = function (fragment, data, opts = {}) {
         // sanity
         it('function exists', async function () {
