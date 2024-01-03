@@ -23,24 +23,26 @@ async function fixture() {
   };
 }
 
+const EXTRA_TX_TESTS_ENUMERABLE = {
+  different: function (tokenId) {
+    it('adjusts owners tokens by index', async function () {
+      expect(await this.token.tokenOfOwnerByIndex(this.to, 0n)).to.equal(tokenId);
+      expect(await this.token.tokenOfOwnerByIndex(this.owner, 0n)).to.not.equal(tokenId);
+    });
+  },
+  same: function (ids) {
+    it('keeps same tokens by index', async function () {
+      for (const index in ids) expect(await this.token.tokenOfOwnerByIndex(this.owner, index)).to.equal(ids[index]);
+    });
+  },
+};
+
 describe('ERC721Enumerable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeERC721({
-    different: function (tokenId) {
-      it('adjusts owners tokens by index', async function () {
-        expect(await this.token.tokenOfOwnerByIndex(this.to, 0n)).to.equal(tokenId);
-        expect(await this.token.tokenOfOwnerByIndex(this.owner, 0n)).to.not.equal(tokenId);
-      });
-    },
-    same: function (ids) {
-      it('keeps same tokens by index', async function () {
-        for (const index in ids) expect(await this.token.tokenOfOwnerByIndex(this.owner, index)).to.equal(ids[index]);
-      });
-    },
-  });
+  shouldBehaveLikeERC721(EXTRA_TX_TESTS_ENUMERABLE);
   shouldBehaveLikeERC721Metadata(name, symbol);
   shouldBehaveLikeERC721Enumerable();
 });

@@ -615,7 +615,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
           await expect(this.token.$_safeMint(ethers.ZeroAddress, firstTokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
             .withArgs(ethers.ZeroAddress);
-        })
+        });
       });
     });
   });
