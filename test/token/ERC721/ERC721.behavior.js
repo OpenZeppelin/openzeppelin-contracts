@@ -9,7 +9,6 @@ const { RevertType } = require('../../helpers/enums');
 const firstTokenId = 5042n;
 const secondTokenId = 79217n;
 const nonExistentTokenId = 13n;
-const fourthTokenId = 4n;
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
@@ -498,11 +497,43 @@ function shouldBehaveLikeERC721(extraTxTests) {
   });
 
   describe('mint', function () {
-    describe('safe mint', function () {
-      const tokenId = fourthTokenId;
+    describe('_mint', function () {
+      it('reverts with a null destination address', async function () {
+        await expect(this.token.$_mint(ethers.ZeroAddress, firstTokenId))
+          .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
+          .withArgs(ethers.ZeroAddress);
+      });
+
+      describe('with minted token', async function () {
+        beforeEach(async function () {
+          this.tx = await this.token.$_mint(this.owner, firstTokenId);
+        });
+
+        it('emits a Transfer event', async function () {
+          await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.owner, firstTokenId);
+        });
+
+        it('creates the token', async function () {
+          expect(await this.token.balanceOf(this.owner)).to.equal(1n);
+          expect(await this.token.ownerOf(firstTokenId)).to.equal(this.owner);
+        });
+
+        it('reverts when adding a token id that already exists', async function () {
+          await expect(this.token.$_mint(this.owner, firstTokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidSender')
+            .withArgs(ethers.ZeroAddress);
+        });
+      });
+    });
+
+    describe('_safeMint', function () {
+      const tokenId = firstTokenId;
       const data = '0x42';
 
-      // regular minting is tested in ERC721Mintable.test.js and others
+      it('executes when to is not a contract', async function () {
+        await this.token.$_safeMint(this.owner, tokenId);
+      });
+
       it('calls onERC721Received — with data', async function () {
         const receiver = await ethers.deployContract('ERC721ReceiverMock', [RECEIVER_MAGIC_VALUE, RevertType.None]);
 
@@ -579,35 +610,12 @@ function shouldBehaveLikeERC721(extraTxTests) {
             .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
             .withArgs(nonReceiver);
         });
-      });
-    });
 
-    describe('_mint', function () {
-      it('reverts with a null destination address', async function () {
-        await expect(this.token.$_mint(ethers.ZeroAddress, firstTokenId))
-          .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
-          .withArgs(ethers.ZeroAddress);
-      });
-
-      describe('with minted token', async function () {
-        beforeEach(async function () {
-          this.tx = await this.token.$_mint(this.owner, firstTokenId);
-        });
-
-        it('emits a Transfer event', async function () {
-          await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.owner, firstTokenId);
-        });
-
-        it('creates the token', async function () {
-          expect(await this.token.balanceOf(this.owner)).to.equal(1n);
-          expect(await this.token.ownerOf(firstTokenId)).to.equal(this.owner);
-        });
-
-        it('reverts when adding a token id that already exists', async function () {
-          await expect(this.token.$_mint(this.owner, firstTokenId))
-            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidSender')
+        it('to zero address', async function () {
+          await expect(this.token.$_safeMint(ethers.ZeroAddress, firstTokenId))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidReceiver')
             .withArgs(ethers.ZeroAddress);
-        });
+        })
       });
     });
   });
