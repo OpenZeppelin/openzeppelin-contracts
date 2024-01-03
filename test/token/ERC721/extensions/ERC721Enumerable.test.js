@@ -23,7 +23,7 @@ async function fixture() {
   };
 }
 
-describe.only('ERC721Enumerable', function () {
+describe('ERC721Enumerable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
