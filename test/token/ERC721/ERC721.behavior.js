@@ -13,7 +13,7 @@ const fourthTokenId = 4n;
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-function shouldBehaveLikeERC721() {
+function shouldBehaveLikeERC721(extraTxTests) {
   shouldSupportInterfaces(['ERC165', 'ERC721']);
 
   describe('with minted tokens', function () {
@@ -79,12 +79,7 @@ function shouldBehaveLikeERC721() {
           await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -1);
         });
 
-        it('adjusts owners tokens by index', async function () {
-          if (!this.token.tokenOfOwnerByIndex) this.skip();
-
-          expect(await this.token.tokenOfOwnerByIndex(this.to, 0n)).to.equal(tokenId);
-          expect(await this.token.tokenOfOwnerByIndex(this.owner, 0n)).to.not.equal(tokenId);
-        });
+        extraTxTests?.different(tokenId);
       };
 
       // opts:
@@ -155,13 +150,7 @@ function shouldBehaveLikeERC721() {
             await expect(this.tx).to.changeTokenBalance(this.token, this.owner, 0);
           });
 
-          it('keeps same tokens by index', async function () {
-            if (!this.token.tokenOfOwnerByIndex) this.skip();
-
-            expect(await Promise.all([0n, 1n].map(i => this.token.tokenOfOwnerByIndex(this.owner, i)))).to.have.members(
-              [firstTokenId, secondTokenId],
-            );
-          });
+          extraTxTests?.same([firstTokenId, secondTokenId]);
         });
 
         if (opts.unrestricted)
