@@ -145,7 +145,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
         });
 
         if (opts.unrestricted)
-          describe('when the address of the previous owner is incorrect', function () {
+          describe('when the sender is not authorized for the token ', function () {
             beforeEach(async function () {
               this.tx = await this.token.connect(this.other)[fragment](this.owner, this.to, tokenId, ...extra);
             });
@@ -245,7 +245,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
             shouldTransferSafely(fnName, '0x', opts);
           });
 
-          describe('reverts', async function () {
+          describe('reverts', function () {
             it('to a receiver contract returning unexpected value', async function () {
               const invalidReceiver = await ethers.deployContract('ERC721ReceiverMock', [
                 '0xdeadbeef',
@@ -393,7 +393,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
         itApproves();
       });
 
-      describe('reverts', async function () {
+      describe('reverts', function () {
         it('when the sender does not own the given token ID', async function () {
           await expect(this.token.connect(this.other).approve(this.approved, tokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721InvalidApprover')
@@ -476,7 +476,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
       });
     });
 
-    describe('getApproved', async function () {
+    describe('getApproved', function () {
       it('when token is not minted', async function () {
         await expect(this.token.getApproved(nonExistentTokenId))
           .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
