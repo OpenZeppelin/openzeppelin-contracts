@@ -34,8 +34,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - name: Compile contracts # TODO: Remove after migrating tests to ethers
-        run: npm run compile
       - name: Run tests and generate gas report
         run: npm run test
       - name: Check linearisation of the inheritance graph
@@ -64,8 +62,6 @@ jobs:
           cp -rnT contracts lib/openzeppelin-contracts/contracts
       - name: Transpile to upgradeable
         run: bash scripts/upgradeable/transpile.sh
-      - name: Compile contracts # TODO: Remove after migrating tests to ethers
-        run: npm run compile
       - name: Run tests
         run: npm run test
       - name: Check linearisation of the inheritance graph
@@ -94,8 +90,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - name: Compile contracts # TODO: Remove after migrating tests to ethers
-        run: npm run compile
       - name: Run coverage
         run: npm run coverage
       - uses: codecov/codecov-action@v3

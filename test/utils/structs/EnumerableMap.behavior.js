@@ -1,5 +1,5 @@
-const { expect } = require('chai');
 const { ethers } = require('hardhat');
+const { expect } = require('chai');
 
 const zip = (array1, array2) => array1.map((item, index) => [item, array2[index]]);
 
@@ -124,7 +124,7 @@ function shouldBehaveLikeMap() {
 
     describe('get', function () {
       it('existing value', async function () {
-        expect(await this.methods.get(this.keyA)).to.be.equal(this.valueA);
+        expect(await this.methods.get(this.keyA)).to.equal(this.valueA);
       });
 
       it('missing value', async function () {

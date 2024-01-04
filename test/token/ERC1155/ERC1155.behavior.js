@@ -1,902 +1,760 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { ZERO_ADDRESS } = constants;
+const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
+const { RevertType } = require('../../helpers/enums');
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-const { expectRevertCustomError } = require('../../helpers/customError');
-const { Enum } = require('../../helpers/enums');
 
-const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
-const RevertType = Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic');
+function shouldBehaveLikeERC1155() {
+  const firstTokenId = 1n;
+  const secondTokenId = 2n;
+  const unknownTokenId = 3n;
 
-function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
-  const firstTokenId = new BN(1);
-  const secondTokenId = new BN(2);
-  const unknownTokenId = new BN(3);
-
-  const firstTokenValue = new BN(1000);
-  const secondTokenValue = new BN(2000);
+  const firstTokenValue = 1000n;
+  const secondTokenValue = 2000n;
 
   const RECEIVER_SINGLE_MAGIC_VALUE = '0xf23a6e61';
   const RECEIVER_BATCH_MAGIC_VALUE = '0xbc197c81';
 
+  beforeEach(async function () {
+    [this.recipient, this.proxy, this.alice, this.bruce] = this.otherAccounts;
+  });
+
   describe('like an ERC1155', function () {
     describe('balanceOf', function () {
       it('should return 0 when queried about the zero address', async function () {
-        expect(await this.token.balanceOf(ZERO_ADDRESS, firstTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.balanceOf(ethers.ZeroAddress, firstTokenId)).to.equal(0n);
       });
 
-      context("when accounts don't own tokens", function () {
+      describe("when accounts don't own tokens", function () {
         it('returns zero for given addresses', async function () {
-          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal('0');
-
-          expect(await this.token.balanceOf(secondTokenHolder, secondTokenId)).to.be.bignumber.equal('0');
-
-          expect(await this.token.balanceOf(firstTokenHolder, unknownTokenId)).to.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(this.alice, firstTokenId)).to.equal(0n);
+          expect(await this.token.balanceOf(this.bruce, secondTokenId)).to.equal(0n);
+          expect(await this.token.balanceOf(this.alice, unknownTokenId)).to.equal(0n);
         });
       });
 
-      context('when accounts own some tokens', function () {
+      describe('when accounts own some tokens', function () {
         beforeEach(async function () {
-          await this.token.$_mint(firstTokenHolder, firstTokenId, firstTokenValue, '0x', {
-            from: minter,
-          });
-          await this.token.$_mint(secondTokenHolder, secondTokenId, secondTokenValue, '0x', {
-            from: minter,
-          });
+          await this.token.$_mint(this.alice, firstTokenId, firstTokenValue, '0x');
+          await this.token.$_mint(this.bruce, secondTokenId, secondTokenValue, '0x');
         });
 
         it('returns the amount of tokens owned by the given addresses', async function () {
-          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal(firstTokenValue);
-
-          expect(await this.token.balanceOf(secondTokenHolder, secondTokenId)).to.be.bignumber.equal(secondTokenValue);
-
-          expect(await this.token.balanceOf(firstTokenHolder, unknownTokenId)).to.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(this.alice, firstTokenId)).to.equal(firstTokenValue);
+          expect(await this.token.balanceOf(this.bruce, secondTokenId)).to.equal(secondTokenValue);
+          expect(await this.token.balanceOf(this.alice, unknownTokenId)).to.equal(0n);
         });
       });
     });
 
     describe('balanceOfBatch', function () {
       it("reverts when input arrays don't match up", async function () {
-        const accounts1 = [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder];
+        const accounts1 = [this.alice, this.bruce, this.alice, this.bruce];
         const ids1 = [firstTokenId, secondTokenId, unknownTokenId];
-        await expectRevertCustomError(this.token.balanceOfBatch(accounts1, ids1), 'ERC1155InvalidArrayLength', [
-          accounts1.length,
-          ids1.length,
-        ]);
 
-        const accounts2 = [firstTokenHolder, secondTokenHolder];
+        await expect(this.token.balanceOfBatch(accounts1, ids1))
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidArrayLength')
+          .withArgs(ids1.length, accounts1.length);
+
+        const accounts2 = [this.alice, this.bruce];
         const ids2 = [firstTokenId, secondTokenId, unknownTokenId];
-        await expectRevertCustomError(this.token.balanceOfBatch(accounts2, ids2), 'ERC1155InvalidArrayLength', [
-          accounts2.length,
-          ids2.length,
-        ]);
+        await expect(this.token.balanceOfBatch(accounts2, ids2))
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidArrayLength')
+          .withArgs(ids2.length, accounts2.length);
       });
 
       it('should return 0 as the balance when one of the addresses is the zero address', async function () {
         const result = await this.token.balanceOfBatch(
-          [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
+          [this.alice, this.bruce, ethers.ZeroAddress],
           [firstTokenId, secondTokenId, unknownTokenId],
         );
-        expect(result).to.be.an('array');
-        expect(result[0]).to.be.a.bignumber.equal('0');
-        expect(result[1]).to.be.a.bignumber.equal('0');
-        expect(result[2]).to.be.a.bignumber.equal('0');
+        expect(result).to.deep.equal([0n, 0n, 0n]);
       });
 
-      context("when accounts don't own tokens", function () {
+      describe("when accounts don't own tokens", function () {
         it('returns zeros for each account', async function () {
           const result = await this.token.balanceOfBatch(
-            [firstTokenHolder, secondTokenHolder, firstTokenHolder],
+            [this.alice, this.bruce, this.alice],
             [firstTokenId, secondTokenId, unknownTokenId],
           );
-          expect(result).to.be.an('array');
-          expect(result[0]).to.be.a.bignumber.equal('0');
-          expect(result[1]).to.be.a.bignumber.equal('0');
-          expect(result[2]).to.be.a.bignumber.equal('0');
+          expect(result).to.deep.equal([0n, 0n, 0n]);
         });
       });
 
-      context('when accounts own some tokens', function () {
+      describe('when accounts own some tokens', function () {
         beforeEach(async function () {
-          await this.token.$_mint(firstTokenHolder, firstTokenId, firstTokenValue, '0x', {
-            from: minter,
-          });
-          await this.token.$_mint(secondTokenHolder, secondTokenId, secondTokenValue, '0x', {
-            from: minter,
-          });
+          await this.token.$_mint(this.alice, firstTokenId, firstTokenValue, '0x');
+          await this.token.$_mint(this.bruce, secondTokenId, secondTokenValue, '0x');
         });
 
         it('returns amounts owned by each account in order passed', async function () {
           const result = await this.token.balanceOfBatch(
-            [secondTokenHolder, firstTokenHolder, firstTokenHolder],
+            [this.bruce, this.alice, this.alice],
             [secondTokenId, firstTokenId, unknownTokenId],
           );
-          expect(result).to.be.an('array');
-          expect(result[0]).to.be.a.bignumber.equal(secondTokenValue);
-          expect(result[1]).to.be.a.bignumber.equal(firstTokenValue);
-          expect(result[2]).to.be.a.bignumber.equal('0');
+          expect(result).to.deep.equal([secondTokenValue, firstTokenValue, 0n]);
         });
 
         it('returns multiple times the balance of the same address when asked', async function () {
           const result = await this.token.balanceOfBatch(
-            [firstTokenHolder, secondTokenHolder, firstTokenHolder],
+            [this.alice, this.bruce, this.alice],
             [firstTokenId, secondTokenId, firstTokenId],
           );
-          expect(result).to.be.an('array');
-          expect(result[0]).to.be.a.bignumber.equal(result[2]);
-          expect(result[0]).to.be.a.bignumber.equal(firstTokenValue);
-          expect(result[1]).to.be.a.bignumber.equal(secondTokenValue);
-          expect(result[2]).to.be.a.bignumber.equal(firstTokenValue);
+          expect(result).to.deep.equal([firstTokenValue, secondTokenValue, firstTokenValue]);
         });
       });
     });
 
     describe('setApprovalForAll', function () {
-      let receipt;
       beforeEach(async function () {
-        receipt = await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder });
+        this.tx = await this.token.connect(this.holder).setApprovalForAll(this.proxy, true);
       });
 
       it('sets approval status which can be queried via isApprovedForAll', async function () {
-        expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(true);
+        expect(await this.token.isApprovedForAll(this.holder, this.proxy)).to.be.true;
       });
 
-      it('emits an ApprovalForAll log', function () {
-        expectEvent(receipt, 'ApprovalForAll', { account: multiTokenHolder, operator: proxy, approved: true });
+      it('emits an ApprovalForAll log', async function () {
+        await expect(this.tx).to.emit(this.token, 'ApprovalForAll').withArgs(this.holder, this.proxy, true);
       });
 
       it('can unset approval for an operator', async function () {
-        await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
-        expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(false);
+        await this.token.connect(this.holder).setApprovalForAll(this.proxy, false);
+        expect(await this.token.isApprovedForAll(this.holder, this.proxy)).to.be.false;
       });
 
       it('reverts if attempting to approve zero address as an operator', async function () {
-        await expectRevertCustomError(
-          this.token.setApprovalForAll(constants.ZERO_ADDRESS, true, { from: multiTokenHolder }),
-          'ERC1155InvalidOperator',
-          [constants.ZERO_ADDRESS],
-        );
+        await expect(this.token.connect(this.holder).setApprovalForAll(ethers.ZeroAddress, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidOperator')
+          .withArgs(ethers.ZeroAddress);
       });
     });
 
     describe('safeTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.$_mint(multiTokenHolder, firstTokenId, firstTokenValue, '0x', {
-          from: minter,
-        });
-        await this.token.$_mint(multiTokenHolder, secondTokenId, secondTokenValue, '0x', {
-          from: minter,
-        });
+        await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
+        await this.token.$_mint(this.holder, secondTokenId, secondTokenValue, '0x');
       });
 
       it('reverts when transferring more than balance', async function () {
-        await expectRevertCustomError(
-          this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstTokenValue.addn(1), '0x', {
-            from: multiTokenHolder,
-          }),
-          'ERC1155InsufficientBalance',
-          [multiTokenHolder, firstTokenValue, firstTokenValue.addn(1), firstTokenId],
-        );
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeTransferFrom(this.holder, this.recipient, firstTokenId, firstTokenValue + 1n, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InsufficientBalance')
+          .withArgs(this.holder, firstTokenValue, firstTokenValue + 1n, firstTokenId);
       });
 
       it('reverts when transferring to zero address', async function () {
-        await expectRevertCustomError(
-          this.token.safeTransferFrom(multiTokenHolder, ZERO_ADDRESS, firstTokenId, firstTokenValue, '0x', {
-            from: multiTokenHolder,
-          }),
-          'ERC1155InvalidReceiver',
-          [ZERO_ADDRESS],
-        );
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeTransferFrom(this.holder, ethers.ZeroAddress, firstTokenId, firstTokenValue, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+          .withArgs(ethers.ZeroAddress);
       });
 
-      function transferWasSuccessful({ operator, from, id, value }) {
+      function transferWasSuccessful() {
         it('debits transferred balance from sender', async function () {
-          const newBalance = await this.token.balanceOf(from, id);
-          expect(newBalance).to.be.a.bignumber.equal('0');
+          expect(await this.token.balanceOf(this.args.from, this.args.id)).to.equal(0n);
         });
 
         it('credits transferred balance to receiver', async function () {
-          const newBalance = await this.token.balanceOf(this.toWhom, id);
-          expect(newBalance).to.be.a.bignumber.equal(value);
+          expect(await this.token.balanceOf(this.args.to, this.args.id)).to.equal(this.args.value);
         });
 
-        it('emits a TransferSingle log', function () {
-          expectEvent(this.transferLogs, 'TransferSingle', {
-            operator,
-            from,
-            to: this.toWhom,
-            id,
-            value,
-          });
+        it('emits a TransferSingle log', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'TransferSingle')
+            .withArgs(this.args.operator, this.args.from, this.args.to, this.args.id, this.args.value);
         });
       }
 
-      context('when called by the multiTokenHolder', async function () {
+      describe('when called by the holder', async function () {
         beforeEach(async function () {
-          this.toWhom = recipient;
-          this.transferLogs = await this.token.safeTransferFrom(
-            multiTokenHolder,
-            recipient,
-            firstTokenId,
-            firstTokenValue,
-            '0x',
-            {
-              from: multiTokenHolder,
-            },
-          );
+          this.args = {
+            operator: this.holder,
+            from: this.holder,
+            to: this.recipient,
+            id: firstTokenId,
+            value: firstTokenValue,
+            data: '0x',
+          };
+          this.tx = await this.token
+            .connect(this.args.operator)
+            .safeTransferFrom(this.args.from, this.args.to, this.args.id, this.args.value, this.args.data);
         });
 
-        transferWasSuccessful.call(this, {
-          operator: multiTokenHolder,
-          from: multiTokenHolder,
-          id: firstTokenId,
-          value: firstTokenValue,
-        });
+        transferWasSuccessful();
 
-        it('preserves existing balances which are not transferred by multiTokenHolder', async function () {
-          const balance1 = await this.token.balanceOf(multiTokenHolder, secondTokenId);
-          expect(balance1).to.be.a.bignumber.equal(secondTokenValue);
-
-          const balance2 = await this.token.balanceOf(recipient, secondTokenId);
-          expect(balance2).to.be.a.bignumber.equal('0');
+        it('preserves existing balances which are not transferred by holder', async function () {
+          expect(await this.token.balanceOf(this.holder, secondTokenId)).to.equal(secondTokenValue);
+          expect(await this.token.balanceOf(this.recipient, secondTokenId)).to.equal(0n);
         });
       });
 
-      context('when called by an operator on behalf of the multiTokenHolder', function () {
-        context('when operator is not approved by multiTokenHolder', function () {
+      describe('when called by an operator on behalf of the holder', function () {
+        describe('when operator is not approved by holder', function () {
           beforeEach(async function () {
-            await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
+            await this.token.connect(this.holder).setApprovalForAll(this.proxy, false);
           });
 
           it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstTokenValue, '0x', {
-                from: proxy,
-              }),
-              'ERC1155MissingApprovalForAll',
-              [proxy, multiTokenHolder],
-            );
+            await expect(
+              this.token
+                .connect(this.proxy)
+                .safeTransferFrom(this.holder, this.recipient, firstTokenId, firstTokenValue, '0x'),
+            )
+              .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+              .withArgs(this.proxy, this.holder);
           });
         });
 
-        context('when operator is approved by multiTokenHolder', function () {
+        describe('when operator is approved by holder', function () {
           beforeEach(async function () {
-            this.toWhom = recipient;
-            await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder });
-            this.transferLogs = await this.token.safeTransferFrom(
-              multiTokenHolder,
-              recipient,
-              firstTokenId,
-              firstTokenValue,
-              '0x',
-              {
-                from: proxy,
-              },
-            );
+            await this.token.connect(this.holder).setApprovalForAll(this.proxy, true);
+
+            this.args = {
+              operator: this.proxy,
+              from: this.holder,
+              to: this.recipient,
+              id: firstTokenId,
+              value: firstTokenValue,
+              data: '0x',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeTransferFrom(this.args.from, this.args.to, this.args.id, this.args.value, this.args.data);
           });
 
-          transferWasSuccessful.call(this, {
-            operator: proxy,
-            from: multiTokenHolder,
-            id: firstTokenId,
-            value: firstTokenValue,
-          });
+          transferWasSuccessful();
 
           it("preserves operator's balances not involved in the transfer", async function () {
-            const balance1 = await this.token.balanceOf(proxy, firstTokenId);
-            expect(balance1).to.be.a.bignumber.equal('0');
-
-            const balance2 = await this.token.balanceOf(proxy, secondTokenId);
-            expect(balance2).to.be.a.bignumber.equal('0');
+            expect(await this.token.balanceOf(this.proxy, firstTokenId)).to.equal(0n);
+            expect(await this.token.balanceOf(this.proxy, secondTokenId)).to.equal(0n);
           });
         });
       });
 
-      context('when sending to a valid receiver', function () {
+      describe('when sending to a valid receiver', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
+          this.receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
             RECEIVER_SINGLE_MAGIC_VALUE,
             RECEIVER_BATCH_MAGIC_VALUE,
             RevertType.None,
-          );
+          ]);
         });
 
-        context('without data', function () {
+        describe('without data', function () {
           beforeEach(async function () {
-            this.toWhom = this.receiver.address;
-            this.transferReceipt = await this.token.safeTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              firstTokenId,
-              firstTokenValue,
-              '0x',
-              { from: multiTokenHolder },
-            );
-            this.transferLogs = this.transferReceipt;
-          });
-
-          transferWasSuccessful.call(this, {
-            operator: multiTokenHolder,
-            from: multiTokenHolder,
-            id: firstTokenId,
-            value: firstTokenValue,
-          });
-
-          it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
-              operator: multiTokenHolder,
-              from: multiTokenHolder,
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
               id: firstTokenId,
               value: firstTokenValue,
-              data: null,
-            });
+              data: '0x',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeTransferFrom(this.args.from, this.args.to, this.args.id, this.args.value, this.args.data);
+          });
+
+          transferWasSuccessful();
+
+          it('calls onERC1155Received', async function () {
+            await expect(this.tx)
+              .to.emit(this.receiver, 'Received')
+              .withArgs(this.args.operator, this.args.from, this.args.id, this.args.value, this.args.data, anyValue);
           });
         });
 
-        context('with data', function () {
-          const data = '0xf00dd00d';
+        describe('with data', function () {
           beforeEach(async function () {
-            this.toWhom = this.receiver.address;
-            this.transferReceipt = await this.token.safeTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              firstTokenId,
-              firstTokenValue,
-              data,
-              { from: multiTokenHolder },
-            );
-            this.transferLogs = this.transferReceipt;
-          });
-
-          transferWasSuccessful.call(this, {
-            operator: multiTokenHolder,
-            from: multiTokenHolder,
-            id: firstTokenId,
-            value: firstTokenValue,
-          });
-
-          it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
-              operator: multiTokenHolder,
-              from: multiTokenHolder,
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
               id: firstTokenId,
               value: firstTokenValue,
-              data,
-            });
+              data: '0xf00dd00d',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeTransferFrom(this.args.from, this.args.to, this.args.id, this.args.value, this.args.data);
+          });
+
+          transferWasSuccessful();
+
+          it('calls onERC1155Received', async function () {
+            await expect(this.tx)
+              .to.emit(this.receiver, 'Received')
+              .withArgs(this.args.operator, this.args.from, this.args.id, this.args.value, this.args.data, anyValue);
           });
         });
       });
 
-      context('to a receiver contract returning unexpected value', function () {
-        beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new('0x00c0ffee', RECEIVER_BATCH_MAGIC_VALUE, RevertType.None);
-        });
-
+      describe('to a receiver contract returning unexpected value', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstTokenValue, '0x', {
-              from: multiTokenHolder,
-            }),
-            'ERC1155InvalidReceiver',
-            [this.receiver.address],
-          );
+          const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
+            '0x00c0ffee',
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.None,
+          ]);
+
+          await expect(
+            this.token
+              .connect(this.holder)
+              .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+            .withArgs(receiver);
         });
       });
 
-      context('to a receiver contract that reverts', function () {
-        context('with a revert string', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+      describe('to a receiver contract that reverts', function () {
+        describe('with a revert string', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithMessage,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevert(
-              this.token.safeTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                firstTokenId,
-                firstTokenValue,
-                '0x',
-                {
-                  from: multiTokenHolder,
-                },
-              ),
-              'ERC1155ReceiverMock: reverting on receive',
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
+            ).to.be.revertedWith('ERC1155ReceiverMock: reverting on receive');
           });
         });
 
-        context('without a revert string', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('without a revert string', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithoutMessage,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                firstTokenId,
-                firstTokenValue,
-                '0x',
-                {
-                  from: multiTokenHolder,
-                },
-              ),
-              'ERC1155InvalidReceiver',
-              [this.receiver.address],
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
+            )
+              .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+              .withArgs(receiver);
           });
         });
 
-        context('with a custom error', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('with a custom error', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithCustomError,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                firstTokenId,
-                firstTokenValue,
-                '0x',
-                {
-                  from: multiTokenHolder,
-                },
-              ),
-              'CustomError',
-              [RECEIVER_SINGLE_MAGIC_VALUE],
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
+            )
+              .to.be.revertedWithCustomError(receiver, 'CustomError')
+              .withArgs(RECEIVER_SINGLE_MAGIC_VALUE);
           });
         });
 
-        context('with a panic', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('with a panic', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.Panic,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevert.unspecified(
-              this.token.safeTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                firstTokenId,
-                firstTokenValue,
-                '0x',
-                {
-                  from: multiTokenHolder,
-                },
-              ),
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeTransferFrom(this.holder, receiver, firstTokenId, firstTokenValue, '0x'),
+            ).to.be.revertedWithPanic();
           });
         });
       });
 
-      context('to a contract that does not implement the required function', function () {
+      describe('to a contract that does not implement the required function', function () {
         it('reverts', async function () {
           const invalidReceiver = this.token;
-          await expectRevert.unspecified(
-            this.token.safeTransferFrom(
-              multiTokenHolder,
-              invalidReceiver.address,
-              firstTokenId,
-              firstTokenValue,
-              '0x',
-              {
-                from: multiTokenHolder,
-              },
-            ),
-          );
+
+          await expect(
+            this.token
+              .connect(this.holder)
+              .safeTransferFrom(this.holder, invalidReceiver, firstTokenId, firstTokenValue, '0x'),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+            .withArgs(invalidReceiver);
         });
       });
     });
 
     describe('safeBatchTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.$_mint(multiTokenHolder, firstTokenId, firstTokenValue, '0x', {
-          from: minter,
-        });
-        await this.token.$_mint(multiTokenHolder, secondTokenId, secondTokenValue, '0x', {
-          from: minter,
-        });
+        await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
+        await this.token.$_mint(this.holder, secondTokenId, secondTokenValue, '0x');
       });
 
       it('reverts when transferring value more than any of balances', async function () {
-        await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(
-            multiTokenHolder,
-            recipient,
-            [firstTokenId, secondTokenId],
-            [firstTokenValue, secondTokenValue.addn(1)],
-            '0x',
-            { from: multiTokenHolder },
-          ),
-          'ERC1155InsufficientBalance',
-          [multiTokenHolder, secondTokenValue, secondTokenValue.addn(1), secondTokenId],
-        );
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeBatchTransferFrom(
+              this.holder,
+              this.recipient,
+              [firstTokenId, secondTokenId],
+              [firstTokenValue, secondTokenValue + 1n],
+              '0x',
+            ),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InsufficientBalance')
+          .withArgs(this.holder, secondTokenValue, secondTokenValue + 1n, secondTokenId);
       });
 
       it("reverts when ids array length doesn't match values array length", async function () {
         const ids1 = [firstTokenId];
         const tokenValues1 = [firstTokenValue, secondTokenValue];
 
-        await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids1, tokenValues1, '0x', {
-            from: multiTokenHolder,
-          }),
-          'ERC1155InvalidArrayLength',
-          [ids1.length, tokenValues1.length],
-        );
+        await expect(
+          this.token.connect(this.holder).safeBatchTransferFrom(this.holder, this.recipient, ids1, tokenValues1, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidArrayLength')
+          .withArgs(ids1.length, tokenValues1.length);
 
         const ids2 = [firstTokenId, secondTokenId];
         const tokenValues2 = [firstTokenValue];
-        await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids2, tokenValues2, '0x', {
-            from: multiTokenHolder,
-          }),
-          'ERC1155InvalidArrayLength',
-          [ids2.length, tokenValues2.length],
-        );
+
+        await expect(
+          this.token.connect(this.holder).safeBatchTransferFrom(this.holder, this.recipient, ids2, tokenValues2, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidArrayLength')
+          .withArgs(ids2.length, tokenValues2.length);
       });
 
       it('reverts when transferring to zero address', async function () {
-        await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(
-            multiTokenHolder,
-            ZERO_ADDRESS,
-            [firstTokenId, secondTokenId],
-            [firstTokenValue, secondTokenValue],
-            '0x',
-            { from: multiTokenHolder },
-          ),
-          'ERC1155InvalidReceiver',
-          [ZERO_ADDRESS],
-        );
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeBatchTransferFrom(
+              this.holder,
+              ethers.ZeroAddress,
+              [firstTokenId, secondTokenId],
+              [firstTokenValue, secondTokenValue],
+              '0x',
+            ),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+          .withArgs(ethers.ZeroAddress);
       });
 
       it('reverts when transferring from zero address', async function () {
-        await expectRevertCustomError(
-          this.token.$_safeBatchTransferFrom(ZERO_ADDRESS, multiTokenHolder, [firstTokenId], [firstTokenValue], '0x'),
-          'ERC1155InvalidSender',
-          [ZERO_ADDRESS],
-        );
+        await expect(
+          this.token.$_safeBatchTransferFrom(ethers.ZeroAddress, this.holder, [firstTokenId], [firstTokenValue], '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidSender')
+          .withArgs(ethers.ZeroAddress);
       });
 
-      function batchTransferWasSuccessful({ operator, from, ids, values }) {
+      function batchTransferWasSuccessful() {
         it('debits transferred balances from sender', async function () {
-          const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(from), ids);
-          for (const newBalance of newBalances) {
-            expect(newBalance).to.be.a.bignumber.equal('0');
-          }
+          const newBalances = await this.token.balanceOfBatch(
+            this.args.ids.map(() => this.args.from),
+            this.args.ids,
+          );
+          expect(newBalances).to.deep.equal(this.args.ids.map(() => 0n));
         });
 
         it('credits transferred balances to receiver', async function () {
-          const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(this.toWhom), ids);
-          for (let i = 0; i < newBalances.length; i++) {
-            expect(newBalances[i]).to.be.a.bignumber.equal(values[i]);
-          }
+          const newBalances = await this.token.balanceOfBatch(
+            this.args.ids.map(() => this.args.to),
+            this.args.ids,
+          );
+          expect(newBalances).to.deep.equal(this.args.values);
         });
 
-        it('emits a TransferBatch log', function () {
-          expectEvent(this.transferLogs, 'TransferBatch', {
-            operator,
-            from,
-            to: this.toWhom,
-            // ids,
-            // values,
-          });
+        it('emits a TransferBatch log', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'TransferBatch')
+            .withArgs(this.args.operator, this.args.from, this.args.to, this.args.ids, this.args.values);
         });
       }
 
-      context('when called by the multiTokenHolder', async function () {
+      describe('when called by the holder', async function () {
         beforeEach(async function () {
-          this.toWhom = recipient;
-          this.transferLogs = await this.token.safeBatchTransferFrom(
-            multiTokenHolder,
-            recipient,
-            [firstTokenId, secondTokenId],
-            [firstTokenValue, secondTokenValue],
-            '0x',
-            { from: multiTokenHolder },
-          );
+          this.args = {
+            operator: this.holder,
+            from: this.holder,
+            to: this.recipient,
+            ids: [firstTokenId, secondTokenId],
+            values: [firstTokenValue, secondTokenValue],
+            data: '0x',
+          };
+          this.tx = await this.token
+            .connect(this.args.operator)
+            .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
         });
 
-        batchTransferWasSuccessful.call(this, {
-          operator: multiTokenHolder,
-          from: multiTokenHolder,
-          ids: [firstTokenId, secondTokenId],
-          values: [firstTokenValue, secondTokenValue],
-        });
+        batchTransferWasSuccessful();
       });
 
-      context('when called by an operator on behalf of the multiTokenHolder', function () {
-        context('when operator is not approved by multiTokenHolder', function () {
+      describe('when called by an operator on behalf of the holder', function () {
+        describe('when operator is not approved by holder', function () {
           beforeEach(async function () {
-            await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
+            await this.token.connect(this.holder).setApprovalForAll(this.proxy, false);
           });
 
           it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeBatchTransferFrom(
-                multiTokenHolder,
-                recipient,
-                [firstTokenId, secondTokenId],
-                [firstTokenValue, secondTokenValue],
-                '0x',
-                { from: proxy },
-              ),
-              'ERC1155MissingApprovalForAll',
-              [proxy, multiTokenHolder],
-            );
+            await expect(
+              this.token
+                .connect(this.proxy)
+                .safeBatchTransferFrom(
+                  this.holder,
+                  this.recipient,
+                  [firstTokenId, secondTokenId],
+                  [firstTokenValue, secondTokenValue],
+                  '0x',
+                ),
+            )
+              .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+              .withArgs(this.proxy, this.holder);
           });
         });
 
-        context('when operator is approved by multiTokenHolder', function () {
+        describe('when operator is approved by holder', function () {
           beforeEach(async function () {
-            this.toWhom = recipient;
-            await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder });
-            this.transferLogs = await this.token.safeBatchTransferFrom(
-              multiTokenHolder,
-              recipient,
-              [firstTokenId, secondTokenId],
-              [firstTokenValue, secondTokenValue],
-              '0x',
-              { from: proxy },
-            );
+            await this.token.connect(this.holder).setApprovalForAll(this.proxy, true);
+
+            this.args = {
+              operator: this.proxy,
+              from: this.holder,
+              to: this.recipient,
+              ids: [firstTokenId, secondTokenId],
+              values: [firstTokenValue, secondTokenValue],
+              data: '0x',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
           });
 
-          batchTransferWasSuccessful.call(this, {
-            operator: proxy,
-            from: multiTokenHolder,
-            ids: [firstTokenId, secondTokenId],
-            values: [firstTokenValue, secondTokenValue],
-          });
+          batchTransferWasSuccessful();
 
           it("preserves operator's balances not involved in the transfer", async function () {
-            const balance1 = await this.token.balanceOf(proxy, firstTokenId);
-            expect(balance1).to.be.a.bignumber.equal('0');
-            const balance2 = await this.token.balanceOf(proxy, secondTokenId);
-            expect(balance2).to.be.a.bignumber.equal('0');
+            expect(await this.token.balanceOf(this.proxy, firstTokenId)).to.equal(0n);
+            expect(await this.token.balanceOf(this.proxy, secondTokenId)).to.equal(0n);
           });
         });
       });
 
-      context('when sending to a valid receiver', function () {
+      describe('when sending to a valid receiver', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
+          this.receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
             RECEIVER_SINGLE_MAGIC_VALUE,
             RECEIVER_BATCH_MAGIC_VALUE,
             RevertType.None,
-          );
+          ]);
         });
 
-        context('without data', function () {
+        describe('without data', function () {
           beforeEach(async function () {
-            this.toWhom = this.receiver.address;
-            this.transferReceipt = await this.token.safeBatchTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              [firstTokenId, secondTokenId],
-              [firstTokenValue, secondTokenValue],
-              '0x',
-              { from: multiTokenHolder },
-            );
-            this.transferLogs = this.transferReceipt;
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
+              ids: [firstTokenId, secondTokenId],
+              values: [firstTokenValue, secondTokenValue],
+              data: '0x',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
           });
 
-          batchTransferWasSuccessful.call(this, {
-            operator: multiTokenHolder,
-            from: multiTokenHolder,
-            ids: [firstTokenId, secondTokenId],
-            values: [firstTokenValue, secondTokenValue],
-          });
+          batchTransferWasSuccessful();
 
           it('calls onERC1155BatchReceived', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
-              operator: multiTokenHolder,
-              from: multiTokenHolder,
-              // ids: [firstTokenId, secondTokenId],
-              // values: [firstTokenValue, secondTokenValue],
-              data: null,
-            });
+            await expect(this.tx)
+              .to.emit(this.receiver, 'BatchReceived')
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
           });
         });
 
-        context('with data', function () {
-          const data = '0xf00dd00d';
+        describe('with data', function () {
           beforeEach(async function () {
-            this.toWhom = this.receiver.address;
-            this.transferReceipt = await this.token.safeBatchTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              [firstTokenId, secondTokenId],
-              [firstTokenValue, secondTokenValue],
-              data,
-              { from: multiTokenHolder },
-            );
-            this.transferLogs = this.transferReceipt;
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
+              ids: [firstTokenId, secondTokenId],
+              values: [firstTokenValue, secondTokenValue],
+              data: '0xf00dd00d',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
           });
 
-          batchTransferWasSuccessful.call(this, {
-            operator: multiTokenHolder,
-            from: multiTokenHolder,
-            ids: [firstTokenId, secondTokenId],
-            values: [firstTokenValue, secondTokenValue],
-          });
+          batchTransferWasSuccessful();
 
           it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
-              operator: multiTokenHolder,
-              from: multiTokenHolder,
-              // ids: [firstTokenId, secondTokenId],
-              // values: [firstTokenValue, secondTokenValue],
-              data,
-            });
+            await expect(this.tx)
+              .to.emit(this.receiver, 'BatchReceived')
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
           });
         });
       });
 
-      context('to a receiver contract returning unexpected value', function () {
-        beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
+      describe('to a receiver contract returning unexpected value', function () {
+        it('reverts', async function () {
+          const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
             RECEIVER_SINGLE_MAGIC_VALUE,
             RECEIVER_SINGLE_MAGIC_VALUE,
             RevertType.None,
-          );
-        });
+          ]);
 
-        it('reverts', async function () {
-          await expectRevertCustomError(
-            this.token.safeBatchTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              [firstTokenId, secondTokenId],
-              [firstTokenValue, secondTokenValue],
-              '0x',
-              { from: multiTokenHolder },
-            ),
-            'ERC1155InvalidReceiver',
-            [this.receiver.address],
-          );
+          await expect(
+            this.token
+              .connect(this.holder)
+              .safeBatchTransferFrom(
+                this.holder,
+                receiver,
+                [firstTokenId, secondTokenId],
+                [firstTokenValue, secondTokenValue],
+                '0x',
+              ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+            .withArgs(receiver);
         });
       });
 
-      context('to a receiver contract that reverts', function () {
-        context('with a revert string', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+      describe('to a receiver contract that reverts', function () {
+        describe('with a revert string', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithMessage,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevert(
-              this.token.safeBatchTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                [firstTokenId, secondTokenId],
-                [firstTokenValue, secondTokenValue],
-                '0x',
-                { from: multiTokenHolder },
-              ),
-              'ERC1155ReceiverMock: reverting on batch receive',
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeBatchTransferFrom(
+                  this.holder,
+                  receiver,
+                  [firstTokenId, secondTokenId],
+                  [firstTokenValue, secondTokenValue],
+                  '0x',
+                ),
+            ).to.be.revertedWith('ERC1155ReceiverMock: reverting on batch receive');
           });
         });
 
-        context('without a revert string', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('without a revert string', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithoutMessage,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeBatchTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                [firstTokenId, secondTokenId],
-                [firstTokenValue, secondTokenValue],
-                '0x',
-                { from: multiTokenHolder },
-              ),
-              'ERC1155InvalidReceiver',
-              [this.receiver.address],
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeBatchTransferFrom(
+                  this.holder,
+                  receiver,
+                  [firstTokenId, secondTokenId],
+                  [firstTokenValue, secondTokenValue],
+                  '0x',
+                ),
+            )
+              .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+              .withArgs(receiver);
           });
         });
 
-        context('with a custom error', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('with a custom error', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.RevertWithCustomError,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevertCustomError(
-              this.token.safeBatchTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                [firstTokenId, secondTokenId],
-                [firstTokenValue, secondTokenValue],
-                '0x',
-                { from: multiTokenHolder },
-              ),
-              'CustomError',
-              [RECEIVER_SINGLE_MAGIC_VALUE],
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeBatchTransferFrom(
+                  this.holder,
+                  receiver,
+                  [firstTokenId, secondTokenId],
+                  [firstTokenValue, secondTokenValue],
+                  '0x',
+                ),
+            )
+              .to.be.revertedWithCustomError(receiver, 'CustomError')
+              .withArgs(RECEIVER_SINGLE_MAGIC_VALUE);
           });
         });
 
-        context('with a panic', function () {
-          beforeEach(async function () {
-            this.receiver = await ERC1155ReceiverMock.new(
+        describe('with a panic', function () {
+          it('reverts', async function () {
+            const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
               RECEIVER_SINGLE_MAGIC_VALUE,
               RECEIVER_BATCH_MAGIC_VALUE,
               RevertType.Panic,
-            );
-          });
+            ]);
 
-          it('reverts', async function () {
-            await expectRevert.unspecified(
-              this.token.safeBatchTransferFrom(
-                multiTokenHolder,
-                this.receiver.address,
-                [firstTokenId, secondTokenId],
-                [firstTokenValue, secondTokenValue],
-                '0x',
-                { from: multiTokenHolder },
-              ),
-            );
+            await expect(
+              this.token
+                .connect(this.holder)
+                .safeBatchTransferFrom(
+                  this.holder,
+                  receiver,
+                  [firstTokenId, secondTokenId],
+                  [firstTokenValue, secondTokenValue],
+                  '0x',
+                ),
+            ).to.be.revertedWithPanic();
           });
         });
       });
 
-      context('to a contract that does not implement the required function', function () {
+      describe('to a contract that does not implement the required function', function () {
         it('reverts', async function () {
           const invalidReceiver = this.token;
-          await expectRevert.unspecified(
-            this.token.safeBatchTransferFrom(
-              multiTokenHolder,
-              invalidReceiver.address,
-              [firstTokenId, secondTokenId],
-              [firstTokenValue, secondTokenValue],
-              '0x',
-              { from: multiTokenHolder },
-            ),
-          );
+
+          await expect(
+            this.token
+              .connect(this.holder)
+              .safeBatchTransferFrom(
+                this.holder,
+                invalidReceiver,
+                [firstTokenId, secondTokenId],
+                [firstTokenValue, secondTokenValue],
+                '0x',
+              ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidReceiver')
+            .withArgs(invalidReceiver);
         });
       });
     });
 
-    shouldSupportInterfaces(['ERC165', 'ERC1155']);
+    shouldSupportInterfaces(['ERC165', 'ERC1155', 'ERC1155MetadataURI']);
   });
 }
 

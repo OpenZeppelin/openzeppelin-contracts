@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 2797a0889..000000000
+index 35ad097ff..000000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -16,7 +16,7 @@ index 2797a0889..000000000
 -
 -**💻 Environment**
 -
--<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Truffle, Remix, etc. -->
+-<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Hardhat, Remix, etc. -->
 -
 -**📝 Details**
 -
@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 9ca41573f..57d6e3b5b 100644
+index 35083bc6e..05cf4fc27 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
@@ -73,7 +73,7 @@ index 9ca41573f..57d6e3b5b 100644
  
  ### Installation
 @@ -26,7 +29,7 @@
- #### Hardhat, Truffle (npm)
+ #### Hardhat (npm)
  
  ```
 -$ npm install @openzeppelin/contracts
@@ -110,7 +110,7 @@ index 9ca41573f..57d6e3b5b 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index be3e741e3..877e942c2 100644
+index 6ab89138a..ece834a44 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index be3e741e3..877e942c2 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.0.0",
+   "version": "5.0.1",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -140,7 +140,7 @@ index be3e741e3..877e942c2 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 8e548cdd8..a60ee74fd 100644
+index 77c4c8990..602467f40 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -307,7 +307,7 @@ index 8e548cdd8..a60ee74fd 100644
      }
  }
 diff --git a/package.json b/package.json
-index c2c3a2675..3301b213d 100644
+index ec2c44ced..46eedc98f 100644
 --- a/package.json
 +++ b/package.json
 @@ -32,7 +32,7 @@
@@ -328,10 +328,10 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 75ca00b12..265e6c909 100644
+index 166038b36..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -40,27 +40,6 @@ describe('EIP712', function () {
+@@ -47,27 +47,6 @@ describe('EIP712', function () {
            const rebuildDomain = await getDomain(this.eip712);
            expect(rebuildDomain).to.be.deep.equal(this.domain);
          });
