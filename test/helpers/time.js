@@ -1,27 +1,30 @@
 const { ethers } = require('hardhat');
-const { time, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
+const { time, mine, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
 const { mapValues } = require('./iterate');
 
-module.exports = {
-  clock: {
-    blocknumber: () => time.latestBlock(),
-    timestamp: () => time.latest(),
-  },
-  clockFromReceipt: {
-    blocknumber: receipt => Promise.resolve(receipt.blockNumber),
-    timestamp: receipt => ethers.provider.getBlock(receipt.blockNumber).then(block => block.timestamp),
-  },
-  forward: {
-    blocknumber: mineUpTo,
-    timestamp: (to, mine = true) => (mine ? time.increaseTo(to) : time.setNextBlockTimestamp(to)),
-  },
-  duration: time.duration,
+const clock = {
+  blocknumber: () => time.latestBlock().then(ethers.toBigInt),
+  timestamp: () => time.latest().then(ethers.toBigInt),
 };
+const clockFromReceipt = {
+  blocknumber: receipt => Promise.resolve(ethers.toBigInt(receipt.blockNumber)),
+  timestamp: receipt => ethers.provider.getBlock(receipt.blockNumber).then(block => ethers.toBigInt(block.timestamp)),
+};
+const increaseBy = {
+  blockNumber: mine,
+  timestamp: (delay, mine = true) =>
+    time.latest().then(clock => increaseTo.timestamp(clock + ethers.toNumber(delay), mine)),
+};
+const increaseTo = {
+  blocknumber: mineUpTo,
+  timestamp: (to, mine = true) => (mine ? time.increaseTo(to) : time.setNextBlockTimestamp(to)),
+};
+const duration = mapValues(time.duration, fn => n => ethers.toBigInt(fn(ethers.toNumber(n))));
 
-// TODO: deprecate the old version in favor of this one
-module.exports.bigint = {
-  clock: mapValues(module.exports.clock, fn => () => fn().then(ethers.toBigInt)),
-  clockFromReceipt: mapValues(module.exports.clockFromReceipt, fn => receipt => fn(receipt).then(ethers.toBigInt)),
-  forward: module.exports.forward,
-  duration: mapValues(module.exports.duration, fn => n => ethers.toBigInt(fn(ethers.toNumber(n)))),
+module.exports = {
+  clock,
+  clockFromReceipt,
+  increaseBy,
+  increaseTo,
+  duration,
 };

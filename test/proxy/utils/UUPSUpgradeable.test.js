@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot } = require('../../helpers/storage');
 
 async function fixture() {
   const implInitial = await ethers.deployContract('UUPSUpgradeableMock');
@@ -40,9 +40,9 @@ describe('UUPSUpgradeable', function () {
   it('upgrade to upgradeable implementation', async function () {
     await expect(this.instance.upgradeToAndCall(this.implUpgradeOk, '0x'))
       .to.emit(this.instance, 'Upgraded')
-      .withArgs(this.implUpgradeOk.target);
+      .withArgs(this.implUpgradeOk);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk.target);
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk);
   });
 
   it('upgrade to upgradeable implementation with call', async function () {
@@ -52,9 +52,9 @@ describe('UUPSUpgradeable', function () {
       this.instance.upgradeToAndCall(this.implUpgradeOk, this.implUpgradeOk.interface.encodeFunctionData('increment')),
     )
       .to.emit(this.instance, 'Upgraded')
-      .withArgs(this.implUpgradeOk.target);
+      .withArgs(this.implUpgradeOk);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk.target);
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk);
 
     expect(await this.instance.current()).to.equal(1n);
   });
@@ -96,16 +96,16 @@ describe('UUPSUpgradeable', function () {
   it('upgrade to and unsafe upgradeable implementation', async function () {
     await expect(this.instance.upgradeToAndCall(this.implUpgradeUnsafe, '0x'))
       .to.emit(this.instance, 'Upgraded')
-      .withArgs(this.implUpgradeUnsafe.target);
+      .withArgs(this.implUpgradeUnsafe);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeUnsafe.target);
+    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeUnsafe);
   });
 
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
     await expect(this.instance.upgradeToAndCall(this.implUpgradeNonUUPS, '0x'))
       .to.be.revertedWithCustomError(this.instance, 'ERC1967InvalidImplementation')
-      .withArgs(this.implUpgradeNonUUPS.target);
+      .withArgs(this.implUpgradeNonUUPS);
   });
 
   it('reject proxy address as implementation', async function () {
@@ -115,6 +115,6 @@ describe('UUPSUpgradeable', function () {
 
     await expect(this.instance.upgradeToAndCall(otherInstance, '0x'))
       .to.be.revertedWithCustomError(this.instance, 'ERC1967InvalidImplementation')
-      .withArgs(otherInstance.target);
+      .withArgs(otherInstance);
   });
 });

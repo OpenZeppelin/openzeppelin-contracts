@@ -29,9 +29,9 @@ describe('Multicall', function () {
       ]),
     )
       .to.emit(this.mock, 'Transfer')
-      .withArgs(this.holder.address, this.alice.address, this.amount / 2n)
+      .withArgs(this.holder, this.alice, this.amount / 2n)
       .to.emit(this.mock, 'Transfer')
-      .withArgs(this.holder.address, this.bruce.address, this.amount / 3n);
+      .withArgs(this.holder, this.bruce, this.amount / 3n);
 
     expect(await this.mock.balanceOf(this.alice)).to.equal(this.amount / 2n);
     expect(await this.mock.balanceOf(this.bruce)).to.equal(this.amount / 3n);
@@ -54,7 +54,7 @@ describe('Multicall', function () {
       ]),
     )
       .to.be.revertedWithCustomError(this.mock, 'ERC20InsufficientBalance')
-      .withArgs(this.holder.address, 0, this.amount);
+      .withArgs(this.holder, 0, this.amount);
 
     expect(await this.mock.balanceOf(this.alice)).to.equal(0n);
   });
@@ -67,6 +67,6 @@ describe('Multicall', function () {
       ]),
     )
       .to.be.revertedWithCustomError(this.mock, 'ERC20InsufficientBalance')
-      .withArgs(this.holder.address, 0, this.amount);
+      .withArgs(this.holder, 0, this.amount);
   });
 });

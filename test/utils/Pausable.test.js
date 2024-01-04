@@ -39,7 +39,7 @@ describe('Pausable', function () {
       });
 
       it('emits a Paused event', async function () {
-        await expect(this.tx).to.emit(this.mock, 'Paused').withArgs(this.pauser.address);
+        await expect(this.tx).to.emit(this.mock, 'Paused').withArgs(this.pauser);
       });
 
       it('cannot perform normal process in pause', async function () {
@@ -67,7 +67,7 @@ describe('Pausable', function () {
           });
 
           it('emits an Unpaused event', async function () {
-            await expect(this.tx).to.emit(this.mock, 'Unpaused').withArgs(this.pauser.address);
+            await expect(this.tx).to.emit(this.mock, 'Unpaused').withArgs(this.pauser);
           });
 
           it('should resume allowing normal process', async function () {

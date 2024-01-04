@@ -26,11 +26,11 @@ describe('ERC2771Context', function () {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.context.isTrustedForwarder(this.forwarder)).to.equal(true);
+    expect(await this.context.isTrustedForwarder(this.forwarder)).to.be.true;
   });
 
   it('returns the trusted forwarder', async function () {
-    expect(await this.context.trustedForwarder()).to.equal(this.forwarder.target);
+    expect(await this.context.trustedForwarder()).to.equal(this.forwarder);
   });
 
   describe('when called directly', function () {
@@ -55,16 +55,16 @@ describe('ERC2771Context', function () {
 
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
-        await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender.address);
+        await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
         // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
         await expect(this.context.connect(this.forwarderAsSigner).msgSender())
           .to.emit(this.context, 'Sender')
-          .withArgs(this.forwarder.target);
+          .withArgs(this.forwarder);
       });
     });
 
@@ -87,7 +87,7 @@ describe('ERC2771Context', function () {
 
         req.signature = this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
@@ -126,8 +126,8 @@ describe('ERC2771Context', function () {
 
     req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-    expect(await this.forwarder.verify(req)).to.equal(true);
+    expect(await this.forwarder.verify(req)).to.be.true;
 
-    await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender.address);
+    await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
 });

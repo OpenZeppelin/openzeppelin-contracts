@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { bigint: time } = require('../../helpers/time');
 const { getDomain, Delegation } = require('../../helpers/eip712');
+const time = require('../../helpers/time');
 
 const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 
@@ -30,10 +30,10 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         await expect(this.votes.connect(this.alice).delegate(this.alice))
           .to.emit(this.votes, 'DelegateChanged')
-          .withArgs(this.alice.address, ethers.ZeroAddress, this.alice.address)
+          .withArgs(this.alice, ethers.ZeroAddress, this.alice)
           .to.not.emit(this.votes, 'DelegateVotesChanged');
 
-        expect(await this.votes.delegates(this.alice)).to.equal(this.alice.address);
+        expect(await this.votes.delegates(this.alice)).to.equal(this.alice);
       });
 
       it('delegation with tokens', async function () {
@@ -47,11 +47,11 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         await expect(tx)
           .to.emit(this.votes, 'DelegateChanged')
-          .withArgs(this.alice.address, ethers.ZeroAddress, this.alice.address)
+          .withArgs(this.alice, ethers.ZeroAddress, this.alice)
           .to.emit(this.votes, 'DelegateVotesChanged')
-          .withArgs(this.alice.address, 0n, weight);
+          .withArgs(this.alice, 0n, weight);
 
-        expect(await this.votes.delegates(this.alice)).to.equal(this.alice.address);
+        expect(await this.votes.delegates(this.alice)).to.equal(this.alice);
         expect(await this.votes.getVotes(this.alice)).to.equal(weight);
         expect(await this.votes.getPastVotes(this.alice, timepoint - 1n)).to.equal(0n);
         await mine();
@@ -63,7 +63,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         await this.votes.$_mint(this.alice, token);
         const weight = getWeight(token);
 
-        expect(await this.votes.delegates(this.alice)).to.equal(this.alice.address);
+        expect(await this.votes.delegates(this.alice)).to.equal(this.alice);
         expect(await this.votes.getVotes(this.alice)).to.equal(weight);
         expect(await this.votes.getVotes(this.bob)).to.equal(0);
 
@@ -72,13 +72,13 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         await expect(tx)
           .to.emit(this.votes, 'DelegateChanged')
-          .withArgs(this.alice.address, this.alice.address, this.bob.address)
+          .withArgs(this.alice, this.alice, this.bob)
           .to.emit(this.votes, 'DelegateVotesChanged')
-          .withArgs(this.alice.address, weight, 0)
+          .withArgs(this.alice, weight, 0)
           .to.emit(this.votes, 'DelegateVotesChanged')
-          .withArgs(this.bob.address, 0, weight);
+          .withArgs(this.bob, 0, weight);
 
-        expect(await this.votes.delegates(this.alice)).to.equal(this.bob.address);
+        expect(await this.votes.delegates(this.alice)).to.equal(this.bob);
         expect(await this.votes.getVotes(this.alice)).to.equal(0n);
         expect(await this.votes.getVotes(this.bob)).to.equal(weight);
 
@@ -93,7 +93,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         const nonce = 0n;
 
         it('accept signed delegation', async function () {
-          await this.votes.$_mint(this.delegator.address, token);
+          await this.votes.$_mint(this.delegator, token);
           const weight = getWeight(token);
 
           const { r, s, v } = await this.delegator
@@ -108,18 +108,18 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
             )
             .then(ethers.Signature.from);
 
-          expect(await this.votes.delegates(this.delegator.address)).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.delegator)).to.equal(ethers.ZeroAddress);
 
           const tx = await this.votes.delegateBySig(this.delegatee, nonce, ethers.MaxUint256, v, r, s);
           const timepoint = await time.clockFromReceipt[mode](tx);
 
           await expect(tx)
             .to.emit(this.votes, 'DelegateChanged')
-            .withArgs(this.delegator.address, ethers.ZeroAddress, this.delegatee.address)
+            .withArgs(this.delegator, ethers.ZeroAddress, this.delegatee)
             .to.emit(this.votes, 'DelegateVotesChanged')
-            .withArgs(this.delegatee.address, 0, weight);
+            .withArgs(this.delegatee, 0, weight);
 
-          expect(await this.votes.delegates(this.delegator.address)).to.equal(this.delegatee.address);
+          expect(await this.votes.delegates(this.delegator.address)).to.equal(this.delegatee);
           expect(await this.votes.getVotes(this.delegator.address)).to.equal(0n);
           expect(await this.votes.getVotes(this.delegatee)).to.equal(weight);
           expect(await this.votes.getPastVotes(this.delegatee, timepoint - 1n)).to.equal(0n);
@@ -144,7 +144,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
           await expect(this.votes.delegateBySig(this.delegatee, nonce, ethers.MaxUint256, v, r, s))
             .to.be.revertedWithCustomError(this.votes, 'InvalidAccountNonce')
-            .withArgs(this.delegator.address, nonce + 1n);
+            .withArgs(this.delegator, nonce + 1n);
         });
 
         it('rejects bad delegatee', async function () {
@@ -167,9 +167,9 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
             log => this.votes.interface.parseLog(log)?.name === 'DelegateChanged',
           );
           const { args } = this.votes.interface.parseLog(delegateChanged);
-          expect(args.delegator).to.not.be.equal(this.delegator.address);
+          expect(args.delegator).to.not.be.equal(this.delegator);
           expect(args.fromDelegate).to.equal(ethers.ZeroAddress);
-          expect(args.toDelegate).to.equal(this.other.address);
+          expect(args.toDelegate).to.equal(this.other);
         });
 
         it('rejects bad nonce', async function () {
@@ -187,7 +187,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
           await expect(this.votes.delegateBySig(this.delegatee, nonce + 1n, ethers.MaxUint256, v, r, s))
             .to.be.revertedWithCustomError(this.votes, 'InvalidAccountNonce')
-            .withArgs(this.delegator.address, 0);
+            .withArgs(this.delegator, 0);
         });
 
         it('rejects expired permit', async function () {

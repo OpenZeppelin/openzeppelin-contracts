@@ -15,6 +15,6 @@ describe('ERC721Holder', function () {
     const receiver = await ethers.deployContract('$ERC721Holder');
     await token.connect(owner).safeTransferFrom(owner, receiver, tokenId);
 
-    expect(await token.ownerOf(tokenId)).to.equal(receiver.target);
+    expect(await token.ownerOf(tokenId)).to.equal(receiver);
   });
 });

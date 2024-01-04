@@ -4,7 +4,7 @@ const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers'
 
 const { getDomain, Delegation } = require('../../../helpers/eip712');
 const { batchInBlock } = require('../../../helpers/txpool');
-const { bigint: time } = require('../../../helpers/time');
+const time = require('../../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
@@ -75,11 +75,11 @@ describe('ERC20Votes', function () {
 
             await expect(tx)
               .to.emit(this.token, 'DelegateChanged')
-              .withArgs(this.holder.address, ethers.ZeroAddress, this.holder.address)
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
               .to.emit(this.token, 'DelegateVotesChanged')
-              .withArgs(this.holder.address, 0n, supply);
+              .withArgs(this.holder, 0n, supply);
 
-            expect(await this.token.delegates(this.holder)).to.equal(this.holder.address);
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
             expect(await this.token.getVotes(this.holder)).to.equal(supply);
             expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(0n);
             await mine();
@@ -91,10 +91,10 @@ describe('ERC20Votes', function () {
 
             await expect(this.token.connect(this.holder).delegate(this.holder))
               .to.emit(this.token, 'DelegateChanged')
-              .withArgs(this.holder.address, ethers.ZeroAddress, this.holder.address)
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
               .to.not.emit(this.token, 'DelegateVotesChanged');
 
-            expect(await this.token.delegates(this.holder)).to.equal(this.holder.address);
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
           });
         });
 
@@ -125,11 +125,11 @@ describe('ERC20Votes', function () {
 
             await expect(tx)
               .to.emit(this.token, 'DelegateChanged')
-              .withArgs(this.holder.address, ethers.ZeroAddress, this.holder.address)
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
               .to.emit(this.token, 'DelegateVotesChanged')
-              .withArgs(this.holder.address, 0n, supply);
+              .withArgs(this.holder, 0n, supply);
 
-            expect(await this.token.delegates(this.holder)).to.equal(this.holder.address);
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
 
             expect(await this.token.getVotes(this.holder)).to.equal(supply);
             expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(0n);
@@ -154,7 +154,7 @@ describe('ERC20Votes', function () {
 
             await expect(this.token.delegateBySig(this.holder, nonce, ethers.MaxUint256, v, r, s))
               .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
-              .withArgs(this.holder.address, nonce + 1n);
+              .withArgs(this.holder, nonce + 1n);
           });
 
           it('rejects bad delegatee', async function () {
@@ -175,9 +175,9 @@ describe('ERC20Votes', function () {
             const { args } = await tx
               .wait()
               .then(receipt => receipt.logs.find(event => event.fragment.name == 'DelegateChanged'));
-            expect(args[0]).to.not.equal(this.holder.address);
+            expect(args[0]).to.not.equal(this.holder);
             expect(args[1]).to.equal(ethers.ZeroAddress);
-            expect(args[2]).to.equal(this.delegatee.address);
+            expect(args[2]).to.equal(this.delegatee);
           });
 
           it('rejects bad nonce', async function () {
@@ -238,20 +238,20 @@ describe('ERC20Votes', function () {
         });
 
         it('call', async function () {
-          expect(await this.token.delegates(this.holder)).to.equal(this.holder.address);
+          expect(await this.token.delegates(this.holder)).to.equal(this.holder);
 
           const tx = await this.token.connect(this.holder).delegate(this.delegatee);
           const timepoint = await time.clockFromReceipt[mode](tx);
 
           await expect(tx)
             .to.emit(this.token, 'DelegateChanged')
-            .withArgs(this.holder.address, this.holder.address, this.delegatee.address)
+            .withArgs(this.holder, this.holder, this.delegatee)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.holder.address, supply, 0n)
+            .withArgs(this.holder, supply, 0n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.delegatee.address, 0n, supply);
+            .withArgs(this.delegatee, 0n, supply);
 
-          expect(await this.token.delegates(this.holder)).to.equal(this.delegatee.address);
+          expect(await this.token.delegates(this.holder)).to.equal(this.delegatee);
 
           expect(await this.token.getVotes(this.holder)).to.equal(0n);
           expect(await this.token.getVotes(this.delegatee)).to.equal(supply);
@@ -271,7 +271,7 @@ describe('ERC20Votes', function () {
         it('no delegation', async function () {
           await expect(this.token.connect(this.holder).transfer(this.recipient, 1n))
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, 1n)
+            .withArgs(this.holder, this.recipient, 1n)
             .to.not.emit(this.token, 'DelegateVotesChanged');
 
           this.holderVotes = 0n;
@@ -284,9 +284,9 @@ describe('ERC20Votes', function () {
           const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, 1n)
+            .withArgs(this.holder, this.recipient, 1n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.holder.address, supply, supply - 1n);
+            .withArgs(this.holder, supply, supply - 1n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
@@ -304,9 +304,9 @@ describe('ERC20Votes', function () {
           const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, 1n)
+            .withArgs(this.holder, this.recipient, 1n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.recipient.address, 0n, 1n);
+            .withArgs(this.recipient, 0n, 1n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
@@ -325,11 +325,11 @@ describe('ERC20Votes', function () {
           const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, 1n)
+            .withArgs(this.holder, this.recipient, 1n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.holder.address, supply, supply - 1n)
+            .withArgs(this.holder, supply, supply - 1n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.recipient.address, 0n, 1n);
+            .withArgs(this.recipient, 0n, 1n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');

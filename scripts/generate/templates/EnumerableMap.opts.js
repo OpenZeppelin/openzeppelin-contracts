@@ -1,4 +1,7 @@
-const mapType = str => (str == 'uint256' ? 'Uint' : `${str.charAt(0).toUpperCase()}${str.slice(1)}`);
+const { capitalize } = require('../../helpers');
+
+const mapType = str => (str == 'uint256' ? 'Uint' : capitalize(str));
+
 const formatType = (keyType, valueType) => ({
   name: `${mapType(keyType)}To${mapType(valueType)}Map`,
   keyType,

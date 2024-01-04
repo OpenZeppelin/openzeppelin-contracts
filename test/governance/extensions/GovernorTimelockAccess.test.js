@@ -4,11 +4,11 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { GovernorHelper } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
-const { bigint: time } = require('../../helpers/time');
+const { hashOperation } = require('../../helpers/access-manager');
 const { max } = require('../../helpers/math');
 const { selector } = require('../../helpers/methods');
-const { hashOperation } = require('../../helpers/access-manager');
+const { ProposalState, VoteType } = require('../../helpers/enums');
+const time = require('../../helpers/time');
 
 function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
   return {
@@ -94,12 +94,12 @@ describe('GovernorTimelockAccess', function () {
 
       it('post deployment check', async function () {
         expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token.target);
+        expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
         expect(await this.mock.quorum(0n)).to.equal(0n);
 
-        expect(await this.mock.accessManager()).to.equal(this.manager.target);
+        expect(await this.mock.accessManager()).to.equal(this.manager);
       });
 
       it('sets base delay (seconds)', async function () {
@@ -108,7 +108,7 @@ describe('GovernorTimelockAccess', function () {
         // Only through governance
         await expect(this.mock.connect(this.voter1).setBaseDelaySeconds(baseDelay))
           .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-          .withArgs(this.voter1.address);
+          .withArgs(this.voter1);
 
         this.proposal = await this.helper.setProposal(
           [
@@ -122,7 +122,7 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
 
         await expect(this.helper.execute()).to.emit(this.mock, 'BaseDelaySet').withArgs(0n, baseDelay);
@@ -136,7 +136,7 @@ describe('GovernorTimelockAccess', function () {
         // Only through governance
         await expect(this.mock.connect(this.voter1).setAccessManagerIgnored(this.other, selectors, true))
           .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-          .withArgs(this.voter1.address);
+          .withArgs(this.voter1);
 
         // Ignore
         await this.helper.setProposal(
@@ -154,14 +154,14 @@ describe('GovernorTimelockAccess', function () {
         );
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
 
         const ignoreReceipt = this.helper.execute();
         for (const selector of selectors) {
           await expect(ignoreReceipt)
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.other.address, selector, true);
+            .withArgs(this.other, selector, true);
           expect(await this.mock.isAccessManagerIgnored(this.other, selector)).to.be.true;
         }
 
@@ -182,14 +182,14 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
 
         const unignoreReceipt = this.helper.execute();
         for (const selector of selectors) {
           await expect(unignoreReceipt)
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.other.address, selector, false);
+            .withArgs(this.other, selector, false);
           expect(await this.mock.isAccessManagerIgnored(this.other, selector)).to.be.false;
         }
       });
@@ -213,12 +213,12 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
 
         const tx = this.helper.execute();
         for (const selector of selectors) {
-          await expect(tx).to.emit(this.mock, 'AccessManagerIgnoredSet').withArgs(this.mock.target, selector, true);
+          await expect(tx).to.emit(this.mock, 'AccessManagerIgnoredSet').withArgs(this.mock, selector, true);
           expect(await this.mock.isAccessManagerIgnored(this.mock, selector)).to.be.true;
         }
       });
@@ -365,7 +365,7 @@ describe('GovernorTimelockAccess', function () {
 
             await this.helper.propose();
             await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
             if (await this.mock.proposalNeedsQueuing(this.proposal.id)) {
               expect(await this.helper.queue())
@@ -391,7 +391,7 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
         await this.helper.queue();
         await expect(this.helper.execute())
@@ -413,7 +413,7 @@ describe('GovernorTimelockAccess', function () {
         // Go through all the governance process
         await original.propose();
         await original.waitForSnapshot();
-        await original.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await original.connect(this.voter1).vote({ support: VoteType.For });
         await original.waitForDeadline();
         await original.queue();
         await original.waitForEta();
@@ -428,7 +428,7 @@ describe('GovernorTimelockAccess', function () {
         await rescheduled.setProposal([this.restricted.operation], 'descr');
         await rescheduled.propose();
         await rescheduled.waitForSnapshot();
-        await rescheduled.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await rescheduled.connect(this.voter1).vote({ support: VoteType.For });
         await rescheduled.waitForDeadline();
         await rescheduled.queue(); // This will schedule it again in the manager
         await rescheduled.waitForEta();
@@ -450,7 +450,7 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
         const txQueue = await this.helper.queue();
         await this.helper.waitForEta();
@@ -494,7 +494,7 @@ describe('GovernorTimelockAccess', function () {
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
         const txQueue = await this.helper.queue();
         await this.helper.waitForEta();
@@ -539,7 +539,7 @@ describe('GovernorTimelockAccess', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           await this.helper.queue();
 
@@ -555,8 +555,8 @@ describe('GovernorTimelockAccess', function () {
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
               this.proposal.id,
-              Enums.ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
             );
         });
 
@@ -568,7 +568,7 @@ describe('GovernorTimelockAccess', function () {
           // Go through all the governance process
           await original.propose();
           await original.waitForSnapshot();
-          await original.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await original.connect(this.voter1).vote({ support: VoteType.For });
           await original.waitForDeadline();
           await original.queue();
 
@@ -584,7 +584,7 @@ describe('GovernorTimelockAccess', function () {
           // Queue the new proposal
           await rescheduled.propose();
           await rescheduled.waitForSnapshot();
-          await rescheduled.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await rescheduled.connect(this.voter1).vote({ support: VoteType.For });
           await rescheduled.waitForDeadline();
           await rescheduled.queue(); // This will schedule it again in the manager
 
@@ -595,14 +595,14 @@ describe('GovernorTimelockAccess', function () {
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(original.currentProposal.id);
 
-          await time.clock.timestamp().then(clock => time.forward.timestamp(max(clock + 1n, eta)));
+          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
 
           await expect(original.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
               original.currentProposal.id,
-              Enums.ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
             );
         });
 
@@ -611,7 +611,7 @@ describe('GovernorTimelockAccess', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           await this.helper.queue();
 
@@ -621,14 +621,14 @@ describe('GovernorTimelockAccess', function () {
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
 
-          await time.clock.timestamp().then(clock => time.forward.timestamp(max(clock + 1n, eta)));
+          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
 
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
               this.proposal.id,
-              Enums.ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
             );
         });
 
@@ -637,22 +637,19 @@ describe('GovernorTimelockAccess', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
-          // await this.helper.queue();
 
-          // const eta = await this.mock.proposalEta(this.proposal.id);
           await expect(this.helper.cancel('internal'))
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
 
-          // await time.forward.timestamp(eta);
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
               this.proposal.id,
-              Enums.ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
             );
         });
 
@@ -671,7 +668,7 @@ describe('GovernorTimelockAccess', function () {
           for (const p of [proposal1, proposal2]) {
             await p.propose();
             await p.waitForSnapshot();
-            await p.connect(this.voter1).vote({ support: Enums.VoteType.For });
+            await p.connect(this.voter1).vote({ support: VoteType.For });
             await p.waitForDeadline();
           }
 
@@ -720,13 +717,13 @@ describe('GovernorTimelockAccess', function () {
         it('internal setter', async function () {
           await expect(this.mock.$_setAccessManagerIgnored(this.receiver, this.restricted.selector, true))
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.receiver.target, this.restricted.selector, true);
+            .withArgs(this.receiver, this.restricted.selector, true);
 
           expect(await this.mock.isAccessManagerIgnored(this.receiver, this.restricted.selector)).to.be.true;
 
           await expect(this.mock.$_setAccessManagerIgnored(this.mock, '0x12341234', false))
             .to.emit(this.mock, 'AccessManagerIgnoredSet')
-            .withArgs(this.mock.target, '0x12341234', false);
+            .withArgs(this.mock, '0x12341234', false);
 
           expect(await this.mock.isAccessManagerIgnored(this.mock, '0x12341234')).to.be.false;
         });
@@ -755,7 +752,7 @@ describe('GovernorTimelockAccess', function () {
 
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
           await expect(this.helper.execute()).to.emit(this.mock, 'AccessManagerIgnoredSet');
@@ -790,24 +787,22 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.setProposal([{ target, data }], 'descr #1');
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-            .withArgs(this.manager.target, 0n, amount);
+            .withArgs(this.manager, 0n, amount);
 
           await this.mock.$_setAccessManagerIgnored(target, selector, true);
 
           await this.helper.setProposal([{ target, data }], 'descr #2');
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
-          await expect(this.helper.execute())
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.mock.target, this.voter4.address, amount);
+          await expect(this.helper.execute()).to.emit(this.token, 'Transfer').withArgs(this.mock, this.voter4, amount);
         });
       });
 
@@ -837,7 +832,7 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.setProposal([this.operation], `descr`);
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           await this.helper.queue();
           await this.helper.waitForEta();
@@ -859,7 +854,7 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.setProposal([this.operation], `descr`);
           await this.helper.propose();
           await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           await this.helper.execute(); // Don't revert
         });

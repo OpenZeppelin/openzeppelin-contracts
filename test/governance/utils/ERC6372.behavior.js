@@ -1,4 +1,6 @@
-const { bigint: time } = require('../../helpers/time');
+const { expect } = require('chai');
+
+const time = require('../../helpers/time');
 
 function shouldBehaveLikeERC6372(mode = 'blocknumber') {
   describe('should implement ERC-6372', function () {

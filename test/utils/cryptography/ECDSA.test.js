@@ -6,10 +6,6 @@ const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const WRONG_MESSAGE = ethers.id('Nope');
 const NON_HASH_MESSAGE = '0xabcd';
 
-function toSignature(signature) {
-  return ethers.Signature.from(signature);
-}
-
 async function fixture() {
   const [signer] = await ethers.getSigners();
   const mock = await ethers.deployContract('$ECDSA');
@@ -48,7 +44,7 @@ describe('ECDSA', function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.mock.$recover(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer.address);
+        expect(await this.mock.$recover(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns signer address with correct signature for arbitrary length message', async function () {
@@ -56,12 +52,12 @@ describe('ECDSA', function () {
         const signature = await this.signer.signMessage(NON_HASH_MESSAGE);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.mock.$recover(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer.address);
+        expect(await this.mock.$recover(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns a different address', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
-        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer.address);
+        expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer);
       });
 
       it('reverts with invalid signature', async function () {
@@ -76,7 +72,6 @@ describe('ECDSA', function () {
     });
 
     describe('with v=27 signature', function () {
-      // Signature generated outside ganache with method web3.eth.sign(signer, message)
       const signer = '0x2cc1166f6212628A0deEf2B33BEFB2187D35b86c';
       // eslint-disable-next-line max-len
       const signatureWithoutV =
@@ -87,7 +82,7 @@ describe('ECDSA', function () {
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
-        const { r, s, yParityAndS: vs } = toSignature(signature);
+        const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
           signer,
         );
@@ -100,7 +95,7 @@ describe('ECDSA', function () {
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
-        const { r, s, yParityAndS: vs } = toSignature(signature);
+        const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(
           await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
         ).to.not.equal(signer);
@@ -118,7 +113,7 @@ describe('ECDSA', function () {
             'ECDSAInvalidSignature',
           );
 
-          const { r, s } = toSignature(signature);
+          const { r, s } = ethers.Signature.from(signature);
           await expect(
             this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
           ).to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignature');
@@ -128,7 +123,9 @@ describe('ECDSA', function () {
       it('rejects short EIP2098 format', async function () {
         const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
-        await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
+
+        const { compactSerialized } = ethers.Signature.from(signature);
+        await expect(this.mock.$recover(TEST_MESSAGE, compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
       });
@@ -145,7 +142,7 @@ describe('ECDSA', function () {
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
 
-        const { r, s, yParityAndS: vs } = toSignature(signature);
+        const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
           signer,
         );
@@ -158,7 +155,7 @@ describe('ECDSA', function () {
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
 
-        const { r, s, yParityAndS: vs } = toSignature(signature);
+        const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(
           await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
         ).to.not.equal(signer);
@@ -176,7 +173,7 @@ describe('ECDSA', function () {
             'ECDSAInvalidSignature',
           );
 
-          const { r, s } = toSignature(signature);
+          const { r, s } = ethers.Signature.from(signature);
           await expect(
             this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s),
           ).to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignature');
@@ -184,9 +181,11 @@ describe('ECDSA', function () {
       });
 
       it('rejects short EIP2098 format', async function () {
-        const v = '0x1c'; // 27 = 1b.
+        const v = '0x1b'; // 28 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
-        await expect(this.mock.$recover(TEST_MESSAGE, toSignature(signature).compactSerialized))
+
+        const { compactSerialized } = ethers.Signature.from(signature);
+        await expect(this.mock.$recover(TEST_MESSAGE, compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
       });
@@ -208,7 +207,7 @@ describe('ECDSA', function () {
       await expect(this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
         .withArgs(s);
-      expect(() => toSignature(highSSignature)).to.throw('non-canonical s');
+      expect(() => ethers.Signature.from(highSSignature)).to.throw('non-canonical s');
     });
   });
 });

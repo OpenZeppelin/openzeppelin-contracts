@@ -56,13 +56,13 @@ describe('ERC20FlashMint', function () {
       const tx = await this.token.flashLoan(receiver, this.token, loanValue, '0x');
       await expect(tx)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, receiver.target, loanValue)
+        .withArgs(ethers.ZeroAddress, receiver, loanValue)
         .to.emit(this.token, 'Transfer')
-        .withArgs(receiver.target, ethers.ZeroAddress, loanValue)
+        .withArgs(receiver, ethers.ZeroAddress, loanValue)
         .to.emit(receiver, 'BalanceOf')
-        .withArgs(this.token.target, receiver.target, loanValue)
+        .withArgs(this.token, receiver, loanValue)
         .to.emit(receiver, 'TotalSupply')
-        .withArgs(this.token.target, initialSupply + loanValue);
+        .withArgs(this.token, initialSupply + loanValue);
       await expect(tx).to.changeTokenBalance(this.token, receiver, 0);
 
       expect(await this.token.totalSupply()).to.equal(initialSupply);
@@ -73,14 +73,14 @@ describe('ERC20FlashMint', function () {
       const receiver = await ethers.deployContract('ERC3156FlashBorrowerMock', [false, true]);
       await expect(this.token.flashLoan(receiver, this.token, loanValue, '0x'))
         .to.be.revertedWithCustomError(this.token, 'ERC3156InvalidReceiver')
-        .withArgs(receiver.target);
+        .withArgs(receiver);
     });
 
     it('missing approval', async function () {
       const receiver = await ethers.deployContract('ERC3156FlashBorrowerMock', [true, false]);
       await expect(this.token.flashLoan(receiver, this.token, loanValue, '0x'))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
-        .withArgs(this.token.target, 0, loanValue);
+        .withArgs(this.token, 0, loanValue);
     });
 
     it('unavailable funds', async function () {
@@ -88,7 +88,7 @@ describe('ERC20FlashMint', function () {
       const data = this.token.interface.encodeFunctionData('transfer', [this.other.address, 10]);
       await expect(this.token.flashLoan(receiver, this.token, loanValue, data))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-        .withArgs(receiver.target, loanValue - 10n, loanValue);
+        .withArgs(receiver, loanValue - 10n, loanValue);
     });
 
     it('more than maxFlashLoan', async function () {
@@ -109,7 +109,7 @@ describe('ERC20FlashMint', function () {
         const tx = await this.token.$_mint(this.receiver, receiverInitialBalance);
         await expect(tx)
           .to.emit(this.token, 'Transfer')
-          .withArgs(ethers.ZeroAddress, this.receiver.target, receiverInitialBalance);
+          .withArgs(ethers.ZeroAddress, this.receiver, receiverInitialBalance);
         await expect(tx).to.changeTokenBalance(this.token, this.receiver, receiverInitialBalance);
 
         await this.token.setFlashFee(flashFee);
@@ -120,13 +120,13 @@ describe('ERC20FlashMint', function () {
         const tx = await this.token.flashLoan(this.receiver, this.token, loanValue, '0x');
         await expect(tx)
           .to.emit(this.token, 'Transfer')
-          .withArgs(ethers.ZeroAddress, this.receiver.target, loanValue)
+          .withArgs(ethers.ZeroAddress, this.receiver, loanValue)
           .to.emit(this.token, 'Transfer')
-          .withArgs(this.receiver.target, ethers.ZeroAddress, loanValue + flashFee)
+          .withArgs(this.receiver, ethers.ZeroAddress, loanValue + flashFee)
           .to.emit(this.receiver, 'BalanceOf')
-          .withArgs(this.token.target, this.receiver.target, receiverInitialBalance + loanValue)
+          .withArgs(this.token, this.receiver, receiverInitialBalance + loanValue)
           .to.emit(this.receiver, 'TotalSupply')
-          .withArgs(this.token.target, initialSupply + receiverInitialBalance + loanValue);
+          .withArgs(this.token, initialSupply + receiverInitialBalance + loanValue);
         await expect(tx).to.changeTokenBalances(this.token, [this.receiver, ethers.ZeroAddress], [-flashFee, 0]);
 
         expect(await this.token.totalSupply()).to.equal(initialSupply + receiverInitialBalance - flashFee);
@@ -136,20 +136,20 @@ describe('ERC20FlashMint', function () {
       it('custom flash fee receiver', async function () {
         const flashFeeReceiverAddress = this.anotherAccount;
         await this.token.setFlashFeeReceiver(flashFeeReceiverAddress);
-        expect(await this.token.$_flashFeeReceiver()).to.equal(flashFeeReceiverAddress.address);
+        expect(await this.token.$_flashFeeReceiver()).to.equal(flashFeeReceiverAddress);
 
         const tx = await this.token.flashLoan(this.receiver, this.token, loanValue, '0x');
         await expect(tx)
           .to.emit(this.token, 'Transfer')
-          .withArgs(ethers.ZeroAddress, this.receiver.target, loanValue)
+          .withArgs(ethers.ZeroAddress, this.receiver, loanValue)
           .to.emit(this.token, 'Transfer')
-          .withArgs(this.receiver.target, ethers.ZeroAddress, loanValue)
+          .withArgs(this.receiver, ethers.ZeroAddress, loanValue)
           .to.emit(this.token, 'Transfer')
-          .withArgs(this.receiver.target, flashFeeReceiverAddress.address, flashFee)
+          .withArgs(this.receiver, flashFeeReceiverAddress, flashFee)
           .to.emit(this.receiver, 'BalanceOf')
-          .withArgs(this.token.target, this.receiver.target, receiverInitialBalance + loanValue)
+          .withArgs(this.token, this.receiver, receiverInitialBalance + loanValue)
           .to.emit(this.receiver, 'TotalSupply')
-          .withArgs(this.token.target, initialSupply + receiverInitialBalance + loanValue);
+          .withArgs(this.token, initialSupply + receiverInitialBalance + loanValue);
         await expect(tx).to.changeTokenBalances(
           this.token,
           [this.receiver, flashFeeReceiverAddress],

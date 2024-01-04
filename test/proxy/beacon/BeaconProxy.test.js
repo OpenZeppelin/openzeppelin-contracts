@@ -1,7 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { getAddressInSlot, BeaconSlot } = require('../../helpers/erc1967');
+
+const { getAddressInSlot, BeaconSlot } = require('../../helpers/storage');
 
 async function fixture() {
   const [admin, other] = await ethers.getSigners();
@@ -27,7 +28,7 @@ describe('BeaconProxy', function () {
 
       await expect(this.newBeaconProxy(notBeacon, '0x'))
         .to.be.revertedWithCustomError(this.factory, 'ERC1967InvalidBeacon')
-        .withArgs(notBeacon.address);
+        .withArgs(notBeacon);
     });
 
     it('non-compliant beacon', async function () {
@@ -48,7 +49,7 @@ describe('BeaconProxy', function () {
   describe('initialization', function () {
     async function assertInitialized({ value, balance }) {
       const beaconAddress = await getAddressInSlot(this.proxy, BeaconSlot);
-      expect(beaconAddress).to.equal(this.beacon.target);
+      expect(beaconAddress).to.equal(this.beacon);
 
       const dummy = this.v1.attach(this.proxy);
       expect(await dummy.value()).to.equal(value);

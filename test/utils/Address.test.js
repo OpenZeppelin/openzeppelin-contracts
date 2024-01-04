@@ -29,7 +29,7 @@ describe('Address', function () {
       it('reverts when sending non-zero amounts', async function () {
         await expect(this.mock.$sendValue(this.other, 1))
           .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-          .withArgs(this.mock.target);
+          .withArgs(this.mock);
       });
     });
 
@@ -42,7 +42,7 @@ describe('Address', function () {
 
       describe('with EOA recipient', function () {
         it('sends 0 wei', async function () {
-          await expect(this.mock.$sendValue(this.recipient, 0)).to.changeEtherBalance(this.recipient.address, 0);
+          await expect(this.mock.$sendValue(this.recipient, 0)).to.changeEtherBalance(this.recipient, 0);
         });
 
         it('sends non-zero amounts', async function () {
@@ -60,7 +60,7 @@ describe('Address', function () {
         it('reverts when sending more than the balance', async function () {
           await expect(this.mock.$sendValue(this.recipient, funds + 1n))
             .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-            .withArgs(this.mock.target);
+            .withArgs(this.mock);
         });
       });
 
@@ -145,7 +145,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.recipient, call))
           .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-          .withArgs(this.recipient.address);
+          .withArgs(this.recipient);
       });
     });
   });
@@ -170,7 +170,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCallWithValue(this.target, call, value))
           .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-          .withArgs(this.mock.target);
+          .withArgs(this.mock);
       });
 
       it('calls the requested function with existing value', async function () {
@@ -240,7 +240,7 @@ describe('Address', function () {
 
       await expect(this.mock.$functionStaticCall(this.recipient, call))
         .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-        .withArgs(this.recipient.address);
+        .withArgs(this.recipient);
     });
   });
 
@@ -273,7 +273,7 @@ describe('Address', function () {
 
       await expect(this.mock.$functionDelegateCall(this.recipient, call))
         .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
-        .withArgs(this.recipient.address);
+        .withArgs(this.recipient);
     });
   });
 

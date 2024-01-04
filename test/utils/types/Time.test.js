@@ -1,12 +1,10 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const {
-  bigint: { clock },
-} = require('../../helpers/time');
 
 const { product } = require('../../helpers/iterate');
 const { max } = require('../../helpers/math');
+const time = require('../../helpers/time');
 
 const MAX_UINT32 = 1n << (32n - 1n);
 const MAX_UINT48 = 1n << (48n - 1n);
@@ -43,18 +41,18 @@ async function fixture() {
   return { mock };
 }
 
-contract('Time', function () {
+describe('Time', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
   describe('clocks', function () {
     it('timestamp', async function () {
-      expect(await this.mock.$timestamp()).to.equal(await clock.timestamp());
+      expect(await this.mock.$timestamp()).to.equal(await time.clock.timestamp());
     });
 
     it('block number', async function () {
-      expect(await this.mock.$blockNumber()).to.equal(await clock.blocknumber());
+      expect(await this.mock.$blockNumber()).to.equal(await time.clock.blocknumber());
     });
   });
 
@@ -92,7 +90,7 @@ contract('Time', function () {
     });
 
     it('get & getFull', async function () {
-      const timepoint = await clock.timestamp().then(BigInt);
+      const timepoint = await time.clock.timestamp();
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
 
@@ -110,7 +108,7 @@ contract('Time', function () {
     });
 
     it('withUpdate', async function () {
-      const timepoint = await clock.timestamp().then(BigInt);
+      const timepoint = await time.clock.timestamp();
       const valueBefore = 24194n;
       const valueAfter = 4214143n;
       const newvalueAfter = 94716n;

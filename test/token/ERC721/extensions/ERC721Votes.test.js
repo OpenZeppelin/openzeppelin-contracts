@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { bigint: time } = require('../../../helpers/time');
+const time = require('../../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
@@ -58,7 +58,7 @@ describe('ERC721Votes', function () {
         it('no delegation', async function () {
           await expect(this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]))
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .withArgs(this.holder, this.recipient, tokens[0])
             .to.not.emit(this.token, 'DelegateVotesChanged');
 
           this.holderVotes = 0n;
@@ -71,9 +71,9 @@ describe('ERC721Votes', function () {
           const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .withArgs(this.holder, this.recipient, tokens[0])
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.holder.address, 1n, 0n);
+            .withArgs(this.holder, 1n, 0n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
@@ -91,9 +91,9 @@ describe('ERC721Votes', function () {
           const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .withArgs(this.holder, this.recipient, tokens[0])
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.recipient.address, 0n, 1n);
+            .withArgs(this.recipient, 0n, 1n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
@@ -112,11 +112,11 @@ describe('ERC721Votes', function () {
           const tx = await this.votes.connect(this.holder).transferFrom(this.holder, this.recipient, tokens[0]);
           await expect(tx)
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, tokens[0])
+            .withArgs(this.holder, this.recipient, tokens[0])
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.holder.address, 1n, 0n)
+            .withArgs(this.holder, 1n, 0n)
             .to.emit(this.token, 'DelegateVotesChanged')
-            .withArgs(this.recipient.address, 0n, 1n);
+            .withArgs(this.recipient, 0n, 1n);
 
           const { logs } = await tx.wait();
           const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');

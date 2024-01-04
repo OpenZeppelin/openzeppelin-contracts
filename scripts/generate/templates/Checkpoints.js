@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { OPTS } = require('./Checkpoints.opts.js');
+const { OPTS } = require('./Checkpoints.opts');
 
 // TEMPLATE
 const header = `\

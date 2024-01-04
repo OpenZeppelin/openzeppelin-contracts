@@ -69,7 +69,7 @@ describe('Nonces', function () {
 
       await expect(this.mock.$_useCheckedNonce(this.sender, currentNonce + 1n))
         .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
-        .withArgs(this.sender.address, currentNonce);
+        .withArgs(this.sender, currentNonce);
     });
   });
 });
