@@ -754,7 +754,7 @@ function shouldBehaveLikeERC1155() {
       });
     });
 
-    shouldSupportInterfaces(['ERC165', 'ERC1155', 'ERC1155MetadataURI']);
+    shouldSupportInterfaces(['ERC1155', 'ERC1155MetadataURI']);
   });
 }
 
