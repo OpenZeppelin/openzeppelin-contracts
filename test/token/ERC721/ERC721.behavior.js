@@ -78,7 +78,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
           await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -1);
         });
 
-        extraTxTests?.different(tokenId);
+        if (extraTxTests?.transferWasSuccessful) extraTxTests?.transferWasSuccessful(tokenId);
       };
 
       // opts:
@@ -141,7 +141,7 @@ function shouldBehaveLikeERC721(extraTxTests) {
             await expect(this.tx).to.changeTokenBalance(this.token, this.owner, 0);
           });
 
-          extraTxTests?.same([firstTokenId, secondTokenId]);
+          if (extraTxTests?.toOwner) extraTxTests?.toOwner([firstTokenId, secondTokenId]);
         });
 
         if (opts.unrestricted)
