@@ -10,8 +10,7 @@ const tokenId = 1n;
 const otherTokenId = 2n;
 
 async function fixture() {
-  const accounts = await ethers.getSigners();
-  const [owner, newOwner, approved, operator, other] = accounts;
+  const [owner, newOwner, approved, operator, other] = await ethers.getSigners();
 
   const underlying = await ethers.deployContract('$ERC721', [name, symbol]);
   await underlying.$_safeMint(owner, tokenId);
