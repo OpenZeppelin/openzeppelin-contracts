@@ -16,7 +16,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
- * inaccessible.
+ * inaccessible from a proposal, unless executed via {Governor-relay}.
  */
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;

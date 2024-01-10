@@ -1,62 +1,87 @@
-const { ethers } = require('ethers');
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const shouldBehaveLikeClone = require('./Clones.behaviour');
 
-const Clones = artifacts.require('$Clones');
+async function fixture() {
+  const [deployer] = await ethers.getSigners();
 
-contract('Clones', function (accounts) {
-  const [deployer] = accounts;
+  const factory = await ethers.deployContract('$Clones');
+  const implementation = await ethers.deployContract('DummyImplementation');
+
+  const newClone = async (initData, opts = {}) => {
+    const clone = await factory.$clone.staticCall(implementation).then(address => implementation.attach(address));
+    await factory.$clone(implementation);
+    await deployer.sendTransaction({ to: clone, value: opts.value ?? 0n, data: initData ?? '0x' });
+    return clone;
+  };
+
+  const newCloneDeterministic = async (initData, opts = {}) => {
+    const salt = opts.salt ?? ethers.randomBytes(32);
+    const clone = await factory.$cloneDeterministic
+      .staticCall(implementation, salt)
+      .then(address => implementation.attach(address));
+    await factory.$cloneDeterministic(implementation, salt);
+    await deployer.sendTransaction({ to: clone, value: opts.value ?? 0n, data: initData ?? '0x' });
+    return clone;
+  };
+
+  return { deployer, factory, implementation, newClone, newCloneDeterministic };
+}
+
+describe('Clones', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
 
   describe('clone', function () {
-    shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
-      const factory = await Clones.new();
-      const receipt = await factory.$clone(implementation);
-      const address = receipt.logs.find(({ event }) => event === 'return$clone').args.instance;
-      await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
-      return { address };
+    beforeEach(async function () {
+      this.createClone = this.newClone;
     });
+
+    shouldBehaveLikeClone();
   });
 
   describe('cloneDeterministic', function () {
-    shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
-      const salt = web3.utils.randomHex(32);
-      const factory = await Clones.new();
-      const receipt = await factory.$cloneDeterministic(implementation, salt);
-      const address = receipt.logs.find(({ event }) => event === 'return$cloneDeterministic').args.instance;
-      await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
-      return { address };
+    beforeEach(async function () {
+      this.createClone = this.newCloneDeterministic;
     });
 
-    it('address already used', async function () {
-      const implementation = web3.utils.randomHex(20);
-      const salt = web3.utils.randomHex(32);
-      const factory = await Clones.new();
+    shouldBehaveLikeClone();
+
+    it('revert if address already used', async function () {
+      const salt = ethers.randomBytes(32);
+
       // deploy once
-      expectEvent(await factory.$cloneDeterministic(implementation, salt), 'return$cloneDeterministic');
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.emit(
+        this.factory,
+        'return$cloneDeterministic',
+      );
+
       // deploy twice
-      await expectRevertCustomError(factory.$cloneDeterministic(implementation, salt), 'ERC1167FailedCreateClone', []);
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.be.revertedWithCustomError(
+        this.factory,
+        'ERC1167FailedCreateClone',
+      );
     });
 
     it('address prediction', async function () {
-      const implementation = web3.utils.randomHex(20);
-      const salt = web3.utils.randomHex(32);
-      const factory = await Clones.new();
-      const predicted = await factory.$predictDeterministicAddress(implementation, salt);
+      const salt = ethers.randomBytes(32);
 
-      const creationCode = [
+      const creationCode = ethers.concat([
         '0x3d602d80600a3d3981f3363d3d373d3d3d363d73',
-        implementation.replace(/0x/, '').toLowerCase(),
-        '5af43d82803e903d91602b57fd5bf3',
-      ].join('');
+        this.implementation.target,
+        '0x5af43d82803e903d91602b57fd5bf3',
+      ]);
 
-      expect(ethers.getCreate2Address(factory.address, salt, ethers.keccak256(creationCode))).to.be.equal(predicted);
+      const predicted = await this.factory.$predictDeterministicAddress(this.implementation, salt);
+      const expected = ethers.getCreate2Address(this.factory.target, salt, ethers.keccak256(creationCode));
+      expect(predicted).to.equal(expected);
 
-      expectEvent(await factory.$cloneDeterministic(implementation, salt), 'return$cloneDeterministic', {
-        instance: predicted,
-      });
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt))
+        .to.emit(this.factory, 'return$cloneDeterministic')
+        .withArgs(predicted);
     });
   });
 });

@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain } = require('../helpers/eip712');
-const { bigint: time } = require('../helpers/time');
-const { bigintSum: sum } = require('../helpers/math');
+const { getDomain, ForwardRequest } = require('../helpers/eip712');
+const { sum } = require('../helpers/math');
+const time = require('../helpers/time');
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
@@ -12,17 +12,7 @@ async function fixture() {
   const forwarder = await ethers.deployContract('ERC2771Forwarder', ['ERC2771Forwarder']);
   const receiver = await ethers.deployContract('CallReceiverMockTrustingForwarder', [forwarder]);
   const domain = await getDomain(forwarder);
-  const types = {
-    ForwardRequest: [
-      { name: 'from', type: 'address' },
-      { name: 'to', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'gas', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint48' },
-      { name: 'data', type: 'bytes' },
-    ],
-  };
+  const types = { ForwardRequest };
 
   const forgeRequest = async (override = {}, signer = sender) => {
     const req = {
@@ -84,9 +74,9 @@ describe('ERC2771Forwarder', function () {
     describe('with valid signature', function () {
       it('returns true without altering the nonce', async function () {
         const request = await this.forgeRequest();
-        expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
-        expect(await this.forwarder.verify(request)).to.be.equal(true);
-        expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce);
+        expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce);
+        expect(await this.forwarder.verify(request)).to.be.true;
+        expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce);
       });
     });
 
@@ -96,18 +86,18 @@ describe('ERC2771Forwarder', function () {
           const request = await this.forgeRequest();
           request[key] = typeof value == 'function' ? value(request[key]) : value;
 
-          expect(await this.forwarder.verify(request)).to.be.equal(false);
+          expect(await this.forwarder.verify(request)).to.be.false;
         });
       }
 
       it('returns false with valid signature for non-current nonce', async function () {
         const request = await this.forgeRequest({ nonce: 1337n });
-        expect(await this.forwarder.verify(request)).to.be.equal(false);
+        expect(await this.forwarder.verify(request)).to.be.false;
       });
 
       it('returns false with valid signature for expired deadline', async function () {
         const request = await this.forgeRequest({ deadline: (await time.clock.timestamp()) - 1n });
-        expect(await this.forwarder.verify(request)).to.be.equal(false);
+        expect(await this.forwarder.verify(request)).to.be.false;
       });
     });
   });
@@ -124,7 +114,7 @@ describe('ERC2771Forwarder', function () {
           .to.emit(this.forwarder, 'ExecutedForwardRequest')
           .withArgs(request.from, request.nonce, true);
 
-        expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce + 1n);
+        expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce + 1n);
       });
 
       it('reverts with an unsuccessful request', async function () {
@@ -150,7 +140,7 @@ describe('ERC2771Forwarder', function () {
           } else {
             await expect(promise)
               .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-              .withArgs(request.to, this.forwarder.target);
+              .withArgs(request.to, this.forwarder);
           }
         });
       }
@@ -206,7 +196,7 @@ describe('ERC2771Forwarder', function () {
         .then(block => block.getTransaction(0))
         .then(tx => ethers.provider.getTransactionReceipt(tx.hash));
 
-      expect(gasUsed).to.be.equal(gasLimit);
+      expect(gasUsed).to.equal(gasLimit);
     });
 
     it('bubbles out of gas forced by the relayer', async function () {
@@ -236,7 +226,7 @@ describe('ERC2771Forwarder', function () {
         .then(tx => ethers.provider.getTransactionReceipt(tx.hash));
 
       // We assert that indeed the gas was totally consumed.
-      expect(gasUsed).to.be.equal(gasLimit);
+      expect(gasUsed).to.equal(gasLimit);
     });
   });
 
@@ -255,7 +245,7 @@ describe('ERC2771Forwarder', function () {
     describe('with valid requests', function () {
       it('sanity', async function () {
         for (const request of this.requests) {
-          expect(await this.forwarder.verify(request)).to.be.equal(true);
+          expect(await this.forwarder.verify(request)).to.be.true;
         }
       });
 
@@ -274,7 +264,7 @@ describe('ERC2771Forwarder', function () {
         await this.forwarder.executeBatch(this.requests, this.another, { value: this.value });
 
         for (const request of this.requests) {
-          expect(await this.forwarder.nonces(request.from)).to.be.equal(request.nonce + 1n);
+          expect(await this.forwarder.nonces(request.from)).to.equal(request.nonce + 1n);
         }
       });
     });
@@ -309,7 +299,7 @@ describe('ERC2771Forwarder', function () {
             } else {
               await expect(promise)
                 .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-                .withArgs(this.requests[idx].to, this.forwarder.target);
+                .withArgs(this.requests[idx].to, this.forwarder);
             }
           });
         }
@@ -405,12 +395,12 @@ describe('ERC2771Forwarder', function () {
 
         afterEach(async function () {
           // The invalid request value was refunded
-          expect(await ethers.provider.getBalance(this.refundReceiver)).to.be.equal(
+          expect(await ethers.provider.getBalance(this.refundReceiver)).to.equal(
             this.initialRefundReceiverBalance + this.requests[idx].value,
           );
 
           // The invalid request from's nonce was not incremented
-          expect(await this.forwarder.nonces(this.requests[idx].from)).to.be.equal(this.initialTamperedRequestNonce);
+          expect(await this.forwarder.nonces(this.requests[idx].from)).to.equal(this.initialTamperedRequestNonce);
         });
       });
 
@@ -433,7 +423,7 @@ describe('ERC2771Forwarder', function () {
           .then(block => block.getTransaction(0))
           .then(tx => ethers.provider.getTransactionReceipt(tx.hash));
 
-        expect(gasUsed).to.be.equal(gasLimit);
+        expect(gasUsed).to.equal(gasLimit);
       });
 
       it('bubbles out of gas forced by the relayer', async function () {
@@ -464,7 +454,7 @@ describe('ERC2771Forwarder', function () {
           .then(tx => ethers.provider.getTransactionReceipt(tx.hash));
 
         // We assert that indeed the gas was totally consumed.
-        expect(gasUsed).to.be.equal(gasLimit);
+        expect(gasUsed).to.equal(gasLimit);
       });
     });
   });

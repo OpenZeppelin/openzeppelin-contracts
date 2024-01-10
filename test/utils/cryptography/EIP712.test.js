@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { getChainId } = require('../../helpers/chainid');
+const { formatType } = require('../../helpers/eip712-types');
 
 const LENGTHS = {
   short: ['A Name', '1'],
@@ -20,7 +20,7 @@ const fixture = async () => {
     lengths[shortOrLong].domain = {
       name,
       version,
-      chainId: await getChainId(),
+      chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
       verifyingContract: lengths[shortOrLong].eip712.target,
     };
   }
@@ -77,10 +77,10 @@ describe('EIP712', function () {
 
       it('digest', async function () {
         const types = {
-          Mail: [
-            { name: 'to', type: 'address' },
-            { name: 'contents', type: 'string' },
-          ],
+          Mail: formatType({
+            to: 'address',
+            contents: 'string',
+          }),
         };
 
         const message = {

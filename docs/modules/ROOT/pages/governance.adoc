@@ -32,7 +32,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
-For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
+For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference[Defender Transaction Proposals] as an alternative interface.
 
 In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.
 
@@ -102,7 +102,7 @@ A proposal is a sequence of actions that the Governor contract will perform if i
 
 Let’s say we want to create a proposal to give a team a grant, in the form of ERC-20 tokens from the governance treasury. This proposal will consist of a single action where the target is the ERC-20 token, calldata is the encoded function call `transfer(<team wallet>, <grant amount>)`, and with 0 ETH attached.
 
-Generally a proposal will be created with the help of an interface such as Tally or Defender. Here we will show how to create the proposal using Ethers.js.
+Generally a proposal will be created with the help of an interface such as Tally or https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference[Defender Proposals]. Here we will show how to create the proposal using Ethers.js.
 
 First we get all the parameters necessary for the proposal action.
 
@@ -235,6 +235,6 @@ contract MyGovernor is Governor, GovernorCountingSimple, GovernorVotes, Governor
 
 === Disclaimer
 
-Timestamp based voting is a recent feature that was formalized in ERC-6372 and ERC-5805, and introduced in v4.9. At the time this feature is released, governance tooling such as https://www.tally.xyz[Tally] does not support it yet. While support for timestamps should come soon, users can expect invalid reporting of deadlines & durations. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
+Timestamp based voting is a recent feature that was formalized in ERC-6372 and ERC-5805, and introduced in v4.9. At the time this feature is released, some governance tooling may not support it yet. Users can expect invalid reporting of deadlines & durations if the tool is not able to interpret the ERC6372 clock. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
 
 Governors with timestamp support (v4.9 and above) are compatible with old tokens (before v4.9) and will operate in "block number" mode (which is the mode all old tokens operate on). On the other hand, old Governor instances (before v4.9) are not compatible with new tokens operating using timestamps. If you update your token code to use timestamps, make sure to also update your Governor code.

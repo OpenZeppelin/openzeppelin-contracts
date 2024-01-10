@@ -1,64 +1,56 @@
-const { BN } = require('@openzeppelin/test-helpers');
-
-const ERC1155Holder = artifacts.require('$ERC1155Holder');
-const ERC1155 = artifacts.require('$ERC1155');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
-contract('ERC1155Holder', function (accounts) {
-  const [creator] = accounts;
-  const uri = 'https://token-cdn-domain/{id}.json';
-  const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
-  const multiTokenValues = [new BN(1000), new BN(2000), new BN(3000)];
-  const transferData = '0x12345678';
+const ids = [1n, 2n, 3n];
+const values = [1000n, 2000n, 3000n];
+const data = '0x12345678';
 
+async function fixture() {
+  const [owner] = await ethers.getSigners();
+
+  const token = await ethers.deployContract('$ERC1155', ['https://token-cdn-domain/{id}.json']);
+  const mock = await ethers.deployContract('$ERC1155Holder');
+
+  await token.$_mintBatch(owner, ids, values, '0x');
+
+  return { owner, token, mock };
+}
+
+describe('ERC1155Holder', function () {
   beforeEach(async function () {
-    this.multiToken = await ERC1155.new(uri);
-    this.holder = await ERC1155Holder.new();
-    await this.multiToken.$_mintBatch(creator, multiTokenIds, multiTokenValues, '0x');
+    Object.assign(this, await loadFixture(fixture));
   });
 
   shouldSupportInterfaces(['ERC165', 'ERC1155Receiver']);
 
   it('receives ERC1155 tokens from a single ID', async function () {
-    await this.multiToken.safeTransferFrom(
-      creator,
-      this.holder.address,
-      multiTokenIds[0],
-      multiTokenValues[0],
-      transferData,
-      { from: creator },
-    );
+    await this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock, ids[0], values[0], data);
 
-    expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0])).to.be.bignumber.equal(
-      multiTokenValues[0],
-    );
+    expect(await this.token.balanceOf(this.mock, ids[0])).to.equal(values[0]);
 
-    for (let i = 1; i < multiTokenIds.length; i++) {
-      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(new BN(0));
+    for (let i = 1; i < ids.length; i++) {
+      expect(await this.token.balanceOf(this.mock, ids[i])).to.equal(0n);
     }
   });
 
   it('receives ERC1155 tokens from a multiple IDs', async function () {
-    for (let i = 0; i < multiTokenIds.length; i++) {
-      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(new BN(0));
-    }
+    expect(
+      await this.token.balanceOfBatch(
+        ids.map(() => this.mock),
+        ids,
+      ),
+    ).to.deep.equal(ids.map(() => 0n));
 
-    await this.multiToken.safeBatchTransferFrom(
-      creator,
-      this.holder.address,
-      multiTokenIds,
-      multiTokenValues,
-      transferData,
-      { from: creator },
-    );
+    await this.token.connect(this.owner).safeBatchTransferFrom(this.owner, this.mock, ids, values, data);
 
-    for (let i = 0; i < multiTokenIds.length; i++) {
-      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(
-        multiTokenValues[i],
-      );
-    }
+    expect(
+      await this.token.balanceOfBatch(
+        ids.map(() => this.mock),
+        ids,
+      ),
+    ).to.deep.equal(values);
   });
 });

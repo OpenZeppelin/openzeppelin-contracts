@@ -1,6 +1,6 @@
-const { ethers } = require('ethers');
 const { expect } = require('chai');
-const { selector } = require('../../helpers/methods');
+const { interfaceId } = require('../../helpers/methods');
+const { mapValues } = require('../../helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
 const SIGNATURES = {
@@ -26,6 +26,7 @@ const SIGNATURES = {
     'safeTransferFrom(address,address,uint256,uint256,bytes)',
     'safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)',
   ],
+  ERC1155MetadataURI: ['uri(uint256)'],
   ERC1155Receiver: [
     'onERC1155Received(address,address,uint256,uint256,bytes)',
     'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)',
@@ -81,15 +82,7 @@ const SIGNATURES = {
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
-const INTERFACE_IDS = Object.fromEntries(
-  Object.entries(SIGNATURES).map(([name, signatures]) => [
-    name,
-    ethers.toBeHex(
-      signatures.reduce((id, fnSig) => id ^ BigInt(selector(fnSig)), 0n),
-      4,
-    ),
-  ]),
-);
+const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
 function shouldSupportInterfaces(interfaces = []) {
   describe('ERC165', function () {
@@ -101,25 +94,25 @@ function shouldSupportInterfaces(interfaces = []) {
       it('uses less than 30k gas', async function () {
         for (const k of interfaces) {
           const interface = INTERFACE_IDS[k] ?? k;
-          expect(await this.contractUnderTest.supportsInterface.estimateGas(interface)).to.be.lte(30000);
+          expect(await this.contractUnderTest.supportsInterface.estimateGas(interface)).to.lte(30_000n);
         }
       });
 
       it('returns true', async function () {
         for (const k of interfaces) {
           const interfaceId = INTERFACE_IDS[k] ?? k;
-          expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
+          expect(await this.contractUnderTest.supportsInterface(interfaceId), `does not support ${k}`).to.be.true;
         }
       });
     });
 
     describe('when the interfaceId is not supported', function () {
       it('uses less than 30k', async function () {
-        expect(await this.contractUnderTest.supportsInterface.estimateGas(INVALID_ID)).to.be.lte(30000);
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(INVALID_ID)).to.lte(30_000n);
       });
 
       it('returns false', async function () {
-        expect(await this.contractUnderTest.supportsInterface(INVALID_ID)).to.be.equal(false, `supports ${INVALID_ID}`);
+        expect(await this.contractUnderTest.supportsInterface(INVALID_ID), `supports ${INVALID_ID}`).to.be.false;
       });
     });
 
@@ -127,17 +120,10 @@ function shouldSupportInterfaces(interfaces = []) {
       for (const k of interfaces) {
         // skip interfaces for which we don't have a function list
         if (SIGNATURES[k] === undefined) continue;
-        for (const fnSig of SIGNATURES[k]) {
-          // TODO: Remove Truffle case when ethersjs migration is done
-          if (this.contractUnderTest.abi) {
-            const fnSelector = selector(fnSig);
-            return expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSelector).length).to.equal(
-              1,
-              `did not find ${fnSig}`,
-            );
-          }
 
-          expect(!!this.contractUnderTest.interface.getFunction(fnSig), `did not find ${fnSig}`).to.be.true;
+        // Check the presence of each function in the contract's interface
+        for (const fnSig of SIGNATURES[k]) {
+          expect(this.contractUnderTest.interface.hasFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }
     });

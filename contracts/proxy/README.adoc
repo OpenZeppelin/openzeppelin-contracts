@@ -19,7 +19,7 @@ There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their
 - {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
 - {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
 
-CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
 
 A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
