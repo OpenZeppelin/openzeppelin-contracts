@@ -45,7 +45,7 @@ library Base64 {
         // - `data.length + 2`  -> Round up
         // - `/ 3`              -> Number of 3-bytes chunks
         // - `4 *`              -> 4 characters for each chunk
-        // If padding is not enable, then the length is rounded up differently
+        // If padding is not enabled, then the length is rounded up differently
         string memory result = new string(withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3);
 
         /// @solidity memory-safe-assembly
