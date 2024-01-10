@@ -38,19 +38,17 @@ library Base64 {
          */
         if (data.length == 0) return "";
 
-        uint256 resultLength = withPadding
-            ? // The final length should be `bytes` data length divided by 3 rounded up and then multiplied by 4
-            // so that it leaves room for padding the last chunk
-            // - `data.length + 2`  -> Round up
-            // - `/ 3`              -> Number of 3-bytes chunks
-            // - `4 *`              -> 4 characters for each chunk
-            4 * ((data.length + 2) / 3)
-            : // The final length should be `bytes` data length multiplied by 4/3 rounded up
-            // as opposed to when padding is required to fill the last chunk.
-            // - `4 *`              -> 4 characters for each chunk
-            // - `data.length + 2`  -> Round up
-            // - `/ 3`              -> Number of 3-bytes chunks
-            (4 * data.length + 2) / 3;
+        // If padding is enabled, the final length should be `bytes` data length divided by 3 rounded up and then
+        // multiplied by 4 so that it leaves room for padding the last chunk
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 *`              -> 4 characters for each chunk
+        // If padding is disabled, the final length should be `bytes` data length multiplied by 4/3 rounded up as
+        // opposed to when padding is required to fill the last chunk.
+        // - `4 *`              -> 4 characters for each chunk
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        uint256 resultLength = withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3;
 
         string memory result = new string(resultLength);
 
