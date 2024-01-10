@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Base64`: And `encodeUrl` following section 5 of rfc4648 for URL encoding
+`Base64`: Add `encodeURL` following section 5 of RFC4648 for URL encoding

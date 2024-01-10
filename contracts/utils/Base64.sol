@@ -24,7 +24,7 @@ library Base64 {
     /**
      * @dev Converts a `bytes` to its Bytes64Url `string` representation.
      */
-    function encodeUrl(bytes memory data) internal pure returns (string memory) {
+    function encodeURL(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE_URL, false);
     }
 
