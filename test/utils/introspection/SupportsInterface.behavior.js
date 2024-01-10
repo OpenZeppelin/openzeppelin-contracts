@@ -85,7 +85,7 @@ const SIGNATURES = {
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
 function shouldSupportInterfaces(interfaces = []) {
-  interfaces = ['ERC165', ...interfaces];
+  interfaces.unshift('ERC165');
 
   describe('ERC165', function () {
     beforeEach(function () {
