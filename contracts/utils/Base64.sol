@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import "hardhat/console.sol";
-
 /**
  * @dev Provides a set of functions to operate with Base64 strings.
  */
@@ -40,13 +38,21 @@ library Base64 {
          */
         if (data.length == 0) return "";
 
-        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter and split into 4 numbers of 6 bits.
-        // If padding is enabled, the final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
-        // - `data.length + 2`  -> Round up
-        // - `/ 3`              -> Number of 3-bytes chunks
-        // - `4 *`              -> 4 characters for each chunk
-        // If padding is not enabled, then the length is rounded up differently
-        string memory result = new string(withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3);
+        uint256 resultLength = withPadding
+            // The final length should be `bytes` data length divided by 3 rounded up and then multiplied by 4
+            // so that it leaves room for padding the last chunk
+            // - `data.length + 2`  -> Round up
+            // - `/ 3`              -> Number of 3-bytes chunks
+            // - `4 *`              -> 4 characters for each chunk
+            ? 4 * ((data.length + 2) / 3)
+            // The final length should be `bytes` data length multiplied by 4/3 rounded up
+            // as opposed to when padding is required to fill the last chunk.
+            // - `4 *`              -> 4 characters for each chunk
+            // - `data.length + 2`  -> Round up
+            // - `/ 3`              -> Number of 3-bytes chunks
+            : (4 * data.length + 2) / 3;
+
+        string memory result = new string(resultLength);
 
         /// @solidity memory-safe-assembly
         assembly {
