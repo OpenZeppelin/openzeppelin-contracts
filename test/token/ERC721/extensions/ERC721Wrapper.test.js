@@ -25,16 +25,18 @@ describe('ERC721Wrapper', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('has a name', async function () {
-    expect(await this.token.name()).to.equal(`Wrapped ${name}`);
-  });
+  describe('Deploy parameters', function () {
+    it('has a name', async function () {
+      expect(await this.token.name()).to.equal(`Wrapped ${name}`);
+    });
 
-  it('has a symbol', async function () {
-    expect(await this.token.symbol()).to.equal(`W${symbol}`);
-  });
+    it('has a symbol', async function () {
+      expect(await this.token.symbol()).to.equal(`W${symbol}`);
+    });
 
-  it('has underlying', async function () {
-    expect(await this.token.underlying()).to.equal(this.underlying);
+    it('has underlying', async function () {
+      expect(await this.token.underlying()).to.equal(this.underlying);
+    });
   });
 
   describe('depositFor', function () {
@@ -194,7 +196,5 @@ describe('ERC721Wrapper', function () {
     });
   });
 
-  describe('ERC712 behavior', function () {
-    shouldBehaveLikeERC721();
-  });
+  shouldBehaveLikeERC721();
 });
