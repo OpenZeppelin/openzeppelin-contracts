@@ -170,9 +170,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Download tarball artifact
         id: artifact
-        # Replace with actions/upload-artifact@v3 when
-        # https://github.com/actions/download-artifact/pull/194 gets released
-        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110
+        uses: actions/download-artifact@v3
         with:
           name: ${{ github.ref_name }}
       - name: Check integrity
