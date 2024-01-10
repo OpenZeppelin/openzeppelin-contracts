@@ -6,7 +6,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
-contract ShortStringsTest is Test {
+contract Base64Test is Test {
     function testEncode(bytes memory input) external {
         string memory output = Base64.encode(input);
         assertEq(output, _base64Ffi(input, "encode"));
