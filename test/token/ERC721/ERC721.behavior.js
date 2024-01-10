@@ -13,6 +13,11 @@ const nonExistentTokenId = 13n;
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
 function shouldBehaveLikeERC721(extraTxTests) {
+  beforeEach(async function () {
+    const [owner, newOwner, approved, operator, other] = await ethers.getSigners();
+    Object.assign(this, { owner, newOwner, approved, operator, other });
+  });
+
   shouldSupportInterfaces(['ERC165', 'ERC721']);
 
   describe('with minted tokens', function () {
@@ -655,6 +660,11 @@ function shouldBehaveLikeERC721(extraTxTests) {
 }
 
 function shouldBehaveLikeERC721Enumerable() {
+  beforeEach(async function () {
+    const [owner, newOwner, approved, operator, other] = await ethers.getSigners();
+    Object.assign(this, { owner, newOwner, approved, operator, other });
+  });
+
   shouldSupportInterfaces(['ERC721Enumerable']);
 
   describe('with minted tokens', function () {
