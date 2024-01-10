@@ -4,6 +4,7 @@ runs:
   using: composite
   steps:
     - uses: actions/setup-node@v4
+        node-version: 20.x
     - uses: actions/cache@v3
       id: cache
       with:
