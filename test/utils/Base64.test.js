@@ -41,8 +41,8 @@ describe('Strings', function () {
     ])
       it(title, async function () {
         const buffer = Buffer.from(input, 'ascii');
-        expect(await this.mock.$encodeUrl(buffer)).to.equal(base64toBase64Url(ethers.encodeBase64(buffer)));
-        expect(await this.mock.$encodeUrl(buffer)).to.equal(expected);
+        expect(await this.mock.$encodeURL(buffer)).to.equal(base64toBase64Url(ethers.encodeBase64(buffer)));
+        expect(await this.mock.$encodeURL(buffer)).to.equal(expected);
       });
   });
 });
