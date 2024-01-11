@@ -21,7 +21,8 @@ describe('Strings', function () {
       { title: 'converts to base64 encoded string with double padding', input: 'test', expected: 'dGVzdA==' },
       { title: 'converts to base64 encoded string with single padding', input: 'test1', expected: 'dGVzdDE=' },
       { title: 'converts to base64 encoded string without padding', input: 'test12', expected: 'dGVzdDEy' },
-      { title: 'converts to base64 encoded string (special case)', input: 'où', expected: 'b/k=' },
+      { title: 'converts to base64 encoded string (/ case)', input: 'où', expected: 'b/k=' },
+      { title: 'converts to base64 encoded string (+ case)', input: 'zs~1t8', expected: 'enN+MXQ4' },
       { title: 'empty bytes', input: '', expected: '' },
     ])
       it(title, async function () {
@@ -36,7 +37,8 @@ describe('Strings', function () {
       { title: 'converts to base64url encoded string with double padding', input: 'test', expected: 'dGVzdA' },
       { title: 'converts to base64url encoded string with single padding', input: 'test1', expected: 'dGVzdDE' },
       { title: 'converts to base64url encoded string without padding', input: 'test12', expected: 'dGVzdDEy' },
-      { title: 'converts to base64url encoded string (special case)', input: 'où', expected: 'b_k' },
+      { title: 'converts to base64url encoded string (_ case)', input: 'où', expected: 'b_k' },
+      { title: 'converts to base64url encoded string (- case)', input: 'zs~1t8', expected: 'enN-MXQ4' },
       { title: 'empty bytes', input: '', expected: '' },
     ])
       it(title, async function () {
