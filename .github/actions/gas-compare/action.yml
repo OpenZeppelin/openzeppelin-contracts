@@ -43,7 +43,7 @@ runs:
       shell: bash
     - name: Save report
       if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gasreport
         path: ${{ inputs.out_report }}
