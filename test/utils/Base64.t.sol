@@ -6,6 +6,9 @@ import {Test} from "forge-std/Test.sol";
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
+/// NOTE: This test requires `ffi` to be enabled. It does not run in the CI
+/// environment given `ffi` is not recommended.
+/// See: https://github.com/foundry-rs/foundry/issues/6744
 contract Base64Test is Test {
     function testEncode(bytes memory input) external {
         string memory output = Base64.encode(input);
