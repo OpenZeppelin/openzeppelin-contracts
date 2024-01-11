@@ -181,7 +181,10 @@ interface IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint64 roleId, address account) external view returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect);
+    function getAccess(
+        uint64 roleId,
+        address account
+    ) external view returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect);
 
     /**
      * @dev Check if a given account currently has the permission level corresponding to a given role. Note that this
@@ -340,7 +343,11 @@ interface IAccessManager {
      * this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
      * contract if it is using standard Solidity ABI encoding.
      */
-    function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32 operationId, uint32 nonce);
+    function schedule(
+        address target,
+        bytes calldata data,
+        uint48 when
+    ) external returns (bytes32 operationId, uint32 nonce);
 
     /**
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
