@@ -57,7 +57,6 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@openzeppelin/docs-utils": "^0.1.5",
     "@openzeppelin/merkle-tree": "^1.0.5",
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
