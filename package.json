@@ -62,7 +62,7 @@
     "@openzeppelin/merkle-tree": "^1.0.5",
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
     "@openzeppelin/upgrades-core": "^1.20.6",
-    "chai": "^4.2.0",
+    "chai": "^5.0.0",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.7.1",
