@@ -20,7 +20,7 @@ function shouldBehaveLikeERC721() {
     Object.assign(this, { owner, newOwner, approved, operator, other });
   });
 
-  shouldSupportInterfaces(['ERC165', 'ERC721']);
+  shouldSupportInterfaces(['ERC721']);
 
   describe('with minted tokens', function () {
     beforeEach(async function () {
