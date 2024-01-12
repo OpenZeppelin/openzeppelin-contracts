@@ -49,13 +49,13 @@ invariant atUniqueness(uint256 index1, uint256 index2)
     }
 
 /*
-┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: index <> key relationship is consistent                                                                    │
-│                                                                                                                       │
-│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one another. │
-│ This proves that we have a bijection between indices (the enumerability part) and keys (the entries that are added    │
-│ and removed from the EnumerableSet).                                                                                  │
-└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: index <> key relationship is consistent                                                                  │
+│                                                                                                                     │
+│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one        │
+│ another. This proves that we have a bijection between indices (the enumerability part) and keys (the entries that   │
+│ are added and removed from the EnumerableSet).                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
     index < length() => _positionOf(at_(index)) == require_uint256(index + 1)
