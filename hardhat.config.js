@@ -21,12 +21,6 @@ const argv = require('yargs/yargs')()
       alias: 'enableGasReport',
       type: 'boolean',
       default: false,
-      implies: 'gasReport',
-    },
-    gasReport: {
-      alias: 'enableGasReportPath',
-      type: 'string',
-      default: 'gasReporterOutput.json',
     },
     mode: {
       alias: 'compileMode',
@@ -115,7 +109,6 @@ module.exports = {
     enabled: argv.gas,
     showMethodSig: true,
     currency: 'USD',
-    outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
   },
   docgen: require('./docs/config'),
