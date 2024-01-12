@@ -21,12 +21,12 @@ const argv = require('yargs/yargs')()
       alias: 'enableGasReport',
       type: 'boolean',
       default: false,
+      implies: 'gasReport',
     },
     gasReport: {
       alias: 'enableGasReportPath',
       type: 'string',
-      implies: 'gas',
-      default: undefined,
+      default: 'gasReporterOutput.json',
     },
     mode: {
       alias: 'compileMode',
@@ -54,9 +54,6 @@ const argv = require('yargs/yargs')()
       type: 'string',
     },
   }).argv;
-
-// "implies" doesn't work correctly. we force gas if gasReport is set
-argv.gas ||= !!argv.gasReport;
 
 require('@nomicfoundation/hardhat-chai-matchers');
 require('@nomicfoundation/hardhat-ethers');
