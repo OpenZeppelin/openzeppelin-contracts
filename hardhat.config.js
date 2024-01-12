@@ -23,12 +23,6 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
-    gasReport: {
-      alias: 'enableGasReportPath',
-      type: 'string',
-      implies: 'gas',
-      default: undefined,
-    },
     mode: {
       alias: 'compileMode',
       type: 'string',
@@ -61,10 +55,12 @@ const argv = require('yargs/yargs')()
     },
   }).argv;
 
-require('@nomicfoundation/hardhat-toolbox');
+require('@nomicfoundation/hardhat-chai-matchers');
 require('@nomicfoundation/hardhat-ethers');
-require('hardhat-ignore-warnings');
 require('hardhat-exposed');
+require('hardhat-gas-reporter');
+require('hardhat-ignore-warnings');
+require('solidity-coverage');
 require('solidity-docgen');
 argv.foundry && require('@nomicfoundation/hardhat-foundry');
 
@@ -107,6 +103,7 @@ module.exports = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: !withOptimizations,
+      initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
   exposed: {
@@ -114,26 +111,17 @@ module.exports = {
     initializers: true,
     exclude: ['vendor/**/*'],
   },
+  gasReporter: {
+    enabled: argv.gas,
+    showMethodSig: true,
+    currency: 'USD',
+    coinmarketcap: argv.coinmarketcap,
+  },
   paths: {
     sources: argv.src,
   },
   docgen: require('./docs/config'),
 };
-
-if (argv.gas) {
-  require('hardhat-gas-reporter');
-  module.exports.gasReporter = {
-    showMethodSig: true,
-    currency: 'USD',
-    outputFile: argv.gasReport,
-    coinmarketcap: argv.coinmarketcap,
-  };
-}
-
-if (argv.coverage) {
-  require('solidity-coverage');
-  module.exports.networks.hardhat.initialBaseFeePerGas = 0;
-}
 
 function hasFoundry() {
   return proc.spawnSync('forge', ['-V'], { stdio: 'ignore' }).error === undefined;
