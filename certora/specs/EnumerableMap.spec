@@ -69,7 +69,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: index <> value relationship is consistent                                                                │
 │                                                                                                                     │
-│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one another.  │
+│ Note the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one another.    │
 │ This proves that we have a bijection between indices (the enumerability part) and keys (the entries that are set    │
 │ and removed from the EnumerableMap).                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
