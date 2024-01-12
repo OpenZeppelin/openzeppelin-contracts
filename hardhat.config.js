@@ -5,6 +5,7 @@
 // - COMPILE_MODE:      production modes enables optimizations (default: development)
 // - COMPILE_VERSION:   compiler version (default: 0.8.20)
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
+// - SRC:               contracts folder to compile (default: contracts)
 
 const fs = require('fs');
 const path = require('path');
@@ -52,6 +53,11 @@ const argv = require('yargs/yargs')()
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
       type: 'string',
+    },
+    src: {
+      alias: 'source',
+      type: 'string',
+      default: 'contracts',
     },
   }).argv;
 
@@ -107,6 +113,9 @@ module.exports = {
     imports: true,
     initializers: true,
     exclude: ['vendor/**/*'],
+  },
+  paths: {
+    sources: argv.src,
   },
   docgen: require('./docs/config'),
 };
