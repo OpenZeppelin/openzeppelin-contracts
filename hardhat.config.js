@@ -55,7 +55,7 @@ const argv = require('yargs/yargs')()
     },
   }).argv;
 
-// implies doesn't work correcly. we force gas if gasReport is set
+// "implies" doesn't work correctly. we force gas if gasReport is set
 argv.gas ||= !!argv.gasReport;
 
 require('@nomicfoundation/hardhat-chai-matchers');
