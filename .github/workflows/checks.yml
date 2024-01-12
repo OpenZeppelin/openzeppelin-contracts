@@ -29,7 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
-      CI: true # needed for "eth-gas-reporter" to produce "gasReporterOutput.json"
+      # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json"
+      # according to https://github.com/cgewecke/hardhat-gas-reporter/blob/ec80a50b14967290b290fc36192a14fa09f4d3c2/README.md?plain=1#L145
+      CI: true
       GAS: true
     steps:
       - uses: actions/checkout@v4
