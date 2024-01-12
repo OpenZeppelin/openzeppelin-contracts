@@ -96,7 +96,7 @@ describe('Governor', function () {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor']);
+      shouldSupportInterfaces(['ERC1155Receiver', 'Governor']);
       shouldBehaveLikeERC6372(mode);
 
       it('deployment check', async function () {
