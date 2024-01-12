@@ -30,7 +30,7 @@ jobs:
     env:
       FORCE_COLOR: 1
       # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json" as documented in
-      # https://github.com/cgewecke/eth-gas-reporter/blob/master/docs/gasReporterOutput.md
+      # https://github.com/cgewecke/eth-gas-reporter/blob/v0.2.27/docs/gasReporterOutput.md
       CI: true
       GAS: true
     steps:
