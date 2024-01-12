@@ -85,9 +85,11 @@ const SIGNATURES = {
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
 function shouldSupportInterfaces(interfaces = []) {
+  interfaces.unshift('ERC165');
+
   describe('ERC165', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token || this.holder;
+      this.contractUnderTest = this.mock || this.token;
     });
 
     describe('when the interfaceId is supported', function () {
