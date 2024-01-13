@@ -45,7 +45,7 @@ jobs:
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
-        if: github.base_ref == 'master'
+        if: github.event_name == 'pull_request' && github.base_ref == 'master' || github.event_name == 'push' && github.ref_name == 'master'
         with:
           token: ${{ github.token }}
 
