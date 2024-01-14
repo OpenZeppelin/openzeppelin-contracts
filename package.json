@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "compile": "hardhat compile",
-    "compile:harnesses": "env SRC=./certora/harnesses FOUNDRY=false npm run compile",
-    "coverage": "env COVERAGE=true FOUNDRY=false hardhat coverage",
+    "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
+    "coverage": "env COVERAGE=true hardhat coverage",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare-docs": "scripts/prepare-docs.sh",

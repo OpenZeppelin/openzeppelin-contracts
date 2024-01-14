@@ -14,14 +14,16 @@ const proc = require('child_process');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    coverage: {
-      type: 'boolean',
-      default: false,
+    // Compilation settings
+    compiler: {
+      alias: 'compileVersion',
+      type: 'string',
+      default: '0.8.20',
     },
-    gas: {
-      alias: 'enableGasReport',
-      type: 'boolean',
-      default: false,
+    src: {
+      alias: 'source',
+      type: 'string',
+      default: undefined,
     },
     mode: {
       alias: 'compileMode',
@@ -34,26 +36,40 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    // Extra modules
+    coverage: {
+      type: 'boolean',
+      default: false,
+    },
+    gas: {
+      alias: 'enableGasReport',
+      type: 'boolean',
+      default: false,
+    },
     foundry: {
       alias: 'hasFoundry',
       type: 'boolean',
-      default: hasFoundry(),
-    },
-    compiler: {
-      alias: 'compileVersion',
-      type: 'string',
-      default: '0.8.20',
+      default: undefined, // default depends on other options
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
       type: 'string',
     },
-    src: {
-      alias: 'source',
-      type: 'string',
-      default: 'contracts',
-    },
-  }).argv;
+  })
+  .check(argv => {
+    if (argv.foundry && argv.src)
+      return 'Custom source is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment';
+    if (argv.foundry && argv.coverage)
+      return 'Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment';
+    return true;
+  })
+  .argv;
+
+// if no value was specified for "foundry", and if "src" and "coverage" don't conflict with it,
+// then check if foundry is available, and enable it if that is the case.
+if (argv.foundry == undefined && !argv.src && !argv.coverage) {
+  argv.foundry = hasFoundry();
+}
 
 require('@nomicfoundation/hardhat-chai-matchers');
 require('@nomicfoundation/hardhat-ethers');
@@ -63,10 +79,6 @@ require('hardhat-ignore-warnings');
 require('solidity-coverage');
 require('solidity-docgen');
 argv.foundry && require('@nomicfoundation/hardhat-foundry');
-
-if (argv.foundry && argv.coverage) {
-  throw Error('Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment');
-}
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
