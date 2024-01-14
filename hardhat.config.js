@@ -62,8 +62,7 @@ const argv = require('yargs/yargs')()
     if (argv.foundry && argv.coverage)
       return 'Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment';
     return true;
-  })
-  .argv;
+  }).argv;
 
 // if no value was specified for "foundry", and if "src" and "coverage" don't conflict with it,
 // then check if foundry is available, and enable it if that is the case.
