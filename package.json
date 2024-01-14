@@ -22,7 +22,6 @@
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
-    "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
