@@ -1,11 +1,13 @@
 /// ENVVAR
-// - CI:                output gas report to file instead of stdout
+// - COMPILE_VERSION:   compiler version (default: 0.8.20)
+// - SRC:               contracts folder to compile (default: contracts)
+// - COMPILE_MODE:      production modes enables optimizations (default: development)
+// - IR:                enable IR compilation (default: false)
 // - COVERAGE:          enable coverage report
 // - ENABLE_GAS_REPORT: enable gas report
-// - COMPILE_MODE:      production modes enables optimizations (default: development)
-// - COMPILE_VERSION:   compiler version (default: 0.8.20)
+// - FOUNDRY:           enable foundry
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
-// - SRC:               contracts folder to compile (default: contracts)
+// - CI:                output gas report to file instead of stdout
 
 const fs = require('fs');
 const path = require('path');
@@ -55,25 +57,19 @@ const cmdOptions = {
   },
 };
 
+const conflicts = {
+  foundry: ['src', 'coverage'],
+};
+
 const { argv } = require('yargs/yargs')()
   .env('')
   .options(cmdOptions)
-  .check(argv =>
-    argv.foundry && argv.src != cmdOptions.src.default
-      ? 'Custom source is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment'
-      : true,
-  )
-  .check(argv =>
-    argv.foundry && argv.coverage
-      ? 'Coverage analysis is incompatible with Foundry. Disable with `FOUNDRY=false` in the environment'
-      : true,
-  );
-
-// if no value was specified for "foundry", and if "src" and "coverage" don't conflict with it,
-// then check if foundry is available, and enable it if that is the case.
-if (argv.foundry == cmdOptions.foundry.default && argv.src == cmdOptions.src.default && argv.coverage) {
-  argv.foundry = hasFoundry();
-}
+  .conflicts(conflicts)
+  .middleware(argv => {
+    const isConflict = conflicts.foundry.some(opt => argv[opt] !== cmdOptions[opt].default);
+    const isFoundryUnspecified = argv.foundry == cmdOptions.foundry.default;
+    argv.foundry = !isFoundryUnspecified && !isConflict && hasFoundry();
+  });
 
 require('@nomicfoundation/hardhat-chai-matchers');
 require('@nomicfoundation/hardhat-ethers');
