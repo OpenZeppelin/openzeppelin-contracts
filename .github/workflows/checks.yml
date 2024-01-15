@@ -86,8 +86,6 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run tests
         run: forge test -vv
-        env:
-          FOUNDRY_PROFILE: CI
 
   coverage:
     runs-on: ubuntu-latest
