@@ -66,9 +66,9 @@ const { argv } = require('yargs/yargs')()
   .options(cmdOptions)
   .conflicts(conflicts)
   .middleware(argv => {
-    const isConflict = conflicts.foundry.some(opt => argv[opt] !== cmdOptions[opt].default);
-    const isFoundryUnspecified = argv.foundry == cmdOptions.foundry.default;
-    argv.foundry = !isFoundryUnspecified && !isConflict && hasFoundry();
+    const conflicting = conflicts.foundry.some(opt => argv[opt] !== cmdOptions[opt].default);
+    const foundrySpecified = argv.foundry == cmdOptions.foundry.default;
+    argv.foundry = foundrySpecified && !conflicting && hasFoundry();
   });
 
 require('@nomicfoundation/hardhat-chai-matchers');
