@@ -29,7 +29,7 @@ const cmdOptions = {
     alias: 'compileMode',
     type: 'string',
     choices: ['production', 'development'],
-    default: 'production',
+    default: 'development',
   },
   ir: {
     alias: 'enableIR',
@@ -66,9 +66,9 @@ const { argv } = require('yargs/yargs')()
   .options(cmdOptions)
   .conflicts(conflicts)
   .middleware(argv => {
-    const conflicting = conflicts.foundry.some(opt => argv[opt] !== cmdOptions[opt].default);
-    const foundrySpecified = argv.foundry != cmdOptions.foundry.default;
-    argv.foundry = !foundrySpecified && !conflicting && hasFoundry();
+    const isDefault = opt => argv[opt] === cmdOptions[opt].default;
+    const noConflicts = ['foundry', ...conflicts.foundry].every(isDefault);
+    argv.foundry = noConflicts && hasFoundry();
   });
 
 require('@nomicfoundation/hardhat-chai-matchers');
