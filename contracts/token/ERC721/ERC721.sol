@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.20;
 
@@ -12,7 +12,7 @@ import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 
 /**
- * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC-721] Non-Fungible Token Standard, including
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
@@ -65,11 +65,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        address owner = _ownerOf(tokenId);
-        if (owner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        }
-        return owner;
+        return _requireOwned(tokenId);
     }
 
     /**
@@ -90,7 +86,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
@@ -116,7 +112,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev See {IERC721-getApproved}.
      */
     function getApproved(uint256 tokenId) public view virtual returns (address) {
-        _requireMinted(tokenId);
+        _requireOwned(tokenId);
 
         return _getApproved(tokenId);
     }
@@ -169,7 +165,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
      *
      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
-     * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+     * core ERC-721 logic MUST be matched with the use of {_increaseBalance} to keep balances
      * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
      */
@@ -188,8 +184,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
      * particular (ignoring whether it is owned by `owner`).
      *
-     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not
-     * verify this assumption.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
         return
@@ -199,10 +195,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` has not approval for all assets of the provided `owner` nor the actual owner approved the `spender` for the specific `tokenId`.
+     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
+     * the `spender` for the specific `tokenId`.
      *
-     * WARNING: This function relies on {_isAuthorized}, so it doesn't check whether `owner` is the
-     * actual owner of `tokenId`.
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
      */
     function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isAuthorized(owner, spender, tokenId)) {
@@ -251,7 +248,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
         // Execute the update
         if (from != address(0)) {
-            delete _tokenApprovals[tokenId];
+            // Clear approval. No need to re-authorize or emit the Approval event
+            _approve(address(0), tokenId, address(0), false);
+
             unchecked {
                 _balances[from] -= 1;
             }
@@ -358,7 +357,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
-     * are aware of the ERC721 standard to prevent tokens from being forever locked.
+     * are aware of the ERC-721 standard to prevent tokens from being forever locked.
      *
      * `data` is additional data, it has no specified format and it is sent in call to `to`.
      *
@@ -395,19 +394,33 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * either the owner of the token, or approved to operate on all tokens held by this owner.
      *
      * Emits an {Approval} event.
+     *
+     * Overrides to this logic should be done to the variant with an additional `bool emitEvent` argument.
      */
-    function _approve(address to, uint256 tokenId, address auth) internal virtual returns (address) {
-        address owner = ownerOf(tokenId);
+    function _approve(address to, uint256 tokenId, address auth) internal {
+        _approve(to, tokenId, auth, true);
+    }
 
-        // We do not use _isAuthorized because single-token approvals should not be able to call approve
-        if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
-            revert ERC721InvalidApprover(auth);
+    /**
+     * @dev Variant of `_approve` with an optional flag to enable or disable the {Approval} event. The event is not
+     * emitted in the context of transfers.
+     */
+    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
+        // Avoid reading the owner unless necessary
+        if (emitEvent || auth != address(0)) {
+            address owner = _requireOwned(tokenId);
+
+            // We do not use _isAuthorized because single-token approvals should not be able to call approve
+            if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
+                revert ERC721InvalidApprover(auth);
+            }
+
+            if (emitEvent) {
+                emit Approval(owner, to, tokenId);
+            }
         }
 
         _tokenApprovals[tokenId] = to;
-        emit Approval(owner, to, tokenId);
-
-        return owner;
     }
 
     /**
@@ -427,12 +440,17 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Reverts if the `tokenId` has not been minted yet.
+     * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+     * Returns the owner.
+     *
+     * Overrides to ownership logic should be done to {_ownerOf}.
      */
-    function _requireMinted(uint256 tokenId) internal view virtual {
-        if (_ownerOf(tokenId) == address(0)) {
+    function _requireOwned(uint256 tokenId) internal view returns (address) {
+        address owner = _ownerOf(tokenId);
+        if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
         }
+        return owner;
     }
 
     /**

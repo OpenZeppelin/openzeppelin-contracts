@@ -1,85 +1,59 @@
-const { toEthSignedMessageHash } = require('../../helpers/sign');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const SignatureChecker = artifacts.require('$SignatureChecker');
-const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
-const ERC1271MaliciousMock = artifacts.require('ERC1271MaliciousMock');
+const TEST_MESSAGE = ethers.id('OpenZeppelin');
+const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
 
-const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
-const WRONG_MESSAGE = web3.utils.sha3('Nope');
+const WRONG_MESSAGE = ethers.id('Nope');
+const WRONG_MESSAGE_HASH = ethers.hashMessage(WRONG_MESSAGE);
 
-contract('SignatureChecker (ERC1271)', function (accounts) {
-  const [signer, other] = accounts;
+async function fixture() {
+  const [signer, other] = await ethers.getSigners();
+  const mock = await ethers.deployContract('$SignatureChecker');
+  const wallet = await ethers.deployContract('ERC1271WalletMock', [signer]);
+  const malicious = await ethers.deployContract('ERC1271MaliciousMock');
+  const signature = await signer.signMessage(TEST_MESSAGE);
 
+  return { signer, other, mock, wallet, malicious, signature };
+}
+
+describe('SignatureChecker (ERC1271)', function () {
   before('deploying', async function () {
-    this.signaturechecker = await SignatureChecker.new();
-    this.wallet = await ERC1271WalletMock.new(signer);
-    this.malicious = await ERC1271MaliciousMock.new();
-    this.signature = await web3.eth.sign(TEST_MESSAGE, signer);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  context('EOA account', function () {
+  describe('EOA account', function () {
     it('with matching signer and signature', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(signer, toEthSignedMessageHash(TEST_MESSAGE), this.signature),
-      ).to.equal(true);
+      expect(await this.mock.$isValidSignatureNow(this.signer, TEST_MESSAGE_HASH, this.signature)).to.be.true;
     });
 
     it('with invalid signer', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(other, toEthSignedMessageHash(TEST_MESSAGE), this.signature),
-      ).to.equal(false);
+      expect(await this.mock.$isValidSignatureNow(this.other, TEST_MESSAGE_HASH, this.signature)).to.be.false;
     });
 
     it('with invalid signature', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(signer, toEthSignedMessageHash(WRONG_MESSAGE), this.signature),
-      ).to.equal(false);
+      expect(await this.mock.$isValidSignatureNow(this.signer, WRONG_MESSAGE_HASH, this.signature)).to.be.false;
     });
   });
 
-  context('ERC1271 wallet', function () {
-    for (const signature of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
-      context(signature, function () {
+  describe('ERC1271 wallet', function () {
+    for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
+      describe(fn, function () {
         it('with matching signer and signature', async function () {
-          expect(
-            await this.signaturechecker[`$${signature}`](
-              this.wallet.address,
-              toEthSignedMessageHash(TEST_MESSAGE),
-              this.signature,
-            ),
-          ).to.equal(true);
+          expect(await this.mock.getFunction(`$${fn}`)(this.wallet, TEST_MESSAGE_HASH, this.signature)).to.be.true;
         });
 
         it('with invalid signer', async function () {
-          expect(
-            await this.signaturechecker[`$${signature}`](
-              this.signaturechecker.address,
-              toEthSignedMessageHash(TEST_MESSAGE),
-              this.signature,
-            ),
-          ).to.equal(false);
+          expect(await this.mock.getFunction(`$${fn}`)(this.mock, TEST_MESSAGE_HASH, this.signature)).to.be.false;
         });
 
         it('with invalid signature', async function () {
-          expect(
-            await this.signaturechecker[`$${signature}`](
-              this.wallet.address,
-              toEthSignedMessageHash(WRONG_MESSAGE),
-              this.signature,
-            ),
-          ).to.equal(false);
+          expect(await this.mock.getFunction(`$${fn}`)(this.wallet, WRONG_MESSAGE_HASH, this.signature)).to.be.false;
         });
 
         it('with malicious wallet', async function () {
-          expect(
-            await this.signaturechecker[`$${signature}`](
-              this.malicious.address,
-              toEthSignedMessageHash(TEST_MESSAGE),
-              this.signature,
-            ),
-          ).to.equal(false);
+          expect(await this.mock.getFunction(`$${fn}`)(this.malicious, TEST_MESSAGE_HASH, this.signature)).to.be.false;
         });
       });
     }
