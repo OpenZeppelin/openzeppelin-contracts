@@ -1,5 +1,5 @@
 ---
-'openzeppelin-solidity': minor
+'openzeppelin-solidity': patch
 ---
 
-`Checkpoints`: removed redundant memory usage
+`Checkpoints`: Optimized checkpoint access by removing redundant memory usage.
