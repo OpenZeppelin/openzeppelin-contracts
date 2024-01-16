@@ -2,6 +2,10 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+// Replace "+/" with "-_" in the char table, and remove the padding
+// see https://datatracker.ietf.org/doc/html/rfc4648#section-5
+const base64toBase64Url = str => str.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+
 async function fixture() {
   const mock = await ethers.deployContract('$Base64');
   return { mock };
@@ -12,18 +16,35 @@ describe('Strings', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('from bytes - base64', function () {
+  describe('base64', function () {
     for (const { title, input, expected } of [
       { title: 'converts to base64 encoded string with double padding', input: 'test', expected: 'dGVzdA==' },
       { title: 'converts to base64 encoded string with single padding', input: 'test1', expected: 'dGVzdDE=' },
       { title: 'converts to base64 encoded string without padding', input: 'test12', expected: 'dGVzdDEy' },
-      { title: 'empty bytes', input: '0x', expected: '' },
+      { title: 'converts to base64 encoded string (/ case)', input: 'où', expected: 'b/k=' },
+      { title: 'converts to base64 encoded string (+ case)', input: 'zs~1t8', expected: 'enN+MXQ4' },
+      { title: 'empty bytes', input: '', expected: '' },
     ])
       it(title, async function () {
-        const raw = ethers.isBytesLike(input) ? input : ethers.toUtf8Bytes(input);
+        const buffer = Buffer.from(input, 'ascii');
+        expect(await this.mock.$encode(buffer)).to.equal(ethers.encodeBase64(buffer));
+        expect(await this.mock.$encode(buffer)).to.equal(expected);
+      });
+  });
 
-        expect(await this.mock.$encode(raw)).to.equal(ethers.encodeBase64(raw));
-        expect(await this.mock.$encode(raw)).to.equal(expected);
+  describe('base64url', function () {
+    for (const { title, input, expected } of [
+      { title: 'converts to base64url encoded string with double padding', input: 'test', expected: 'dGVzdA' },
+      { title: 'converts to base64url encoded string with single padding', input: 'test1', expected: 'dGVzdDE' },
+      { title: 'converts to base64url encoded string without padding', input: 'test12', expected: 'dGVzdDEy' },
+      { title: 'converts to base64url encoded string (_ case)', input: 'où', expected: 'b_k' },
+      { title: 'converts to base64url encoded string (- case)', input: 'zs~1t8', expected: 'enN-MXQ4' },
+      { title: 'empty bytes', input: '', expected: '' },
+    ])
+      it(title, async function () {
+        const buffer = Buffer.from(input, 'ascii');
+        expect(await this.mock.$encodeURL(buffer)).to.equal(base64toBase64Url(ethers.encodeBase64(buffer)));
+        expect(await this.mock.$encodeURL(buffer)).to.equal(expected);
       });
   });
 });
