@@ -56,7 +56,7 @@ contract MathTest is Test {
     }
 
     // INV
-    function testInv(uint256 seed) public {
+    function testInv1(uint256 seed) public {
         uint256 p;
         uint256 value;
         uint256 inverse;
@@ -78,6 +78,13 @@ contract MathTest is Test {
         value = bound(seed, 1, p - 1);
         inverse = Math.inv(value, p);
         assertEq(mulmod(value, inverse, p), 1);
+    }
+
+    function testInv2(uint256 value, uint256 p) public {
+        uint256 inverse = Math.inv(value, p);
+        if (inverse != 0) {
+            assertEq(mulmod(value, inverse, p), 1);
+        }
     }
 
     // LOG2
