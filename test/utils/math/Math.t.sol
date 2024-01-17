@@ -55,6 +55,31 @@ contract MathTest is Test {
         return value * value < ref;
     }
 
+    // INV
+    function testInv(uint256 seed) public {
+        uint256 p;
+        uint256 value;
+        uint256 inverse;
+
+        // 17 is a prime
+        p = 17;
+        value = bound(seed, 1, p - 1);
+        inverse = Math.inv(value, p);
+        assertEq(mulmod(value, inverse, p), 1);
+
+        // 65537 is a prime
+        p = 65537;
+        value = bound(seed, 1, p - 1);
+        inverse = Math.inv(value, p);
+        assertEq(mulmod(value, inverse, p), 1);
+
+        // 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff is a prime
+        p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff;
+        value = bound(seed, 1, p - 1);
+        inverse = Math.inv(value, p);
+        assertEq(mulmod(value, inverse, p), 1);
+    }
+
     // LOG2
     function testLog2(uint256 input, uint8 r) public {
         Math.Rounding rounding = _asRounding(r);

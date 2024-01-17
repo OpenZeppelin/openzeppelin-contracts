@@ -219,6 +219,33 @@ library Math {
     }
 
     /**
+     * @notice Calculate the inverse of a in Z/nZ.
+     *
+     * If p is a prime, then we Z/nZ is a field commonly noted Fp. In that case all elements are inversible, expect 0.
+     * If p is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
+     *
+     * When trying to inverse a value that is not invesible, 0 is returned.
+     */
+    function inv(uint256 a, uint256 p) internal pure returns (uint256) {
+        uint256 r1 = a % p;
+        if (r1 == 0) return 0;
+        uint256 r2 = p;
+        uint256 t1 = 0;
+        uint256 t2 = 1;
+        while (r1 != 0) {
+            uint256 q = r2 / r1;
+            (t1, t2, r2, r1) = (
+                t2,
+                addmod(t1, uint256(p - mulmod(t2, q, p)), p),
+                r1,
+                addmod(r2, uint256(p - mulmod(r1, q, p)), p)
+            );
+        }
+        if (r2 != 1) return 0;
+        return t1;
+    }
+
+    /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
      *
