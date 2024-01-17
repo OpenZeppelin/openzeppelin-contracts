@@ -6,12 +6,13 @@ const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
 
 const name = 'My Token';
 const symbol = 'MTKN';
+const decimals = 9n;
 const initialSupply = 100n;
 
 async function fixture() {
   const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
 
-  const underlying = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, 9]);
+  const underlying = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
   await underlying.$_mint(initialHolder, initialSupply);
 
   const token = await ethers.deployContract('$ERC20Wrapper', [`Wrapped ${name}`, `W${symbol}`, underlying]);
@@ -20,15 +21,12 @@ async function fixture() {
 }
 
 describe('ERC20Wrapper', function () {
-  const name = 'My Token';
-  const symbol = 'MTKN';
-
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
   afterEach('Underlying balance', async function () {
-    expect(await this.underlying.balanceOf(this.token)).to.be.equal(await this.token.totalSupply());
+    expect(await this.underlying.balanceOf(this.token)).to.equal(await this.token.totalSupply());
   });
 
   it('has a name', async function () {
@@ -40,29 +38,29 @@ describe('ERC20Wrapper', function () {
   });
 
   it('has the same decimals as the underlying token', async function () {
-    expect(await this.token.decimals()).to.be.equal(9n);
+    expect(await this.token.decimals()).to.equal(decimals);
   });
 
   it('decimals default back to 18 if token has no metadata', async function () {
     const noDecimals = await ethers.deployContract('CallReceiverMock');
     const token = await ethers.deployContract('$ERC20Wrapper', [`Wrapped ${name}`, `W${symbol}`, noDecimals]);
-    expect(await token.decimals()).to.be.equal(18n);
+    expect(await token.decimals()).to.equal(18n);
   });
 
   it('has underlying', async function () {
-    expect(await this.token.underlying()).to.be.equal(this.underlying.target);
+    expect(await this.token.underlying()).to.equal(this.underlying);
   });
 
   describe('deposit', function () {
     it('executes with approval', async function () {
       await this.underlying.connect(this.initialHolder).approve(this.token, initialSupply);
+
       const tx = await this.token.connect(this.initialHolder).depositFor(this.initialHolder, initialSupply);
       await expect(tx)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.initialHolder.address, this.token.target, initialSupply)
+        .withArgs(this.initialHolder, this.token, initialSupply)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.initialHolder.address, initialSupply);
-
+        .withArgs(ethers.ZeroAddress, this.initialHolder, initialSupply);
       await expect(tx).to.changeTokenBalances(
         this.underlying,
         [this.initialHolder, this.token],
@@ -74,25 +72,26 @@ describe('ERC20Wrapper', function () {
     it('reverts when missing approval', async function () {
       await expect(this.token.connect(this.initialHolder).depositFor(this.initialHolder, initialSupply))
         .to.be.revertedWithCustomError(this.underlying, 'ERC20InsufficientAllowance')
-        .withArgs(this.token.target, 0, initialSupply);
+        .withArgs(this.token, 0, initialSupply);
     });
 
     it('reverts when inssuficient balance', async function () {
       await this.underlying.connect(this.initialHolder).approve(this.token, ethers.MaxUint256);
+
       await expect(this.token.connect(this.initialHolder).depositFor(this.initialHolder, ethers.MaxUint256))
         .to.be.revertedWithCustomError(this.underlying, 'ERC20InsufficientBalance')
-        .withArgs(this.initialHolder.address, initialSupply, ethers.MaxUint256);
+        .withArgs(this.initialHolder, initialSupply, ethers.MaxUint256);
     });
 
     it('deposits to other account', async function () {
       await this.underlying.connect(this.initialHolder).approve(this.token, initialSupply);
+
       const tx = await this.token.connect(this.initialHolder).depositFor(this.recipient, initialSupply);
       await expect(tx)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.initialHolder.address, this.token.target, initialSupply)
+        .withArgs(this.initialHolder, this.token, initialSupply)
         .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.recipient.address, initialSupply);
-
+        .withArgs(ethers.ZeroAddress, this.recipient, initialSupply);
       await expect(tx).to.changeTokenBalances(
         this.underlying,
         [this.initialHolder, this.token],
@@ -103,9 +102,10 @@ describe('ERC20Wrapper', function () {
 
     it('reverts minting to the wrapper contract', async function () {
       await this.underlying.connect(this.initialHolder).approve(this.token, ethers.MaxUint256);
+
       await expect(this.token.connect(this.initialHolder).depositFor(this.token, ethers.MaxUint256))
         .to.be.revertedWithCustomError(this.token, 'ERC20InvalidReceiver')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
   });
 
@@ -118,7 +118,7 @@ describe('ERC20Wrapper', function () {
     it('reverts when inssuficient balance', async function () {
       await expect(this.token.connect(this.initialHolder).withdrawTo(this.initialHolder, ethers.MaxInt256))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-        .withArgs(this.initialHolder.address, initialSupply, ethers.MaxInt256);
+        .withArgs(this.initialHolder, initialSupply, ethers.MaxInt256);
     });
 
     it('executes when operation is valid', async function () {
@@ -127,10 +127,9 @@ describe('ERC20Wrapper', function () {
       const tx = await this.token.connect(this.initialHolder).withdrawTo(this.initialHolder, value);
       await expect(tx)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.initialHolder.address, value)
+        .withArgs(this.token, this.initialHolder, value)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.initialHolder.address, ethers.ZeroAddress, value);
-
+        .withArgs(this.initialHolder, ethers.ZeroAddress, value);
       await expect(tx).to.changeTokenBalances(this.underlying, [this.token, this.initialHolder], [-value, value]);
       await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, -value);
     });
@@ -139,10 +138,9 @@ describe('ERC20Wrapper', function () {
       const tx = await this.token.connect(this.initialHolder).withdrawTo(this.initialHolder, initialSupply);
       await expect(tx)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.initialHolder.address, initialSupply)
+        .withArgs(this.token, this.initialHolder, initialSupply)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.initialHolder.address, ethers.ZeroAddress, initialSupply);
-
+        .withArgs(this.initialHolder, ethers.ZeroAddress, initialSupply);
       await expect(tx).to.changeTokenBalances(
         this.underlying,
         [this.token, this.initialHolder],
@@ -155,10 +153,9 @@ describe('ERC20Wrapper', function () {
       const tx = await this.token.connect(this.initialHolder).withdrawTo(this.recipient, initialSupply);
       await expect(tx)
         .to.emit(this.underlying, 'Transfer')
-        .withArgs(this.token.target, this.recipient.address, initialSupply)
+        .withArgs(this.token, this.recipient, initialSupply)
         .to.emit(this.token, 'Transfer')
-        .withArgs(this.initialHolder.address, ethers.ZeroAddress, initialSupply);
-
+        .withArgs(this.initialHolder, ethers.ZeroAddress, initialSupply);
       await expect(tx).to.changeTokenBalances(
         this.underlying,
         [this.token, this.initialHolder, this.recipient],
@@ -170,7 +167,7 @@ describe('ERC20Wrapper', function () {
     it('reverts withdrawing to the wrapper contract', async function () {
       await expect(this.token.connect(this.initialHolder).withdrawTo(this.token, initialSupply))
         .to.be.revertedWithCustomError(this.token, 'ERC20InvalidReceiver')
-        .withArgs(this.token.target);
+        .withArgs(this.token);
     });
   });
 
@@ -180,8 +177,7 @@ describe('ERC20Wrapper', function () {
       await this.token.connect(this.initialHolder).depositFor(this.initialHolder, initialSupply);
 
       const tx = await this.token.$_recover(this.recipient);
-      await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient.address, 0n);
-
+      await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient, 0n);
       await expect(tx).to.changeTokenBalance(this.token, this.recipient, 0);
     });
 
@@ -189,10 +185,7 @@ describe('ERC20Wrapper', function () {
       await this.underlying.connect(this.initialHolder).transfer(this.token, initialSupply);
 
       const tx = await this.token.$_recover(this.recipient);
-      await expect(tx)
-        .to.emit(this.token, 'Transfer')
-        .withArgs(ethers.ZeroAddress, this.recipient.address, initialSupply);
-
+      await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient, initialSupply);
       await expect(tx).to.changeTokenBalance(this.token, this.recipient, initialSupply);
     });
   });

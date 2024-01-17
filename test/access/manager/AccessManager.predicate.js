@@ -1,8 +1,10 @@
+const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
 const { impersonate } = require('../../helpers/account');
-const { bigint: time } = require('../../helpers/time');
-const { ethers } = require('hardhat');
+const time = require('../../helpers/time');
 
 // ============ COMMON PREDICATES ============
 
@@ -16,7 +18,7 @@ const LIKE_COMMON_IS_EXECUTING = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };
@@ -29,7 +31,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay: undefined, // Diverges if there's an operation delay or not
@@ -39,7 +41,7 @@ const LIKE_COMMON_GET_ACCESS = {
           it('reverts as AccessManagerUnauthorizedAccount', async function () {
             await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
               .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-              .withArgs(this.caller.address, this.role.id);
+              .withArgs(this.caller, this.role.id);
           });
         },
         afterGrantDelay() {
@@ -70,7 +72,7 @@ const LIKE_COMMON_GET_ACCESS = {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller.address, this.role.id);
+        .withArgs(this.caller, this.role.id);
     });
   },
 };
@@ -146,7 +148,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has not taken effect yet`, function () {
     beforeEach(`set next block timestamp before ${type} takes effect`, async function () {
-      await time.forward.timestamp(this.delayEffect - 1n, !!before.mineDelay);
+      await time.increaseTo.timestamp(this.delayEffect - 1n, !!before.mineDelay);
     });
 
     before();
@@ -154,7 +156,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has taken effect`, function () {
     beforeEach(`set next block timestamp when ${type} takes effect`, async function () {
-      await time.forward.timestamp(this.delayEffect, !!after.mineDelay);
+      await time.increaseTo.timestamp(this.delayEffect, !!after.mineDelay);
     });
 
     after();
@@ -187,7 +189,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time before operation is ready', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule - 1n, !!before.mineDelay);
+        await time.increaseTo.timestamp(schedule - 1n, !!before.mineDelay);
       });
 
       before();
@@ -197,7 +199,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation is ready for execution', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule, !!after.mineDelay);
+        await time.increaseTo.timestamp(schedule, !!after.mineDelay);
       });
 
       after();
@@ -207,7 +209,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
       beforeEach('set next block time when operation expired', async function () {
         this.scheduledAt = await time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.forward.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
+        await time.increaseTo.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
       });
 
       expired();

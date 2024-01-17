@@ -1,8 +1,8 @@
-const { expect } = require('chai');
 const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
+const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts');
 
 const last = array => (array.length ? array[array.length - 1] : undefined);
 

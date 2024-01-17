@@ -3,31 +3,21 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../helpers/account');
-const { getDomain } = require('../helpers/eip712');
+const { getDomain, ForwardRequest } = require('../helpers/eip712');
 const { MAX_UINT48 } = require('../helpers/constants');
 
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 async function fixture() {
-  const [sender] = await ethers.getSigners();
+  const [sender, other] = await ethers.getSigners();
 
   const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
-  const types = {
-    ForwardRequest: [
-      { name: 'from', type: 'address' },
-      { name: 'to', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'gas', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint48' },
-      { name: 'data', type: 'bytes' },
-    ],
-  };
+  const types = { ForwardRequest };
 
-  return { sender, forwarder, forwarderAsSigner, context, domain, types };
+  return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
 
 describe('ERC2771Context', function () {
@@ -36,11 +26,11 @@ describe('ERC2771Context', function () {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.context.isTrustedForwarder(this.forwarder)).to.equal(true);
+    expect(await this.context.isTrustedForwarder(this.forwarder)).to.be.true;
   });
 
   it('returns the trusted forwarder', async function () {
-    expect(await this.context.trustedForwarder()).to.equal(this.forwarder.target);
+    expect(await this.context.trustedForwarder()).to.equal(this.forwarder);
   });
 
   describe('when called directly', function () {
@@ -65,16 +55,16 @@ describe('ERC2771Context', function () {
 
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
-        await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender.address);
+        await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
         // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
         await expect(this.context.connect(this.forwarderAsSigner).msgSender())
           .to.emit(this.context, 'Sender')
-          .withArgs(this.forwarder.target);
+          .withArgs(this.forwarder);
       });
     });
 
@@ -97,7 +87,7 @@ describe('ERC2771Context', function () {
 
         req.signature = this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.equal(true);
+        expect(await this.forwarder.verify(req)).to.be.true;
 
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
@@ -113,5 +103,31 @@ describe('ERC2771Context', function () {
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
     });
+  });
+
+  it('multicall poison attack', async function () {
+    const nonce = await this.forwarder.nonces(this.sender);
+    const data = this.context.interface.encodeFunctionData('multicall', [
+      [
+        // poisonned call to 'msgSender()'
+        ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
+      ],
+    ]);
+
+    const req = {
+      from: await this.sender.getAddress(),
+      to: await this.context.getAddress(),
+      value: 0n,
+      data,
+      gas: 100000n,
+      nonce,
+      deadline: MAX_UINT48,
+    };
+
+    req.signature = await this.sender.signTypedData(this.domain, this.types, req);
+
+    expect(await this.forwarder.verify(req)).to.be.true;
+
+    await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
 });

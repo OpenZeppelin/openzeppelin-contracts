@@ -68,7 +68,7 @@ describe('Create2', function () {
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
-      expect(this.constructorLessBytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
+      expect(this.constructorLessBytecode).to.include((await ethers.provider.getCode(offChainComputed)).slice(2));
     });
 
     it('deploys a contract with constructor arguments', async function () {
@@ -84,7 +84,7 @@ describe('Create2', function () {
 
       const instance = await ethers.getContractAt('VestingWallet', offChainComputed);
 
-      expect(await instance.owner()).to.equal(this.other.address);
+      expect(await instance.owner()).to.equal(this.other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {

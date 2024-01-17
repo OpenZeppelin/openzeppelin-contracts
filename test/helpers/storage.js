@@ -1,5 +1,5 @@
 const { ethers } = require('hardhat');
-const { getStorageAt, setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
 const ImplementationLabel = 'eip1967.proxy.implementation';
 const AdminLabel = 'eip1967.proxy.admin';
@@ -7,11 +7,10 @@ const BeaconLabel = 'eip1967.proxy.beacon';
 
 const erc1967slot = label => ethers.toBeHex(ethers.toBigInt(ethers.id(label)) - 1n);
 const erc7201slot = label => ethers.toBeHex(ethers.toBigInt(ethers.keccak256(erc1967slot(label))) & ~0xffn);
+const erc7201format = contractName => `openzeppelin.storage.${contractName}`;
 
 const getSlot = (address, slot) =>
-  (ethers.isAddressable(address) ? address.getAddress() : Promise.resolve(address)).then(address =>
-    getStorageAt(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot)),
-  );
+  ethers.provider.getStorage(address, ethers.isBytesLike(slot) ? slot : erc1967slot(slot));
 
 const setSlot = (address, slot, value) =>
   Promise.all([
@@ -22,6 +21,16 @@ const setSlot = (address, slot, value) =>
 const getAddressInSlot = (address, slot) =>
   getSlot(address, slot).then(slotValue => ethers.AbiCoder.defaultAbiCoder().decode(['address'], slotValue)[0]);
 
+const upgradeableSlot = (contractName, offset) => {
+  try {
+    // Try to get the artifact paths, will throw if it doesn't exist
+    artifacts._getArtifactPathSync(`${contractName}Upgradeable`);
+    return offset + ethers.toBigInt(erc7201slot(erc7201format(contractName)));
+  } catch (_) {
+    return offset;
+  }
+};
+
 module.exports = {
   ImplementationLabel,
   AdminLabel,
@@ -31,7 +40,9 @@ module.exports = {
   BeaconSlot: erc1967slot(BeaconLabel),
   erc1967slot,
   erc7201slot,
+  erc7201format,
   setSlot,
   getSlot,
   getAddressInSlot,
+  upgradeableSlot,
 };
