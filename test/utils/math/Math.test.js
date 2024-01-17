@@ -299,7 +299,7 @@ describe('Math', function () {
     });
   });
 
-  describe.only('inv', function () {
+  describe('inv', function () {
     for (const factors of [
       [17n],
       [65537n],
