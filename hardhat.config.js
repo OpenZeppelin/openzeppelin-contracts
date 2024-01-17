@@ -65,7 +65,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
 }
 
 const withOptimizations = argv.gas || argv.coverage || argv.compileMode === 'production';
-const allowUnlimitedContractSize = argv.coverage || argv.compileMode === 'development';
+const allowUnlimitedContractSize = argv.gas || argv.coverage || argv.compileMode === 'development';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
