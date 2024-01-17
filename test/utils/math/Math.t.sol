@@ -56,38 +56,32 @@ contract MathTest is Test {
     }
 
     // INV
-    function testInv1(uint256 seed) public {
-        uint256 p;
-        uint256 value;
-        uint256 inverse;
-
-        // 17 is a prime
-        p = 17;
-        value = bound(seed, 1, p - 1);
-        inverse = Math.inv(value, p);
-        assertEq(mulmod(value, inverse, p), 1);
-        assertLt(inverse, p);
-
-        // 65537 is a prime
-        p = 65537;
-        value = bound(seed, 1, p - 1);
-        inverse = Math.inv(value, p);
-        assertEq(mulmod(value, inverse, p), 1);
-        assertLt(inverse, p);
-
-        // 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff is a prime
-        p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff;
-        value = bound(seed, 1, p - 1);
-        inverse = Math.inv(value, p);
-        assertEq(mulmod(value, inverse, p), 1);
-        assertLt(inverse, p);
+    function testInv(uint256 value, uint256 p) public {
+        _testInv(value, p, true);
     }
 
-    function testInv2(uint256 value, uint256 p) public {
+    function testInv17(uint256 seed) public {
+        uint256 p = 17; // prime
+        _testInv(bound(seed, 1, p - 1), p, false);
+    }
+
+    function testInv65537(uint256 seed) public {
+        uint256 p = 65537; // prime
+        _testInv(bound(seed, 1, p - 1), p, false);
+    }
+
+    function testInvP256(uint256 seed) public {
+        uint256 p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff; // prime
+        _testInv(bound(seed, 1, p - 1), p, false);
+    }
+
+    function _testInv(uint256 value, uint256 p, bool allowZero) private {
         uint256 inverse = Math.inv(value, p);
         if (inverse != 0) {
             assertEq(mulmod(value, inverse, p), 1);
             assertLt(inverse, p);
+        } else {
+            assertTrue(allowZero);
         }
     }
 
