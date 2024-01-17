@@ -224,7 +224,7 @@ library Math {
      * If p is a prime, then we Z/nZ is a field commonly noted Fp. In that case all elements are inversible, expect 0.
      * If p is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
-     * When trying to inverse a value that is not invesible, 0 is returned.
+     * If the input values is not inversible, 0 is returned.
      */
     function inv(uint256 a, uint256 p) internal pure returns (uint256) {
         uint256 r1 = a % p;
