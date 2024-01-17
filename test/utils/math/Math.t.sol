@@ -66,24 +66,28 @@ contract MathTest is Test {
         value = bound(seed, 1, p - 1);
         inverse = Math.inv(value, p);
         assertEq(mulmod(value, inverse, p), 1);
+        assertLt(inverse, p);
 
         // 65537 is a prime
         p = 65537;
         value = bound(seed, 1, p - 1);
         inverse = Math.inv(value, p);
         assertEq(mulmod(value, inverse, p), 1);
+        assertLt(inverse, p);
 
         // 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff is a prime
         p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff;
         value = bound(seed, 1, p - 1);
         inverse = Math.inv(value, p);
         assertEq(mulmod(value, inverse, p), 1);
+        assertLt(inverse, p);
     }
 
     function testInv2(uint256 value, uint256 p) public {
         uint256 inverse = Math.inv(value, p);
         if (inverse != 0) {
             assertEq(mulmod(value, inverse, p), 1);
+            assertLt(inverse, p);
         }
     }
 
