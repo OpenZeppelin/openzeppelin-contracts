@@ -219,7 +219,7 @@ library Math {
     }
 
     /**
-     * @notice Calculate the inverse of a in Z/nZ.
+     * @notice Calculate the inverse of a number in Z/nZ.
      *
      * If p is a prime, then we Z/nZ is a field commonly noted Fp. In that case all elements are inversible, expect 0.
      * If p is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
