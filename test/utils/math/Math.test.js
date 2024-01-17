@@ -321,7 +321,7 @@ describe('Math', function () {
 
         for (const value of randomArray(generators.uint256, 16)) {
           const isInversible = factors.every(f => value % f);
-          it(`tring to inverse ${value}`, async function () {
+          it(`trying to inverse ${value}`, async function () {
             const result = await this.mock.$inv(value, p);
             if (isInversible) {
               expect((value * result) % p).to.equal(1n);
