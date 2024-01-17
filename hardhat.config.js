@@ -5,70 +5,51 @@
 // - IR:                enable IR compilation (default: false)
 // - COVERAGE:          enable coverage report
 // - ENABLE_GAS_REPORT: enable gas report
-// - FOUNDRY:           enable foundry
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 // - CI:                output gas report to file instead of stdout
 
 const fs = require('fs');
 const path = require('path');
-const proc = require('child_process');
-
-const cmdOptions = {
-  // Compilation settings
-  compiler: {
-    alias: 'compileVersion',
-    type: 'string',
-    default: '0.8.20',
-  },
-  src: {
-    alias: 'source',
-    type: 'string',
-    default: 'contracts',
-  },
-  mode: {
-    alias: 'compileMode',
-    type: 'string',
-    choices: ['production', 'development'],
-    default: 'development',
-  },
-  ir: {
-    alias: 'enableIR',
-    type: 'boolean',
-    default: false,
-  },
-  // Extra modules
-  coverage: {
-    type: 'boolean',
-    default: false,
-  },
-  gas: {
-    alias: 'enableGasReport',
-    type: 'boolean',
-    default: false,
-  },
-  foundry: {
-    alias: 'hasFoundry',
-    type: 'boolean',
-    default: undefined, // default depends on other options
-  },
-  coinmarketcap: {
-    alias: 'coinmarketcapApiKey',
-    type: 'string',
-  },
-};
-
-const conflicts = {
-  foundry: ['src', 'coverage'],
-};
 
 const { argv } = require('yargs/yargs')()
   .env('')
-  .options(cmdOptions)
-  .conflicts(conflicts)
-  .middleware(argv => {
-    const isDefault = opt => argv[opt] === cmdOptions[opt].default;
-    const noConflicts = ['foundry', ...conflicts.foundry].every(isDefault);
-    argv.foundry = noConflicts && hasFoundry();
+  .options({
+    // Compilation settings
+    compiler: {
+      alias: 'compileVersion',
+      type: 'string',
+      default: '0.8.20',
+    },
+    src: {
+      alias: 'source',
+      type: 'string',
+      default: 'contracts',
+    },
+    mode: {
+      alias: 'compileMode',
+      type: 'string',
+      choices: ['production', 'development'],
+      default: 'development',
+    },
+    ir: {
+      alias: 'enableIR',
+      type: 'boolean',
+      default: false,
+    },
+    // Extra modules
+    coverage: {
+      type: 'boolean',
+      default: false,
+    },
+    gas: {
+      alias: 'enableGasReport',
+      type: 'boolean',
+      default: false,
+    },
+    coinmarketcap: {
+      alias: 'coinmarketcapApiKey',
+      type: 'string',
+    },
   });
 
 require('@nomicfoundation/hardhat-chai-matchers');
@@ -78,13 +59,13 @@ require('hardhat-gas-reporter');
 require('hardhat-ignore-warnings');
 require('solidity-coverage');
 require('solidity-docgen');
-argv.foundry && require('@nomicfoundation/hardhat-foundry');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
 const withOptimizations = argv.gas || argv.coverage || argv.compileMode === 'production';
+const allowUnlimitedContractSize = argv.coverage || argv.compileMode === 'development';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -114,7 +95,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: !withOptimizations,
+      allowUnlimitedContractSize,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
@@ -134,7 +115,3 @@ module.exports = {
   },
   docgen: require('./docs/config'),
 };
-
-function hasFoundry() {
-  return proc.spawnSync('forge', ['-V'], { stdio: 'ignore' }).error === undefined;
-}
