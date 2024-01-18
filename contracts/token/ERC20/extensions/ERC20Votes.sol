@@ -8,7 +8,7 @@ import {Votes} from "../../../governance/utils/Votes.sol";
 import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
 
 /**
- * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
+ * @dev Extension of ERC-20 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^208^ - 1, while COMP is limited to 2^96^ - 1.
  *
  * NOTE: This contract does not provide interface compatibility with Compound's COMP token.

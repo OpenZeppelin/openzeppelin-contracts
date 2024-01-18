@@ -14,9 +14,9 @@ describe('Ownable', function () {
   });
 
   it('emits ownership transfer events during construction', async function () {
-    await expect(await this.ownable.deploymentTransaction())
+    await expect(this.ownable.deploymentTransaction())
       .to.emit(this.ownable, 'OwnershipTransferred')
-      .withArgs(ethers.ZeroAddress, this.owner.address);
+      .withArgs(ethers.ZeroAddress, this.owner);
   });
 
   it('rejects zero address for initialOwner', async function () {
@@ -26,22 +26,22 @@ describe('Ownable', function () {
   });
 
   it('has an owner', async function () {
-    expect(await this.ownable.owner()).to.equal(this.owner.address);
+    expect(await this.ownable.owner()).to.equal(this.owner);
   });
 
   describe('transfer ownership', function () {
     it('changes owner after transfer', async function () {
       await expect(this.ownable.connect(this.owner).transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
-        .withArgs(this.owner.address, this.other.address);
+        .withArgs(this.owner, this.other);
 
-      expect(await this.ownable.owner()).to.equal(this.other.address);
+      expect(await this.ownable.owner()).to.equal(this.other);
     });
 
     it('prevents non-owners from transferring', async function () {
       await expect(this.ownable.connect(this.other).transferOwnership(this.other))
         .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('guards ownership against stuck state', async function () {
@@ -55,7 +55,7 @@ describe('Ownable', function () {
     it('loses ownership after renouncement', async function () {
       await expect(this.ownable.connect(this.owner).renounceOwnership())
         .to.emit(this.ownable, 'OwnershipTransferred')
-        .withArgs(this.owner.address, ethers.ZeroAddress);
+        .withArgs(this.owner, ethers.ZeroAddress);
 
       expect(await this.ownable.owner()).to.equal(ethers.ZeroAddress);
     });
@@ -63,7 +63,7 @@ describe('Ownable', function () {
     it('prevents non-owners from renouncement', async function () {
       await expect(this.ownable.connect(this.other).renounceOwnership())
         .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
-        .withArgs(this.other.address);
+        .withArgs(this.other);
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {
@@ -71,9 +71,9 @@ describe('Ownable', function () {
 
       await expect(this.ownable.$_transferOwnership(this.other))
         .to.emit(this.ownable, 'OwnershipTransferred')
-        .withArgs(ethers.ZeroAddress, this.other.address);
+        .withArgs(ethers.ZeroAddress, this.other);
 
-      expect(await this.ownable.owner()).to.equal(this.other.address);
+      expect(await this.ownable.owner()).to.equal(this.other);
     });
   });
 });

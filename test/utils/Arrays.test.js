@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { randomArray, generators } = require('../helpers/random');
+
 // See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
 const lowerBound = (array, value) => {
   const i = array.findIndex(element => value <= element);
@@ -102,28 +104,30 @@ describe('Arrays', function () {
     }
   });
 
-  describe('unsafeAccess', function () {
-    for (const [name, { artifact, generator }] of Object.entries({
-      address: {
-        artifact: 'AddressArraysMock',
-        generator: () => ethers.getAddress(ethers.hexlify(ethers.randomBytes(20))),
-      },
-      bytes32: {
-        artifact: 'Bytes32ArraysMock',
-        generator: () => ethers.hexlify(ethers.randomBytes(32)),
-      },
-      uint256: {
-        artifact: 'Uint256ArraysMock',
-        generator: () => ethers.toBigInt(ethers.randomBytes(32)),
-      },
+  describe.only('unsafeAccess', function () {
+    for (const [title, { artifact, elements }] of Object.entries({
+      address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
+      bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
+      uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
     })) {
-      it(name, async function () {
-        const elements = Array(10).fill().map(generator);
-        const contract = await ethers.deployContract(artifact, [elements]);
+      describe(title, function () {
+        const fixture = async () => {
+          return { mock: await ethers.deployContract(artifact, [elements]) };
+        };
+
+        beforeEach(async function () {
+          Object.assign(this, await loadFixture(fixture));
+        });
 
         for (const i in elements) {
-          expect(await contract.unsafeAccess(i)).to.be.equal(elements[i]);
+          it(`unsafeAccess within bounds #${i}`, async function () {
+            expect(await this.mock.unsafeAccess(i)).to.equal(elements[i]);
+          });
         }
+
+        it('unsafeAccess outside bounds', async function () {
+          await expect(this.mock.unsafeAccess(elements.length)).to.not.be.rejected;
+        });
       });
     }
   });

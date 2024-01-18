@@ -9,7 +9,7 @@ import {Address} from "../../../utils/Address.sol";
 
 /**
  * @title SafeERC20
- * @dev Wrappers around ERC20 operations that throw on failure (when the token
+ * @dev Wrappers around ERC-20 operations that throw on failure (when the token
  * contract returns false). Tokens that return no value (and instead revert or
  * throw on failure) are also supported, non-reverting calls are assumed to be
  * successful.
@@ -20,7 +20,7 @@ library SafeERC20 {
     using Address for address;
 
     /**
-     * @dev An operation with an ERC20 token failed.
+     * @dev An operation with an ERC-20 token failed.
      */
     error SafeERC20FailedOperation(address token);
 
