@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
+import {Math} from "../../../contracts/utils/math/Math.sol";
 import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
@@ -38,27 +39,22 @@ contract SignedMathTest is Test {
 
     // 2. more complex test, full int256 range
     function testAverage2(int256 a, int256 b) public {
-        int256 result = SignedMath.average(a, b);
+        (int256 result, int256 min, int256 max) = (
+            SignedMath.average(a, b),
+            SignedMath.min(a, b),
+            SignedMath.max(a, b)
+        );
 
-        if (a == b) {
-            assertEq(result, a);
-        } else {
-            (int256 min, int256 max) = a < b ? (a, b) : (b, a);
-            // average must be between `a` and `b`
-            assertGe(result, min);
-            assertLe(result, max);
+        // average must be between `a` and `b`
+        assertGe(result, min);
+        assertLe(result, max);
 
-            unchecked {
-                // must be unchecked in order to support `a = type(int256).min, b = type(int256).max`
-                uint256 deltaLower = uint256(result - min);
-                uint256 deltaUpper = uint256(max - result);
-                uint256 remainder = uint256((a & 1) ^ (b & 1));
-                if (deltaLower > deltaUpper) {
-                    assertEq(deltaLower - deltaUpper, remainder);
-                } else {
-                    assertEq(deltaUpper - deltaLower, remainder);
-                }
-            }
+        unchecked {
+            // must be unchecked in order to support `a = type(int256).min, b = type(int256).max`
+            uint256 deltaLower = uint256(result - min);
+            uint256 deltaUpper = uint256(max - result);
+            uint256 remainder = uint256((a & 1) ^ (b & 1));
+            assertEq(remainder, Math.max(deltaLower, deltaUpper) - Math.min(deltaLower, deltaUpper));
         }
     }
 
