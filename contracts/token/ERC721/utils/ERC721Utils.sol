@@ -6,7 +6,8 @@ import {IERC721Receiver} from "../IERC721Receiver.sol";
 import {IERC721Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
- * @title ERC721Utils
+ * @dev Implementation of the ERC-721 acceptance checks used in safe transfers.
+ * See https://eips.ethereum.org/EIPS/eip-721
  */
 library ERC721Utils {
     /**

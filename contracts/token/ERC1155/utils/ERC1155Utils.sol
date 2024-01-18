@@ -6,7 +6,8 @@ import {IERC1155Receiver} from "../IERC1155Receiver.sol";
 import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
- * @title ERC1155Utils
+ * @dev Implementation of the ERC-1155 acceptance checks used in safe transfers.
+ * See https://eips.ethereum.org/EIPS/eip-1155
  */
 library ERC1155Utils {
     /**
