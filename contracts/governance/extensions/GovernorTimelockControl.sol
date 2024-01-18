@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.20;
 
@@ -11,16 +11,16 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
  * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
- * {Governor} needs the proposer (and ideally the executor) roles for the {Governor} to work properly.
+ * {Governor} needs the proposer (and ideally the executor and canceller) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
- * inaccessible.
+ * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
- * WARNING: Setting up the TimelockController to have additional proposers besides the governor is very risky, as it
- * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
- * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
- * executing a Denial of Service attack. This risk will be mitigated in a future release.
+ * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
+ * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
+ * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
+ * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
  */
 abstract contract GovernorTimelockControl is Governor {
     TimelockController private _timelock;
@@ -68,6 +68,13 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
+     * @dev See {IGovernor-proposalNeedsQueuing}.
+     */
+    function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
+        return true;
+    }
+
+    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queueOperations(
@@ -87,8 +94,8 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal through
-     * the timelock.
+     * @dev Overridden version of the {Governor-_executeOperations} function that runs the already queued proposal
+     * through the timelock.
      */
     function _executeOperations(
         uint256 proposalId,
@@ -104,7 +111,7 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it has already
      * been queued.
      */
     // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and
