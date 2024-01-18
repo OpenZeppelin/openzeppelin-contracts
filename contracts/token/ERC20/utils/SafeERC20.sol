@@ -86,12 +86,23 @@ library SafeERC20 {
      * @dev Perform an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
      * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
+     *
+     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
             safeTransfer(token, to, value);
         } else {
-            token.transferAndCall(to, value, data);
+            _callOptionalReturn(
+                token,
+                // Can't use abi.encodeCall since `token.transferAndCall` is not an unique identifier.
+                abi.encodeWithSelector(
+                    0x4000aea0, // bytes4(keccak256("transferAndCall(address,uint256,bytes)"))
+                    to,
+                    value,
+                    data
+                )
+            );
         }
     }
 
@@ -99,6 +110,8 @@ library SafeERC20 {
      * @dev Perform an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
      * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
+     *
+     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function transferFromAndCallRelaxed(
         IERC1363 token,
@@ -110,7 +123,17 @@ library SafeERC20 {
         if (to.code.length == 0) {
             safeTransferFrom(token, from, to, value);
         } else {
-            token.transferFromAndCall(from, to, value, data);
+            _callOptionalReturn(
+                token,
+                // Can't use abi.encodeCall since `token.transferFromAndCall` is not an unique identifier.
+                abi.encodeWithSelector(
+                    0xc1d34b89, // bytes4(keccak256("transferFromAndCall(address,address,uint256,bytes)"))
+                    from,
+                    to,
+                    value,
+                    data
+                )
+            );
         }
     }
 
@@ -118,12 +141,23 @@ library SafeERC20 {
      * @dev Perform an {ERC1363} approveAndCall, with a fallback to the simple {ERC20} approve if the target has no
      * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
+     *
+     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
             forceApprove(token, to, value);
         } else {
-            token.approveAndCall(to, value, data);
+            _callOptionalReturn(
+                token,
+                // Can't use abi.encodeCall since `token.approveAndCall` is not an unique identifier.
+                abi.encodeWithSelector(
+                    0xcae9ca51, // bytes4(keccak256("approveAndCall(address,uint256,bytes)"))
+                    to,
+                    value,
+                    data
+                )
+            );
         }
     }
 
