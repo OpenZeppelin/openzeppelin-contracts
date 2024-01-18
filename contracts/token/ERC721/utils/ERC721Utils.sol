@@ -10,13 +10,9 @@ import {IERC721Errors} from "../../../interfaces/draft-IERC6093.sol";
  */
 library ERC721Utils {
     /**
-     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address. This will revert if the
-     * recipient doesn't accept the token transfer. The call is not executed if the target address is not a contract.
-     *
-     * @param from address representing the previous owner of the given token ID
-     * @param to target address that will receive the tokens
-     * @param tokenId uint256 ID of the token to be transferred
-     * @param data bytes optional data to send along with the call
+     * @dev Performs an acceptance check by calling {IERC721Receiver-onERC721Received} on the `to` address if it
+     * contains code at the moment of execution. This will revert if the recipient doesn't accept the token transfer.
+     * The call is not executed if the target address is not a contract.
      */
     function checkOnERC721Received(address operator, address from, address to, uint256 tokenId, bytes memory data) internal {
         if (to.code.length > 0) {

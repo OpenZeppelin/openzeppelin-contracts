@@ -10,8 +10,9 @@ import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
  */
 library ERC1155Utils {
     /**
-     * @dev Performs an acceptance check by calling {IERC1155-onERC1155Received} on the `to` address
-     * if it contains code at the moment of execution.
+     * @dev Performs an acceptance check by calling {IERC1155-onERC1155Received} on the `to` address if it
+     * contains code at the moment of execution. This will revert if the recipient doesn't accept the token transfer.
+     * The call is not executed if the target address is not a contract.
      */
     function checkOnERC1155Received(
         address operator,
@@ -42,8 +43,9 @@ library ERC1155Utils {
     }
 
     /**
-     * @dev Performs a batch acceptance check by calling {IERC1155-onERC1155BatchReceived} on the `to` address
-     * if it contains code at the moment of execution.
+     * @dev Performs a batch acceptance check by calling {IERC1155-onERC1155BatchReceived} on the `to` address if it
+     * contains code at the moment of execution. This will revert if the recipient doesn't accept the token transfer.
+     * The call is not executed if the target address is not a contract.
      */
     function checkOnERC1155BatchReceived(
         address operator,
