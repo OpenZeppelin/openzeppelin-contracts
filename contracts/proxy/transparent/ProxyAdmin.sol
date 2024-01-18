@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.3) (proxy/transparent/ProxyAdmin.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (proxy/transparent/ProxyAdmin.sol)
 
 pragma solidity ^0.8.20;
 
@@ -16,7 +16,7 @@ contract ProxyAdmin is Ownable {
      * and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
      * while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
      * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
-     * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
+     * be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
      * during an upgrade.
      */
     string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";

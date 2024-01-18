@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorCountingSimple.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorCountingSimple.sol)
 
 pragma solidity ^0.8.20;
 
@@ -22,10 +22,10 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address => bool) hasVoted;
+        mapping(address voter => bool) hasVoted;
     }
 
-    mapping(uint256 => ProposalVote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.

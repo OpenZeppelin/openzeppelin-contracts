@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorPreventLateQuorum.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
 pragma solidity ^0.8.20;
 
@@ -18,7 +18,7 @@ import {Math} from "../../utils/math/Math.sol";
 abstract contract GovernorPreventLateQuorum is Governor {
     uint48 private _voteExtension;
 
-    mapping(uint256 => uint48) private _extendedDeadlines;
+    mapping(uint256 proposalId => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
@@ -27,9 +27,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
     /**
-     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the governor
-     * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
-     * necessary the voting period will be extended beyond the one set during proposal creation.
+     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the
+     * governor clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period
+     * ends. If necessary the voting period will be extended beyond the one set during proposal creation.
      */
     constructor(uint48 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/extensions/ERC1155Supply.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/extensions/ERC1155Supply.sol)
 
 pragma solidity ^0.8.20;
 
 import {ERC1155} from "../ERC1155.sol";
 
 /**
- * @dev Extension of ERC1155 that adds tracking of total supply per id.
+ * @dev Extension of ERC-1155 that adds tracking of total supply per id.
  *
  * Useful for scenarios where Fungible and Non-fungible tokens have to be
  * clearly identified. Note: While a totalSupply of 1 might mean the
@@ -19,7 +19,7 @@ import {ERC1155} from "../ERC1155.sol";
  * CAUTION: This extension should not be added in an upgrade to an already deployed contract.
  */
 abstract contract ERC1155Supply is ERC1155 {
-    mapping(uint256 => uint256) private _totalSupply;
+    mapping(uint256 id => uint256) private _totalSupply;
     uint256 private _totalSupplyAll;
 
     /**

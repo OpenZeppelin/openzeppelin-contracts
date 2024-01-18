@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 
 // solhint-disable func-name-mixedcase
 
-import {ERC721} from "../../../../contracts/token/ERC721/ERC721.sol";
-import {ERC721Consecutive} from "../../../../contracts/token/ERC721/extensions/ERC721Consecutive.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Consecutive} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Consecutive.sol";
 import {Test, StdUtils} from "forge-std/Test.sol";
 
 function toSingleton(address account) pure returns (address[] memory) {

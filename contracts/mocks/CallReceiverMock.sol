@@ -59,3 +59,15 @@ contract CallReceiverMock {
         return "0x1234";
     }
 }
+
+contract CallReceiverMockTrustingForwarder is CallReceiverMock {
+    address private _trustedForwarder;
+
+    constructor(address trustedForwarder_) {
+        _trustedForwarder = trustedForwarder_;
+    }
+
+    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
+        return forwarder == _trustedForwarder;
+    }
+}
