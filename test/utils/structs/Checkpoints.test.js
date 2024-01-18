@@ -79,7 +79,7 @@ describe('Checkpoints', function () {
         it('returns latest value', async function () {
           const latest = this.checkpoints.at(-1);
           expect(await this.methods.latest()).to.equal(latest.value);
-          expect(await this.methods.latestCheckpoint()).to.deep.equal([ true, latest.key, latest.value ]);
+          expect(await this.methods.latestCheckpoint()).to.deep.equal([true, latest.key, latest.value]);
         });
 
         it('cannot push values in the past', async function () {
