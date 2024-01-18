@@ -86,32 +86,13 @@ module.exports = [
     static ruleId = 'custom-error-domains';
 
     ContractDefinition(node) {
-      if (node && node.subNodes) {
-        const customErrors = node.subNodes.filter((x) => x.type === 'CustomErrorDefinition');
-        if (customErrors.length == 0) return;
-        const contractNames = [node.name];
+      const domains = [node?.name, ...(node?.baseContracts?.map(({ baseName }) => baseName.namePath) ?? [])].map(
+        this._getDomainFromContractName,
+      );
 
-        if (node.baseContracts && node.baseContracts.length > 0) {
-          for (const inheritanceSpecifier of node.baseContracts) {
-            contractNames.push(inheritanceSpecifier.baseName.namePath);
-          }
-        }
-
-        const domains = contractNames.map(this._getDomainFromContractName);
-        for (const customError of customErrors) {
-          let foundDomain = false;
-          for (const domain of domains) {
-            if (customError.name.startsWith(domain)) {
-              foundDomain = true;
-              break;
-            }
-          } 
-          
-          if (!foundDomain) {
-            this.error(customError, 'Custom errors should contain corresponding domain prefix');
-          }
-        }
-      }
+      node?.subNodes
+        ?.filter(({ type, name }) => type === 'CustomErrorDefinition' && !domains.find(domain => name.startsWith(domain)))
+        .forEach(customError => this.error(customError, 'Custom errors should contain corresponding domain prefix'));
     }
 
     _getDomainFromContractName(contractName) {
