@@ -12,9 +12,9 @@ contract SignedMathTest is Test {
         int256 result = SignedMath.min(a, b);
 
         if (a > b) {
-            assertTrue(result == b);
+            assertEq(result, b);
         } else {
-            assertTrue(result == a);
+            assertEq(result, a);
         }
     }
 
@@ -23,9 +23,9 @@ contract SignedMathTest is Test {
         int256 result = SignedMath.max(a, b);
 
         if (a > b) {
-            assertTrue(result == a);
+            assertEq(result, a);
         } else {
-            assertTrue(result == b);
+            assertEq(result, b);
         }
     }
 
@@ -49,8 +49,8 @@ contract SignedMathTest is Test {
         } else {
             (int256 min, int256 max) = a < b ? (a, b) : (b, a);
             // average must be between `a` and `b`
-            assertTrue(result >= min);
-            assertTrue(result <= max);
+            assertGe(result, min);
+            assertLe(result, max);
 
             unchecked {
                 // must be unchecked in order to support `a = type(int256).min, b = type(int256).max`
@@ -58,9 +58,9 @@ contract SignedMathTest is Test {
                 uint256 deltaUpper = uint256(max - result);
                 uint256 remainder = uint256((a & 1) ^ (b & 1));
                 if (deltaLower > deltaUpper) {
-                    assertTrue(deltaLower - deltaUpper == remainder);
+                    assertEq(deltaLower - deltaUpper, remainder);
                 } else {
-                    assertTrue(deltaUpper - deltaLower == remainder);
+                    assertEq(deltaUpper - deltaLower, remainder);
                 }
             }
         }
