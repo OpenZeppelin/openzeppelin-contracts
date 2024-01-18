@@ -51,7 +51,6 @@ describe('EnumerableMap', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  // UintToAddressMap
   for (const { name } of TYPES) {
     describe(name, function () {
       beforeEach(async function () {
