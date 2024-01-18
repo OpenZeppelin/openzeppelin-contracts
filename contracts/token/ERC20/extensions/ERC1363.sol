@@ -36,19 +36,21 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Moves a `value` amount of tokens from the caller's account to `to`
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
      * {IERC1363Receiver-onTransferReceived}
      */
-    function transferAndCall(address to, uint256 value) public virtual returns (bool) {
+    function transferAndCall(address to, uint256 value) public returns (bool) {
         return transferAndCall(to, value, "");
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Moves a `value` amount of tokens from the caller's account to `to`
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
      * {IERC1363Receiver-onTransferReceived}
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
@@ -58,19 +60,21 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
      * {IERC1363Receiver-onTransferReceived}
      */
-    function transferFromAndCall(address from, address to, uint256 value) public virtual returns (bool) {
+    function transferFromAndCall(address from, address to, uint256 value) public returns (bool) {
         return transferFromAndCall(from, to, value, "");
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * @notice Reverts if `to` is an account without code or the recipient contract does not implement
+     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
      * {IERC1363Receiver-onTransferReceived}
      */
     function transferFromAndCall(
@@ -85,19 +89,21 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
+     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
      *
-     * @notice Reverts if `spender` is an account without code or the spender contract does not implement
+     * NOTE: Reverts if `spender` is an account without code or the spender contract does not implement
      * {IERC1363Spender-onApprovalReceived}
      */
-    function approveAndCall(address spender, uint256 value) public virtual returns (bool) {
+    function approveAndCall(address spender, uint256 value) public returns (bool) {
         return approveAndCall(spender, value, "");
     }
 
     /**
-     * @inheritdoc IERC1363
+     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
+     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
      *
-     * @notice Reverts if `spender` is an account without code or the spender contract does not implement
+     * NOTE: Reverts if `spender` is an account without code or the spender contract does not implement
      * {IERC1363Spender-onApprovalReceived}
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
@@ -108,9 +114,12 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Performs a call to {IERC1363Receiver-onTransferReceived} on a target address.
-     * This will revert if the target doesn't implement the {IERC1363Receiver} interface or
-     * if the target doesn't accept the token transfer or
-     * if the target address is not a contract.
+     *
+     * Requirements:
+     *
+     * - The target has code (i.e. is a contract).
+     * - The target `to` must implement the {IERC1363Receiver} interface.
+     * - The target should return the {IERC1363Receiver} interface id.
      */
     function _checkOnTransferReceived(address from, address to, uint256 value, bytes memory data) private {
         if (to.code.length == 0) {
@@ -135,9 +144,12 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Performs a call to {IERC1363Spender-onApprovalReceived} on a target address.
-     * This will revert if the target doesn't implement the {IERC1363Spender} interface or
-     * if the target doesn't accept the token approval or
-     * if the target address is not a contract.
+     *
+     * Requirements:
+     *
+     * - The target has code (i.e. is a contract).
+     * - The target `to` must implement the {IERC1363Spender} interface.
+     * - The target should return the {IERC1363Spender} interface id.
      */
     function _checkOnApprovalReceived(address spender, uint256 value, bytes memory data) private {
         if (spender.code.length == 0) {
