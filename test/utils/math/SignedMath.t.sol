@@ -32,8 +32,8 @@ contract SignedMathTest is Test {
     // AVERAGE
     // 1. simple test, not full int256 range
     function testAverage1(int256 a, int256 b) public {
-        a = bound(a, 0, type(int256).max / 2);
-        b = bound(b, 0, type(int256).max / 2);
+        a = bound(a, type(int256).min / 2, type(int256).max / 2);
+        b = bound(b, type(int256).min / 2, type(int256).max / 2);
 
         int256 result = SignedMath.average(a, b);
 
