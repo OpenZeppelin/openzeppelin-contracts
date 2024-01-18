@@ -29,6 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
+      # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json" as documented in
+      # https://github.com/cgewecke/eth-gas-reporter/blob/v0.2.27/docs/gasReporterOutput.md
+      CI: true
       GAS: true
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +45,6 @@ jobs:
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
-        if: github.base_ref == 'master'
         with:
           token: ${{ github.token }}
 
@@ -68,7 +70,6 @@ jobs:
         run: npm run test:inheritance
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
-        if: github.base_ref == 'master'
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
         with:
           token: ${{ github.token }}
@@ -82,7 +83,8 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests
-        run: forge test -vv
+        # Base64Test requires `--ffi`. See test/utils/Base64.t.sol
+        run: forge test -vv --no-match-contract Base64Test
 
   coverage:
     runs-on: ubuntu-latest
@@ -95,6 +97,17 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  harnesses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Compile harnesses
+        run: |
+          make -C certora apply
+          npm run compile:harnesses
 
   slither:
     runs-on: ubuntu-latest

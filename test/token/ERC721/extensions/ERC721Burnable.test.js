@@ -48,7 +48,7 @@ describe('ERC721Burnable', function () {
           await this.token.connect(this.owner).burn(tokenId);
         });
 
-        context('getApproved', function () {
+        describe('getApproved', function () {
           it('reverts', async function () {
             await expect(this.token.getApproved(tokenId))
               .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')

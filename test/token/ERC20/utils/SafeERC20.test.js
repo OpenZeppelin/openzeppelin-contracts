@@ -271,7 +271,7 @@ function shouldOnlyRevertOnErrors() {
   });
 
   describe('approvals', function () {
-    context('with zero allowance', function () {
+    describe('with zero allowance', function () {
       beforeEach(async function () {
         await this.token.$_approve(this.mock, this.spender, 0n);
       });
@@ -298,7 +298,7 @@ function shouldOnlyRevertOnErrors() {
       });
     });
 
-    context('with non-zero allowance', function () {
+    describe('with non-zero allowance', function () {
       beforeEach(async function () {
         await this.token.$_approve(this.mock, this.spender, 100n);
       });

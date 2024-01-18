@@ -1072,13 +1072,13 @@ describe('AccessManager', function () {
         });
 
         it('changes the authority', async function () {
-          expect(await this.newManagedTarget.authority()).to.be.equal(this.manager);
+          expect(await this.newManagedTarget.authority()).to.equal(this.manager);
 
           await expect(this.manager.connect(this.admin).updateAuthority(this.newManagedTarget, this.newAuthority))
             .to.emit(this.newManagedTarget, 'AuthorityUpdated') // Managed contract is responsible of notifying the change through an event
             .withArgs(this.newAuthority);
 
-          expect(await this.newManagedTarget.authority()).to.be.equal(this.newAuthority);
+          expect(await this.newManagedTarget.authority()).to.equal(this.newAuthority);
         });
       });
 
@@ -1250,7 +1250,7 @@ describe('AccessManager', function () {
 
                     // Already in effect
                     const currentTimestamp = await time.clock.timestamp();
-                    expect(currentTimestamp).to.be.equal(access[0]);
+                    expect(currentTimestamp).to.equal(access[0]);
                     expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
                       true,
                       this.executionDelay.toString(),
@@ -1291,7 +1291,7 @@ describe('AccessManager', function () {
 
                 // Already in effect
                 const currentTimestamp = await time.clock.timestamp();
-                expect(currentTimestamp).to.be.equal(access[0]);
+                expect(currentTimestamp).to.equal(access[0]);
                 expect(await this.manager.hasRole(ANOTHER_ROLE, this.user).then(formatAccess)).to.be.deep.equal([
                   true,
                   executionDelay.toString(),
@@ -2342,7 +2342,7 @@ describe('AccessManager', function () {
     });
 
     it('initial state', async function () {
-      expect(await this.ownable.owner()).to.be.equal(this.manager);
+      expect(await this.ownable.owner()).to.equal(this.manager);
     });
 
     describe('Contract is closed', function () {

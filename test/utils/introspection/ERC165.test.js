@@ -14,5 +14,5 @@ describe('ERC165', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldSupportInterfaces(['ERC165']);
+  shouldSupportInterfaces();
 });

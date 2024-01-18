@@ -24,7 +24,7 @@ describe('ERC1155Holder', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldSupportInterfaces(['ERC165', 'ERC1155Receiver']);
+  shouldSupportInterfaces(['ERC1155Receiver']);
 
   it('receives ERC1155 tokens from a single ID', async function () {
     await this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock, ids[0], values[0], data);
