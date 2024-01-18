@@ -13,6 +13,49 @@ library Arrays {
     using StorageSlot for bytes32;
 
     /**
+     * @dev Sort an array (in memory) in increassing order.
+     *
+     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+     *
+     * Note: this function's cost is O(n.log(n)) in average and O(n²) in the worst case, with n the length of the
+     * array. Using it in view function that are executed through `eth_call` is safe, but one should be very carefull
+     * when executing this as part of a transaction. Depending on the size of the array, this can be very exepensive
+     * to run, leading to potential DoS attacks.
+     */
+    function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
+        _quickSort(array, 0, array.length);
+        return array;
+    }
+
+    function _quickSort(uint256[] memory array, uint256 i, uint256 j) private pure {
+        unchecked {
+            if (j - i < 2) return;
+
+            uint256 p = i;
+            for (uint256 k = i + 1; k < j; ++k) {
+                if (unsafeMemoryAccess(array, i) > unsafeMemoryAccess(array, k)) {
+                    _swap(array, ++p, k);
+                }
+            }
+            _swap(array, i, p);
+            _quickSort(array, i, p);
+            _quickSort(array, p + 1, j);
+        }
+    }
+
+    function _swap(uint256[] memory arr, uint256 i, uint256 j) private pure {
+        assembly {
+            let pos_i := add(add(arr, 0x20), mul(i, 0x20))
+            let pos_j := add(add(arr, 0x20), mul(j, 0x20))
+            let val_i := mload(pos_i)
+            let val_j := mload(pos_j)
+            mstore(pos_i, val_j)
+            mstore(pos_j, val_i)
+        }
+    }
+
+    /**
      * @dev Searches a sorted `array` and returns the first index that contains
      * a value greater or equal to `element`. If no such index exists (i.e. all
      * values in the array are strictly less than `element`), the array length is

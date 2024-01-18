@@ -16,9 +16,49 @@ const upperBound = (array, value) => {
   return i == -1 ? array.length : i;
 };
 
+// By default, js "sort" cast to string and then sort in alphabetical order. Use this to sort numbers.
+const compareNumbers = (a, b) => a > b ? 1 : a < b ? -1 : 0;
+
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
 describe('Arrays', function () {
+  describe('sort', function () {
+    const fixture = async () => {
+      return { mock: await ethers.deployContract('$Arrays') };
+    };
+
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    for (const length of [0, 1, 2, 8, 32, 128]) {
+      it(`sort array of length ${length}`, async function () {
+        this.elements = randomArray(generators.uint256, length);
+        this.expected = Array.from(this.elements).sort(compareNumbers);
+      });
+
+      if (length > 1) {
+        it(`sort array of length ${length} (identical elements)`, async function () {
+          this.elements = Array(length).fill(generators.uint256());
+          this.expected = this.elements;
+        });
+
+        it(`sort array of length ${length} (already sorted)`, async function () {
+          this.elements = randomArray(generators.uint256, length).sort(compareNumbers);
+          this.expected = this.elements;
+        });
+
+        it(`sort array of length ${length} (sorted in reverse order)`, async function () {
+          this.elements = randomArray(generators.uint256, length).sort(compareNumbers).reverse();
+          this.expected = Array.from(this.elements).reverse();
+        });
+      }
+    }
+    afterEach(async function () {
+      expect(await this.mock.$sort(this.elements)).to.deep.equal(this.expected);
+    });
+  });
+
   describe('search', function () {
     for (const [title, { array, tests }] of Object.entries({
       'Even number of elements': {
