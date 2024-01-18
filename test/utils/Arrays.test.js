@@ -17,7 +17,7 @@ const upperBound = (array, value) => {
 };
 
 // By default, js "sort" cast to string and then sort in alphabetical order. Use this to sort numbers.
-const compareNumbers = (a, b) => a > b ? 1 : a < b ? -1 : 0;
+const compareNumbers = (a, b) => (a > b ? 1 : a < b ? -1 : 0);
 
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
