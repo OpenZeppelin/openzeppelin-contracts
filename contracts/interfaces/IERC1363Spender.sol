@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC1363Spender.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363Spender.sol)
 
 pragma solidity ^0.8.20;
 
@@ -14,8 +14,8 @@ interface IERC1363Spender {
      */
 
     /**
-     * @notice Handle the approval of ERC1363 tokens
-     * @dev Any ERC1363 smart contract calls this function on the recipient
+     * @notice Handle the approval of ERC-1363 tokens
+     * @dev Any ERC-1363 smart contract calls this function on the recipient
      * after an `approve`. This function MAY throw to revert and reject the
      * approval. Return of other than the magic value MUST result in the
      * transaction being reverted.

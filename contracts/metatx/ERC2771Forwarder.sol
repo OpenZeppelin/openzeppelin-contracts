@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (metatx/ERC2771Forwarder.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (metatx/ERC2771Forwarder.sol)
 
 pragma solidity ^0.8.20;
 
@@ -10,7 +10,7 @@ import {Nonces} from "../utils/Nonces.sol";
 import {Address} from "../utils/Address.sol";
 
 /**
- * @dev A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
+ * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
  *
  * This forwarder operates on forward requests that include:
  *

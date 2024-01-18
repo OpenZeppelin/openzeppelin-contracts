@@ -7,7 +7,7 @@ import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
 import {SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../utils/math/Math.sol";
 
-/// @dev ERC4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
+/// @dev ERC-4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 

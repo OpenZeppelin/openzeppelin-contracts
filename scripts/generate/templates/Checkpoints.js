@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { OPTS } = require('./Checkpoints.opts.js');
+const { OPTS } = require('./Checkpoints.opts');
 
 // TEMPLATE
 const header = `\
@@ -38,7 +38,8 @@ struct ${opts.checkpointTypeName} {
  *
  * Returns previous value and new value.
  * 
- * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the library.
+ * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
+ * library.
  */
 function push(
     ${opts.historyTypeName} storage self,
@@ -49,7 +50,8 @@ function push(
 }
 
 /**
- * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+ * there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -58,7 +60,8 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * if there is none.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -67,9 +70,11 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * if there is none.
  *
- * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+ * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+ * keys).
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -116,7 +121,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self)
     if (pos == 0) {
         return (false, 0, 0);
     } else {
-        ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        ${opts.checkpointTypeName} storage ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
         return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
     }
 }
@@ -147,21 +152,22 @@ function _insert(
     uint256 pos = self.length;
 
     if (pos > 0) {
-        // Copying to memory is important here.
-        ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
+        ${opts.checkpointTypeName} storage last = _unsafeAccess(self, pos - 1);
+        ${opts.keyTypeName} lastKey = last.${opts.keyFieldName};
+        ${opts.valueTypeName} lastValue = last.${opts.valueFieldName};
 
         // Checkpoint keys must be non-decreasing.
-        if(last.${opts.keyFieldName} > key) {
+        if (lastKey > key) {
             revert CheckpointUnorderedInsertion();
         }
 
         // Update or push new checkpoint
-        if (last.${opts.keyFieldName} == key) {
+        if (lastKey == key) {
             _unsafeAccess(self, pos - 1).${opts.valueFieldName} = value;
         } else {
             self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         }
-        return (last.${opts.valueFieldName}, value);
+        return (lastValue, value);
     } else {
         self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         return (0, value);
@@ -169,8 +175,9 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\` if there is none.
- * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
+ * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
@@ -196,8 +203,9 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or \`high\` if there is none.
- * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
+ * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
+ * \`high\` if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and
+ * exclusive \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
