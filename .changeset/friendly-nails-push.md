@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC1363`: add `ERC1363` implementation other than `IERC1363Errors`, `ERC1363Holder` and tests.
+`ERC1363`: Add implementation of the token payable standard allowing execution of contract code after transfers and approvals.
