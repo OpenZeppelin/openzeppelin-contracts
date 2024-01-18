@@ -52,6 +52,13 @@ describe('Arrays', function () {
           this.elements = randomArray(generators.uint256, length).sort(compareNumbers).reverse();
           this.expected = Array.from(this.elements).reverse();
         });
+
+        it(`sort array of length ${length} (almost sorted)`, async function () {
+          this.elements = randomArray(generators.uint256, length).sort(compareNumbers);
+          this.expected = Array.from(this.elements);
+          // rotate (move the last element to the front) for an almost sorted effect
+          this.elements.unshift(this.elements.pop());
+        });
       }
     }
     afterEach(async function () {
