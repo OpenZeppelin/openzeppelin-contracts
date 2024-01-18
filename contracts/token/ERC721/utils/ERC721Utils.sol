@@ -15,7 +15,13 @@ library ERC721Utils {
      * contains code at the moment of execution. This will revert if the recipient doesn't accept the token transfer.
      * The call is not executed if the target address is not a contract.
      */
-    function checkOnERC721Received(address operator, address from, address to, uint256 tokenId, bytes memory data) internal {
+    function checkOnERC721Received(
+        address operator,
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) internal {
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(operator, from, tokenId, data) returns (bytes4 retval) {
                 if (retval != IERC721Receiver.onERC721Received.selector) {
