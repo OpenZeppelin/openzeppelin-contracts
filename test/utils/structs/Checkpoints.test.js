@@ -4,22 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts');
 
-<<<<<<< HEAD
-const $Checkpoints = artifacts.require('$Checkpoints');
-
-// The library name may be 'Checkpoints' or 'CheckpointsUpgradeable'
-const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
-
-contract('Checkpoints', function () {
-  beforeEach(async function () {
-    this.mock = await $Checkpoints.new();
-  });
-
-=======
-const last = array => (array.length ? array[array.length - 1] : undefined);
-
 describe('Checkpoints', function () {
->>>>>>> master
   for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
       const fixture = async () => {
@@ -92,28 +77,14 @@ describe('Checkpoints', function () {
         });
 
         it('returns latest value', async function () {
-<<<<<<< HEAD
-          expect(await this.methods.latest()).to.be.bignumber.equal(this.checkpoints.at(-1).value);
-
-          const ckpt = await this.methods.latestCheckpoint();
-          expect(ckpt[0]).to.be.equal(true);
-          expect(ckpt[1]).to.be.bignumber.equal(this.checkpoints.at(-1).key);
-          expect(ckpt[2]).to.be.bignumber.equal(this.checkpoints.at(-1).value);
-        });
-
-        it('cannot push values in the past', async function () {
-          await expectRevertCustomError(
-            this.methods.push(this.checkpoints.at(-1).key - 1, '0'),
-=======
           const latest = this.checkpoints.at(-1);
           expect(await this.methods.latest()).to.equal(latest.value);
-          expect(await this.methods.latestCheckpoint()).to.have.ordered.members([true, latest.key, latest.value]);
+          expect(await this.methods.latestCheckpoint()).to.deep.equal([ true, latest.key, latest.value ]);
         });
 
         it('cannot push values in the past', async function () {
           await expect(this.methods.push(this.checkpoints.at(-1).key - 1n, 0n)).to.be.revertedWithCustomError(
             this.mock,
->>>>>>> master
             'CheckpointUnorderedInsertion',
           );
         });
@@ -126,11 +97,7 @@ describe('Checkpoints', function () {
 
           // update last key
           await this.methods.push(this.checkpoints.at(-1).key, newValue);
-<<<<<<< HEAD
-          expect(await this.methods.latest()).to.be.bignumber.equal(newValue);
-=======
           expect(await this.methods.latest()).to.equal(newValue);
->>>>>>> master
 
           // check that length did not change
           expect(await this.methods.length()).to.equal(this.checkpoints.length);
@@ -138,11 +105,7 @@ describe('Checkpoints', function () {
 
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
-<<<<<<< HEAD
-            const value = this.checkpoints.find(x => i <= x.key)?.value || '0';
-=======
             const value = this.checkpoints.find(x => i <= x.key)?.value || 0n;
->>>>>>> master
 
             expect(await this.methods.lowerLookup(i)).to.equal(value);
           }
@@ -150,11 +113,7 @@ describe('Checkpoints', function () {
 
         it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
-<<<<<<< HEAD
-            const value = this.checkpoints.findLast(x => i >= x.key)?.value || '0';
-=======
-            const value = last(this.checkpoints.filter(x => i >= x.key))?.value || 0n;
->>>>>>> master
+            const value = this.checkpoints.findLast(x => i >= x.key)?.value || 0n;
 
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
@@ -176,15 +135,9 @@ describe('Checkpoints', function () {
           }
 
           for (let i = 0; i < 25; ++i) {
-<<<<<<< HEAD
-            const value = allCheckpoints.findLast(x => i >= x.key)?.value || '0';
-            expect(await this.methods.upperLookup(i)).to.be.bignumber.equal(value);
-            expect(await this.methods.upperLookupRecent(i)).to.be.bignumber.equal(value);
-=======
-            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || 0n;
+            const value = allCheckpoints.findLast(x => i >= x.key)?.value || 0n;
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
->>>>>>> master
           }
         });
       });

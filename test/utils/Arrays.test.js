@@ -104,7 +104,7 @@ describe('Arrays', function () {
     }
   });
 
-  describe.only('unsafeAccess', function () {
+  describe('unsafeAccess', function () {
     for (const [title, { artifact, elements }] of Object.entries({
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
       bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
