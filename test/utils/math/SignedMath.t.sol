@@ -11,22 +11,18 @@ contract SignedMathTest is Test {
     function testMin(int256 a, int256 b) public {
         int256 result = SignedMath.min(a, b);
 
-        if (a > b) {
-            assertEq(result, b);
-        } else {
-            assertEq(result, a);
-        }
+        assertLe(result, a);
+        assertLe(result, b);
+        assertTrue(result == a || result == b);
     }
 
     // MAX
     function testMax(int256 a, int256 b) public {
         int256 result = SignedMath.max(a, b);
 
-        if (a > b) {
-            assertEq(result, a);
-        } else {
-            assertEq(result, b);
-        }
+        assertGe(result, a);
+        assertGe(result, b);
+        assertTrue(result == a || result == b);
     }
 
     // AVERAGE
@@ -70,13 +66,9 @@ contract SignedMathTest is Test {
     function testAbs(int256 a) public {
         uint256 result = SignedMath.abs(a);
 
-        if (a < 0) {
-            unchecked {
-                // must be unchecked in order to support `n = type(int256).min`
-                assertEq(result, uint256(-a));
-            }
-        } else {
-            assertEq(result, uint256(a));
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            assertEq(result, a < 0 ? uint256(-a) : uint256(a));
         }
     }
 }
