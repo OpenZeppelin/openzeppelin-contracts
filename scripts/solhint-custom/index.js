@@ -91,7 +91,9 @@ module.exports = [
       );
 
       node?.subNodes
-        ?.filter(({ type, name }) => type === 'CustomErrorDefinition' && !domains.find(domain => name.startsWith(domain)))
+        ?.filter(
+          ({ type, name }) => type === 'CustomErrorDefinition' && !domains.find(domain => name.startsWith(domain)),
+        )
         .forEach(customError => this.error(customError, 'Custom errors should contain corresponding domain prefix'));
     }
 
