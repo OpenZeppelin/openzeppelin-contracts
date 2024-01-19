@@ -236,12 +236,7 @@ library Math {
             int256 t2 = 1;
             while (r1 != 0) {
                 uint256 q = r2 / r1;
-                (t1, t2, r2, r1) = (
-                t2,
-                t1 - t2 * int256(q),
-                r1,
-                r2 - r1 * q
-                );
+                (t1, t2, r2, r1) = (t2, t1 - t2 * int256(q), r1, r2 - r1 * q);
             }
             if (r2 != 1) return 0;
             return t1 < 0 ? (p - uint256(-t1)) : uint256(t1);
