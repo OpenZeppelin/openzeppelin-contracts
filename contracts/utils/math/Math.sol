@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import "./SignedMath.sol";
-
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
@@ -241,7 +239,7 @@ library Math {
                 (t1, t2, r2, r1) = (t2, t1 - t2 * int256(q), r1, r2 - r1 * q);
             }
             if (r2 != 1) return 0;
-            return t1 < 0 ? p - SignedMath.abs(-t1) : uint256(t1);
+            return t1 < 0 ? (p - uint256(-t1)) : uint256(t1);
         }
     }
 
