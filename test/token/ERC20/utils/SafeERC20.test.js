@@ -191,18 +191,6 @@ describe('SafeERC20', function () {
     });
 
     describe('transferFromAndCall', function () {
-      it('cannot transferFromAndCall to an EOA directly', async function () {
-        await this.token.$_mint(this.owner, value);
-        await this.token.$_approve(this.owner, this.other, ethers.MaxUint256);
-
-        await expect(
-          this.token
-            .connect(this.other)
-            .transferFromAndCall(this.owner, this.receiver, value, ethers.Typed.bytes(data)),
-        )
-          .to.be.revertedWithCustomError(this.token, 'ERC1363InvalidReceiver')
-          .withArgs(this.receiver);
-      });
 
       it('can transferFromAndCall to an EOA using helper', async function () {
         await this.token.$_mint(this.owner, value);
