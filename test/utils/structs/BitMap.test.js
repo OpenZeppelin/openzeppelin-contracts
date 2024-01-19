@@ -30,7 +30,22 @@ describe('BitMap', function () {
       expect(await this.bitmap.$get(0, keyC)).to.be.false;
     });
 
+    it('set a key to true again', async function () {
+      await this.bitmap.$setTo(0, keyA, true);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
+      expect(await this.bitmap.$get(0, keyB)).to.be.false;
+      expect(await this.bitmap.$get(0, keyC)).to.be.false;
+    });
+
     it('set a key to false', async function () {
+      await this.bitmap.$setTo(0, keyA, true);
+      await this.bitmap.$setTo(0, keyA, false);
+      expect(await this.bitmap.$get(0, keyA)).to.be.false;
+      expect(await this.bitmap.$get(0, keyB)).to.be.false;
+      expect(await this.bitmap.$get(0, keyC)).to.be.false;
+    });
+
+    it('set a key to false again', async function () {
       await this.bitmap.$setTo(0, keyA, true);
       await this.bitmap.$setTo(0, keyA, false);
       expect(await this.bitmap.$get(0, keyA)).to.be.false;
@@ -41,10 +56,21 @@ describe('BitMap', function () {
     it('set several consecutive keys', async function () {
       await this.bitmap.$setTo(0, keyA + 0n, true);
       await this.bitmap.$setTo(0, keyA + 1n, true);
-      await this.bitmap.$setTo(0, keyA + 2n, true);
-      await this.bitmap.$setTo(0, keyA + 3n, true);
-      await this.bitmap.$setTo(0, keyA + 4n, true);
       await this.bitmap.$setTo(0, keyA + 2n, false);
+      await this.bitmap.$setTo(0, keyA + 3n, true);
+      await this.bitmap.$setTo(0, keyA + 4n, false);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.be.false;
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.be.false;
+    });
+
+    it('set several consecutive keys again', async function () {
+      await this.bitmap.$setTo(0, keyA + 0n, true);
+      await this.bitmap.$setTo(0, keyA + 1n, true);
+      await this.bitmap.$setTo(0, keyA + 2n, false);
+      await this.bitmap.$setTo(0, keyA + 3n, true);
       await this.bitmap.$setTo(0, keyA + 4n, false);
       expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
       expect(await this.bitmap.$get(0, keyA + 1n)).to.be.true;
@@ -62,6 +88,13 @@ describe('BitMap', function () {
       expect(await this.bitmap.$get(0, keyC)).to.be.false;
     });
 
+    it('adds a key again', async function () {
+      await this.bitmap.$set(0, keyA);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
+      expect(await this.bitmap.$get(0, keyB)).to.be.false;
+      expect(await this.bitmap.$get(0, keyC)).to.be.false;
+    });
+
     it('adds several keys', async function () {
       await this.bitmap.$set(0, keyA);
       await this.bitmap.$set(0, keyB);
@@ -70,7 +103,26 @@ describe('BitMap', function () {
       expect(await this.bitmap.$get(0, keyC)).to.be.false;
     });
 
+    it('adds several keys again', async function () {
+      await this.bitmap.$set(0, keyA);
+      await this.bitmap.$set(0, keyB);
+      expect(await this.bitmap.$get(0, keyA)).to.be.true;
+      expect(await this.bitmap.$get(0, keyB)).to.be.true;
+      expect(await this.bitmap.$get(0, keyC)).to.be.false;
+    });
+
     it('adds several consecutive keys', async function () {
+      await this.bitmap.$set(0, keyA + 0n);
+      await this.bitmap.$set(0, keyA + 1n);
+      await this.bitmap.$set(0, keyA + 3n);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.be.false;
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.be.false;
+    });
+
+    it('adds several consecutive keys again', async function () {
       await this.bitmap.$set(0, keyA + 0n);
       await this.bitmap.$set(0, keyA + 1n);
       await this.bitmap.$set(0, keyA + 3n);
@@ -92,6 +144,15 @@ describe('BitMap', function () {
       expect(await this.bitmap.$get(0, keyC)).to.be.false;
     });
 
+    it('removes added keys again', async function () {
+      await this.bitmap.$set(0, keyA);
+      await this.bitmap.$set(0, keyB);
+      await this.bitmap.$unset(0, keyA);
+      expect(await this.bitmap.$get(0, keyA)).to.be.false;
+      expect(await this.bitmap.$get(0, keyB)).to.be.true;
+      expect(await this.bitmap.$get(0, keyC)).to.be.false;
+    });
+
     it('removes consecutive added keys', async function () {
       await this.bitmap.$set(0, keyA + 0n);
       await this.bitmap.$set(0, keyA + 1n);
@@ -104,6 +165,20 @@ describe('BitMap', function () {
       expect(await this.bitmap.$get(0, keyA + 4n)).to.be.false;
     });
 
+    it('removes consecutive added keys again', async function () {
+      await this.bitmap.$set(0, keyA + 0n);
+      await this.bitmap.$set(0, keyA + 1n);
+      await this.bitmap.$set(0, keyA + 3n);
+      await this.bitmap.$unset(0, keyA + 1n);
+      expect(await this.bitmap.$get(0, keyA + 0n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 1n)).to.be.false;
+      expect(await this.bitmap.$get(0, keyA + 2n)).to.be.false;
+      expect(await this.bitmap.$get(0, keyA + 3n)).to.be.true;
+      expect(await this.bitmap.$get(0, keyA + 4n)).to.be.false;
+    });
+  });
+
+  describe('set and unset', function () {
     it('adds and removes multiple keys', async function () {
       // []
 
