@@ -3,7 +3,6 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 /// NOTE: This test requires `ffi` to be enabled. It does not run in the CI
