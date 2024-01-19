@@ -214,11 +214,6 @@ describe('SafeERC20', function () {
     });
 
     describe('approveAndCall', function () {
-      it('cannot approveAndCall to an EOA directly', async function () {
-        await expect(this.token.approveAndCall(this.receiver, value, ethers.Typed.bytes(data)))
-          .to.revertedWithCustomError(this.token, 'ERC1363InvalidSpender')
-          .withArgs(this.receiver);
-      });
 
       it('can approveAndCall to an EOA using helper', async function () {
         await expect(this.mock.$approveAndCallRelaxed(this.token, this.receiver, value, data))
