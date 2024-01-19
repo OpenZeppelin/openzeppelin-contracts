@@ -227,25 +227,25 @@ library Math {
      * If the input values is not inversible, 0 is returned.
      */
     function inv(uint256 a, uint256 p) internal pure returns (uint256) {
-        if (p == 0) return 0;
-        uint256 r1 = a % p;
-        if (r1 == 0) return 0;
-        uint256 r2 = p;
-        uint256 t1 = 0;
-        uint256 t2 = 1;
         unchecked {
+            if (p == 0) return 0;
+            uint256 r1 = a % p;
+            if (r1 == 0) return 0;
+            uint256 r2 = p;
+            int256 t1 = 0;
+            int256 t2 = 1;
             while (r1 != 0) {
                 uint256 q = r2 / r1;
                 (t1, t2, r2, r1) = (
-                    t2,
-                    addmod(t1, uint256(p - mulmod(t2, q, p)), p),
-                    r1,
-                    addmod(r2, uint256(p - mulmod(r1, q, p)), p)
+                t2,
+                t1 - t2 * int256(q),
+                r1,
+                r2 - r1 * q
                 );
             }
+            if (r2 != 1) return 0;
+            return t1 < 0 ? (p - uint256(-t1)) : uint256(t1);
         }
-        if (r2 != 1) return 0;
-        return t1;
     }
 
     /**
