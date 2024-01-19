@@ -98,6 +98,17 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  harnesses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Compile harnesses
+        run: |
+          make -C certora apply
+          npm run compile:harnesses
+
   slither:
     runs-on: ubuntu-latest
     steps:
