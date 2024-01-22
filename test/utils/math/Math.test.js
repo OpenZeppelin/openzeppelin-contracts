@@ -299,7 +299,7 @@ describe('Math', function () {
     });
   });
 
-  describe.only('invMod', function () {
+  describe('invMod', function () {
     for (const factors of [
       [0n],
       [1n],
