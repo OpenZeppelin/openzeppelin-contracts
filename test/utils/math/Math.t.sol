@@ -56,27 +56,27 @@ contract MathTest is Test {
     }
 
     // INV
-    function testInv(uint256 value, uint256 p) public {
-        _testInv(value, p, true);
+    function testInvMod(uint256 value, uint256 p) public {
+        _testInvMod(value, p, true);
     }
 
-    function testInv17(uint256 seed) public {
+    function testInvMod17(uint256 seed) public {
         uint256 p = 17; // prime
-        _testInv(bound(seed, 1, p - 1), p, false);
+        _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInv65537(uint256 seed) public {
+    function testInvMod65537(uint256 seed) public {
         uint256 p = 65537; // prime
-        _testInv(bound(seed, 1, p - 1), p, false);
+        _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvP256(uint256 seed) public {
+    function testInvModP256(uint256 seed) public {
         uint256 p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff; // prime
-        _testInv(bound(seed, 1, p - 1), p, false);
+        _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function _testInv(uint256 value, uint256 p, bool allowZero) private {
-        uint256 inverse = Math.inv(value, p);
+    function _testInvMod(uint256 value, uint256 p, bool allowZero) private {
+        uint256 inverse = Math.invMod(value, p);
         if (inverse != 0) {
             assertEq(mulmod(value, inverse, p), 1);
             assertLt(inverse, p);

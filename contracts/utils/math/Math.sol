@@ -221,17 +221,17 @@ library Math {
     /**
      * @notice Calculate the inverse of a number in Z/nZ.
      *
-     * If p is a prime, then we Z/nZ is a field commonly noted Fp. In that case all elements are inversible, expect 0.
-     * If p is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
-     * If the input values is not inversible, 0 is returned.
+     * If the input value is not inversible, 0 is returned.
      */
-    function inv(uint256 a, uint256 p) internal pure returns (uint256) {
+    function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
         unchecked {
-            if (p == 0) return 0;
-            uint256 r1 = a % p;
+            if (n == 0) return 0;
+            uint256 r1 = a % n;
             if (r1 == 0) return 0;
-            uint256 r2 = p;
+            uint256 r2 = n;
             int256 t1 = 0;
             int256 t2 = 1;
             while (r1 != 0) {
@@ -239,7 +239,7 @@ library Math {
                 (t1, t2, r2, r1) = (t2, t1 - t2 * int256(q), r1, r2 - r1 * q);
             }
             if (r2 != 1) return 0;
-            return t1 < 0 ? (p - uint256(-t1)) : uint256(t1);
+            return t1 < 0 ? (n - uint256(-t1)) : uint256(t1);
         }
     }
 
