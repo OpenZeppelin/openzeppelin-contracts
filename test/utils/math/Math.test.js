@@ -299,8 +299,11 @@ describe('Math', function () {
     });
   });
 
-  describe('invMod', function () {
+  describe.only('invMod', function () {
     for (const factors of [
+      [0n],
+      [1n],
+      [2n],
       [17n],
       [65537n],
       [0xffffffff00000001000000000000000000000000ffffffffffffffffffffffffn],
@@ -310,7 +313,7 @@ describe('Math', function () {
     ]) {
       const p = factors.reduce((acc, f) => acc * f, 1n);
 
-      describe(`using p=${p} which is ${factors.length > 1 ? 'not ' : ''}a prime`, function () {
+      describe(`using p=${p} which is ${(p > 1 && factors.length > 1) ? 'not ' : ''}a prime`, function () {
         it('trying to inverse 0 reverts', async function () {
           expect(await this.mock.$invMod(0, p)).to.equal(0n);
         });
@@ -319,16 +322,18 @@ describe('Math', function () {
           expect(await this.mock.$invMod(p, p)).to.equal(0n);
         });
 
-        for (const value of randomArray(generators.uint256, 16)) {
-          const isInversible = factors.every(f => value % f);
-          it(`trying to inverse ${value}`, async function () {
-            const result = await this.mock.$invMod(value, p);
-            if (isInversible) {
-              expect((value * result) % p).to.equal(1n);
-            } else {
-              expect(result).to.equal(0n);
-            }
-          });
+        if (p != 0) {
+          for (const value of randomArray(generators.uint256, 16)) {
+            const isInversible = factors.every(f => value % f);
+            it(`trying to inverse ${value}`, async function () {
+              const result = await this.mock.$invMod(value, p);
+              if (isInversible) {
+                expect((value * result) % p).to.equal(1n);
+              } else {
+                expect(result).to.equal(0n);
+              }
+            });
+          }
         }
       });
     }

@@ -230,7 +230,6 @@ library Math {
         unchecked {
             if (n == 0) return 0;
             uint256 r1 = a % n;
-            if (r1 == 0) return 0;
             uint256 r2 = n;
             int256 t1 = 0;
             int256 t2 = 1;

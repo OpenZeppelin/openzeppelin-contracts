@@ -60,6 +60,11 @@ contract MathTest is Test {
         _testInvMod(value, p, true);
     }
 
+    function testInvMod2(uint256 seed) public {
+        uint256 p = 2; // prime
+        _testInvMod(bound(seed, 1, p - 1), p, false);
+    }
+
     function testInvMod17(uint256 seed) public {
         uint256 p = 17; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
