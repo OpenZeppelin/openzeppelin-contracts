@@ -23,7 +23,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Multicall}: Simple way to batch together multiple calls in a single external call.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
- * {Arrays}: Similar to {Address} but for overloading https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
