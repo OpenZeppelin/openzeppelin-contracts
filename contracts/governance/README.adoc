@@ -30,7 +30,7 @@ Counting modules determine valid voting options.
 
 Timelock extensions add a delay for governance decisions to be executed. The workflow is extended to require a `queue` step before execution. With these modules, proposals are executed by the external timelock contract, thus it is the timelock that has to hold the assets that are being governed.
 
-* {GovernorTimelockAccess}: Connects with an instance of an {AccessManager}, so that the Governor operation is ruled by the execution delay and restrictions set by the manager.
+* {GovernorTimelockAccess}: Connects with an instance of an {AccessManager}. This allows restrictions (and delays) enforced by the manager to be considered by the Governor and integrated into the AccessManager's "schedule + execute" workflow.
 
 * {GovernorTimelockControl}: Connects with an instance of {TimelockController}. Allows multiple proposers and executors, in addition to the Governor itself.
 
