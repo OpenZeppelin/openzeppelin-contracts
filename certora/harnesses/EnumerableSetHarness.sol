@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../patched/utils/structs/EnumerableSet.sol";
+import {EnumerableSet} from "../patched/utils/structs/EnumerableSet.sol";
 
 contract EnumerableSetHarness {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -29,7 +29,7 @@ contract EnumerableSetHarness {
         return _set.at(index);
     }
 
-    function _indexOf(bytes32 value) public view returns (uint256) {
-        return _set._inner._indexes[value];
+    function _positionOf(bytes32 value) public view returns (uint256) {
+        return _set._inner._positions[value];
     }
 }

@@ -1,116 +1,119 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { ZERO_ADDRESS } = constants;
+async function fixture() {
+  const [holder] = await ethers.getSigners();
+  const token = await ethers.deployContract('$ERC1155Supply', ['https://token-cdn-domain/{id}.json']);
+  return { token, holder };
+}
 
-const ERC1155Supply = artifacts.require('$ERC1155Supply');
-
-contract('ERC1155Supply', function (accounts) {
-  const [holder] = accounts;
-
-  const uri = 'https://token.com';
-
-  const firstTokenId = new BN('37');
-  const firstTokenValue = new BN('42');
-
-  const secondTokenId = new BN('19842');
-  const secondTokenValue = new BN('23');
+describe('ERC1155Supply', function () {
+  const firstTokenId = 37n;
+  const firstTokenValue = 42n;
+  const secondTokenId = 19842n;
+  const secondTokenValue = 23n;
 
   beforeEach(async function () {
-    this.token = await ERC1155Supply.new(uri);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  context('before mint', function () {
+  describe('before mint', function () {
     it('exist', async function () {
-      expect(await this.token.exists(firstTokenId)).to.be.equal(false);
+      expect(await this.token.exists(firstTokenId)).to.be.false;
     });
 
     it('totalSupply', async function () {
-      expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
-      expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
+      expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(0n);
+      expect(await this.token.totalSupply()).to.equal(0n);
     });
   });
 
-  context('after mint', function () {
-    context('single', function () {
+  describe('after mint', function () {
+    describe('single', function () {
       beforeEach(async function () {
-        await this.token.$_mint(holder, firstTokenId, firstTokenValue, '0x');
+        await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
       });
 
       it('exist', async function () {
-        expect(await this.token.exists(firstTokenId)).to.be.equal(true);
+        expect(await this.token.exists(firstTokenId)).to.be.true;
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal(firstTokenValue);
-        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal(firstTokenValue);
+        expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(firstTokenValue);
+        expect(await this.token.totalSupply()).to.equal(firstTokenValue);
       });
     });
 
-    context('batch', function () {
+    describe('batch', function () {
       beforeEach(async function () {
-        await this.token.$_mintBatch(holder, [firstTokenId, secondTokenId], [firstTokenValue, secondTokenValue], '0x');
-      });
-
-      it('exist', async function () {
-        expect(await this.token.exists(firstTokenId)).to.be.equal(true);
-        expect(await this.token.exists(secondTokenId)).to.be.equal(true);
-      });
-
-      it('totalSupply', async function () {
-        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal(firstTokenValue);
-        expect(await this.token.methods['totalSupply(uint256)'](secondTokenId)).to.be.bignumber.equal(secondTokenValue);
-        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal(
-          firstTokenValue.add(secondTokenValue),
+        await this.token.$_mintBatch(
+          this.holder,
+          [firstTokenId, secondTokenId],
+          [firstTokenValue, secondTokenValue],
+          '0x',
         );
       });
-    });
-  });
-
-  context('after burn', function () {
-    context('single', function () {
-      beforeEach(async function () {
-        await this.token.$_mint(holder, firstTokenId, firstTokenValue, '0x');
-        await this.token.$_burn(holder, firstTokenId, firstTokenValue);
-      });
 
       it('exist', async function () {
-        expect(await this.token.exists(firstTokenId)).to.be.equal(false);
+        expect(await this.token.exists(firstTokenId)).to.be.true;
+        expect(await this.token.exists(secondTokenId)).to.be.true;
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
-        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
-      });
-    });
-
-    context('batch', function () {
-      beforeEach(async function () {
-        await this.token.$_mintBatch(holder, [firstTokenId, secondTokenId], [firstTokenValue, secondTokenValue], '0x');
-        await this.token.$_burnBatch(holder, [firstTokenId, secondTokenId], [firstTokenValue, secondTokenValue]);
-      });
-
-      it('exist', async function () {
-        expect(await this.token.exists(firstTokenId)).to.be.equal(false);
-        expect(await this.token.exists(secondTokenId)).to.be.equal(false);
-      });
-
-      it('totalSupply', async function () {
-        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
-        expect(await this.token.methods['totalSupply(uint256)'](secondTokenId)).to.be.bignumber.equal('0');
-        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
+        expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(firstTokenValue);
+        expect(await this.token.totalSupply(ethers.Typed.uint256(secondTokenId))).to.equal(secondTokenValue);
+        expect(await this.token.totalSupply()).to.equal(firstTokenValue + secondTokenValue);
       });
     });
   });
 
-  context('other', function () {
+  describe('after burn', function () {
+    describe('single', function () {
+      beforeEach(async function () {
+        await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
+        await this.token.$_burn(this.holder, firstTokenId, firstTokenValue);
+      });
+
+      it('exist', async function () {
+        expect(await this.token.exists(firstTokenId)).to.be.false;
+      });
+
+      it('totalSupply', async function () {
+        expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(0n);
+        expect(await this.token.totalSupply()).to.equal(0n);
+      });
+    });
+
+    describe('batch', function () {
+      beforeEach(async function () {
+        await this.token.$_mintBatch(
+          this.holder,
+          [firstTokenId, secondTokenId],
+          [firstTokenValue, secondTokenValue],
+          '0x',
+        );
+        await this.token.$_burnBatch(this.holder, [firstTokenId, secondTokenId], [firstTokenValue, secondTokenValue]);
+      });
+
+      it('exist', async function () {
+        expect(await this.token.exists(firstTokenId)).to.be.false;
+        expect(await this.token.exists(secondTokenId)).to.be.false;
+      });
+
+      it('totalSupply', async function () {
+        expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(0n);
+        expect(await this.token.totalSupply(ethers.Typed.uint256(secondTokenId))).to.equal(0n);
+        expect(await this.token.totalSupply()).to.equal(0n);
+      });
+    });
+  });
+
+  describe('other', function () {
     it('supply unaffected by no-op', async function () {
-      this.token.safeTransferFrom(ZERO_ADDRESS, ZERO_ADDRESS, firstTokenId, firstTokenValue, '0x', {
-        from: ZERO_ADDRESS,
-      });
-      expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
-      expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
+      this.token.safeTransferFrom(ethers.ZeroAddress, ethers.ZeroAddress, firstTokenId, firstTokenValue, '0x');
+      expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(0n);
+      expect(await this.token.totalSupply()).to.equal(0n);
     });
   });
 });

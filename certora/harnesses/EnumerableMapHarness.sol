@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "../patched/utils/structs/EnumerableMap.sol";
+import {EnumerableMap} from "../patched/utils/structs/EnumerableMap.sol";
 
 contract EnumerableMapHarness {
     using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
@@ -49,7 +49,7 @@ contract EnumerableMapHarness {
         return _map.get(key);
     }
 
-    function _indexOf(bytes32 key) public view returns (uint256) {
-        return _map._keys._inner._indexes[key];
+    function _positionOf(bytes32 key) public view returns (uint256) {
+        return _map._keys._inner._positions[key];
     }
 }

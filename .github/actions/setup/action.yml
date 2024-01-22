@@ -3,10 +3,10 @@ name: Setup
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
-        node-version: 14.x
-    - uses: actions/cache@v3
+        node-version: 20.x
+    - uses: actions/cache@v4
       id: cache
       with:
         path: '**/node_modules'
@@ -15,5 +15,7 @@ runs:
       run: npm ci
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
-      env:
-        SKIP_COMPILE: true
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly

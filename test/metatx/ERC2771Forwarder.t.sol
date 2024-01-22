@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {ERC2771Forwarder} from "contracts/metatx/ERC2771Forwarder.sol";
-import {CallReceiverMock} from "contracts/mocks/CallReceiverMock.sol";
+import {ERC2771Forwarder} from "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
+import {CallReceiverMockTrustingForwarder, CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 
 struct ForwardRequest {
     address from;
@@ -40,7 +40,7 @@ contract ERC2771ForwarderMock is ERC2771Forwarder {
 
 contract ERC2771ForwarderTest is Test {
     ERC2771ForwarderMock internal _erc2771Forwarder;
-    CallReceiverMock internal _receiver;
+    CallReceiverMockTrustingForwarder internal _receiver;
 
     uint256 internal _signerPrivateKey;
     uint256 internal _relayerPrivateKey;
@@ -52,7 +52,7 @@ contract ERC2771ForwarderTest is Test {
 
     function setUp() public {
         _erc2771Forwarder = new ERC2771ForwarderMock("ERC2771Forwarder");
-        _receiver = new CallReceiverMock();
+        _receiver = new CallReceiverMockTrustingForwarder(address(_erc2771Forwarder));
 
         _signerPrivateKey = 0xA11CE;
         _relayerPrivateKey = 0xB0B;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC1363Receiver.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363Receiver.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Interface for any contract that wants to support {IERC1363-transferAndCall}
@@ -14,8 +14,8 @@ interface IERC1363Receiver {
      */
 
     /**
-     * @notice Handle the receipt of ERC1363 tokens
-     * @dev Any ERC1363 smart contract calls this function on the recipient
+     * @notice Handle the receipt of ERC-1363 tokens
+     * @dev Any ERC-1363 smart contract calls this function on the recipient
      * after a `transfer` or a `transferFrom`. This function MAY throw to revert and reject the
      * transfer. Return of other than the magic value MUST result in the
      * transaction being reverted.

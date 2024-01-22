@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC165} from "../../utils/introspection/IERC165.sol";
 
@@ -23,11 +23,11 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev A mapping of interface id to whether or not it's supported.
      */
-    mapping(bytes4 => bool) private _supportedInterfaces;
+    mapping(bytes4 interfaceId => bool) private _supportedInterfaces;
 
     /**
      * @dev A contract implementing SupportsInterfaceWithLookup
-     * implement ERC165 itself.
+     * implement ERC-165 itself.
      */
     constructor() {
         _registerInterface(INTERFACE_ID_ERC165);

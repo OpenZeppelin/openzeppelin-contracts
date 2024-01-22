@@ -1,16 +1,10 @@
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
-
-const TYPES = [
-  { name: 'UintToUintMap', keyType: 'uint256', valueType: 'uint256' },
-  { name: 'UintToAddressMap', keyType: 'uint256', valueType: 'address' },
-  { name: 'AddressToUintMap', keyType: 'address', valueType: 'uint256' },
-  { name: 'Bytes32ToUintMap', keyType: 'bytes32', valueType: 'uint256' },
-];
+const { TYPES } = require('./EnumerableMap.opts');
 
 /* eslint-disable max-len */
 const header = `\
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "./EnumerableSet.sol";
 
@@ -42,6 +36,10 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - \`bytes32 -> bytes32\` (\`Bytes32ToBytes32Map\`) since v4.6.0
  * - \`uint256 -> uint256\` (\`UintToUintMap\`) since v4.7.0
  * - \`bytes32 -> uint256\` (\`Bytes32ToUintMap\`) since v4.7.0
+ * - \`uint256 -> bytes32\` (\`UintToBytes32Map\`) since v5.1.0
+ * - \`address -> address\` (\`AddressToAddressMap\`) since v5.1.0
+ * - \`address -> bytes32\` (\`AddressToBytes32Map\`) since v5.1.0
+ * - \`bytes32 -> address\` (\`Bytes32ToAddressMap\`) since v5.1.0
  *
  * [WARNING]
  * ====
@@ -57,14 +55,10 @@ import {EnumerableSet} from "./EnumerableSet.sol";
 /* eslint-enable max-len */
 
 const defaultMap = () => `\
-// To implement this library for multiple types with as little code
-// repetition as possible, we write it in terms of a generic Map type with
-// bytes32 keys and values.
-// The Map implementation uses private functions, and user-facing
-// implementations (such as Uint256ToAddressMap) are just wrappers around
-// the underlying Map.
-// This means that we can only create new EnumerableMaps for types that fit
-// in bytes32.
+// To implement this library for multiple types with as little code repetition as possible, we write it in
+// terms of a generic Map type with bytes32 keys and values. The Map implementation uses private functions,
+// and user-facing implementations such as \`UintToAddressMap\` are just wrappers around the underlying Map.
+// This means that we can only create new EnumerableMaps for types that fit in bytes32.
 
 /**
  * @dev Query for a nonexistent map key.
@@ -74,7 +68,7 @@ error EnumerableMapNonexistentKey(bytes32 key);
 struct Bytes32ToBytes32Map {
     // Storage of keys
     EnumerableSet.Bytes32Set _keys;
-    mapping(bytes32 => bytes32) _values;
+    mapping(bytes32 key => bytes32) _values;
 }
 
 /**

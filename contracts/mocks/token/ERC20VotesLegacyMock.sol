@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -20,8 +20,8 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegates;
-    mapping(address => Checkpoint[]) private _checkpoints;
+    mapping(address account => address) private _delegatee;
+    mapping(address delegatee => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
@@ -42,7 +42,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      * @dev Get the address `account` is currently delegating to.
      */
     function delegates(address account) public view virtual returns (address) {
-        return _delegates[account];
+        return _delegatee[account];
     }
 
     /**
@@ -88,7 +88,8 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
         //
         // Initially we check if the block is recent to narrow the search range.
         // During the loop, the index of the wanted checkpoint remains in the range [low-1, high).
-        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
+        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the
+        // invariant.
         // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
         // - If the middle checkpoint is before or equal to `blockNumber`, we look in [mid+1, high)
         // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
@@ -188,7 +189,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
-        _delegates[delegator] = delegatee;
+        _delegatee[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
 

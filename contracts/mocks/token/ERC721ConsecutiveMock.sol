@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC721} from "../../token/ERC721/ERC721.sol";
 import {ERC721Consecutive} from "../../token/ERC721/extensions/ERC721Consecutive.sol";
@@ -41,26 +41,16 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         return super._ownerOf(tokenId);
     }
 
-    function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
-        super._mint(to, tokenId);
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal virtual override(ERC721Consecutive, ERC721Pausable, ERC721Votes) returns (address) {
+        return super._update(to, tokenId, auth);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Pausable) {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-    }
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Votes, ERC721Consecutive) {
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
+    function _increaseBalance(address account, uint128 amount) internal virtual override(ERC721, ERC721Votes) {
+        super._increaseBalance(account, amount);
     }
 }
 

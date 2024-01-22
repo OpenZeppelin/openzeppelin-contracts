@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/TimelockController.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
@@ -27,7 +27,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
-    mapping(bytes32 => uint256) private _timestamps;
+    mapping(bytes32 id => uint256) private _timestamps;
     uint256 private _minDelay;
 
     enum OperationState {
@@ -164,8 +164,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Returns whether an id correspond to a registered operation. This
-     * includes both Pending, Ready and Done operations.
+     * @dev Returns whether an id corresponds to a registered operation. This
+     * includes both Waiting, Ready, and Done operations.
      */
     function isOperation(bytes32 id) public view returns (bool) {
         return getOperationState(id) != OperationState.Unset;

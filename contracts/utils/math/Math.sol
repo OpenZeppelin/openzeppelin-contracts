@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
@@ -20,9 +20,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     * @dev Returns the addition of two unsigned integers, with an success flag (no overflow).
      */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             uint256 c = a + b;
             if (c < a) return (false, 0);
@@ -31,9 +31,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     * @dev Returns the subtraction of two unsigned integers, with an success flag (no overflow).
      */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function trySub(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b > a) return (false, 0);
             return (true, a - b);
@@ -41,9 +41,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     * @dev Returns the multiplication of two unsigned integers, with an success flag (no overflow).
      */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
             // benefit is lost if 'b' is also tested.
@@ -56,9 +56,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     * @dev Returns the division of two unsigned integers, with a success flag (no division by zero).
      */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
@@ -66,9 +66,9 @@ library Math {
     }
 
     /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     * @dev Returns the remainder of dividing two unsigned integers, with a success flag (no division by zero).
      */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a % b);
@@ -110,25 +110,31 @@ library Math {
             return a / b;
         }
 
-        // (a + b - 1) / b can overflow on addition, so we distribute.
-        return a == 0 ? 0 : (a - 1) / b + 1;
+        // The following calculation ensures accurate ceiling division without overflow.
+        // Since a is non-zero, (a - 1) / b will not overflow.
+        // The largest possible result occurs when (a - 1) / b is type(uint256).max,
+        // but the largest value we can obtain is type(uint256).max - 1, which happens
+        // when a = type(uint256).max and b = 1.
+        unchecked {
+            return a == 0 ? 0 : (a - 1) / b + 1;
+        }
     }
 
     /**
-     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
-     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
-     * with further edits by Uniswap Labs also under MIT license.
+     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
+     * denominator == 0.
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
+     * Uniswap Labs also under MIT license.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2^256 + prod0.
-            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
                 let mm := mulmod(x, y, not(0))
-                prod0 := mul(x, y)
                 prod1 := sub(sub(mm, prod0), lt(mm, prod0))
             }
 
@@ -160,11 +166,10 @@ library Math {
                 prod0 := sub(prod0, remainder)
             }
 
-            // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
-            // See https://cs.stackexchange.com/q/138556/92363.
+            // Factor powers of two out of denominator and compute largest power of two divisor of denominator.
+            // Always >= 1. See https://cs.stackexchange.com/q/138556/92363.
 
-            // Does not overflow because the denominator cannot be zero at this stage in the function.
-            uint256 twos = denominator & (~denominator + 1);
+            uint256 twos = denominator & (0 - denominator);
             assembly {
                 // Divide denominator by twos.
                 denominator := div(denominator, twos)
@@ -184,8 +189,8 @@ library Math {
             // four bits. That is, denominator * inv = 1 mod 2^4.
             uint256 inverse = (3 * denominator) ^ 2;
 
-            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works
-            // in modular arithmetic, doubling the correct bits in each step.
+            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
+            // works in modular arithmetic, doubling the correct bits in each step.
             inverse *= 2 - denominator * inverse; // inverse mod 2^8
             inverse *= 2 - denominator * inverse; // inverse mod 2^16
             inverse *= 2 - denominator * inverse; // inverse mod 2^32

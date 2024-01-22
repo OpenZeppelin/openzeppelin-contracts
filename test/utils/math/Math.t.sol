@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {Math} from "../../../contracts/utils/math/Math.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
     // CEILDIV
@@ -16,10 +16,11 @@ contract MathTest is Test {
         if (result == 0) {
             assertEq(a, 0);
         } else {
-            uint256 maxdiv = UINT256_MAX / b;
-            bool overflow = maxdiv * b < a;
-            assertTrue(a > b * (result - 1));
-            assertTrue(overflow ? result == maxdiv + 1 : a <= b * result);
+            uint256 expect = a / b;
+            if (expect * b < a) {
+                expect += 1;
+            }
+            assertEq(result, expect);
         }
     }
 

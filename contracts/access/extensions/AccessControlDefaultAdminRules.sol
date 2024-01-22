@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControlDefaultAdminRules.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (access/extensions/AccessControlDefaultAdminRules.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules.sol";
 import {AccessControl, IAccessControl} from "../AccessControl.sol";
@@ -130,24 +130,24 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * NOTE: Exposing this function through another mechanism may make the `DEFAULT_ADMIN_ROLE`
      * assignable again. Make sure to guarantee this is the expected behavior in your implementation.
      */
-    function _grantRole(bytes32 role, address account) internal virtual override {
+    function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE) {
             if (defaultAdmin() != address(0)) {
                 revert AccessControlEnforcedDefaultAdminRules();
             }
             _currentDefaultAdmin = account;
         }
-        super._grantRole(role, account);
+        return super._grantRole(role, account);
     }
 
     /**
      * @dev See {AccessControl-_revokeRole}.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual override {
+    function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             delete _currentDefaultAdmin;
         }
-        super._revokeRole(role, account);
+        return super._revokeRole(role, account);
     }
 
     /**
