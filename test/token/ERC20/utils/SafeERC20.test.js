@@ -4,6 +4,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
+const value = 100n;
+const data = '0x12345678';
 
 async function fixture() {
   const [hasNoCode, owner, receiver, spender, other] = await ethers.getSigners();
@@ -14,6 +16,9 @@ async function fixture() {
   const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
   const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
   const erc1363Mock = await ethers.deployContract('$ERC1363', [name, symbol]);
+  const erc1363ReturnFalseMock_1 = await ethers.deployContract('$ERC1363ReturnFalseMock_1', [name, symbol]);
+  const erc1363ReturnFalseMock_2 = await ethers.deployContract('$ERC1363ReturnFalseMock_2', [name, symbol]);
+  const erc1363NoReturnMock = await ethers.deployContract('$ERC1363NoReturnMock', [name, symbol]);
   const erc1363Receiver = await ethers.deployContract('$ERC1363ReceiverMock');
   const erc1363Spender = await ethers.deployContract('$ERC1363SpenderMock');
 
@@ -29,6 +34,9 @@ async function fixture() {
     erc20NoReturnMock,
     erc20ForceApproveMock,
     erc1363Mock,
+    erc1363ReturnFalseMock_1,
+    erc1363ReturnFalseMock_2,
+    erc1363NoReturnMock,
     erc1363Receiver,
     erc1363Spender,
   };
@@ -152,10 +160,7 @@ describe('SafeERC20', function () {
     });
   });
 
-  describe('with ERC1363', function () {
-    const value = 100n;
-    const data = '0x12345678';
-
+  describe('with standard ERC1363', function () {
     beforeEach(async function () {
       this.token = this.erc1363Mock;
     });
@@ -226,6 +231,78 @@ describe('SafeERC20', function () {
           .to.emit(this.erc1363Spender, 'Approved')
           .withArgs(this.mock, value, data);
       });
+    });
+  });
+
+  describe('with ERC1363 that returns false on all ERC20 calls', function () {
+    beforeEach(async function () {
+      this.token = this.erc1363ReturnFalseMock_1;
+    });
+
+    it('reverts on transferAndCallRelaxed', async function () {
+      await expect(this.mock.$transferAndCallRelaxed(this.token, this.erc1363Receiver, 0n, data))
+        .to.be.revertedWithCustomError(this.token, 'ERC1363TransferFailed')
+        .withArgs(this.erc1363Receiver, 0n);
+    });
+
+    it('reverts on transferFromAndCallRelaxed', async function () {
+      await expect(this.mock.$transferFromAndCallRelaxed(this.token, this.mock, this.erc1363Receiver, 0n, data))
+        .to.be.revertedWithCustomError(this.token, 'ERC1363TransferFromFailed')
+        .withArgs(this.mock, this.erc1363Receiver, 0n);
+    });
+
+    it('reverts on approveAndCallRelaxed', async function () {
+      await expect(this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 0n, data))
+        .to.be.revertedWithCustomError(this.token, 'ERC1363ApproveFailed')
+        .withArgs(this.erc1363Spender, 0n);
+    });
+  });
+
+  describe('with ERC1363 that returns false on all ERC1363 calls', function () {
+    beforeEach(async function () {
+      this.token = this.erc1363ReturnFalseMock_2;
+    });
+
+    it('reverts on transferAndCallRelaxed', async function () {
+      await expect(this.mock.$transferAndCallRelaxed(this.token, this.erc1363Receiver, 0n, data))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token);
+    });
+
+    it('reverts on transferFromAndCallRelaxed', async function () {
+      await expect(this.mock.$transferFromAndCallRelaxed(this.token, this.mock, this.erc1363Receiver, 0n, data))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token);
+    });
+
+    it('reverts on approveAndCallRelaxed', async function () {
+      await expect(this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 0n, data))
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
+        .withArgs(this.token);
+    });
+  });
+
+  describe('with ERC1363 that returns no boolean values', function () {
+    beforeEach(async function () {
+      this.token = this.erc1363NoReturnMock;
+    });
+
+    it('reverts on transferAndCallRelaxed', async function () {
+      await expect(
+        this.mock.$transferAndCallRelaxed(this.token, this.erc1363Receiver, 0n, data),
+      ).to.be.revertedWithoutReason();
+    });
+
+    it('reverts on transferFromAndCallRelaxed', async function () {
+      await expect(
+        this.mock.$transferFromAndCallRelaxed(this.token, this.mock, this.erc1363Receiver, 0n, data),
+      ).to.be.revertedWithoutReason();
+    });
+
+    it('reverts on approveAndCallRelaxed', async function () {
+      await expect(
+        this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 0n, data),
+      ).to.be.revertedWithoutReason();
     });
   });
 });
