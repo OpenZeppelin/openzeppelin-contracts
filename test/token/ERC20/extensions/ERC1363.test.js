@@ -59,7 +59,7 @@ describe('ERC1363', function () {
       shouldBehaveLikeERC20Transfer(value);
     });
 
-    it('reverts transfering to an EOA', async function () {
+    it('reverts transferring to an EOA', async function () {
       await expect(this.token.connect(this.holder).getFunction('transferAndCall(address,uint256)')(this.other, value))
         .to.be.revertedWithCustomError(this.token, 'ERC1363InvalidReceiver')
         .withArgs(this.other.address);
@@ -171,7 +171,7 @@ describe('ERC1363', function () {
       shouldBehaveLikeERC20Transfer(value);
     });
 
-    it('reverts transfering to an EOA', async function () {
+    it('reverts transferring to an EOA', async function () {
       await expect(
         this.token.connect(this.other).getFunction('transferFromAndCall(address,address,uint256)')(
           this.holder,
