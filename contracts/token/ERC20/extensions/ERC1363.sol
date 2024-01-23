@@ -54,19 +54,20 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * @dev Moves a `value` amount of tokens from the caller's account to `to`
      * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
-     * {IERC1363Receiver-onTransferReceived}
+     * Requirements:
+     *
+     * - The target has code (i.e. is a contract).
+     * - The target `to` must implement the {IERC1363Receiver} interface.
+     * - The target should return the {IERC1363Receiver} interface id.
+     * - The internal {transfer} must have succeeded (returned `true`)
      */
     function transferAndCall(address to, uint256 value) public returns (bool) {
         return transferAndCall(to, value, "");
     }
 
     /**
-     * @dev Moves a `value` amount of tokens from the caller's account to `to`
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
-     *
-     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
-     * {IERC1363Receiver-onTransferReceived}
+     * @dev Variant of {transferAndCall} that accepts an additional `data` parameter  with
+     * no specified format.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
         if (!transfer(to, value)) {
@@ -80,19 +81,20 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
      * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
      *
-     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
-     * {IERC1363Receiver-onTransferReceived}
+     * Requirements:
+     *
+     * - The target has code (i.e. is a contract).
+     * - The target `to` must implement the {IERC1363Receiver} interface.
+     * - The target should return the {IERC1363Receiver} interface id.
+     * - The internal {transferFrom} must have succeeded (returned `true`)
      */
     function transferFromAndCall(address from, address to, uint256 value) public returns (bool) {
         return transferFromAndCall(from, to, value, "");
     }
 
     /**
-     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
-     *
-     * NOTE: Reverts if `to` is an account without code or the recipient contract does not implement
-     * {IERC1363Receiver-onTransferReceived}
+     * @dev Variant of {transferFromAndCall} that accepts an additional `data` parameter  with
+     * no specified format.
      */
     function transferFromAndCall(
         address from,
@@ -111,19 +113,20 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
      * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
      *
-     * NOTE: Reverts if `spender` is an account without code or the spender contract does not implement
-     * {IERC1363Spender-onApprovalReceived}
+     * Requirements:
+     *
+     * - The target has code (i.e. is a contract).
+     * - The target `to` must implement the {IERC1363Spender} interface.
+     * - The target should return the {IERC1363Spender} interface id.
+     * - The internal {approve} must have succeeded (returned `true`)
      */
     function approveAndCall(address spender, uint256 value) public returns (bool) {
         return approveAndCall(spender, value, "");
     }
 
     /**
-     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
-     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
-     *
-     * NOTE: Reverts if `spender` is an account without code or the spender contract does not implement
-     * {IERC1363Spender-onApprovalReceived}
+     * @dev Variant of {approveAndCall} that accepts an additional `data` parameter  with
+     * no specified format.
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
         if (!approve(spender, value)) {
