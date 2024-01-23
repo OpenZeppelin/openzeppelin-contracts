@@ -83,11 +83,11 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Perform an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
+     * @dev Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
      * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
      *
-     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
+     * Revert if the returned value is other than `true`.
      */
     function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
@@ -98,11 +98,11 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Perform an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
+     * @dev Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
      * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
      *
-     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
+     * Revert if the returned value is other than `true`.
      */
     function transferFromAndCallRelaxed(
         IERC1363 token,
@@ -119,11 +119,11 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Perform an {ERC1363} approveAndCall, with a fallback to the simple {ERC20} approve if the target has no
+     * @dev Performs an {ERC1363} approveAndCall, with a fallback to the simple {ERC20} approve if the target has no
      * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
      *
-     * Revert if returned value is `false`. If `token` returns no value, non-reverting calls are assumed to be successful.
+     * Revert if the returned value is other than `true`.
      */
     function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
