@@ -19,6 +19,7 @@ async function fixture() {
   const erc1363ReturnFalseOnErc20Mock = await ethers.deployContract('$ERC1363ReturnFalseOnERC20Mock', [name, symbol]);
   const erc1363ReturnFalseMock = await ethers.deployContract('$ERC1363ReturnFalseMock', [name, symbol]);
   const erc1363NoReturnMock = await ethers.deployContract('$ERC1363NoReturnMock', [name, symbol]);
+  const erc1363ForceApproveMock = await ethers.deployContract('$ERC1363ForceApproveMock', [name, symbol]);
   const erc1363Receiver = await ethers.deployContract('$ERC1363ReceiverMock');
   const erc1363Spender = await ethers.deployContract('$ERC1363SpenderMock');
 
@@ -37,6 +38,7 @@ async function fixture() {
     erc1363ReturnFalseOnErc20Mock,
     erc1363ReturnFalseMock,
     erc1363NoReturnMock,
+    erc1363ForceApproveMock,
     erc1363Receiver,
     erc1363Spender,
   };
@@ -303,6 +305,40 @@ describe('SafeERC20', function () {
       await expect(
         this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 0n, data),
       ).to.be.revertedWithoutReason();
+    });
+  });
+
+  describe('with ERC1363 with usdt approval behaviour', function () {
+    beforeEach(async function () {
+      this.token = this.erc1363ForceApproveMock;
+    });
+
+    describe('without initial approval', function () {
+      it('approveAndCallRelaxed works when recipient is an EOA', async function () {
+        await this.mock.$approveAndCallRelaxed(this.token, this.spender, 10n, data);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(10n);
+      });
+
+      it('approveAndCallRelaxed works when recipient is a contract', async function () {
+        await this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 10n, data);
+        expect(await this.token.allowance(this.mock, this.erc1363Spender)).to.equal(10n);
+      });
+    });
+
+    describe('with initial approval', function () {
+      it('approveAndCallRelaxed works when recipient is an EOA', async function () {
+        await this.token.$_approve(this.mock, this.spender, 100n);
+
+        await this.mock.$approveAndCallRelaxed(this.token, this.spender, 10n, data);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(10n);
+      });
+
+      it('approveAndCallRelaxed reverts when recipient is a contract', async function () {
+        await this.token.$_approve(this.mock, this.erc1363Spender, 100n);
+        await expect(this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 10n, data)).to.be.revertedWith(
+          'USDT approval failure',
+        );
+      });
     });
   });
 });
