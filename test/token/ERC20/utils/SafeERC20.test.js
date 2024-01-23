@@ -191,7 +191,6 @@ describe('SafeERC20', function () {
     });
 
     describe('transferFromAndCall', function () {
-
       it('can transferFromAndCall to an EOA using helper', async function () {
         await this.token.$_mint(this.owner, value);
         await this.token.$_approve(this.owner, this.mock, ethers.MaxUint256);
@@ -214,7 +213,6 @@ describe('SafeERC20', function () {
     });
 
     describe('approveAndCall', function () {
-
       it('can approveAndCall to an EOA using helper', async function () {
         await expect(this.mock.$approveAndCallRelaxed(this.token, this.receiver, value, data))
           .to.emit(this.token, 'Approval')

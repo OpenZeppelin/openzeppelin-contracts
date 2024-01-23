@@ -29,6 +29,21 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     error ERC1363InvalidSpender(address spender);
 
     /**
+     * @dev Indicates a failure within the {transfer} part of a transferAndCall operation.
+     */
+    error ERC1363TransferFailed(address to, uint256 value);
+
+    /**
+     * @dev Indicates a failure within the {transferFrom} part of a transferFromAndCall operation.
+     */
+    error ERC1363TransferFromFailed(address from, address to, uint256 value);
+
+    /**
+     * @dev Indicates a failure within the {approve} part of a approveAndCall operation.
+     */
+    error ERC1363ApproveFailed(address spender, uint256 value);
+
+    /**
      * @inheritdoc IERC165
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
@@ -54,7 +69,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * {IERC1363Receiver-onTransferReceived}
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
-        transfer(to, value);
+        if (!transfer(to, value)) {
+            revert ERC1363TransferFailed(to, value);
+        }
         _checkOnTransferReceived(_msgSender(), to, value, data);
         return true;
     }
@@ -83,7 +100,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
         uint256 value,
         bytes memory data
     ) public virtual returns (bool) {
-        transferFrom(from, to, value);
+        if (!transferFrom(from, to, value)) {
+            revert ERC1363TransferFromFailed(from, to, value);
+        }
         _checkOnTransferReceived(from, to, value, data);
         return true;
     }
@@ -107,7 +126,9 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * {IERC1363Spender-onApprovalReceived}
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
-        approve(spender, value);
+        if (!approve(spender, value)) {
+            revert ERC1363ApproveFailed(spender, value);
+        }
         _checkOnApprovalReceived(spender, value, data);
         return true;
     }

@@ -92,17 +92,8 @@ library SafeERC20 {
     function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
             safeTransfer(token, to, value);
-        } else {
-            _callOptionalReturn(
-                token,
-                // Can't use abi.encodeCall since `token.transferAndCall` is not an unique identifier.
-                abi.encodeWithSelector(
-                    0x4000aea0, // bytes4(keccak256("transferAndCall(address,uint256,bytes)"))
-                    to,
-                    value,
-                    data
-                )
-            );
+        } else if (!token.transferAndCall(to, value, data)) {
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
@@ -122,18 +113,8 @@ library SafeERC20 {
     ) internal {
         if (to.code.length == 0) {
             safeTransferFrom(token, from, to, value);
-        } else {
-            _callOptionalReturn(
-                token,
-                // Can't use abi.encodeCall since `token.transferFromAndCall` is not an unique identifier.
-                abi.encodeWithSelector(
-                    0xc1d34b89, // bytes4(keccak256("transferFromAndCall(address,address,uint256,bytes)"))
-                    from,
-                    to,
-                    value,
-                    data
-                )
-            );
+        } else if (!token.transferFromAndCall(from, to, value, data)) {
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
@@ -147,17 +128,8 @@ library SafeERC20 {
     function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
             forceApprove(token, to, value);
-        } else {
-            _callOptionalReturn(
-                token,
-                // Can't use abi.encodeCall since `token.approveAndCall` is not an unique identifier.
-                abi.encodeWithSelector(
-                    0xcae9ca51, // bytes4(keccak256("approveAndCall(address,uint256,bytes)"))
-                    to,
-                    value,
-                    data
-                )
-            );
+        } else if (!token.approveAndCall(to, value, data)) {
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
