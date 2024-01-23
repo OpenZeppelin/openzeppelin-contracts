@@ -87,7 +87,7 @@ library SafeERC20 {
      * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
      *
-     * Revert if the returned value is other than `true`.
+     * Reverts if the returned value is other than `true`.
      */
     function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {
@@ -102,7 +102,7 @@ library SafeERC20 {
      * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
      * targeting contracts.
      *
-     * Revert if the returned value is other than `true`.
+     * Reverts if the returned value is other than `true`.
      */
     function transferFromAndCallRelaxed(
         IERC1363 token,
@@ -127,7 +127,7 @@ library SafeERC20 {
      * Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
      * once without retrying, and relies on the returned value to be true.
      *
-     * Revert if the returned value is other than `true`.
+     * Reverts if the returned value is other than `true`.
      */
     function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {
         if (to.code.length == 0) {

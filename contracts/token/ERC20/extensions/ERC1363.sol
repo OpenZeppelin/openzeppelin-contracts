@@ -59,14 +59,14 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Receiver} interface.
      * - The target should return the {IERC1363Receiver} interface id.
-     * - The internal {transfer} must have succeeded (returned `true`)
+     * - The internal {transfer} must have succeeded (returned `true`).
      */
     function transferAndCall(address to, uint256 value) public returns (bool) {
         return transferAndCall(to, value, "");
     }
 
     /**
-     * @dev Variant of {transferAndCall} that accepts an additional `data` parameter  with
+     * @dev Variant of {transferAndCall} that accepts an additional `data` parameter with
      * no specified format.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
@@ -86,14 +86,14 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Receiver} interface.
      * - The target should return the {IERC1363Receiver} interface id.
-     * - The internal {transferFrom} must have succeeded (returned `true`)
+     * - The internal {transferFrom} must have succeeded (returned `true`).
      */
     function transferFromAndCall(address from, address to, uint256 value) public returns (bool) {
         return transferFromAndCall(from, to, value, "");
     }
 
     /**
-     * @dev Variant of {transferFromAndCall} that accepts an additional `data` parameter  with
+     * @dev Variant of {transferFromAndCall} that accepts an additional `data` parameter with
      * no specified format.
      */
     function transferFromAndCall(
@@ -118,14 +118,14 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Spender} interface.
      * - The target should return the {IERC1363Spender} interface id.
-     * - The internal {approve} must have succeeded (returned `true`)
+     * - The internal {approve} must have succeeded (returned `true`).
      */
     function approveAndCall(address spender, uint256 value) public returns (bool) {
         return approveAndCall(spender, value, "");
     }
 
     /**
-     * @dev Variant of {approveAndCall} that accepts an additional `data` parameter  with
+     * @dev Variant of {approveAndCall} that accepts an additional `data` parameter with
      * no specified format.
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
