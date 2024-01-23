@@ -16,8 +16,8 @@ async function fixture() {
   const erc20NoReturnMock = await ethers.deployContract('$ERC20NoReturnMock', [name, symbol]);
   const erc20ForceApproveMock = await ethers.deployContract('$ERC20ForceApproveMock', [name, symbol]);
   const erc1363Mock = await ethers.deployContract('$ERC1363', [name, symbol]);
-  const erc1363ReturnFalseMock_1 = await ethers.deployContract('$ERC1363ReturnFalseMock_1', [name, symbol]);
-  const erc1363ReturnFalseMock_2 = await ethers.deployContract('$ERC1363ReturnFalseMock_2', [name, symbol]);
+  const erc1363ReturnFalseMock1 = await ethers.deployContract('$ERC1363ReturnFalseMock1', [name, symbol]);
+  const erc1363ReturnFalseMock2 = await ethers.deployContract('$ERC1363ReturnFalseMock2', [name, symbol]);
   const erc1363NoReturnMock = await ethers.deployContract('$ERC1363NoReturnMock', [name, symbol]);
   const erc1363Receiver = await ethers.deployContract('$ERC1363ReceiverMock');
   const erc1363Spender = await ethers.deployContract('$ERC1363SpenderMock');
@@ -34,8 +34,8 @@ async function fixture() {
     erc20NoReturnMock,
     erc20ForceApproveMock,
     erc1363Mock,
-    erc1363ReturnFalseMock_1,
-    erc1363ReturnFalseMock_2,
+    erc1363ReturnFalseMock1,
+    erc1363ReturnFalseMock2,
     erc1363NoReturnMock,
     erc1363Receiver,
     erc1363Spender,
@@ -236,7 +236,7 @@ describe('SafeERC20', function () {
 
   describe('with ERC1363 that returns false on all ERC20 calls', function () {
     beforeEach(async function () {
-      this.token = this.erc1363ReturnFalseMock_1;
+      this.token = this.erc1363ReturnFalseMock1;
     });
 
     it('reverts on transferAndCallRelaxed', async function () {
@@ -260,7 +260,7 @@ describe('SafeERC20', function () {
 
   describe('with ERC1363 that returns false on all ERC1363 calls', function () {
     beforeEach(async function () {
-      this.token = this.erc1363ReturnFalseMock_2;
+      this.token = this.erc1363ReturnFalseMock2;
     });
 
     it('reverts on transferAndCallRelaxed', async function () {
