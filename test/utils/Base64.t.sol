@@ -12,21 +12,28 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 contract Base64Test is Test {
     function testEncode(bytes memory input) external {
         string memory output = Base64.encode(input);
-        assertEq(output, _base64Ffi(input, "encode"));
+        assertEq(output, vm.toBase64(input));
     }
 
     function testEncodeURL(bytes memory input) external {
         string memory output = Base64.encodeURL(input);
-        assertEq(output, _base64Ffi(input, "encodeURL"));
+        assertEq(output, _removePadding(vm.toBase64URL(input)));
     }
 
-    function _base64Ffi(bytes memory input, string memory fn) internal returns (string memory) {
-        string[] memory command = new string[](4);
-        command[0] = "bash";
-        command[1] = "scripts/tests/base64.sh";
-        command[2] = fn;
-        command[3] = vm.toString(input);
-        bytes memory retData = vm.ffi(command);
-        return string(retData);
+    function _removePadding(string memory input) internal pure returns (string memory) {
+        bytes memory bytesInput = bytes(input);
+        uint256 length = bytesInput.length;
+        uint256 padding = 0;
+
+        while (bytesInput[length - padding - 1] == 0x3d) {
+            padding++;
+        }
+
+        bytes memory result = new bytes(length - padding);
+        for (uint256 i = 0; i < result.length; i++) {
+            result[i] = bytesInput[i];
+        }
+
+        return string(result);
     }
 }
