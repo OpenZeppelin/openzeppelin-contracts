@@ -254,6 +254,8 @@ library Math {
                     // The old remainder is the next gcd to try.
                     remainder,
                     // Compute the next remainder.
+                    // Can't overflow given that (a % gcd) * (gcd // (a % gcd)) <= gcd
+                    // where gcd is at most n (capped to type(uint256).max)
                     gcd - remainder * quotient
                 );
 
@@ -261,6 +263,8 @@ library Math {
                     // Increment the coefficient of a.
                     y,
                     // Decrement the coefficient of n.
+                    // Can overflow, but the result is casted to uint256 so that the
+                    // next value of y is "wrapped around" to a value between 0 and n - 1.
                     x - y * int256(quotient)
                 );
             }
