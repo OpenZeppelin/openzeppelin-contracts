@@ -20,6 +20,8 @@ contract Base64Test is Test {
     function _removePadding(string memory input) internal pure returns (string memory) {
         bytes memory bytesInput = bytes(input);
         uint256 length = bytesInput.length;
+        if (length == 0) return input;
+
         uint256 padding = 0;
 
         while (bytesInput[length - padding - 1] == 0x3d) {
