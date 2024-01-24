@@ -116,7 +116,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * Requirements:
      *
      * - The target has code (i.e. is a contract).
-     * - The target `to` must implement the {IERC1363Spender} interface.
+     * - The target `spender` must implement the {IERC1363Spender} interface.
      * - The target must return the {IERC1363Spender-onApprovalReceived} selector to accept the approval.
      * - The internal {approve} must succeed (returned `true`).
      */
@@ -172,7 +172,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * Requirements:
      *
      * - The target has code (i.e. is a contract).
-     * - The target `to` must implement the {IERC1363Spender} interface.
+     * - The target `spender` must implement the {IERC1363Spender} interface.
      * - The target must return the {IERC1363Spender-onApprovalReceived} selector to accept the approval.
      */
     function _checkOnApprovalReceived(address spender, uint256 value, bytes memory data) private {
