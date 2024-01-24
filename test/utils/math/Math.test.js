@@ -313,7 +313,7 @@ describe('Math', function () {
     ]) {
       const p = factors.reduce((acc, f) => acc * f, 1n);
 
-      describe(`using p=${p} which is ${(p > 1 && factors.length > 1) ? 'not ' : ''}a prime`, function () {
+      describe(`using p=${p} which is ${p > 1 && factors.length > 1 ? 'not ' : ''}a prime`, function () {
         it('trying to inverse 0 returns 0', async function () {
           expect(await this.mock.$invMod(0, p)).to.equal(0n);
           expect(await this.mock.$invMod(p, p)).to.equal(0n); // p is 0 mod p
