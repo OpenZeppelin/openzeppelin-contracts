@@ -59,7 +59,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Receiver} interface.
      * - The target should return the {IERC1363Receiver} interface id.
-     * - The internal {transfer} must have succeeded (returned `true`).
+     * - The internal {transfer} must succeed (returned `true`).
      */
     function transferAndCall(address to, uint256 value) public returns (bool) {
         return transferAndCall(to, value, "");
@@ -86,7 +86,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Receiver} interface.
      * - The target should return the {IERC1363Receiver} interface id.
-     * - The internal {transferFrom} must have succeeded (returned `true`).
+     * - The internal {transferFrom} must succeed (returned `true`).
      */
     function transferFromAndCall(address from, address to, uint256 value) public returns (bool) {
         return transferFromAndCall(from, to, value, "");
@@ -118,7 +118,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * - The target has code (i.e. is a contract).
      * - The target `to` must implement the {IERC1363Spender} interface.
      * - The target should return the {IERC1363Spender} interface id.
-     * - The internal {approve} must have succeeded (returned `true`).
+     * - The internal {approve} must succeed (returned `true`).
      */
     function approveAndCall(address spender, uint256 value) public returns (bool) {
         return approveAndCall(spender, value, "");
