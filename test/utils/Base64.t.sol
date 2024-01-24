@@ -8,31 +8,28 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract Base64Test is Test {
     function testEncode(bytes memory input) external {
-        string memory output = Base64.encode(input);
-        assertEq(output, vm.toBase64(input));
+        assertEq(Base64.encode(input), vm.toBase64(input));
     }
 
     function testEncodeURL(bytes memory input) external {
-        string memory output = Base64.encodeURL(input);
-        assertEq(output, _removePadding(vm.toBase64URL(input)));
+        assertEq(Base64.encodeURL(input), _removePadding(vm.toBase64URL(input)));
     }
 
-    function _removePadding(string memory input) internal pure returns (string memory) {
-        bytes memory bytesInput = bytes(input);
-        uint256 length = bytesInput.length;
-        if (length == 0) return input;
+    function _removePadding(string memory inputStr) internal pure returns (string memory) {
+        bytes memory input = bytes(inputStr);
+        bytes memory output;
 
-        uint256 padding = 0;
-
-        while (bytesInput[length - padding - 1] == 0x3d) {
-            padding++;
+        for (uint256 i = 0; i < input.length; ++i) {
+            if (input[input.length - i - 1] != 0x3d) {
+                output = new bytes(input.length - i);
+                break;
+            }
         }
 
-        bytes memory result = new bytes(length - padding);
-        for (uint256 i = 0; i < result.length; i++) {
-            result[i] = bytesInput[i];
+        for (uint256 i = 0; i < output.length; ++i) {
+            output[i] = input[i];
         }
 
-        return string(result);
+        return string(output);
     }
 }
