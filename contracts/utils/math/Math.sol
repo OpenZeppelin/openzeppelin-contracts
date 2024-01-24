@@ -121,9 +121,10 @@ library Math {
     }
 
     /**
-     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
+     * @dev Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
      * denominator == 0.
-     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
+     *
+     * Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
      * Uniswap Labs also under MIT license.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
@@ -208,7 +209,7 @@ library Math {
     }
 
     /**
-     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     * @dev Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
@@ -219,7 +220,7 @@ library Math {
     }
 
     /**
-     * @notice Calculate the  modular multiplicative inverse of a number in Z/nZ.
+     * @dev Calculate the  modular multiplicative inverse of a number in Z/nZ.
      *
      * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
@@ -282,7 +283,7 @@ library Math {
     }
 
     /**
-     * @notice Calculates sqrt(a), following the selected rounding direction.
+     * @dev Calculates sqrt(a), following the selected rounding direction.
      */
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
         unchecked {
