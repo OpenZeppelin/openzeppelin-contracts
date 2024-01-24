@@ -57,8 +57,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * Requirements:
      *
      * - The target has code (i.e. is a contract).
-     * - The target `to` must implement the {IERC1363Receiver} interface.
-     * - The target should return the {IERC1363Receiver} interface id.
+     * - The target `to` must implement {IERC1363Receiver-onTransferReceived}.
+     * - The target must return the {IERC1363Receiver-onTransferReceived} selector to accept the transfer.
      * - The internal {transfer} must succeed (returned `true`).
      */
     function transferAndCall(address to, uint256 value) public returns (bool) {
@@ -84,8 +84,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * Requirements:
      *
      * - The target has code (i.e. is a contract).
-     * - The target `to` must implement the {IERC1363Receiver} interface.
-     * - The target should return the {IERC1363Receiver} interface id.
+     * - The target `to` must implement {IERC1363Receiver-onTransferReceived}.
+     * - The target must return the {IERC1363Receiver-onTransferReceived} selector to accept the transfer.
      * - The internal {transferFrom} must succeed (returned `true`).
      */
     function transferFromAndCall(address from, address to, uint256 value) public returns (bool) {
@@ -116,8 +116,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * Requirements:
      *
      * - The target has code (i.e. is a contract).
-     * - The target `to` must implement the {IERC1363Spender} interface.
-     * - The target should return the {IERC1363Spender} interface id.
+     * - The target `to` must implement {IERC1363Spender-onApprovalReceived}.
+     * - The target must return the {IERC1363Spender-onApprovalReceived} selector to accept the approval.
      * - The internal {approve} must succeed (returned `true`).
      */
     function approveAndCall(address spender, uint256 value) public returns (bool) {
