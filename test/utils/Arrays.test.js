@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
 
-// See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+// See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
   const i = array.findIndex(element => value <= element);
   return i == -1 ? array.length : i;
