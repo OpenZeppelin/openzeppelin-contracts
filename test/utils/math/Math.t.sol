@@ -186,7 +186,7 @@ contract MathTest is Test {
         // Full precision for q * d
         (uint256 qdHi, uint256 qdLo) = _mulHighLow(q, d);
         // Add remainder of x * y / d (computed as rem = (x * y % d))
-        (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, _mulmod(x, y, d));
+        (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, mulmod(x, y, d));
         uint256 qdRemHi = qdHi + c;
 
         // Full precision check that x * y = q * d + rem
@@ -241,12 +241,6 @@ contract MathTest is Test {
     function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
         return Math.Rounding(r);
-    }
-
-    function _mulmod(uint256 x, uint256 y, uint256 z) private pure returns (uint256 r) {
-        assembly {
-            r := mulmod(x, y, z)
-        }
     }
 
     function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {
