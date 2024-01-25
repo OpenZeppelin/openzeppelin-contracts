@@ -11,14 +11,6 @@ library Math {
      * @dev Muldiv operation overflow.
      */
     error MathOverflowedMulDiv();
-    /**
-     * @dev Modulus zero in Mod Exp operation.
-     */
-    error MathModulusEqualsZero();
-    /**
-     * @dev Static call to Mod Exp precompile fails.
-     */
-    error MathModExpCannotBeCalculated();
 
     enum Rounding {
         Floor, // Toward negative infinity
@@ -284,21 +276,14 @@ library Math {
     }
 
     /**
-     * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m)
+     * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m).
      *
-     * Requirements:
-     * - modulus can't be zero
-     * - result should be obtained successfully
+     * If the modulus is 0 or if the EIP-198 precompile reverts, return 0 (which is obviously an invalid result).
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
-        if (m == 0) {
-            revert MathModulusEqualsZero();
-        }
+        if (m == 0) return 0;
         (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
-        if (!success) {
-            revert MathModExpCannotBeCalculated();
-        }
-        return abi.decode(result, (uint256));
+        return success ? abi.decode(result, (uint256)) : 0;
     }
 
     /**
