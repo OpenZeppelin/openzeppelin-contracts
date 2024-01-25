@@ -218,12 +218,11 @@ contract MathTest is Test {
 
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
         uint256 r = 1 % m;
-        uint256 d = b;
         while (e > 0) {
             if (e % 2 > 0) {
-                r = mulmod(r, d, m);
+                r = mulmod(r, b, m);
             }
-            d = mulmod(d, d, m);
+            b = mulmod(b, b, m);
             e >>= 1;
         }
         return r;
