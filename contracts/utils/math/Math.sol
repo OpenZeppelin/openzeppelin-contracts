@@ -479,7 +479,7 @@ library Math {
 
     /**
      * @dev Returns the modular exponentiation of the specified base,
-     * exponent and modulus (b^e % m)
+     * exponent and modulus (b ** e % m)
      *
      * Requirements:
      *
