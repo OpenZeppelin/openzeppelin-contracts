@@ -345,12 +345,15 @@ describe('Math', function () {
       expect(await this.mock.$modExp(base, exponent, modulus)).to.equal(base ** exponent % modulus);
     });
 
-    it('returns zero when modulus is zero', async function () {
+    it('is correctly reverting when modulus is zero', async function () {
       const base = 3n;
       const exponent = 200n;
       const modulus = 0n;
 
-      expect(await this.mock.$modExp(base, exponent, modulus)).to.equal(0n);
+      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithCustomError(
+        this.mock,
+        'MathModulusEqualsZero',
+      );
     });
   });
 

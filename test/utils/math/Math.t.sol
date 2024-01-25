@@ -208,15 +208,11 @@ contract MathTest is Test {
 
     // MOD EXP
     function testModExp(uint256 b, uint256 e, uint256 m) public {
-        uint256 result = Math.modExp(b, e, m);
-
-        if (m == 0) {
-            // 0 means error
-            assertEq(result, 0);
-        } else {
-            // Result should be less than m, and should match the native implementation
+        try this.modexp(b, e, m) returns (uint256 result) {
             assertTrue(result < m);
             assertEq(result, _nativeModExp(b, e, m));
+        } catch {
+            assertEq(m, 0);
         }
     }
 
@@ -236,6 +232,10 @@ contract MathTest is Test {
     // External call
     function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
         return Math.mulDiv(x, y, d);
+    }
+
+    function modexp(uint256 a, uint256 k, uint256 n) external view returns (uint256) {
+        return Math.modExp(a, k, n);
     }
 
     // Helpers
