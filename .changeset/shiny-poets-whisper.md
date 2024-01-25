@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Added modular exponentiation function to Math.sol
+`Math`: Add `modExp` function that exposes the `EIP-198` precompile.
