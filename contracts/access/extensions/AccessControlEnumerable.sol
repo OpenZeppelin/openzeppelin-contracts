@@ -47,6 +47,18 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
+     * @dev Return all accounts that have `role`
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function getRoleMembers(bytes32 role) public view virtual returns (address[] memory) {
+        return _roleMembers[role].values();
+    }
+
+    /**
      * @dev Overload {AccessControl-_grantRole} to track enumerable memberships
      */
     function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {

@@ -1,5 +1,7 @@
 const { network } = require('hardhat');
+const { expect } = require('chai');
 const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { unique } = require('./iterate');
 
 async function batchInBlock(txs) {

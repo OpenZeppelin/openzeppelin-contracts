@@ -18,7 +18,7 @@ async function fixture() {
   return { owner, token };
 }
 
-contract('ERC721URIStorage', function () {
+describe('ERC721URIStorage', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

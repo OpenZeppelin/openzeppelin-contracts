@@ -44,10 +44,6 @@ interface IERC1155 is IERC165 {
 
     /**
      * @dev Returns the value of tokens of token type `id` owned by `account`.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) external view returns (uint256);
 

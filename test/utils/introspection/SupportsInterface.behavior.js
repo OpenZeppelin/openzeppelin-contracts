@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { selector, interfaceId } = require('../../helpers/methods');
+const { interfaceId } = require('../../helpers/methods');
 const { mapValues } = require('../../helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
@@ -30,6 +30,14 @@ const SIGNATURES = {
   ERC1155Receiver: [
     'onERC1155Received(address,address,uint256,uint256,bytes)',
     'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)',
+  ],
+  ERC1363: [
+    'transferAndCall(address,uint256)',
+    'transferAndCall(address,uint256,bytes)',
+    'transferFromAndCall(address,address,uint256)',
+    'transferFromAndCall(address,address,uint256,bytes)',
+    'approveAndCall(address,uint256)',
+    'approveAndCall(address,uint256,bytes)',
   ],
   AccessControl: [
     'hasRole(bytes32,address)',
@@ -85,9 +93,11 @@ const SIGNATURES = {
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
 function shouldSupportInterfaces(interfaces = []) {
+  interfaces.unshift('ERC165');
+
   describe('ERC165', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token || this.holder;
+      this.contractUnderTest = this.mock || this.token;
     });
 
     describe('when the interfaceId is supported', function () {
@@ -123,15 +133,6 @@ function shouldSupportInterfaces(interfaces = []) {
 
         // Check the presence of each function in the contract's interface
         for (const fnSig of SIGNATURES[k]) {
-          // TODO: Remove Truffle case when ethersjs migration is done
-          if (this.contractUnderTest.abi) {
-            const fnSelector = selector(fnSig);
-            return expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSelector).length).to.equal(
-              1,
-              `did not find ${fnSig}`,
-            );
-          }
-
           expect(this.contractUnderTest.interface.hasFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }

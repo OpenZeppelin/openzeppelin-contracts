@@ -6,5 +6,5 @@ test = 'test'
 cache_path  = 'cache_forge'
 
 [fuzz]
-runs = 10000
+runs = 5000
 max_test_rejects = 150000

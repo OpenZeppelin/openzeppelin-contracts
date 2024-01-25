@@ -172,7 +172,7 @@ class GovernorHelper {
     if (!Array.isArray(proposalStates)) {
       proposalStates = [proposalStates];
     }
-    const statesCount = BigInt(Object.keys(ProposalState).length);
+    const statesCount = ethers.toBigInt(Object.keys(ProposalState).length);
     let result = 0n;
 
     for (const state of unique(...proposalStates)) {

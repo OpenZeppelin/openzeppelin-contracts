@@ -12,15 +12,13 @@ function shouldBehaveLikeRegularContext() {
 
   describe('msgSender', function () {
     it('returns the transaction sender when called from an EOA', async function () {
-      await expect(this.context.connect(this.sender).msgSender())
-        .to.emit(this.context, 'Sender')
-        .withArgs(this.sender.address);
+      await expect(this.context.connect(this.sender).msgSender()).to.emit(this.context, 'Sender').withArgs(this.sender);
     });
 
     it('returns the transaction sender when called from another contract', async function () {
       await expect(this.contextHelper.connect(this.sender).callSender(this.context))
         .to.emit(this.context, 'Sender')
-        .withArgs(this.contextHelper.target);
+        .withArgs(this.contextHelper);
     });
   });
 

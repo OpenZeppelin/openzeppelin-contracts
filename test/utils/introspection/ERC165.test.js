@@ -9,10 +9,10 @@ async function fixture() {
   };
 }
 
-contract('ERC165', function () {
+describe('ERC165', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldSupportInterfaces(['ERC165']);
+  shouldSupportInterfaces();
 });

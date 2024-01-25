@@ -5,7 +5,7 @@ const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
-const { bigint: Enums } = require('../../helpers/enums');
+const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -120,10 +120,10 @@ describe('GovernorStorage', function () {
       it('queue and execute by id', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.connect(this.voter1).vote({ support: Enums.VoteType.For });
-        await this.helper.connect(this.voter2).vote({ support: Enums.VoteType.For });
-        await this.helper.connect(this.voter3).vote({ support: Enums.VoteType.Against });
-        await this.helper.connect(this.voter4).vote({ support: Enums.VoteType.Abstain });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter3).vote({ support: VoteType.Against });
+        await this.helper.connect(this.voter4).vote({ support: VoteType.Abstain });
         await this.helper.waitForDeadline();
 
         await expect(this.mock.queue(this.proposal.id))

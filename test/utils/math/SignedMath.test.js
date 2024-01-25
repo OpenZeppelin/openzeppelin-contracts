@@ -14,7 +14,7 @@ async function fixture() {
   return { mock };
 }
 
-contract('SignedMath', function () {
+describe('SignedMath', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

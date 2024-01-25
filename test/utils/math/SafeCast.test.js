@@ -9,7 +9,7 @@ async function fixture() {
   return { mock };
 }
 
-contract('SafeCast', function () {
+describe('SafeCast', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

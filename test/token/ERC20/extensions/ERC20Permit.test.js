@@ -3,20 +3,20 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, domainSeparator, Permit } = require('../../../helpers/eip712');
-const { bigint: time } = require('../../../helpers/time');
+const time = require('../../../helpers/time');
 
 const name = 'My Token';
 const symbol = 'MTKN';
 const initialSupply = 100n;
 
 async function fixture() {
-  const [initialHolder, spender, owner, other] = await ethers.getSigners();
+  const [holder, spender, owner, other] = await ethers.getSigners();
 
   const token = await ethers.deployContract('$ERC20Permit', [name, symbol, name]);
-  await token.$_mint(initialHolder, initialSupply);
+  await token.$_mint(holder, initialSupply);
 
   return {
-    initialHolder,
+    holder,
     spender,
     owner,
     other,
@@ -30,7 +30,7 @@ describe('ERC20Permit', function () {
   });
 
   it('initial nonce is 0', async function () {
-    expect(await this.token.nonces(this.initialHolder)).to.equal(0n);
+    expect(await this.token.nonces(this.holder)).to.equal(0n);
   });
 
   it('domain separator', async function () {
@@ -81,7 +81,7 @@ describe('ERC20Permit', function () {
 
       await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
         .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
-        .withArgs(recovered, this.owner.address);
+        .withArgs(recovered, this.owner);
     });
 
     it('rejects other signature', async function () {
@@ -91,7 +91,7 @@ describe('ERC20Permit', function () {
 
       await expect(this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s))
         .to.be.revertedWithCustomError(this.token, 'ERC2612InvalidSigner')
-        .withArgs(this.other.address, this.owner.address);
+        .withArgs(this.other, this.owner);
     });
 
     it('rejects expired permit', async function () {
