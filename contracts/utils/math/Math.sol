@@ -284,6 +284,24 @@ library Math {
     }
 
     /**
+     * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m)
+     *
+     * Requirements:
+     * - modulus can't be zero
+     * - result should be obtained successfully
+     */
+    function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
+        if (m == 0) {
+            revert MathModulusEqualsZero();
+        }
+        (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
+        if (!success) {
+            revert MathModExpCannotBeCalculated();
+        }
+        return abi.decode(result, (uint256));
+    }
+
+    /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
      *
@@ -475,26 +493,6 @@ library Math {
             uint256 result = log256(value);
             return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);
         }
-    }
-
-    /**
-     * @dev Returns the modular exponentiation of the specified base,
-     * exponent and modulus (b ** e % m)
-     *
-     * Requirements:
-     *
-     * - modulus can't be zero
-     * - result should be obtained successfully
-     */
-    function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
-        if (m == 0) {
-            revert MathModulusEqualsZero();
-        }
-        (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
-        if (!success) {
-            revert MathModExpCannotBeCalculated();
-        }
-        return abi.decode(result, (uint256));
     }
 
     /**
