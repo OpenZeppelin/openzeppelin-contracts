@@ -83,8 +83,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests
-        # Base64Test requires `--ffi`. See test/utils/Base64.t.sol
-        run: forge test -vv --no-match-contract Base64Test
+        run: forge test -vv
 
   coverage:
     runs-on: ubuntu-latest

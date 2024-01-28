@@ -8,12 +8,12 @@ const initialSupply = 100n;
 const loanValue = 10_000_000_000_000n;
 
 async function fixture() {
-  const [initialHolder, other, anotherAccount] = await ethers.getSigners();
+  const [holder, other] = await ethers.getSigners();
 
   const token = await ethers.deployContract('$ERC20FlashMintMock', [name, symbol]);
-  await token.$_mint(initialHolder, initialSupply);
+  await token.$_mint(holder, initialSupply);
 
-  return { initialHolder, other, anotherAccount, token };
+  return { holder, other, token };
 }
 
 describe('ERC20FlashMint', function () {
@@ -134,7 +134,7 @@ describe('ERC20FlashMint', function () {
       });
 
       it('custom flash fee receiver', async function () {
-        const flashFeeReceiverAddress = this.anotherAccount;
+        const flashFeeReceiverAddress = this.other;
         await this.token.setFlashFeeReceiver(flashFeeReceiverAddress);
         expect(await this.token.$_flashFeeReceiver()).to.equal(flashFeeReceiverAddress);
 

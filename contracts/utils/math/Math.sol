@@ -121,9 +121,10 @@ library Math {
     }
 
     /**
-     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
+     * @dev Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
      * denominator == 0.
-     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
+     *
+     * Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
      * Uniswap Labs also under MIT license.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
@@ -208,7 +209,7 @@ library Math {
     }
 
     /**
-     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     * @dev Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
@@ -216,6 +217,62 @@ library Math {
             result += 1;
         }
         return result;
+    }
+
+    /**
+     * @dev Calculate the modular multiplicative inverse of a number in Z/nZ.
+     *
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
+     *
+     * If the input value is not inversible, 0 is returned.
+     */
+    function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
+        unchecked {
+            if (n == 0) return 0;
+
+            // The inverse modulo is calculated using the Extended Euclidean Algorithm (iterative version)
+            // Used to compute integers x and y such that: ax + ny = gcd(a, n).
+            // When the gcd is 1, then the inverse of a modulo n exists and it's x.
+            // ax + ny = 1
+            // ax = 1 + (-y)n
+            // ax ≡ 1 (mod n) # x is the inverse of a modulo n
+
+            // If the remainder is 0 the gcd is n right away.
+            uint256 remainder = a % n;
+            uint256 gcd = n;
+
+            // Therefore the initial coefficients are:
+            // ax + ny = gcd(a, n) = n
+            // 0a + 1n = n
+            int256 x = 0;
+            int256 y = 1;
+
+            while (remainder != 0) {
+                uint256 quotient = gcd / remainder;
+
+                (gcd, remainder) = (
+                    // The old remainder is the next gcd to try.
+                    remainder,
+                    // Compute the next remainder.
+                    // Can't overflow given that (a % gcd) * (gcd // (a % gcd)) <= gcd
+                    // where gcd is at most n (capped to type(uint256).max)
+                    gcd - remainder * quotient
+                );
+
+                (x, y) = (
+                    // Increment the coefficient of a.
+                    y,
+                    // Decrement the coefficient of n.
+                    // Can overflow, but the result is casted to uint256 so that the
+                    // next value of y is "wrapped around" to a value between 0 and n - 1.
+                    x - y * int256(quotient)
+                );
+            }
+
+            if (gcd != 1) return 0; // No inverse exists.
+            return x < 0 ? (n - uint256(-x)) : uint256(x); // Wrap the result if it's negative.
+        }
     }
 
     /**
@@ -258,7 +315,7 @@ library Math {
     }
 
     /**
-     * @notice Calculates sqrt(a), following the selected rounding direction.
+     * @dev Calculates sqrt(a), following the selected rounding direction.
      */
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
         unchecked {

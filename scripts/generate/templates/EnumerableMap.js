@@ -36,6 +36,10 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - \`bytes32 -> bytes32\` (\`Bytes32ToBytes32Map\`) since v4.6.0
  * - \`uint256 -> uint256\` (\`UintToUintMap\`) since v4.7.0
  * - \`bytes32 -> uint256\` (\`Bytes32ToUintMap\`) since v4.7.0
+ * - \`uint256 -> bytes32\` (\`UintToBytes32Map\`) since v5.1.0
+ * - \`address -> address\` (\`AddressToAddressMap\`) since v5.1.0
+ * - \`address -> bytes32\` (\`AddressToBytes32Map\`) since v5.1.0
+ * - \`bytes32 -> address\` (\`Bytes32ToAddressMap\`) since v5.1.0
  *
  * [WARNING]
  * ====
