@@ -1,8 +1,6 @@
 const format = require('../format-lines');
 const { capitalize } = require('../../helpers');
-
-const TYPES_STORAGE = ['address', 'bytes32', 'uint256'];
-const TYPES_MEMORY = ['uint256', 'address'];
+const { TYPES_STORAGE, TYPES_MEMORY } = require('./Array.opts');
 
 const header = `\
 pragma solidity ^0.8.20;

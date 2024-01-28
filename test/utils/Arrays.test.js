@@ -3,6 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
+const { TYPES_STORAGE, TYPES_MEMORY } = require('../../scripts/generate/templates/Array.opts');
+const { capitalize } = require('../../scripts/helpers');
 
 // See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
 const lowerBound = (array, value) => {
@@ -94,11 +96,15 @@ describe('Arrays', function () {
 
   describe('unsafeAccess', function () {
     describe('storage', function () {
-      const contractCases = {
-        address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
-        bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
-        uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
-      };
+      const contractCases = Object.fromEntries(
+        TYPES_STORAGE.map(type => [
+          type,
+          {
+            artifact: `${capitalize(type)}ArraysMock`,
+            elements: randomArray(generators[type], 10),
+          },
+        ]),
+      );
 
       const fixture = async () => {
         const contracts = {};
@@ -123,10 +129,15 @@ describe('Arrays', function () {
   });
 
   describe('memory', function () {
-    const contractCases = {
-      address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
-      uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
-    };
+    const contractCases = Object.fromEntries(
+      TYPES_MEMORY.map(type => [
+        type,
+        {
+          artifact: `${capitalize(type)}ArraysMock`,
+          elements: randomArray(generators[type], 10),
+        },
+      ]),
+    );
 
     const fixture = async () => {
       const contracts = {};
