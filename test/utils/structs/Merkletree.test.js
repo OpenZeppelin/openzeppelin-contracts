@@ -3,11 +3,11 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
-// TODO: when working with merkle tree construction, ordering of the leaves should be disabled.
 const makeTree = (leafs = [ethers.ZeroHash]) =>
   StandardMerkleTree.of(
     leafs.map(leaf => [leaf]),
     ['bytes32'],
+    { sortLeaves: false }
   );
 
 const MAX_DEPTH = 255n;
@@ -25,9 +25,10 @@ describe('Merklee tree', function () {
   });
 
   it('depth is limited', async function () {
-    await expect(ethers.deployContract('MerkleTreeMock', [256n, LENGTH, ZERO]))
+    const invalidDepth = MAX_DEPTH + 1n;
+    await expect(ethers.deployContract('MerkleTreeMock', [invalidDepth, LENGTH, ZERO]))
       .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'MerkleTreeInvalidDepth')
-      .withArgs(256n, MAX_DEPTH);
+      .withArgs(invalidDepth, MAX_DEPTH);
   });
 
   it('setup', async function () {
