@@ -7,7 +7,7 @@ const makeTree = (leafs = [ethers.ZeroHash]) =>
   StandardMerkleTree.of(
     leafs.map(leaf => [leaf]),
     ['bytes32'],
-    { sortLeaves: false }
+    { sortLeaves: false },
   );
 
 const MAX_DEPTH = 255n;
