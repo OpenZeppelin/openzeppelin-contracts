@@ -3,8 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
-const { TYPES_STORAGE, TYPES_MEMORY } = require('../../scripts/generate/templates/Array.opts');
 const { capitalize } = require('../../scripts/helpers');
+const { TYPES_STORAGE, TYPES_MEMORY } = require('../../scripts/generate/templates/Array.opts');
 
 // See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
 const lowerBound = (array, value) => {
@@ -95,68 +95,51 @@ describe('Arrays', function () {
   });
 
   describe('unsafeAccess', function () {
-    describe('storage', function () {
-      const contractCases = Object.fromEntries(
-        TYPES_STORAGE.map(type => [
-          type,
-          {
-            artifact: `${capitalize(type)}ArraysMock`,
-            elements: randomArray(generators[type], 10),
-          },
-        ]),
+    const fixture = async () => {
+      const env = Object.fromEntries(
+        await Promise.all(
+          TYPES_STORAGE.map(async type => {
+            const elements = randomArray(generators[type], 10);
+
+            return [
+              type,
+              {
+                contract: await ethers.deployContract(`${capitalize(type)}ArraysMock`, [elements]),
+                elements,
+              },
+            ];
+          }),
+        ),
       );
 
-      const fixture = async () => {
-        const contracts = {};
-        for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
-          contracts[name] = await ethers.deployContract(artifact, [elements]);
-        }
-        return { contracts };
-      };
-
-      beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
-      });
-
-      for (const [name, { elements }] of Object.entries(contractCases)) {
-        it(name, async function () {
-          for (const i in elements) {
-            expect(await this.contracts[name].unsafeAccess(i)).to.equal(elements[i]);
-          }
-        });
-      }
-    });
-  });
-
-  describe('memory', function () {
-    const contractCases = Object.fromEntries(
-      TYPES_MEMORY.map(type => [
-        type,
-        {
-          artifact: `${capitalize(type)}ArraysMock`,
-          elements: randomArray(generators[type], 10),
-        },
-      ]),
-    );
-
-    const fixture = async () => {
-      const contracts = {};
-      for (const [name, { artifact }] of Object.entries(contractCases)) {
-        contracts[name] = await ethers.deployContract(artifact, [[]]);
-      }
-      return { contracts };
+      return { env };
     };
 
     beforeEach(async function () {
       Object.assign(this, await loadFixture(fixture));
     });
 
-    for (const [name, { elements }] of Object.entries(contractCases)) {
-      it(name, async function () {
-        for (const i in elements) {
-          expect(await this.contracts[name].unsafeMemoryAccess(elements, i)).to.equal(elements[i]);
-        }
-      });
-    }
+    describe('storage', function () {
+      for (const name of TYPES_STORAGE) {
+        it(name, async function () {
+          const { contract, elements } = this.env[name];
+          for (const i in elements) {
+            expect(await contract.unsafeAccess(i)).to.equal(elements[i]);
+          }
+        });
+      }
+    });
+
+    describe('memory', function () {
+      for (const name of TYPES_MEMORY) {
+        it(name, async function () {
+          const { contract } = this.env[name];
+          const elements = randomArray(generators[name], 10);
+          for (const i in elements) {
+            expect(await contract.unsafeMemoryAccess(elements, i)).to.equal(elements[i]);
+          }
+        });
+      }
+    });
   });
 });
