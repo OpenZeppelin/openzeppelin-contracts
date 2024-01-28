@@ -20,6 +20,10 @@ contract Uint256ArraysMock {
     function unsafeAccess(uint256 pos) external view returns (uint256) {
         return _array.unsafeAccess(pos).value;
     }
+
+    function unsafeMemoryAccess(uint256[] memory array, uint256 pos) external pure returns (uint256) {
+        return array.unsafeMemoryAccess(pos);
+    }
 }
 
 contract AddressArraysMock {
@@ -33,6 +37,10 @@ contract AddressArraysMock {
 
     function unsafeAccess(uint256 pos) external view returns (address) {
         return _array.unsafeAccess(pos).value;
+    }
+
+    function unsafeMemoryAccess(address[] memory array, uint256 pos) external pure returns (address) {
+        return array.unsafeMemoryAccess(pos);
     }
 }
 

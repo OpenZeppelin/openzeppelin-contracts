@@ -93,16 +93,45 @@ describe('Arrays', function () {
   });
 
   describe('unsafeAccess', function () {
+    describe('storage', function () {
+      const contractCases = {
+        address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
+        bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
+        uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
+      };
+
+      const fixture = async () => {
+        const contracts = {};
+        for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
+          contracts[name] = await ethers.deployContract(artifact, [elements]);
+        }
+        return { contracts };
+      };
+
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
+      });
+
+      for (const [name, { elements }] of Object.entries(contractCases)) {
+        it(name, async function () {
+          for (const i in elements) {
+            expect(await this.contracts[name].unsafeAccess(i)).to.equal(elements[i]);
+          }
+        });
+      }
+    });
+  });
+
+  describe('memory', function () {
     const contractCases = {
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
-      bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
       uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
     };
 
     const fixture = async () => {
       const contracts = {};
-      for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
-        contracts[name] = await ethers.deployContract(artifact, [elements]);
+      for (const [name, { artifact }] of Object.entries(contractCases)) {
+        contracts[name] = await ethers.deployContract(artifact, [[]]);
       }
       return { contracts };
     };
@@ -114,7 +143,7 @@ describe('Arrays', function () {
     for (const [name, { elements }] of Object.entries(contractCases)) {
       it(name, async function () {
         for (const i in elements) {
-          expect(await this.contracts[name].unsafeAccess(i)).to.equal(elements[i]);
+          expect(await this.contracts[name].unsafeMemoryAccess(elements, i)).to.equal(elements[i]);
         }
       });
     }

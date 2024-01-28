@@ -16,44 +16,44 @@ import {Math} from "./math/Math.sol";
 `;
 
 const findUpperBound = `
-    using StorageSlot for bytes32;
+using StorageSlot for bytes32;
 
-    /**
-     * @dev Searches a sorted \`array\` and returns the first index that contains
-     * a value greater or equal to \`element\`. If no such index exists (i.e. all
-     * values in the array are strictly less than \`element\`), the array length is
-     * returned. Time complexity O(log n).
-     *
-     * \`array\` is expected to be sorted in ascending order, and to contain no
-     * repeated elements.
-     */
-    function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
-        uint256 low = 0;
-        uint256 high = array.length;
+/**
+ * @dev Searches a sorted \`array\` and returns the first index that contains
+ * a value greater or equal to \`element\`. If no such index exists (i.e. all
+ * values in the array are strictly less than \`element\`), the array length is
+ * returned. Time complexity O(log n).
+ *
+ * \`array\` is expected to be sorted in ascending order, and to contain no
+ * repeated elements.
+ */
+function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
+    uint256 low = 0;
+    uint256 high = array.length;
 
-        if (high == 0) {
-            return 0;
-        }
+    if (high == 0) {
+        return 0;
+    }
 
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
+    while (low < high) {
+        uint256 mid = Math.average(low, high);
 
-            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
-            // because Math.average rounds towards zero (it does integer division with truncation).
-            if (unsafeAccess(array, mid).value > element) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        // At this point \`low\` is the exclusive upper bound. We will return the inclusive upper bound.
-        if (low > 0 && unsafeAccess(array, low - 1).value == element) {
-            return low - 1;
+        // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+        // because Math.average rounds towards zero (it does integer division with truncation).
+        if (unsafeAccess(array, mid).value > element) {
+            high = mid;
         } else {
-            return low;
+            low = mid + 1;
         }
     }
+
+    // At this point \`low\` is the exclusive upper bound. We will return the inclusive upper bound.
+    if (low > 0 && unsafeAccess(array, low - 1).value == element) {
+        return low - 1;
+    } else {
+        return low;
+    }
+}
 `;
 
 const unsafeAccessStorage = type => `
@@ -89,6 +89,7 @@ function unsafeMemoryAccess(${type}[] memory arr, uint256 pos) internal pure ret
     }
 }
 `;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
