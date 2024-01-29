@@ -208,17 +208,17 @@ contract MathTest is Test {
 
     // MOD EXP
     function testModExp(uint256 b, uint256 e, uint256 m) public {
-        if(m== 0) {
+        if (m == 0) {
             vm.expectRevert(Math.MathModulusEqualsZero.selector);
         }
-        uint256 result = Math.modExp(b,e,m);
+        uint256 result = Math.modExp(b, e, m);
         assertTrue(result < m);
         assertEq(result, _nativeModExp(b, e, m));
     }
 
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
         uint256 r = 1 % m;
-        if(r == 0) return 0;
+        if (r == 0) return 0;
         while (e > 0) {
             if (e % 2 > 0) {
                 r = mulmod(r, b, m);
