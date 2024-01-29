@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
 const { capitalize } = require('../../scripts/helpers');
-const { TYPES_STORAGE, TYPES_MEMORY } = require('../../scripts/generate/templates/Array.opts');
+const { TYPES_STORAGE, TYPES_MEMORY } = require('../../scripts/generate/templates/Arrays.opts');
 
 // See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
 const lowerBound = (array, value) => {
@@ -20,7 +20,7 @@ const lowerBound = (array, value) => {
 
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
-describe('Arrays', function () {
+describe.only('Arrays', function () {
   describe('findUpperBound', function () {
     for (const [title, { array, tests }] of Object.entries({
       'Even number of elements': {
