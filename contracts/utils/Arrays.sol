@@ -23,7 +23,7 @@ library Arrays {
      *
      * IMPORTANT: Deprecated. This implementation behaves as {lowerBound} but lacks
      * support for repeated elements in the array. The {lowerBound} function should
-     * be used instead. 
+     * be used instead.
      */
     function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -59,7 +59,7 @@ library Arrays {
      * exists (i.e. all values in the array are strictly less than `element`), the array
      * length is returned. Time complexity O(log n).
      *
-     * See C++'s https://en.cppreference.com/w/cpp/algorithm/lower_bound[lower_bound]
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/lower_bound[lower_bound].
      */
     function lowerBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -93,7 +93,7 @@ library Arrays {
      * exists (i.e. all values in the array are strictly less than `element`), the array
      * length is returned. Time complexity O(log n).
      *
-     * See C++'s https://en.cppreference.com/w/cpp/algorithm/upper_bound[upper_bound]
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/upper_bound[upper_bound].
      */
     function upperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
