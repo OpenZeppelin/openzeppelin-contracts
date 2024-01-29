@@ -19,12 +19,14 @@ describe('ERC20', function () {
   for (const { Token, forcedApproval } of TOKENS) {
     describe(Token, function () {
       const fixture = async () => {
-        const [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
+        // this.accounts is used by shouldBehaveLikeERC20
+        const accounts = await ethers.getSigners();
+        const [holder, recipient] = accounts;
 
         const token = await ethers.deployContract(Token, [name, symbol]);
-        await token.$_mint(initialHolder, initialSupply);
+        await token.$_mint(holder, initialSupply);
 
-        return { initialHolder, recipient, anotherAccount, token };
+        return { accounts, holder, recipient, token };
       };
 
       beforeEach(async function () {
@@ -87,29 +89,27 @@ describe('ERC20', function () {
 
         describe('for a non zero account', function () {
           it('rejects burning more than balance', async function () {
-            await expect(this.token.$_burn(this.initialHolder, initialSupply + 1n))
+            await expect(this.token.$_burn(this.holder, initialSupply + 1n))
               .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
-              .withArgs(this.initialHolder, initialSupply, initialSupply + 1n);
+              .withArgs(this.holder, initialSupply, initialSupply + 1n);
           });
 
           const describeBurn = function (description, value) {
             describe(description, function () {
               beforeEach('burning', async function () {
-                this.tx = await this.token.$_burn(this.initialHolder, value);
+                this.tx = await this.token.$_burn(this.holder, value);
               });
 
               it('decrements totalSupply', async function () {
                 expect(await this.token.totalSupply()).to.equal(initialSupply - value);
               });
 
-              it('decrements initialHolder balance', async function () {
-                await expect(this.tx).to.changeTokenBalance(this.token, this.initialHolder, -value);
+              it('decrements holder balance', async function () {
+                await expect(this.tx).to.changeTokenBalance(this.token, this.holder, -value);
               });
 
               it('emits Transfer event', async function () {
-                await expect(this.tx)
-                  .to.emit(this.token, 'Transfer')
-                  .withArgs(this.initialHolder, ethers.ZeroAddress, value);
+                await expect(this.tx).to.emit(this.token, 'Transfer').withArgs(this.holder, ethers.ZeroAddress, value);
               });
             });
           };
@@ -127,19 +127,19 @@ describe('ERC20', function () {
         });
 
         it('from is the zero address', async function () {
-          const tx = await this.token.$_update(ethers.ZeroAddress, this.initialHolder, value);
-          await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.initialHolder, value);
+          const tx = await this.token.$_update(ethers.ZeroAddress, this.holder, value);
+          await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.holder, value);
 
           expect(await this.token.totalSupply()).to.equal(this.totalSupply + value);
-          await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, value);
+          await expect(tx).to.changeTokenBalance(this.token, this.holder, value);
         });
 
         it('to is the zero address', async function () {
-          const tx = await this.token.$_update(this.initialHolder, ethers.ZeroAddress, value);
-          await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.initialHolder, ethers.ZeroAddress, value);
+          const tx = await this.token.$_update(this.holder, ethers.ZeroAddress, value);
+          await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder, ethers.ZeroAddress, value);
 
           expect(await this.token.totalSupply()).to.equal(this.totalSupply - value);
-          await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, -value);
+          await expect(tx).to.changeTokenBalance(this.token, this.holder, -value);
         });
 
         describe('from and to are the same address', function () {
@@ -159,9 +159,9 @@ describe('ERC20', function () {
             });
 
             it('executes with balance', async function () {
-              const tx = await this.token.$_update(this.initialHolder, this.initialHolder, value);
-              await expect(tx).to.changeTokenBalance(this.token, this.initialHolder, 0n);
-              await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.initialHolder, this.initialHolder, value);
+              const tx = await this.token.$_update(this.holder, this.holder, value);
+              await expect(tx).to.changeTokenBalance(this.token, this.holder, 0n);
+              await expect(tx).to.emit(this.token, 'Transfer').withArgs(this.holder, this.holder, value);
             });
           });
         });

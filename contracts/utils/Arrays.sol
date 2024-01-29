@@ -61,11 +61,12 @@ library Arrays {
      * values in the array are strictly less than `element`), the array length is
      * returned. Time complexity O(log n).
      *
-     * `array` is expected to be sorted in ascending order, and to contain no
-     * repeated elements.
+     * NOTE: The `array` is expected to be sorted in ascending order, and to
+     * contain no repeated elements.
      *
-     * Deprecated in favor of `lowerBound` and `findUpperBound`. Note that this actually implements a lower bound
-     * search, and should be replaced with `lowerBound`
+     * IMPORTANT: Deprecated. This implementation behaves as {lowerBound} but lacks
+     * support for repeated elements in the array. The {lowerBound} function should
+     * be used instead.
      */
     function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -96,14 +97,12 @@ library Arrays {
     }
 
     /**
-     * @dev Searches a sorted `array` and returns the first index that contains
-     * a value greater or equal to `element`. If no such index exists (i.e. all
-     * values in the array are strictly less than `element`), the array length is
-     * returned. Time complexity O(log n).
+     * @dev Searches an `array` sorted in ascending order and returns the first
+     * index that contains a value greater or equal than `element`. If no such index
+     * exists (i.e. all values in the array are strictly less than `element`), the array
+     * length is returned. Time complexity O(log n).
      *
-     * `array` is expected to be sorted in ascending order,
-     *
-     * See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/lower_bound[lower_bound].
      */
     function lowerBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -132,14 +131,12 @@ library Arrays {
     }
 
     /**
-     * @dev Searches a sorted `array` and returns the first index that contains
-     * a value strictly greater to `element`. If no such index exists (i.e. all
-     * values in the array are strictly less than `element`), the array length is
-     * returned. Time complexity O(log n).
+     * @dev Searches an `array` sorted in ascending order and returns the first
+     * index that contains a value strictly greater than `element`. If no such index
+     * exists (i.e. all values in the array are strictly less than `element`), the array
+     * length is returned. Time complexity O(log n).
      *
-     * `array` is expected to be sorted in ascending order,
-     *
-     * See https://en.cppreference.com/w/cpp/algorithm/upper_bound
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/upper_bound[upper_bound].
      */
     function upperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -168,14 +165,7 @@ library Arrays {
     }
 
     /**
-     * @dev Searches a sorted `array` and returns the first index that contains
-     * a value greater or equal to `element`. If no such index exists (i.e. all
-     * values in the array are strictly less than `element`), the array length is
-     * returned. Time complexity O(log n).
-     *
-     * `array` is expected to be sorted in ascending order,
-     *
-     * See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+     * @dev Same as {lowerBound}, but with an array in memory.
      */
     function lowerBoundMemory(uint256[] memory array, uint256 element) internal pure returns (uint256) {
         uint256 low = 0;
@@ -204,14 +194,7 @@ library Arrays {
     }
 
     /**
-     * @dev Searches a sorted `array` and returns the first index that contains
-     * a value strictly greater to `element`. If no such index exists (i.e. all
-     * values in the array are strictly less than `element`), the array length is
-     * returned. Time complexity O(log n).
-     *
-     * `array` is expected to be sorted in ascending order,
-     *
-     * See https://en.cppreference.com/w/cpp/algorithm/upper_bound
+     * @dev Same as {upperBound}, but with an array in memory.
      */
     function upperBoundMemory(uint256[] memory array, uint256 element) internal pure returns (uint256) {
         uint256 low = 0;

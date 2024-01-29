@@ -5,6 +5,7 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
+const { randomArray, generators } = require('../../helpers/random');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -296,6 +297,43 @@ describe('Math', function () {
         }
       });
     });
+  });
+
+  describe('invMod', function () {
+    for (const factors of [
+      [0n],
+      [1n],
+      [2n],
+      [17n],
+      [65537n],
+      [0xffffffff00000001000000000000000000000000ffffffffffffffffffffffffn],
+      [3n, 5n],
+      [3n, 7n],
+      [47n, 53n],
+    ]) {
+      const p = factors.reduce((acc, f) => acc * f, 1n);
+
+      describe(`using p=${p} which is ${p > 1 && factors.length > 1 ? 'not ' : ''}a prime`, function () {
+        it('trying to inverse 0 returns 0', async function () {
+          expect(await this.mock.$invMod(0, p)).to.equal(0n);
+          expect(await this.mock.$invMod(p, p)).to.equal(0n); // p is 0 mod p
+        });
+
+        if (p != 0) {
+          for (const value of randomArray(generators.uint256, 16)) {
+            const isInversible = factors.every(f => value % f);
+            it(`trying to inverse ${value}`, async function () {
+              const result = await this.mock.$invMod(value, p);
+              if (isInversible) {
+                expect((value * result) % p).to.equal(1n);
+              } else {
+                expect(result).to.equal(0n);
+              }
+            });
+          }
+        }
+      });
+    }
   });
 
   describe('sqrt', function () {

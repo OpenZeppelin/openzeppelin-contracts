@@ -12,8 +12,6 @@ import {StorageSlot} from "../../utils/StorageSlot.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots.
  */
 library ERC1967Utils {
-    // We re-declare ERC-1967 events here because they can't be used directly from IERC1967.
-    // This will be fixed in Solidity 0.8.21. At that point we should remove these events.
     /**
      * @dev Emitted when the implementation is upgraded.
      */

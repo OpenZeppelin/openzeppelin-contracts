@@ -8,12 +8,10 @@ const formatType = (keyType, valueType) => ({
   valueType,
 });
 
-const TYPES = [
-  ['uint256', 'uint256'],
-  ['uint256', 'address'],
-  ['address', 'uint256'],
-  ['bytes32', 'uint256'],
-].map(args => formatType(...args));
+const TYPES = ['uint256', 'address', 'bytes32']
+  .flatMap((key, _, array) => array.map(value => [key, value]))
+  .slice(0, -1) // remove bytes32 → byte32 (last one) that is already defined
+  .map(args => formatType(...args));
 
 module.exports = {
   TYPES,

@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
 
-// See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+// See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
   const i = array.findIndex(element => value <= element);
   return i == -1 ? array.length : i;
@@ -132,18 +132,21 @@ describe('Arrays', function () {
           describe(name, function () {
             it('[deprecated] findUpperBound', async function () {
               // findUpperBound does not support duplicated
-              if (hasDuplicates(array)) this.skip();
-              expect(await this.instance.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+              if (hasDuplicates(array)) {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(upperBound(array, input) - 1);
+              } else {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+              }
             });
 
             it('lowerBound', async function () {
-              expect(await this.instance.lowerBound(input)).to.be.equal(lowerBound(array, input));
-              expect(await this.instance.lowerBoundMemory(array, input)).to.be.equal(lowerBound(array, input));
+              expect(await this.mock.lowerBound(input)).to.be.equal(lowerBound(array, input));
+              expect(await this.mock.lowerBoundMemory(array, input)).to.be.equal(lowerBound(array, input));
             });
 
             it('upperBound', async function () {
-              expect(await this.instance.upperBound(input)).to.be.equal(upperBound(array, input));
-              expect(await this.instance.upperBoundMemory(array, input)).to.be.equal(upperBound(array, input));
+              expect(await this.mock.upperBound(input)).to.be.equal(upperBound(array, input));
+              expect(await this.mock.upperBoundMemory(array, input)).to.be.equal(upperBound(array, input));
             });
           });
         }
@@ -152,12 +155,12 @@ describe('Arrays', function () {
   });
 
   describe('unsafeAccess', function () {
-    for (const [type, { artifact, elements }] of Object.entries({
+    for (const [title, { artifact, elements }] of Object.entries({
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
       bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
       uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
     })) {
-      describe(type, function () {
+      describe(title, function () {
         describe('storage', function () {
           const fixture = async () => {
             return { instance: await ethers.deployContract(artifact, [elements]) };
