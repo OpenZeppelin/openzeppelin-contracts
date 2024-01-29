@@ -201,9 +201,8 @@ contract MathTest is Test {
         vm.assume(xyHi >= d);
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
-        try this.muldiv(x, y, d) returns (uint256) {
-            fail();
-        } catch {}
+        vm.expectRevert();
+        Math.mulDiv(x, y, d);
     }
 
     // MOD EXP
@@ -217,8 +216,8 @@ contract MathTest is Test {
     }
 
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
-        uint256 r = 1 % m;
-        if (r == 0) return 0;
+        if (m == 1) return 0;
+        uint256 r = 1;
         while (e > 0) {
             if (e % 2 > 0) {
                 r = mulmod(r, b, m);
@@ -227,11 +226,6 @@ contract MathTest is Test {
             e >>= 1;
         }
         return r;
-    }
-
-    // External call
-    function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
-        return Math.mulDiv(x, y, d);
     }
 
     // Helpers
