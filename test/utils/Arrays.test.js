@@ -20,7 +20,7 @@ const lowerBound = (array, value) => {
 
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
-describe.only('Arrays', function () {
+describe('Arrays', function () {
   describe('findUpperBound', function () {
     for (const [title, { array, tests }] of Object.entries({
       'Even number of elements': {
