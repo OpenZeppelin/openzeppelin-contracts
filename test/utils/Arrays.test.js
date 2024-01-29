@@ -85,8 +85,11 @@ describe('Arrays', function () {
           describe(name, function () {
             it('[deprecated] findUpperBound', async function () {
               // findUpperBound does not support duplicated
-              if (hasDuplicates(array)) this.skip();
-              expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+              if (hasDuplicates(array)) {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(upperBound(array, input) - 1);
+              } else {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+              }
             });
 
             it('lowerBound', async function () {
