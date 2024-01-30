@@ -6,14 +6,18 @@ import {IERC721Receiver} from "../IERC721Receiver.sol";
 import {IERC721Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
- * @dev Implementation of the ERC-721 acceptance checks used in safe transfers.
- * See https://eips.ethereum.org/EIPS/eip-721
+ * @dev Library that provide common ERC-721 utility functions.
+ *
+ * See https://eips.ethereum.org/EIPS/eip-721[ERC-721].
  */
 library ERC721Utils {
     /**
-     * @dev Performs an acceptance check by calling {IERC721Receiver-onERC721Received} on the `to` address if it
-     * contains code at the moment of execution. This will revert if the recipient doesn't accept the token transfer.
-     * The call is not executed if the target address is not a contract.
+     * @dev Performs an acceptance check for the provided `operator` by calling {IERC721-onERC721Received}
+     * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
+     *
+     * The acceptance call is not executed and treated as a no-op if the target address is doesn't contain code (i.e. an EOA).
+     * Otherwise, the recipient must implement {IERC721Receiver-onERC721Received} and return the acceptance magic value to accept
+     * the transfer.
      */
     function checkOnERC721Received(
         address operator,
