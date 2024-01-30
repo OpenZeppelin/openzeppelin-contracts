@@ -2,7 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain, ForwardRequest } = require('../helpers/eip712');
+const { getDomain } = require('../helpers/eip712');
+const { ForwardRequest } = require('../helpers/eip712-types');
+
 const { sum } = require('../helpers/math');
 const time = require('../helpers/time');
 
