@@ -133,20 +133,20 @@ describe('Arrays', function () {
             it('[deprecated] findUpperBound', async function () {
               // findUpperBound does not support duplicated
               if (hasDuplicates(array)) {
-                expect(await this.instance.findUpperBound(input)).to.be.equal(upperBound(array, input) - 1);
+                expect(await this.instance.findUpperBound(input)).to.equal(upperBound(array, input) - 1);
               } else {
-                expect(await this.instance.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+                expect(await this.instance.findUpperBound(input)).to.equal(lowerBound(array, input));
               }
             });
 
             it('lowerBound', async function () {
-              expect(await this.instance.lowerBound(input)).to.be.equal(lowerBound(array, input));
-              expect(await this.instance.lowerBoundMemory(array, input)).to.be.equal(lowerBound(array, input));
+              expect(await this.instance.lowerBound(input)).to.equal(lowerBound(array, input));
+              expect(await this.instance.lowerBoundMemory(array, input)).to.equal(lowerBound(array, input));
             });
 
             it('upperBound', async function () {
-              expect(await this.instance.upperBound(input)).to.be.equal(upperBound(array, input));
-              expect(await this.instance.upperBoundMemory(array, input)).to.be.equal(upperBound(array, input));
+              expect(await this.instance.upperBound(input)).to.equal(upperBound(array, input));
+              expect(await this.instance.upperBoundMemory(array, input)).to.equal(upperBound(array, input));
             });
           });
         }
