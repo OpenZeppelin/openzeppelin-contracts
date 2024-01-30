@@ -29,7 +29,7 @@ const fixture = async () => {
   return { operator, owner, utils, receivers };
 };
 
-describe.only('ERC721Utils', function () {
+describe('ERC721Utils', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
