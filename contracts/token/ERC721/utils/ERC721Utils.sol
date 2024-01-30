@@ -25,10 +25,12 @@ library ERC721Utils {
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(operator, from, tokenId, data) returns (bytes4 retval) {
                 if (retval != IERC721Receiver.onERC721Received.selector) {
+                    // Token rejected
                     revert IERC721Errors.ERC721InvalidReceiver(to);
                 }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
+                    // non-IERC721Receiver implementer
                     revert IERC721Errors.ERC721InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly

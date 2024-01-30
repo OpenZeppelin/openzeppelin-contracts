@@ -26,10 +26,12 @@ library ERC1155Utils {
         if (to.code.length > 0) {
             try IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) returns (bytes4 response) {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
+                    // Tokens rejected
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
+                    // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly
@@ -59,10 +61,12 @@ library ERC1155Utils {
                 bytes4 response
             ) {
                 if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
+                    // Tokens rejected
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 }
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
+                    // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly
