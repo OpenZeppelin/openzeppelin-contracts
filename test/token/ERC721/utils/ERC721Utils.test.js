@@ -12,7 +12,7 @@ const deployReceiver = (revertType, returnValue = RECEIVER_MAGIC_VALUE) =>
   ethers.deployContract('$ERC721ReceiverMock', [returnValue, revertType]);
 
 const fixture = async () => {
-  const [operator, owner] = await ethers.getSigners();
+  const [eoa, operator, owner] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC721Utils');
 
   const receivers = {
@@ -23,12 +23,13 @@ const fixture = async () => {
     customError: await deployReceiver(RevertType.RevertWithCustomError),
     panic: await deployReceiver(RevertType.Panic),
     nonReceiver: await ethers.deployContract('CallReceiverMock'),
+    eoa,
   };
 
   return { operator, owner, utils, receivers };
 };
 
-describe('ERC721Utils', function () {
+describe.only('ERC721Utils', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
