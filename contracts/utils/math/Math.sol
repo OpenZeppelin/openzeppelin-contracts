@@ -283,9 +283,11 @@ library Math {
      * - result should be obtained successfully
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256 result) {
+        /// @solidity memory-safe-assembly
         assembly {
             switch m
-            case 0 { // if modulus is 0, panic with DIVISION_BY_ZERO
+            case 0 {
+                // if modulus is 0, panic with DIVISION_BY_ZERO
                 mstore(0x00, shl(0xe0, 0x4e487b71))
                 mstore(0x04, 0x12)
                 revert(0x00, 0x24)
@@ -298,7 +300,7 @@ library Math {
                 mstore(add(ptr, 0x60), b)
                 mstore(add(ptr, 0x80), e)
                 mstore(add(ptr, 0xa0), m)
-                if iszero(staticcall(not(0), 0x05, ptr, 0xc0, ptr, 0x20)) {
+                if iszero(staticcall(gas(), 0x05, ptr, 0xc0, ptr, 0x20)) {
                     revert(0, 0)
                 }
                 result := mload(ptr)
