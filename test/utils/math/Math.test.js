@@ -350,10 +350,7 @@ describe('Math', function () {
       const exponent = 200n;
       const modulus = 0n;
 
-      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithCustomError(
-        this.mock,
-        'MathModulusEqualsZero',
-      );
+      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
     });
   });
 

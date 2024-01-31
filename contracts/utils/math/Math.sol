@@ -11,14 +11,6 @@ library Math {
      * @dev Muldiv operation overflow.
      */
     error MathOverflowedMulDiv();
-    /**
-     * @dev Modulus zero in Mod Exp operation.
-     */
-    error MathModulusEqualsZero();
-    /**
-     * @dev Static call to Mod Exp precompile fails.
-     */
-    error MathModExpCannotBeCalculated();
 
     enum Rounding {
         Floor, // Toward negative infinity
@@ -290,15 +282,28 @@ library Math {
      * - modulus can't be zero
      * - result should be obtained successfully
      */
-    function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
-        if (m == 0) {
-            revert MathModulusEqualsZero();
+    function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256 result) {
+        assembly {
+            switch m
+            case 0 { // if modulus is 0, panic with DIVISION_BY_ZERO
+                mstore(0x00, shl(0xe0, 0x4e487b71))
+                mstore(0x04, 0x12)
+                revert(0x00, 0x24)
+            }
+            default {
+                let ptr := mload(0x40)
+                mstore(ptr, 0x20)
+                mstore(add(ptr, 0x20), 0x20)
+                mstore(add(ptr, 0x40), 0x20)
+                mstore(add(ptr, 0x60), b)
+                mstore(add(ptr, 0x80), e)
+                mstore(add(ptr, 0xa0), m)
+                if iszero(staticcall(not(0), 0x05, ptr, 0xc0, ptr, 0x20)) {
+                    revert(0, 0)
+                }
+                result := mload(ptr)
+            }
         }
-        (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
-        if (!success) {
-            revert MathModExpCannotBeCalculated();
-        }
-        return abi.decode(result, (uint256));
     }
 
     /**
