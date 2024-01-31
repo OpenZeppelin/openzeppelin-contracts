@@ -226,6 +226,9 @@ library Math {
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
      * If the input value is not inversible, 0 is returned.
+     *
+     * Note: If you know for sure that n is (big) a prime, it may be cheaper to use Ferma's little theorem and get the
+     * inverse using `Math.modExp(a, n - 2, n)`.
      */
     function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
         unchecked {
