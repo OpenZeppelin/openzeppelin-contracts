@@ -5,8 +5,8 @@ pragma solidity ^0.8.20;
 /**
  * @dev Helper library for emitting standardized panic codes.
  */
+// slither-disable-next-line unused-state
 library Panic {
-    // slither-disable-start unused-state-variable
     uint256 internal constant ASSERTION_ERROR = 0x1;
     uint256 internal constant ARITHMETIC_UNDER_OR_OVERFLOW = 0x11;
     uint256 internal constant DIVISION_BY_ZERO = 0x12;
@@ -16,8 +16,6 @@ library Panic {
     uint256 internal constant ARRAY_ACCESS_OUT_OF_BOUNDS = 0x32;
     uint256 internal constant TOO_MUCH_MEMORY_ALLOCATED = 0x41;
     uint256 internal constant ZERO_INITIALIZED_VARIABLE = 0x51;
-
-    // slither-disable-end unused-state-variable
 
     function panic(uint256 code) internal pure {
         /// @solidity memory-safe-assembly
