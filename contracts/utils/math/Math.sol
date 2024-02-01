@@ -3,15 +3,12 @@
 
 pragma solidity ^0.8.20;
 
+import {Panic} from "../Panic.sol";
+
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
-    /**
-     * @dev Muldiv operation overflow.
-     */
-    error MathOverflowedMulDiv();
-
     enum Rounding {
         Floor, // Toward negative infinity
         Ceil, // Toward positive infinity
@@ -107,7 +104,7 @@ library Math {
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         if (b == 0) {
             // Guarantee the same behavior as in a regular Solidity division.
-            return a / b;
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
 
         // The following calculation ensures accurate ceiling division without overflow.
@@ -149,7 +146,7 @@ library Math {
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                revert MathOverflowedMulDiv();
+                Panic.panic(denominator == 0  ? Panic.DIVISION_BY_ZERO : Panic.ARITHMETIC_UNDER_OR_OVERFLOW);
             }
 
             ///////////////////////////////////////////////
@@ -286,28 +283,22 @@ library Math {
      * - result should be obtained successfully
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256 result) {
+        if (m == 0) {
+            Panic.panic(Panic.DIVISION_BY_ZERO);
+        }
         /// @solidity memory-safe-assembly
         assembly {
-            switch m
-            case 0 {
-                // if modulus is 0, panic with DIVISION_BY_ZERO
-                mstore(0x00, shl(0xe0, 0x4e487b71))
-                mstore(0x04, 0x12)
-                revert(0x00, 0x24)
+            let ptr := mload(0x40)
+            mstore(ptr, 0x20)
+            mstore(add(ptr, 0x20), 0x20)
+            mstore(add(ptr, 0x40), 0x20)
+            mstore(add(ptr, 0x60), b)
+            mstore(add(ptr, 0x80), e)
+            mstore(add(ptr, 0xa0), m)
+            if iszero(staticcall(gas(), 0x05, ptr, 0xc0, ptr, 0x20)) {
+                revert(0, 0)
             }
-            default {
-                let ptr := mload(0x40)
-                mstore(ptr, 0x20)
-                mstore(add(ptr, 0x20), 0x20)
-                mstore(add(ptr, 0x40), 0x20)
-                mstore(add(ptr, 0x60), b)
-                mstore(add(ptr, 0x80), e)
-                mstore(add(ptr, 0xa0), m)
-                if iszero(staticcall(gas(), 0x05, ptr, 0xc0, ptr, 0x20)) {
-                    revert(0, 0)
-                }
-                result := mload(ptr)
-            }
+            result := mload(ptr)
         }
     }
 
