@@ -12,7 +12,7 @@ describe('Panic', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const [ name, code ] of Object.entries(PANIC_CODES)) {
+  for (const [name, code] of Object.entries(PANIC_CODES)) {
     describe(name, function () {
       it('exposes panic code as constant', async function () {
         expect(await this.mock.getFunction(`$${name}`)()).to.equal(code);

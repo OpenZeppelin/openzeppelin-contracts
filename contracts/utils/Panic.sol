@@ -16,6 +16,7 @@ library Panic {
     uint256 internal constant ARRAY_ACCESS_OUT_OF_BOUNDS = 0x32;
     uint256 internal constant TOO_MUCH_MEMORY_ALLOCATED = 0x41;
     uint256 internal constant ZERO_INITIALIZED_VARIABLE = 0x51;
+
     // slither-disable-end unused-state-variable
 
     function panic(uint256 code) internal pure {
