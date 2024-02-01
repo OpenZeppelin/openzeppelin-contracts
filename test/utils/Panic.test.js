@@ -14,7 +14,7 @@ describe('Panic', function () {
 
   for (const [ name, code ] of Object.entries(PANIC_CODES)) {
     describe(name, function () {
-      it(`exposes panic code as constant`, async function () {
+      it('exposes panic code as constant', async function () {
         expect(await this.mock.getFunction(`$${name}`)()).to.equal(code);
       });
 
