@@ -234,7 +234,9 @@ describe('Math', function () {
       const a = 5n;
       const b = ethers.MaxUint256;
       const c = 2n;
-      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
+      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW,
+      );
     });
 
     describe('does round down', function () {
