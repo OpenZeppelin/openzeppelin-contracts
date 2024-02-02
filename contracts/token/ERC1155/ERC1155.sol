@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {IERC1155} from "./IERC1155.sol";
-import {IERC1155Receiver} from "./IERC1155Receiver.sol";
 import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
+import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {Arrays} from "../../utils/Arrays.sol";
@@ -203,9 +203,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             if (ids.length == 1) {
                 uint256 id = ids.unsafeMemoryAccess(0);
                 uint256 value = values.unsafeMemoryAccess(0);
-                _doSafeTransferAcceptanceCheck(operator, from, to, id, value, data);
+                ERC1155Utils.checkOnERC1155Received(operator, from, to, id, value, data);
             } else {
-                _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, values, data);
+                ERC1155Utils.checkOnERC1155BatchReceived(operator, from, to, ids, values, data);
             }
         }
     }
@@ -372,72 +372,6 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         }
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
-    }
-
-    /**
-     * @dev Performs an acceptance check by calling {IERC1155-onERC1155Received} on the `to` address
-     * if it contains code at the moment of execution.
-     */
-    function _doSafeTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256 id,
-        uint256 value,
-        bytes memory data
-    ) private {
-        if (to.code.length > 0) {
-            try IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) returns (bytes4 response) {
-                if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    // Tokens rejected
-                    revert ERC1155InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    // non-IERC1155Receiver implementer
-                    revert ERC1155InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @dev Performs a batch acceptance check by calling {IERC1155-onERC1155BatchReceived} on the `to` address
-     * if it contains code at the moment of execution.
-     */
-    function _doSafeBatchTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory values,
-        bytes memory data
-    ) private {
-        if (to.code.length > 0) {
-            try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, values, data) returns (
-                bytes4 response
-            ) {
-                if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    // Tokens rejected
-                    revert ERC1155InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    // non-IERC1155Receiver implementer
-                    revert ERC1155InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
     }
 
     /**
