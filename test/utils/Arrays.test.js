@@ -4,22 +4,22 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { randomArray, generators } = require('../helpers/random');
 
-// See https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound
+// See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
   const i = array.findIndex(element => value <= element);
   return i == -1 ? array.length : i;
 };
 
 // See https://en.cppreference.com/w/cpp/algorithm/upper_bound
-// const upperBound = (array, value) => {
-//   const i = array.findIndex(element => value < element);
-//   return i == -1 ? array.length : i;
-// };
+const upperBound = (array, value) => {
+  const i = array.findIndex(element => value < element);
+  return i == -1 ? array.length : i;
+};
 
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
 describe('Arrays', function () {
-  describe('findUpperBound', function () {
+  describe('search', function () {
     for (const [title, { array, tests }] of Object.entries({
       'Even number of elements': {
         array: [11n, 12n, 13n, 14n, 15n, 16n, 17n, 18n, 19n, 20n],
@@ -82,10 +82,25 @@ describe('Arrays', function () {
         });
 
         for (const [name, input] of Object.entries(tests)) {
-          it(name, async function () {
-            // findUpperBound does not support duplicated
-            if (hasDuplicates(array)) this.skip();
-            expect(await this.mock.findUpperBound(input)).to.equal(lowerBound(array, input));
+          describe(name, function () {
+            it('[deprecated] findUpperBound', async function () {
+              // findUpperBound does not support duplicated
+              if (hasDuplicates(array)) {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(upperBound(array, input) - 1);
+              } else {
+                expect(await this.mock.findUpperBound(input)).to.be.equal(lowerBound(array, input));
+              }
+            });
+
+            it('lowerBound', async function () {
+              expect(await this.mock.lowerBound(input)).to.be.equal(lowerBound(array, input));
+              expect(await this.mock.lowerBoundMemory(array, input)).to.be.equal(lowerBound(array, input));
+            });
+
+            it('upperBound', async function () {
+              expect(await this.mock.upperBound(input)).to.be.equal(upperBound(array, input));
+              expect(await this.mock.upperBoundMemory(array, input)).to.be.equal(upperBound(array, input));
+            });
           });
         }
       });
@@ -93,29 +108,29 @@ describe('Arrays', function () {
   });
 
   describe('unsafeAccess', function () {
-    const contractCases = {
+    for (const [title, { artifact, elements }] of Object.entries({
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
       bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
       uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
-    };
+    })) {
+      describe(title, function () {
+        const fixture = async () => {
+          return { mock: await ethers.deployContract(artifact, [elements]) };
+        };
 
-    const fixture = async () => {
-      const contracts = {};
-      for (const [name, { artifact, elements }] of Object.entries(contractCases)) {
-        contracts[name] = await ethers.deployContract(artifact, [elements]);
-      }
-      return { contracts };
-    };
+        beforeEach(async function () {
+          Object.assign(this, await loadFixture(fixture));
+        });
 
-    beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
-    });
-
-    for (const [name, { elements }] of Object.entries(contractCases)) {
-      it(name, async function () {
         for (const i in elements) {
-          expect(await this.contracts[name].unsafeAccess(i)).to.equal(elements[i]);
+          it(`unsafeAccess within bounds #${i}`, async function () {
+            expect(await this.mock.unsafeAccess(i)).to.equal(elements[i]);
+          });
         }
+
+        it('unsafeAccess outside bounds', async function () {
+          await expect(this.mock.unsafeAccess(elements.length)).to.not.be.rejected;
+        });
       });
     }
   });
