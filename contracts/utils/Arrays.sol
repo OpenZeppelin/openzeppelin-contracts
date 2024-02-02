@@ -18,7 +18,7 @@ library Arrays {
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
-     * Note: this function's cost is O(n.log(n)) in average and O(n²) in the worst case, with n the length of the
+     * NOTE: this function's cost is O(n.log(n)) in average and O(n²) in the worst case, with n the length of the
      * array. Using it in view function that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. Depending on the size of the array, this can be very exepensive
      * to run, leading to potential DoS attacks.
