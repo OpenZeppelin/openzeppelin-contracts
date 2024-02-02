@@ -6,23 +6,25 @@ pragma solidity ^0.8.20;
 import "../../utils/introspection/ERC165.sol";
 import "./IERC5169.sol";
 
+/**
+ *  Tokenscript is a framework designed to make contract interaction easy.
+ *  https://www.tokenscript.org/docs/TokenScript-Component.html
+ *  A popular example of TokenScript usage is https://www.smartlayer.network/smartcat
+ *  Users can use TokenScript viewer to open their own SmartCat NFTs and interact with the contract
+ *  with TokenScript UI. UI and code embedded in the TokenScript file, thereby eliminating
+ *  the need to create/host webpage or app to help user interact with the contract.
+ *  TokenScript can automate most of contract interactions with and require a bit
+ *  of coding on Svelte/React/VanillaJS
+ */
 abstract contract ERC5169 is IERC5169, ERC165 {
     /**
      *  @dev List of TokenScript files locations, related to this contract.
-     *  Tokenscript is a framework designed to make contract interaction easy.
-     *  https://www.tokenscript.org/docs/TokenScript-Component.html 
-     *  A popular example of TokenScript usage is https://www.smartlayer.network/smartcat
-     *  Users can use TokenScript viewer to open their own SmartCat NFTs and interact with the contract 
-     *  with TokenScript UI. UI and code embedded in the TokenScript file, thereby eliminating 
-     *  the need to create/host webpage or app to help user interact with the contract.
-     *  TokenScript can automate most of contract interactions with and require a bit 
-     *  of coding on Svelte/React/VanillaJS
      */
     string[] private _scriptURI;
 
     /**
-    *   @dev Return all TokenScriptURIs for the contract
-    */
+     *   @dev Return all TokenScriptURIs for the contract
+     */
     function scriptURI() external view override returns (string[] memory) {
         return _scriptURI;
     }
