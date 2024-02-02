@@ -13,7 +13,7 @@ library Arrays {
     using StorageSlot for bytes32;
 
     /**
-     * @dev Sort an array (in memory) in increassing order.
+     * @dev Sort an array (in memory) in increasing order.
      *
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
