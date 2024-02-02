@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {Panic} from "@openzeppelin/contracts/utils/Panic.sol";
 
 contract MathTest is Test {
     // CEILDIV
@@ -201,14 +202,19 @@ contract MathTest is Test {
         vm.assume(xyHi >= d);
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
-        vm.expectRevert();
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "Panic(uint256)",
+                d == 0 ? Panic.DIVISION_BY_ZERO : Panic.ARITHMETIC_UNDER_OR_OVERFLOW
+            )
+        );
         Math.mulDiv(x, y, d);
     }
 
     // MOD EXP
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
-            vm.expectRevert(abi.encodeWithSignature("Panic(uint256)", 0x12));
+            vm.expectRevert(abi.encodeWithSignature("Panic(uint256)", Panic.DIVISION_BY_ZERO));
         }
         uint256 result = Math.modExp(b, e, m);
         assertLt(result, m);
