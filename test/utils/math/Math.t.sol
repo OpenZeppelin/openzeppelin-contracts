@@ -215,6 +215,13 @@ contract MathTest is Test {
         assertEq(result, _nativeModExp(b, e, m));
     }
 
+    function testTryModExp(uint256 b, uint256 e, uint256 m) public {
+        (bool success, uint256 result) = Math.tryModExp(b, e, m);
+        assertTrue(success);
+        assertTrue(m == 0 || result < m);
+        assertEq(result, (m == 0) ? 0 : _nativeModExp(b, e, m));
+    }
+
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
         if (m == 1) return 0;
         uint256 r = 1;

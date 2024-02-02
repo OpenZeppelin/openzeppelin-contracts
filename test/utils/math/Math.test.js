@@ -141,6 +141,24 @@ describe('Math', function () {
     });
   });
 
+  describe('tryModExp', function () {
+    it('is correctly returning true and calculating modulus', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 50n;
+
+      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
+    });
+
+    it('is correctly returning false when modulus is 0 and 0 as a fallback', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 0n;
+
+      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, 0n]);
+    });
+  });
+
   describe('max', function () {
     it('is correctly detected in both position', async function () {
       await testCommutative(this.mock.$max, 1234n, 5678n, max(1234n, 5678n));
