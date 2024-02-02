@@ -331,6 +331,8 @@ library Math {
             mstore(add(ptr, 0x80), e)
             mstore(add(ptr, 0xa0), m)
 
+            // Given the result < m, it's guaranteed to fit in 32 bytes,
+            // so we can use the memory scratch space located at offset 0.
             success := staticcall(gas(), 0x05, ptr, 0xc0, 0x00, 0x20)
             result := mload(0x00)
         }

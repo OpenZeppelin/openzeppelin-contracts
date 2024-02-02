@@ -5,6 +5,18 @@ pragma solidity ^0.8.20;
 /**
  * @dev Helper library for emitting standardized panic codes.
  *
+ * ```solidity
+ * contract Example {
+ *      using Panic for uint256;
+ *
+ *      // Use any of the declared internal constants
+ *      function foo() { Panic.GENERIC.panic(); }
+ *
+ *      // Alternatively
+ *      function foo() { Panic.panic(Panic.GENERIC); }
+ * }
+ * ```
+ *
  * Follows the list from libsolutil: https://github.com/ethereum/solidity/blob/v0.8.24/libsolutil/ErrorCodes.h
  */
 // slither-disable-next-line unused-state
@@ -30,6 +42,8 @@ library Panic {
     /// @dev calling invalid internal function
     uint256 internal constant INVALID_INTERNAL_FUNCTION = 0x51;
 
+    /// @dev Reverts with a panic code. Recommended to use with
+    /// the internal constants with predefined codes.
     function panic(uint256 code) internal pure {
         /// @solidity memory-safe-assembly
         assembly {
