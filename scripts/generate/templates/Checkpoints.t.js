@@ -26,14 +26,14 @@ function _bound${capitalize(opts.keyTypeName)}(
     ${opts.keyTypeName} x,
     ${opts.keyTypeName} min,
     ${opts.keyTypeName} max
-) internal view returns (${opts.keyTypeName}) {
+) internal pure returns (${opts.keyTypeName}) {
     return SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)));
 }
 
 function _prepareKeys(
     ${opts.keyTypeName}[] memory keys,
     ${opts.keyTypeName} maxSpread
-) internal view {
+) internal pure {
     ${opts.keyTypeName} lastKey = 0;
     for (uint256 i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = _bound${capitalize(opts.keyTypeName)}(keys[i], lastKey, lastKey + maxSpread);
