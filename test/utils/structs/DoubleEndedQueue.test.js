@@ -61,7 +61,9 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('out of bounds access', async function () {
-      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
     });
 
     describe('push', function () {
