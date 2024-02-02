@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import {Panic} from "../Panic.sol";
 import {Address} from "../Address.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
@@ -105,7 +105,7 @@ library Math {
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         if (b == 0) {
             // Guarantee the same behavior as in a regular Solidity division.
-            Panic.panic(Panic.DIVISION_BY_ZERO);
+            Panic.panic(Panic.DivisionByZero);
         }
 
         // The following calculation ensures accurate ceiling division without overflow.
@@ -147,7 +147,7 @@ library Math {
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.ARITHMETIC_UNDER_OR_OVERFLOW);
+                Panic.panic(denominator == 0 ? Panic.DivisionByZero : Panic.UnderOverflow);
             }
 
             ///////////////////////////////////////////////
@@ -293,7 +293,7 @@ library Math {
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
             if (m == 0) {
-                Panic.panic(Panic.DIVISION_BY_ZERO);
+                Panic.panic(Panic.DivisionByZero);
             } else {
                 revert Address.FailedInnerCall();
             }
