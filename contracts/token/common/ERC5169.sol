@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.20;
 
-import "../../utils/introspection/ERC165.sol";
-import "./IERC5169.sol";
+import {ERC165} from "../../utils/introspection/ERC165.sol";
+import {IERC5169} from "./IERC5169.sol";
 
 /**
  *  Tokenscript is a framework designed to make contract interaction easy.
