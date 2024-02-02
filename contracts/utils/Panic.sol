@@ -10,25 +10,25 @@ pragma solidity ^0.8.20;
 // slither-disable-next-line unused-state
 library Panic {
     /// @dev generic / unspecified error
-    uint256 internal constant Generic = 0x00;
+    uint256 internal constant GENERIC = 0x00;
     /// @dev used by the assert() builtin
-    uint256 internal constant Assert = 0x01;
+    uint256 internal constant ASSERT = 0x01;
     /// @dev arithmetic underflow or overflow
-    uint256 internal constant UnderOverflow = 0x11;
+    uint256 internal constant UNDER_OVERFLOW = 0x11;
     /// @dev division or modulo by zero
-    uint256 internal constant DivisionByZero = 0x12;
+    uint256 internal constant DIVISION_BY_ZERO = 0x12;
     /// @dev enum conversion error
-    uint256 internal constant EnumConversionError = 0x21;
+    uint256 internal constant ENUM_CONVERSION_ERROR = 0x21;
     /// @dev invalid encoding in storage
-    uint256 internal constant StorageEncodingError = 0x22;
+    uint256 internal constant STORAGE_ENCODING_ERROR = 0x22;
     /// @dev empty array pop
-    uint256 internal constant EmptyArrayPop = 0x31;
+    uint256 internal constant EMPTY_ARRAY_POP = 0x31;
     /// @dev array out of bounds access
-    uint256 internal constant ArrayOutOfBounds = 0x32;
+    uint256 internal constant ARRAY_OUT_OF_BOUNDS = 0x32;
     /// @dev resource error (too large allocation or too large array)
-    uint256 internal constant ResourceError = 0x41;
+    uint256 internal constant RESOURCE_ERROR = 0x41;
     /// @dev calling invalid internal function
-    uint256 internal constant InvalidInternalFunction = 0x51;
+    uint256 internal constant INVALID_INTERNAL_FUNCTION = 0x51;
 
     function panic(uint256 code) internal pure {
         /// @solidity memory-safe-assembly

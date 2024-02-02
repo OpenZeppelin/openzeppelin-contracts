@@ -105,7 +105,7 @@ library Math {
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         if (b == 0) {
             // Guarantee the same behavior as in a regular Solidity division.
-            Panic.panic(Panic.DivisionByZero);
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
 
         // The following calculation ensures accurate ceiling division without overflow.
@@ -147,7 +147,7 @@ library Math {
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(denominator == 0 ? Panic.DivisionByZero : Panic.UnderOverflow);
+                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
             }
 
             ///////////////////////////////////////////////
@@ -293,7 +293,7 @@ library Math {
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
             if (m == 0) {
-                Panic.panic(Panic.DivisionByZero);
+                Panic.panic(Panic.DIVISION_BY_ZERO);
             } else {
                 revert Address.FailedInnerCall();
             }
