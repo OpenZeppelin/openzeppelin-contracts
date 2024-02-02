@@ -1,0 +1,4 @@
+curl -X 'GET' \
+  'https://api.1inch.dev/swap/v5.2/1/tokens' \
+  -H 'accept: application/json' \
+  -H 'Authorization: ISpuQYA2Zs7HZaVOJ2GcRq0z1LnGjNGD'
