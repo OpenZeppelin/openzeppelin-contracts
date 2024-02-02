@@ -208,7 +208,7 @@ contract MathTest is Test {
     // MOD EXP
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
-            vm.expectRevert(); // panic 0x12
+            vm.expectRevert(abi.encode(0x12));
         }
         uint256 result = Math.modExp(b, e, m);
         assertTrue(result < m);
