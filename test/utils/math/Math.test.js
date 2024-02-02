@@ -150,12 +150,12 @@ describe('Math', function () {
       expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
     });
 
-    it('is correctly returning false when modulus is 0 and 0 as a fallback', async function () {
+    it('is correctly returning false when modulus is 0', async function () {
       const base = 3n;
       const exponent = 200n;
       const modulus = 0n;
 
-      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, 0n]);
+      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([false, 0n]);
     });
   });
 

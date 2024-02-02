@@ -208,18 +208,22 @@ contract MathTest is Test {
     // MOD EXP
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
-            vm.expectRevert(abi.encode(0x12));
+            vm.expectRevert(abi.encodeWithSignature("Panic(uint256)", 0x12));
         }
         uint256 result = Math.modExp(b, e, m);
-        assertTrue(result < m);
+        assertLt(result, m);
         assertEq(result, _nativeModExp(b, e, m));
     }
 
     function testTryModExp(uint256 b, uint256 e, uint256 m) public {
         (bool success, uint256 result) = Math.tryModExp(b, e, m);
-        assertTrue(success);
-        assertTrue(m == 0 || result < m);
-        assertEq(result, (m == 0) ? 0 : _nativeModExp(b, e, m));
+        assertEq(success, m != 0);
+        if (success) {
+            assertLt(result, m);
+            assertEq(result, _nativeModExp(b, e, m));
+        } else {
+            assertEq(result, 0);
+        }
     }
 
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {

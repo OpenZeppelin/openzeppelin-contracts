@@ -74,40 +74,6 @@ library Math {
     }
 
     /**
-     * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m).
-     * It includes a success flag indicating if the underlying call succeeded.
-     *
-     * IMPORTANT: The result is only valid if the success flag is true. When using this function, make
-     * sure the chain you're using it on supports the precompiled contract for modular exponentiation
-     * at address 0x05 as specified in https://eips.ethereum.org/EIPS/eip-198[EIP-198]. Otherwise,
-     * the underlying function will succeed given the lack of a revert, but the result may be incorrectly
-     * interpreted as 0.
-     */
-    function tryModExp(uint256 b, uint256 e, uint256 m) internal view returns (bool success, uint256 result) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            let ptr := mload(0x40)
-
-            // | Location  | Content  | Content (Hex)                                                      |
-            mstore(ptr, 0x20) //                                                                  bSize ↓  |
-            // | mptr:0x1F | selector | 0x0000000000000000000000000000000000000000000000000000000000000020 |
-            mstore(add(ptr, 0x20), 0x20) //                                                       eSize ↓  |
-            // | 0x20:0x3F | selector | 0x0000000000000000000000000000000000000000000000000000000000000020 |
-            mstore(add(ptr, 0x40), 0x20) //                                                       mSize ↓  |
-            // | 0x40:0x5F | selector | 0x0000000000000000000000000000000000000000000000000000000000000020 |
-            mstore(add(ptr, 0x60), b) //                                                                   |
-            // | 0x60:0x7F | selector | 0x<.............................................................b> |
-            mstore(add(ptr, 0x80), e) //                                                                   |
-            // | 0x80:0x9F | selector | 0x<.............................................................e> |
-            mstore(add(ptr, 0xa0), m) //                                                                   |
-            // | 0x10:0xbF | selector | 0x<.............................................................m> |
-
-            success := staticcall(gas(), 0x05, ptr, 0xc0, ptr, 0x20)
-            result := mload(ptr)
-        }
-    }
-
-    /**
      * @dev Returns the largest of two numbers.
      */
     function max(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -324,14 +290,50 @@ library Math {
      * interpreted as 0.
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
-        if (m == 0) {
-            Panic.panic(Panic.DIVISION_BY_ZERO);
-        }
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
-            revert Address.FailedInnerCall();
+            if (m == 0) {
+                Panic.panic(Panic.DIVISION_BY_ZERO);
+            } else {
+                revert Address.FailedInnerCall();
+            }
         }
         return result;
+    }
+
+    /**
+     * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m).
+     * It includes a success flag indicating if the operation succeded. Operation will be marked has failed if trying
+     * to operate modulo 0 or if the underlying precompile reverted.
+     *
+     * IMPORTANT: The result is only valid if the success flag is true. When using this function, make sure the chain
+     * you're using it on supports the precompiled contract for modular exponentiation at address 0x05 as specified in
+     * https://eips.ethereum.org/EIPS/eip-198[EIP-198]. Otherwise, the underlying function will succeed given the lack
+     * of a revert, but the result may be incorrectly interpreted as 0.
+     */
+    function tryModExp(uint256 b, uint256 e, uint256 m) internal view returns (bool success, uint256 result) {
+        if (m == 0) return (false, 0);
+        /// @solidity memory-safe-assembly
+        assembly {
+            let ptr := mload(0x40)
+            // | Offset    | Content    | Content (Hex)                                                      |
+            // |-----------|------------|--------------------------------------------------------------------|
+            // | 0x00:0x1f | size of b  | 0x0000000000000000000000000000000000000000000000000000000000000020 |
+            // | 0x20:0x3f | size of e  | 0x0000000000000000000000000000000000000000000000000000000000000020 |
+            // | 0x40:0x5f | size of m  | 0x0000000000000000000000000000000000000000000000000000000000000020 |
+            // | 0x60:0x7f | value of b | 0x<.............................................................b> |
+            // | 0x80:0x9f | value of e | 0x<.............................................................e> |
+            // | 0xa0:0xbf | value of m | 0x<.............................................................m> |
+            mstore(ptr, 0x20)
+            mstore(add(ptr, 0x20), 0x20)
+            mstore(add(ptr, 0x40), 0x20)
+            mstore(add(ptr, 0x60), b)
+            mstore(add(ptr, 0x80), e)
+            mstore(add(ptr, 0xa0), m)
+
+            success := staticcall(gas(), 0x05, ptr, 0xc0, 0x00, 0x20)
+            result := mload(0x00)
+        }
     }
 
     /**
