@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 import {Test, stdError} from "forge-std/Test.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
-import {Panic} from "@openzeppelin/contracts/utils/Panic.sol";
 
 contract MathTest is Test {
     // CEILDIV
