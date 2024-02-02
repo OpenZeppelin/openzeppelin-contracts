@@ -19,9 +19,9 @@ library Arrays {
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
      * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
-     * array. Using it in view function that are executed through `eth_call` is safe, but one should be very careful
-     * when executing this as part of a transaction. Depending on the size of the array, this can be very exepensive
-     * to run, leading to potential DoS attacks.
+     * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may 
+     * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         _quickSort(array, 0, array.length);
