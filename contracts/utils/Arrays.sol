@@ -20,7 +20,7 @@ library Arrays {
      *
      * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
-     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may 
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
