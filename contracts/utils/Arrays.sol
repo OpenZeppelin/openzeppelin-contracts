@@ -28,26 +28,43 @@ library Arrays {
         return array;
     }
 
+    /**
+     * @dev Performs a quick sort on an array in memory. The array is sorted in increasing order.
+     * This private implementation assumes that `i <= j` and that `j < array.length`.
+     */
     function _quickSort(uint256[] memory array, uint256 i, uint256 j) private pure {
         unchecked {
+            // Can't overflow given `i <= j`
             if (j - i < 2) return;
 
-            uint256 p = i;
+            // Use first element as pivot
+            // i = pivot index
+            uint256 index = i;
+
             for (uint256 k = i + 1; k < j; ++k) {
+                // pivot > array[k]
+                // Unsafe access is safe given `j < array.length` and `k < j`.
                 if (unsafeMemoryAccess(array, i) > unsafeMemoryAccess(array, k)) {
-                    _swap(array, ++p, k);
+                    _swap(array, ++index, k);
                 }
             }
-            _swap(array, i, p);
-            _quickSort(array, i, p);
-            _quickSort(array, p + 1, j);
+
+            // Swap pivot into place
+            _swap(array, i, index);
+
+            _quickSort(array, i, index); // Sort the left side of the pivot
+            _quickSort(array, index + 1, j); // Sort the right side of the pivot
         }
     }
 
+    /**
+     * @dev Swaps the elements at positions `i` and `j` in the `arr` array.
+     */
     function _swap(uint256[] memory arr, uint256 i, uint256 j) private pure {
         assembly {
-            let pos_i := add(add(arr, 0x20), mul(i, 0x20))
-            let pos_j := add(add(arr, 0x20), mul(j, 0x20))
+            let start := add(arr, 0x20) // Pointer to the first element of the array
+            let pos_i := add(start, mul(i, 0x20))
+            let pos_j := add(start, mul(j, 0x20))
             let val_i := mload(pos_i)
             let val_j := mload(pos_j)
             mstore(pos_i, val_j)
