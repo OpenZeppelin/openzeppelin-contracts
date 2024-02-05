@@ -391,42 +391,57 @@ library Math {
      * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
-    function log2(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
+    function log2(uint256 value) internal pure returns (uint256 result) {
         unchecked {
-            if (value >> 128 > 0) {
-                value >>= 128;
-                result += 128;
+            uint256 isGt;
+
+            assembly {
+                isGt := gt(value, 0xffffffffffffffffffffffffffffffff)
             }
-            if (value >> 64 > 0) {
-                value >>= 64;
-                result += 64;
+            value >>= isGt * 128;
+            result += isGt * 128;
+
+            assembly {
+                isGt := gt(value, 0xffffffffffffffff)
             }
-            if (value >> 32 > 0) {
-                value >>= 32;
-                result += 32;
+            value >>= isGt * 64;
+            result += isGt * 64;
+
+            assembly {
+                isGt := gt(value, 0xffffffff)
             }
-            if (value >> 16 > 0) {
-                value >>= 16;
-                result += 16;
+            value >>= isGt * 32;
+            result += isGt * 32;
+
+            assembly {
+                isGt := gt(value, 0xffff)
             }
-            if (value >> 8 > 0) {
-                value >>= 8;
-                result += 8;
+            value >>= isGt * 16;
+            result += isGt * 16;
+
+            assembly {
+                isGt := gt(value, 0xff)
             }
-            if (value >> 4 > 0) {
-                value >>= 4;
-                result += 4;
+            value >>= isGt * 8;
+            result += isGt * 8;
+
+            assembly {
+                isGt := gt(value, 0xf)
             }
-            if (value >> 2 > 0) {
-                value >>= 2;
-                result += 2;
+            value >>= isGt * 4;
+            result += isGt * 4;
+
+            assembly {
+                isGt := gt(value, 0x3)
             }
-            if (value >> 1 > 0) {
-                result += 1;
+            value >>= isGt * 2;
+            result += isGt * 2;
+
+            assembly {
+                isGt := gt(value, 0x1)
             }
+            result += isGt;
         }
-        return result;
     }
 
     /**
