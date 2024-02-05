@@ -47,7 +47,7 @@ library Arrays {
             for (uint256 k = i + 1; k < j; ++k) {
                 // Unsafe access is safe given `k < j <= array.length`.
                 if (unsafeMemoryAccess(array, k) < pivot) {
-                    // If array[k] is smaller than the pivot, we move it to the index position and increment it.
+                    // If array[k] is smaller than the pivot, we increment the index and move array[k] there.
                     _swap(array, ++index, k);
                 }
             }
