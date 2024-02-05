@@ -18,8 +18,12 @@ library Arrays {
      * values in the array are strictly less than `element`), the array length is
      * returned. Time complexity O(log n).
      *
-     * `array` is expected to be sorted in ascending order, and to contain no
-     * repeated elements.
+     * NOTE: The `array` is expected to be sorted in ascending order, and to
+     * contain no repeated elements.
+     *
+     * IMPORTANT: Deprecated. This implementation behaves as {lowerBound} but lacks
+     * support for repeated elements in the array. The {lowerBound} function should
+     * be used instead.
      */
     function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
         uint256 low = 0;
@@ -47,6 +51,132 @@ library Arrays {
         } else {
             return low;
         }
+    }
+
+    /**
+     * @dev Searches an `array` sorted in ascending order and returns the first
+     * index that contains a value greater or equal than `element`. If no such index
+     * exists (i.e. all values in the array are strictly less than `element`), the array
+     * length is returned. Time complexity O(log n).
+     *
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/lower_bound[lower_bound].
+     */
+    function lowerBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        if (high == 0) {
+            return 0;
+        }
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+
+            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+            // because Math.average rounds towards zero (it does integer division with truncation).
+            if (unsafeAccess(array, mid).value < element) {
+                // this cannot overflow because mid < high
+                unchecked {
+                    low = mid + 1;
+                }
+            } else {
+                high = mid;
+            }
+        }
+
+        return low;
+    }
+
+    /**
+     * @dev Searches an `array` sorted in ascending order and returns the first
+     * index that contains a value strictly greater than `element`. If no such index
+     * exists (i.e. all values in the array are strictly less than `element`), the array
+     * length is returned. Time complexity O(log n).
+     *
+     * See C++'s https://en.cppreference.com/w/cpp/algorithm/upper_bound[upper_bound].
+     */
+    function upperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        if (high == 0) {
+            return 0;
+        }
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+
+            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+            // because Math.average rounds towards zero (it does integer division with truncation).
+            if (unsafeAccess(array, mid).value > element) {
+                high = mid;
+            } else {
+                // this cannot overflow because mid < high
+                unchecked {
+                    low = mid + 1;
+                }
+            }
+        }
+
+        return low;
+    }
+
+    /**
+     * @dev Same as {lowerBound}, but with an array in memory.
+     */
+    function lowerBoundMemory(uint256[] memory array, uint256 element) internal pure returns (uint256) {
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        if (high == 0) {
+            return 0;
+        }
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+
+            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+            // because Math.average rounds towards zero (it does integer division with truncation).
+            if (unsafeMemoryAccess(array, mid) < element) {
+                // this cannot overflow because mid < high
+                unchecked {
+                    low = mid + 1;
+                }
+            } else {
+                high = mid;
+            }
+        }
+
+        return low;
+    }
+
+    /**
+     * @dev Same as {upperBound}, but with an array in memory.
+     */
+    function upperBoundMemory(uint256[] memory array, uint256 element) internal pure returns (uint256) {
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        if (high == 0) {
+            return 0;
+        }
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+
+            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+            // because Math.average rounds towards zero (it does integer division with truncation).
+            if (unsafeMemoryAccess(array, mid) > element) {
+                high = mid;
+            } else {
+                // this cannot overflow because mid < high
+                unchecked {
+                    low = mid + 1;
+                }
+            }
+        }
+
+        return low;
     }
 
     /**

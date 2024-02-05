@@ -31,6 +31,14 @@ const SIGNATURES = {
     'onERC1155Received(address,address,uint256,uint256,bytes)',
     'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)',
   ],
+  ERC1363: [
+    'transferAndCall(address,uint256)',
+    'transferAndCall(address,uint256,bytes)',
+    'transferFromAndCall(address,address,uint256)',
+    'transferFromAndCall(address,address,uint256,bytes)',
+    'approveAndCall(address,uint256)',
+    'approveAndCall(address,uint256,bytes)',
+  ],
   AccessControl: [
     'hasRole(bytes32,address)',
     'getRoleAdmin(bytes32)',
@@ -85,9 +93,11 @@ const SIGNATURES = {
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
 function shouldSupportInterfaces(interfaces = []) {
+  interfaces.unshift('ERC165');
+
   describe('ERC165', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token || this.holder;
+      this.contractUnderTest = this.mock || this.token;
     });
 
     describe('when the interfaceId is supported', function () {
