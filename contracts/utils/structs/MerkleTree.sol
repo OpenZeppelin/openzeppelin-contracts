@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import {MerkleProof} from "../cryptography/MerkleProof.sol";
 import {Arrays} from "../Arrays.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev A complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a non-zero
@@ -32,11 +33,6 @@ library MerkleTree {
      * This should be enough for any realistic usecase.
      */
     uint256 private constant MAX_DEPTH = 255;
-
-    /**
-     * @dev Leaf cannot be inserted because the tree is full.
-     */
-    error MerkleTreeFull();
 
     /**
      * @dev Merkle tree cannot be initialized because requested depth is to large.
@@ -115,7 +111,7 @@ library MerkleTree {
         uint256 leafIndex = self.nextLeafIndex++;
 
         // Check if tree is full.
-        if (leafIndex == 1 << depth) revert MerkleTreeFull();
+        if (leafIndex == 1 << depth) Panic.panic(Panic.RESOURCE_ERROR);
 
         // Rebuild branch from leaf to root
         uint256 currentIndex = leafIndex;

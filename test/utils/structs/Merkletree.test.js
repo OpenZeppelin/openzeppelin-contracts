@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
 const makeTree = (leafs = [ethers.ZeroHash]) =>
@@ -32,7 +33,7 @@ describe('Merklee tree', function () {
   });
 
   it('setup', async function () {
-    const merkleTree = makeTree(Array(2 ** Number(DEPTH)).fill(ethers.ZeroHash));
+    const merkleTree = makeTree(Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash));
 
     expect(await this.mock.getDepth()).to.equal(DEPTH);
     expect(await this.mock.getLength()).to.equal(LENGTH);
@@ -50,7 +51,7 @@ describe('Merklee tree', function () {
 
   describe('insert', function () {
     it('tree is correctly updated', async function () {
-      const leafs = Array(2 ** Number(DEPTH)).fill(ethers.ZeroHash);
+      const leafs = Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash);
       const roots = [];
 
       // for each leaf slot
@@ -81,10 +82,9 @@ describe('Merklee tree', function () {
     });
 
     it('revert when tree is full', async function () {
-      for (let i = 0; i < 2 ** Number(DEPTH); ++i) {
-        await this.mock.insert(ethers.ZeroHash);
-      }
-      await expect(this.mock.insert(ethers.ZeroHash)).to.be.revertedWithCustomError(this.mock, 'MerkleTreeFull');
+      await Promise.all(Array.from({ length: 2 ** Number(DEPTH) }).map(() => this.mock.insert(ethers.ZeroHash)));
+
+      await expect(this.mock.insert(ethers.ZeroHash)).to.be.revertedWithPanic(PANIC_CODES.TOO_MUCH_MEMORY_ALLOCATED);
     });
   });
 });
