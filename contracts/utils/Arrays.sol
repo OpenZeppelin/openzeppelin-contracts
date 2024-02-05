@@ -30,8 +30,9 @@ library Arrays {
 
     /**
      * @dev Performs a quick sort on an array in memory. The array is sorted in increasing order.
-     * Invariant: `i <= j` and `j <= array.length`. This is the case when initially called by {sort} and is preserved
-     * in subcalls.
+     *
+     * Invariant: `i <= j <= array.length`. This is the case when initially called by {sort} and is preserved in
+     * subcalls.
      */
     function _quickSort(uint256[] memory array, uint256 i, uint256 j) private pure {
         unchecked {
@@ -39,13 +40,14 @@ library Arrays {
             if (j - i < 2) return;
 
             // Use first element as pivot
-            // i = pivot index
+            uint256 pivot = unsafeMemoryAccess(array, i);
+            // Position where the pivot should be at the end of the loop
             uint256 index = i;
 
             for (uint256 k = i + 1; k < j; ++k) {
-                // pivot > array[k]
                 // Unsafe access is safe given `k < j <= array.length`.
-                if (unsafeMemoryAccess(array, i) > unsafeMemoryAccess(array, k)) {
+                if (unsafeMemoryAccess(array, k) < pivot) {
+                    // If array[k] is smaller than the pivot, we move it to the index position and increment it.
                     _swap(array, ++index, k);
                 }
             }
