@@ -30,7 +30,8 @@ library Arrays {
 
     /**
      * @dev Performs a quick sort on an array in memory. The array is sorted in increasing order.
-     * This private implementation assumes that `i <= j` and that `j < array.length`.
+     * Invariant: `i <= j` and `j <= array.length`. This is the case when initially called by {sort} and is preserved
+     * in subcalls.
      */
     function _quickSort(uint256[] memory array, uint256 i, uint256 j) private pure {
         unchecked {
