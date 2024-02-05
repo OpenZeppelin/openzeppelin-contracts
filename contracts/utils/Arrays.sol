@@ -44,7 +44,7 @@ library Arrays {
 
             for (uint256 k = i + 1; k < j; ++k) {
                 // pivot > array[k]
-                // Unsafe access is safe given `j < array.length` and `k < j`.
+                // Unsafe access is safe given `k < j <= array.length`.
                 if (unsafeMemoryAccess(array, i) > unsafeMemoryAccess(array, k)) {
                     _swap(array, ++index, k);
                 }
