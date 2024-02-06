@@ -541,7 +541,7 @@ library Math {
     function boolToUint(bool b) internal pure returns (uint256 u) {
         /// @solidity memory-safe-assembly
         assembly {
-            u := b
+            u := iszero(iszero(b))
         }
     }
 }
