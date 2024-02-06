@@ -391,57 +391,42 @@ library Math {
      * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
-    function log2(uint256 value) internal pure returns (uint256 result) {
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        uint256 isGt;
         unchecked {
-            uint256 isGt;
-
-            assembly {
-                isGt := gt(value, 0xffffffffffffffffffffffffffffffff)
-            }
+            isGt = boolToUint(value > 0xffffffffffffffffffffffffffffffff);
             value >>= isGt * 128;
             result += isGt * 128;
 
-            assembly {
-                isGt := gt(value, 0xffffffffffffffff)
-            }
+            isGt = boolToUint(value > 0xffffffffffffffff);
             value >>= isGt * 64;
             result += isGt * 64;
 
-            assembly {
-                isGt := gt(value, 0xffffffff)
-            }
+            isGt = boolToUint(value > 0xffffffff);
             value >>= isGt * 32;
             result += isGt * 32;
 
-            assembly {
-                isGt := gt(value, 0xffff)
-            }
+            isGt = boolToUint(value > 0xffff);
             value >>= isGt * 16;
             result += isGt * 16;
 
-            assembly {
-                isGt := gt(value, 0xff)
-            }
+            isGt = boolToUint(value > 0xff);
             value >>= isGt * 8;
             result += isGt * 8;
 
-            assembly {
-                isGt := gt(value, 0xf)
-            }
+            isGt = boolToUint(value > 0xf);
             value >>= isGt * 4;
             result += isGt * 4;
 
-            assembly {
-                isGt := gt(value, 0x3)
-            }
+            isGt = boolToUint(value > 0x3);
             value >>= isGt * 2;
             result += isGt * 2;
 
-            assembly {
-                isGt := gt(value, 0x1)
-            }
+            isGt = boolToUint(value > 0x1);
             result += isGt;
         }
+        return result;
     }
 
     /**
@@ -512,26 +497,26 @@ library Math {
      */
     function log256(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
+        uint256 isGt;
         unchecked {
-            if (value >> 128 > 0) {
-                value >>= 128;
-                result += 16;
-            }
-            if (value >> 64 > 0) {
-                value >>= 64;
-                result += 8;
-            }
-            if (value >> 32 > 0) {
-                value >>= 32;
-                result += 4;
-            }
-            if (value >> 16 > 0) {
-                value >>= 16;
-                result += 2;
-            }
-            if (value >> 8 > 0) {
-                result += 1;
-            }
+            isGt = boolToUint(value > 0xffffffffffffffffffffffffffffffff);
+            value >>= isGt * 128;
+            result += isGt * 16;
+
+            isGt = boolToUint(value > 0xffffffffffffffff);
+            value >>= isGt * 64;
+            result += isGt * 8;
+
+            isGt = boolToUint(value > 0xffffffff);
+            value >>= isGt * 32;
+            result += isGt * 4;
+
+            isGt = boolToUint(value > 0xffff);
+            value >>= isGt * 16;
+            result += isGt * 2;
+
+            isGt = boolToUint(value > 0xff);
+            result += isGt;
         }
         return result;
     }
@@ -552,5 +537,15 @@ library Math {
      */
     function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
         return uint8(rounding) % 2 == 1;
+    }
+
+    /**
+     * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+     */
+    function boolToUint(bool b) internal pure returns (uint256 u) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            u := b
+        }
     }
 }
