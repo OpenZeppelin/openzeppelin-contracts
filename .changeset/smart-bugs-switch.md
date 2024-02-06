@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Math`: MathOverflowedMulDiv error was replaced with native panic codes.
+`Math`: Custom errors replaced with native panic codes.
