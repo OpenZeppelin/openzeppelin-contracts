@@ -36,6 +36,14 @@ contract Uint256ArraysMock {
     function unsafeAccess(uint256 pos) external view returns (uint256) {
         return _array.unsafeAccess(pos).value;
     }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
+    }
 }
 
 contract AddressArraysMock {
@@ -50,6 +58,14 @@ contract AddressArraysMock {
     function unsafeAccess(uint256 pos) external view returns (address) {
         return _array.unsafeAccess(pos).value;
     }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
+    }
 }
 
 contract Bytes32ArraysMock {
@@ -63,5 +79,13 @@ contract Bytes32ArraysMock {
 
     function unsafeAccess(uint256 pos) external view returns (bytes32) {
         return _array.unsafeAccess(pos).value;
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
     }
 }

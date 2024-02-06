@@ -154,7 +154,7 @@ describe('Arrays', function () {
     }
   });
 
-  describe('unsafeAccess', function () {
+  describe('unsafe', function () {
     for (const [type, { artifact, elements }] of Object.entries({
       address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
       bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
@@ -178,6 +178,14 @@ describe('Arrays', function () {
 
           it('unsafeAccess outside bounds', async function () {
             await expect(this.instance.unsafeAccess(elements.length)).to.not.be.rejected;
+          });
+
+          it('unsafeSetLength changes the length or the array', async function () {
+            const newLength = generators.uint256();
+
+            expect(await this.instance.length()).to.equal(elements.length);
+            await expect(this.instance.unsafeSetLength(newLength)).to.not.be.rejected;
+            expect(await this.instance.length()).to.equal(newLength);
           });
         });
 
