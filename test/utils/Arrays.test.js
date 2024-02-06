@@ -155,10 +155,22 @@ describe('Arrays', function () {
   });
 
   describe('unsafe', function () {
-    for (const [type, { artifact, elements }] of Object.entries({
-      address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
-      bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
-      uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
+    for (const [type, { artifact, elements, format }] of Object.entries({
+      address: {
+        artifact: 'AddressArraysMock',
+        elements: randomArray(generators.address, 10),
+        format: x => ethers.getAddress(ethers.toBeHex(x, 20)),
+      },
+      bytes32: {
+        artifact: 'Bytes32ArraysMock',
+        elements: randomArray(generators.bytes32, 10),
+        format: x => ethers.toBeHex(x, 32),
+      },
+      uint256: {
+        artifact: 'Uint256ArraysMock',
+        elements: randomArray(generators.uint256, 10),
+        format: x => ethers.toBigInt(x),
+      },
     })) {
       describe(type, function () {
         describe('storage', function () {
@@ -200,6 +212,14 @@ describe('Arrays', function () {
 
           it('unsafeMemoryAccess outside bounds', async function () {
             await expect(this.mock[fragment](elements, elements.length)).to.not.be.rejected;
+          });
+
+          it('unsafeMemoryAccess loop around', async function () {
+            for (let i = 251n; i < 256n; ++i) {
+              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(format(elements.length));
+              expect(await this.mock[fragment](elements, 2n ** i + 0n)).to.equal(elements[0]);
+              expect(await this.mock[fragment](elements, 2n ** i + 1n)).to.equal(elements[1]);
+            }
           });
         });
       });
