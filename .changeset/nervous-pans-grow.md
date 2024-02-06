@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`Math`: Add `boolToUint` for branchless math.
+`SafeCast`: Add `toUint(bool)` for operating on `bool` values as `uint256`.
