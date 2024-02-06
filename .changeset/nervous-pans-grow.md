@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Make Math.log2 branchless
+`Math`: Add `boolToUint` for branchless math.
