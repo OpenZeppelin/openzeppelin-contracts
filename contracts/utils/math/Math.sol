@@ -389,38 +389,37 @@ library Math {
      */
     function log2(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
-        uint256 isGt;
+        uint256 exp;
         unchecked {
-            isGt = boolToUint(value > 0xffffffffffffffffffffffffffffffff);
-            value >>= isGt * 128;
-            result += isGt * 128;
+            exp = 128 * boolToUint(value > (1 << 128) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0xffffffffffffffff);
-            value >>= isGt * 64;
-            result += isGt * 64;
+            exp = 64 * boolToUint(value > (1 << 64) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0xffffffff);
-            value >>= isGt * 32;
-            result += isGt * 32;
+            exp = 32 * boolToUint(value > (1 << 32) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0xffff);
-            value >>= isGt * 16;
-            result += isGt * 16;
+            exp = 16 * boolToUint(value > (1 << 16) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0xff);
-            value >>= isGt * 8;
-            result += isGt * 8;
+            exp = 8 * boolToUint(value > (1 << 8) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0xf);
-            value >>= isGt * 4;
-            result += isGt * 4;
+            exp = 4 * boolToUint(value > (1 << 4) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0x3);
-            value >>= isGt * 2;
-            result += isGt * 2;
+            exp = 2 * boolToUint(value > (1 << 2) - 1);
+            value >>= exp;
+            result += exp;
 
-            isGt = boolToUint(value > 0x1);
-            result += isGt;
+            result += boolToUint(value > 1);
         }
         return result;
     }
@@ -495,24 +494,23 @@ library Math {
         uint256 result = 0;
         uint256 isGt;
         unchecked {
-            isGt = boolToUint(value > 0xffffffffffffffffffffffffffffffff);
+            isGt = boolToUint(value > (1 << 128) - 1);
             value >>= isGt * 128;
             result += isGt * 16;
 
-            isGt = boolToUint(value > 0xffffffffffffffff);
+            isGt = boolToUint(value > (1 << 64) - 1);
             value >>= isGt * 64;
             result += isGt * 8;
 
-            isGt = boolToUint(value > 0xffffffff);
+            isGt = boolToUint(value > (1 << 32) - 1);
             value >>= isGt * 32;
             result += isGt * 4;
 
-            isGt = boolToUint(value > 0xffff);
+            isGt = boolToUint(value > (1 << 16) - 1);
             value >>= isGt * 16;
             result += isGt * 2;
 
-            isGt = boolToUint(value > 0xff);
-            result += isGt;
+            result += boolToUint(value > (1 << 8) - 1);
         }
         return result;
     }
