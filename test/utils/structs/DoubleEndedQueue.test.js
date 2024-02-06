@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 async function fixture() {
   const mock = await ethers.deployContract('$DoubleEndedQueue');
@@ -36,10 +37,10 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('reverts on accesses', async function () {
-      await expect(this.mock.$popBack(0)).to.be.revertedWithCustomError(this.mock, 'QueueEmpty');
-      await expect(this.mock.$popFront(0)).to.be.revertedWithCustomError(this.mock, 'QueueEmpty');
-      await expect(this.mock.$back(0)).to.be.revertedWithCustomError(this.mock, 'QueueEmpty');
-      await expect(this.mock.$front(0)).to.be.revertedWithCustomError(this.mock, 'QueueEmpty');
+      await expect(this.mock.$popBack(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+      await expect(this.mock.$popFront(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+      await expect(this.mock.$back(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      await expect(this.mock.$front(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
     });
   });
 
@@ -60,7 +61,9 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('out of bounds access', async function () {
-      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithCustomError(this.mock, 'QueueOutOfBounds');
+      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
     });
 
     describe('push', function () {

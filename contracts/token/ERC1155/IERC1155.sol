@@ -66,7 +66,7 @@ interface IERC1155 is IERC165 {
      *
      * Requirements:
      *
-     * - `operator` cannot be the caller.
+     * - `operator` cannot be the zero address.
      */
     function setApprovalForAll(address operator, bool approved) external;
 
