@@ -35,7 +35,7 @@ library DoubleEndedQueue {
     /**
      * @dev Inserts an item at the end of the queue.
      *
-     * Reverts with {RESOURCE_ERROR} panic code if the queue is full.
+     * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
@@ -49,7 +49,7 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with {EMPTY_ARRAY_POP} panic code if the queue is empty.
+     * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
@@ -65,7 +65,7 @@ library DoubleEndedQueue {
     /**
      * @dev Inserts an item at the beginning of the queue.
      *
-     * Reverts with {RESOURCE_ERROR} panic code if the queue is full.
+     * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
         unchecked {
@@ -79,7 +79,7 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the beginning of the queue and returns it.
      *
-     * Reverts with `EMPTY_ARRAY_POP` panic code if the queue is empty.
+     * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
     function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
         unchecked {
@@ -94,7 +94,7 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the beginning of the queue.
      *
-     * Reverts with `ARRAY_OUT_OF_BOUNDS` panic code if the queue is empty.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
     function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
         if (empty(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
@@ -104,7 +104,7 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the end of the queue.
      *
-     * Reverts with `ARRAY_OUT_OF_BOUNDS` panic code if the queue is empty.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
     function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
         if (empty(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
@@ -117,7 +117,7 @@ library DoubleEndedQueue {
      * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
      * `length(deque) - 1`.
      *
-     * Reverts with `ARRAY_OUT_OF_BOUNDS` panic code if the index is out of bounds.
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
         if (index >= length(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
