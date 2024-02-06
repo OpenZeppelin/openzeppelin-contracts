@@ -29,6 +29,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: An utility for abstracting the sender and calldata in the current execution context.
+ * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
 
 [NOTE]
 ====
@@ -106,3 +107,5 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Multicall}}
 
 {{Context}}
+
+{{Panic}}
