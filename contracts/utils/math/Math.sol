@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {Address} from "../Address.sol";
 import {Panic} from "../Panic.sol";
+import {SafeCast} from "./SafeCast.sol";
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
@@ -210,7 +211,7 @@ library Math {
      * @dev Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
-        return mulDiv(x, y, denominator) + boolToUint(unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0);
+        return mulDiv(x, y, denominator) + SafeCast.toUint(unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0);
     }
 
     /**
@@ -379,7 +380,7 @@ library Math {
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = sqrt(a);
-            return result + boolToUint(unsignedRoundsUp(rounding) && result * result < a);
+            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && result * result < a);
         }
     }
 
@@ -391,35 +392,35 @@ library Math {
         uint256 result = 0;
         uint256 exp;
         unchecked {
-            exp = 128 * boolToUint(value > (1 << 128) - 1);
+            exp = 128 * SafeCast.toUint(value > (1 << 128) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 64 * boolToUint(value > (1 << 64) - 1);
+            exp = 64 * SafeCast.toUint(value > (1 << 64) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 32 * boolToUint(value > (1 << 32) - 1);
+            exp = 32 * SafeCast.toUint(value > (1 << 32) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 16 * boolToUint(value > (1 << 16) - 1);
+            exp = 16 * SafeCast.toUint(value > (1 << 16) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 8 * boolToUint(value > (1 << 8) - 1);
+            exp = 8 * SafeCast.toUint(value > (1 << 8) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 4 * boolToUint(value > (1 << 4) - 1);
+            exp = 4 * SafeCast.toUint(value > (1 << 4) - 1);
             value >>= exp;
             result += exp;
 
-            exp = 2 * boolToUint(value > (1 << 2) - 1);
+            exp = 2 * SafeCast.toUint(value > (1 << 2) - 1);
             value >>= exp;
             result += exp;
 
-            result += boolToUint(value > 1);
+            result += SafeCast.toUint(value > 1);
         }
         return result;
     }
@@ -431,7 +432,7 @@ library Math {
     function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log2(value);
-            return result + boolToUint(unsignedRoundsUp(rounding) && 1 << result < value);
+            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 1 << result < value);
         }
     }
 
@@ -480,7 +481,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + boolToUint(unsignedRoundsUp(rounding) && 10 ** result < value);
+            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 10 ** result < value);
         }
     }
 
@@ -494,23 +495,23 @@ library Math {
         uint256 result = 0;
         uint256 isGt;
         unchecked {
-            isGt = boolToUint(value > (1 << 128) - 1);
+            isGt = SafeCast.toUint(value > (1 << 128) - 1);
             value >>= isGt * 128;
             result += isGt * 16;
 
-            isGt = boolToUint(value > (1 << 64) - 1);
+            isGt = SafeCast.toUint(value > (1 << 64) - 1);
             value >>= isGt * 64;
             result += isGt * 8;
 
-            isGt = boolToUint(value > (1 << 32) - 1);
+            isGt = SafeCast.toUint(value > (1 << 32) - 1);
             value >>= isGt * 32;
             result += isGt * 4;
 
-            isGt = boolToUint(value > (1 << 16) - 1);
+            isGt = SafeCast.toUint(value > (1 << 16) - 1);
             value >>= isGt * 16;
             result += isGt * 2;
 
-            result += boolToUint(value > (1 << 8) - 1);
+            result += SafeCast.toUint(value > (1 << 8) - 1);
         }
         return result;
     }
@@ -522,7 +523,7 @@ library Math {
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + boolToUint(unsignedRoundsUp(rounding) && 1 << (result << 3) < value);
+            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 1 << (result << 3) < value);
         }
     }
 
@@ -531,15 +532,5 @@ library Math {
      */
     function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
         return uint8(rounding) % 2 == 1;
-    }
-
-    /**
-     * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
-     */
-    function boolToUint(bool b) internal pure returns (uint256 u) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            u := iszero(iszero(b))
-        }
     }
 }

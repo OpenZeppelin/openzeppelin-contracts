@@ -512,14 +512,4 @@ describe('Math', function () {
       });
     });
   });
-
-  describe('boolToUint', function () {
-    it('boolToUint(false) should be 0', async function () {
-      expect(await this.mock.$boolToUint(false)).to.equal(0n);
-    });
-
-    it('boolToUint(true) should be 1', async function () {
-      expect(await this.mock.$boolToUint(true)).to.equal(1n);
-    });
-  });
 });

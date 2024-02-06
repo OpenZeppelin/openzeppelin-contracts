@@ -1150,4 +1150,14 @@ library SafeCast {
         }
         return int256(value);
     }
+
+    /**
+     * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+     */
+    function toUint(bool b) internal pure returns (uint256 u) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            u := iszero(iszero(b))
+        }
+    }
 }
