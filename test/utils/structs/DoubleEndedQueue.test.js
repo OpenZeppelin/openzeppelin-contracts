@@ -8,7 +8,7 @@ async function fixture() {
 
   /** Rebuild the content of the deque as a JS array. */
   const getContent = () =>
-    mock.$length(0).then(length => Promise.all(Array.from({ length }, (_, i) => mock.$at(0, i))));
+    mock.$length(0).then(length => Promise.all(Array.from({ length: Number(length) }, (_, i) => mock.$at(0, i))));
 
   return { mock, getContent };
 }
