@@ -5,9 +5,7 @@ const mapValues = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v
 const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
 const unique = (...array) => array.filter((obj, i) => array.indexOf(obj) === i);
 const zip = (...args) =>
-  Array(Math.max(...args.map(array => array.length)))
-    .fill()
-    .map((_, i) => args.map(array => array[i]));
+  Array.from({ length: Math.max(...args.map(array => array.length)) }, (_, i) => args.map(array => array[i]));
 
 module.exports = {
   mapValues,
