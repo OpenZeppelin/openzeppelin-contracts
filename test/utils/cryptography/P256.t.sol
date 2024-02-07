@@ -8,7 +8,7 @@ import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 256
     function testVerify(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.nn - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (uint256 x, uint256 y) = P256.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -17,7 +17,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 256
     function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.nn - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (uint256 x, uint256 y) = P256.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
