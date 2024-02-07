@@ -29,14 +29,17 @@ describe('P256', function () {
     expect(await this.mock.$getPublicKey(ethers.toBigInt(this.privateKey))).to.deep.equal(this.publicKey);
   });
 
-  Array(10).fill().forEach((_, i, {length}) => {
-    it(`confirm valid signature (run ${i + 1}/${length})`, async function () {
-      expect(await this.mock.$verify(...this.publicKey, ...this.signature, this.messageHash)).to.be.true;
-    });
+  it('verify valid signature', async function () {
+    expect(await this.mock.$verify(...this.publicKey, ...this.signature, this.messageHash)).to.be.true;
+  });
 
-    it(`recover public key (run ${i + 1}/${length})`, async function () {
-      expect(await this.mock.$recovery(...this.signature, this.recovery, this.messageHash)).to.deep.equal(this.publicKey);
-    });
+  it('recover public key', async function () {
+    expect(await this.mock.$recovery(...this.signature, this.recovery, this.messageHash)).to.deep.equal(this.publicKey);
+  });
+
+  it('recover address', async function () {
+    const address = ethers.getAddress(ethers.keccak256(ethers.concat(this.publicKey)).slice(-40));
+    expect(await this.mock.$recoveryAddress(...this.signature, this.recovery, this.messageHash)).to.equal(address);
   });
 
   it('reject signature with flipped public key coordinates ([x,y] >> [y,x])', async function () {
