@@ -39,7 +39,7 @@ const { argv } = require('yargs/yargs')()
     unlimited: {
       alias: 'allowUnlimitedContractSize',
       type: 'boolean',
-      default: false
+      default: false,
     },
     // Extra modules
     coverage: {
