@@ -35,7 +35,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        _quickSort(array, 0, array.length, _compIncr);
+        _quickSort(array, 0, array.length, _defaultComp);
         return array;
     }
 
@@ -150,7 +150,7 @@ library Arrays {
     /**
      * @dev Comparator for sorting arrays in increassing order.
      */
-    function _compIncr(bytes32 a, bytes32 b) private pure returns (bool) {
+    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
         return uint256(a) < uint256(b);
     }
 
