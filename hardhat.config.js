@@ -79,6 +79,7 @@ module.exports = {
       optimizer: {
         enabled: true,
         runs: argv.runs,
+        details: { yul: true },
       },
       viaIR: argv.ir,
       outputSelection: { '*': { '*': ['storageLayout'] } },
