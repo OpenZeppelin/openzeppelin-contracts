@@ -125,8 +125,8 @@ library P256 {
      * @param jx - jacobian coordinate x
      * @param jy - jacobian coordinate y
      * @param jz - jacobian coordinate z
-     * @return ax - affine coordiante x
-     * @return ay - affine coordiante y
+     * @return ax - affine coordinate x
+     * @return ay - affine coordinate y
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
@@ -242,8 +242,8 @@ library P256 {
     }
 
     /**
-     * @dev Precompute a matrice of usefull jacobian points associated to a given P. This can be seen as a 4x4 matrix
-     * that contains combinaison of P and G (generator) up to 3 times each. See table bellow:
+     * @dev Precompute a matrice of useful jacobian points associated to a given P. This can be seen as a 4x4 matrix
+     * that contains combinaison of P and G (generator) up to 3 times each. See table below:
      *
      * ┌────┬─────────────────────┐
      * │  i │  0    1     2     3 │
