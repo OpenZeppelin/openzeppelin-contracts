@@ -20,12 +20,10 @@ import {Panic} from "../Panic.sol";
  * - zero values (for "empty" leaves)
  * - hash function
  *
- * WARNING:
+ * WARNING: By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that
+ * empty leaves being provably part of the tree is not a security issue.
  *
- * By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that empty leaves
- * being provably part of the tree is not a security issue.
- *
- * _Available since v4.x._
+ * _Available since v5.1._
  */
 library MerkleTree {
     /**
@@ -35,7 +33,7 @@ library MerkleTree {
     uint256 private constant MAX_DEPTH = 255;
 
     /**
-     * @dev Merkle tree cannot be initialized because requested depth is to large.
+     * @dev Merkle tree cannot be set-up because requested depth is to large.
      */
     error MerkleTreeInvalidDepth(uint256 depth, uint256 maxDepth);
 
@@ -60,8 +58,8 @@ library MerkleTree {
     /**
      * @dev Initialize using the default hash
      */
-    function initialize(TreeWithHistory storage self, uint256 depth, uint256 length, bytes32 zero) internal {
-        return initialize(self, depth, length, zero, MerkleProof.hashPair);
+    function setUp(TreeWithHistory storage self, uint256 depth, uint256 length, bytes32 zero) internal {
+        return setUp(self, depth, length, zero, MerkleProof.hashPair);
     }
 
     /**
@@ -71,7 +69,7 @@ library MerkleTree {
      * - Hashing function for a pair of leaves is fnHash
      * and keep a root history of length `length` when leaves are inserted.
      */
-    function initialize(
+    function setUp(
         TreeWithHistory storage self,
         uint256 depth,
         uint256 length,
