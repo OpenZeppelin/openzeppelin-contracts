@@ -3,6 +3,7 @@
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
+// - UNLIMITED:     allow deployment of contracts larger than 24k (default: false)
 // - COVERAGE:      enable coverage report (default: false)
 // - GAS:           enable gas report (default: false)
 // - COINMARKETCAP: coinmarketcap api key for USD value in gas report
@@ -34,6 +35,11 @@ const { argv } = require('yargs/yargs')()
       alias: 'enableIR',
       type: 'boolean',
       default: false,
+    },
+    unlimited: {
+      alias: 'allowUnlimitedContractSize',
+      type: 'boolean',
+      default: false
     },
     // Extra modules
     coverage: {
@@ -91,7 +97,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: argv.gas || argv.coverage,
+      allowUnlimitedContractSize: argv.gas || argv.coverage || argv.unlimited,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
