@@ -16,9 +16,7 @@ const upperBound = (array, value) => {
   return i == -1 ? array.length : i;
 };
 
-// By default, js "sort" cast to string and then sort in alphabetical order. Use this to sort numbers.
-const compareNumbers = (a, b) => (a > b ? 1 : a < b ? -1 : 0);
-
+const bigintSign = x => x > 0n ? 1 : x < 0n ? -1 : 0;
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
 describe('Arrays', function () {
@@ -31,39 +29,52 @@ describe('Arrays', function () {
   });
 
   describe('sort', function () {
-    for (const length of [0, 1, 2, 8, 32, 128]) {
-      it(`sort array of length ${length}`, async function () {
-        this.elements = randomArray(generators.uint256, length);
-        this.expected = Array.from(this.elements).sort(compareNumbers);
-      });
+    for (const [ type, comparator ] of Object.entries({
+      address: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
+      bytes32: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
+      uint256: (a, b) => bigintSign(a - b),
+    }))
+    {
+      for (const length of [0, 1, 2, 8, 32, 128]) {
+        describe(`${type}[] of length ${length}`, function () {
+          beforeEach(async function () {
+            this.elements = randomArray(generators[type], length);
+          });
 
-      if (length > 1) {
-        it(`sort array of length ${length} (identical elements)`, async function () {
-          this.elements = Array(length).fill(generators.uint256());
-          this.expected = this.elements;
-        });
+          it('sort array', async function () {
+            // nothing to do here, beforeEach and afterEach already take care of everything.
+          });
 
-        it(`sort array of length ${length} (already sorted)`, async function () {
-          this.elements = randomArray(generators.uint256, length).sort(compareNumbers);
-          this.expected = this.elements;
-        });
+          if (length > 1) {
+            it('sort array for identical elements', async function () {
+              // duplicate the first value to all elements
+              this.elements.fill(this.elements.at(0));
+            });
 
-        it(`sort array of length ${length} (sorted in reverse order)`, async function () {
-          this.elements = randomArray(generators.uint256, length).sort(compareNumbers).reverse();
-          this.expected = Array.from(this.elements).reverse();
-        });
+            it('sort already sorted array', async function () {
+              // pre-sort the elements
+              this.elements.sort(comparator);
+            });
 
-        it(`sort array of length ${length} (almost sorted)`, async function () {
-          this.elements = randomArray(generators.uint256, length).sort(compareNumbers);
-          this.expected = Array.from(this.elements);
-          // rotate (move the last element to the front) for an almost sorted effect
-          this.elements.unshift(this.elements.pop());
+            it('sort reversed array', async function () {
+              // pre-sort in reverse order
+              this.elements.sort(comparator).reverse();
+            });
+
+            it('sort almost sorted array', async function () {
+              // pre-sort + rotate (move the last element to the front) for an almost sorted effect
+              this.elements.sort(comparator);
+              this.elements.unshift(this.elements.pop());
+            });
+          }
+
+          afterEach(async function () {
+            const expected = Array.from(this.elements).sort(comparator);
+            expect(await this.mock.getFunction(`$sort(${type}[])`)(this.elements)).to.deep.equal(expected);
+          });
         });
       }
     }
-    afterEach(async function () {
-      expect(await this.mock.$sort(this.elements)).to.deep.equal(this.expected);
-    });
   });
 
   describe('search', function () {

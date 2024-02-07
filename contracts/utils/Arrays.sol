@@ -13,7 +13,7 @@ library Arrays {
     using StorageSlot for bytes32;
 
     /**
-     * @dev Sort an array (in memory) in increasing order.
+     * @dev Sort an array of integers (in memory) in increasing order.
      *
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
@@ -25,6 +25,26 @@ library Arrays {
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         _quickSort(array, 0, array.length);
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort(uint256[] memory)} that operates on an array of addresses (in memory).
+     */
+    function sort(address[] memory array) internal pure returns (address[] memory) {
+        uint256[] memory casted;
+        assembly { casted := array }
+        sort(casted);
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort(uint256[] memory)} that operates on an array of bytes32 (in memory).
+     */
+    function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+        uint256[] memory casted;
+        assembly { casted := array }
+        sort(casted);
         return array;
     }
 
