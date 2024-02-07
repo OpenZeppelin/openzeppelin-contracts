@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import { Math } from "../math/Math.sol";
+import {Math} from "../math/Math.sol";
 
 /**
  * @dev Implementation of secp256r1 verification and recovery functions.
@@ -141,7 +141,14 @@ library P256 {
      * @dev Point addition on the jacobian coordinates
      * https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Jacobian_Coordinates
      */
-    function _jAdd(uint256 x1, uint256 y1, uint256 z1, uint256 x2, uint256 y2, uint256 z2) private pure returns (uint256 x3, uint256 y3, uint256 z3) {
+    function _jAdd(
+        uint256 x1,
+        uint256 y1,
+        uint256 z1,
+        uint256 x2,
+        uint256 y2,
+        uint256 z2
+    ) private pure returns (uint256 x3, uint256 y3, uint256 z3) {
         if (z1 == 0) {
             return (x2, y2, z2);
         }
@@ -165,7 +172,7 @@ library P256 {
             // x' = r²-h³-2*u1*h²
             x3 := addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, mulmod(u1, hh, p), p)), p)
             // y' = r*(u1*h²-x')-s1*h³
-            y3 := addmod(mulmod(r,addmod(mulmod(u1, hh, p), sub(p, x3), p), p), sub(p, mulmod(s1, hhh, p)), p)
+            y3 := addmod(mulmod(r, addmod(mulmod(u1, hh, p), sub(p, x3), p), p), sub(p, mulmod(s1, hhh, p)), p)
             // z' = h*z1*z2
             z3 := mulmod(h, mulmod(z1, z2, p), p)
         }
@@ -196,7 +203,12 @@ library P256 {
     /**
      * @dev Point multiplication on the jacobian coordinates
      */
-    function _jMult(uint256 x, uint256 y, uint256 z, uint256 k) private pure returns (uint256 x2, uint256 y2, uint256 z2) {
+    function _jMult(
+        uint256 x,
+        uint256 y,
+        uint256 z,
+        uint256 k
+    ) private pure returns (uint256 x2, uint256 y2, uint256 z2) {
         unchecked {
             for (uint256 i = 0; i < 256; ++i) {
                 if (z > 0) {
@@ -230,7 +242,7 @@ library P256 {
                     (x, y, z) = _jDouble(x, y, z);
                 }
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
-                uint256 pos = (u1 >> 252 & 0xc) | (u2 >> 254 & 0x3);
+                uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
                 if (pos > 0) {
                     (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
                 }
