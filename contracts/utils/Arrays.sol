@@ -13,7 +13,7 @@ library Arrays {
     using StorageSlot for bytes32;
 
     /**
-     * @dev Sort an array of integers (in memory) in increasing order.
+     * @dev Sort an array of integers (in memory) following the provided comparator function.
      *
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
@@ -23,71 +23,119 @@ library Arrays {
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
      */
-    function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
-        _quickSort(array, 0, array.length);
+    function sort(
+        bytes32[] memory array,
+        function(bytes32, bytes32) pure returns (bool) comp
+    ) internal pure returns (bytes32[] memory) {
+        _quickSort(array, 0, array.length, comp);
         return array;
     }
 
     /**
-     * @dev Variant of {sort(uint256[] memory)} that operates on an array of addresses (in memory).
-     */
-    function sort(address[] memory array) internal pure returns (address[] memory) {
-        uint256[] memory casted;
-        assembly {
-            casted := array
-        }
-        sort(casted);
-        return array;
-    }
-
-    /**
-     * @dev Variant of {sort(uint256[] memory)} that operates on an array of bytes32 (in memory).
+     * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        uint256[] memory casted;
-        assembly {
-            casted := array
-        }
-        sort(casted);
+        _quickSort(array, 0, array.length, _compIncr);
         return array;
     }
 
     /**
-     * @dev Performs a quick sort on an array in memory. The array is sorted in increasing order.
+     * @dev Variant of {sort} that sorts an array of address following a provided comparator function.
+     */
+    function sort(
+        address[] memory array,
+        function(address, address) pure returns (bool) comp
+    ) internal pure returns (address[] memory) {
+        function(bytes32, bytes32) pure returns (bool) castedComp;
+        bytes32[] memory castedArray;
+        assembly {
+            castedComp := comp
+            castedArray := array
+        }
+        sort(castedArray, castedComp);
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort} that sorts an array of address in increassing order.
+     */
+    function sort(address[] memory array) internal pure returns (address[] memory) {
+        bytes32[] memory castedArray;
+        assembly {
+            castedArray := array
+        }
+        sort(castedArray);
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort} that sorts an array of uint256 following a provided comparator function.
+     */
+    function sort(
+        uint256[] memory array,
+        function(uint256, uint256) pure returns (bool) comp
+    ) internal pure returns (uint256[] memory) {
+        function(bytes32, bytes32) pure returns (bool) castedComp;
+        bytes32[] memory castedArray;
+        assembly {
+            castedComp := comp
+            castedArray := array
+        }
+        sort(castedArray, castedComp);
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
+     */
+    function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
+        bytes32[] memory castedArray;
+        assembly {
+            castedArray := array
+        }
+        sort(castedArray);
+        return array;
+    }
+
+    /**
+     * @dev Performs a quick sort on an array in memory. The array is sorted following the `comp` comparator.
      *
      * Invariant: `i <= j <= array.length`. This is the case when initially called by {sort} and is preserved in
      * subcalls.
      */
-    function _quickSort(uint256[] memory array, uint256 i, uint256 j) private pure {
+    function _quickSort(
+        bytes32[] memory array,
+        uint256 i,
+        uint256 j,
+        function(bytes32, bytes32) pure returns (bool) comp
+    ) private pure {
         unchecked {
             // Can't overflow given `i <= j`
             if (j - i < 2) return;
 
             // Use first element as pivot
-            uint256 pivot = unsafeMemoryAccess(array, i);
+            bytes32 pivot = unsafeMemoryAccess(array, i);
             // Position where the pivot should be at the end of the loop
             uint256 index = i;
 
             for (uint256 k = i + 1; k < j; ++k) {
                 // Unsafe access is safe given `k < j <= array.length`.
-                if (unsafeMemoryAccess(array, k) < pivot) {
+                if (comp(unsafeMemoryAccess(array, k), pivot)) {
                     // If array[k] is smaller than the pivot, we increment the index and move array[k] there.
                     _swap(array, ++index, k);
                 }
             }
 
-            // Swap pivot into place
-            _swap(array, i, index);
-
-            _quickSort(array, i, index); // Sort the left side of the pivot
-            _quickSort(array, index + 1, j); // Sort the right side of the pivot
+            _swap(array, i, index); // Swap pivot into place
+            _quickSort(array, i, index, comp); // Sort the left side of the pivot
+            _quickSort(array, index + 1, j, comp); // Sort the right side of the pivot
         }
     }
 
     /**
      * @dev Swaps the elements at positions `i` and `j` in the `arr` array.
      */
-    function _swap(uint256[] memory arr, uint256 i, uint256 j) private pure {
+    function _swap(bytes32[] memory arr, uint256 i, uint256 j) private pure {
         assembly {
             let start := add(arr, 0x20) // Pointer to the first element of the array
             let pos_i := add(start, mul(i, 0x20))
@@ -97,6 +145,13 @@ library Arrays {
             mstore(pos_i, val_j)
             mstore(pos_j, val_i)
         }
+    }
+
+    /**
+     * @dev Comparator for sorting arrays in increassing order.
+     */
+    function _compIncr(bytes32 a, bytes32 b) private pure returns (bool) {
+        return uint256(a) < uint256(b);
     }
 
     /**
