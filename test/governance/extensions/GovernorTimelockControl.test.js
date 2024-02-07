@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
 const { OperationState, ProposalState, VoteType } = require('../../helpers/enums');
@@ -377,9 +378,8 @@ describe('GovernorTimelockControl', function () {
             await time.increaseBy.timestamp(delay);
 
             // Error bubbled up from Governor
-            await expect(this.timelock.connect(this.owner).execute(...call)).to.be.revertedWithCustomError(
-              this.mock,
-              'QueueEmpty',
+            await expect(this.timelock.connect(this.owner).execute(...call)).to.be.revertedWithPanic(
+              PANIC_CODES.POP_ON_EMPTY_ARRAY,
             );
           });
         });
