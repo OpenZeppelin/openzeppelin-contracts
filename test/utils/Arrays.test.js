@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { randomArray, generators } = require('../helpers/random');
+const { generators } = require('../helpers/random');
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
@@ -37,7 +37,7 @@ describe('Arrays', function () {
       for (const length of [0, 1, 2, 8, 32, 128]) {
         describe(`${type}[] of length ${length}`, function () {
           beforeEach(async function () {
-            this.elements = randomArray(generators[type], length);
+            this.elements = Array.from({ length }, generators[type]);
           });
 
           it('sort array', async function () {
@@ -166,9 +166,9 @@ describe('Arrays', function () {
 
   describe('unsafeAccess', function () {
     for (const [type, { artifact, elements }] of Object.entries({
-      address: { artifact: 'AddressArraysMock', elements: randomArray(generators.address, 10) },
-      bytes32: { artifact: 'Bytes32ArraysMock', elements: randomArray(generators.bytes32, 10) },
-      uint256: { artifact: 'Uint256ArraysMock', elements: randomArray(generators.uint256, 10) },
+      address: { artifact: 'AddressArraysMock', elements: Array.from({ length: 10 }, generators.address) },
+      bytes32: { artifact: 'Bytes32ArraysMock', elements: Array.from({ length: 10 }, generators.bytes32) },
+      uint256: { artifact: 'Uint256ArraysMock', elements: Array.from({ length: 10 }, generators.uint256) },
     })) {
       describe(type, function () {
         describe('storage', function () {

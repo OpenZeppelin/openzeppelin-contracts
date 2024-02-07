@@ -5,7 +5,7 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
-const { randomArray, generators } = require('../../helpers/random');
+const { generators } = require('../../helpers/random');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -337,7 +337,7 @@ describe('Math', function () {
         });
 
         if (p != 0) {
-          for (const value of randomArray(generators.uint256, 16)) {
+          for (const value of Array.from({ length: 16 }, generators.uint256)) {
             const isInversible = factors.every(f => value % f);
             it(`trying to inverse ${value}`, async function () {
               const result = await this.mock.$invMod(value, p);
