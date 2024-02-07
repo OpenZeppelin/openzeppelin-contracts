@@ -35,7 +35,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        _quickSort(array, 0, array.length, _defaultComp);
+        sort(array, _defaultComp);
         return array;
     }
 
