@@ -16,7 +16,7 @@ const upperBound = (array, value) => {
   return i == -1 ? array.length : i;
 };
 
-const bigintSign = x => x > 0n ? 1 : x < 0n ? -1 : 0;
+const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
 describe('Arrays', function () {
@@ -29,12 +29,11 @@ describe('Arrays', function () {
   });
 
   describe('sort', function () {
-    for (const [ type, comparator ] of Object.entries({
+    for (const [type, comparator] of Object.entries({
       address: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
       bytes32: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
       uint256: (a, b) => bigintSign(a - b),
-    }))
-    {
+    })) {
       for (const length of [0, 1, 2, 8, 32, 128]) {
         describe(`${type}[] of length ${length}`, function () {
           beforeEach(async function () {

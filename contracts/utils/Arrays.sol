@@ -33,7 +33,9 @@ library Arrays {
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
         uint256[] memory casted;
-        assembly { casted := array }
+        assembly {
+            casted := array
+        }
         sort(casted);
         return array;
     }
@@ -43,7 +45,9 @@ library Arrays {
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
         uint256[] memory casted;
-        assembly { casted := array }
+        assembly {
+            casted := array
+        }
         sort(casted);
         return array;
     }
