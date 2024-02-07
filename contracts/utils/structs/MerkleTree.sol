@@ -109,7 +109,7 @@ library MerkleTree {
         uint256 leafIndex = self.nextLeafIndex++;
 
         // Check if tree is full.
-        if (leafIndex == 1 << depth) Panic.panic(Panic.RESOURCE_ERROR);
+        if (leafIndex >= 1 << depth) Panic.panic(Panic.RESOURCE_ERROR);
 
         // Rebuild branch from leaf to root
         uint256 currentIndex = leafIndex;
