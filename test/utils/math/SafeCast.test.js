@@ -146,4 +146,14 @@ describe('SafeCast', function () {
         .withArgs(ethers.MaxUint256);
     });
   });
+
+  describe('toUint (bool)', function () {
+    it('toUint(false) should be 0', async function () {
+      expect(await this.mock.$toUint(false)).to.equal(0n);
+    });
+
+    it('toUint(true) should be 1', async function () {
+      expect(await this.mock.$toUint(true)).to.equal(1n);
+    });
+  });
 });
