@@ -28,54 +28,6 @@ describe('Arrays', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('sort', function () {
-    for (const [type, comparator] of Object.entries({
-      address: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
-      bytes32: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
-      uint256: (a, b) => bigintSign(a - b),
-    })) {
-      for (const length of [0, 1, 2, 8, 32, 128]) {
-        describe(`${type}[] of length ${length}`, function () {
-          beforeEach(async function () {
-            this.elements = Array.from({ length }, generators[type]);
-          });
-
-          it('sort array', async function () {
-            // nothing to do here, beforeEach and afterEach already take care of everything.
-          });
-
-          if (length > 1) {
-            it('sort array for identical elements', async function () {
-              // duplicate the first value to all elements
-              this.elements.fill(this.elements.at(0));
-            });
-
-            it('sort already sorted array', async function () {
-              // pre-sort the elements
-              this.elements.sort(comparator);
-            });
-
-            it('sort reversed array', async function () {
-              // pre-sort in reverse order
-              this.elements.sort(comparator).reverse();
-            });
-
-            it('sort almost sorted array', async function () {
-              // pre-sort + rotate (move the last element to the front) for an almost sorted effect
-              this.elements.sort(comparator);
-              this.elements.unshift(this.elements.pop());
-            });
-          }
-
-          afterEach(async function () {
-            const expected = Array.from(this.elements).sort(comparator);
-            expect(await this.mock.getFunction(`$sort(${type}[])`)(this.elements)).to.deep.equal(expected);
-          });
-        });
-      }
-    }
-  });
-
   describe('search', function () {
     for (const [title, { array, tests }] of Object.entries({
       'Even number of elements': {
@@ -164,22 +116,79 @@ describe('Arrays', function () {
     }
   });
 
-  describe('unsafeAccess', function () {
-    for (const [type, { artifact, elements }] of Object.entries({
-      address: { artifact: 'AddressArraysMock', elements: Array.from({ length: 10 }, generators.address) },
-      bytes32: { artifact: 'Bytes32ArraysMock', elements: Array.from({ length: 10 }, generators.bytes32) },
-      uint256: { artifact: 'Uint256ArraysMock', elements: Array.from({ length: 10 }, generators.uint256) },
-    })) {
-      describe(type, function () {
-        describe('storage', function () {
-          const fixture = async () => {
-            return { instance: await ethers.deployContract(artifact, [elements]) };
-          };
+  for (const [type, { artifact, elements, comp }] of Object.entries({
+    address: {
+      artifact: 'AddressArraysMock',
+      elements: Array.from({ length: 10 }, generators.address),
+      comp: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
+    },
+    bytes32: {
+      artifact: 'Bytes32ArraysMock',
+      elements: Array.from({ length: 10 }, generators.bytes32),
+      comp: (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b)),
+    },
+    uint256: {
+      artifact: 'Uint256ArraysMock',
+      elements: Array.from({ length: 10 }, generators.uint256),
+      comp: (a, b) => bigintSign(a - b),
+    },
+  })) {
+    describe(type, function () {
+      const fixture = async () => {
+        return { instance: await ethers.deployContract(artifact, [elements]) };
+      };
 
-          beforeEach(async function () {
-            Object.assign(this, await loadFixture(fixture));
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
+      });
+
+      describe('sort', function () {
+        for (const length of [0, 1, 2, 8, 32, 128]) {
+          describe(`${type}[] of length ${length}`, function () {
+            beforeEach(async function () {
+              this.elements = Array.from({ length }, generators[type]);
+            });
+
+            it('sort array', async function () {
+              // nothing to do here, beforeEach and afterEach already take care of everything.
+            });
+
+            if (length > 1) {
+              it('sort array for identical elements', async function () {
+                // duplicate the first value to all elements
+                this.elements.fill(this.elements.at(0));
+              });
+
+              it('sort already sorted array', async function () {
+                // pre-sort the elements
+                this.elements.sort(comp);
+              });
+
+              it('sort reversed array', async function () {
+                // pre-sort in reverse order
+                this.elements.sort(comp).reverse();
+              });
+
+              it('sort almost sorted array', async function () {
+                // pre-sort + rotate (move the last element to the front) for an almost sorted effect
+                // Note: when using the first element as the pivot, this is the worst cast (complexity: O(n²))
+                this.elements.sort(comp);
+                this.elements.unshift(this.elements.pop());
+              });
+            }
+
+            afterEach(async function () {
+              const expected = Array.from(this.elements).sort(comp);
+              const reversed = Array.from(expected).reverse();
+              expect(await this.instance.sort(this.elements)).to.deep.equal(expected);
+              expect(await this.instance.sortReverse(this.elements)).to.deep.equal(reversed);
+            });
           });
+        }
+      });
 
+      describe('unsafeAccess', function () {
+        describe('storage', function () {
           for (const i in elements) {
             it(`unsafeAccess within bounds #${i}`, async function () {
               expect(await this.instance.unsafeAccess(i)).to.equal(elements[i]);
@@ -205,6 +214,6 @@ describe('Arrays', function () {
           });
         });
       });
-    }
-  });
+    });
+  }
 });

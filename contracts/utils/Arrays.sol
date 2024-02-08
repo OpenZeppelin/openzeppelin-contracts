@@ -35,7 +35,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        sort(array, _defaultComp);
+        _quickSort(array, 0, array.length, _defaultComp);
         return array;
     }
 
@@ -46,13 +46,7 @@ library Arrays {
         address[] memory array,
         function(address, address) pure returns (bool) comp
     ) internal pure returns (address[] memory) {
-        function(bytes32, bytes32) pure returns (bool) castedComp;
-        bytes32[] memory castedArray;
-        assembly {
-            castedComp := comp
-            castedArray := array
-        }
-        sort(castedArray, castedComp);
+        _quickSort(_castToBytes32Array(array), 0, array.length, _castToBytes32Comp(comp));
         return array;
     }
 
@@ -60,11 +54,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of address in increassing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
-        bytes32[] memory castedArray;
-        assembly {
-            castedArray := array
-        }
-        sort(castedArray);
+        _quickSort(_castToBytes32Array(array), 0, array.length, _defaultComp);
         return array;
     }
 
@@ -75,13 +65,7 @@ library Arrays {
         uint256[] memory array,
         function(uint256, uint256) pure returns (bool) comp
     ) internal pure returns (uint256[] memory) {
-        function(bytes32, bytes32) pure returns (bool) castedComp;
-        bytes32[] memory castedArray;
-        assembly {
-            castedComp := comp
-            castedArray := array
-        }
-        sort(castedArray, castedComp);
+        _quickSort(_castToBytes32Array(array), 0, array.length, _castToBytes32Comp(comp));
         return array;
     }
 
@@ -89,11 +73,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
-        bytes32[] memory castedArray;
-        assembly {
-            castedArray := array
-        }
-        sort(castedArray);
+        _quickSort(_castToBytes32Array(array), 0, array.length, _defaultComp);
         return array;
     }
 
@@ -147,11 +127,41 @@ library Arrays {
         }
     }
 
-    /**
-     * @dev Comparator for sorting arrays in increassing order.
-     */
+    /// @dev Comparator for sorting arrays in increassing order.
     function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
         return uint256(a) < uint256(b);
+    }
+
+    /// @dev Helper: low level cast address memory array to bytes32 memory array
+    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast address memory array to bytes32 memory array
+    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast address comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(address, address) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast address comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(uint256, uint256) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
     }
 
     /**
