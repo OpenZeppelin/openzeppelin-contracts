@@ -5,7 +5,6 @@ const { _: artifacts } = require('yargs').argv;
 
 // Constants from EIP-3860
 const MAX_CODE_SIZE = 24576;
-const MAX_INITCODE_SIZE = 2 * MAX_CODE_SIZE;
 
 // Get all compiled contracts from compilation artifacts
 const contracts = Object.fromEntries(
