@@ -2,12 +2,15 @@
 
 pragma solidity ^0.8.20;
 
+import {SafeCast} from "../utils/math/SafeCast.sol";
 import {VestingWallet} from "./VestingWallet.sol";
 
 /**
  * @dev Extension of {VestingWallet} that adds a cliff to the vesting schedule.
  */
-contract VestingWalletWithCliff is VestingWallet {
+abstract contract VestingWalletWithCliff is VestingWallet {
+    using SafeCast for *;
+
     uint64 private immutable _cliff;
 
     error InvalidCliffDuration(uint64 cliffSeconds, uint64 durationSeconds);
@@ -16,16 +19,11 @@ contract VestingWalletWithCliff is VestingWallet {
      * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp, the
      * vesting duration and the duration of the cliff of the vesting wallet.
      */
-    constructor(
-        address beneficiary,
-        uint64 startTimestamp,
-        uint64 durationSeconds,
-        uint64 cliffSeconds
-    ) VestingWallet(beneficiary, startTimestamp, durationSeconds) {
-        if (cliffSeconds > durationSeconds) {
-            revert InvalidCliffDuration(cliffSeconds, durationSeconds);
+    constructor(uint64 cliffSeconds) {
+        if (cliffSeconds > duration()) {
+            revert InvalidCliffDuration(cliffSeconds, duration().toUint64());
         }
-        _cliff = startTimestamp + cliffSeconds;
+        _cliff = start().toUint64() + cliffSeconds;
     }
 
     /**
