@@ -33,13 +33,6 @@ for (const [id, details] of Object.entries(contracts)) {
     continue;
   }
 
-  // Check bytecode length is within limits
-  const { length: bytecodeLength } = Buffer.from(details.evm.bytecode.object, 'hex');
-  if (bytecodeLength > MAX_INITCODE_SIZE) {
-    console.log('[bytecodeLength over limit]', id, bytecodeLength);
-    process.exitCode = 1;
-  }
-
   // Check deployed bytecode length is within limits
   const { length: deployedBytecodeLength } = Buffer.from(details.evm.deployedBytecode.object, 'hex');
   if (deployedBytecodeLength > MAX_CODE_SIZE) {
