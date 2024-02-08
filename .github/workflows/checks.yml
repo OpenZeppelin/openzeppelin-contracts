@@ -68,6 +68,8 @@ jobs:
         run: bash scripts/upgradeable/transpile.sh
       - name: Run tests
         run: npm run test
+        env:
+          UNLIMITED: true
       - name: Check EIP-3860 limits
         run: npm run test:artifacts-size
       - name: Check linearisation of the inheritance graph
