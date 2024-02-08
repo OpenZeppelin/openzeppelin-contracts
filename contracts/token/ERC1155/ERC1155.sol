@@ -108,7 +108,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      */
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
         address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
+        if (from != sender || !isApprovedForAll(from, sender)) {
             revert ERC1155MissingApprovalForAll(sender, from);
         }
         _safeTransferFrom(from, to, id, value, data);
