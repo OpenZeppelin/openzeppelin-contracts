@@ -30,14 +30,24 @@ library MerkleProof {
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
     function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProof(proof, leaf) == root;
+        return verify(proof, root, leaf, _hashPair);
+    }
+
+    /// @dev Version of {verify} with support for custom internal hashing function
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf, function (bytes32, bytes32) pure returns (bytes32) hasher) internal pure returns (bool) {
+        return processProof(proof, leaf, hasher) == root;
     }
 
     /**
      * @dev Calldata version of {verify}
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProofCalldata(proof, leaf) == root;
+        return verifyCalldata(proof, root, leaf, _hashPair);
+    }
+
+    /// @dev Calldata version of {verify} with support for custom internal hashing function
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf, function (bytes32, bytes32) pure returns (bytes32) hasher) internal pure returns (bool) {
+        return processProofCalldata(proof, leaf, hasher) == root;
     }
 
     /**
@@ -47,9 +57,14 @@ library MerkleProof {
      * of leafs & pre-images are assumed to be sorted.
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+        return processProof(proof, leaf, _hashPair);
+    }
+
+    /// @dev Version of {processProof} with support for custom internal hashing function
+    function processProof(bytes32[] memory proof, bytes32 leaf, function (bytes32, bytes32) pure returns (bytes32) hasher) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = hasher(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -58,9 +73,14 @@ library MerkleProof {
      * @dev Calldata version of {processProof}
      */
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
+        return processProofCalldata(proof, leaf, _hashPair);
+    }
+
+    /// @dev Calldata version of {processProof} with support for custom internal hashing function
+    function processProofCalldata(bytes32[] calldata proof, bytes32 leaf, function (bytes32, bytes32) pure returns (bytes32) hasher) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = hasher(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -77,7 +97,18 @@ library MerkleProof {
         bytes32 root,
         bytes32[] memory leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves) == root;
+        return multiProofVerify(proof, proofFlags, root, leaves, _hashPair);
+    }
+
+    /// @dev Version of {multiProofVerify} with support for custom internal hashing function
+    function multiProofVerify(
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
+        bytes32 root,
+        bytes32[] memory leaves,
+        function (bytes32, bytes32) pure returns (bytes32) hasher
+    ) internal pure returns (bool) {
+        return processMultiProof(proof, proofFlags, leaves, hasher) == root;
     }
 
     /**
@@ -91,7 +122,18 @@ library MerkleProof {
         bytes32 root,
         bytes32[] memory leaves
     ) internal pure returns (bool) {
-        return processMultiProofCalldata(proof, proofFlags, leaves) == root;
+        return multiProofVerifyCalldata(proof, proofFlags, root, leaves, _hashPair);
+    }
+
+    /// @dev Calldata version of {multiProofVerify} with support for custom internal hashing function
+    function multiProofVerifyCalldata(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32 root,
+        bytes32[] memory leaves,
+        function (bytes32, bytes32) pure returns (bytes32) hasher
+    ) internal pure returns (bool) {
+        return processMultiProofCalldata(proof, proofFlags, leaves, hasher) == root;
     }
 
     /**
@@ -108,6 +150,16 @@ library MerkleProof {
         bytes32[] memory proof,
         bool[] memory proofFlags,
         bytes32[] memory leaves
+    ) internal pure returns (bytes32 merkleRoot) {
+        return processMultiProof(proof, proofFlags, leaves, _hashPair);
+    }
+
+    /// @dev Version of {processMultiProof} with support for custom internal hashing function
+    function processMultiProof(
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
+        bytes32[] memory leaves,
+        function (bytes32, bytes32) pure returns (bytes32) hasher
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
@@ -138,7 +190,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = hasher(a, b);
         }
 
         if (totalHashes > 0) {
@@ -165,6 +217,16 @@ library MerkleProof {
         bool[] calldata proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
+        return processMultiProofCalldata(proof, proofFlags, leaves, _hashPair);
+    }
+
+    /// @dev Calldata version of {processMultiProof} with support for custom internal hashing function
+    function processMultiProofCalldata(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32[] memory leaves,
+        function (bytes32, bytes32) pure returns (bytes32) hasher
+    ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
@@ -194,7 +256,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = hasher(a, b);
         }
 
         if (totalHashes > 0) {
