@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const { findAll, astDereferencer, srcDecoder } = require('solidity-ast/utils');
 const { extractStorageLayout } = require('@openzeppelin/upgrades-core/dist/storage/extract');

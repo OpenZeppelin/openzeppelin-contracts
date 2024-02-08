@@ -27,6 +27,7 @@
     "test": "hardhat test",
     "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:generation": "scripts/checks/generation.sh",
+    "test:artifacts-size": "scripts/checks/artifacts-size.js",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
     "slither": "npm run clean && slither ."
   },

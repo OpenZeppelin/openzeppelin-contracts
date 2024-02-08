@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
 
