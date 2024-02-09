@@ -15,7 +15,7 @@ async function fixture() {
   const cliff = start + cliffDuration;
 
   const [sender, beneficiary] = await ethers.getSigners();
-  const mock = await ethers.deployContract('$VestingWalletWithCliff', [beneficiary, start, duration, cliffDuration]);
+  const mock = await ethers.deployContract('$VestingWalletCliff', [beneficiary, start, duration, cliffDuration]);
 
   const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
   await token.$_mint(mock, amount);
@@ -73,7 +73,7 @@ describe('VestingWallet', function () {
 
   it('rejects a larger cliff than vesting duration', async function () {
     await expect(
-      ethers.deployContract('$VestingWalletWithCliff', [
+      ethers.deployContract('$VestingWalletCliff', [
         this.beneficiary,
         this.start,
         this.duration,
