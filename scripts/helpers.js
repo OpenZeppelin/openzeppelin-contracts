@@ -1,37 +1,28 @@
-function chunk(array, size = 1) {
-  return Array.range(Math.ceil(array.length / size)).map(i => array.slice(i * size, i * size + size));
-}
-
-function range(start, stop = undefined, step = 1) {
+const range = (start, stop = undefined, step = 1) => {
   if (!stop) {
     stop = start;
     start = 0;
   }
-  return start < stop
-    ? Array(Math.ceil((stop - start) / step))
-        .fill()
-        .map((_, i) => start + i * step)
-    : [];
-}
+  return start < stop ? Array.from({ length: Math.ceil((stop - start) / step) }, (_, i) => start + i * step) : [];
+};
 
-function unique(array, op = x => x) {
-  return array.filter((obj, i) => array.findIndex(entry => op(obj) === op(entry)) === i);
-}
+const chunk = (array, size = 1) =>
+  Array.from({ length: Math.ceil(array.length / size) }, (_, i) => array.slice(i * size, i * size + size));
 
-function zip(...args) {
-  return Array(Math.max(...args.map(arg => arg.length)))
-    .fill(null)
-    .map((_, i) => args.map(arg => arg[i]));
-}
+const unique = (array, op = x => x) => array.filter((obj, i) => array.findIndex(entry => op(obj) === op(entry)) === i);
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+const zip = (...args) =>
+  Array.from({ length: Math.max(...args.map(arg => arg.length)) }, (_, i) => args.map(arg => arg[i]));
+
+const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]);
+
+const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 module.exports = {
   chunk,
   range,
   unique,
   zip,
+  product,
   capitalize,
 };
