@@ -33,7 +33,9 @@ library MerkleProof {
         return verify(proof, root, leaf, _hashPair);
     }
 
-    /// @dev Version of {verify} with support for custom internal hashing function
+    /**
+     * @dev Version of {verify} with support for custom internal hashing function.
+     */
     function verify(
         bytes32[] memory proof,
         bytes32 root,
@@ -44,13 +46,15 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {verify}
+     * @dev Calldata version of {verify}.
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return verifyCalldata(proof, root, leaf, _hashPair);
     }
 
-    /// @dev Calldata version of {verify} with support for custom internal hashing function
+    /**
+     * @dev Calldata version of {verify} with support for custom internal hashing function.
+     */
     function verifyCalldata(
         bytes32[] calldata proof,
         bytes32 root,
@@ -70,7 +74,9 @@ library MerkleProof {
         return processProof(proof, leaf, _hashPair);
     }
 
-    /// @dev Version of {processProof} with support for custom internal hashing function
+    /**
+     * @dev Version of {processProof} with support for custom internal hashing function.
+     */
     function processProof(
         bytes32[] memory proof,
         bytes32 leaf,
@@ -84,13 +90,15 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processProof}
+     * @dev Calldata version of {processProof}.
      */
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         return processProofCalldata(proof, leaf, _hashPair);
     }
 
-    /// @dev Calldata version of {processProof} with support for custom internal hashing function
+    /**
+     * @dev Calldata version of {processProof} with support for custom internal hashing function.
+     */
     function processProofCalldata(
         bytes32[] calldata proof,
         bytes32 leaf,
@@ -118,7 +126,11 @@ library MerkleProof {
         return multiProofVerify(proof, proofFlags, root, leaves, _hashPair);
     }
 
-    /// @dev Version of {multiProofVerify} with support for custom internal hashing function
+    /**
+     * @dev Version of {multiProofVerify} with support for custom internal hashing function.
+     *
+     * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     */
     function multiProofVerify(
         bytes32[] memory proof,
         bool[] memory proofFlags,
@@ -130,7 +142,7 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {multiProofVerify}
+     * @dev Calldata version of {multiProofVerify}.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -143,7 +155,11 @@ library MerkleProof {
         return multiProofVerifyCalldata(proof, proofFlags, root, leaves, _hashPair);
     }
 
-    /// @dev Calldata version of {multiProofVerify} with support for custom internal hashing function
+    /**
+     * @dev Calldata version of {multiProofVerify} with support for custom internal hashing function.
+     *
+     * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
@@ -172,7 +188,11 @@ library MerkleProof {
         return processMultiProof(proof, proofFlags, leaves, _hashPair);
     }
 
-    /// @dev Version of {processMultiProof} with support for custom internal hashing function
+    /**
+     * @dev Version of {processMultiProof} with support for custom internal hashing function.
+     *
+     * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     */
     function processMultiProof(
         bytes32[] memory proof,
         bool[] memory proofFlags,
@@ -238,7 +258,11 @@ library MerkleProof {
         return processMultiProofCalldata(proof, proofFlags, leaves, _hashPair);
     }
 
-    /// @dev Calldata version of {processMultiProof} with support for custom internal hashing function
+    /**
+     * @dev Calldata version of {processMultiProof} with support for custom internal hashing function.
+     *
+     * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
