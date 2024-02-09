@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
 const toElements = str => str.split('').map(e => [e]);
@@ -27,6 +28,8 @@ describe('MerkleProof', function () {
       const hash = merkleTree.leafHash(['A']);
       const proof = merkleTree.getProof(['A']);
 
+      expect(await this.mock.$processProof(proof, hash)).to.equal(root);
+      expect(await this.mock.$processProofCalldata(proof, hash)).to.equal(root);
       expect(await this.mock.$verify(proof, root, hash)).to.be.true;
       expect(await this.mock.$verifyCalldata(proof, root, hash)).to.be.true;
 
@@ -35,6 +38,9 @@ describe('MerkleProof', function () {
         ethers.toBeArray(merkleTree.leafHash(['A'])),
         ethers.toBeArray(merkleTree.leafHash(['B'])),
       );
+
+      expect(await this.mock.$processProof(proof.slice(1), noSuchLeaf)).to.equal(root);
+      expect(await this.mock.$processProofCalldata(proof.slice(1), noSuchLeaf)).to.equal(root);
       expect(await this.mock.$verify(proof.slice(1), root, noSuchLeaf)).to.be.true;
       expect(await this.mock.$verifyCalldata(proof.slice(1), root, noSuchLeaf)).to.be.true;
     });
@@ -47,6 +53,8 @@ describe('MerkleProof', function () {
       const hash = correctMerkleTree.leafHash(['a']);
       const proof = otherMerkleTree.getProof(['d']);
 
+      expect(await this.mock.$processProof(proof, hash)).to.not.equal(root);
+      expect(await this.mock.$processProofCalldata(proof, hash)).to.not.equal(root);
       expect(await this.mock.$verify(proof, root, hash)).to.be.false;
       expect(await this.mock.$verifyCalldata(proof, root, hash)).to.be.false;
     });
@@ -59,6 +67,8 @@ describe('MerkleProof', function () {
       const proof = merkleTree.getProof(['a']);
       const badProof = proof.slice(0, proof.length - 5);
 
+      expect(await this.mock.$processProof(badProof, leaf)).to.not.equal(root);
+      expect(await this.mock.$processProofCalldata(badProof, leaf)).to.not.equal(root);
       expect(await this.mock.$verify(badProof, root, leaf)).to.be.false;
       expect(await this.mock.$verifyCalldata(badProof, root, leaf)).to.be.false;
     });
@@ -72,6 +82,8 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = merkleTree.getMultiProof(toElements('bdf'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
+      expect(await this.mock.$processMultiProof(proof, proofFlags, hashes)).to.equal(root);
+      expect(await this.mock.$processMultiProofCalldata(proof, proofFlags, hashes)).to.equal(root);
       expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.true;
       expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.true;
     });
@@ -84,6 +96,8 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = otherMerkleTree.getMultiProof(toElements('ghi'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
+      expect(await this.mock.$processMultiProof(proof, proofFlags, hashes)).to.not.equal(root);
+      expect(await this.mock.$processMultiProofCalldata(proof, proofFlags, hashes)).to.not.equal(root);
       expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.false;
       expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.false;
     });
@@ -100,6 +114,14 @@ describe('MerkleProof', function () {
       );
       const hashE = merkleTree.leafHash(['e']); // incorrect (not part of the tree)
       const fill = ethers.randomBytes(32);
+
+      await expect(
+        this.mock.$processMultiProof([hashB, fill, hashCD], [false, false, false], [hashA, hashE]),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
+
+      await expect(
+        this.mock.$processMultiProofCalldata([hashB, fill, hashCD], [false, false, false], [hashA, hashE]),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
 
       await expect(
         this.mock.$multiProofVerify([hashB, fill, hashCD], [false, false, false], root, [hashA, hashE]),
@@ -124,12 +146,20 @@ describe('MerkleProof', function () {
       const fill = ethers.randomBytes(32);
 
       await expect(
+        this.mock.$processMultiProof([hashB, fill, hashCD], [false, false, false, false], [hashE, hashA]),
+      ).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+
+      await expect(
+        this.mock.$processMultiProofCalldata([hashB, fill, hashCD], [false, false, false, false], [hashE, hashA]),
+      ).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+
+      await expect(
         this.mock.$multiProofVerify([hashB, fill, hashCD], [false, false, false, false], root, [hashE, hashA]),
-      ).to.be.revertedWithPanic(0x32);
+      ).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
 
       await expect(
         this.mock.$multiProofVerifyCalldata([hashB, fill, hashCD], [false, false, false, false], root, [hashE, hashA]),
-      ).to.be.revertedWithPanic(0x32);
+      ).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
     });
 
     it('limit case: works for tree containing a single leaf', async function () {
@@ -139,6 +169,8 @@ describe('MerkleProof', function () {
       const { proof, proofFlags, leaves } = merkleTree.getMultiProof(toElements('a'));
       const hashes = leaves.map(e => merkleTree.leafHash(e));
 
+      expect(await this.mock.$processMultiProof(proof, proofFlags, hashes)).to.equal(root);
+      expect(await this.mock.$processMultiProofCalldata(proof, proofFlags, hashes)).to.equal(root);
       expect(await this.mock.$multiProofVerify(proof, proofFlags, root, hashes)).to.be.true;
       expect(await this.mock.$multiProofVerifyCalldata(proof, proofFlags, root, hashes)).to.be.true;
     });
@@ -147,6 +179,8 @@ describe('MerkleProof', function () {
       const merkleTree = StandardMerkleTree.of(toElements('abcd'), ['string']);
 
       const root = merkleTree.root;
+      expect(await this.mock.$processMultiProof([root], [], [])).to.equal(root);
+      expect(await this.mock.$processMultiProofCalldata([root], [], [])).to.equal(root);
       expect(await this.mock.$multiProofVerify([root], [], root, [])).to.be.true;
       expect(await this.mock.$multiProofVerifyCalldata([root], [], root, [])).to.be.true;
     });
@@ -160,6 +194,14 @@ describe('MerkleProof', function () {
       const maliciousLeaves = ['malicious', 'leaves'].map(ethers.id).map(ethers.toBeArray).sort(Buffer.compare);
       const maliciousProof = [leave, leave];
       const maliciousProofFlags = [true, true, false];
+
+      await expect(
+        this.mock.$processMultiProof(maliciousProof, maliciousProofFlags, maliciousLeaves),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
+
+      await expect(
+        this.mock.$processMultiProofCalldata(maliciousProof, maliciousProofFlags, maliciousLeaves),
+      ).to.be.revertedWithCustomError(this.mock, 'MerkleProofInvalidMultiproof');
 
       await expect(
         this.mock.$multiProofVerify(maliciousProof, maliciousProofFlags, root, maliciousLeaves),
