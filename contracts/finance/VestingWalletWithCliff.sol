@@ -8,11 +8,12 @@ import {VestingWallet} from "./VestingWallet.sol";
 /**
  * @dev Extension of {VestingWallet} that adds a cliff to the vesting schedule.
  */
-abstract contract VestingWalletWithCliff is VestingWallet {
+abstract contract VestingWalletCliff is VestingWallet {
     using SafeCast for *;
 
     uint64 private immutable _cliff;
 
+    /// @dev The specified cliff duration is larger than the vesting duration.
     error InvalidCliffDuration(uint64 cliffSeconds, uint64 durationSeconds);
 
     /**

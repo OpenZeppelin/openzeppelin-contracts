@@ -71,7 +71,7 @@ describe('VestingWallet', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('rejects zero address for beneficiary', async function () {
+  it('rejects a larger cliff than vesting duration', async function () {
     await expect(
       ethers.deployContract('$VestingWalletWithCliff', [
         this.beneficiary,
