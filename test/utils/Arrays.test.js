@@ -149,6 +149,13 @@ describe('Arrays', function () {
               this.elements = Array.from({ length }, generators[type]);
             });
 
+            afterEach(async function () {
+              const expected = Array.from(this.elements).sort(comp);
+              const reversed = Array.from(expected).reverse();
+              expect(await this.instance.sort(this.elements)).to.deep.equal(expected);
+              expect(await this.instance.sortReverse(this.elements)).to.deep.equal(reversed);
+            });
+
             it('sort array', async function () {
               // nothing to do here, beforeEach and afterEach already take care of everything.
             });
@@ -176,13 +183,6 @@ describe('Arrays', function () {
                 this.elements.unshift(this.elements.pop());
               });
             }
-
-            afterEach(async function () {
-              const expected = Array.from(this.elements).sort(comp);
-              const reversed = Array.from(expected).reverse();
-              expect(await this.instance.sort(this.elements)).to.deep.equal(expected);
-              expect(await this.instance.sortReverse(this.elements)).to.deep.equal(reversed);
-            });
           });
         }
       });
