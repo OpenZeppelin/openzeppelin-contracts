@@ -39,7 +39,7 @@ library Arrays {
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
+     * @dev Variant of {sort} that sorts an array of bytes32 in increasing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
         return sort(array, _defaultComp);
@@ -57,7 +57,7 @@ library Arrays {
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of address in increassing order.
+     * @dev Variant of {sort} that sorts an array of address in increasing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
         sort(_castToBytes32Array(array), _defaultComp);
@@ -76,7 +76,7 @@ library Arrays {
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
+     * @dev Variant of {sort} that sorts an array of uint256 in increasing order.
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         sort(_castToBytes32Array(array), _defaultComp);
@@ -134,7 +134,7 @@ library Arrays {
         }
     }
 
-    /// @dev Comparator for sorting arrays in increassing order.
+    /// @dev Comparator for sorting arrays in increasing order.
     function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
         return a < b;
     }
