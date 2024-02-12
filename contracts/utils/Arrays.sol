@@ -84,25 +84,25 @@ library Arrays {
     }
 
     /**
-     * @dev Performs a quick sort on an array in memory. The array is sorted following the `comp` comparator.
+     * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and ends
+     * at end (exclusive). Sorting follows the `comp` comparator.
      *
-     * Invariant: `i <= j <= array.length`. This is the case when initially called by {sort} and is preserved in
-     * subcalls.
+     * Invariant: `begin <= end`. This is the case when initially called by {sort} and is preserved in subcalls.
      */
     function _quickSort(
-        uint256 start,
+        uint256 begin,
         uint256 end,
         function(bytes32, bytes32) pure returns (bool) comp
     ) private pure {
         unchecked {
-            if (end - start < 0x40) return;
+            if (end - begin < 0x40) return;
 
             // Use first element as pivot
-            bytes32 pivot = _mload(start);
+            bytes32 pivot = _mload(begin);
             // Position where the pivot should be at the end of the loop
-            uint256 pos = start;
+            uint256 pos = begin;
 
-            for (uint256 it = start + 0x20; it < end; it += 0x20) {
+            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
                 if (comp(_mload(it), pivot)) {
                     // If array[k] is smaller than the pivot, we increment the position of the pivot and move array[k]
                     // there.
@@ -111,8 +111,8 @@ library Arrays {
                 }
             }
 
-            _swap(start, pos); // Swap pivot into place
-            _quickSort(start, pos, comp); // Sort the left side of the pivot
+            _swap(begin, pos); // Swap pivot into place
+            _quickSort(begin, pos, comp); // Sort the left side of the pivot
             _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
