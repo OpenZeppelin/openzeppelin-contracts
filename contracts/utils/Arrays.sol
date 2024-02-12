@@ -89,11 +89,7 @@ library Arrays {
      *
      * Invariant: `begin <= end`. This is the case when initially called by {sort} and is preserved in subcalls.
      */
-    function _quickSort(
-        uint256 begin,
-        uint256 end,
-        function(uint256, uint256) pure returns (bool) comp
-    ) private pure {
+    function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
             if (end - begin < 0x40) return;
 
@@ -121,7 +117,9 @@ library Arrays {
      * @dev Load memory word (as an unsigned integer) at location `ptr`.
      */
     function _mload(uint256 ptr) private pure returns (uint256 value) {
-        assembly { value := mload(ptr) }
+        assembly {
+            value := mload(ptr)
+        }
     }
 
     /**
