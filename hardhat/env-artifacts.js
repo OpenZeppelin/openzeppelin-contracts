@@ -8,12 +8,20 @@ function isExpectedError(e, suffix) {
 // Modifies the artifact require functions so that instead of X it loads the XUpgradeable contract.
 // This allows us to run the same test suite on both the original and the transpiled and renamed Upgradeable contracts.
 extendEnvironment(hre => {
-  const suffixes = ['UpgradeableWithInit', 'Upgradeable', ''];
+  // When getting an exposed contract, "UpgradeableWithInit" should not be considered.
+  const suffixes = [
+    { suffix: 'UpgradeableWithInit', filter: name => !name.startsWith('$') },
+    { suffix: 'Upgradeable' },
+    { suffix: '' },
+  ];
 
   // Ethers
   const originalReadArtifact = hre.artifacts.readArtifact;
   hre.artifacts.readArtifact = async function (name) {
-    for (const suffix of suffixes) {
+    for (const { suffix, filter } of suffixes) {
+      if (filter?.(name)) {
+        continue;
+      }
       try {
         return await originalReadArtifact.call(this, name + suffix);
       } catch (e) {
