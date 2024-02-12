@@ -100,8 +100,8 @@ library Arrays {
 
             for (uint256 it = begin + 0x20; it < end; it += 0x20) {
                 if (comp(_mload(it), pivot)) {
-                    // If array[k] is smaller than the pivot, we increment the position of the pivot and move array[k]
-                    // there.
+                    // If the value stored at the iterator's position is smaller than the pivot, we increment the
+                    // position of the pivot and move the value there.
                     pos += 0x20;
                     _swap(pos, it);
                 }
