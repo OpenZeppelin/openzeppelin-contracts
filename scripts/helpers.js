@@ -7,11 +7,7 @@ function range(start, stop = undefined, step = 1) {
     stop = start;
     start = 0;
   }
-  return start < stop
-    ? Array(Math.ceil((stop - start) / step))
-        .fill()
-        .map((_, i) => start + i * step)
-    : [];
+  return start < stop ? Array.from({ length: Math.ceil((stop - start) / step) }, (_, i) => start + i * step) : [];
 }
 
 function unique(array, op = x => x) {
@@ -19,9 +15,7 @@ function unique(array, op = x => x) {
 }
 
 function zip(...args) {
-  return Array(Math.max(...args.map(arg => arg.length)))
-    .fill(null)
-    .map((_, i) => args.map(arg => arg[i]));
+  return Array.from({ length: Math.max(...args.map(arg => arg.length)) }, (_, i) => args.map(arg => arg[i]));
 }
 
 function capitalize(str) {
