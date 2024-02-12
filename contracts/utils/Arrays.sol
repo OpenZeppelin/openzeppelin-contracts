@@ -84,7 +84,7 @@ library Arrays {
     }
 
     /**
-     * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and ends
+     * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and stops
      * at end (exclusive). Sorting follows the `comp` comparator.
      *
      * Invariant: `begin <= end`. This is the case when initially called by {sort} and is preserved in subcalls.
