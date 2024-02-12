@@ -7,7 +7,7 @@ const header = `\
 pragma solidity ^0.8.20;
 
 /**
- * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
+ * @dev Wrappers over Solidity's uintXX/intXX/bool casting operators with added overflow
  * checks.
  *
  * Downcasting from uint256/int256 in Solidity does not revert on overflow. This can
@@ -116,11 +116,23 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 }
 `;
 
+const boolToUint = `
+  /**
+   * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+   */
+  function toUint(bool b) internal pure returns (uint256 u) {
+      /// @solidity memory-safe-assembly
+      assembly {
+          u := iszero(iszero(b))
+      }
+  }
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
   errors,
-  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
+  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256), boolToUint],
   '}',
 );
