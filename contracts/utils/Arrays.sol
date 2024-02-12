@@ -127,10 +127,10 @@ library Arrays {
      */
     function _swap(uint256 ptr1, uint256 ptr2) private pure {
         assembly {
-            let val1 := mload(ptr1)
-            let val2 := mload(ptr2)
-            mstore(ptr1, val2)
-            mstore(ptr2, val1)
+            let value1 := mload(ptr1)
+            let value2 := mload(ptr2)
+            mstore(ptr1, value2)
+            mstore(ptr2, value1)
         }
     }
 
