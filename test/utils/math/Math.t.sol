@@ -230,11 +230,7 @@ contract MathTest is Test {
         if (m == 0) {
             vm.expectRevert(stdError.divisionError);
         }
-        bytes memory result = Math.modExp(
-            abi.encodePacked(b),
-            abi.encodePacked(e),
-            abi.encodePacked(m)
-        );
+        bytes memory result = Math.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
         uint256 res = abi.decode(result, (uint256));
         assertLt(res, m);
         assertEq(res, _nativeModExp(b, e, m));
