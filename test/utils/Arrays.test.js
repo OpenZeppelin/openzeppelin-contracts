@@ -116,7 +116,7 @@ describe('Arrays', function () {
     }
   });
 
-  for (const [type, { artifact, elements, comp }] of Object.entries({
+  for (const [type, { artifact, elements, comp, format }] of Object.entries({
     address: {
       artifact: 'AddressArraysMock',
       elements: Array.from({ length: 10 }, generators.address),
