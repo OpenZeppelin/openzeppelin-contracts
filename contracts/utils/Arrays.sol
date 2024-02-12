@@ -24,9 +24,9 @@ library Arrays {
      * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(
-        bytes32[] memory array,
-        function(bytes32, bytes32) pure returns (bool) comp
-    ) internal pure returns (bytes32[] memory) {
+        uint256[] memory array,
+        function(uint256, uint256) pure returns (bool) comp
+    ) internal pure returns (uint256[] memory) {
         uint256 begin;
         uint256 end;
         /// @solidity memory-safe-assembly
@@ -39,9 +39,9 @@ library Arrays {
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
+     * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
      */
-    function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+    function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         return sort(array, _defaultComp);
     }
 
@@ -52,7 +52,7 @@ library Arrays {
         address[] memory array,
         function(address, address) pure returns (bool) comp
     ) internal pure returns (address[] memory) {
-        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
+        sort(_castToUint256Array(array), _castToUint256Comp(comp));
         return array;
     }
 
@@ -60,26 +60,26 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of address in increassing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
-        sort(_castToBytes32Array(array), _defaultComp);
+        sort(_castToUint256Array(array), _defaultComp);
         return array;
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of uint256 following a provided comparator function.
+     * @dev Variant of {sort} that sorts an array of bytes32 following a provided comparator function.
      */
     function sort(
-        uint256[] memory array,
-        function(uint256, uint256) pure returns (bool) comp
-    ) internal pure returns (uint256[] memory) {
-        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
+        bytes32[] memory array,
+        function(bytes32, bytes32) pure returns (bool) comp
+    ) internal pure returns (bytes32[] memory) {
+        sort(_castToUint256Array(array), _castToUint256Comp(comp));
         return array;
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
+     * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
-    function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
-        sort(_castToBytes32Array(array), _defaultComp);
+    function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+        sort(_castToUint256Array(array), _defaultComp);
         return array;
     }
 
@@ -92,13 +92,13 @@ library Arrays {
     function _quickSort(
         uint256 begin,
         uint256 end,
-        function(bytes32, bytes32) pure returns (bool) comp
+        function(uint256, uint256) pure returns (bool) comp
     ) private pure {
         unchecked {
             if (end - begin < 0x40) return;
 
             // Use first element as pivot
-            bytes32 pivot = _mload(begin);
+            uint256 pivot = _mload(begin);
             // Position where the pivot should be at the end of the loop
             uint256 pos = begin;
 
@@ -118,17 +118,10 @@ library Arrays {
     }
 
     /**
-     * @dev Load memory word at location `ptr`.
+     * @dev Load memory word (as an unsigned integer) at location `ptr`.
      */
-    function _mload(uint256 ptr) private pure returns (bytes32 value) {
+    function _mload(uint256 ptr) private pure returns (uint256 value) {
         assembly { value := mload(ptr) }
-    }
-
-    /**
-     * @dev Set memory word at location `ptr` to `value`.
-     */
-    function _mstore(uint256 ptr, bytes32 value) private pure {
-        assembly { mstore(ptr, value) }
     }
 
     /**
@@ -144,37 +137,37 @@ library Arrays {
     }
 
     /// @dev Comparator for sorting arrays in increassing order.
-    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
-        return uint256(a) < uint256(b);
+    function _defaultComp(uint256 a, uint256 b) private pure returns (bool) {
+        return a < b;
     }
 
-    /// @dev Helper: low level cast address memory array to bytes32 memory array
-    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
+    /// @dev Helper: low level cast address memory array to uint256 memory array
+    function _castToUint256Array(address[] memory input) private pure returns (uint256[] memory output) {
         assembly {
             output := input
         }
     }
 
-    /// @dev Helper: low level cast address memory array to bytes32 memory array
-    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
+    /// @dev Helper: low level cast bytes32 memory array to uint256 memory array
+    function _castToUint256Array(bytes32[] memory input) private pure returns (uint256[] memory output) {
         assembly {
             output := input
         }
     }
 
-    /// @dev Helper: low level cast address comp function to bytes32 comp function
-    function _castToBytes32Comp(
+    /// @dev Helper: low level cast address comp function to uint256 comp function
+    function _castToUint256Comp(
         function(address, address) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+    ) private pure returns (function(uint256, uint256) pure returns (bool) output) {
         assembly {
             output := input
         }
     }
 
-    /// @dev Helper: low level cast address comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(uint256, uint256) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+    /// @dev Helper: low level cast bytes32 comp function to uint256 comp function
+    function _castToUint256Comp(
+        function(bytes32, bytes32) pure returns (bool) input
+    ) private pure returns (function(uint256, uint256) pure returns (bool) output) {
         assembly {
             output := input
         }
