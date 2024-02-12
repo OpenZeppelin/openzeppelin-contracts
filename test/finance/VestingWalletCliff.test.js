@@ -66,7 +66,7 @@ async function fixture() {
   return { mock, duration, start, beneficiary, cliff, schedule, vestingFn, env };
 }
 
-describe('VestingWallet', function () {
+describe('VestingWalletCliff', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
