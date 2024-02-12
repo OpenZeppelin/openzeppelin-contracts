@@ -81,6 +81,9 @@ library Arrays {
      * at end (exclusive). Sorting follows the `comp` comparator.
      *
      * Invariant: `begin <= end`. This is the case when initially called by {sort} and is preserved in subcalls.
+     *
+     * IMPORTANT: Memory locations between `begin` and `end` are not validated/zeroed. This function should
+     * be used only if the limits are within a memory array.
      */
     function _quickSort(uint256 begin, uint256 end, function(bytes32, bytes32) pure returns (bool) comp) private pure {
         unchecked {
