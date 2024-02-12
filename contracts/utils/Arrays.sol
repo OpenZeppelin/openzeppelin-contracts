@@ -27,14 +27,7 @@ library Arrays {
         bytes32[] memory array,
         function(bytes32, bytes32) pure returns (bool) comp
     ) internal pure returns (bytes32[] memory) {
-        uint256 begin;
-        uint256 end;
-        /// @solidity memory-safe-assembly
-        assembly {
-            begin := add(array, 0x20)
-            end := add(begin, mul(mload(array), 0x20))
-        }
-        _quickSort(begin, end, comp);
+        _quickSort(_begin(array), _end(array), comp);
         return array;
     }
 
@@ -110,6 +103,26 @@ library Arrays {
             _swap(begin, pos); // Swap pivot into place
             _quickSort(begin, pos, comp); // Sort the left side of the pivot
             _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
+        }
+    }
+
+    /**
+     * @dev Pointer to the memory location of the first element of `array`.
+     */
+    function _begin(bytes32[] memory array) private pure returns (uint256 ptr) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            ptr := add(array, 0x20)
+        }
+    }
+
+    /**
+     * @dev Pointer to the memory location of the first memory word (32bytes) after `array`. This is the memory word
+     * that comes just after the last element of the array.
+     */
+    function _end(bytes32[] memory array) private pure returns (uint256 ptr) {
+        unchecked {
+            return _begin(array) + array.length * 0x20;
         }
     }
 
