@@ -27,7 +27,14 @@ library Arrays {
         bytes32[] memory array,
         function(bytes32, bytes32) pure returns (bool) comp
     ) internal pure returns (bytes32[] memory) {
-        _quickSort(array, 0, array.length, comp);
+        uint256 begin;
+        uint256 end;
+        /// @solidity memory-safe-assembly
+        assembly {
+            begin := add(array, 0x20)
+            end := add(begin, mul(mload(array), 0x20))
+        }
+        _quickSort(begin, end, comp);
         return array;
     }
 
@@ -35,8 +42,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of bytes32 in increassing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        _quickSort(array, 0, array.length, _defaultComp);
-        return array;
+        return sort(array, _defaultComp);
     }
 
     /**
@@ -46,7 +52,7 @@ library Arrays {
         address[] memory array,
         function(address, address) pure returns (bool) comp
     ) internal pure returns (address[] memory) {
-        _quickSort(_castToBytes32Array(array), 0, array.length, _castToBytes32Comp(comp));
+        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
         return array;
     }
 
@@ -54,7 +60,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of address in increassing order.
      */
     function sort(address[] memory array) internal pure returns (address[] memory) {
-        _quickSort(_castToBytes32Array(array), 0, array.length, _defaultComp);
+        sort(_castToBytes32Array(array), _defaultComp);
         return array;
     }
 
@@ -65,7 +71,7 @@ library Arrays {
         uint256[] memory array,
         function(uint256, uint256) pure returns (bool) comp
     ) internal pure returns (uint256[] memory) {
-        _quickSort(_castToBytes32Array(array), 0, array.length, _castToBytes32Comp(comp));
+        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
         return array;
     }
 
@@ -73,7 +79,7 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of uint256 in increassing order.
      */
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
-        _quickSort(_castToBytes32Array(array), 0, array.length, _defaultComp);
+        sort(_castToBytes32Array(array), _defaultComp);
         return array;
     }
 
@@ -84,46 +90,56 @@ library Arrays {
      * subcalls.
      */
     function _quickSort(
-        bytes32[] memory array,
-        uint256 i,
-        uint256 j,
+        uint256 start,
+        uint256 end,
         function(bytes32, bytes32) pure returns (bool) comp
     ) private pure {
         unchecked {
-            // Can't overflow given `i <= j`
-            if (j - i < 2) return;
+            if (end - start < 0x40) return;
 
             // Use first element as pivot
-            bytes32 pivot = unsafeMemoryAccess(array, i);
+            bytes32 pivot = _mload(start);
             // Position where the pivot should be at the end of the loop
-            uint256 index = i;
+            uint256 pos = start;
 
-            for (uint256 k = i + 1; k < j; ++k) {
-                // Unsafe access is safe given `k < j <= array.length`.
-                if (comp(unsafeMemoryAccess(array, k), pivot)) {
-                    // If array[k] is smaller than the pivot, we increment the index and move array[k] there.
-                    _swap(array, ++index, k);
+            for (uint256 it = start + 0x20; it < end; it += 0x20) {
+                if (comp(_mload(it), pivot)) {
+                    // If array[k] is smaller than the pivot, we increment the position of the pivot and move array[k]
+                    // there.
+                    pos += 0x20;
+                    _swap(pos, it);
                 }
             }
 
-            _swap(array, i, index); // Swap pivot into place
-            _quickSort(array, i, index, comp); // Sort the left side of the pivot
-            _quickSort(array, index + 1, j, comp); // Sort the right side of the pivot
+            _swap(start, pos); // Swap pivot into place
+            _quickSort(start, pos, comp); // Sort the left side of the pivot
+            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
     /**
-     * @dev Swaps the elements at positions `i` and `j` in the `arr` array.
+     * @dev Load memory word at location `ptr`.
      */
-    function _swap(bytes32[] memory arr, uint256 i, uint256 j) private pure {
+    function _mload(uint256 ptr) private pure returns (bytes32 value) {
+        assembly { value := mload(ptr) }
+    }
+
+    /**
+     * @dev Set memory word at location `ptr` to `value`.
+     */
+    function _mstore(uint256 ptr, bytes32 value) private pure {
+        assembly { mstore(ptr, value) }
+    }
+
+    /**
+     * @dev Swaps the elements memory location `ptr1` and `ptr2`.
+     */
+    function _swap(uint256 ptr1, uint256 ptr2) private pure {
         assembly {
-            let start := add(arr, 0x20) // Pointer to the first element of the array
-            let pos_i := add(start, mul(i, 0x20))
-            let pos_j := add(start, mul(j, 0x20))
-            let val_i := mload(pos_i)
-            let val_j := mload(pos_j)
-            mstore(pos_i, val_j)
-            mstore(pos_j, val_i)
+            let val1 := mload(ptr1)
+            let val2 := mload(ptr2)
+            mstore(ptr1, val2)
+            mstore(ptr2, val1)
         }
     }
 

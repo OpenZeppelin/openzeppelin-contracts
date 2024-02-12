@@ -178,7 +178,6 @@ describe('Arrays', function () {
 
               it('sort almost sorted array', async function () {
                 // pre-sort + rotate (move the last element to the front) for an almost sorted effect
-                // Note: when using the first element as the pivot, this is the worst cast (complexity: O(n²))
                 this.elements.sort(comp);
                 this.elements.unshift(this.elements.pop());
               });
