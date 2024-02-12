@@ -6,7 +6,7 @@ module.exports = {
   chunk: (array, size = 1) =>
     Array.from({ length: Math.ceil(array.length / size) }, (_, i) => array.slice(i * size, i * size + size)),
 
-  // Carthesian cross product of an array of arrays
+  // Cartesian cross product of an array of arrays
   // Example: product([1,2],[a,b,c],[true]) → [[1,a,true],[1,b,true],[1,c,true],[2,a,true],[2,b,true],[2,c,true]]
   product: (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [...ai, bi])), [[]]),
 
