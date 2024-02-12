@@ -336,6 +336,55 @@ library Math {
     }
 
     /**
+     * @dev Variant of {modExp} that supports inputs of arbitrary length.
+     */
+    function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
+        (bool success, bytes memory result) = tryModExp(b, e, m);
+        if (!success) {
+            if (_zeroArray(m)) {
+                Panic.panic(Panic.DIVISION_BY_ZERO);
+            } else {
+                revert Address.FailedInnerCall();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Variant of {tryModExp} that supports inputs of arbitrary length.
+     */
+    function tryModExp(
+        bytes memory b,
+        bytes memory e,
+        bytes memory m
+    ) internal view returns (bool success, bytes memory result) {
+        if (_zeroArray(m)) return (false, new bytes(0));
+
+        // Encode call args and move the free memory pointer
+        bytes memory args = abi.encodePacked(b.length, e.length, m.length, b, e, m);
+
+        // Given result <= modulus
+        result = new bytes(m.length);
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            success := staticcall(gas(), 0x05, add(args, 0x20), mload(args), add(result, 0x20), mload(m))
+        }
+    }
+
+    /**
+     * @dev Returns whether the provided array is zero.
+     */
+    function _zeroArray(bytes memory array) private pure returns (bool) {
+        for (uint256 i; i < array.length; ++i) {
+            if (array[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
      *

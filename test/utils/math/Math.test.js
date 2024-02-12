@@ -6,6 +6,9 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
+const { range } = require('../../../scripts/helpers');
+const { toBeHex, dataLength } = require('ethers');
+const { product } = require('../../helpers/iterate');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -138,24 +141,6 @@ describe('Math', function () {
       const a = 5678n;
       const b = 0n;
       expect(await this.mock.$tryMod(a, b)).to.deep.equal([false, 0n]);
-    });
-  });
-
-  describe('tryModExp', function () {
-    it('is correctly returning true and calculating modulus', async function () {
-      const base = 3n;
-      const exponent = 200n;
-      const modulus = 50n;
-
-      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
-    });
-
-    it('is correctly returning false when modulus is 0', async function () {
-      const base = 3n;
-      const exponent = 200n;
-      const modulus = 0n;
-
-      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([false, 0n]);
     });
   });
 
@@ -353,21 +338,84 @@ describe('Math', function () {
     }
   });
 
-  describe('modExp', function () {
-    it('is correctly calculating modulus', async function () {
-      const base = 3n;
-      const exponent = 200n;
-      const modulus = 50n;
+  describe.only('modExp', function () {
+    describe('with uint256 inputs', function () {
+      before(function () {
+        this.fn = '$modExp(uint256,uint256,uint256)';
+      });
 
-      expect(await this.mock.$modExp(base, exponent, modulus)).to.equal(base ** exponent % modulus);
+      it('is correctly calculating modulus', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 50n;
+
+        expect(await this.mock[this.fn](base, exponent, modulus)).to.equal(base ** exponent % modulus);
+      });
+
+      it('is correctly reverting when modulus is zero', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 0n;
+
+        await expect(this.mock[this.fn](base, exponent, modulus)).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
+      });
     });
 
-    it('is correctly reverting when modulus is zero', async function () {
-      const base = 3n;
-      const exponent = 200n;
-      const modulus = 0n;
+    describe('with bytes memory inputs', function () {
+      before(function () {
+        this.fn = '$modExp(bytes,bytes,bytes)';
+      });
 
-      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
+      it('is correctly calculating modulus', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 50n;
+
+        expect(await this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.equal(
+          toBeHex(base ** exponent % modulus),
+        );
+      });
+
+      it('is correctly reverting when modulus is zero', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 0n;
+
+        await expect(this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.be.revertedWithPanic(
+          PANIC_CODES.DIVISION_BY_ZERO,
+        );
+      });
+
+      for (const [base, exponent, modulusExponent] of product(range(0, 24, 4), range(0, 24, 4), range(0, 256, 64))) {
+        const b = 2n ** BigInt(base);
+        const e = 2n ** BigInt(exponent);
+        const m = 2n ** BigInt(modulusExponent);
+
+        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+          const result = await this.mock[this.fn](toBeHex(b), toBeHex(e), toBeHex(m));
+          expect(result).to.equal(toBeHex(b ** e % m, dataLength(toBeHex(m))));
+        });
+      }
+    });
+  });
+
+  describe('tryModExp', function () {
+    describe('with uint256 inputs', function () {
+      it('is correctly returning true and calculating modulus', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 50n;
+
+        expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
+      });
+
+      it('is correctly returning false when modulus is 0', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 0n;
+
+        expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([false, 0n]);
+      });
     });
   });
 
