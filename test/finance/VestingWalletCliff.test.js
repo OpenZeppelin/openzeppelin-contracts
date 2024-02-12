@@ -73,12 +73,7 @@ describe('VestingWallet', function () {
 
   it('rejects a larger cliff than vesting duration', async function () {
     await expect(
-      ethers.deployContract('$VestingWalletCliff', [
-        this.beneficiary,
-        this.start,
-        this.duration,
-        this.duration + 1n,
-      ]),
+      ethers.deployContract('$VestingWalletCliff', [this.beneficiary, this.start, this.duration, this.duration + 1n]),
     )
       .revertedWithCustomError(this.mock, 'InvalidCliffDuration')
       .withArgs(this.duration + 1n, this.duration);
