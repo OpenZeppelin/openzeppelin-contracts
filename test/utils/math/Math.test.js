@@ -399,14 +399,18 @@ describe('Math', function () {
     });
   });
 
-  describe('tryModExp', function () {
+  describe.only('tryModExp', function () {
     describe('with uint256 inputs', function () {
+      before(function () {
+        this.fn = '$tryModExp(uint256,uint256,uint256)';
+      });
+
       it('is correctly returning true and calculating modulus', async function () {
         const base = 3n;
         const exponent = 200n;
         const modulus = 50n;
 
-        expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
+        expect(await this.mock[this.fn](base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
       });
 
       it('is correctly returning false when modulus is 0', async function () {
@@ -414,8 +418,47 @@ describe('Math', function () {
         const exponent = 200n;
         const modulus = 0n;
 
-        expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([false, 0n]);
+        expect(await this.mock[this.fn](base, exponent, modulus)).to.deep.equal([false, 0n]);
       });
+    });
+
+    describe('with bytes memory inputs', function () {
+      before(function () {
+        this.fn = '$tryModExp(bytes,bytes,bytes)';
+      });
+
+      it('is correctly returning true and calculating modulus', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 50n;
+
+        expect(await this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.deep.equal([
+          true,
+          toBeHex(base ** exponent % modulus),
+        ]);
+      });
+
+      it('is correctly returning false when modulus is 0', async function () {
+        const base = 3n;
+        const exponent = 200n;
+        const modulus = 0n;
+
+        expect(await this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.deep.equal([
+          false,
+          '0x',
+        ]);
+      });
+
+      for (const [base, exponent, modulusExponent] of product(range(0, 24, 4), range(0, 24, 4), range(0, 256, 64))) {
+        const b = 2n ** BigInt(base);
+        const e = 2n ** BigInt(exponent);
+        const m = 2n ** BigInt(modulusExponent);
+
+        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+          const result = await this.mock[this.fn](toBeHex(b), toBeHex(e), toBeHex(m));
+          expect(result).to.deep.equal([true, toBeHex(b ** e % m, dataLength(toBeHex(m)))]);
+        });
+      }
     });
   });
 
