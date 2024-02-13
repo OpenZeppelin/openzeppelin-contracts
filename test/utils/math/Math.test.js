@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Rounding } = require('../../helpers/enums');
-const { min, max } = require('../../helpers/math');
+const { min, max, modExp } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
 const { range } = require('../../../scripts/helpers');
 const { product } = require('../../helpers/iterate');
@@ -20,28 +20,6 @@ uint256.zero = 0n;
 async function testCommutative(fn, lhs, rhs, expected, ...extra) {
   expect(await fn(lhs, rhs, ...extra)).to.deep.equal(expected);
   expect(await fn(rhs, lhs, ...extra)).to.deep.equal(expected);
-}
-
-// Computes modexp without BigInt overflow for large numbers
-function nativeModExp(b, e, m) {
-  let result = 1n;
-
-  // If e is a power of two, modexp can be calculated as:
-  // for (let result = b, i = 0; i < log2(e); i++) result = modexp(result, 2, m)
-  //
-  // Given any natural number can be written in terms of powers of 2 (i.e. binary)
-  // then modexp can be calculated for any e, by multiplying b**i for all i where
-  // binary(e)[i] is 1 (i.e. a power of two).
-  for (let base = b % m; e > 0n; base = base ** 2n % m) {
-    // Least significant bit is 1
-    if (e % 2n == 1n) {
-      result = (result * base) % m;
-    }
-
-    e /= 2n; // Binary pop
-  }
-
-  return result;
 }
 
 async function fixture() {
@@ -388,17 +366,15 @@ describe('Math', function () {
     }
 
     describe('with large bytes inputs', function () {
-      for (const [b, e, m] of product(
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+      for (const [[b, log2b], [e, log2e], [m, log2m]] of product(
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
       )) {
-        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+        it(`calculates b ** e % m (b=2**${log2b}) (e=2**${log2e}) (m=2**${log2m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
-          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(
-            bytes(nativeModExp(b, e, m), mLength).value,
-          );
+          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(bytes(modExp(b, e, m), mLength).value);
         });
       }
     });
@@ -426,17 +402,17 @@ describe('Math', function () {
     }
 
     describe('with large bytes inputs', function () {
-      for (const [b, e, m] of product(
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
-        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+      for (const [[b, log2b], [e, log2e], [m, log2m]] of product(
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
       )) {
-        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+        it(`calculates b ** e % m (b=2**${log2b}) (e=2**${log2e}) (m=2**${log2m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
           expect(await this.mock.$tryModExp(bytes(b), bytes(e), bytes(m))).to.deep.equal([
             true,
-            bytes(nativeModExp(b, e, m), mLength).value,
+            bytes(modExp(b, e, m), mLength).value,
           ]);
         });
       }
