@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Address} from "../Address.sol";
 import {Panic} from "../Panic.sol";
 import {SafeCast} from "./SafeCast.sol";
 
@@ -289,11 +288,7 @@ library Math {
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
-            if (m == 0) {
-                Panic.panic(Panic.DIVISION_BY_ZERO);
-            } else {
-                revert Address.FailedInnerCall();
-            }
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
         return result;
     }
@@ -341,11 +336,7 @@ library Math {
     function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
         (bool success, bytes memory result) = tryModExp(b, e, m);
         if (!success) {
-            if (_zeroBytes(m)) {
-                Panic.panic(Panic.DIVISION_BY_ZERO);
-            } else {
-                revert Address.FailedInnerCall();
-            }
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
         return result;
     }
