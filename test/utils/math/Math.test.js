@@ -339,61 +339,41 @@ describe('Math', function () {
   });
 
   describe('modExp', function () {
-    describe('with uint256 inputs', function () {
-      before(function () {
-        this.fn = '$modExp(uint256,uint256,uint256)';
+    const bytes = (value, width = undefined) => ethers.Typed.bytes(ethers.toBeHex(value, width));
+    const uint256 = (value) => ethers.Typed.uint256(value);
+
+    for (const [ name, type ] of Object.entries({ uint256, bytes })) {
+      describe(`with ${name} inputs`, function () {
+        it('is correctly calculating modulus', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 50n;
+
+          expect(await this.mock.$modExp(type(b), type(e), type(m))).to.equal(type(b ** e % m).value);
+        });
+
+        it('is correctly reverting when modulus is zero', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 0n;
+
+          await expect(this.mock.$modExp(type(b), type(e), type(m))).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
+        });
       });
+    }
 
-      it('is correctly calculating modulus', async function () {
-        const base = 3n;
-        const exponent = 200n;
-        const modulus = 50n;
-
-        expect(await this.mock[this.fn](base, exponent, modulus)).to.equal(base ** exponent % modulus);
-      });
-
-      it('is correctly reverting when modulus is zero', async function () {
-        const base = 3n;
-        const exponent = 200n;
-        const modulus = 0n;
-
-        await expect(this.mock[this.fn](base, exponent, modulus)).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
-      });
-    });
-
-    describe('with bytes memory inputs', function () {
-      before(function () {
-        this.fn = '$modExp(bytes,bytes,bytes)';
-      });
-
-      it('is correctly calculating modulus', async function () {
-        const base = 3n;
-        const exponent = 200n;
-        const modulus = 50n;
-
-        expect(await this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.equal(
-          toBeHex(base ** exponent % modulus),
-        );
-      });
-
-      it('is correctly reverting when modulus is zero', async function () {
-        const base = 3n;
-        const exponent = 200n;
-        const modulus = 0n;
-
-        await expect(this.mock[this.fn](toBeHex(base), toBeHex(exponent), toBeHex(modulus))).to.be.revertedWithPanic(
-          PANIC_CODES.DIVISION_BY_ZERO,
-        );
-      });
-
-      for (const [baseExp, exponentExp, modulusExp] of product(range(0, 24, 4), range(0, 24, 4), range(0, 256, 64))) {
-        const b = 2n ** BigInt(baseExp);
-        const e = 2n ** BigInt(exponentExp);
-        const m = 2n ** BigInt(modulusExp);
-
+    describe(`with large bytes inputs`, function () {
+      for (const [b, e, m] of product(
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 256, 64).map(i => 2n ** BigInt(i))
+      )) {
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
-          const result = await this.mock[this.fn](toBeHex(b), toBeHex(e), toBeHex(m));
-          expect(result).to.equal(toBeHex(b ** e % m, dataLength(toBeHex(m))));
+          const mLength = ethers.dataLength(ethers.toBeHex(m));
+
+          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(
+            bytes(b ** e % m, mLength).value
+          );
         });
       }
     });
