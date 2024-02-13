@@ -30,7 +30,7 @@ module.exports = {
 
   // ================================================ Object helpers =================================================
 
-  // Create a new object by mapping the values trough a function, keeping the keys
+  // Create a new object by mapping the values through a function, keeping the keys
   // Example: mapValues({a:1,b:2,c:3}, x => x**2) → {a:1,b:4,c:9}
   mapValues: (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fn(v)])),
 
