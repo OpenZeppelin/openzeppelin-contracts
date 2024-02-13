@@ -371,7 +371,7 @@ describe('Math', function () {
         range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
         range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
       )) {
-        it(`calculates b ** e % m (b=2**${log2b}) (e=2**${log2e}) (m=2**${log2m})`, async function () {
+        it(`calculates b ** e % m (b=2**${log2b}+1) (e=2**${log2e}+1) (m=2**${log2m}+1)`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
           expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(bytes(modExp(b, e, m), mLength).value);
@@ -407,7 +407,7 @@ describe('Math', function () {
         range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
         range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
       )) {
-        it(`calculates b ** e % m (b=2**${log2b}) (e=2**${log2e}) (m=2**${log2m})`, async function () {
+        it(`calculates b ** e % m (b=2**${log2b}+1) (e=2**${log2e}+1) (m=2**${log2m}+1)`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
           expect(await this.mock.$tryModExp(bytes(b), bytes(e), bytes(m))).to.deep.equal([
