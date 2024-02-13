@@ -31,40 +31,50 @@ describe('P256', function () {
   });
 
   it('verify valid signature', async function () {
-    expect(await this.mock.$verify(...this.publicKey, ...this.signature, this.messageHash)).to.be.true;
+    expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
   });
 
   it('recover public key', async function () {
-    expect(await this.mock.$recovery(...this.signature, this.recovery, this.messageHash)).to.deep.equal(this.publicKey);
+    expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.deep.equal(this.publicKey);
   });
 
   it('recover address', async function () {
-    expect(await this.mock.$recoveryAddress(...this.signature, this.recovery, this.messageHash)).to.equal(this.address);
+    expect(await this.mock.$recoveryAddress(this.messageHash, this.recovery, ...this.signature)).to.equal(this.address);
   });
 
   it('reject signature with flipped public key coordinates ([x,y] >> [y,x])', async function () {
     const reversedPublicKey = Array.from(this.publicKey).reverse();
-    expect(await this.mock.$verify(...reversedPublicKey, ...this.signature, this.messageHash)).to.be.false;
+    expect(await this.mock.$verify(this.messageHash, ...this.signature, ...reversedPublicKey)).to.be.false;
   });
 
   it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
     const reversedSignature = Array.from(this.signature).reverse();
-    expect(await this.mock.$verify(...this.publicKey, ...reversedSignature, this.messageHash)).to.be.false;
-    expect(await this.mock.$recovery(...reversedSignature, this.recovery, this.messageHash)).to.not.deep.equal(
+    expect(await this.mock.$verify(this.messageHash, ...reversedSignature, ...this.publicKey)).to.be.false;
+    expect(await this.mock.$recovery(this.messageHash, this.recovery, ...reversedSignature)).to.not.deep.equal(
       this.publicKey,
     );
-    expect(await this.mock.$recoveryAddress(...reversedSignature, this.recovery, this.messageHash)).to.not.equal(
+    expect(await this.mock.$recoveryAddress(this.messageHash, this.recovery, ...reversedSignature)).to.not.equal(
       this.address,
     );
   });
 
   it('reject signature with invalid message hash', async function () {
     const invalidMessageHash = ethers.hexlify(ethers.randomBytes(32));
-    expect(await this.mock.$verify(...this.publicKey, ...this.signature, invalidMessageHash)).to.be.false;
-    expect(await this.mock.$recovery(...this.signature, this.recovery, invalidMessageHash)).to.not.deep.equal(
+    expect(await this.mock.$verify(invalidMessageHash, ...this.signature, ...this.publicKey)).to.be.false;
+    expect(await this.mock.$recovery(invalidMessageHash, this.recovery, ...this.signature)).to.not.deep.equal(
       this.publicKey,
     );
-    expect(await this.mock.$recoveryAddress(...this.signature, this.recovery, invalidMessageHash)).to.not.equal(
+    expect(await this.mock.$recoveryAddress(invalidMessageHash, this.recovery, ...this.signature)).to.not.equal(
+      this.address,
+    );
+  });
+
+  it('fail to recover signature with invalid recovery bit', async function () {
+    const invalidRecovery = 1 - this.recovery;
+    expect(await this.mock.$recovery(this.messageHash, invalidRecovery, ...this.signature)).to.not.deep.equal(
+      this.publicKey,
+    );
+    expect(await this.mock.$recoveryAddress(this.messageHash, invalidRecovery, ...this.signature)).to.not.equal(
       this.address,
     );
   });

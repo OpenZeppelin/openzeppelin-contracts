@@ -38,18 +38,18 @@ library P256 {
 
     /**
      * @dev signature verification
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
+     * @param h - hashed message
      * @param r - signature half R
      * @param s - signature half S
-     * @param e - hashed message
+     * @param qx - public key coordinate X
+     * @param qy - public key coordinate Y
      */
-    function verify(uint256 qx, uint256 qy, uint256 r, uint256 s, uint256 e) internal view returns (bool) {
+    function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
         if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
 
         JPoint[16] memory points = _preComputeJacobianPoints(qx, qy);
         uint256 w = _invModN(s);
-        uint256 u1 = mulmod(e, w, N);
+        uint256 u1 = mulmod(h, w, N);
         uint256 u2 = mulmod(r, w, N);
         (uint256 x, ) = _jMultShamir(points, u1, u2);
         return (x == r);
@@ -57,12 +57,12 @@ library P256 {
 
     /**
      * @dev public key recovery
+     * @param h - hashed message
+     * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
-     * @param v - signature recovery param
-     * @param e - hashed message
      */
-    function recovery(uint256 r, uint256 s, uint8 v, uint256 e) internal view returns (uint256, uint256) {
+    function recovery(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (uint256, uint256) {
         if (r == 0 || r >= N || s == 0 || s >= N || v > 1) return (0, 0);
 
         uint256 rx = r;
@@ -73,7 +73,7 @@ library P256 {
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
         uint256 w = _invModN(r);
-        uint256 u1 = mulmod(N - (e % N), w, N);
+        uint256 u1 = mulmod(N - (h % N), w, N);
         uint256 u2 = mulmod(s, w, N);
         (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
         return (x, y);
@@ -81,13 +81,13 @@ library P256 {
 
     /**
      * @dev address recovery
+     * @param h - hashed message
+     * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
-     * @param v - signature recovery param
-     * @param e - hashed message
      */
-    function recoveryAddress(uint256 r, uint256 s, uint8 v, uint256 e) internal view returns (address) {
-        (uint256 qx, uint256 qy) = recovery(r, s, v, e);
+    function recoveryAddress(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (address) {
+        (uint256 qx, uint256 qy) = recovery(h, v, r, s);
         return getAddress(qx, qy);
     }
 
