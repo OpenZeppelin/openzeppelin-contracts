@@ -4,8 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {SafeCast} from "../../../contracts/utils/math/SafeCast.sol";
-import {Checkpoints} from "../../../contracts/utils/structs/Checkpoints.sol";
+import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
 
 contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
@@ -17,11 +17,11 @@ contract CheckpointsTrace224Test is Test {
     Checkpoints.Trace224 internal _ckpts;
 
     // helpers
-    function _boundUint32(uint32 x, uint32 min, uint32 max) internal view returns (uint32) {
+    function _boundUint32(uint32 x, uint32 min, uint32 max) internal pure returns (uint32) {
         return SafeCast.toUint32(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint32[] memory keys, uint32 maxSpread) internal view {
+    function _prepareKeys(uint32[] memory keys, uint32 maxSpread) internal pure {
         uint32 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = _boundUint32(keys[i], lastKey, lastKey + maxSpread);
@@ -125,11 +125,11 @@ contract CheckpointsTrace208Test is Test {
     Checkpoints.Trace208 internal _ckpts;
 
     // helpers
-    function _boundUint48(uint48 x, uint48 min, uint48 max) internal view returns (uint48) {
+    function _boundUint48(uint48 x, uint48 min, uint48 max) internal pure returns (uint48) {
         return SafeCast.toUint48(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint48[] memory keys, uint48 maxSpread) internal view {
+    function _prepareKeys(uint48[] memory keys, uint48 maxSpread) internal pure {
         uint48 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint48 key = _boundUint48(keys[i], lastKey, lastKey + maxSpread);
@@ -233,11 +233,11 @@ contract CheckpointsTrace160Test is Test {
     Checkpoints.Trace160 internal _ckpts;
 
     // helpers
-    function _boundUint96(uint96 x, uint96 min, uint96 max) internal view returns (uint96) {
+    function _boundUint96(uint96 x, uint96 min, uint96 max) internal pure returns (uint96) {
         return SafeCast.toUint96(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    function _prepareKeys(uint96[] memory keys, uint96 maxSpread) internal view {
+    function _prepareKeys(uint96[] memory keys, uint96 maxSpread) internal pure {
         uint96 lastKey = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = _boundUint96(keys[i], lastKey, lastKey + maxSpread);

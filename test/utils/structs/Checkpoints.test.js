@@ -4,8 +4,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts');
 
-const last = array => (array.length ? array[array.length - 1] : undefined);
-
 describe('Checkpoints', function () {
   for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
@@ -81,7 +79,7 @@ describe('Checkpoints', function () {
         it('returns latest value', async function () {
           const latest = this.checkpoints.at(-1);
           expect(await this.methods.latest()).to.equal(latest.value);
-          expect(await this.methods.latestCheckpoint()).to.have.ordered.members([true, latest.key, latest.value]);
+          expect(await this.methods.latestCheckpoint()).to.deep.equal([true, latest.key, latest.value]);
         });
 
         it('cannot push values in the past', async function () {
@@ -115,7 +113,7 @@ describe('Checkpoints', function () {
 
         it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = last(this.checkpoints.filter(x => i >= x.key))?.value || 0n;
+            const value = this.checkpoints.findLast(x => i >= x.key)?.value || 0n;
 
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
@@ -137,7 +135,7 @@ describe('Checkpoints', function () {
           }
 
           for (let i = 0; i < 25; ++i) {
-            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || 0n;
+            const value = allCheckpoints.findLast(x => i >= x.key)?.value || 0n;
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
           }

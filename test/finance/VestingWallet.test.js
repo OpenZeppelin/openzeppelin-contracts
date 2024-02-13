@@ -55,9 +55,7 @@ async function fixture() {
     },
   };
 
-  const schedule = Array(64)
-    .fill()
-    .map((_, i) => (BigInt(i) * duration) / 60n + start);
+  const schedule = Array.from({ length: 64 }, (_, i) => (BigInt(i) * duration) / 60n + start);
 
   const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
 

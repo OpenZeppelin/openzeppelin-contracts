@@ -5,6 +5,7 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
+const { generators } = require('../../helpers/random');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -140,6 +141,24 @@ describe('Math', function () {
     });
   });
 
+  describe('tryModExp', function () {
+    it('is correctly returning true and calculating modulus', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 50n;
+
+      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([true, base ** exponent % modulus]);
+    });
+
+    it('is correctly returning false when modulus is 0', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 0n;
+
+      expect(await this.mock.$tryModExp(base, exponent, modulus)).to.deep.equal([false, 0n]);
+    });
+  });
+
   describe('max', function () {
     it('is correctly detected in both position', async function () {
       await testCommutative(this.mock.$max, 1234n, 5678n, max(1234n, 5678n));
@@ -221,7 +240,7 @@ describe('Math', function () {
     });
   });
 
-  describe('muldiv', function () {
+  describe('mulDiv', function () {
     it('divide by 0', async function () {
       const a = 1n;
       const b = 1n;
@@ -233,9 +252,8 @@ describe('Math', function () {
       const a = 5n;
       const b = ethers.MaxUint256;
       const c = 2n;
-      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithCustomError(
-        this.mock,
-        'MathOverflowedMulDiv',
+      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW,
       );
     });
 
@@ -295,6 +313,61 @@ describe('Math', function () {
           );
         }
       });
+    });
+  });
+
+  describe('invMod', function () {
+    for (const factors of [
+      [0n],
+      [1n],
+      [2n],
+      [17n],
+      [65537n],
+      [0xffffffff00000001000000000000000000000000ffffffffffffffffffffffffn],
+      [3n, 5n],
+      [3n, 7n],
+      [47n, 53n],
+    ]) {
+      const p = factors.reduce((acc, f) => acc * f, 1n);
+
+      describe(`using p=${p} which is ${p > 1 && factors.length > 1 ? 'not ' : ''}a prime`, function () {
+        it('trying to inverse 0 returns 0', async function () {
+          expect(await this.mock.$invMod(0, p)).to.equal(0n);
+          expect(await this.mock.$invMod(p, p)).to.equal(0n); // p is 0 mod p
+        });
+
+        if (p != 0) {
+          for (const value of Array.from({ length: 16 }, generators.uint256)) {
+            const isInversible = factors.every(f => value % f);
+            it(`trying to inverse ${value}`, async function () {
+              const result = await this.mock.$invMod(value, p);
+              if (isInversible) {
+                expect((value * result) % p).to.equal(1n);
+              } else {
+                expect(result).to.equal(0n);
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+
+  describe('modExp', function () {
+    it('is correctly calculating modulus', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 50n;
+
+      expect(await this.mock.$modExp(base, exponent, modulus)).to.equal(base ** exponent % modulus);
+    });
+
+    it('is correctly reverting when modulus is zero', async function () {
+      const base = 3n;
+      const exponent = 200n;
+      const modulus = 0n;
+
+      await expect(this.mock.$modExp(base, exponent, modulus)).to.be.revertedWithPanic(PANIC_CODES.DIVISION_BY_ZERO);
     });
   });
 
