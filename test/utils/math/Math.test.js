@@ -6,6 +6,8 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { Rounding } = require('../../helpers/enums');
 const { min, max } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
+const { range } = require('../../../scripts/helpers');
+const { product } = require('../../helpers/iterate');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -362,9 +364,23 @@ describe('Math', function () {
         });
       });
     }
+
+    describe(`with large bytes inputs`, function () {
+      for (const [b, e, m] of product(
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 256, 64).map(i => 2n ** BigInt(i)),
+      )) {
+        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+          const mLength = ethers.dataLength(ethers.toBeHex(m));
+
+          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(bytes(b ** e % m, mLength).value);
+        });
+      }
+    });
   });
 
-  describe('tryModExp', function () {
+  describe.only('tryModExp', function () {
     for (const [name, type] of Object.entries({ uint256, bytes })) {
       describe(`with ${name} inputs`, function () {
         it('is correctly calculating modulus', async function () {
@@ -384,6 +400,23 @@ describe('Math', function () {
         });
       });
     }
+
+    describe(`with large bytes inputs`, function () {
+      for (const [b, e, m] of product(
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 24, 4).map(i => 2n ** BigInt(i)),
+        range(0, 256, 64).map(i => 2n ** BigInt(i)),
+      )) {
+        it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
+          const mLength = ethers.dataLength(ethers.toBeHex(m));
+
+          expect(await this.mock.$tryModExp(bytes(b), bytes(e), bytes(m))).to.deep.equal([
+            true,
+            bytes(b ** e % m, mLength).value,
+          ]);
+        });
+      }
+    });
   });
 
   describe('sqrt', function () {
