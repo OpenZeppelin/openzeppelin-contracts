@@ -36,7 +36,11 @@ abstract contract VestingWalletCliff is VestingWallet {
 
     /**
      * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
-     * an asset given its total historical allocation.
+     * an asset given its total historical allocation. Returns 0 if the {cliff} timestamp is not met.
+     *
+     * IMPORTANT: The cliff not only makes the schedule return 0, but it also ignores every possible side
+     * effect. Carefully consider this caveat if the overridden implementation of this function has any side
+     * effect (e.g. writing to memory or reverting).
      */
     function _vestingSchedule(
         uint256 totalAllocation,
