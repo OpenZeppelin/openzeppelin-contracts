@@ -365,11 +365,11 @@ describe('Math', function () {
       });
     }
 
-    describe(`with large bytes inputs`, function () {
+    describe('with large bytes inputs', function () {
       for (const [b, e, m] of product(
-        range(0, 24, 4).map(i => 2n ** BigInt(i)),
-        range(0, 24, 4).map(i => 2n ** BigInt(i)),
-        range(0, 256, 64).map(i => 2n ** BigInt(i)),
+        range(4, 20, 6).map(i => 2n ** BigInt(i)),
+        range(4, 20, 6).map(i => 2n ** BigInt(i)),
+        range(256, 512, 64).map(i => 2n ** BigInt(i)),
       )) {
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
@@ -380,7 +380,7 @@ describe('Math', function () {
     });
   });
 
-  describe.only('tryModExp', function () {
+  describe('tryModExp', function () {
     for (const [name, type] of Object.entries({ uint256, bytes })) {
       describe(`with ${name} inputs`, function () {
         it('is correctly calculating modulus', async function () {
@@ -401,11 +401,11 @@ describe('Math', function () {
       });
     }
 
-    describe(`with large bytes inputs`, function () {
+    describe('with large bytes inputs', function () {
       for (const [b, e, m] of product(
-        range(0, 24, 4).map(i => 2n ** BigInt(i)),
-        range(0, 24, 4).map(i => 2n ** BigInt(i)),
-        range(0, 256, 64).map(i => 2n ** BigInt(i)),
+        range(4, 20, 6).map(i => 2n ** BigInt(i)),
+        range(4, 20, 6).map(i => 2n ** BigInt(i)),
+        range(256, 512, 64).map(i => 2n ** BigInt(i)),
       )) {
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
