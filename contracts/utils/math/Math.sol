@@ -349,7 +349,7 @@ library Math {
         bytes memory e,
         bytes memory m
     ) internal view returns (bool success, bytes memory result) {
-        if (_zeroBytes(m)) return (false, result);
+        if (_zeroBytes(m)) return (false, new bytes(0));
 
         uint256 mLen = m.length;
 
@@ -358,16 +358,14 @@ library Math {
 
         /// @solidity memory-safe-assembly
         assembly {
+            let dataPtr := add(result, 0x20)
             // Write result on top of args to avoid allocating extra memory.
-            // | Offset    | Content      | Content (Hex)                                                      |
-            // |-----------|--------------|--------------------------------------------------------------------|
-            // | 0x00:0x1f | args length  | 0x<.......................................20+20+20+bLen+eLen+mLen> |
-            // | 0x20+mLen | result       | 0x<........................................................result> |
-            // | 0x..:0x.. | dirty bytes  | 0x<............................................20+20+20+bLen+eLen> |
-            success := staticcall(gas(), 0x05, add(result, 0x20), mload(result), add(result, 0x20), mLen)
+            success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)
             // Overwrite the length.
             // result.length > returndatasize() is guaranteed because returndatasize() == m.length
             mstore(result, mLen)
+            // Set the memory pointer after the returned data.
+            mstore(0x40, add(dataPtr, mLen))
         }
     }
 
@@ -375,7 +373,7 @@ library Math {
      * @dev Returns whether the provided byte array is zero.
      */
     function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
-        for (uint256 i; i < byteArray.length; ++i) {
+        for (uint256 i = 0; i < byteArray.length; ++i) {
             if (byteArray[i] != 0) {
                 return false;
             }

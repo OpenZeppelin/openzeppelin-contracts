@@ -22,6 +22,28 @@ async function testCommutative(fn, lhs, rhs, expected, ...extra) {
   expect(await fn(rhs, lhs, ...extra)).to.deep.equal(expected);
 }
 
+// Computes modexp without BigInt overflow for large numbers
+function nativeModExp(b, e, m) {
+  let result = 1n;
+
+  // If e is a power of two, modexp can be calculated as:
+  // for (let result = b, i = 0; i < log2(e); i++) result = modexp(result, 2, m)
+  //
+  // Given any natural number can be written in terms of powers of 2 (i.e. binary)
+  // then modexp can be calculated for any e, by multiplying b**i for all i where
+  // binary(e)[i] is 1 (i.e. a power of two).
+  for (let base = b % m; e > 0n; base = base ** 2n % m) {
+    // Least significant bit is 1
+    if (e % 2n == 1n) {
+      result = (result * base) % m;
+    }
+
+    e /= 2n; // Binary pop
+  }
+
+  return result;
+}
+
 async function fixture() {
   const mock = await ethers.deployContract('$Math');
 
@@ -367,14 +389,16 @@ describe('Math', function () {
 
     describe('with large bytes inputs', function () {
       for (const [b, e, m] of product(
-        range(4, 20, 6).map(i => 2n ** BigInt(i)),
-        range(4, 20, 6).map(i => 2n ** BigInt(i)),
-        range(256, 512, 64).map(i => 2n ** BigInt(i)),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
       )) {
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
-          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(bytes(b ** e % m, mLength).value);
+          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(
+            bytes(nativeModExp(b, e, m), mLength).value,
+          );
         });
       }
     });
@@ -403,16 +427,16 @@ describe('Math', function () {
 
     describe('with large bytes inputs', function () {
       for (const [b, e, m] of product(
-        range(4, 20, 6).map(i => 2n ** BigInt(i)),
-        range(4, 20, 6).map(i => 2n ** BigInt(i)),
-        range(256, 512, 64).map(i => 2n ** BigInt(i)),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
+        range(256, 512, 64).map(i => 2n ** BigInt(i) + 1n),
       )) {
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
           const mLength = ethers.dataLength(ethers.toBeHex(m));
 
           expect(await this.mock.$tryModExp(bytes(b), bytes(e), bytes(m))).to.deep.equal([
             true,
-            bytes(b ** e % m, mLength).value,
+            bytes(nativeModExp(b, e, m), mLength).value,
           ]);
         });
       }
