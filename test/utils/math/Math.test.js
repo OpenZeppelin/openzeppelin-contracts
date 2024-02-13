@@ -338,7 +338,7 @@ describe('Math', function () {
     }
   });
 
-  describe.only('modExp', function () {
+  describe('modExp', function () {
     describe('with uint256 inputs', function () {
       before(function () {
         this.fn = '$modExp(uint256,uint256,uint256)';
@@ -399,7 +399,7 @@ describe('Math', function () {
     });
   });
 
-  describe.only('tryModExp', function () {
+  describe('tryModExp', function () {
     describe('with uint256 inputs', function () {
       before(function () {
         this.fn = '$tryModExp(uint256,uint256,uint256)';

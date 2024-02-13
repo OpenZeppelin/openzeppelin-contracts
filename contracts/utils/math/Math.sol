@@ -361,14 +361,21 @@ library Math {
         if (_zeroArray(m)) return (false, new bytes(0));
 
         // Encode call args and move the free memory pointer
-        bytes memory args = abi.encodePacked(b.length, e.length, m.length, b, e, m);
-
-        // Given result <= modulus
-        result = new bytes(m.length);
+        result = abi.encodePacked(b.length, e.length, m.length, b, e, m);
 
         /// @solidity memory-safe-assembly
         assembly {
-            success := staticcall(gas(), 0x05, add(args, 0x20), mload(args), add(result, 0x20), mload(m))
+            let mLen := mload(m)
+            // Write result on top of args to avoid allocating extra memory.
+            // | Offset    | Content      | Content (Hex)                                                      |
+            // |-----------|--------------|--------------------------------------------------------------------|
+            // | 0x00:0x1f | args length  | 0x<.......................................20+20+20+bLen+eLen+mLen> |
+            // | 0x20+mLen | result       | 0x<........................................................result> |
+            // | 0x..:0x.. | dirty bytes  | 0x<............................................20+20+20+bLen+eLen> |
+            success := staticcall(gas(), 0x05, add(result, 0x20), mload(result), add(result, 0x20), mLen)
+            // Overwrite the length.
+            // result.length > returndatasize() is guaranteed because returndatasize() == m.length
+            mstore(result, mLen)
         }
     }
 
