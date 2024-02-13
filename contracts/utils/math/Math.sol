@@ -360,12 +360,13 @@ library Math {
     ) internal view returns (bool success, bytes memory result) {
         if (_zeroArray(m)) return (false, new bytes(0));
 
-        // Encode call args and move the free memory pointer
-        result = abi.encodePacked(b.length, e.length, m.length, b, e, m);
+        uint256 mLen = m.length;
+
+        // Encode call args in result and move the free memory pointer
+        result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
 
         /// @solidity memory-safe-assembly
         assembly {
-            let mLen := mload(m)
             // Write result on top of args to avoid allocating extra memory.
             // | Offset    | Content      | Content (Hex)                                                      |
             // |-----------|--------------|--------------------------------------------------------------------|
