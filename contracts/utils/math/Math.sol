@@ -358,7 +358,7 @@ library Math {
         bytes memory e,
         bytes memory m
     ) internal view returns (bool success, bytes memory result) {
-        if (_zeroArray(m)) return (false, new bytes(0));
+        if (_zeroBytes(m)) return (false, result);
 
         uint256 mLen = m.length;
 
@@ -381,11 +381,11 @@ library Math {
     }
 
     /**
-     * @dev Returns whether the provided array is zero.
+     * @dev Returns whether the provided byte array is zero.
      */
-    function _zeroArray(bytes memory array) private pure returns (bool) {
-        for (uint256 i; i < array.length; ++i) {
-            if (array[i] != 0) {
+    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
+        for (uint256 i; i < byteArray.length; ++i) {
+            if (byteArray[i] != 0) {
                 return false;
             }
         }
