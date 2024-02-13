@@ -450,9 +450,9 @@ describe('Math', function () {
       });
 
       for (const [baseExp, exponentExp, modulusExp] of product(range(0, 24, 4), range(0, 24, 4), range(0, 256, 64))) {
-        const b = 2n ** BigInt(baseExp);
-        const e = 2n ** BigInt(exponentExp);
-        const m = 2n ** BigInt(modulusExp);
+        const b = 2n ** BigInt(baseExp) + 1n;
+        const e = 2n ** BigInt(exponentExp) + 1n;
+        const m = 2n ** BigInt(modulusExp) + 1n;
 
         it(`calculates b ** e % m (b=${b}) (e=${e}) (m=${m})`, async function () {
           const result = await this.mock[this.fn](toBeHex(b), toBeHex(e), toBeHex(m));
