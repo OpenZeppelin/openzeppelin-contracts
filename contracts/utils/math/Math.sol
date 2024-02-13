@@ -341,7 +341,7 @@ library Math {
     function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
         (bool success, bytes memory result) = tryModExp(b, e, m);
         if (!success) {
-            if (_zeroArray(m)) {
+            if (_zeroBytes(m)) {
                 Panic.panic(Panic.DIVISION_BY_ZERO);
             } else {
                 revert Address.FailedInnerCall();
