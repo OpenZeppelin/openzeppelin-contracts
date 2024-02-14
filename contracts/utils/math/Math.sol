@@ -338,7 +338,7 @@ library Math {
     /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
-     * 
+     *
      * This method is based on Newton's method for computing square roots; the algorithm is restricted to only
      * using integer operations.
      */
@@ -349,7 +349,7 @@ library Math {
                 return a;
             }
             // This check ensures no overflow at return; see below.
-            if (a >= uint256(type(uint128).max)**2) {
+            if (a >= uint256(type(uint128).max) ** 2) {
                 return type(uint128).max;
             }
 
@@ -360,13 +360,33 @@ library Math {
             // (i.e. 2^e <= sqrt(a)). We know that e is at most 127 given (2^128)^2 overflows an uint256.
             // Thus, we approximate e by iterating 2^{i/2} where i starts at 128, and applying the exponent
             // to e if the result is still smaller than a (up to e == 127).
-            if (aAux >= (1 << 128)) { aAux >>= 128; result = 1 << 64; }
-            if (aAux >= (1 << 64 )) { aAux >>= 64;  result <<= 32; }
-            if (aAux >= (1 << 32 )) { aAux >>= 32;  result <<= 16; }
-            if (aAux >= (1 << 16 )) { aAux >>= 16;  result <<= 8;  }
-            if (aAux >= (1 << 8  )) { aAux >>= 8;   result <<= 4;  }
-            if (aAux >= (1 << 4  )) { aAux >>= 4;   result <<= 2;  }
-            if (aAux >= (1 << 2  )) {               result <<= 1;  }
+            if (aAux >= (1 << 128)) {
+                aAux >>= 128;
+                result = 1 << 64;
+            }
+            if (aAux >= (1 << 64)) {
+                aAux >>= 64;
+                result <<= 32;
+            }
+            if (aAux >= (1 << 32)) {
+                aAux >>= 32;
+                result <<= 16;
+            }
+            if (aAux >= (1 << 16)) {
+                aAux >>= 16;
+                result <<= 8;
+            }
+            if (aAux >= (1 << 8)) {
+                aAux >>= 8;
+                result <<= 4;
+            }
+            if (aAux >= (1 << 4)) {
+                aAux >>= 4;
+                result <<= 2;
+            }
+            if (aAux >= (1 << 2)) {
+                result <<= 1;
+            }
 
             // We can use the fact that 2^e <= sqrt(a) to improve the estimation
             // by computing the arithmetic mean between the current estimation and
@@ -382,7 +402,7 @@ library Math {
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-36}
             result = (result + a / result) >> 1; // err := result - sqrt(a)<= 2^{e-72}
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-144}
-            
+
             // After 6 iterations, no more precision can be obtained since the max result is 127.
             // Squaring result could overflow if a >= type(uint128).max^2, case discarded at the start.
             // result is either sqrt(a) or sqrt(a) + 1.
