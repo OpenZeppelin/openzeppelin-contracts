@@ -338,8 +338,9 @@ library Math {
     /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
-     * This method is based on Newton's method for computing square roots;
-     * the algorithm is restricted to only using integer operations.
+     * 
+     * This method is based on Newton's method for computing square roots; the algorithm is restricted to only
+     * using integer operations.
      */
     function sqrt(uint256 a) internal pure returns (uint256) {
         unchecked {
@@ -352,26 +353,13 @@ library Math {
                 return type(uint128).max;
             }
 
-            // If we have
-            //
-            //      2^{2e-2} <= a < 2^{2e}
-            //
-            // or equivalently
-            // 
-            //      2^{e-1} <= sqrt(a) < 2^{e},
-            //
-            // then at the end of initialization, we will have
-            //
-            //      result == 2^{e-1} + 2^{e-2}.
-            //
-            // This ensures that
-            //
-            //      abs(result - sqrt(a)) <= 2^{e-2}.
-            //
-            // Using this choice for initialization ensures that only
-            // 6 Newton iterations are required.
             uint256 aAux = a;
-            uint256 result = 1;
+            uint256 result = 1; // Initial approximate bit length.
+
+            // For the first guess of `result` (e), we get the biggest power of 2 which is smaller than sqrt(a)
+            // (i.e. 2^e <= sqrt(a)). We know that e is at most 127 given (2^128)^2 overflows an uint256.
+            // Thus, we approximate e by iterating 2^{i/2} where i starts at 128, and applying the exponent
+            // to e if the result is still smaller than a (up to e == 127).
             if (aAux >= (1 << 128)) { aAux >>= 128; result = 1 << 64; }
             if (aAux >= (1 << 64 )) { aAux >>= 64;  result <<= 32; }
             if (aAux >= (1 << 32 )) { aAux >>= 32;  result <<= 16; }
@@ -379,80 +367,26 @@ library Math {
             if (aAux >= (1 << 8  )) { aAux >>= 8;   result <<= 4;  }
             if (aAux >= (1 << 4  )) { aAux >>= 4;   result <<= 2;  }
             if (aAux >= (1 << 2  )) {               result <<= 1;  }
-            // At this point, we have
-            //      result == 2^{e-1}.
-            result = (3 * result) >> 1;
-            // After this update, we have
-            //      result == 2^{e-1} + 2^{e-2}.
 
-            // Perform the 6 required Newton iterations
-            //
-            // We let
-            //
-            //      f(x) = (x + a/x)/2.
-            //
-            // In this case, if
-            //
-            //      eps = x - sqrt(a),
-            //
-            // then
-            //
-            //      f(x) - sqrt(a) = (eps^2)/(2x)
-            //
-            // This allows for the computation of error bounds
-            // when Newton's method is used with real numbers.
-            // When using real numbers, we will always have
-            //
-            //      f(x) >= sqrt(a);
-            //
-            // In the situation where these operations are all integer operations,
-            // we only have
-            //
-            //      floor(f(x)) >= Isqrt(a),
-            //
-            // but this is not a problem
-            // as we are actually trying to compute Isqrt(a).
-            //
-            // From the initialization, we start with
-            //
-            //      abs(error) := abs(result - sqrt(a))
-            //                 <= 2^{e-2}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-4.5}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-9}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-18}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-36}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-72}
-            result = (result + a / result) >> 1;
-            //      error := result - sqrt(a)
-            //            <= 2^{e-144}
+            // We can use the fact that 2^e <= sqrt(a) to improve the estimation
+            // by computing the arithmetic mean between the current estimation and
+            // the next one (result * 2), ensuring that result - sqrt(a) <= 2^{e-2}.
+            result = (3 * result) >> 1; // (result + result << 1) / 2
 
-            // We either have
-            //
-            //      result == Isqrt(a)      or      result == Isqrt(a) + 1.
-            //
-            // The computation of
-            //
-            //      result * result
-            //
-            // could overflow if result == 2^128
-            // (only possible when a >= (uint128.max)^2 and
-            // result == uint128.max + 1),
-            // but this is not possible because that edge case
-            // was taken care of by previous logic.
-            if (result * result <= a) {
-                return result;
-            }
-            return result-1;
+            // Each Newton iteration will have f(x) = (x + a / x) / 2.
+            // Given the error (ε) is defined by x - sqrt(a), then we know that
+            // ε + 1 == ε^2 / 2x <= ε^2 / 2 * sqrt(a).
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-4.5}
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-9}
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-18}
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-36}
+            result = (result + a / result) >> 1; // err := result - sqrt(a)<= 2^{e-72}
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-144}
+            
+            // After 6 iterations, no more precision can be obtained since the max result is 127.
+            // Squaring result could overflow if a >= type(uint128).max^2, case discarded at the start.
+            // result is either sqrt(a) or sqrt(a) + 1.
+            return result * result <= a ? result : result - 1;
         }
     }
 
