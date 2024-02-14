@@ -231,9 +231,9 @@ contract MathTest is Test {
             vm.expectRevert(stdError.divisionError);
         }
         bytes memory result = Math.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
+        assertEq(result.length, 0x20);
         uint256 res = abi.decode(result, (uint256));
         assertLt(res, m);
-        assertEq(result.length, 32);
         assertEq(res, _nativeModExp(b, e, m));
     }
 
@@ -244,6 +244,7 @@ contract MathTest is Test {
             abi.encodePacked(m)
         );
         if (success) {
+            assertEq(result.length, 0x20); // m is a uint256, so abi.encodePacked(m).length is 0x20
             uint256 res = abi.decode(result, (uint256));
             assertLt(res, m);
             assertEq(res, _nativeModExp(b, e, m));
