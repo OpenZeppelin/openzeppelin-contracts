@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Address} from "../Address.sol";
 import {Panic} from "../Panic.sol";
 import {SafeCast} from "./SafeCast.sol";
 
@@ -289,11 +288,7 @@ library Math {
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
-            if (m == 0) {
-                Panic.panic(Panic.DIVISION_BY_ZERO);
-            } else {
-                revert Address.FailedInnerCall();
-            }
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
         return result;
     }
@@ -333,6 +328,57 @@ library Math {
             success := staticcall(gas(), 0x05, ptr, 0xc0, 0x00, 0x20)
             result := mload(0x00)
         }
+    }
+
+    /**
+     * @dev Variant of {modExp} that supports inputs of arbitrary length.
+     */
+    function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
+        (bool success, bytes memory result) = tryModExp(b, e, m);
+        if (!success) {
+            Panic.panic(Panic.DIVISION_BY_ZERO);
+        }
+        return result;
+    }
+
+    /**
+     * @dev Variant of {tryModExp} that supports inputs of arbitrary length.
+     */
+    function tryModExp(
+        bytes memory b,
+        bytes memory e,
+        bytes memory m
+    ) internal view returns (bool success, bytes memory result) {
+        if (_zeroBytes(m)) return (false, new bytes(0));
+
+        uint256 mLen = m.length;
+
+        // Encode call args in result and move the free memory pointer
+        result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            let dataPtr := add(result, 0x20)
+            // Write result on top of args to avoid allocating extra memory.
+            success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)
+            // Overwrite the length.
+            // result.length > returndatasize() is guaranteed because returndatasize() == m.length
+            mstore(result, mLen)
+            // Set the memory pointer after the returned data.
+            mstore(0x40, add(dataPtr, mLen))
+        }
+    }
+
+    /**
+     * @dev Returns whether the provided byte array is zero.
+     */
+    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
+        for (uint256 i = 0; i < byteArray.length; ++i) {
+            if (byteArray[i] != 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
