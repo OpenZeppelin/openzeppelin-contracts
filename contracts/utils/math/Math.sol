@@ -406,7 +406,10 @@ library Math {
             // After 6 iterations, no more precision can be obtained since the max result is 127.
             // Squaring result could overflow if a >= type(uint128).max^2, case discarded at the start.
             // result is either sqrt(a) or sqrt(a) + 1.
-            return result * result <= a ? result : result - 1;
+            if (result * result <= a) {
+                return result;
+            }
+            return result-1;
         }
     }
 
