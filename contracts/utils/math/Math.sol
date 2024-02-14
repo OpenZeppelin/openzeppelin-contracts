@@ -348,13 +348,9 @@ library Math {
             if (a <= 1) {
                 return a;
             }
-            // This check ensures no overflow at return; see below.
-            if (a >= uint256(type(uint128).max) ** 2) {
-                return type(uint128).max;
-            }
 
             uint256 aAux = a;
-            uint256 result = 1; // Initial approximate bit length.
+            uint256 result = 1;
 
             // For the first guess of `result` (e), we get the biggest power of 2 which is smaller than sqrt(a)
             // (i.e. 2^e <= sqrt(a)). We know that e is at most 127 given (2^128)^2 overflows an uint256.
@@ -362,7 +358,7 @@ library Math {
             // to e if the result is still smaller than a (up to e == 127).
             if (aAux >= (1 << 128)) {
                 aAux >>= 128;
-                result = 1 << 64;
+                result <<= 64;
             }
             if (aAux >= (1 << 64)) {
                 aAux >>= 64;
@@ -391,7 +387,7 @@ library Math {
             // We can use the fact that 2^e <= sqrt(a) to improve the estimation
             // by computing the arithmetic mean between the current estimation and
             // the next one (result * 2), ensuring that result - sqrt(a) <= 2^{e-2}.
-            result = (3 * result) >> 1; // (result + result << 1) / 2
+            result = (3 * result) >> 1;
 
             // Each Newton iteration will have f(x) = (x + a / x) / 2.
             // Given the error (ε) is defined by x - sqrt(a), then we know that
@@ -404,12 +400,8 @@ library Math {
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-144}
 
             // After 6 iterations, no more precision can be obtained since the max result is 127.
-            // Squaring result could overflow if a >= type(uint128).max^2, case discarded at the start.
             // result is either sqrt(a) or sqrt(a) + 1.
-            if (result * result <= a) {
-                return result;
-            }
-            return result-1;
+            return result - SafeCast.toUint(result > a / result);
         }
     }
 
