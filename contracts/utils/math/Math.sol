@@ -396,7 +396,7 @@ library Math {
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-9}
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-18}
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-36}
-            result = (result + a / result) >> 1; // err := result - sqrt(a)<= 2^{e-72}
+            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-72}
             result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-144}
 
             // After 6 iterations, no more precision can be obtained since the max result is 127.
