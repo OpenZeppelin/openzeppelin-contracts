@@ -393,7 +393,7 @@ library Math {
 
             // We define the error as ε = result - sqrt(a). Then we know that
             // result = 2**e−1 + 2**e−2, and therefore ε0 = 2**e−1 + 2**e−2 - sqrt(n),
-            // leaving ε0 <= 2**e−2. We also see ε + 1 == ε**2 / 2x <= ε**2 / 2 * sqrt(a) 
+            // leaving ε0 <= 2**e−2. We also see ε + 1 == ε**2 / 2x <= ε**2 / 2 * sqrt(a)
             // as shown in Walter Rudin. Principles of Mathematical Analysis.
             // 3rd ed. McGraw-Hill New York, 1976. Exercise 3.16 (b)
 
