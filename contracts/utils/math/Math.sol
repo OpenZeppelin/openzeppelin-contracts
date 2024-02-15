@@ -353,57 +353,56 @@ library Math {
             uint256 result = 1;
 
             // For our first guess, we get the biggest power of 2 which is smaller
-            // than the square root of the target. (i.e. result = 2**n <= sqrt(a) < 2**(n+1)).
-            // We approximate 2**n by adding 2**e to our result and subtracting
-            // it from the target if 2**e is still less than its square root
-            // (i.e. 2**e <= sqrt(aAux)) for all e/2 from 128 to 0.
-            // We know that e is at most 127 because (2**128)**2 = 2**256 is bigger than any uint256.
+            // than the square root of the target (i.e. result = 2**n <= sqrt(a) < 2**(n+1)).
+            // We know if result is 2**e + c, then e is bounded to 127 because (2**128)**2 = 2**256,
+            // which is bigger than any uint256. If result >= 2**e, then sqrt(a) <= 2**e-1.
+            // We approximate the result by adding 2**e-1 and subtracting 2**e for each e such that
+            // sqrt(a) < 2**e by cutting e/2 on each iteration until e = 2.
             if (aAux >= (1 << 128)) {
                 aAux >>= 128;
-                result <<= 64; // e/2 = 64
+                result <<= 64; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 64)) {
                 aAux >>= 64;
-                result <<= 32; // e/2 = 32
+                result <<= 32; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 32)) {
                 aAux >>= 32;
-                result <<= 16; // e/2 = 16
+                result <<= 16; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 16)) {
                 aAux >>= 16;
-                result <<= 8; // e/2 = 8
+                result <<= 8; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 8)) {
                 aAux >>= 8;
-                result <<= 4; // e/2 = 4
+                result <<= 4; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 4)) {
                 aAux >>= 4;
-                result <<= 2; // e/2 = 2
+                result <<= 2; // sqrt(a) >= 2**(e/2)
             }
             if (aAux >= (1 << 2)) {
                 result <<= 1;
             }
 
-            // We can use the fact that 2**e <= sqrt(a) to improve the estimation
-            // by computing the arithmetic mean between the current estimation and
-            // the next one (result * 2).
+            // We know that result <= sqrt(a) < 2 * result. We can use the fact that
+            // 2**e <= sqrt(a) to improve the estimation by computing the arithmetic
+            // mean between the current estimation and the next one (e = 1).
             result = (3 * result) >> 1;
 
             // We define the error as ε = result - sqrt(a). Then we know that
             // result = 2**e−1 + 2**e−2, and therefore ε0 = 2**e−1 + 2**e−2 - sqrt(n),
-            // leaving ε0 <= 2**e−2. We also see ε + 1 == ε**2 / 2x <= ε**2 / 2 * sqrt(a)
+            // leaving ε_0 <= 2**e−2. We also see ε_{+1} == ε**2 / 2x <= ε**2 / 2 * sqrt(a)
             // as shown in Walter Rudin. Principles of Mathematical Analysis.
             // 3rd ed. McGraw-Hill New York, 1976. Exercise 3.16 (b)
 
-            // Then, we know that ε + 1 == ε**2 / 2x <= ε**2 / 2 * sqrt(a) as shown in
-            result = (result + a / result) >> 1; // ε1 := result - sqrt(a) <= 2**(e-4.5)
-            result = (result + a / result) >> 1; // ε2 := result - sqrt(a) <= 2**(e-9)
-            result = (result + a / result) >> 1; // ε3 := result - sqrt(a) <= 2**(e-18)
-            result = (result + a / result) >> 1; // ε4 := result - sqrt(a) <= 2**(e-36)
-            result = (result + a / result) >> 1; // ε5 := result - sqrt(a) <= 2**(e-72)
-            result = (result + a / result) >> 1; // ε6 := result - sqrt(a) <= 2**(e-144)
+            result = (result + a / result) >> 1; // ε_1 := result - sqrt(a) <= 2**(e-4.5)
+            result = (result + a / result) >> 1; // ε_2 := result - sqrt(a) <= 2**(e-9)
+            result = (result + a / result) >> 1; // ε_3 := result - sqrt(a) <= 2**(e-18)
+            result = (result + a / result) >> 1; // ε_4 := result - sqrt(a) <= 2**(e-36)
+            result = (result + a / result) >> 1; // ε_5 := result - sqrt(a) <= 2**(e-72)
+            result = (result + a / result) >> 1; // ε_6 := result - sqrt(a) <= 2**(e-144)
 
             // After 6 iterations, the precision of e is already above 128 (i.e. 144). Meaning that
             // ε6 <= 1. And given we're operating on integers, then we can ensure that result is
