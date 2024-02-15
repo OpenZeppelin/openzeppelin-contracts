@@ -127,9 +127,9 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
-            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
-            // variables such that product = prod1 * 2^256 + prod0.
+            // variables such that product = prod1 * 2²⁵⁶ + prod0.
             uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
@@ -145,7 +145,7 @@ library Math {
                 return prod0 / denominator;
             }
 
-            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            // Make sure the result is less than 2²⁵⁶. Also prevents denominator == 0.
             if (denominator <= prod1) {
                 Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
             }
@@ -176,30 +176,30 @@ library Math {
                 // Divide [prod1 prod0] by twos.
                 prod0 := div(prod0, twos)
 
-                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                // Flip twos such that it is 2²⁵⁶ / twos. If twos is zero, then it becomes one.
                 twos := add(div(sub(0, twos), twos), 1)
             }
 
             // Shift in bits from prod1 into prod0.
             prod0 |= prod1 * twos;
 
-            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
-            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
-            // four bits. That is, denominator * inv = 1 mod 2^4.
+            // Invert denominator mod 2²⁵⁶. Now that denominator is an odd number, it has an inverse modulo 2²⁵⁶ such
+            // that denominator * inv ≡ 1 mod 2²⁵⁶. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv ≡ 1 mod 2⁴.
             uint256 inverse = (3 * denominator) ^ 2;
 
             // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
             // works in modular arithmetic, doubling the correct bits in each step.
-            inverse *= 2 - denominator * inverse; // inverse mod 2^8
-            inverse *= 2 - denominator * inverse; // inverse mod 2^16
-            inverse *= 2 - denominator * inverse; // inverse mod 2^32
-            inverse *= 2 - denominator * inverse; // inverse mod 2^64
-            inverse *= 2 - denominator * inverse; // inverse mod 2^128
-            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+            inverse *= 2 - denominator * inverse; // inverse mod 2⁸
+            inverse *= 2 - denominator * inverse; // inverse mod 2¹⁶
+            inverse *= 2 - denominator * inverse; // inverse mod 2³²
+            inverse *= 2 - denominator * inverse; // inverse mod 2⁶⁴
+            inverse *= 2 - denominator * inverse; // inverse mod 2¹²⁸
+            inverse *= 2 - denominator * inverse; // inverse mod 2²⁵⁶
 
             // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
-            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
-            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // This will give us the correct result modulo 2²⁵⁶. Since the preconditions guarantee that the outcome is
+            // less than 2²⁵⁶, this is the final result. We don't need to compute the high bits of the result and prod1
             // is no longer required.
             result = prod0 * inverse;
             return result;
