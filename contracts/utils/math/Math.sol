@@ -147,7 +147,7 @@ library Math {
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
+                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.OVERFLOW);
             }
 
             ///////////////////////////////////////////////
