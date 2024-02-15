@@ -352,55 +352,59 @@ library Math {
             uint256 aAux = a;
             uint256 result = 1;
 
-            // For the first guess of `result` (e), we get the biggest power of 2 which is smaller than sqrt(a)
-            // (i.e. 2^e <= sqrt(a)). We know that e is at most 127 given (2^128)^2 overflows an uint256.
-            // Thus, we approximate e by iterating 2^{i/2} where i starts at 128, and applying the exponent
-            // to e if the result is still smaller than a (up to e == 127).
+            // For our first guess, we get the biggest power of 2 which is smaller
+            // than the square root of the target. (i.e. result = 2**n <= sqrt(a) < 2**(n+1)).
+            // We approximate 2**n by adding 2**e to our result and substracting
+            // it from the target if 2**e is still less than its square root
+            // (i.e. 2**e <= sqrt(aAux)) for all e/2 from 128 to 0.
+            // We know that e is at most 127 because (2**128)**2 = 2**256is bigger than any uint256.
             if (aAux >= (1 << 128)) {
                 aAux >>= 128;
-                result <<= 64;
+                result <<= 64; // e/2 = 64
             }
             if (aAux >= (1 << 64)) {
                 aAux >>= 64;
-                result <<= 32;
+                result <<= 32; // e/2 = 32
             }
             if (aAux >= (1 << 32)) {
                 aAux >>= 32;
-                result <<= 16;
+                result <<= 16; // e/2 = 16
             }
             if (aAux >= (1 << 16)) {
                 aAux >>= 16;
-                result <<= 8;
+                result <<= 8; // e/2 = 8
             }
             if (aAux >= (1 << 8)) {
                 aAux >>= 8;
-                result <<= 4;
+                result <<= 4; // e/2 = 4
             }
             if (aAux >= (1 << 4)) {
                 aAux >>= 4;
-                result <<= 2;
+                result <<= 2; // e/2 = 2
             }
             if (aAux >= (1 << 2)) {
                 result <<= 1;
             }
 
-            // We can use the fact that 2^e <= sqrt(a) to improve the estimation
+            // We can use the fact that 2**e <= sqrt(a) to improve the estimation
             // by computing the arithmetic mean between the current estimation and
-            // the next one (result * 2), ensuring that result - sqrt(a) <= 2^{e-2}.
+            // the next one (result * 2), ensuring that result - sqrt(a) <= 2**(e-2).
             result = (3 * result) >> 1;
 
-            // Each Newton iteration will have f(x) = (x + a / x) / 2.
-            // Given the error (ε) is defined by x - sqrt(a), then we know that
-            // ε + 1 == ε^2 / 2x <= ε^2 / 2 * sqrt(a).
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-4.5}
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-9}
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-18}
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-36}
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-72}
-            result = (result + a / result) >> 1; // err := result - sqrt(a) <= 2^{e-144}
+            // We define the error as ε = result - sqrt(a) and we've shown that ε <= 2**(e-2).
+            // Then, we know that ε + 1 == ε**2 / 2x <= ε**2 / 2 * sqrt(a) as shown in
+            // Walter Rudin. Principles of Mathematical Analysis.
+            // 3rd ed. McGraw-Hill New York, 1976. Exercise 3.16 (b)
+            result = (result + a / result) >> 1; // ε1 := result - sqrt(a) <= 2**(e-4.5)
+            result = (result + a / result) >> 1; // ε2 := result - sqrt(a) <= 2**(e-9)
+            result = (result + a / result) >> 1; // ε3 := result - sqrt(a) <= 2**(e-18)
+            result = (result + a / result) >> 1; // ε4 := result - sqrt(a) <= 2**(e-36)
+            result = (result + a / result) >> 1; // ε5 := result - sqrt(a) <= 2**(e-72)
+            result = (result + a / result) >> 1; // ε6 := result - sqrt(a) <= 2**(e-144)
 
-            // After 6 iterations, no more precision can be obtained since the max result is 127.
-            // result is either sqrt(a) or sqrt(a) + 1.
+            // After 6 iterations, the precision of e is already above 128 (i.e. 144). Meaning that
+            // ε6 <= 1. And given we're operating on integers, then we can ensure that result is
+            // either sqrt(a) or sqrt(a) + 1.
             return result - SafeCast.toUint(result > a / result);
         }
     }
