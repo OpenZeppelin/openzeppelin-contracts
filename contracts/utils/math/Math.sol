@@ -425,8 +425,9 @@ library Math {
             // For the first iteration, we have a special case where x_0 is known:
             // ε_1 = ε_0² / | (2 * x_0) |
             //     ≤ (2**(e-2))² / (2 * (2**(e-1) + 2**(e-2)))
-            //     ≤ 2**(2*e-4) / (2 * 3 * 2**(e-2))
+            //     ≤ 2**(2*e-4) / (3 * 2**(e-1))
             //     ≤ 2**(e-3) / 3
+            //     ≤ 2**(e-3-log2(3))
             //     ≤ 2**(e-4.5)
             //
             // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n
