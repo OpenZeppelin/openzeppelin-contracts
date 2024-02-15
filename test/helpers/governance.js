@@ -175,7 +175,7 @@ class GovernorHelper {
     const statesCount = ethers.toBigInt(Object.keys(ProposalState).length);
     let result = 0n;
 
-    for (const state of unique(...proposalStates)) {
+    for (const state of unique(proposalStates)) {
       if (state < 0n || state >= statesCount) {
         expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
       } else {
