@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { range } = require('../../../scripts/helpers');
+const { range } = require('../../helpers/iterate');
 
 async function fixture() {
   const mock = await ethers.deployContract('$SafeCast');

@@ -6,8 +6,7 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { Rounding } = require('../../helpers/enums');
 const { min, max, modExp } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
-const { range } = require('../../../scripts/helpers');
-const { product } = require('../../helpers/iterate');
+const { product, range } = require('../../helpers/iterate');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
