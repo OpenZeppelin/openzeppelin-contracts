@@ -351,17 +351,17 @@ library Math {
 
             // In this function, we use Newton's method to get a root of `f(x) := x² - a`. This is also known as
             // Heron's method. This involves building a sequence x_n that converges toward sqrt(a). For each
-            // iteration x_n, we define ε_n = | x_n - sqrt(a) |. This represents the error between the current value
+            // iteration x_n, we define `ε_n = | x_n - sqrt(a) |`. This represents the error between the current value
             // and the result.
             //
-            // For our first estimation, we get the biggest power of 2 which is smaller than the square root of the
-            // target. (i.e. x_n = 2**e ≤ sqrt(a) < 2**(e+1)). We know that e cannot be greater than 127 because
-            // (2¹²⁸)² = 2²⁵⁶ is bigger than any uint256.
+            // For our first estimation, we consider `e` the smallest power of 2 which is bigger than the square root
+            // of the target. (i.e. `2**(e-1) ≤ sqrt(a) < 2**e`). We know that `e ≤ 128` because `(2¹²⁸)² = 2²⁵⁶` is
+            // bigger than any uint256.
             //
             // By noticing that
-            // `2**e ≤ sqrt(a) < 2**(e+1) → (2**e)² ≤ a < 2**(e+1) → 2**(2*e) ≤ a < 2**(2*e+2)`
-            // we can deduce that the `e` we are looking for is `log2(a) / 2`, and can be computed using a method
-            // similar to the msb function.
+            // `2**(e-1) ≤ sqrt(a) < 2**e → (2**(e-1))² ≤ a < (2**e)² → 2**(2*e-2) ≤ a < 2**(2*e)`
+            // we can deduce that `e - 1` is `log2(a) / 2`. We can thus compute `x_n = 2**(e-1)` using a method similar
+            // to the msb function.
             uint256 aa = a;
             uint256 xn = 1;
 
@@ -393,12 +393,12 @@ library Math {
                 xn <<= 1;
             }
 
-            // We now have x_n such that `x_n = 2**e ≤ sqrt(a) < 2**(e+1) = 2 * x_n`. This implies ε_n ≤ 2**e.
+            // We now have x_n such that `x_n = 2**(e-1) ≤ sqrt(a) < 2**e = 2 * x_n`. This implies ε_n ≤ 2**(e-1).
             //
             // We can refine our estimation by noticing that the the middle of that interval minimizes the error.
-            // If we move x_n to equal 2**e + 2**(e-1), then we reduce the error to ε_n ≤ 2**(e-1).
+            // If we move x_n to equal 2**(e-1) + 2**(e-2), then we reduce the error to ε_n ≤ 2**(e-2).
             // This is going to be our x_0 (and ε_0)
-            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-1)
+            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-2)
 
             // From here, we iterate using Heron's method
             // x_{n+1} = (x_n + a / x_n) / 2
@@ -430,7 +430,7 @@ library Math {
             xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)
             xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)
 
-            // Because e < 128 (as discussed during the first estimation phase), we know have reached a precision
+            // Because e ≤ 128 (as discussed during the first estimation phase), we know have reached a precision
             // ε_6 ≤ 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
             // sqrt(a) or sqrt(a) + 1.
             return xn - SafeCast.toUint(xn > a / xn);
