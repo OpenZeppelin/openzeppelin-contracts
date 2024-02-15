@@ -412,7 +412,7 @@ library Math {
             //              = (x_n² - a)² / (2 * x_n)²
             //              = ((x_n² - a) / (2 * x_n))²
             //              ≥ 0
-            // Which proves that for all n ≥ 1, x_n ≥ sqrt(a)
+            // Which proves that for all n ≥ 1, sqrt(a) ≤ x_n
             //
             // This gives us the proof of quadratic convergence of the sequence:
             // ε_{n+1} = | x_{n+1} - sqrt(a) |
@@ -421,14 +421,25 @@ library Math {
             //         = | (x_n - sqrt(a))² / (2 * x_n) |
             //         = | ε_n² / (2 * x_n) |
             //         = ε_n² / | (2 * x_n) |
-            //         ≤ ε_n²
-            // That last inequality holds because x_0 ≥ 1 by construction, and x_n ≥ sqrt(a) ≥ 1 for n ≥ 1.
-            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | ≤ 2**(e-4.5) ← todo 4.5? how?
-            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | ≤ 2**(e-9)
-            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | ≤ 2**(e-18)
-            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | ≤ 2**(e-36)
-            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)
-            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)
+            //
+            // For the first iteration, we have a special case where x_0 is known:
+            // ε_1 = ε_0² / | (2 * x_0) |
+            //     ≤ (2**(e-2))² / (2 * (2**(e-1) + 2**(e-2)))
+            //     ≤ 2**(2*e-4) / (2 * 3 * 2**(e-2))
+            //     ≤ 2**(e-3) / 3
+            //     ≤ 2**(e-4.5)
+            //
+            // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n
+            // ε_{n+1} = ε_n² / | (2 * x_n) |
+            //         ≤ (2**(e-k))² / (2 * 2**(e-1))
+            //         ≤ 2**(2*e-2*k) / 2**e
+            //         ≤ 2**(e-2*k)
+            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | ≤ 2**(e-4.5)  -- special case, see above
+            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | ≤ 2**(e-9)    -- general case with k = 4.5
+            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | ≤ 2**(e-18)   -- general case with k = 9
+            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | ≤ 2**(e-36)   -- general case with k = 18
+            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)   -- general case with k = 36
+            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)  -- general case with k = 72
 
             // Because e ≤ 128 (as discussed during the first estimation phase), we know have reached a precision
             // ε_6 ≤ 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
