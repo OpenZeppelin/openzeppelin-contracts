@@ -393,12 +393,12 @@ library Math {
                 xn <<= 1;
             }
 
-            // We now have x_n such that `x_n = 2**e <= sqrt(a) < 2**(e+1) = 2 * x_n`. This implies ε_n < 2**e.
+            // We now have x_n such that `x_n = 2**e ≤ sqrt(a) < 2**(e+1) = 2 * x_n`. This implies ε_n ≤ 2**e.
             //
             // We can refine our estimation by noticing that the the middle of that interval minimizes the error.
-            // If we move x_n to equal 2**e + 2**(e-1), then we reduce the error to ε_n < 2**(e-1).
-            // This is going to be or x_0 (and ε_0)
-            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | < 2**(e-1)
+            // If we move x_n to equal 2**e + 2**(e-1), then we reduce the error to ε_n ≤ 2**(e-1).
+            // This is going to be our x_0 (and ε_0)
+            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-1)
 
             // From here, we iterate using Heron's method
             // x_{n+1} = (x_n + a / x_n) / 2
@@ -406,9 +406,9 @@ library Math {
             // One should note that:
             // x_{n+1}² - a = ((x_n + a / x_n) / 2)² - a
             //              = ((x_n² + a) / (2 * x_n))² - a
-            //              = (x_n⁴ + 2*a*x_n² + a²) / (4 * x_n²) - a
-            //              = (x_n⁴ + 2*a*x_n² + a² - 4*a*x_n²) / (4 * x_n²)
-            //              = (x_n⁴ - 2*a*x_n² a²) / (4 * x_n²)
+            //              = (x_n⁴ + 2 * a * x_n² + a²) / (4 * x_n²) - a
+            //              = (x_n⁴ + 2 * a * x_n² + a² - 4 * a * x_n²) / (4 * x_n²)
+            //              = (x_n⁴ - 2 * a * x_n² + a²) / (4 * x_n²)
             //              = (x_n² - a)² / (2 * x_n)²
             //              = ((x_n² - a) / (2 * x_n))²
             //              ≥ 0
@@ -423,15 +423,15 @@ library Math {
             //         = ε_n² / | (2 * x_n) |
             //         ≤ ε_n²
             // That last inequality holds because x_0 ≥ 1 by construction, and x_n ≥ sqrt(a) ≥ 1 for n ≥ 1.
-            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | < 2**(e-4.5) ← todo 4.5? how?
-            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | < 2**(e-9)
-            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | < 2**(e-18)
-            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | < 2**(e-36)
-            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | < 2**(e-72)
-            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | < 2**(e-144)
+            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | ≤ 2**(e-4.5) ← todo 4.5? how?
+            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | ≤ 2**(e-9)
+            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | ≤ 2**(e-18)
+            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | ≤ 2**(e-36)
+            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)
+            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)
 
             // Because e < 128 (as discussed during the first estimation phase), we know have reached a precision
-            // ε_6 < 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
+            // ε_6 ≤ 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
             // sqrt(a) or sqrt(a) + 1.
             return xn - SafeCast.toUint(xn > a / xn);
         }
