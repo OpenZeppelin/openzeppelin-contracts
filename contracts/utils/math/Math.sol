@@ -354,7 +354,7 @@ library Math {
 
             // For our first guess, we get the biggest power of 2 which is smaller
             // than the square root of the target. (i.e. result = 2**n <= sqrt(a) < 2**(n+1)).
-            // We approximate 2**n by adding 2**e to our result and substracting
+            // We approximate 2**n by adding 2**e to our result and subtracting
             // it from the target if 2**e is still less than its square root
             // (i.e. 2**e <= sqrt(aAux)) for all e/2 from 128 to 0.
             // We know that e is at most 127 because (2**128)**2 = 2**256 is bigger than any uint256.
