@@ -349,65 +349,91 @@ library Math {
                 return a;
             }
 
-            uint256 aAux = a;
-            uint256 result = 1;
+            // In this function, we use Newton's method to get a root of `f(x) := x² - a`. This is also known as
+            // Heron's method. This involves building a sequence x_n that converges toward sqrt(a). For each
+            // iteration x_n, we define ε_n = | x_n - sqrt(a) |. This represents the error between the current value
+            // and the result.
+            //
+            // For our first estimation, we get the biggest power of 2 which is smaller than the square root of the
+            // target. (i.e. x_n = 2**e ≤ sqrt(a) < 2**(e+1)). We know that e cannot be greater than 127 because
+            // (2¹²⁸)² = 2²⁵⁶ is bigger than any uint256.
+            //
+            // By noticing that
+            // `2**e ≤ sqrt(a) < 2**(e+1) → (2**e)² ≤ a < 2**(e+1) → 2**(2*e) ≤ a < 2**(2*e+2)`
+            // we can deduce that the `e` we are looking for is `log2(a) / 2`, and can be computed using a method
+            // similar to the msb function.
+            uint256 aa = a;
+            uint256 xn = 1;
 
-            // For our first guess, we get the biggest power of 2 which is smaller
-            // than the square root of the target (i.e. result = 2**n <= sqrt(a) < 2**(n+1)).
-            // We know if result is 2**e + c, then e is bounded to 127 because (2**128)**2 = 2**256,
-            // which is bigger than any uint256. If result >= 2**e, then sqrt(a) <= 2**e-1.
-            // We approximate the result by adding 2**e-1 and subtracting 2**e for each e such that
-            // sqrt(a) < 2**e by cutting e/2 on each iteration until e = 2.
-            if (aAux >= (1 << 128)) {
-                aAux >>= 128;
-                result <<= 64; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 128)) {
+                aa >>= 128;
+                xn <<= 64;
             }
-            if (aAux >= (1 << 64)) {
-                aAux >>= 64;
-                result <<= 32; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 64)) {
+                aa >>= 64;
+                xn <<= 32;
             }
-            if (aAux >= (1 << 32)) {
-                aAux >>= 32;
-                result <<= 16; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 32)) {
+                aa >>= 32;
+                xn <<= 16;
             }
-            if (aAux >= (1 << 16)) {
-                aAux >>= 16;
-                result <<= 8; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 16)) {
+                aa >>= 16;
+                xn <<= 8;
             }
-            if (aAux >= (1 << 8)) {
-                aAux >>= 8;
-                result <<= 4; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 8)) {
+                aa >>= 8;
+                xn <<= 4;
             }
-            if (aAux >= (1 << 4)) {
-                aAux >>= 4;
-                result <<= 2; // sqrt(a) >= 2**(e/2)
+            if (aa >= (1 << 4)) {
+                aa >>= 4;
+                xn <<= 2;
             }
-            if (aAux >= (1 << 2)) {
-                result <<= 1;
+            if (aa >= (1 << 2)) {
+                xn <<= 1;
             }
 
-            // We know that result <= sqrt(a) < 2 * result. We can use the fact that
-            // 2**e <= sqrt(a) to improve the estimation by computing the arithmetic
-            // mean between the current estimation and the next one (e = 1).
-            result = (3 * result) >> 1;
+            // We now have x_n such that `x_n = 2**e <= sqrt(a) < 2**(e+1) = 2 * x_n`. This implies ε_n < 2**e.
+            //
+            // We can refine our estimation by noticing that the the middle of that interval minimizes the error.
+            // If we move x_n to equal 2**e + 2**(e-1), then we reduce the error to ε_n < 2**(e-1).
+            // This is going to be or x_0 (and ε_0)
+            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | < 2**(e-1)
 
-            // We define the error as ε = result - sqrt(a). Then we know that
-            // result = 2**e−1 + 2**e−2, and therefore ε0 = 2**e−1 + 2**e−2 - sqrt(n),
-            // leaving ε_0 <= 2**e−2. We also see ε_{+1} == ε**2 / 2x <= ε**2 / 2 * sqrt(a)
-            // as shown in Walter Rudin. Principles of Mathematical Analysis.
-            // 3rd ed. McGraw-Hill New York, 1976. Exercise 3.16 (b)
+            // From here, we iterate using Heron's method
+            // x_{n+1} = (x_n + a / x_n) / 2
+            //
+            // One should note that:
+            // x_{n+1}² - a = ((x_n + a / x_n) / 2)² - a
+            //              = ((x_n² + a) / (2 * x_n))² - a
+            //              = (x_n⁴ + 2*a*x_n² + a²) / (4 * x_n²) - a
+            //              = (x_n⁴ + 2*a*x_n² + a² - 4*a*x_n²) / (4 * x_n²)
+            //              = (x_n⁴ - 2*a*x_n² a²) / (4 * x_n²)
+            //              = (x_n² - a)² / (2 * x_n)²
+            //              = ((x_n² - a) / (2 * x_n))²
+            //              ≥ 0
+            // Which proves that for all n ≥ 1, x_n ≥ sqrt(a)
+            //
+            // This gives us the proof of quadratic convergence of the sequence:
+            // ε_{n+1} = | x_{n+1} - sqrt(a) |
+            //         = | (x_n + a / x_n) / 2 - sqrt(a) |
+            //         = | (x_n² + a - 2*x_n*sqrt(a)) / (2 * x_n) |
+            //         = | (x_n - sqrt(a))² / (2 * x_n) |
+            //         = | ε_n² / (2 * x_n) |
+            //         = ε_n² / | (2 * x_n) |
+            //         ≤ ε_n²
+            // That last inequality holds because x_0 ≥ 1 by construction, and x_n ≥ sqrt(a) ≥ 1 for n ≥ 1.
+            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | < 2**(e-4.5) ← todo 4.5? how?
+            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | < 2**(e-9)
+            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | < 2**(e-18)
+            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | < 2**(e-36)
+            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | < 2**(e-72)
+            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | < 2**(e-144)
 
-            result = (result + a / result) >> 1; // ε_1 := result - sqrt(a) <= 2**(e-4.5)
-            result = (result + a / result) >> 1; // ε_2 := result - sqrt(a) <= 2**(e-9)
-            result = (result + a / result) >> 1; // ε_3 := result - sqrt(a) <= 2**(e-18)
-            result = (result + a / result) >> 1; // ε_4 := result - sqrt(a) <= 2**(e-36)
-            result = (result + a / result) >> 1; // ε_5 := result - sqrt(a) <= 2**(e-72)
-            result = (result + a / result) >> 1; // ε_6 := result - sqrt(a) <= 2**(e-144)
-
-            // After 6 iterations, the precision of e is already above 128 (i.e. 144). Meaning that
-            // ε6 <= 1. And given we're operating on integers, then we can ensure that result is
-            // either sqrt(a) or sqrt(a) + 1.
-            return result - SafeCast.toUint(result > a / result);
+            // Because e < 128 (as discussed during the first estimation phase), we know have reached a precision
+            // ε_6 < 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
+            // sqrt(a) or sqrt(a) + 1.
+            return xn - SafeCast.toUint(xn > a / xn);
         }
     }
 
