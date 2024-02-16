@@ -349,10 +349,9 @@ library Math {
                 return a;
             }
 
-            // In this function, we use Newton's method to get a root of `f(x) := x² - a`. This is also known as
-            // Heron's method. This involves building a sequence x_n that converges toward sqrt(a). For each
-            // iteration x_n, we define `ε_n = | x_n - sqrt(a) |`. This represents the error between the current value
-            // and the result.
+            // In this function, we use Newton's method to get a root of `f(x) := x² - a`. It involves building a
+            // sequence x_n that converges toward sqrt(a). For each iteration x_n, we also define the error between
+            // the current value as `ε_n = | x_n - sqrt(a) |`.
             //
             // For our first estimation, we consider `e` the smallest power of 2 which is bigger than the square root
             // of the target. (i.e. `2**(e-1) ≤ sqrt(a) < 2**e`). We know that `e ≤ 128` because `(2¹²⁸)² = 2²⁵⁶` is
@@ -400,7 +399,7 @@ library Math {
             // This is going to be our x_0 (and ε_0)
             xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-2)
 
-            // From here, we iterate using Heron's method
+            // From here, Newton's method give us:
             // x_{n+1} = (x_n + a / x_n) / 2
             //
             // One should note that:
@@ -430,7 +429,7 @@ library Math {
             //     ≤ 2**(e-3-log2(3))
             //     ≤ 2**(e-4.5)
             //
-            // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n
+            // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n:
             // ε_{n+1} = ε_n² / | (2 * x_n) |
             //         ≤ (2**(e-k))² / (2 * 2**(e-1))
             //         ≤ 2**(2*e-2*k) / 2**e
