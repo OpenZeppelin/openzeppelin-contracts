@@ -82,7 +82,7 @@
     "solidity-ast": "^0.4.50",
     "solidity-coverage": "^0.8.5",
     "solidity-docgen": "^0.6.0-beta.29",
-    "undici": "^5.22.1",
+    "undici": "^5.28.3",
     "yargs": "^17.0.0"
   }
 }
