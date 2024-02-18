@@ -117,7 +117,10 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function _contains(Set storage set, bytes32 value) private view returns (bool) {
+    function _contains(
+        Set storage set,
+        bytes32 value
+    ) private view returns (bool) {
         return set._positions[value] != 0;
     }
 
@@ -138,7 +141,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function _at(Set storage set, uint256 index) private view returns (bytes32) {
+    function _at(
+        Set storage set,
+        uint256 index
+    ) private view returns (bytes32) {
         return set._values[index];
     }
 
@@ -154,6 +160,37 @@ library EnumerableSet {
         return set._values;
     }
 
+    function getPaginated(
+        Set storage set,
+        uint256 pageIndex,
+        uint256 pageSize
+    ) internal view returns (bytes32[] memory, uint256) {
+        require(pageSize > 0, "PageSize cannot be 0");
+        uint256 totalSize = set._values.length;
+
+        if (totalSize == 0 || pageIndex == 0) {
+            return (new bytes32[](0), totalSize);
+        }
+
+        uint256 totalPageSize = (totalSize + pageSize - 1) / pageSize;
+        require(pageIndex <= totalPageSize, "PageIndex is out of range");
+
+        uint256 startIdx = (pageIndex - 1) * pageSize;
+        uint256 endIdx = startIdx + pageSize > totalSize
+            ? totalSize
+            : startIdx + pageSize;
+        uint256 dataLen = endIdx - startIdx;
+
+        bytes32[] memory paginatedData = new bytes32[](dataLen);
+
+        for (uint256 i = 0; i < dataLen; i++) {
+            uint256 dataIndex = startIdx + i;
+            paginatedData[i] = set._values[dataIndex];
+        }
+
+        return (paginatedData, totalSize);
+    }
+
     // Bytes32Set
 
     struct Bytes32Set {
@@ -166,7 +203,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function add(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal returns (bool) {
         return _add(set._inner, value);
     }
 
@@ -176,14 +216,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function remove(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal returns (bool) {
         return _remove(set._inner, value);
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
+    function contains(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal view returns (bool) {
         return _contains(set._inner, value);
     }
 
@@ -204,7 +250,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+    function at(
+        Bytes32Set storage set,
+        uint256 index
+    ) internal view returns (bytes32) {
         return _at(set._inner, index);
     }
 
@@ -216,7 +265,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
+    function values(
+        Bytes32Set storage set
+    ) internal view returns (bytes32[] memory) {
         bytes32[] memory store = _values(set._inner);
         bytes32[] memory result;
 
@@ -226,6 +277,37 @@ library EnumerableSet {
         }
 
         return result;
+    }
+
+    function getPaginated(
+        Bytes32Set storage set,
+        uint256 pageIndex,
+        uint256 pageSize
+    ) internal view returns (bytes32[] memory, uint256) {
+        require(pageSize > 0, "PageSize cannot be 0");
+        uint256 totalSize = _length(set._inner);
+
+        if (totalSize == 0 || pageIndex == 0) {
+            return (new bytes32[](0), totalSize);
+        }
+
+        uint256 totalPageSize = (totalSize + pageSize - 1) / pageSize;
+        require(pageIndex <= totalPageSize, "PageIndex is out of range");
+
+        uint256 startIdx = (pageIndex - 1) * pageSize;
+        uint256 endIdx = startIdx + pageSize > totalSize
+            ? totalSize
+            : startIdx + pageSize;
+        uint256 dataLen = endIdx - startIdx; // 计算当前页应返回的数据量
+
+        bytes32[] memory paginatedData = new bytes32[](dataLen);
+
+        for (uint256 i = 0; i < dataLen; i++) {
+            uint256 dataIndex = startIdx + i;
+            paginatedData[i] = _at(set._inner, dataIndex); // 使用_at函数获取对应索引的值
+        }
+
+        return (paginatedData, totalSize);
     }
 
     // AddressSet
@@ -240,7 +322,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(AddressSet storage set, address value) internal returns (bool) {
+    function add(
+        AddressSet storage set,
+        address value
+    ) internal returns (bool) {
         return _add(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -250,14 +335,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(AddressSet storage set, address value) internal returns (bool) {
+    function remove(
+        AddressSet storage set,
+        address value
+    ) internal returns (bool) {
         return _remove(set._inner, bytes32(uint256(uint160(value))));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(AddressSet storage set, address value) internal view returns (bool) {
+    function contains(
+        AddressSet storage set,
+        address value
+    ) internal view returns (bool) {
         return _contains(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -278,7 +369,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressSet storage set, uint256 index) internal view returns (address) {
+    function at(
+        AddressSet storage set,
+        uint256 index
+    ) internal view returns (address) {
         return address(uint160(uint256(_at(set._inner, index))));
     }
 
@@ -290,7 +384,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(AddressSet storage set) internal view returns (address[] memory) {
+    function values(
+        AddressSet storage set
+    ) internal view returns (address[] memory) {
         bytes32[] memory store = _values(set._inner);
         address[] memory result;
 
@@ -300,6 +396,44 @@ library EnumerableSet {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Return the set data in an array with pagination
+     *
+     * WARNING: Do not use this function in a state-changing function
+     */
+    function getPaginated(
+        AddressSet storage set,
+        uint256 pageIndex,
+        uint256 pageSize
+    ) internal view returns (address[] memory, uint256) {
+        require(pageSize > 0, "PageSize cannot be 0");
+        uint256 totalSize = _length(set._inner);
+
+        if (totalSize == 0 || pageIndex == 0) {
+            return (new address[](0), totalSize);
+        }
+
+        uint256 totalPageSize = (totalSize + pageSize - 1) / pageSize;
+        require(pageIndex <= totalPageSize, "PageIndex is out of range");
+
+        uint256 startIdx = (pageIndex - 1) * pageSize;
+        uint256 endIdx = startIdx + pageSize > totalSize
+            ? totalSize
+            : startIdx + pageSize;
+        uint256 dataLen = endIdx - startIdx;
+
+        address[] memory paginatedData = new address[](dataLen);
+
+        for (uint256 i = 0; i < dataLen; i++) {
+            uint256 dataIndex = startIdx + i;
+            paginatedData[i] = address(
+                uint160(uint256(_at(set._inner, dataIndex)))
+            );
+        }
+
+        return (paginatedData, totalSize);
     }
 
     // UintSet
@@ -324,14 +458,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(UintSet storage set, uint256 value) internal returns (bool) {
+    function remove(
+        UintSet storage set,
+        uint256 value
+    ) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
+    function contains(
+        UintSet storage set,
+        uint256 value
+    ) internal view returns (bool) {
         return _contains(set._inner, bytes32(value));
     }
 
@@ -352,7 +492,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+    function at(
+        UintSet storage set,
+        uint256 index
+    ) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
     }
 
@@ -364,7 +507,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(UintSet storage set) internal view returns (uint256[] memory) {
+    function values(
+        UintSet storage set
+    ) internal view returns (uint256[] memory) {
         bytes32[] memory store = _values(set._inner);
         uint256[] memory result;
 
@@ -374,5 +519,41 @@ library EnumerableSet {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Return the set data in an array with pagination
+     *
+     * WARNING: Do not use this function in a state-changing function
+     */
+    function getPaginated(
+        UintSet storage set,
+        uint256 pageIndex,
+        uint256 pageSize
+    ) internal view returns (uint256[] memory, uint256) {
+        require(pageSize > 0, "PageSize cannot be 0");
+
+        uint256 totalSize = _length(set._inner);
+        if (totalSize == 0 || pageIndex == 0) {
+            return (new uint256[](0), totalSize);
+        }
+
+        uint256 totalPageSize = (totalSize + pageSize - 1) / pageSize;
+        require(pageIndex <= totalPageSize, "PageIndex is out of range");
+
+        uint256 startIdx = (pageIndex - 1) * pageSize;
+        uint256 endIdx = startIdx + pageSize > totalSize
+            ? totalSize
+            : startIdx + pageSize;
+        uint256 dataLen = endIdx - startIdx;
+
+        uint256[] memory paginatedData = new uint256[](dataLen);
+
+        for (uint256 i = 0; i < dataLen; i++) {
+            uint256 dataIndex = startIdx + i;
+            paginatedData[i] = uint256(_at(set._inner, dataIndex));
+        }
+
+        return (paginatedData, totalSize);
     }
 }
