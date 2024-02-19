@@ -58,8 +58,8 @@ library MerkleTree {
     /**
      * @dev Initialize using the default hash
      */
-    function setUp(Bytes32MerkleTree storage self, uint256 depth, bytes32 zero) internal {
-        return setUp(self, depth, zero, Hashes.stdPairHash);
+    function setup(Bytes32MerkleTree storage self, uint256 depth, bytes32 zero) internal {
+        return setup(self, depth, zero, Hashes.stdPairHash);
     }
 
     /**
@@ -68,7 +68,7 @@ library MerkleTree {
      * - All leaves are initialize to `zero`
      * - Hashing function for a pair of leaves is fnHash.
      */
-    function setUp(
+    function setup(
         Bytes32MerkleTree storage self,
         uint256 depth,
         bytes32 zero,

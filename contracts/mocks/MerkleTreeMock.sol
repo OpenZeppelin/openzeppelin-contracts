@@ -10,7 +10,7 @@ contract MerkleTreeMock {
     MerkleTree.Bytes32MerkleTree private _tree;
 
     constructor(uint256 _depth, bytes32 _zero) {
-        _tree.setUp(_depth, _zero);
+        _tree.setup(_depth, _zero);
     }
 
     function insert(bytes32 leaf) public returns (uint256) {
