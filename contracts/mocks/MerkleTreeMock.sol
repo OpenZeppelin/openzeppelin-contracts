@@ -5,9 +5,9 @@ pragma solidity ^0.8.0;
 import {MerkleTree} from "../utils/structs/MerkleTree.sol";
 
 contract MerkleTreeMock {
-    using MerkleTree for MerkleTree.TreeWithHistory;
+    using MerkleTree for MerkleTree.Bytes32MerkleTree;
 
-    MerkleTree.TreeWithHistory private _tree;
+    MerkleTree.Bytes32MerkleTree private _tree;
 
     constructor(uint256 _depth, bytes32 _zero) {
         _tree.setUp(_depth, _zero);

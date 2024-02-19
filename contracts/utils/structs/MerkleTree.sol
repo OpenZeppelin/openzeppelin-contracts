@@ -47,7 +47,7 @@ library MerkleTree {
      * Developper using this structure may want to use a secondary structure to store a (partial) list of historical
      * roots.
      */
-    struct TreeWithHistory {
+    struct Bytes32MerkleTree {
         bytes32 root;
         uint256 nextLeafIndex;
         bytes32[] sides;
@@ -58,7 +58,7 @@ library MerkleTree {
     /**
      * @dev Initialize using the default hash
      */
-    function setUp(TreeWithHistory storage self, uint256 depth, bytes32 zero) internal {
+    function setUp(Bytes32MerkleTree storage self, uint256 depth, bytes32 zero) internal {
         return setUp(self, depth, zero, Hashes.stdPairHash);
     }
 
@@ -69,7 +69,7 @@ library MerkleTree {
      * - Hashing function for a pair of leaves is fnHash.
      */
     function setUp(
-        TreeWithHistory storage self,
+        Bytes32MerkleTree storage self,
         uint256 depth,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
@@ -96,7 +96,7 @@ library MerkleTree {
     /**
      * @dev Insert a new leaf in the tree, and compute the new root.
      */
-    function insert(TreeWithHistory storage self, bytes32 leaf) internal returns (uint256) {
+    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (uint256) {
         // Cache read
         uint256 depth = self.zeros.length;
         function(bytes32, bytes32) view returns (bytes32) fnHash = self.fnHash;
@@ -142,14 +142,14 @@ library MerkleTree {
     /**
      * @dev Tree's depth (set at initialization)
      */
-    function getDepth(TreeWithHistory storage self) internal view returns (uint256) {
+    function getDepth(Bytes32MerkleTree storage self) internal view returns (uint256) {
         return self.zeros.length;
     }
 
     /**
      * @dev Return the current root of the tree.
      */
-    function getRoot(TreeWithHistory storage self) internal view returns (bytes32) {
+    function getRoot(Bytes32MerkleTree storage self) internal view returns (bytes32) {
         return self.root;
     }
 }
