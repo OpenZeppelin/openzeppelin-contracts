@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-
 /**
  * @dev Library of standard hash functions.
  */

@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import { Hashes } from "./Hashes.sol";
+import {Hashes} from "./Hashes.sol";
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
