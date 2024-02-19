@@ -25,8 +25,8 @@ library Panic {
     uint256 internal constant GENERIC = 0x00;
     /// @dev used by the assert() builtin
     uint256 internal constant ASSERT = 0x01;
-    /// @dev arithmetic overflow
-    uint256 internal constant OVERFLOW = 0x11;
+    /// @dev arithmetic underflow or overflow
+    uint256 internal constant UNDER_OVERFLOW = 0x11;
     /// @dev division or modulo by zero
     uint256 internal constant DIVISION_BY_ZERO = 0x12;
     /// @dev enum conversion error
