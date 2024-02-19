@@ -53,7 +53,7 @@
     "@changesets/cli": "^2.26.0",
     "@changesets/pre": "^2.0.0",
     "@changesets/read": "^0.6.0",
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.3",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
     "@openzeppelin/docs-utils": "^0.1.5",
