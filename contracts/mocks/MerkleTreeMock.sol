@@ -9,8 +9,8 @@ contract MerkleTreeMock {
 
     MerkleTree.TreeWithHistory private _tree;
 
-    constructor(uint256 _depth, uint256 _length, bytes32 _zero) {
-        _tree.setUp(_depth, _length, _zero);
+    constructor(uint256 _depth, bytes32 _zero) {
+        _tree.setUp(_depth, _zero);
     }
 
     function insert(bytes32 leaf) public returns (uint256) {
@@ -21,23 +21,11 @@ contract MerkleTreeMock {
         return _tree.getDepth();
     }
 
-    function getLength() public view returns (uint256) {
-        return _tree.getLength();
-    }
-
-    function getLastRoot() public view returns (bytes32) {
-        return _tree.getLastRoot();
-    }
-
-    function isKnownRoot(bytes32 root) public view returns (bool) {
-        return _tree.isKnownRoot(root);
+    function getRoot() public view returns (bytes32) {
+        return _tree.getRoot();
     }
 
     // internal state
-    function currentRootIndex() public view returns (uint256) {
-        return _tree.currentRootIndex;
-    }
-
     function nextLeafIndex() public view returns (uint256) {
         return _tree.nextLeafIndex;
     }
@@ -48,9 +36,5 @@ contract MerkleTreeMock {
 
     function zeros(uint256 i) public view returns (bytes32) {
         return _tree.zeros[i];
-    }
-
-    function roots(uint256 i) public view returns (bytes32) {
-        return _tree.roots[i];
     }
 }

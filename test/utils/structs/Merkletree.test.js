@@ -13,11 +13,10 @@ const makeTree = (leafs = [ethers.ZeroHash]) =>
 
 const MAX_DEPTH = 255n;
 const DEPTH = 4n; // 16 slots
-const LENGTH = 8n;
 const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
 async function fixture() {
-  return { mock: await ethers.deployContract('MerkleTreeMock', [DEPTH, LENGTH, ZERO]) };
+  return { mock: await ethers.deployContract('MerkleTreeMock', [DEPTH, ZERO]) };
 }
 
 describe('Merklee tree', function () {
@@ -27,7 +26,7 @@ describe('Merklee tree', function () {
 
   it('depth is limited', async function () {
     const invalidDepth = MAX_DEPTH + 1n;
-    await expect(ethers.deployContract('MerkleTreeMock', [invalidDepth, LENGTH, ZERO]))
+    await expect(ethers.deployContract('MerkleTreeMock', [invalidDepth, ZERO]))
       .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'MerkleTreeInvalidDepth')
       .withArgs(invalidDepth, MAX_DEPTH);
   });
@@ -36,23 +35,13 @@ describe('Merklee tree', function () {
     const merkleTree = makeTree(Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash));
 
     expect(await this.mock.getDepth()).to.equal(DEPTH);
-    expect(await this.mock.getLength()).to.equal(LENGTH);
-    expect(await this.mock.currentRootIndex()).to.equal(0n);
     expect(await this.mock.nextLeafIndex()).to.equal(0n);
-    expect(await this.mock.getLastRoot()).to.equal(merkleTree.root);
-
-    for (let i = 0; i < LENGTH; ++i) {
-      expect(await this.mock.roots(i)).to.equal(i === 0 ? merkleTree.root : ethers.ZeroHash);
-    }
-
-    expect(await this.mock.isKnownRoot(merkleTree.root)).to.be.true;
-    expect(await this.mock.isKnownRoot(ethers.ZeroHash)).to.be.false;
+    expect(await this.mock.getRoot()).to.equal(merkleTree.root);
   });
 
   describe('insert', function () {
     it('tree is correctly updated', async function () {
       const leafs = Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash);
-      const roots = [];
 
       // for each leaf slot
       for (const i in leafs) {
@@ -66,18 +55,8 @@ describe('Merklee tree', function () {
         await this.mock.insert(merkleTree.leafHash([leafs[i]]));
 
         // check tree
-        expect(await this.mock.currentRootIndex()).to.equal((BigInt(i) + 1n) % LENGTH);
+        expect(await this.mock.getRoot()).to.equal(merkleTree.root);
         expect(await this.mock.nextLeafIndex()).to.equal(BigInt(i) + 1n);
-        expect(await this.mock.getLastRoot()).to.equal(merkleTree.root);
-
-        // check root history
-        roots.push(merkleTree.root);
-        for (const root of roots.slice(0, -Number(LENGTH))) {
-          expect(await this.mock.isKnownRoot(root)).to.be.false;
-        }
-        for (const root of roots.slice(-Number(LENGTH))) {
-          expect(await this.mock.isKnownRoot(root)).to.be.true;
-        }
       }
     });
 

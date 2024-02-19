@@ -41,38 +41,36 @@ library MerkleTree {
      * @dev The `sides` and `zero` arrays are set, at initialization, to have a length equal to the depth of the tree.
      * No push/pop operations should be performed of these array, and their lengths should not be updated.
      *
-     * The `roots` array stores the history of roots. Its length is set at initialization, and should not be updated.
-     *
      * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
      * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
+     *
+     * Developper using this structure may want to use a secondary structure to store a (partial) list of historical
+     * roots.
      */
     struct TreeWithHistory {
-        uint256 currentRootIndex;
+        bytes32 root;
         uint256 nextLeafIndex;
         bytes32[] sides;
         bytes32[] zeros;
-        bytes32[] roots;
         function(bytes32, bytes32) view returns (bytes32) fnHash;
     }
 
     /**
      * @dev Initialize using the default hash
      */
-    function setUp(TreeWithHistory storage self, uint256 depth, uint256 length, bytes32 zero) internal {
-        return setUp(self, depth, length, zero, MerkleProof.hashPair);
+    function setUp(TreeWithHistory storage self, uint256 depth, bytes32 zero) internal {
+        return setUp(self, depth, zero, MerkleProof.hashPair);
     }
 
     /**
      * @dev Initialize a new complete MerkleTree defined by:
      * - Depth `depth`
      * - All leaves are initialize to `zero`
-     * - Hashing function for a pair of leaves is fnHash
-     * and keep a root history of length `length` when leaves are inserted.
+     * - Hashing function for a pair of leaves is fnHash.
      */
     function setUp(
         TreeWithHistory storage self,
         uint256 depth,
-        uint256 length,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
@@ -83,7 +81,6 @@ library MerkleTree {
         // Store depth & length in the dynamic array
         Arrays.unsafeSetLength(self.sides, depth);
         Arrays.unsafeSetLength(self.zeros, depth);
-        Arrays.unsafeSetLength(self.roots, length);
         self.fnHash = fnHash;
 
         // Build the different hashes in a zero-filled complete tree
@@ -92,13 +89,12 @@ library MerkleTree {
             Arrays.unsafeAccess(self.zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
-
-        // Insert the first root
-        Arrays.unsafeAccess(self.roots, 0).value = currentZero;
+        // Set the first root
+        self.root = currentZero;
     }
 
     /**
-     * @dev Insert a new leaf in the tree, compute the new root, and store that new root in the history.
+     * @dev Insert a new leaf in the tree, and compute the new root.
      */
     function insert(TreeWithHistory storage self, bytes32 leaf) internal returns (uint256) {
         // Cache read
@@ -109,7 +105,9 @@ library MerkleTree {
         uint256 leafIndex = self.nextLeafIndex++;
 
         // Check if tree is full.
-        if (leafIndex >= 1 << depth) Panic.panic(Panic.RESOURCE_ERROR);
+        if (leafIndex >= 1 << depth) {
+            Panic.panic(Panic.RESOURCE_ERROR);
+        }
 
         // Rebuild branch from leaf to root
         uint256 currentIndex = leafIndex;
@@ -136,8 +134,7 @@ library MerkleTree {
         }
 
         // Record new root
-        self.currentRootIndex = (self.currentRootIndex + 1) % self.roots.length;
-        Arrays.unsafeAccess(self.roots, self.currentRootIndex).value = currentLevelHash;
+        self.root = currentLevelHash;
 
         return leafIndex;
     }
@@ -150,38 +147,9 @@ library MerkleTree {
     }
 
     /**
-     * @dev History length (set at initialization)
-     */
-    function getLength(TreeWithHistory storage self) internal view returns (uint256) {
-        return self.roots.length;
-    }
-
-    /**
      * @dev Return the current root of the tree.
      */
-    function getLastRoot(TreeWithHistory storage self) internal view returns (bytes32) {
-        return Arrays.unsafeAccess(self.roots, self.currentRootIndex).value;
-    }
-
-    /**
-     * @dev Look in root history,
-     */
-    function isKnownRoot(TreeWithHistory storage self, bytes32 root) internal view returns (bool) {
-        if (root == 0) {
-            return false;
-        }
-
-        // Cache read
-        uint256 currentRootIndex = self.currentRootIndex;
-        uint256 length = self.roots.length;
-
-        // Search (most recents first)
-        for (uint256 i = length; i > 0; --i) {
-            if (root == Arrays.unsafeAccess(self.roots, (currentRootIndex + i) % length).value) {
-                return true;
-            }
-        }
-
-        return false;
+    function getRoot(TreeWithHistory storage self) internal view returns (bytes32) {
+        return self.root;
     }
 }
