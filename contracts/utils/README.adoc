@@ -9,6 +9,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {SafeCast}: Checked downcasting functions to avoid silent truncation.
  * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
  * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
@@ -48,13 +49,15 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{ECDSA}}
 
+{{EIP712}}
+
 {{MessageHashUtils}}
 
 {{SignatureChecker}}
 
-{{MerkleProof}}
+{{Hashes}}
 
-{{EIP712}}
+{{MerkleProof}}
 
 == Security
 

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import {MerkleProof} from "../cryptography/MerkleProof.sol";
+import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
 
@@ -59,7 +59,7 @@ library MerkleTree {
      * @dev Initialize using the default hash
      */
     function setUp(TreeWithHistory storage self, uint256 depth, bytes32 zero) internal {
-        return setUp(self, depth, zero, MerkleProof.hashPair);
+        return setUp(self, depth, zero, Hashes.stdPairHash);
     }
 
     /**

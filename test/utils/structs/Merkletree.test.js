@@ -34,9 +34,9 @@ describe('Merklee tree', function () {
   it('setup', async function () {
     const merkleTree = makeTree(Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash));
 
+    expect(await this.mock.getRoot()).to.equal(merkleTree.root);
     expect(await this.mock.getDepth()).to.equal(DEPTH);
     expect(await this.mock.nextLeafIndex()).to.equal(0n);
-    expect(await this.mock.getRoot()).to.equal(merkleTree.root);
   });
 
   describe('insert', function () {
