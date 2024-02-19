@@ -18,7 +18,7 @@ function shouldBehaveLikeVesting() {
       const tx = await this.mock.release(...this.args);
       await expect(tx)
         .to.emit(this.mock, this.releasedEvent)
-        .withArgs(...this.argsVerify, 0);
+        .withArgs(...this.args, 0);
 
       await this.checkRelease(tx, 0n);
     }

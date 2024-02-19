@@ -27,7 +27,6 @@ async function fixture() {
   const env = {
     eth: {
       checkRelease: async (tx, amount) => {
-        await expect(tx).to.emit(mock, 'EtherReleased').withArgs(amount);
         await expect(tx).to.changeEtherBalances([mock, beneficiary], [-amount, amount]);
       },
       setupFailure: async () => {
@@ -36,7 +35,6 @@ async function fixture() {
         return { args: [], error: [mock, 'FailedInnerCall'] };
       },
       releasedEvent: 'EtherReleased',
-      argsVerify: [],
       args: [],
     },
     token: {
@@ -52,7 +50,6 @@ async function fixture() {
         };
       },
       releasedEvent: 'ERC20Released',
-      argsVerify: [token],
       args: [ethers.Typed.address(token)],
     },
   };
