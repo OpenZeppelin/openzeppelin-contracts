@@ -69,6 +69,8 @@ library MerkleTree {
      * - Depth `depth`
      * - All leaves are initialize to `zero`
      * - Hashing function for a pair of leaves is fnHash.
+     *
+     * If the MerkleTree was already setup and used, calling that function again will reset it to a blank state.
      */
     function setup(
         Bytes32MerkleTree storage self,
@@ -80,10 +82,9 @@ library MerkleTree {
             revert MerkleTreeInvalidDepth(depth, MAX_DEPTH);
         }
 
-        // Store depth & length in the dynamic array
+        // Store depth in the dynamic array
         Arrays.unsafeSetLength(self.sides, depth);
         Arrays.unsafeSetLength(self.zeros, depth);
-        self.fnHash = fnHash;
 
         // Build the different hashes in a zero-filled complete tree
         bytes32 currentZero = zero;
@@ -93,6 +94,8 @@ library MerkleTree {
         }
         // Set the first root
         self.root = currentZero;
+        self.nextLeafIndex = 0;
+        self.fnHash = fnHash;
     }
 
     /**
