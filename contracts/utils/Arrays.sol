@@ -440,4 +440,37 @@ library Arrays {
             res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
         }
     }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(address[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(bytes32[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of an dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(uint256[] storage array, uint256 len) internal {
+        assembly {
+            sstore(array.slot, len)
+        }
+    }
 }
