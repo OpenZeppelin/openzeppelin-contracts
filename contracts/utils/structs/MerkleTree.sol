@@ -44,8 +44,10 @@ library MerkleTree {
      * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
      * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
      *
-     * Developper using this structure may want to use a secondary structure to store a (partial) list of historical
-     * roots.
+     * Contracts using this structure may want to use a secondary structure to store a (partial) list of historical
+     * roots. This could be done using a cicular buffer (to keep the last N roots) or the {Checkpoints} library to
+     * keep a more complete history. Note that if using the Checkpoints.Trace224 structure for storing roots, you will
+     * be limited to keeping "only" 26 bytes out of the root's 32. This should not be a security issue.
      */
     struct Bytes32MerkleTree {
         bytes32 root;
