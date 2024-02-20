@@ -94,7 +94,7 @@ library CircularBuffer {
         if (i >= total) {
             Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         }
-        return Arrays.unsafeAccess(self._data, (index - i - 1) % self._data.length).value;
+        return Arrays.unsafeAccess(self._data, (index - i - 1) % length).value;
     }
 
     /**
