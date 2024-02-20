@@ -45,7 +45,9 @@ describe('CircularBuffer', function () {
       for (const j in stored) {
         expect(await this.mock.$last(0, j)).to.equal(stored.at(-j - 1));
       }
-      await expect(this.mock.$last(0, stored.length + 1)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      await expect(this.mock.$last(0, stored.length + 1)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
 
       // check included and non-included values
       for (const v of stored) {
@@ -56,7 +58,6 @@ describe('CircularBuffer', function () {
       }
       expect(await this.mock.$includes(0, ethers.ZeroHash)).to.be.false;
     }
-
   });
 
   it('clear', async function () {

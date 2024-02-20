@@ -90,7 +90,8 @@ library CircularBuffer {
     function last(Bytes32CircularBuffer storage self, uint256 i) internal view returns (bytes32) {
         uint256 index = self._count;
         uint256 length = self._data.length;
-        if (index <= i || length <= i) {
+        uint256 total = Math.min(index, length); // count(self)
+        if (i >= total) {
             Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         }
         return Arrays.unsafeAccess(self._data, (index - i - 1) % self._data.length).value;
@@ -101,10 +102,10 @@ library CircularBuffer {
      */
     function includes(Bytes32CircularBuffer storage self, bytes32 value) internal view returns (bool) {
         uint256 index = self._count;
-        uint256 total = count(self);
         uint256 length = self._data.length;
-        for (uint256 i = 1; i <= total; ++i) {
-            if (Arrays.unsafeAccess(self._data, (index - i) % length).value == value) {
+        uint256 total = Math.min(index, length); // count(self)
+        for (uint256 i = 0; i < total; ++i) {
+            if (Arrays.unsafeAccess(self._data, (index - i - 1) % length).value == value) {
                 return true;
             }
         }
