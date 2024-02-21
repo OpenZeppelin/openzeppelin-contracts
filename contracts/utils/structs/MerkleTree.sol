@@ -7,47 +7,34 @@ import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
 
 /**
- * @dev A complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a non-zero
- * value, while keeping a history of merkle roots. This structure allows inserting commitment (or other entries) that
- * are not stored, but can be proven to be part of the tree.
+ * @dev Library for managing https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures.
  *
- * The history of merkle roots allow inclusion proofs to remain valid even if leaves are inserted into the tree between
- * the moment the proof is generated and the moment it's verified.
+ * Each tree is a complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a
+ * non-zero value and updating its root. This structure allows inserting commitments (or other entries) that are not
+ * stored, but can be proven to be part of the tree at a later time. See {MerkleProof}.
  *
- * Each tree can be customized to use specific
- * - depth
- * - length of the root history
- * - zero values (for "empty" leaves)
- * - hash function
+ * A tree is defined by the following parameters:
  *
- * IMPORTANT: By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that
- * empty leaves being provably part of the tree is not a security issue.
+ * * Depth: The number of levels in the tree, it also defines the maximum number of leaves as 2**depth.
+ * * Zero value: The value that represents an empty leaf. Used to avoid regular zero values to be part of the tree.
+ * * Hashing function: A cryptographic hash function used to process pairs of leaves.
  *
  * _Available since v5.1._
  */
 library MerkleTree {
     /**
-     * @dev Maximum supported depth. Beyond that, some checks will fail to properly work.
-     * This should be enough for any realistic usecase.
-     */
-    uint256 private constant MAX_DEPTH = 255;
-
-    /**
-     * @dev Merkle tree cannot be set-up because requested depth is to large.
-     */
-    error MerkleTreeInvalidDepth(uint256 depth, uint256 maxDepth);
-
-    /**
-     * @dev The `sides` and `zero` arrays are set, at initialization, to have a length equal to the depth of the tree.
-     * No push/pop operations should be performed of these arrays, and their lengths should not be updated.
+     * @dev A complete `bytes32` Merkle tree.
+     *
+     * The `sides` and `zero` arrays are set to have a length equal to the depth of the tree during setup.
      *
      * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
      * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
      *
-     * Contracts using this structure may want to use a secondary structure to store a (partial) list of historical
-     * roots. This could be done using a circular buffer (to keep the last N roots) or the {Checkpoints} library to
-     * keep a more complete history. Note that if using the Checkpoints.Trace224 structure for storing roots, you will
-     * be limited to keeping "only" 26 bytes out of the root's 32. This should not be a security issue.
+     * NOTE: The `root` is kept up to date after each insertion without keeping track of its history. Consider
+     * using a secondary structure to store a list of historical roots (e.g. a mapping, {BitMaps} or {Checkpoints}
+     * limited to 26 bytes if using {Checkpoints-Trace224}).
+     *
+     * WARNING: Updating any of the tree's parameters after the first insertion will result in a corrupted tree.
      */
     struct Bytes32MerkleTree {
         bytes32 root;
@@ -58,40 +45,41 @@ library MerkleTree {
     }
 
     /**
-     * @dev Initialize using {Hashes-stdPairHash} as the hashing function for a pair of leaves.
+     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-stdPairHash} to hash pairs of leaves.
+     * The capacity of the tree (i.e. number of leaves) is set to `2**depth`.
+     *
+     * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
+     *
+     * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
+     * empty leaves. It should be a value that is not expected to be part of the tree.
      */
-    function setup(Bytes32MerkleTree storage self, uint256 depth, bytes32 zero) internal {
+    function setup(Bytes32MerkleTree storage self, uint8 depth, bytes32 zero) internal {
         return setup(self, depth, zero, Hashes.stdPairHash);
     }
 
     /**
-     * @dev Initialize a new complete MerkleTree defined by:
-     * - Depth `depth`
-     * - All leaves are initialize to `zero`
-     * - Hashing function for a pair of leaves is fnHash.
+     * @dev Same as {setup}, but allows to specify a custom hashing function.
      *
-     * If the MerkleTree was already setup and used, calling that function again will reset it to a blank state.
+     * IMPORTANT: Providing a custom hashing function is a security-sensitive operation since it may
+     * compromise the soundness of the tree. Consider using functions from {Hashes}.
      */
     function setup(
         Bytes32MerkleTree storage self,
-        uint256 depth,
+        uint8 depth,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
-        if (depth > MAX_DEPTH) {
-            revert MerkleTreeInvalidDepth(depth, MAX_DEPTH);
-        }
-
         // Store depth in the dynamic array
         Arrays.unsafeSetLength(self.sides, depth);
         Arrays.unsafeSetLength(self.zeros, depth);
 
-        // Build the different hashes in a zero-filled complete tree
+        // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
         for (uint32 i = 0; i < depth; ++i) {
             Arrays.unsafeAccess(self.zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
+
         // Set the first root
         self.root = currentZero;
         self.nextLeafIndex = 0;
@@ -100,6 +88,9 @@ library MerkleTree {
 
     /**
      * @dev Insert a new leaf in the tree, and compute the new root.
+     *
+     * Hashing the leaf before calling this function is recommended as a protection against
+     * second pre-image attacks.
      */
     function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (uint256) {
         // Cache read
@@ -126,9 +117,8 @@ library MerkleTree {
                 Arrays.unsafeAccess(self.sides, i).value = currentLevelHash;
             }
 
-            // Compute the node hash by hashing the current hash with either:
-            // - the last value for this level
-            // - the zero for this level
+            // Compute the current node hash by using the hash function
+            // with either the its sibling (side) or the zero value for that level.
             currentLevelHash = fnHash(
                 isLeft ? currentLevelHash : Arrays.unsafeAccess(self.sides, i).value,
                 isLeft ? Arrays.unsafeAccess(self.zeros, i).value : currentLevelHash
@@ -149,12 +139,5 @@ library MerkleTree {
      */
     function getDepth(Bytes32MerkleTree storage self) internal view returns (uint256) {
         return self.zeros.length;
-    }
-
-    /**
-     * @dev Return the current root of the tree.
-     */
-    function getRoot(Bytes32MerkleTree storage self) internal view returns (bytes32) {
-        return self.root;
     }
 }

@@ -11,7 +11,6 @@ const makeTree = (leafs = [ethers.ZeroHash]) =>
     { sortLeaves: false },
   );
 
-const MAX_DEPTH = 255n;
 const DEPTH = 4n; // 16 slots
 const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
@@ -19,19 +18,12 @@ async function fixture() {
   return { mock: await ethers.deployContract('MerkleTreeMock', [DEPTH, ZERO]) };
 }
 
-describe('Merklee tree', function () {
+describe('MerkleTree', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('depth is limited', async function () {
-    const invalidDepth = MAX_DEPTH + 1n;
-    await expect(ethers.deployContract('MerkleTreeMock', [invalidDepth, ZERO]))
-      .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'MerkleTreeInvalidDepth')
-      .withArgs(invalidDepth, MAX_DEPTH);
-  });
-
-  it('setup', async function () {
+  it('sets initial values at setup', async function () {
     const merkleTree = makeTree(Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash));
 
     expect(await this.mock.getRoot()).to.equal(merkleTree.root);

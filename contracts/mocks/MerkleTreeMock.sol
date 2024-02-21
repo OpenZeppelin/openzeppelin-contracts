@@ -9,7 +9,7 @@ contract MerkleTreeMock {
 
     MerkleTree.Bytes32MerkleTree private _tree;
 
-    constructor(uint256 _depth, bytes32 _zero) {
+    constructor(uint8 _depth, bytes32 _zero) {
         _tree.setup(_depth, _zero);
     }
 
@@ -22,7 +22,7 @@ contract MerkleTreeMock {
     }
 
     function getRoot() public view returns (bytes32) {
-        return _tree.getRoot();
+        return _tree.root;
     }
 
     // internal state
