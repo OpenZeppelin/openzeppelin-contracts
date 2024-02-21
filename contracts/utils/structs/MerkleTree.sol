@@ -140,7 +140,7 @@ library MerkleTree {
     /**
      * @dev Tree's current root
      */
-    function getRoot(Bytes32MerkleTree storage self) internal view returns (uint256) {
+    function getRoot(Bytes32MerkleTree storage self) internal view returns (bytes32) {
         return self._root;
     }
 
