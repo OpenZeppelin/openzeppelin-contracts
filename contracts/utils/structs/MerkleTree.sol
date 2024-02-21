@@ -12,7 +12,7 @@ import {Panic} from "../Panic.sol";
  * are not stored, but can be proven to be part of the tree.
  *
  * The history of merkle roots allow inclusion proofs to remain valid even if leaves are inserted into the tree between
- *  the moment the proof is generated and the moment it's verified.
+ * the moment the proof is generated and the moment it's verified.
  *
  * Each tree can be customized to use specific
  * - depth
@@ -20,7 +20,7 @@ import {Panic} from "../Panic.sol";
  * - zero values (for "empty" leaves)
  * - hash function
  *
- * WARNING: By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that
+ * IMPORTANT: By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that
  * empty leaves being provably part of the tree is not a security issue.
  *
  * _Available since v5.1._
@@ -39,7 +39,7 @@ library MerkleTree {
 
     /**
      * @dev The `sides` and `zero` arrays are set, at initialization, to have a length equal to the depth of the tree.
-     * No push/pop operations should be performed of these array, and their lengths should not be updated.
+     * No push/pop operations should be performed of these arrays, and their lengths should not be updated.
      *
      * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
      * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
@@ -58,7 +58,7 @@ library MerkleTree {
     }
 
     /**
-     * @dev Initialize using the default hash
+     * @dev Initialize using {Hashes-stdPairHash} as the hashing function for a pair of leaves.
      */
     function setup(Bytes32MerkleTree storage self, uint256 depth, bytes32 zero) internal {
         return setup(self, depth, zero, Hashes.stdPairHash);

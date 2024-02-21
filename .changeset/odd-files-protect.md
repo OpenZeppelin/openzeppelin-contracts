@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Hashes`: new library of commonly used hashes.
+`Hashes`: A library with commonly used hash functions.
