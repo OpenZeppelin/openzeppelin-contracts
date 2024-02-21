@@ -39,7 +39,7 @@ library MerkleTree {
      *
      * WARNING: Updating any of the tree's parameters after the first insertion will result in a corrupted tree.
      */
-    struct Bytes32MerkleTree {
+    struct Bytes32PushTree {
         bytes32 _root;
         uint256 _nextLeafIndex;
         bytes32[] _sides;
@@ -48,16 +48,16 @@ library MerkleTree {
     }
 
     /**
-     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-sortedPairKeccak256} to hash internal nodes.
-     * The capacity of the tree (i.e. number of leaves) is set to `2**depth`.
+     * @dev Initialize a {Bytes32PushTree} using {Hashes-sortedPairKeccak256} to hash internal nodes.
+     * The capacity of the tree (i.e. number of leaves) is set to `2**levels`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
      *
      * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
      * empty leaves. It should be a value that is not expected to be part of the tree.
      */
-    function setup(Bytes32MerkleTree storage self, uint8 depth, bytes32 zero) internal {
-        return setup(self, depth, zero, Hashes.sortedPairKeccak256);
+    function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal {
+        return setup(self, levels, zero, Hashes.sortedPairKeccak256);
     }
 
     /**
@@ -67,18 +67,18 @@ library MerkleTree {
      * compromise the soundness of the tree. Consider using functions from {Hashes}.
      */
     function setup(
-        Bytes32MerkleTree storage self,
-        uint8 depth,
+        Bytes32PushTree storage self,
+        uint8 levels,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
         // Store depth in the dynamic array
-        Arrays.unsafeSetLength(self._sides, depth);
-        Arrays.unsafeSetLength(self._zeros, depth);
+        Arrays.unsafeSetLength(self._sides, levels);
+        Arrays.unsafeSetLength(self._zeros, levels);
 
         // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
-        for (uint32 i = 0; i < depth; ++i) {
+        for (uint32 i = 0; i < levels; ++i) {
             Arrays.unsafeAccess(self._zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
@@ -96,23 +96,23 @@ library MerkleTree {
      * Hashing the leaf before calling this function is recommended as a protection against
      * second pre-image attacks.
      */
-    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (uint256, bytes32) {
+    function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256, bytes32) {
         // Cache read
-        uint256 depth = self._zeros.length;
+        uint256 levels = self._zeros.length;
         function(bytes32, bytes32) view returns (bytes32) fnHash = self._fnHash;
 
         // Get leaf index
         uint256 leafIndex = self._nextLeafIndex++;
 
         // Check if tree is full.
-        if (leafIndex >= 1 << depth) {
+        if (leafIndex >= 1 << levels) {
             Panic.panic(Panic.RESOURCE_ERROR);
         }
 
         // Rebuild branch from leaf to root
         uint256 currentIndex = leafIndex;
         bytes32 currentLevelHash = leaf;
-        for (uint32 i = 0; i < depth; i++) {
+        for (uint32 i = 0; i < levels; i++) {
             // Reaching the parent node, is currentLevelHash the left child?
             bool isLeft = currentIndex % 2 == 0;
 
@@ -141,14 +141,14 @@ library MerkleTree {
     /**
      * @dev Tree's current root
      */
-    function getRoot(Bytes32MerkleTree storage self) internal view returns (bytes32) {
+    function root(Bytes32PushTree storage self) internal view returns (bytes32) {
         return self._root;
     }
 
     /**
      * @dev Tree's depth (set at initialization)
      */
-    function getDepth(Bytes32MerkleTree storage self) internal view returns (uint256) {
+    function depth(Bytes32PushTree storage self) internal view returns (uint256) {
         return self._zeros.length;
     }
 }

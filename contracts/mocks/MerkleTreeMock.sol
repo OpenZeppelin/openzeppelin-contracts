@@ -5,9 +5,9 @@ pragma solidity ^0.8.0;
 import {MerkleTree} from "../utils/structs/MerkleTree.sol";
 
 contract MerkleTreeMock {
-    using MerkleTree for MerkleTree.Bytes32MerkleTree;
+    using MerkleTree for MerkleTree.Bytes32PushTree;
 
-    MerkleTree.Bytes32MerkleTree private _tree;
+    MerkleTree.Bytes32PushTree private _tree;
 
     event LeafInserted(bytes32 leaf, uint256 index, bytes32 root);
 
@@ -15,17 +15,17 @@ contract MerkleTreeMock {
         _tree.setup(_depth, _zero);
     }
 
-    function insert(bytes32 leaf) public {
-        (uint256 index, bytes32 root) = _tree.insert(leaf);
-        emit LeafInserted(leaf, index, root);
+    function push(bytes32 leaf) public {
+        (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf);
+        emit LeafInserted(leaf, leafIndex, currentRoot);
     }
 
-    function getRoot() public view returns (bytes32) {
-        return _tree.getRoot();
+    function root() public view returns (bytes32) {
+        return _tree.root();
     }
 
-    function getDepth() public view returns (uint256) {
-        return _tree.getDepth();
+    function depth() public view returns (uint256) {
+        return _tree.depth();
     }
 
     // internal state
