@@ -17,7 +17,7 @@ import {Panic} from "../Panic.sol";
  *
  * * Depth: The number of levels in the tree, it also defines the maximum number of leaves as 2**depth.
  * * Zero value: The value that represents an empty leaf. Used to avoid regular zero values to be part of the tree.
- * * Hashing function: A cryptographic hash function used to process pairs of leaves.
+ * * Hashing function: A cryptographic hash function used to produce internal nodes.
  *
  * _Available since v5.1._
  */
@@ -30,22 +30,25 @@ library MerkleTree {
      * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
      * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
      *
+     * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
+     * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
+     * lead to unexpected behavior.
+     *
      * NOTE: The `root` is kept up to date after each insertion without keeping track of its history. Consider
-     * using a secondary structure to store a list of historical roots (e.g. a mapping, {BitMaps} or {Checkpoints}
-     * limited to 26 bytes if using {Checkpoints-Trace224}).
+     * using a secondary structure to store a list of historical roots (e.g. a mapping, {BitMaps} or {Checkpoints}).
      *
      * WARNING: Updating any of the tree's parameters after the first insertion will result in a corrupted tree.
      */
     struct Bytes32MerkleTree {
-        bytes32 root;
-        uint256 nextLeafIndex;
-        bytes32[] sides;
-        bytes32[] zeros;
-        function(bytes32, bytes32) view returns (bytes32) fnHash;
+        bytes32 _root;
+        uint256 _nextLeafIndex;
+        bytes32[] _sides;
+        bytes32[] _zeros;
+        function(bytes32, bytes32) view returns (bytes32) _fnHash;
     }
 
     /**
-     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-stdPairHash} to hash pairs of leaves.
+     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-stdPairHash} to hash internal nodes.
      * The capacity of the tree (i.e. number of leaves) is set to `2**depth`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
@@ -70,20 +73,20 @@ library MerkleTree {
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
         // Store depth in the dynamic array
-        Arrays.unsafeSetLength(self.sides, depth);
-        Arrays.unsafeSetLength(self.zeros, depth);
+        Arrays.unsafeSetLength(self._sides, depth);
+        Arrays.unsafeSetLength(self._zeros, depth);
 
         // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
         for (uint32 i = 0; i < depth; ++i) {
-            Arrays.unsafeAccess(self.zeros, i).value = currentZero;
+            Arrays.unsafeAccess(self._zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
 
         // Set the first root
-        self.root = currentZero;
-        self.nextLeafIndex = 0;
-        self.fnHash = fnHash;
+        self._root = currentZero;
+        self._nextLeafIndex = 0;
+        self._fnHash = fnHash;
     }
 
     /**
@@ -92,13 +95,13 @@ library MerkleTree {
      * Hashing the leaf before calling this function is recommended as a protection against
      * second pre-image attacks.
      */
-    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (uint256) {
+    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (bytes32) {
         // Cache read
-        uint256 depth = self.zeros.length;
-        function(bytes32, bytes32) view returns (bytes32) fnHash = self.fnHash;
+        uint256 depth = self._zeros.length;
+        function(bytes32, bytes32) view returns (bytes32) fnHash = self._fnHash;
 
         // Get leaf index
-        uint256 leafIndex = self.nextLeafIndex++;
+        uint256 leafIndex = self._nextLeafIndex++;
 
         // Check if tree is full.
         if (leafIndex >= 1 << depth) {
@@ -114,14 +117,14 @@ library MerkleTree {
 
             // If so, next time we will come from the right, so we need to save it
             if (isLeft) {
-                Arrays.unsafeAccess(self.sides, i).value = currentLevelHash;
+                Arrays.unsafeAccess(self._sides, i).value = currentLevelHash;
             }
 
             // Compute the current node hash by using the hash function
             // with either the its sibling (side) or the zero value for that level.
             currentLevelHash = fnHash(
-                isLeft ? currentLevelHash : Arrays.unsafeAccess(self.sides, i).value,
-                isLeft ? Arrays.unsafeAccess(self.zeros, i).value : currentLevelHash
+                isLeft ? currentLevelHash : Arrays.unsafeAccess(self._sides, i).value,
+                isLeft ? Arrays.unsafeAccess(self._zeros, i).value : currentLevelHash
             );
 
             // Update node index
@@ -129,15 +132,22 @@ library MerkleTree {
         }
 
         // Record new root
-        self.root = currentLevelHash;
+        self._root = currentLevelHash;
 
-        return leafIndex;
+        return currentLevelHash;
+    }
+
+    /**
+     * @dev Tree's current root
+     */
+    function getRoot(Bytes32MerkleTree storage self) internal view returns (uint256) {
+        return self._root;
     }
 
     /**
      * @dev Tree's depth (set at initialization)
      */
     function getDepth(Bytes32MerkleTree storage self) internal view returns (uint256) {
-        return self.zeros.length;
+        return self._zeros.length;
     }
 }

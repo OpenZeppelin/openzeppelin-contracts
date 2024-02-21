@@ -13,28 +13,28 @@ contract MerkleTreeMock {
         _tree.setup(_depth, _zero);
     }
 
-    function insert(bytes32 leaf) public returns (uint256) {
+    function insert(bytes32 leaf) public returns (bytes32) {
         return _tree.insert(leaf);
+    }
+
+    function getRoot() public view returns (bytes32) {
+        return _tree.getRoot();
     }
 
     function getDepth() public view returns (uint256) {
         return _tree.getDepth();
     }
 
-    function getRoot() public view returns (bytes32) {
-        return _tree.root;
-    }
-
     // internal state
     function nextLeafIndex() public view returns (uint256) {
-        return _tree.nextLeafIndex;
+        return _tree._nextLeafIndex;
     }
 
     function sides(uint256 i) public view returns (bytes32) {
-        return _tree.sides[i];
+        return _tree._sides[i];
     }
 
     function zeros(uint256 i) public view returns (bytes32) {
-        return _tree.zeros[i];
+        return _tree._zeros[i];
     }
 }
