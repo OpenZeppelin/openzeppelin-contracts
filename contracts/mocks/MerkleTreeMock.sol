@@ -9,12 +9,15 @@ contract MerkleTreeMock {
 
     MerkleTree.Bytes32MerkleTree private _tree;
 
+    event LeafInserted(bytes32 leaf, uint256 index, bytes32 root);
+
     function setup(uint8 _depth, bytes32 _zero) public {
         _tree.setup(_depth, _zero);
     }
 
-    function insert(bytes32 leaf) public returns (bytes32) {
-        return _tree.insert(leaf);
+    function insert(bytes32 leaf) public {
+        (uint256 index, bytes32 root) = _tree.insert(leaf);
+        emit LeafInserted(leaf, index, root);
     }
 
     function getRoot() public view returns (bytes32) {

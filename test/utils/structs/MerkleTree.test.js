@@ -13,8 +13,10 @@ const makeTree = (leafs = [ethers.ZeroHash]) =>
     { sortLeaves: false },
   );
 
+const hashLeaf = leaf => makeTree().leafHash([leaf]);
+
 const DEPTH = 4n; // 16 slots
-const ZERO = makeTree().leafHash([ethers.ZeroHash]);
+const ZERO = hashLeaf(ethers.ZeroHash);
 
 async function fixture() {
   const mock = await ethers.deployContract('MerkleTreeMock');
@@ -41,17 +43,19 @@ describe('MerkleTree', function () {
 
       // for each leaf slot
       for (const i in leafs) {
-        // generate random leaf
-        leafs[i] = generators.bytes32();
+        // generate random leaf and hash it
+        const hashedLeaf = hashLeaf((leafs[i] = generators.bytes32()));
 
         // update leaf list and rebuild tree.
-        const merkleTree = makeTree(leafs);
+        const tree = makeTree(leafs);
 
         // insert value in tree
-        await this.mock.insert(merkleTree.leafHash([leafs[i]]));
+        await expect(this.mock.insert(hashedLeaf))
+          .to.emit(this.mock, 'LeafInserted')
+          .withArgs(hashedLeaf, i, tree.root);
 
         // check tree
-        expect(await this.mock.getRoot()).to.equal(merkleTree.root);
+        expect(await this.mock.getRoot()).to.equal(tree.root);
         expect(await this.mock.nextLeafIndex()).to.equal(BigInt(i) + 1n);
       }
     });
@@ -69,9 +73,8 @@ describe('MerkleTree', function () {
     const zeroTree = makeTree(zeroLeafs);
 
     // tree with one element
-    const leafs = Array.from({ length: 2 ** Number(DEPTH) }, (_, i) =>
-      i == 0 ? generators.bytes32() : ethers.ZeroHash,
-    );
+    const leafs = Array.from({ length: 2 ** Number(DEPTH) }, () => ethers.ZeroHash);
+    const hashedLeaf = hashLeaf((leafs[0] = generators.bytes32())); // fill first leaf and hash it
     const tree = makeTree(leafs);
 
     // root should that of zero tree
@@ -79,17 +82,20 @@ describe('MerkleTree', function () {
     expect(await this.mock.nextLeafIndex()).to.equal(0n);
 
     // insert leaf and check root
-    await this.mock.insert(tree.leafHash([leafs[0]]));
+    await expect(this.mock.insert(hashedLeaf)).to.emit(this.mock, 'LeafInserted').withArgs(hashedLeaf, 0, tree.root);
+
     expect(await this.mock.getRoot()).to.equal(tree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(1n);
 
     // reset tree
     await this.mock.setup(DEPTH, ZERO);
+
     expect(await this.mock.getRoot()).to.equal(zeroTree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(0n);
 
     // re-insert leaf and check root
-    await this.mock.insert(tree.leafHash([leafs[0]]));
+    await expect(this.mock.insert(hashedLeaf)).to.emit(this.mock, 'LeafInserted').withArgs(hashedLeaf, 0, tree.root);
+
     expect(await this.mock.getRoot()).to.equal(tree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(1n);
   });

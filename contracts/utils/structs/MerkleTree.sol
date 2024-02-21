@@ -90,12 +90,13 @@ library MerkleTree {
     }
 
     /**
-     * @dev Insert a new leaf in the tree, and compute the new root.
+     * @dev Insert a new leaf in the tree, and compute the new root. Returns the position of the inserted leaf in the
+     * tree, and the resulting root.
      *
      * Hashing the leaf before calling this function is recommended as a protection against
      * second pre-image attacks.
      */
-    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (bytes32) {
+    function insert(Bytes32MerkleTree storage self, bytes32 leaf) internal returns (uint256, bytes32) {
         // Cache read
         uint256 depth = self._zeros.length;
         function(bytes32, bytes32) view returns (bytes32) fnHash = self._fnHash;
@@ -134,7 +135,7 @@ library MerkleTree {
         // Record new root
         self._root = currentLevelHash;
 
-        return currentLevelHash;
+        return (leafIndex, currentLevelHash);
     }
 
     /**
