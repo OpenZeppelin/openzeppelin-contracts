@@ -51,7 +51,7 @@ library MerkleProof {
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = Hashes.stdPairHash(computedHash, proof[i]);
+            computedHash = Hashes.sortedPairKeccak256(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -62,7 +62,7 @@ library MerkleProof {
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = Hashes.stdPairHash(computedHash, proof[i]);
+            computedHash = Hashes.sortedPairKeccak256(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -140,7 +140,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = Hashes.stdPairHash(a, b);
+            hashes[i] = Hashes.sortedPairKeccak256(a, b);
         }
 
         if (totalHashes > 0) {
@@ -196,7 +196,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = Hashes.stdPairHash(a, b);
+            hashes[i] = Hashes.sortedPairKeccak256(a, b);
         }
 
         if (totalHashes > 0) {

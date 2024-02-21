@@ -69,7 +69,9 @@ describe('MerkleTree', function () {
     const zeroTree = makeTree(zeroLeafs);
 
     // tree with one element
-    const leafs = Array.from({ length: 2 ** Number(DEPTH) }, (_, i) => i == 0 ? generators.bytes32() : ethers.ZeroHash);
+    const leafs = Array.from({ length: 2 ** Number(DEPTH) }, (_, i) =>
+      i == 0 ? generators.bytes32() : ethers.ZeroHash,
+    );
     const tree = makeTree(leafs);
 
     // root should that of zero tree

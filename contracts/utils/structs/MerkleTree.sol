@@ -48,7 +48,7 @@ library MerkleTree {
     }
 
     /**
-     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-stdPairHash} to hash internal nodes.
+     * @dev Initialize a {Bytes32MerkleTree} using {Hashes-sortedPairKeccak256} to hash internal nodes.
      * The capacity of the tree (i.e. number of leaves) is set to `2**depth`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
@@ -57,7 +57,7 @@ library MerkleTree {
      * empty leaves. It should be a value that is not expected to be part of the tree.
      */
     function setup(Bytes32MerkleTree storage self, uint8 depth, bytes32 zero) internal {
-        return setup(self, depth, zero, Hashes.stdPairHash);
+        return setup(self, depth, zero, Hashes.sortedPairKeccak256);
     }
 
     /**
