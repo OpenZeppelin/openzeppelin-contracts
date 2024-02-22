@@ -54,10 +54,10 @@ library ECDSA {
      * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
      */
     function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError, bytes32) {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
         if (signature.length == 65) {
-            bytes32 r;
-            bytes32 s;
-            uint8 v;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
             /// @solidity memory-safe-assembly
@@ -65,6 +65,17 @@ library ECDSA {
                 r := mload(add(signature, 0x20))
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
+            }
+            return tryRecover(hash, v, r, s);
+        } if (signature.length == 64) {
+            // ecrecover takes the signature parameters, and the only way to get them
+            // currently is to use assembly.
+            /// @solidity memory-safe-assembly
+            assembly {
+                let vs := mload(add(signature, 0x40))
+                r := mload(add(signature, 0x20))
+                s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                v := add(shr(255, vs), 27)
             }
             return tryRecover(hash, v, r, s);
         } else {
