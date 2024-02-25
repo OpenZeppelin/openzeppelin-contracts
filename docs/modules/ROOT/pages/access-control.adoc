@@ -279,7 +279,7 @@ For systems already using xref:api:access.adoc#AccessControl[`AccessControl`], t
 
 ```javascript
 // Revoke old roles
-await accessControl.connect(admin).revokeRoke(MINTER_ROLE, account);
+await accessControl.connect(admin).revokeRole(MINTER_ROLE, account);
 
 // Grant the admin role to the access manager
 await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
