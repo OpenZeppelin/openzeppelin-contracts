@@ -887,8 +887,8 @@ describe('AccessManager', function () {
           shouldBehaveLikeDelayedAdminOperation();
         });
 
-        it('reverts setting grant delay for the PUBLIC_ROLE', function () {
-          expect(this.manager.connect(this.admin).setGrantDelay(this.roles.PUBLIC.id, 69n))
+        it('reverts setting grant delay for the PUBLIC_ROLE', async function () {
+          await expect(this.manager.connect(this.admin).setGrantDelay(this.roles.PUBLIC.id, 69n))
             .to.be.revertedWithCustomError(this.manager, 'AccessManagerLockedRole')
             .withArgs(this.roles.PUBLIC.id);
         });
@@ -907,7 +907,7 @@ describe('AccessManager', function () {
           it('increases the delay after minsetback', async function () {
             const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
             const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
-            expect(txResponse)
+            await expect(txResponse)
               .to.emit(this.manager, 'RoleGrantDelayChanged')
               .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
@@ -933,7 +933,7 @@ describe('AccessManager', function () {
             it('increases the delay after minsetback', async function () {
               const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
               const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
-              expect(txResponse)
+              await expect(txResponse)
                 .to.emit(this.manager, 'RoleGrantDelayChanged')
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + MINSETBACK);
 
@@ -956,7 +956,7 @@ describe('AccessManager', function () {
               const txResponse = await this.manager.connect(this.admin).setGrantDelay(this.role.id, newDelay);
               const setGrantDelayAt = await time.clockFromReceipt.timestamp(txResponse);
 
-              expect(txResponse)
+              await expect(txResponse)
                 .to.emit(this.manager, 'RoleGrantDelayChanged')
                 .withArgs(this.role.id, newDelay, setGrantDelayAt + setback);
 
@@ -992,7 +992,7 @@ describe('AccessManager', function () {
           it('increases the delay after minsetback', async function () {
             const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
             const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
-            expect(txResponse)
+            await expect(txResponse)
               .to.emit(this.manager, 'TargetAdminDelayUpdated')
               .withArgs(this.other, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
@@ -1017,7 +1017,7 @@ describe('AccessManager', function () {
             it('increases the delay after minsetback', async function () {
               const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
               const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
-              expect(txResponse)
+              await expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
                 .withArgs(this.other, newDelay, setTargetAdminDelayAt + MINSETBACK);
 
@@ -1040,7 +1040,7 @@ describe('AccessManager', function () {
               const txResponse = await this.manager.connect(this.admin).setTargetAdminDelay(this.other, newDelay);
               const setTargetAdminDelayAt = await time.clockFromReceipt.timestamp(txResponse);
 
-              expect(txResponse)
+              await expect(txResponse)
                 .to.emit(this.manager, 'TargetAdminDelayUpdated')
                 .withArgs(this.other, newDelay, setTargetAdminDelayAt + setback);
 
@@ -1135,7 +1135,7 @@ describe('AccessManager', function () {
             .setTargetFunctionRole(this.target, sigs, this.roles.SOME.id);
 
           for (const sig of sigs) {
-            expect(allowRole)
+            await expect(allowRole)
               .to.emit(this.manager, 'TargetFunctionRoleUpdated')
               .withArgs(this.target, sig, this.roles.SOME.id);
             expect(await this.manager.getTargetFunctionRole(this.target, sig)).to.equal(this.roles.SOME.id);
@@ -1212,7 +1212,7 @@ describe('AccessManager', function () {
 
                   it('does not grant role to the user yet', async function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
-                    expect(this.txResponse)
+                    await expect(this.txResponse)
                       .to.emit(this.manager, 'RoleGranted')
                       .withArgs(ANOTHER_ROLE, this.user, timestamp + this.grantDelay, this.executionDelay, true);
 
@@ -1237,7 +1237,7 @@ describe('AccessManager', function () {
 
                   it('grants role to the user', async function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
-                    expect(this.txResponse)
+                    await expect(this.txResponse)
                       .to.emit(this.manager, 'RoleAccessRequested')
                       .withArgs(ANOTHER_ROLE, this.user, timestamp + this.grantDelay, this.executionDelay, true);
 
@@ -1278,7 +1278,7 @@ describe('AccessManager', function () {
                   .connect(this.admin)
                   .grantRole(ANOTHER_ROLE, this.user, executionDelay);
                 const grantedAt = await time.clockFromReceipt.timestamp(txResponse);
-                expect(txResponse)
+                await expect(txResponse)
                   .to.emit(this.manager, 'RoleGranted')
                   .withArgs(ANOTHER_ROLE, this.user, executionDelay, grantedAt, true);
 
@@ -1335,7 +1335,7 @@ describe('AccessManager', function () {
                     .grantRole(ANOTHER_ROLE, this.user, this.newExecutionDelay);
                   const timestamp = await time.clockFromReceipt.timestamp(txResponse);
 
-                  expect(txResponse)
+                  await expect(txResponse)
                     .to.emit(this.manager, 'RoleGranted')
                     .withArgs(ANOTHER_ROLE, this.user, timestamp, this.newExecutionDelay, false);
 
@@ -1370,8 +1370,8 @@ describe('AccessManager', function () {
                   this.delay = this.previousExecutionDelay - this.newExecutionDelay; // For testAsDelay
                 });
 
-                it('emits event', function () {
-                  expect(this.txResponse)
+                it('emits event', async function () {
+                  await expect(this.txResponse)
                     .to.emit(this.manager, 'RoleGranted')
                     .withArgs(ANOTHER_ROLE, this.user, this.grantTimestamp + this.delay, this.newExecutionDelay, false);
                 });
@@ -1446,7 +1446,7 @@ describe('AccessManager', function () {
                     .grantRole(ANOTHER_ROLE, this.user, this.newExecutionDelay);
                   const timestamp = await time.clockFromReceipt.timestamp(txResponse);
 
-                  expect(txResponse)
+                  await expect(txResponse)
                     .to.emit(this.manager, 'RoleGranted')
                     .withArgs(ANOTHER_ROLE, this.user, timestamp, this.newExecutionDelay, false);
 
@@ -1481,8 +1481,8 @@ describe('AccessManager', function () {
                   this.delay = this.previousExecutionDelay - this.newExecutionDelay; // For testAsDelay
                 });
 
-                it('emits event', function () {
-                  expect(this.txResponse)
+                it('emits event', async function () {
+                  await expect(this.txResponse)
                     .to.emit(this.manager, 'RoleGranted')
                     .withArgs(ANOTHER_ROLE, this.user, this.grantTimestamp + this.delay, this.newExecutionDelay, false);
                 });
@@ -1871,7 +1871,7 @@ describe('AccessManager', function () {
       const txResponse = await schedule();
 
       expect(await this.manager.getSchedule(operationId)).to.equal(scheduledAt + this.delay);
-      expect(txResponse)
+      await expect(txResponse)
         .to.emit(this.manager, 'OperationScheduled')
         .withArgs(operationId, '1', scheduledAt + this.delay, this.target, this.calldata);
     });
@@ -1886,7 +1886,7 @@ describe('AccessManager', function () {
       const operationId = await this.manager.hashOperation(this.caller, this.target, this.calldata);
 
       expect(await this.manager.getSchedule(operationId)).to.equal(scheduledAt + executionDelay);
-      expect(txResponse)
+      await expect(txResponse)
         .to.emit(this.manager, 'OperationScheduled')
         .withArgs(operationId, '1', scheduledAt + executionDelay, this.target, this.calldata);
     });

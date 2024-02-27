@@ -22,7 +22,7 @@ describe('BeaconProxy', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('bad beacon is not accepted', async function () {
+  describe('bad beacon is not accepted', function () {
     it('non-contract beacon', async function () {
       const notBeacon = this.other;
 
@@ -92,7 +92,7 @@ describe('BeaconProxy', function () {
     });
   });
 
-  describe('upgrade', async function () {
+  describe('upgrade', function () {
     it('upgrade a proxy by upgrading its beacon', async function () {
       const value = 10n;
       const data = this.v1.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);

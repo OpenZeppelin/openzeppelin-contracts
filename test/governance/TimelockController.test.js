@@ -171,7 +171,7 @@ describe('TimelockController', function () {
               MINDELAY,
             );
 
-          expect(tx)
+          await expect(tx)
             .to.emit(this.mock, 'CallScheduled')
             .withArgs(
               this.operation.id,
@@ -698,7 +698,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                 );
               for (const i in this.operation.targets) {
-                expect(tx)
+                await expect(tx)
                   .to.emit(this.mock, 'CallExecuted')
                   .withArgs(
                     this.operation.id,
@@ -843,7 +843,7 @@ describe('TimelockController', function () {
                   nonReentrantBatchOperation.salt,
                 );
               for (const i in nonReentrantBatchOperation.targets) {
-                expect(tx)
+                await expect(tx)
                   .to.emit(this.mock, 'CallExecuted')
                   .withArgs(
                     nonReentrantBatchOperation.id,
