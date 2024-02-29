@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 
 const Base64 = artifacts.require('$Base64');
+const Base64Dirty = artifacts.require('$Base64Dirty');
 
 contract('Strings', function () {
   beforeEach(async function () {
@@ -29,5 +30,14 @@ contract('Strings', function () {
     it('empty bytes', async function () {
       expect(await this.base64.$encode([])).to.equal('');
     });
+  });
+
+  it('Encode reads beyond the input buffer into dirty memory', async function () {
+    const mock = await Base64Dirty.new();
+    const buffer32 = web3.utils.soliditySha3('example');
+    const buffer31 = buffer32.slice(0, -2);
+
+    expect(await mock.encode(buffer31)).to.equal(Buffer(buffer31).toString('base64'));
+    expect(await mock.encode(buffer32)).to.equal(Buffer(buffer32).toString('base64'));
   });
 });
