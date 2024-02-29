@@ -32,7 +32,7 @@ contract('Base64', function () {
     });
   });
 
-  it.only('Encode reads beyond the input buffer into dirty memory', async function () {
+  it('Encode reads beyond the input buffer into dirty memory', async function () {
     const mock = await Base64Dirty.new();
     const buffer32 = Buffer.from(web3.utils.soliditySha3('example').replace(/0x/, ''), 'hex');
     const buffer31 = buffer32.slice(0, -2);
