@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 5.0.2 (2024-02-29)
+
+- `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4926))
+
 ## 5.0.1 (2023-12-07)
 
 - `ERC2771Context` and `Context`: Introduce a `_contextPrefixLength()` getter, used to trim extra information appended to `msg.data`.
