@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 4.9.6 (2024-02-29)
+
+- `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4929](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4929))
+
 ## 4.9.5 (2023-12-08)
 
 - `Multicall`: Patch duplicated `Address.functionDelegateCall`.
