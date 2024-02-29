@@ -283,6 +283,19 @@ Instead, contracts now revert with custom errors. Systems that interact with sma
 
 After 5.0, the storage location of some variables were changed. This is the case for `Initializable` and all the upgradeable contracts since they now use namespaced storaged locations. Any system relying on storage locations for retrieving data or detecting capabilities should be updated to support these new locations.
 
+## 4.9.6 (2024-02-29)
+
+- `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4929](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4929))
+
+## 4.9.5 (2023-12-08)
+
+- `Multicall`: Make aware of non-canonical context (i.e. `msg.sender` is not `_msgSender()`), allowing compatibility with `ERC2771Context`. Patch duplicated `Address.functionDelegateCall` in v4.9.4 (removed).
+
+## 4.9.3 (2023-07-28)
+
+- `ERC2771Context`: Return the forwarder address whenever the `msg.data` of a call originating from a trusted forwarder is not long enough to contain the request signer address (i.e. `msg.data.length` is less than 20 bytes), as specified by ERC-2771. ([#4481](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4481))
+- `ERC2771Context`: Prevent revert in `_msgData()` when a call originating from a trusted forwarder is not long enough to contain the request signer address (i.e. `msg.data.length` is less than 20 bytes). Return the full calldata in that case. ([#4484](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4484))
+
 ## 4.9.2 (2023-06-16)
 
 - `MerkleProof`: Fix a bug in `processMultiProof` and `processMultiProofCalldata` that allows proving arbitrary leaves if the tree contains a node with value 0 at depth 1.
