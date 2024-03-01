@@ -35,7 +35,7 @@ library Create2 {
      * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
     function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address addr) {
-        if (amount > 0 && address(this).balance < amount) {
+        if (address(this).balance < amount) {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
         if (bytecode.length == 0) {

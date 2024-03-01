@@ -32,7 +32,7 @@ library Clones {
      * This function uses the create opcode, which should never revert.
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
-        if (value > 0 && address(this).balance < value) {
+        if (address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
         /// @solidity memory-safe-assembly
@@ -72,7 +72,7 @@ library Clones {
         bytes32 salt,
         uint256 value
     ) internal returns (address instance) {
-        if (value > 0 && address(this).balance < value) {
+        if (address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
         /// @solidity memory-safe-assembly
