@@ -57,7 +57,7 @@ describe('MerkleProof', function () {
       const root = merkleTree.root;
       const hash = merkleTree.leafHash(['a']);
       const proof = merkleTree.getProof(['a']);
-      const badProof = proof.slice(0, proof.length - 1);
+      const badProof = proof.slice(0, -1);
 
       expect(await this.mock.$verify(badProof, root, hash)).to.be.false;
       expect(await this.mock.$verifyCalldata(badProof, root, hash)).to.be.false;
