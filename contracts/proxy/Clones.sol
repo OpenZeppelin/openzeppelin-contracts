@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.20;
 
+import {Errors} from '../utils/Errors.sol';
+
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
  * deploying minimal proxy contracts, also known as "clones".
@@ -15,11 +17,6 @@ pragma solidity ^0.8.20;
  * deterministic method.
  */
 library Clones {
-    /**
-     * @dev A clone instance deployment failed.
-     */
-    error ERC1167FailedCreateClone();
-
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
@@ -35,6 +32,9 @@ library Clones {
      * This function uses the create opcode, which should never revert.
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
+        if (value > 0 && address(this).balance < value) {
+            revert Errors.InsufficientBalance(address(this).balance, value);
+        }
         /// @solidity memory-safe-assembly
         assembly {
             // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
@@ -45,7 +45,7 @@ library Clones {
             instance := create(value, 0x09, 0x37)
         }
         if (instance == address(0)) {
-            revert ERC1167FailedCreateClone();
+            revert Errors.FailedDeployment();
         }
     }
 
@@ -68,6 +68,9 @@ library Clones {
      * the clones cannot be deployed twice at the same address.
      */
     function cloneDeterministic(address implementation, bytes32 salt, uint256 value) internal returns (address instance) {
+        if (value > 0 && address(this).balance < value) {
+            revert Errors.InsufficientBalance(address(this).balance, value);
+        }
         /// @solidity memory-safe-assembly
         assembly {
             // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
@@ -78,7 +81,7 @@ library Clones {
             instance := create2(value, 0x09, 0x37, salt)
         }
         if (instance == address(0)) {
-            revert ERC1167FailedCreateClone();
+            revert Errors.FailedDeployment();
         }
     }
 
