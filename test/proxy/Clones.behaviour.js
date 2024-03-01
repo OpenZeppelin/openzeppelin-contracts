@@ -16,22 +16,21 @@ module.exports = function shouldBehaveLikeClone() {
   describe('construct with value', function () {
     const value = 10n;
 
-    it ('factory has enough balance', async function () {
+    it('factory has enough balance', async function () {
       await this.deployer.sendTransaction({ to: this.factory, value });
 
       const instance = await this.createClone({ deployValue: value });
-      await expect(instance.deploymentTransaction())
-        .to.changeEtherBalances([ this.factory, instance ], [ -value, value ]);
+      await expect(instance.deploymentTransaction()).to.changeEtherBalances([this.factory, instance], [-value, value]);
 
       expect(await ethers.provider.getBalance(instance)).to.equal(value);
     });
 
-    it ('factory does not have enough balance', async function () {
+    it('factory does not have enough balance', async function () {
       await expect(this.createClone({ deployValue: value }))
         .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
         .withArgs(0n, value);
     });
-  })
+  });
 
   describe('initialization without parameters', function () {
     describe('non payable', function () {

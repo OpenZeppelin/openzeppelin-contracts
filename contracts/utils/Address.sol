@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Errors} from './Errors.sol';
+import {Errors} from "./Errors.sol";
 
 /**
  * @dev Collection of functions related to the address type

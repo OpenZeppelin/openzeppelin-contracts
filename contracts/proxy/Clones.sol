@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Errors} from '../utils/Errors.sol';
+import {Errors} from "../utils/Errors.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
@@ -67,7 +67,11 @@ library Clones {
      * the clone. Using the same `implementation` and `salt` multiple time will revert, since
      * the clones cannot be deployed twice at the same address.
      */
-    function cloneDeterministic(address implementation, bytes32 salt, uint256 value) internal returns (address instance) {
+    function cloneDeterministic(
+        address implementation,
+        bytes32 salt,
+        uint256 value
+    ) internal returns (address instance) {
         if (value > 0 && address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
