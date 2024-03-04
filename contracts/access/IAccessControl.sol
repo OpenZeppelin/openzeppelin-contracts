@@ -30,8 +30,8 @@ interface IAccessControl {
     /**
      * @dev Emitted when `account` is granted `role`.
      *
-     * `sender` is the account that originated the contract call. This account bears the admin role (for the granted
-     * role), expect in cases where the role was granted using the internal {AccessControl-_grantRole}.
+     * `sender` is the account that originated the contract call. This account bears the admin role (for the granted role).
+     * Expected in cases where the role was granted using the internal {AccessControl-_grantRole}.
      */
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 
