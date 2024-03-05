@@ -3,7 +3,10 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Collection of standard custom error that are used in multiple contracts
+ * @dev Collection of common custom errors used in multiple contracts
+ *
+ * IMPORTANT: Backwards compatibility is not guaranteed in future versions of the library.
+ * It is recommended to avoid relying on the error API for critical functionality.
  */
 library Errors {
     /**
