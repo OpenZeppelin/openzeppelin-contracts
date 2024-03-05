@@ -9,6 +9,7 @@ async function fixture() {
 
   const factory = await ethers.deployContract('$Clones');
   const implementation = await ethers.deployContract('DummyImplementation');
+  const computedAddressMock = await ethers.deployContract('ComputedAddressRemainderMock');
 
   const newClone = async (initData, opts = {}) => {
     const clone = await factory.$clone.staticCall(implementation).then(address => implementation.attach(address));
@@ -27,7 +28,7 @@ async function fixture() {
     return clone;
   };
 
-  return { deployer, factory, implementation, newClone, newCloneDeterministic };
+  return { deployer, factory, implementation, computedAddressMock, newClone, newCloneDeterministic };
 }
 
 describe('Clones', function () {
@@ -82,6 +83,16 @@ describe('Clones', function () {
       await expect(this.factory.$cloneDeterministic(this.implementation, salt))
         .to.emit(this.factory, 'return$cloneDeterministic')
         .withArgs(predicted);
+    });
+
+    it('clean address prediction', async function () {
+      const salt = ethers.randomBytes(32);
+      const predictedRemainder = await this.computedAddressMock.getClonesPredictedRemainder(
+        this.implementation,
+        salt,
+        ethers.Typed.address(this.deployer),
+      );
+      expect(predictedRemainder).to.equal(0);
     });
   });
 });

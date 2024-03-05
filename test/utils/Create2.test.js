@@ -6,7 +6,7 @@ async function fixture() {
   const [deployer, other] = await ethers.getSigners();
 
   const factory = await ethers.deployContract('$Create2');
-  const computedAddressMock = await ethers.deployContract('Create2ComputedAddressMock');
+  const computedAddressMock = await ethers.deployContract('ComputedAddressRemainderMock');
 
   // Bytecode for deploying a contract that includes a constructor.
   // We use a vesting wallet, with 3 constructor arguments.
@@ -57,7 +57,7 @@ describe('Create2', function () {
     });
 
     it('computes the clean contract address', async function () {
-      const computedRemainder = await this.computedAddressMock.getComputedRemainder(
+      const computedRemainder = await this.computedAddressMock.getCreate2ComputedRemainder(
         saltHex,
         ethers.keccak256(this.constructorByteCode),
         ethers.Typed.address(this.deployer),
