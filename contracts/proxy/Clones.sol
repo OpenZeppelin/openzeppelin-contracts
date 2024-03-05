@@ -30,6 +30,9 @@ library Clones {
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
      * This function uses the create opcode, which should never revert.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
+     * always have enough balance for new deployments. Consider exposing this function under a payable method.
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
         if (address(this).balance < value) {
@@ -66,6 +69,9 @@ library Clones {
      * This function uses the create2 opcode and a `salt` to deterministically deploy
      * the clone. Using the same `implementation` and `salt` multiple time will revert, since
      * the clones cannot be deployed twice at the same address.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
+     * always have enough balance for new deployments. Consider exposing this function under a payable method.
      */
     function cloneDeterministic(
         address implementation,
