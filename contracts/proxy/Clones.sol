@@ -27,9 +27,7 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
-     *
-     * This function uses the create opcode, which should never revert.
+     * @dev Same as {clone}, but with a `value` parameter to send native currency to the new contract.
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
         if (address(this).balance < value) {
@@ -61,11 +59,7 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
-     *
-     * This function uses the create2 opcode and a `salt` to deterministically deploy
-     * the clone. Using the same `implementation` and `salt` multiple time will revert, since
-     * the clones cannot be deployed twice at the same address.
+     * @dev Same as {cloneDeterministic}, but with a `value` parameter to send native currency to the new contract.
      */
     function cloneDeterministic(
         address implementation,
