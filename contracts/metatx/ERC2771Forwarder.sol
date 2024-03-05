@@ -133,7 +133,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         if (!_execute(request, true)) {
-            revert Errors.FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 

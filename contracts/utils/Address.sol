@@ -37,7 +37,7 @@ library Address {
 
         (bool success, ) = recipient.call{value: amount}("");
         if (!success) {
-            revert Errors.FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 
@@ -49,7 +49,7 @@ library Address {
      * If `target` reverts with a revert reason or custom error, it is bubbled
      * up by this function (like regular Solidity function calls). However, if
      * the call reverted with no returned reason, this function reverts with a
-     * {Errors.FailedInnerCall} error.
+     * {Errors.FailedCall} error.
      *
      * Returns the raw returned data. To convert to the expected return value,
      * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
@@ -100,7 +100,7 @@ library Address {
 
     /**
      * @dev Tool to verify that a low level call to smart-contract was successful, and reverts if the target
-     * was not a contract or bubbling up the revert reason (falling back to {Errors.FailedInnerCall}) in case
+     * was not a contract or bubbling up the revert reason (falling back to {Errors.FailedCall}) in case
      * of an unsuccessful call.
      */
     function verifyCallResultFromTarget(
@@ -122,7 +122,7 @@ library Address {
 
     /**
      * @dev Tool to verify that a low level call was successful, and reverts if it wasn't, either by bubbling the
-     * revert reason or with a default {Errors.FailedInnerCall} error.
+     * revert reason or with a default {Errors.FailedCall} error.
      */
     function verifyCallResult(bool success, bytes memory returndata) internal pure returns (bytes memory) {
         if (!success) {
@@ -133,7 +133,7 @@ library Address {
     }
 
     /**
-     * @dev Reverts with returndata if present. Otherwise reverts with {Errors.FailedInnerCall}.
+     * @dev Reverts with returndata if present. Otherwise reverts with {Errors.FailedCall}.
      */
     function _revert(bytes memory returndata) private pure {
         // Look for revert reason and bubble it up if present
@@ -145,7 +145,7 @@ library Address {
                 revert(add(32, returndata), returndata_size)
             }
         } else {
-            revert Errors.FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 }

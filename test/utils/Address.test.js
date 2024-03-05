@@ -74,7 +74,7 @@ describe('Address', function () {
           await this.targetEther.setAcceptEther(false);
           await expect(this.mock.$sendValue(this.targetEther, funds)).to.be.revertedWithCustomError(
             this.mock,
-            'FailedInnerCall',
+            'FailedCall',
           );
         });
       });
@@ -103,7 +103,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
 
@@ -118,7 +118,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.target, call, { gasLimit: 120_000n })).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
 
@@ -134,7 +134,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
     });
@@ -207,7 +207,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCallWithValue(this.target, call, value)).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
     });
@@ -225,7 +225,7 @@ describe('Address', function () {
 
       await expect(this.mock.$functionStaticCall(this.target, call)).to.be.revertedWithCustomError(
         this.mock,
-        'FailedInnerCall',
+        'FailedCall',
       );
     });
 
