@@ -27,9 +27,8 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
-     *
-     * This function uses the create opcode, which should never revert.
+     * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency to the
+     * new contract.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
      * always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -64,11 +63,8 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
-     *
-     * This function uses the create2 opcode and a `salt` to deterministically deploy
-     * the clone. Using the same `implementation` and `salt` multiple time will revert, since
-     * the clones cannot be deployed twice at the same address.
+     * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a `value` parameter
+     * to send native currency to the new contract.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
      * always have enough balance for new deployments. Consider exposing this function under a payable method.
