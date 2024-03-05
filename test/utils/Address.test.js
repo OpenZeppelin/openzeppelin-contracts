@@ -101,14 +101,7 @@ describe('Address', function () {
       it('reverts when the called function reverts with no reason', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
 
-<<<<<<< HEAD
         await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(this.mock, 'FailedCall');
-=======
-        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
-          this.mock,
-          'FailedCall',
-        );
->>>>>>> e8eb6251e0707dc2fff4a7d6eaf9e53593d8c2e4
       });
 
       it('reverts when the called function reverts, bubbling up the revert reason', async function () {
@@ -136,14 +129,7 @@ describe('Address', function () {
         const interface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
         const call = interface.encodeFunctionData('mockFunctionDoesNotExist');
 
-<<<<<<< HEAD
         await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(this.mock, 'FailedCall');
-=======
-        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
-          this.mock,
-          'FailedCall',
-        );
->>>>>>> e8eb6251e0707dc2fff4a7d6eaf9e53593d8c2e4
       });
     });
 
