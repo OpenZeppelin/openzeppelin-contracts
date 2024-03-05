@@ -27,11 +27,19 @@ library Clones {
     }
 
     /**
+<<<<<<< HEAD
      * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency to the
      * new contract.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
      * always have enough balance for new deployments. Consider exposing this function under a payable method.
+=======
+     * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
+     * to the new contract.
+     * 
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+>>>>>>> e8eb6251e0707dc2fff4a7d6eaf9e53593d8c2e4
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
         if (address(this).balance < value) {
@@ -63,11 +71,19 @@ library Clones {
     }
 
     /**
+<<<<<<< HEAD
      * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a `value` parameter
      * to send native currency to the new contract.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory) to
      * always have enough balance for new deployments. Consider exposing this function under a payable method.
+=======
+     * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
+     * a `value` parameter to send native currency to the new contract.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+>>>>>>> e8eb6251e0707dc2fff4a7d6eaf9e53593d8c2e4
      */
     function cloneDeterministic(
         address implementation,
