@@ -1,5 +1,14 @@
 # Changelog
 
+### Custom error changes
+
+This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
+
+- Replace `Address.FailedInnerCall` with `Errors.FailedCall`
+- Replace `Address.AddressInsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
+- Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
 
 ## 5.0.2 (2024-02-29)
 
