@@ -17,7 +17,7 @@ library Errors {
     /**
      * @dev A call to an address target failed. The target may have reverted.
      */
-    error FailedInnerCall();
+    error FailedCall();
 
     /**
      * @dev The deployment failed.

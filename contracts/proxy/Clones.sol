@@ -27,7 +27,11 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency to the new contract.
+     * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
+     * to the new contract.
+     * 
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
         if (address(this).balance < value) {
@@ -59,7 +63,11 @@ library Clones {
     }
 
     /**
-     * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a `value` parameter to send native currency to the new contract.
+     * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
+     * a `value` parameter to send native currency to the new contract.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
      */
     function cloneDeterministic(
         address implementation,
