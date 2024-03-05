@@ -50,9 +50,7 @@ describe('MerkleTree', function () {
         const tree = makeTree(leafs);
 
         // push value to tree
-        await expect(this.mock.push(hashedLeaf))
-          .to.emit(this.mock, 'LeafInserted')
-          .withArgs(hashedLeaf, i, tree.root);
+        await expect(this.mock.push(hashedLeaf)).to.emit(this.mock, 'LeafInserted').withArgs(hashedLeaf, i, tree.root);
 
         // check tree
         expect(await this.mock.root()).to.equal(tree.root);
@@ -77,7 +75,7 @@ describe('MerkleTree', function () {
     const hashedLeaf = hashLeaf((leafs[0] = generators.bytes32())); // fill first leaf and hash it
     const tree = makeTree(leafs);
 
-    // root should that of zero tree
+    // root should be that of a zero tree
     expect(await this.mock.root()).to.equal(zeroTree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(0n);
 

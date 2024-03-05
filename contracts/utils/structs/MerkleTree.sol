@@ -96,7 +96,7 @@ library MerkleTree {
      * Hashing the leaf before calling this function is recommended as a protection against
      * second pre-image attacks.
      */
-    function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256, bytes32) {
+    function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256 index, bytes32 newRoot) {
         // Cache read
         uint256 levels = self._zeros.length;
         function(bytes32, bytes32) view returns (bytes32) fnHash = self._fnHash;
