@@ -45,7 +45,7 @@ library Clones {
             mstore(0x11, implementation)
             // Packs the first 3 bytes of the `implementation` address with the bytecode before the address.
             mstore(0x00, or(shr(0x88, implementation), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
-            instance := create(0, 0x09, 0x37)
+            instance := create(value, 0x09, 0x37)
         }
         if (instance == address(0)) {
             revert Errors.FailedDeployment();
@@ -86,7 +86,7 @@ library Clones {
             mstore(0x11, implementation)
             // Packs the first 3 bytes of the `implementation` address with the bytecode before the address.
             mstore(0x00, or(shr(0x88, implementation), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
-            instance := create2(0, 0x09, 0x37, salt)
+            instance := create2(value, 0x09, 0x37, salt)
         }
         if (instance == address(0)) {
             revert Errors.FailedDeployment();
