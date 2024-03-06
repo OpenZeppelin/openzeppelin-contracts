@@ -12,7 +12,7 @@ async function envSetup(mock, beneficiary, token) {
         const beneficiaryMock = await ethers.deployContract('EtherReceiverMock');
         await beneficiaryMock.setAcceptEther(false);
         await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
-        return { args: [], error: [mock, 'FailedInnerCall'] };
+        return { args: [], error: [mock, 'FailedCall'] };
       },
       releasedEvent: 'EtherReleased',
       args: [],
