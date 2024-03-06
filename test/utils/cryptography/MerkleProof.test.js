@@ -55,12 +55,12 @@ describe('MerkleProof', function () {
       const merkleTree = StandardMerkleTree.of(toElements('abc'), ['string']);
 
       const root = merkleTree.root;
-      const leaf = merkleTree.leafHash(['a']);
+      const hash = merkleTree.leafHash(['a']);
       const proof = merkleTree.getProof(['a']);
-      const badProof = proof.slice(0, proof.length - 5);
+      const badProof = proof.slice(0, -1);
 
-      expect(await this.mock.$verify(badProof, root, leaf)).to.be.false;
-      expect(await this.mock.$verifyCalldata(badProof, root, leaf)).to.be.false;
+      expect(await this.mock.$verify(badProof, root, hash)).to.be.false;
+      expect(await this.mock.$verifyCalldata(badProof, root, hash)).to.be.false;
     });
   });
 
