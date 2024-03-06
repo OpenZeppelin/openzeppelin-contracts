@@ -1214,7 +1214,7 @@ describe('AccessManager', function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
                     await expect(this.txResponse)
                       .to.emit(this.manager, 'RoleGranted')
-                      .withArgs(ANOTHER_ROLE, this.user, timestamp + this.grantDelay, this.executionDelay, true);
+                      .withArgs(ANOTHER_ROLE, this.user, this.executionDelay, timestamp + this.grantDelay, true);
 
                     // Access is correctly stored
                     const access = await this.manager.getAccess(ANOTHER_ROLE, this.user);
@@ -1337,7 +1337,7 @@ describe('AccessManager', function () {
 
                   await expect(txResponse)
                     .to.emit(this.manager, 'RoleGranted')
-                    .withArgs(ANOTHER_ROLE, this.user, timestamp, this.newExecutionDelay, false);
+                    .withArgs(ANOTHER_ROLE, this.user, this.newExecutionDelay, timestamp, false);
 
                   // Access is correctly stored
                   const access = await this.manager.getAccess(ANOTHER_ROLE, this.user);
@@ -1373,7 +1373,7 @@ describe('AccessManager', function () {
                 it('emits event', async function () {
                   await expect(this.txResponse)
                     .to.emit(this.manager, 'RoleGranted')
-                    .withArgs(ANOTHER_ROLE, this.user, this.grantTimestamp + this.delay, this.newExecutionDelay, false);
+                    .withArgs(ANOTHER_ROLE, this.user, this.newExecutionDelay, this.grantTimestamp + this.delay, false);
                 });
 
                 testAsDelay('execution delay effect', {
@@ -1448,7 +1448,7 @@ describe('AccessManager', function () {
 
                   await expect(txResponse)
                     .to.emit(this.manager, 'RoleGranted')
-                    .withArgs(ANOTHER_ROLE, this.user, timestamp, this.newExecutionDelay, false);
+                    .withArgs(ANOTHER_ROLE, this.user, this.newExecutionDelay, timestamp, false);
 
                   // Access is correctly stored
                   const access = await this.manager.getAccess(ANOTHER_ROLE, this.user);
@@ -1484,7 +1484,7 @@ describe('AccessManager', function () {
                 it('emits event', async function () {
                   await expect(this.txResponse)
                     .to.emit(this.manager, 'RoleGranted')
-                    .withArgs(ANOTHER_ROLE, this.user, this.grantTimestamp + this.delay, this.newExecutionDelay, false);
+                    .withArgs(ANOTHER_ROLE, this.user, this.newExecutionDelay, this.grantTimestamp + this.delay, false);
                 });
 
                 testAsDelay('execution delay effect', {
@@ -1873,7 +1873,7 @@ describe('AccessManager', function () {
       expect(await this.manager.getSchedule(operationId)).to.equal(scheduledAt + this.delay);
       await expect(txResponse)
         .to.emit(this.manager, 'OperationScheduled')
-        .withArgs(operationId, '1', scheduledAt + this.delay, this.target, this.calldata);
+        .withArgs(operationId, '1', scheduledAt + this.delay, this.caller, this.target, this.calldata);
     });
 
     it('schedules an operation at the minimum execution date if no specified execution date (when == 0)', async function () {
@@ -1888,7 +1888,7 @@ describe('AccessManager', function () {
       expect(await this.manager.getSchedule(operationId)).to.equal(scheduledAt + executionDelay);
       await expect(txResponse)
         .to.emit(this.manager, 'OperationScheduled')
-        .withArgs(operationId, '1', scheduledAt + executionDelay, this.target, this.calldata);
+        .withArgs(operationId, '1', scheduledAt + executionDelay, this.caller, this.target, this.calldata);
     });
 
     it('increases the nonce of an operation scheduled more than once', async function () {
