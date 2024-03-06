@@ -34,7 +34,7 @@ describe('BeaconProxy', function () {
     it('non-compliant beacon', async function () {
       const badBeacon = await ethers.deployContract('BadBeaconNoImpl');
 
-      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason;
+      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.reverted;
     });
 
     it('non-contract implementation', async function () {

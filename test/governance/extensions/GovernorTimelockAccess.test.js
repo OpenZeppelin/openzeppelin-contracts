@@ -370,7 +370,7 @@ describe('GovernorTimelockAccess', function () {
             if (await this.mock.proposalNeedsQueuing(this.proposal.id)) {
               expect(await this.helper.queue())
                 .to.emit(this.mock, 'ProposalQueued')
-                .withArgs(this.proposal.id);
+                .withArgs(this.proposal.id, anyValue);
             }
             if (delay > 0) {
               await this.helper.waitForEta();
@@ -378,7 +378,7 @@ describe('GovernorTimelockAccess', function () {
             expect(await this.helper.execute())
               .to.emit(this.mock, 'ProposalExecuted')
               .withArgs(this.proposal.id)
-              .to.not.emit(this.receiver, 'CalledUnrestricted');
+              .to.emit(this.receiver, 'CalledUnrestricted');
           });
         }
       });
