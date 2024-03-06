@@ -286,10 +286,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
 
         // check proposal threshold
-        uint256 proposerVotes = getVotes(proposer, clock() - 1);
         uint256 votesThreshold = proposalThreshold();
-        if (proposerVotes < votesThreshold) {
-            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+        if (votesThreshold > 0) {
+            uint256 proposerVotes = getVotes(proposer, clock() - 1);
+            if (proposerVotes < votesThreshold) {
+                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+            }
         }
 
         return _propose(targets, values, calldatas, description, proposer);
