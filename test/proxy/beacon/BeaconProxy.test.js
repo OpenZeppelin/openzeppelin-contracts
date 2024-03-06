@@ -36,7 +36,7 @@ describe('BeaconProxy', function () {
 
       // BadBeaconNoImpl does not provide `implementation()` has no fallback.
       // This causes ERC1967Utils._setBeacon to revert.
-      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.reverted;
+      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason();
     });
 
     it('non-contract implementation', async function () {
