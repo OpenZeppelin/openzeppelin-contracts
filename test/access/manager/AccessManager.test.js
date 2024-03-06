@@ -1238,8 +1238,8 @@ describe('AccessManager', function () {
                   it('grants role to the user', async function () {
                     const timestamp = await time.clockFromReceipt.timestamp(this.txResponse);
                     await expect(this.txResponse)
-                      .to.emit(this.manager, 'RoleAccessRequested')
-                      .withArgs(ANOTHER_ROLE, this.user, timestamp + this.grantDelay, this.executionDelay, true);
+                      .to.emit(this.manager, 'RoleGranted')
+                      .withArgs(ANOTHER_ROLE, this.user, this.executionDelay, timestamp + this.grantDelay, true);
 
                     // Access is correctly stored
                     const access = await this.manager.getAccess(ANOTHER_ROLE, this.user);
