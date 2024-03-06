@@ -48,7 +48,7 @@ library MerkleTree {
     }
 
     /**
-     * @dev Initialize a {Bytes32PushTree} using {Hashes-sortedPairKeccak256} to hash internal nodes.
+     * @dev Initialize a {Bytes32PushTree} using {Hashes-commutativeKeccak256} to hash internal nodes.
      * The capacity of the tree (i.e. number of leaves) is set to `2**levels`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
@@ -57,7 +57,7 @@ library MerkleTree {
      * empty leaves. It should be a value that is not expected to be part of the tree.
      */
     function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal {
-        return setup(self, levels, zero, Hashes.sortedPairKeccak256);
+        return setup(self, levels, zero, Hashes.commutativeKeccak256);
     }
 
     /**
