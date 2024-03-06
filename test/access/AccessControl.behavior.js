@@ -112,10 +112,9 @@ function shouldBehaveLikeAccessControl() {
       });
 
       it('only the sender can renounce their roles', async function () {
-        await expect(this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.authorized)).to.be.revertedWithCustomError(
-          this.mock,
-          'AccessControlBadConfirmation',
-        );
+        await expect(
+          this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.authorized),
+        ).to.be.revertedWithCustomError(this.mock, 'AccessControlBadConfirmation');
       });
 
       it('a role can be renounced multiple times', async function () {
