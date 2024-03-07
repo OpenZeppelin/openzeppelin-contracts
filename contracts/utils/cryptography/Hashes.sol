@@ -9,7 +9,7 @@ library Hashes {
     /**
      * @dev Commutative Keccak256 hash of a sorted pair of bytes32. Frequently used when working with merkle proofs.
      *
-     * Note: this is equivalent to the `standardNodeHash` from the `@openzeppelin/merkle-tree` library.
+     * NOTE: Equivalent to the `standardNodeHash` in our https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
      */
     function commutativeKeccak256(bytes32 a, bytes32 b) internal pure returns (bytes32) {
         return a < b ? _efficientKeccak256(a, b) : _efficientKeccak256(b, a);
