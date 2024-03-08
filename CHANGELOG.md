@@ -676,7 +676,7 @@ It is no longer possible to call an `initializer`-protected function from within
 This release includes two small breaking changes in `TimelockController`.
 
 1. The `onlyRole` modifier in this contract was designed to let anyone through if the role was granted to `address(0)`,
-   allowing the possibility to to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
+   allowing the possibility to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
    replaced by `AccessControl.onlyRole`, which does not have this ability. The previous behavior was moved to the
    modifier `TimelockController.onlyRoleOrOpenRole`.
 2. It was possible to make `PROPOSER_ROLE` an open role (as described in the previous item) if it was granted to

@@ -440,7 +440,7 @@ library Math {
 
             // We now have x_n such that `x_n = 2**(e-1) ≤ sqrt(a) < 2**e = 2 * x_n`. This implies ε_n ≤ 2**(e-1).
             //
-            // We can refine our estimation by noticing that the the middle of that interval minimizes the error.
+            // We can refine our estimation by noticing that the middle of that interval minimizes the error.
             // If we move x_n to equal 2**(e-1) + 2**(e-2), then we reduce the error to ε_n ≤ 2**(e-2).
             // This is going to be our x_0 (and ε_0)
             xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-2)
