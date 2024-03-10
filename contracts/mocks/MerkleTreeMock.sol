@@ -10,18 +10,18 @@ contract MerkleTreeMock {
     MerkleTree.Bytes32PushTree private _tree;
 
     event LeafInserted(bytes32 leaf, uint256 index, bytes32 root);
+    event TreeSetup(uint8 depth, bytes32 zero, bytes32 root);
 
-    function setup(uint8 _depth, bytes32 _zero) public {
-        _tree.setup(_depth, _zero);
+    function setup(uint8 _depth, bytes32 _zero) public returns (bytes32) {
+        bytes32 initialRoot = _tree.setup(_depth, _zero);
+        emit TreeSetup(_depth, _zero, initialRoot);
+        return initialRoot;
     }
 
-    function push(bytes32 leaf) public {
-        (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf);
+    function push(bytes32 leaf) public returns (uint256 leafIndex, bytes32 currentRoot) {
+        (leafIndex, currentRoot) = _tree.push(leaf);
         emit LeafInserted(leaf, leafIndex, currentRoot);
-    }
-
-    function root() public view returns (bytes32) {
-        return _tree.root();
+        return (leafIndex, currentRoot);
     }
 
     function depth() public view returns (uint256) {
