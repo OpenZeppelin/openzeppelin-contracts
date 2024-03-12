@@ -4,7 +4,6 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
-import {IERC20Permit} from "../extensions/IERC20Permit.sol";
 import {Address} from "../../../utils/Address.sol";
 
 /**

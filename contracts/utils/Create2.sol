@@ -85,12 +85,14 @@ library Create2 {
             // | memory            | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |
             // | keccak(start, 85) |            ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
 
-            mstore(add(ptr, 0x40), bytecodeHash)
-            mstore(add(ptr, 0x20), salt)
-            mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
-            let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
+            //right192(sha3(bytes{0xff} +_sender.asBytes() + toBigEndian(_salt) + sha3(_init)));
+
+            let start := add(ptr, 0x07) // The hashed data starts at the final garbage byte which we will set to 0xff
+            mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes //24
             mstore8(start, 0xff)
-            addr := keccak256(start, 85)
+            mstore(add(ptr, 0x20), salt)            //32
+            mstore(add(ptr, 0x40), bytecodeHash) //32
+            addr := or(and(keccak256(start, 89), 0x00000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF), 0x0000000000000000656600000000000000000000000000000000000000000000)
         }
     }
 }

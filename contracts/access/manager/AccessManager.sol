@@ -635,7 +635,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             selector == this.setTargetFunctionRole.selector
         ) {
             // First argument is a target.
-            address target = abi.decode(data[0x04:0x24], (address));
+            address target = abi.decode(data[0x04:0x28], (address));
             uint32 delay = getTargetAdminDelay(target);
             return (true, ADMIN_ROLE, delay);
         }
@@ -643,7 +643,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // Restricted to that role's admin with no delay beside any execution delay the caller may have.
         if (selector == this.grantRole.selector || selector == this.revokeRole.selector) {
             // First argument is a roleId.
-            uint64 roleId = abi.decode(data[0x04:0x24], (uint64));
+            uint64 roleId = abi.decode(data[0x04:0x28], (uint64));
             return (true, getRoleAdmin(roleId), 0);
         }
 

@@ -29,9 +29,9 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;
-    using Checkpoints for Checkpoints.Trace160;
+    using Checkpoints for Checkpoints.Trace192;
 
-    Checkpoints.Trace160 private _sequentialOwnership;
+    Checkpoints.Trace192 private _sequentialOwnership;
     BitMaps.BitMap private _sequentialBurn;
 
     /**
@@ -64,7 +64,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * NOTE: Overriding the default value of 5000 will not cause on-chain issues, but may result in the asset not being
      * correctly supported by off-chain indexing services (including marketplaces).
      */
-    function _maxBatchSize() internal view virtual returns (uint96) {
+    function _maxBatchSize() internal view virtual returns (uint64) {
         return 5000;
     }
 
@@ -76,13 +76,13 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address owner = super._ownerOf(tokenId);
 
         // If token is owned by the core, or beyond consecutive range, return base value
-        if (owner != address(0) || tokenId > type(uint96).max || tokenId < _firstConsecutiveId()) {
+        if (owner != address(0) || tokenId > type(uint64).max || tokenId < _firstConsecutiveId()) {
             return owner;
         }
 
         // Otherwise, check the token was not burned, and fetch ownership from the anchors
-        // Note: no need for safe cast, we know that tokenId <= type(uint96).max
-        return _sequentialBurn.get(tokenId) ? address(0) : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
+        // Note: no need for safe cast, we know that tokenId <= type(uint64).max
+        return _sequentialBurn.get(tokenId) ? address(0) : address(_sequentialOwnership.lowerLookup(uint64(tokenId)));
     }
 
     /**
@@ -101,8 +101,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      *
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
-    function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
-        uint96 next = _nextConsecutiveId();
+    function _mintConsecutive(address to, uint64 batchSize) internal virtual returns (uint64) {
+        uint64 next = _nextConsecutiveId();
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
@@ -119,8 +119,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             }
 
             // push an ownership checkpoint & emit event
-            uint96 last = next + batchSize - 1;
-            _sequentialOwnership.push(last, uint160(to));
+            uint64 last = next + batchSize - 1;
+            _sequentialOwnership.push(last, uint192(to));
 
             // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
             // is attributing ownership of `batchSize` new tokens to account `to`.
@@ -161,7 +161,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     /**
      * @dev Used to offset the first token id in {_nextConsecutiveId}
      */
-    function _firstConsecutiveId() internal view virtual returns (uint96) {
+    function _firstConsecutiveId() internal view virtual returns (uint64) {
         return 0;
     }
 
@@ -169,8 +169,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * @dev Returns the next tokenId to mint using {_mintConsecutive}. It will return {_firstConsecutiveId}
      * if no consecutive tokenId has been minted before.
      */
-    function _nextConsecutiveId() private view returns (uint96) {
-        (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
+    function _nextConsecutiveId() private view returns (uint64) {
+        (bool exists, uint64 latestId, ) = _sequentialOwnership.latestCheckpoint();
         return exists ? latestId + 1 : _firstConsecutiveId();
     }
 }

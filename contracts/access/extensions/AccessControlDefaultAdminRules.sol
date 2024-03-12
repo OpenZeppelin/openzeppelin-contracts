@@ -218,7 +218,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
-        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
+        uint48 newSchedule = SafeCast.toUint48(block.timestamp / 1000000) + defaultAdminDelay();
         _setPendingDefaultAdmin(newAdmin, newSchedule);
         emit DefaultAdminTransferScheduled(newAdmin, newSchedule);
     }
@@ -284,7 +284,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _changeDefaultAdminDelay(uint48 newDelay) internal virtual {
-        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + _delayChangeWait(newDelay);
+        uint48 newSchedule = SafeCast.toUint48(block.timestamp / 1000000) + _delayChangeWait(newDelay);
         _setPendingDelay(newDelay, newSchedule);
         emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
     }
@@ -391,6 +391,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Defines if an `schedule` is considered passed. For consistency purposes.
      */
     function _hasSchedulePassed(uint48 schedule) private view returns (bool) {
-        return schedule < block.timestamp;
+        return schedule < (block.timestamp / 1000000);
     }
 }

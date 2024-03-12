@@ -9,8 +9,8 @@ abstract contract ERC4626LimitsMock is ERC4626 {
     uint256 _maxMint;
 
     constructor() {
-        _maxDeposit = 100 ether;
-        _maxMint = 100 ether;
+        _maxDeposit = 100;
+        _maxMint = 100;
     }
 
     function maxDeposit(address) public view override returns (uint256) {

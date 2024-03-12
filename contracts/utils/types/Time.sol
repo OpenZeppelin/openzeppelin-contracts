@@ -24,7 +24,7 @@ library Time {
      * @dev Get the block timestamp as a Timepoint.
      */
     function timestamp() internal view returns (uint48) {
-        return SafeCast.toUint48(block.timestamp);
+        return SafeCast.toUint48(block.timestamp / 1000000);
     }
 
     /**

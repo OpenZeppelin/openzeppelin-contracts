@@ -11,7 +11,7 @@ import {SignedMath} from "./math/SignedMath.sol";
  */
 library Strings {
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
-    uint8 private constant ADDRESS_LENGTH = 20;
+    uint8 private constant ADDRESS_LENGTH = 24;
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -78,11 +78,11 @@ library Strings {
     }
 
     /**
-     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal
+     * @dev Converts an `address` with fixed length of 24 bytes to its not checksummed ASCII `string` hexadecimal
      * representation.
      */
     function toHexString(address addr) internal pure returns (string memory) {
-        return toHexString(uint256(uint160(addr)), ADDRESS_LENGTH);
+        return toHexString(uint256(uint192(addr)), ADDRESS_LENGTH);
     }
 
     /**
