@@ -2,9 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-// Load test cases from file SigVer15_186-3.rsp from:
-// https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
-const tests = require('./SigVer15_186-3');
+const parse = require('./RSA.helper');
 
 async function fixture() {
   return { mock: await ethers.deployContract('$RSA') };
@@ -15,9 +13,16 @@ describe('RSA', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('SigVer15_186-3', function () {
-    for (const test of tests) {
+  // Load test cases from file SigVer15_186-3.rsp from:
+  // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
+  describe('SigVer15_186-3.rsp tests', function () {
+    for (const test of parse('SigVer15_186-3.rsp')) {
       const { length } = Buffer.from(test.S, 'hex');
+
+      /// For now, RSA only supports digest that are 32bytes long. If we ever extend that, we can use these hashing functions for @noble:
+      // const { sha1 } = require('@noble/hashes/sha1');
+      // const { sha224, sha256 } = require('@noble/hashes/sha256');
+      // const { sha384, sha512 } = require('@noble/hashes/sha512');
 
       if (test.alg === 'SHA256') {
         it(`test case: signature length ${length} (${test.Result === 'P' ? 'success' : 'failure'})`, async function () {
@@ -25,10 +30,10 @@ describe('RSA', function () {
           const sig = '0x' + test.S;
           const exp = '0x' + test.e;
           const mod = '0x' + test.mod;
-          expect(await this.mock.getFunction('$pkcs1Sha256(bytes,bytes,bytes,bytes)')(data, sig, exp, mod)).to.equal(
-            test.Result === 'P',
-            JSON.stringify(test),
-          );
+          const result = test.Result === 'P';
+
+          expect(await this.mock.getFunction('$pkcs1Sha256(bytes32,bytes,bytes,bytes)')(ethers.sha256(data), sig, exp, mod)).to.equal(result);
+          expect(await this.mock.getFunction('$pkcs1Sha256(bytes,bytes,bytes,bytes)')(data, sig, exp, mod)).to.equal(result);
         });
       }
     }

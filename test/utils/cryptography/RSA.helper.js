@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-function* extract(file) {
+module.exports = function* parse(file) {
   // cache the last mod seen
   let mod;
 
@@ -24,5 +24,3 @@ function* extract(file) {
     }
   }
 }
-
-module.exports = extract('SigVer15_186-3.rsp');
