@@ -9,6 +9,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {SafeCast}: Checked downcasting functions to avoid silent truncation.
  * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
  * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
@@ -20,6 +21,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
  * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
+ * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
@@ -48,13 +50,15 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{ECDSA}}
 
+{{EIP712}}
+
 {{MessageHashUtils}}
 
 {{SignatureChecker}}
 
-{{MerkleProof}}
+{{Hashes}}
 
-{{EIP712}}
+{{MerkleProof}}
 
 == Security
 
@@ -87,6 +91,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{DoubleEndedQueue}}
 
 {{Checkpoints}}
+
+{{MerkleTree}}
 
 == Libraries
 

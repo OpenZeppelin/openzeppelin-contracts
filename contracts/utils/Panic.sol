@@ -47,9 +47,9 @@ library Panic {
     function panic(uint256 code) internal pure {
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0x00, shl(0xe0, 0x4e487b71))
-            mstore(0x04, code)
-            revert(0x00, 0x24)
+            mstore(0x00, 0x4e487b71)
+            mstore(0x20, code)
+            revert(0x1c, 0x24)
         }
     }
 }

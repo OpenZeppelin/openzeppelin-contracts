@@ -1,5 +1,18 @@
 # Changelog
 
+### Custom error changes
+
+This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
+
+- Replace `Address.FailedInnerCall` with `Errors.FailedCall`
+- Replace `Address.AddressInsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
+- Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
+
+## 5.0.2 (2024-02-29)
+
+- `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4926))
 
 ## 5.0.1 (2023-12-07)
 
@@ -278,6 +291,19 @@ Instead, contracts now revert with custom errors. Systems that interact with sma
 ##### Relying on storage locations for retrieving data
 
 After 5.0, the storage location of some variables were changed. This is the case for `Initializable` and all the upgradeable contracts since they now use namespaced storaged locations. Any system relying on storage locations for retrieving data or detecting capabilities should be updated to support these new locations.
+
+## 4.9.6 (2024-02-29)
+
+- `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4929](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4929))
+
+## 4.9.5 (2023-12-08)
+
+- `Multicall`: Make aware of non-canonical context (i.e. `msg.sender` is not `_msgSender()`), allowing compatibility with `ERC2771Context`. Patch duplicated `Address.functionDelegateCall` in v4.9.4 (removed).
+
+## 4.9.3 (2023-07-28)
+
+- `ERC2771Context`: Return the forwarder address whenever the `msg.data` of a call originating from a trusted forwarder is not long enough to contain the request signer address (i.e. `msg.data.length` is less than 20 bytes), as specified by ERC-2771. ([#4481](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4481))
+- `ERC2771Context`: Prevent revert in `_msgData()` when a call originating from a trusted forwarder is not long enough to contain the request signer address (i.e. `msg.data.length` is less than 20 bytes). Return the full calldata in that case. ([#4484](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4484))
 
 ## 4.9.2 (2023-06-16)
 
@@ -650,7 +676,7 @@ It is no longer possible to call an `initializer`-protected function from within
 This release includes two small breaking changes in `TimelockController`.
 
 1. The `onlyRole` modifier in this contract was designed to let anyone through if the role was granted to `address(0)`,
-   allowing the possibility to to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
+   allowing the possibility to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
    replaced by `AccessControl.onlyRole`, which does not have this ability. The previous behavior was moved to the
    modifier `TimelockController.onlyRoleOrOpenRole`.
 2. It was possible to make `PROPOSER_ROLE` an open role (as described in the previous item) if it was granted to

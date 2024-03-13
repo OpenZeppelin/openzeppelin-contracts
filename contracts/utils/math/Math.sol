@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Address} from "../Address.sol";
 import {Panic} from "../Panic.sol";
 import {SafeCast} from "./SafeCast.sol";
 
@@ -128,9 +127,9 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
-            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
-            // variables such that product = prod1 * 2^256 + prod0.
+            // variables such that product = prod1 * 2²⁵⁶ + prod0.
             uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
             assembly {
@@ -146,7 +145,7 @@ library Math {
                 return prod0 / denominator;
             }
 
-            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            // Make sure the result is less than 2²⁵⁶. Also prevents denominator == 0.
             if (denominator <= prod1) {
                 Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
             }
@@ -177,30 +176,30 @@ library Math {
                 // Divide [prod1 prod0] by twos.
                 prod0 := div(prod0, twos)
 
-                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                // Flip twos such that it is 2²⁵⁶ / twos. If twos is zero, then it becomes one.
                 twos := add(div(sub(0, twos), twos), 1)
             }
 
             // Shift in bits from prod1 into prod0.
             prod0 |= prod1 * twos;
 
-            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
-            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
-            // four bits. That is, denominator * inv = 1 mod 2^4.
+            // Invert denominator mod 2²⁵⁶. Now that denominator is an odd number, it has an inverse modulo 2²⁵⁶ such
+            // that denominator * inv ≡ 1 mod 2²⁵⁶. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv ≡ 1 mod 2⁴.
             uint256 inverse = (3 * denominator) ^ 2;
 
             // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
             // works in modular arithmetic, doubling the correct bits in each step.
-            inverse *= 2 - denominator * inverse; // inverse mod 2^8
-            inverse *= 2 - denominator * inverse; // inverse mod 2^16
-            inverse *= 2 - denominator * inverse; // inverse mod 2^32
-            inverse *= 2 - denominator * inverse; // inverse mod 2^64
-            inverse *= 2 - denominator * inverse; // inverse mod 2^128
-            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+            inverse *= 2 - denominator * inverse; // inverse mod 2⁸
+            inverse *= 2 - denominator * inverse; // inverse mod 2¹⁶
+            inverse *= 2 - denominator * inverse; // inverse mod 2³²
+            inverse *= 2 - denominator * inverse; // inverse mod 2⁶⁴
+            inverse *= 2 - denominator * inverse; // inverse mod 2¹²⁸
+            inverse *= 2 - denominator * inverse; // inverse mod 2²⁵⁶
 
             // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
-            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
-            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // This will give us the correct result modulo 2²⁵⁶. Since the preconditions guarantee that the outcome is
+            // less than 2²⁵⁶, this is the final result. We don't need to compute the high bits of the result and prod1
             // is no longer required.
             result = prod0 * inverse;
             return result;
@@ -289,11 +288,7 @@ library Math {
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
         (bool success, uint256 result) = tryModExp(b, e, m);
         if (!success) {
-            if (m == 0) {
-                Panic.panic(Panic.DIVISION_BY_ZERO);
-            } else {
-                revert Address.FailedInnerCall();
-            }
+            Panic.panic(Panic.DIVISION_BY_ZERO);
         }
         return result;
     }
@@ -336,41 +331,166 @@ library Math {
     }
 
     /**
+     * @dev Variant of {modExp} that supports inputs of arbitrary length.
+     */
+    function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
+        (bool success, bytes memory result) = tryModExp(b, e, m);
+        if (!success) {
+            Panic.panic(Panic.DIVISION_BY_ZERO);
+        }
+        return result;
+    }
+
+    /**
+     * @dev Variant of {tryModExp} that supports inputs of arbitrary length.
+     */
+    function tryModExp(
+        bytes memory b,
+        bytes memory e,
+        bytes memory m
+    ) internal view returns (bool success, bytes memory result) {
+        if (_zeroBytes(m)) return (false, new bytes(0));
+
+        uint256 mLen = m.length;
+
+        // Encode call args in result and move the free memory pointer
+        result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            let dataPtr := add(result, 0x20)
+            // Write result on top of args to avoid allocating extra memory.
+            success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)
+            // Overwrite the length.
+            // result.length > returndatasize() is guaranteed because returndatasize() == m.length
+            mstore(result, mLen)
+            // Set the memory pointer after the returned data.
+            mstore(0x40, add(dataPtr, mLen))
+        }
+    }
+
+    /**
+     * @dev Returns whether the provided byte array is zero.
+     */
+    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
+        for (uint256 i = 0; i < byteArray.length; ++i) {
+            if (byteArray[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
      *
-     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+     * This method is based on Newton's method for computing square roots; the algorithm is restricted to only
+     * using integer operations.
      */
     function sqrt(uint256 a) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-
-        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
-        //
-        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
-        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
-        //
-        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
-        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
-        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
-        //
-        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
-        uint256 result = 1 << (log2(a) >> 1);
-
-        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
-        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
-        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
-        // into the expected uint128 result.
         unchecked {
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            return min(result, a / result);
+            // Take care of easy edge cases when a == 0 or a == 1
+            if (a <= 1) {
+                return a;
+            }
+
+            // In this function, we use Newton's method to get a root of `f(x) := x² - a`. It involves building a
+            // sequence x_n that converges toward sqrt(a). For each iteration x_n, we also define the error between
+            // the current value as `ε_n = | x_n - sqrt(a) |`.
+            //
+            // For our first estimation, we consider `e` the smallest power of 2 which is bigger than the square root
+            // of the target. (i.e. `2**(e-1) ≤ sqrt(a) < 2**e`). We know that `e ≤ 128` because `(2¹²⁸)² = 2²⁵⁶` is
+            // bigger than any uint256.
+            //
+            // By noticing that
+            // `2**(e-1) ≤ sqrt(a) < 2**e → (2**(e-1))² ≤ a < (2**e)² → 2**(2*e-2) ≤ a < 2**(2*e)`
+            // we can deduce that `e - 1` is `log2(a) / 2`. We can thus compute `x_n = 2**(e-1)` using a method similar
+            // to the msb function.
+            uint256 aa = a;
+            uint256 xn = 1;
+
+            if (aa >= (1 << 128)) {
+                aa >>= 128;
+                xn <<= 64;
+            }
+            if (aa >= (1 << 64)) {
+                aa >>= 64;
+                xn <<= 32;
+            }
+            if (aa >= (1 << 32)) {
+                aa >>= 32;
+                xn <<= 16;
+            }
+            if (aa >= (1 << 16)) {
+                aa >>= 16;
+                xn <<= 8;
+            }
+            if (aa >= (1 << 8)) {
+                aa >>= 8;
+                xn <<= 4;
+            }
+            if (aa >= (1 << 4)) {
+                aa >>= 4;
+                xn <<= 2;
+            }
+            if (aa >= (1 << 2)) {
+                xn <<= 1;
+            }
+
+            // We now have x_n such that `x_n = 2**(e-1) ≤ sqrt(a) < 2**e = 2 * x_n`. This implies ε_n ≤ 2**(e-1).
+            //
+            // We can refine our estimation by noticing that the middle of that interval minimizes the error.
+            // If we move x_n to equal 2**(e-1) + 2**(e-2), then we reduce the error to ε_n ≤ 2**(e-2).
+            // This is going to be our x_0 (and ε_0)
+            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-2)
+
+            // From here, Newton's method give us:
+            // x_{n+1} = (x_n + a / x_n) / 2
+            //
+            // One should note that:
+            // x_{n+1}² - a = ((x_n + a / x_n) / 2)² - a
+            //              = ((x_n² + a) / (2 * x_n))² - a
+            //              = (x_n⁴ + 2 * a * x_n² + a²) / (4 * x_n²) - a
+            //              = (x_n⁴ + 2 * a * x_n² + a² - 4 * a * x_n²) / (4 * x_n²)
+            //              = (x_n⁴ - 2 * a * x_n² + a²) / (4 * x_n²)
+            //              = (x_n² - a)² / (2 * x_n)²
+            //              = ((x_n² - a) / (2 * x_n))²
+            //              ≥ 0
+            // Which proves that for all n ≥ 1, sqrt(a) ≤ x_n
+            //
+            // This gives us the proof of quadratic convergence of the sequence:
+            // ε_{n+1} = | x_{n+1} - sqrt(a) |
+            //         = | (x_n + a / x_n) / 2 - sqrt(a) |
+            //         = | (x_n² + a - 2*x_n*sqrt(a)) / (2 * x_n) |
+            //         = | (x_n - sqrt(a))² / (2 * x_n) |
+            //         = | ε_n² / (2 * x_n) |
+            //         = ε_n² / | (2 * x_n) |
+            //
+            // For the first iteration, we have a special case where x_0 is known:
+            // ε_1 = ε_0² / | (2 * x_0) |
+            //     ≤ (2**(e-2))² / (2 * (2**(e-1) + 2**(e-2)))
+            //     ≤ 2**(2*e-4) / (3 * 2**(e-1))
+            //     ≤ 2**(e-3) / 3
+            //     ≤ 2**(e-3-log2(3))
+            //     ≤ 2**(e-4.5)
+            //
+            // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n:
+            // ε_{n+1} = ε_n² / | (2 * x_n) |
+            //         ≤ (2**(e-k))² / (2 * 2**(e-1))
+            //         ≤ 2**(2*e-2*k) / 2**e
+            //         ≤ 2**(e-2*k)
+            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | ≤ 2**(e-4.5)  -- special case, see above
+            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | ≤ 2**(e-9)    -- general case with k = 4.5
+            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | ≤ 2**(e-18)   -- general case with k = 9
+            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | ≤ 2**(e-36)   -- general case with k = 18
+            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)   -- general case with k = 36
+            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)  -- general case with k = 72
+
+            // Because e ≤ 128 (as discussed during the first estimation phase), we know have reached a precision
+            // ε_6 ≤ 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
+            // sqrt(a) or sqrt(a) + 1.
+            return xn - SafeCast.toUint(xn > a / xn);
         }
     }
 

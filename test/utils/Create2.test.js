@@ -114,7 +114,7 @@ describe('Create2', function () {
 
       await expect(this.factory.$deploy(0n, saltHex, this.constructorByteCode)).to.be.revertedWithCustomError(
         this.factory,
-        'Create2FailedDeployment',
+        'FailedDeployment',
       );
     });
 
@@ -127,7 +127,7 @@ describe('Create2', function () {
 
     it('fails deploying a contract if factory contract does not have sufficient balance', async function () {
       await expect(this.factory.$deploy(1n, saltHex, this.constructorByteCode))
-        .to.be.revertedWithCustomError(this.factory, 'Create2InsufficientBalance')
+        .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
         .withArgs(0n, 1n);
     });
   });

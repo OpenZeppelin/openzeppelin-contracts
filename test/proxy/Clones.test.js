@@ -10,21 +10,29 @@ async function fixture() {
   const factory = await ethers.deployContract('$Clones');
   const implementation = await ethers.deployContract('DummyImplementation');
 
-  const newClone = async (initData, opts = {}) => {
+  const newClone = async (opts = {}) => {
     const clone = await factory.$clone.staticCall(implementation).then(address => implementation.attach(address));
-    await factory.$clone(implementation);
-    await deployer.sendTransaction({ to: clone, value: opts.value ?? 0n, data: initData ?? '0x' });
-    return clone;
+    const tx = await (opts.deployValue
+      ? factory.$clone(implementation, ethers.Typed.uint256(opts.deployValue))
+      : factory.$clone(implementation));
+    if (opts.initData || opts.initValue) {
+      await deployer.sendTransaction({ to: clone, value: opts.initValue ?? 0n, data: opts.initData ?? '0x' });
+    }
+    return Object.assign(clone, { deploymentTransaction: () => tx });
   };
 
-  const newCloneDeterministic = async (initData, opts = {}) => {
+  const newCloneDeterministic = async (opts = {}) => {
     const salt = opts.salt ?? ethers.randomBytes(32);
     const clone = await factory.$cloneDeterministic
       .staticCall(implementation, salt)
       .then(address => implementation.attach(address));
-    await factory.$cloneDeterministic(implementation, salt);
-    await deployer.sendTransaction({ to: clone, value: opts.value ?? 0n, data: initData ?? '0x' });
-    return clone;
+    const tx = await (opts.deployValue
+      ? factory.$cloneDeterministic(implementation, salt, ethers.Typed.uint256(opts.deployValue))
+      : factory.$cloneDeterministic(implementation, salt));
+    if (opts.initData || opts.initValue) {
+      await deployer.sendTransaction({ to: clone, value: opts.initValue ?? 0n, data: opts.initData ?? '0x' });
+    }
+    return Object.assign(clone, { deploymentTransaction: () => tx });
   };
 
   return { deployer, factory, implementation, newClone, newCloneDeterministic };
@@ -56,13 +64,13 @@ describe('Clones', function () {
       // deploy once
       await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.emit(
         this.factory,
-        'return$cloneDeterministic',
+        'return$cloneDeterministic_address_bytes32',
       );
 
       // deploy twice
       await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.be.revertedWithCustomError(
         this.factory,
-        'ERC1167FailedCreateClone',
+        'FailedDeployment',
       );
     });
 
@@ -80,7 +88,7 @@ describe('Clones', function () {
       expect(predicted).to.equal(expected);
 
       await expect(this.factory.$cloneDeterministic(this.implementation, salt))
-        .to.emit(this.factory, 'return$cloneDeterministic')
+        .to.emit(this.factory, 'return$cloneDeterministic_address_bytes32')
         .withArgs(predicted);
     });
   });

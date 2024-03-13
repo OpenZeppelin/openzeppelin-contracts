@@ -445,7 +445,7 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot();
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
-            await expect(this.helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+            await expect(this.helper.execute()).to.be.revertedWithCustomError(this.mock, 'FailedCall');
           });
 
           it('if receiver revert with reason', async function () {

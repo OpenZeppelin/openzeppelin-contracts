@@ -226,6 +226,33 @@ contract MathTest is Test {
         }
     }
 
+    function testModExpMemory(uint256 b, uint256 e, uint256 m) public {
+        if (m == 0) {
+            vm.expectRevert(stdError.divisionError);
+        }
+        bytes memory result = Math.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
+        assertEq(result.length, 0x20);
+        uint256 res = abi.decode(result, (uint256));
+        assertLt(res, m);
+        assertEq(res, _nativeModExp(b, e, m));
+    }
+
+    function testTryModExpMemory(uint256 b, uint256 e, uint256 m) public {
+        (bool success, bytes memory result) = Math.tryModExp(
+            abi.encodePacked(b),
+            abi.encodePacked(e),
+            abi.encodePacked(m)
+        );
+        if (success) {
+            assertEq(result.length, 0x20); // m is a uint256, so abi.encodePacked(m).length is 0x20
+            uint256 res = abi.decode(result, (uint256));
+            assertLt(res, m);
+            assertEq(res, _nativeModExp(b, e, m));
+        } else {
+            assertEq(result.length, 0);
+        }
+    }
+
     function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
         if (m == 1) return 0;
         uint256 r = 1;

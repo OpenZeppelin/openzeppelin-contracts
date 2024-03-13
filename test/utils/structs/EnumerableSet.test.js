@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { mapValues } = require('../../helpers/iterate');
-const { randomArray, generators } = require('../../helpers/random');
+const { generators } = require('../../helpers/random');
 const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
@@ -23,7 +23,7 @@ async function fixture() {
     TYPES.map(({ name, type }) => [
       type,
       {
-        values: randomArray(generators[type]),
+        values: Array.from({ length: 3 }, generators[type]),
         methods: getMethods(mock, {
           add: `$add(uint256,${type})`,
           remove: `$remove(uint256,${type})`,
