@@ -7,7 +7,7 @@ const header = `\
 pragma solidity ^0.8.24;
 
 /**
- * @dev Library for reading and writing transcient storage.
+ * @dev Library for reading and writing transient storage.
  *
  * Note: This library only works on networks where EIP-1153 is available.
  */
@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
 
 const load = type => `\
 /**
- * @dev Returns the transcient slot \`slot\` as a \`${type}\`.
+ * @dev Returns the transient slot \`slot\` as a \`${type}\`.
  */
 function load${capitalize(type)}(bytes32 slot) internal view returns (${type} r) {
   /// @solidity memory-safe-assembly
@@ -27,7 +27,7 @@ function load${capitalize(type)}(bytes32 slot) internal view returns (${type} r)
 
 const store = type => `\
 /**
- * @dev Store \`value\` in the transcient slot \`store\`.
+ * @dev Store \`value\` in the transient slot \`store\`.
  */
 function store(bytes32 slot, ${type} value) internal {
   /// @solidity memory-safe-assembly
@@ -40,7 +40,7 @@ function store(bytes32 slot, ${type} value) internal {
 // GENERATE
 module.exports = format(
   header.trimEnd(),
-  'library TranscientStorage {',
+  'library TransientStorage {',
   TYPES.flatMap(type => load(type)),
   TYPES.flatMap(type => store(type)),
   '}',
