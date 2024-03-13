@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
+import {console} from "forge-std/Test.sol";
 
 /**
  *  TODO:
@@ -68,30 +69,33 @@ library RSA {
             //    digest OCTET STRING
             // }
 
-            // Get AlgorithmIdentifier from the DigestInfo, and set the parameters accordingly
-            bytes32 digestAlgoParam;
-            bytes32 digestAlgoParamMask;
-            uint256 digestAlgoOffset;
+            // Get AlgorithmIdentifier from the DigestInfo, and set the config accordingly
+            // - params: includes 00 + first part of DigestInfo
+            // - mask: filter to check the params
+            // - offset: length of the suffix (including digest)
+            bytes32 params;
+            bytes32 mask;
+            uint256 offset;
             if (_unsafeReadBytes1(buffer, length - 50) == 0x31) {
                 // case: sha256Explicit
-                digestAlgoOffset = 0x36;
-                digestAlgoParam = 0x003031300d060960864801650304020105000000000000000000000000000000;
-                digestAlgoParamMask = 0xffffffffffffffffffffffffffffffffffff0000000000000000000000000000;
+                offset = 0x34;
+                params = 0x003031300d060960864801650304020105000420000000000000000000000000;
+                mask = 0xffffffffffffffffffffffffffffffffffffffff000000000000000000000000;
             } else if (_unsafeReadBytes1(buffer, length - 48) == 0x2F) {
                 // case: sha256Implicit
-                digestAlgoOffset = 0x34;
-                digestAlgoParam = 0x00302f300b060960864801650304020100000000000000000000000000000000;
-                digestAlgoParamMask = 0xffffffffffffffffffffffffffffffff00000000000000000000000000000000;
+                offset = 0x32;
+                params = 0x00302f300b060960864801650304020104200000000000000000000000000000;
+                mask = 0xffffffffffffffffffffffffffffffffffff0000000000000000000000000000;
             } else {
                 // unknown
                 return false;
             }
 
-            // length is at least 0x40 and digestAlgoOffset is at most 0x34, so this is safe
-            uint256 paddingLength = length - digestAlgoOffset;
+            // Length is at least 0x40 and offset is at most 0x34, so this is safe. There is always some padding.
+            uint256 paddingEnd = length - offset;
 
-            // the padding has variable (arbitrary) length, so we check it byte per byte in a loop.
-            for (uint256 i = 2; i < paddingLength + 2; ++i) {
+            // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.
+            for (uint256 i = 2; i < paddingEnd; ++i) {
                 if (_unsafeReadBytes1(buffer, i) != 0xFF) {
                     return false;
                 }
@@ -99,8 +103,7 @@ library RSA {
             // All the other parameters are small enough to fit in a bytes32, so we can check them directly.
             return
                 bytes2(0x0001) == _unsafeReadBytes2(buffer, 0x00) &&
-                digestAlgoParam == _unsafeReadBytes32(buffer, paddingLength + 0x02) & digestAlgoParamMask &&
-                bytes2(0x0420) == _unsafeReadBytes2(buffer, length - 0x22) &&
+                params == _unsafeReadBytes32(buffer, paddingEnd) & mask &&
                 digest == _unsafeReadBytes32(buffer, length - 0x20);
         }
     }
