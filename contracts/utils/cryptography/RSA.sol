@@ -7,7 +7,6 @@ import {Math} from "../math/Math.sol";
  *  TODO:
  *  - Further optimize ?
  *  - Write documentation
- *  - Update (refactor/add) tests
  *
  *  Inspired by Adrià Massanet's work: https://github.com/adria0/SolRsaVerify
  */
