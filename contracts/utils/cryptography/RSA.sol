@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
-import {console} from "forge-std/Test.sol";
 
 /**
  *  TODO:
@@ -11,10 +10,6 @@ import {console} from "forge-std/Test.sol";
  *  - Update (refactor/add) tests
  *
  *  Inspired by Adrià Massanet's work: https://github.com/adria0/SolRsaVerify
- *
- *  Checked results with FIPS test vectors
- *  https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
- *  file SigVer15_186-3.rsp
  */
 library RSA {
     /**
@@ -29,7 +24,7 @@ library RSA {
         bytes memory sig,
         bytes memory exp,
         bytes memory mod
-    ) public view returns (bool) {
+    ) internal view returns (bool) {
         return pkcs1Sha256(sha256(data), sig, exp, mod);
     }
 
@@ -45,7 +40,7 @@ library RSA {
         bytes memory sig,
         bytes memory exp,
         bytes memory mod
-    ) public view returns (bool) {
+    ) internal view returns (bool) {
         unchecked {
             // cache and check length
             uint256 length = mod.length;
