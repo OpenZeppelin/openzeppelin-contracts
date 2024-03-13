@@ -1,7 +1,7 @@
 const format = require('../format-lines');
 const { capitalize } = require('../../helpers');
 
-const TYPES = [ 'address', 'bool', 'bytes32', 'uint256' ];
+const TYPES = ['address', 'bool', 'bytes32', 'uint256'];
 
 const header = `\
 pragma solidity ^0.8.24;
