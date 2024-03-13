@@ -11,7 +11,7 @@ import {TranscientStorage} from "./TranscientStorage.sol";
  */
 abstract contract TranscientReentrancyGuard {
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant ReentrancyGuardStorageLocation =
+    bytes32 private constant REENTRANCY_GUARD_STORAGE =
         0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
 
     /**
@@ -39,11 +39,11 @@ abstract contract TranscientReentrancyGuard {
         }
 
         // Any calls to nonReentrant after this point will fail
-        TranscientStorage.store(ReentrancyGuardStorageLocation, true);
+        TranscientStorage.store(REENTRANCY_GUARD_STORAGE, true);
     }
 
     function _nonReentrantAfter() private {
-        TranscientStorage.store(ReentrancyGuardStorageLocation, false);
+        TranscientStorage.store(REENTRANCY_GUARD_STORAGE, false);
     }
 
     /**
@@ -51,6 +51,6 @@ abstract contract TranscientReentrancyGuard {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return TranscientStorage.loadBool(ReentrancyGuardStorageLocation);
+        return TranscientStorage.loadBool(REENTRANCY_GUARD_STORAGE);
     }
 }
