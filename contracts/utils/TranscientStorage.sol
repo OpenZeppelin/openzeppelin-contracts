@@ -4,7 +4,7 @@
 pragma solidity ^0.8.24;
 
 /**
- * @dev Library for reading and setting transcient storage.
+ * @dev Library for reading and writing transcient storage.
  *
  * Note: This library only works on networks where EIP-1153 is available.
  */
