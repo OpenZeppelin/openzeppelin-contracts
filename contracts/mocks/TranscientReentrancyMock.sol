@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.24;
 
-import {TranscientReentrancyGuard} from "../utils/TranscientReentrancyGuard.sol";
+import {TransientReentrancyGuard} from "../utils/TransientReentrancyGuard.sol";
 import {ReentrancyAttack} from "./ReentrancyAttack.sol";
 
-contract TranscientReentrancyMock is TranscientReentrancyGuard {
+contract TransientReentrancyMock is TransientReentrancyGuard {
     uint256 public counter;
 
     constructor() {

@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-for (const prefix of ['', 'Transcient']) {
+for (const prefix of ['', 'Transient']) {
   describe(`${prefix}ReentrancyGuard`, function () {
     async function fixture() {
       const mock = await ethers.deployContract(`${prefix}ReentrancyMock`);
