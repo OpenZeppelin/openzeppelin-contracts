@@ -24,12 +24,12 @@ describe('RSA', function () {
       // const { sha224, sha256 } = require('@noble/hashes/sha256');
       // const { sha384, sha512 } = require('@noble/hashes/sha512');
 
-      if (test.alg === 'SHA256') {
-        it(`test case: signature length ${length} (${test.Result === 'P' ? 'success' : 'failure'})`, async function () {
+      if (test.SHAAlg === 'SHA256') {
+        it(`signature length ${length} ${test.extra}`, async function () {
           const data = '0x' + test.Msg;
           const sig = '0x' + test.S;
           const exp = '0x' + test.e;
-          const mod = '0x' + test.mod;
+          const mod = '0x' + test.n;
           const result = test.Result === 'P';
 
           expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(
