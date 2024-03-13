@@ -96,7 +96,7 @@ module.exports = {
     '*': {
       'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
-      2394: false, // 'transcient-storage'
+      2394: false, // 'transient-storage'
       default: 'error',
     },
   },
