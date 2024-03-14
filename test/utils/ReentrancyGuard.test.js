@@ -2,11 +2,12 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-for (const prefix of ['', 'Transient']) {
-  describe(`${prefix}ReentrancyGuard`, function () {
+for (const variant of ['', 'Transient']) {
+  describe(`Reentrancy${variant}Guard`, function () {
     async function fixture() {
-      const mock = await ethers.deployContract(`${prefix}ReentrancyMock`);
-      return { mock };
+      const name = `Reentrancy${variant}Mock`
+      const mock = await ethers.deployContract(name);
+      return { name, mock };
     }
 
     beforeEach(async function () {
@@ -43,7 +44,7 @@ for (const prefix of ['', 'Transient']) {
     });
 
     it('does not allow indirect local recursion', async function () {
-      await expect(this.mock.countThisRecursive(10n)).to.be.revertedWith('ReentrancyMock: failed call');
+      await expect(this.mock.countThisRecursive(10n)).to.be.revertedWith(`${this.name}: failed call`);
     });
   });
 }
