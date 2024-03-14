@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 for (const variant of ['', 'Transient']) {
   describe(`Reentrancy${variant}Guard`, function () {
     async function fixture() {
-      const name = `Reentrancy${variant}Mock`
+      const name = `Reentrancy${variant}Mock`;
       const mock = await ethers.deployContract(name);
       return { name, mock };
     }
