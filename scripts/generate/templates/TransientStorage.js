@@ -27,7 +27,7 @@ function load${capitalize(type)}(bytes32 slot) internal view returns (${type} r)
 
 const store = type => `\
 /**
- * @dev Store \`value\` in the transient slot \`store\`.
+ * @dev Store a ${type} \`value\` in the transient storage at location \`slot\`.
  */
 function store(bytes32 slot, ${type} value) internal {
   /// @solidity memory-safe-assembly
