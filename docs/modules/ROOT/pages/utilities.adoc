@@ -124,41 +124,7 @@ Here is an example to send JSON Metadata through a Base64 Data URI using an ERC-
 
 [source, solidity]
 ----
-// contracts/My721Token.sol
-// SPDX-License-Identifier: MIT
-
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-
-contract My721Token is ERC721 {
-    using Strings for uint256;
-
-    constructor() ERC721("My721Token", "MTK") {}
-
-    ...
-
-    function tokenURI(uint256 tokenId)
-        public
-        pure
-        override
-        returns (string memory)
-    {
-        bytes memory dataURI = abi.encodePacked(
-            '{',
-                '"name": "My721Token #', tokenId.toString(), '"',
-                // Replace with extra ERC-721 Metadata properties
-            '}'
-        );
-
-        return string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(dataURI)
-            )
-        );
-    }
-}
+include::api:example$utilities/Base64NFT.sol[]
 ----
 
 === Multicall
@@ -169,21 +135,7 @@ Consider this dummy contract:
 
 [source,solidity]
 ----
-// contracts/Box.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import "@openzeppelin/contracts/utils/Multicall.sol";
-
-contract Box is Multicall {
-    function foo() public {
-        ...
-    }
-
-    function bar() public {
-        ...
-    }
-}
+include::api:example$utilities/Multicall.sol[]
 ----
 
 This is how to call the `multicall` function using Ethers.js, allowing `foo` and `bar` to be called in a single transaction:
