@@ -173,7 +173,7 @@ function shouldBehaveLikeERC1155() {
         });
       }
 
-      describe('when called by the holder', async function () {
+      describe('when called by the holder', function () {
         beforeEach(async function () {
           this.args = {
             operator: this.holder,
@@ -490,7 +490,7 @@ function shouldBehaveLikeERC1155() {
         });
       }
 
-      describe('when called by the holder', async function () {
+      describe('when called by the holder', function () {
         beforeEach(async function () {
           this.args = {
             operator: this.holder,
