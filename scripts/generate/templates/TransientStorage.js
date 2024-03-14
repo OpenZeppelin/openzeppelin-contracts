@@ -9,7 +9,7 @@ pragma solidity ^0.8.24;
 /**
  * @dev Library for reading and writing transient storage.
  *
- * Note: This library only works on networks where EIP-1153 is available.
+ * Note: This library only works on networks where EIP-1153[https://eips.ethereum.org/EIPS/eip-1153] is available.
  */
 `;
 
