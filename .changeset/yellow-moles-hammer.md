@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`SignatureChecker`: refactor `isValidSignatureNow` to make it safe if EIP-7377 (or similar) is ever implemented.
+`SignatureChecker`: refactor `isValidSignatureNow` to avoid validating ECDSA signatures if there is code deployed at the signer's address.
