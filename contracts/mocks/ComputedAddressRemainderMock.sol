@@ -29,7 +29,8 @@ contract ComputedAddressRemainderMock {
     function _getRemainder(address addr) internal pure returns (uint256 remainder) {
         uint256 remainderMask = _REMAINDER_MASK;
 
-        assembly ("memory-safe") {
+        /// @solidity memory-safe-assembly
+        assembly {
             remainder := and(addr, remainderMask)
         }
     }
