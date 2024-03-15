@@ -22,6 +22,6 @@ contract Base64NFT is ERC721 {
         // }
         bytes memory dataURI = abi.encodePacked("{", '"name": "Base64NFT #', tokenId.toString(), '"', "}");
 
-        return string.concat("data:application/json;base64,", Base64.encode(dataURI));
+        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
     }
 }
