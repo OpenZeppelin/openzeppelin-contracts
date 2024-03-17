@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`TransientStorage`: Added a library to help read and write to transient storage (EIP-1153).
+`Slots`: Added a library to help derivate, read and write to storage slots (both "normal" and transient).
