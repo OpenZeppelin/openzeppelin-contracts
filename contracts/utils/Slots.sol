@@ -4,9 +4,9 @@
 pragma solidity ^0.8.24;
 
 /**
- * @dev Library for reading and writing transient storage.
+ * @dev Library for derivating, reading and writing to storage slots. This supports both "normal" and transient storage.
  *
- * Note: This library only works on networks where EIP-1153[https://eips.ethereum.org/EIPS/eip-1153] is available.
+ * Note: Transient storage operations (`tload` and `tstore`) only works on networks where EIP-1153[https://eips.ethereum.org/EIPS/eip-1153] is available.
  */
 library Slots {
     /**
