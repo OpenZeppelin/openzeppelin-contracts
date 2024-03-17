@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {TransientStorage} from "./TransientStorage.sol";
+import {Slots} from "./Slots.sol";
 
 /**
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
@@ -10,6 +10,8 @@ import {TransientStorage} from "./TransientStorage.sol";
  * NOTE: This variant only works on networks where EIP-1153 is available.
  */
 abstract contract ReentrancyGuardTransient {
+    using Slots for *;
+
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant REENTRANCY_GUARD_STORAGE =
         0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
@@ -39,11 +41,11 @@ abstract contract ReentrancyGuardTransient {
         }
 
         // Any calls to nonReentrant after this point will fail
-        TransientStorage.store(REENTRANCY_GUARD_STORAGE, true);
+        REENTRANCY_GUARD_STORAGE.asBoolSlot().tstore(true);
     }
 
     function _nonReentrantAfter() private {
-        TransientStorage.store(REENTRANCY_GUARD_STORAGE, false);
+        REENTRANCY_GUARD_STORAGE.asBoolSlot().tstore(false);
     }
 
     /**
@@ -51,6 +53,6 @@ abstract contract ReentrancyGuardTransient {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return TransientStorage.loadBool(REENTRANCY_GUARD_STORAGE);
+        return REENTRANCY_GUARD_STORAGE.asBoolSlot().tload();
     }
 }
