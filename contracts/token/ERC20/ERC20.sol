@@ -25,11 +25,6 @@ import {IERC20Errors} from "../../interfaces/draft-IERC6093.sol";
  * instead returning `false` on failure. This behavior is nonetheless
  * conventional and does not conflict with the expectations of ERC-20
  * applications.
- *
- * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
- * This allows applications to reconstruct the allowance for all accounts just
- * by listening to said events. Other implementations of the ERC may not emit
- * these events, as it isn't required by the specification.
  */
 abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     mapping(address account => uint256) private _balances;
