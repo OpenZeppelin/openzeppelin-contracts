@@ -1,4 +1,5 @@
 const format = require('../format-lines');
+const { capitalize } = require('../../helpers');
 const { TYPES } = require('./StorageSlot.opts');
 
 const header = `\
@@ -12,7 +13,7 @@ import {StorageSlot} from "@openzeppelin/contracts/utils/StorageSlot.sol";
 const variable = ({ type, name }) => `\
 ${type} private _${type}Variable;
 
-function testValue${name}1(${type} value) public {
+function testValue${name}_1(${type} value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Variable.slot
@@ -25,7 +26,7 @@ function testValue${name}1(${type} value) public {
   assertEq(slot.as${name}Slot().sload(), value);
 }
 
-function testValue${name}2(${type} value) public {
+function testValue${name}_2(${type} value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Variable.slot
@@ -42,7 +43,7 @@ function testValue${name}2(${type} value) public {
 const array = ({ type, name }) => `\
 ${type}[] private _${type}Array;
 
-function testArray${name}1(${type}[] calldata values) public {
+function testArray${name}_1(${type}[] calldata values) public {
   bytes32 slot;
   assembly {
     slot := _${type}Array.slot
@@ -58,7 +59,7 @@ function testArray${name}1(${type}[] calldata values) public {
   }
 }
 
-function testArray${name}2(${type}[] calldata values) public {
+function testArray${name}_2(${type}[] calldata values) public {
   bytes32 slot;
   assembly {
     slot := _${type}Array.slot
@@ -81,7 +82,7 @@ function testArray${name}2(${type}[] calldata values) public {
 const mapping = ({ type, name }) => `\
 mapping(${type} => uint256) private _${type}Mapping;
 
-function testMapping${name}1(${type} key, uint256 value) public {
+function testMapping${name}_1(${type} key, uint256 value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Mapping.slot
@@ -93,7 +94,7 @@ function testMapping${name}1(${type} key, uint256 value) public {
   assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
 }
 
-function testMapping${name}2(${type} key, uint256 value) public {
+function testMapping${name}_2(${type} key, uint256 value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Mapping.slot
@@ -110,6 +111,7 @@ function testMapping${name}2(${type} key, uint256 value) public {
 // GENERATE
 module.exports = format(
   header.trimEnd(),
+  '// solhint-disable func-name-mixedcase',
   'contract StorageSlotTest is Test {',
   'using StorageSlot for *;',
   '',
@@ -120,7 +122,7 @@ module.exports = format(
   TYPES.filter(type => type.isValueType).flatMap(type =>
     [].concat(
       mapping(type),
-      (type.variant ?? []).map(variant => mapping({ type: variant })),
+      (type.variants ?? []).map(variant => mapping({ type: variant, name: capitalize(variant) })),
     ),
   ),
   '}',
