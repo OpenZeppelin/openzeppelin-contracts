@@ -12,7 +12,7 @@ import {StorageSlot} from "@openzeppelin/contracts/utils/StorageSlot.sol";
 const variable = ({ type, name }) => `\
 ${type} private _${type}Variable;
 
-function testValue_${type}1(${type} value) public {
+function testValue${name}1(${type} value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Variable.slot
@@ -22,17 +22,17 @@ function testValue_${type}1(${type} value) public {
   _${type}Variable = value;
 
   // read using Slots
-  assertEq(slot.as${name}().sload(), value);
+  assertEq(slot.as${name}Slot().sload(), value);
 }
 
-function testValue_${type}2(${type} value) public {
+function testValue${name}2(${type} value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Variable.slot
   }
 
   // set using Slots
-  slot.as${name}().sstore(value);
+  slot.as${name}Slot().sstore(value);
 
   // read in solidity
   assertEq(_${type}Variable, value);
@@ -42,7 +42,7 @@ function testValue_${type}2(${type} value) public {
 const array = ({ type, name }) => `\
 ${type}[] private _${type}Array;
 
-function testArray_${type}1(${type}[] calldata values) public {
+function testArray${name}1(${type}[] calldata values) public {
   bytes32 slot;
   assembly {
     slot := _${type}Array.slot
@@ -54,11 +54,11 @@ function testArray_${type}1(${type}[] calldata values) public {
   // read using Slots
   assertEq(slot.asUint256Slot().sload(), values.length);
   for (uint256 i = 0; i < values.length; ++i) {
-    assertEq(slot.deriveArray().offset(i).as${name}().sload(), values[i]);
+    assertEq(slot.deriveArray().offset(i).as${name}Slot().sload(), values[i]);
   }
 }
 
-function testArray_${type}2(${type}[] calldata values) public {
+function testArray${name}2(${type}[] calldata values) public {
   bytes32 slot;
   assembly {
     slot := _${type}Array.slot
@@ -67,7 +67,7 @@ function testArray_${type}2(${type}[] calldata values) public {
   // set using Slots
   slot.asUint256Slot().sstore(values.length);
   for (uint256 i = 0; i < values.length; ++i) {
-    slot.deriveArray().offset(i).as${name}().sstore(values[i]);
+    slot.deriveArray().offset(i).as${name}Slot().sstore(values[i]);
   }
 
   // read in solidity
@@ -78,10 +78,10 @@ function testArray_${type}2(${type}[] calldata values) public {
 }
 `;
 
-const mapping = ({ type }) => `\
+const mapping = ({ type, name }) => `\
 mapping(${type} => uint256) private _${type}Mapping;
 
-function testMapping_${type}1(${type} key, uint256 value) public {
+function testMapping${name}1(${type} key, uint256 value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Mapping.slot
@@ -93,7 +93,7 @@ function testMapping_${type}1(${type} key, uint256 value) public {
   assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
 }
 
-function testMapping_${type}2(${type} key, uint256 value) public {
+function testMapping${name}2(${type} key, uint256 value) public {
   bytes32 slot;
   assembly {
     slot := _${type}Mapping.slot

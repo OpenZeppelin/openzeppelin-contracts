@@ -92,14 +92,14 @@ function deriveMapping(bytes32 slot, ${type} key) internal pure returns (bytes32
 `;
 
 const struct = ({ type, name }) => `\
-struct ${name} {
+struct ${name}Slot {
   ${type} value;
 }
 
 /**
- * @dev Returns an \`${name}\` with member \`value\` located at \`slot\`.
+ * @dev Returns an \`${name}Slot\` with member \`value\` located at \`slot\`.
  */
-function get${name}(bytes32 slot) internal pure returns (${name} storage r) {
+function get${name}Slot(bytes32 slot) internal pure returns (${name}Slot storage r) {
   /// @solidity memory-safe-assembly
   assembly {
       r.slot := slot
@@ -109,9 +109,9 @@ function get${name}(bytes32 slot) internal pure returns (${name} storage r) {
 
 const getStorage = ({ type, name }) => `\
 /**
- * @dev Returns an \`${name}\` representation of the ${type} storage pointer \`store\`.
+ * @dev Returns an \`${name}Slot\` representation of the ${type} storage pointer \`store\`.
  */
-function get${name}(${type} storage store) internal pure returns (${name} storage r) {
+function get${name}Slot(${type} storage store) internal pure returns (${name}Slot storage r) {
   /// @solidity memory-safe-assembly
   assembly {
       r.slot := store.slot
@@ -123,19 +123,19 @@ const udvt = ({ type, name }) => `\
 /**
  * @dev UDVT that represent a slot holding a ${type}.
  */
-type ${name}Type is bytes32;
+type ${name}SlotType is bytes32;
 
 /**
- * @dev Cast an arbitrary slot to a ${name}Type.
+ * @dev Cast an arbitrary slot to a ${name}SlotType.
  */
-function as${name}(bytes32 slot) internal pure returns (${name}Type) {
-  return ${name}Type.wrap(slot);
+function as${name}Slot(bytes32 slot) internal pure returns (${name}SlotType) {
+  return ${name}SlotType.wrap(slot);
 }
 
 /**
  * @dev Load the value held at location \`slot\` in (normal) storage.
  */
-function sload(${name}Type slot) internal view returns (${type} value) {
+function sload(${name}SlotType slot) internal view returns (${type} value) {
   /// @solidity memory-safe-assembly
   assembly {
     value := sload(slot)
@@ -145,7 +145,7 @@ function sload(${name}Type slot) internal view returns (${type} value) {
 /**
  * @dev Store \`value\` at location \`slot\` in (normal) storage.
  */
-function sstore(${name}Type slot, ${type} value) internal {
+function sstore(${name}SlotType slot, ${type} value) internal {
   /// @solidity memory-safe-assembly
   assembly {
     sstore(slot, value)
@@ -155,7 +155,7 @@ function sstore(${name}Type slot, ${type} value) internal {
 /**
  * @dev Load the value held at location \`slot\` in transient storage.
  */
-function tload(${name}Type slot) internal view returns (${type} value) {
+function tload(${name}SlotType slot) internal view returns (${type} value) {
   /// @solidity memory-safe-assembly
   assembly {
     value := tload(slot)
@@ -165,7 +165,7 @@ function tload(${name}Type slot) internal view returns (${type} value) {
 /**
  * @dev Store \`value\` at location \`slot\` in transient storage.
  */
-function tstore(${name}Type slot, ${type} value) internal {
+function tstore(${name}SlotType slot, ${type} value) internal {
   /// @solidity memory-safe-assembly
   assembly {
     tstore(slot, value)

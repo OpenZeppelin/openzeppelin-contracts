@@ -12,7 +12,7 @@ contract StorageSlotTest is Test {
 
     address private _addressVariable;
 
-    function testValue_address1(address value) public {
+    function testValueAddress1(address value) public {
         bytes32 slot;
         assembly {
             slot := _addressVariable.slot
@@ -25,7 +25,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.asAddressSlot().sload(), value);
     }
 
-    function testValue_address2(address value) public {
+    function testValueAddress2(address value) public {
         bytes32 slot;
         assembly {
             slot := _addressVariable.slot
@@ -40,7 +40,7 @@ contract StorageSlotTest is Test {
 
     bytes32 private _bytes32Variable;
 
-    function testValue_bytes321(bytes32 value) public {
+    function testValueBytes321(bytes32 value) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Variable.slot
@@ -53,7 +53,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.asBytes32Slot().sload(), value);
     }
 
-    function testValue_bytes322(bytes32 value) public {
+    function testValueBytes322(bytes32 value) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Variable.slot
@@ -68,7 +68,7 @@ contract StorageSlotTest is Test {
 
     uint256 private _uint256Variable;
 
-    function testValue_uint2561(uint256 value) public {
+    function testValueUint2561(uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _uint256Variable.slot
@@ -81,7 +81,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.asUint256Slot().sload(), value);
     }
 
-    function testValue_uint2562(uint256 value) public {
+    function testValueUint2562(uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _uint256Variable.slot
@@ -96,7 +96,7 @@ contract StorageSlotTest is Test {
 
     int256 private _int256Variable;
 
-    function testValue_int2561(int256 value) public {
+    function testValueInt2561(int256 value) public {
         bytes32 slot;
         assembly {
             slot := _int256Variable.slot
@@ -109,7 +109,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.asInt256Slot().sload(), value);
     }
 
-    function testValue_int2562(int256 value) public {
+    function testValueInt2562(int256 value) public {
         bytes32 slot;
         assembly {
             slot := _int256Variable.slot
@@ -124,7 +124,7 @@ contract StorageSlotTest is Test {
 
     address[] private _addressArray;
 
-    function testArray_address1(address[] calldata values) public {
+    function testArrayAddress1(address[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _addressArray.slot
@@ -140,7 +140,7 @@ contract StorageSlotTest is Test {
         }
     }
 
-    function testArray_address2(address[] calldata values) public {
+    function testArrayAddress2(address[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _addressArray.slot
@@ -161,7 +161,7 @@ contract StorageSlotTest is Test {
 
     bytes32[] private _bytes32Array;
 
-    function testArray_bytes321(bytes32[] calldata values) public {
+    function testArrayBytes321(bytes32[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Array.slot
@@ -177,7 +177,7 @@ contract StorageSlotTest is Test {
         }
     }
 
-    function testArray_bytes322(bytes32[] calldata values) public {
+    function testArrayBytes322(bytes32[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Array.slot
@@ -198,7 +198,7 @@ contract StorageSlotTest is Test {
 
     uint256[] private _uint256Array;
 
-    function testArray_uint2561(uint256[] calldata values) public {
+    function testArrayUint2561(uint256[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _uint256Array.slot
@@ -214,7 +214,7 @@ contract StorageSlotTest is Test {
         }
     }
 
-    function testArray_uint2562(uint256[] calldata values) public {
+    function testArrayUint2562(uint256[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _uint256Array.slot
@@ -235,7 +235,7 @@ contract StorageSlotTest is Test {
 
     int256[] private _int256Array;
 
-    function testArray_int2561(int256[] calldata values) public {
+    function testArrayInt2561(int256[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _int256Array.slot
@@ -251,7 +251,7 @@ contract StorageSlotTest is Test {
         }
     }
 
-    function testArray_int2562(int256[] calldata values) public {
+    function testArrayInt2562(int256[] calldata values) public {
         bytes32 slot;
         assembly {
             slot := _int256Array.slot
@@ -272,7 +272,7 @@ contract StorageSlotTest is Test {
 
     mapping(address => uint256) private _addressMapping;
 
-    function testMapping_address1(address key, uint256 value) public {
+    function testMappingAddress1(address key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _addressMapping.slot
@@ -284,7 +284,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
     }
 
-    function testMapping_address2(address key, uint256 value) public {
+    function testMappingAddress2(address key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _addressMapping.slot
@@ -299,7 +299,7 @@ contract StorageSlotTest is Test {
 
     mapping(bool => uint256) private _boolMapping;
 
-    function testMapping_bool1(bool key, uint256 value) public {
+    function testMappingBoolean1(bool key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _boolMapping.slot
@@ -311,7 +311,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
     }
 
-    function testMapping_bool2(bool key, uint256 value) public {
+    function testMappingBoolean2(bool key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _boolMapping.slot
@@ -326,7 +326,7 @@ contract StorageSlotTest is Test {
 
     mapping(bytes32 => uint256) private _bytes32Mapping;
 
-    function testMapping_bytes321(bytes32 key, uint256 value) public {
+    function testMappingBytes321(bytes32 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Mapping.slot
@@ -338,7 +338,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
     }
 
-    function testMapping_bytes322(bytes32 key, uint256 value) public {
+    function testMappingBytes322(bytes32 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _bytes32Mapping.slot
@@ -353,7 +353,7 @@ contract StorageSlotTest is Test {
 
     mapping(uint256 => uint256) private _uint256Mapping;
 
-    function testMapping_uint2561(uint256 key, uint256 value) public {
+    function testMappingUint2561(uint256 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _uint256Mapping.slot
@@ -365,7 +365,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
     }
 
-    function testMapping_uint2562(uint256 key, uint256 value) public {
+    function testMappingUint2562(uint256 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _uint256Mapping.slot
@@ -380,7 +380,7 @@ contract StorageSlotTest is Test {
 
     mapping(int256 => uint256) private _int256Mapping;
 
-    function testMapping_int2561(int256 key, uint256 value) public {
+    function testMappingInt2561(int256 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _int256Mapping.slot
@@ -392,7 +392,7 @@ contract StorageSlotTest is Test {
         assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
     }
 
-    function testMapping_int2562(int256 key, uint256 value) public {
+    function testMappingInt2562(int256 key, uint256 value) public {
         bytes32 slot;
         assembly {
             slot := _int256Mapping.slot

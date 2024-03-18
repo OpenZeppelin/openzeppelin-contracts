@@ -8,6 +8,6 @@ const TYPES = [
   { type: 'int256', isValueType: true },
   { type: 'string', isValueType: false },
   { type: 'bytes', isValueType: false },
-].map(type => Object.assign(type, { name: (type.name ?? capitalize(type.type)) + 'Slot' }));
+].map(type => Object.assign(type, { name: type.name ?? capitalize(type.type) }));
 
 module.exports = { TYPES };
