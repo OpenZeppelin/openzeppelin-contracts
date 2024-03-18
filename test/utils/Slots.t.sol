@@ -65,14 +65,20 @@ contract SlotsTest is Test {
 
     // Slot extraction
     function _getVariableSlot() public pure returns (bytes32 slot) {
-        assembly { slot := _variable.slot }
+        assembly {
+            slot := _variable.slot
+        }
     }
 
     function _getArraySlot() public pure returns (bytes32 slot) {
-        assembly { slot := _array.slot }
+        assembly {
+            slot := _array.slot
+        }
     }
 
     function _getMappingSlot() public pure returns (bytes32 slot) {
-        assembly { slot := _mapping.slot }
+        assembly {
+            slot := _mapping.slot
+        }
     }
 }
