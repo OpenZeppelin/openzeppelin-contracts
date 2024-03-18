@@ -10,7 +10,7 @@ pragma solidity ^0.8.24;
  */
 library Slots {
     /**
-     * @dev Derivate an ERC-1967 slot from a string (path).
+     * @dev Derive an ERC-1967 slot from a string (path).
      */
     function erc1967slot(string memory path) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
@@ -20,7 +20,7 @@ library Slots {
     }
 
     /**
-     * @dev Derivate an ERC-7201 slot from a string (path).
+     * @dev Derive an ERC-7201 slot from a string (path).
      */
     function erc7201slot(string memory path) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
@@ -40,11 +40,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of the first element in an array from the slot where the length is stored.
+     * @dev Derive the location of the first element in an array from the slot where the length is stored.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateArray(bytes32 slot) internal pure returns (bytes32 result) {
+    function deriveArray(bytes32 slot) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, slot)
@@ -53,11 +53,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bool key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bool key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -67,11 +67,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, address key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, address key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -81,11 +81,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes1 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes1 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -95,11 +95,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes2 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes2 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -109,11 +109,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes3 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes3 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -123,11 +123,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes4 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes4 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -137,11 +137,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes5 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes5 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -151,11 +151,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes6 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes6 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -165,11 +165,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes7 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes7 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -179,11 +179,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes8 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes8 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -193,11 +193,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes9 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes9 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -207,11 +207,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes10 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes10 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -221,11 +221,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes11 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes11 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -235,11 +235,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes12 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes12 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -249,11 +249,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes13 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes13 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -263,11 +263,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes14 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes14 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -277,11 +277,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes15 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes15 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -291,11 +291,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes16 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes16 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -305,11 +305,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes17 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes17 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -319,11 +319,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes18 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes18 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -333,11 +333,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes19 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes19 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -347,11 +347,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes20 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes20 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -361,11 +361,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes21 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes21 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -375,11 +375,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes22 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes22 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -389,11 +389,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes23 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes23 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -403,11 +403,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes24 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes24 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -417,11 +417,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes25 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes25 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -431,11 +431,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes26 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes26 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -445,11 +445,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes27 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes27 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -459,11 +459,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes28 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes28 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -473,11 +473,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes29 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes29 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -487,11 +487,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes30 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes30 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -501,11 +501,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes31 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes31 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -515,11 +515,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, bytes32 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, bytes32 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -529,11 +529,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint8 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint8 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -543,11 +543,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint16 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint16 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -557,11 +557,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint24 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint24 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -571,11 +571,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint32 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint32 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -585,11 +585,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint40 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint40 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -599,11 +599,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint48 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint48 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -613,11 +613,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint56 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint56 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -627,11 +627,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint64 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint64 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -641,11 +641,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint72 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint72 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -655,11 +655,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint80 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint80 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -669,11 +669,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint88 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint88 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -683,11 +683,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint96 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint96 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -697,11 +697,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint104 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint104 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -711,11 +711,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint112 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint112 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -725,11 +725,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint120 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint120 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -739,11 +739,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint128 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint128 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -753,11 +753,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint136 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint136 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -767,11 +767,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint144 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint144 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -781,11 +781,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint152 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint152 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -795,11 +795,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint160 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint160 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -809,11 +809,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint168 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint168 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -823,11 +823,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint176 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint176 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -837,11 +837,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint184 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint184 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -851,11 +851,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint192 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint192 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -865,11 +865,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint200 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint200 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -879,11 +879,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint208 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint208 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -893,11 +893,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint216 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint216 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -907,11 +907,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint224 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint224 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -921,11 +921,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint232 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint232 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -935,11 +935,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint240 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint240 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -949,11 +949,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint248 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint248 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -963,11 +963,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, uint256 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, uint256 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -977,11 +977,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int8 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int8 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -991,11 +991,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int16 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int16 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1005,11 +1005,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int24 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int24 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1019,11 +1019,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int32 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int32 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1033,11 +1033,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int40 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int40 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1047,11 +1047,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int48 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int48 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1061,11 +1061,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int56 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int56 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1075,11 +1075,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int64 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int64 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1089,11 +1089,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int72 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int72 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1103,11 +1103,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int80 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int80 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1117,11 +1117,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int88 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int88 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1131,11 +1131,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int96 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int96 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1145,11 +1145,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int104 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int104 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1159,11 +1159,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int112 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int112 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1173,11 +1173,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int120 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int120 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1187,11 +1187,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int128 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int128 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1201,11 +1201,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int136 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int136 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1215,11 +1215,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int144 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int144 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1229,11 +1229,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int152 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int152 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1243,11 +1243,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int160 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int160 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1257,11 +1257,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int168 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int168 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1271,11 +1271,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int176 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int176 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1285,11 +1285,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int184 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int184 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1299,11 +1299,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int192 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int192 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1313,11 +1313,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int200 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int200 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1327,11 +1327,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int208 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int208 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1341,11 +1341,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int216 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int216 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1355,11 +1355,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int224 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int224 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1369,11 +1369,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int232 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int232 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1383,11 +1383,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int240 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int240 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1397,11 +1397,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int248 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int248 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)
@@ -1411,11 +1411,11 @@ library Slots {
     }
 
     /**
-     * @dev Derivate the location of a mapping element from the key.
+     * @dev Derive the location of a mapping element from the key.
      *
      * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
      */
-    function derivateMapping(bytes32 slot, int256 key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, int256 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, key)

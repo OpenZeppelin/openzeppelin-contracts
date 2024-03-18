@@ -13,7 +13,7 @@ pragma solidity ^0.8.24;
 
 const tooling = () => `\
 /**
- * @dev Derivate an ERC-1967 slot from a string (path).
+ * @dev Derive an ERC-1967 slot from a string (path).
  */
 function erc1967slot(string memory path) internal pure returns (bytes32 slot) {
   /// @solidity memory-safe-assembly
@@ -23,7 +23,7 @@ function erc1967slot(string memory path) internal pure returns (bytes32 slot) {
 }
 
 /**
- * @dev Derivate an ERC-7201 slot from a string (path).
+ * @dev Derive an ERC-7201 slot from a string (path).
  */
 function erc7201slot(string memory path) internal pure returns (bytes32 slot) {
   /// @solidity memory-safe-assembly
@@ -43,11 +43,11 @@ function offset(bytes32 slot, uint256 pos) internal pure returns (bytes32 result
 }
 
 /**
- * @dev Derivate the location of the first element in an array from the slot where the length is stored.
+ * @dev Derive the location of the first element in an array from the slot where the length is stored.
  *
  * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
  */
-function derivateArray(bytes32 slot) internal pure returns (bytes32 result) {
+function deriveArray(bytes32 slot) internal pure returns (bytes32 result) {
   /// @solidity memory-safe-assembly
   assembly {
       mstore(0x00, slot)
@@ -56,13 +56,13 @@ function derivateArray(bytes32 slot) internal pure returns (bytes32 result) {
 }
 `;
 
-const derivate = ({ type }) => `\
+const derive = ({ type }) => `\
 /**
- * @dev Derivate the location of a mapping element from the key.
+ * @dev Derive the location of a mapping element from the key.
  *
  * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
  */
-function derivateMapping(bytes32 slot, ${type} key) internal pure returns (bytes32 result) {
+function deriveMapping(bytes32 slot, ${type} key) internal pure returns (bytes32 result) {
   /// @solidity memory-safe-assembly
   assembly {
       mstore(0x00, key)
@@ -131,7 +131,7 @@ module.exports = format(
   header.trimEnd(),
   'library Slots {',
   tooling(),
-  TYPES.flatMap(t => derivate(t)),
+  TYPES.flatMap(t => derive(t)),
   TYPES.flatMap(t => generate(t)),
   '}',
 );

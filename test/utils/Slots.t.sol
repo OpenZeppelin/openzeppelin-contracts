@@ -35,7 +35,7 @@ contract SlotsTest is Test {
         // read using Slots
         assertEq(_getArraySlot().asUint256Slot().sload(), values.length);
         for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(_getArraySlot().derivateArray().offset(i).asUint256Slot().sload(), values[i]);
+            assertEq(_getArraySlot().deriveArray().offset(i).asUint256Slot().sload(), values[i]);
         }
     }
 
@@ -43,7 +43,7 @@ contract SlotsTest is Test {
         // set using Slots
         _getArraySlot().asUint256Slot().sstore(values.length);
         for (uint256 i = 0; i < values.length; ++i) {
-            _getArraySlot().derivateArray().offset(i).asUint256Slot().sstore(values[i]);
+            _getArraySlot().deriveArray().offset(i).asUint256Slot().sstore(values[i]);
         }
         // read in solidity
         assertEq(_array, values);
@@ -53,12 +53,12 @@ contract SlotsTest is Test {
         // set in solidity
         _mapping[key] = value;
         // read using Slots
-        assertEq(_getMappingSlot().derivateMapping(key).asUint256Slot().sload(), value);
+        assertEq(_getMappingSlot().deriveMapping(key).asUint256Slot().sload(), value);
     }
 
     function testMapping2(address key, uint256 value) public {
         // set using Slots
-        _getMappingSlot().derivateMapping(key).asUint256Slot().sstore(value);
+        _getMappingSlot().deriveMapping(key).asUint256Slot().sstore(value);
         // read in solidity
         assertEq(_mapping[key], value);
     }

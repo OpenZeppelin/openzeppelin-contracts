@@ -367,7 +367,7 @@ library Arrays {
         assembly {
             slot := arr.slot
         }
-        return slot.derivateArray().offset(pos).getAddressSlot();
+        return slot.deriveArray().offset(pos).getAddressSlot();
     }
 
     /**
@@ -381,7 +381,7 @@ library Arrays {
         assembly {
             slot := arr.slot
         }
-        return slot.derivateArray().offset(pos).getBytes32Slot();
+        return slot.deriveArray().offset(pos).getBytes32Slot();
     }
 
     /**
@@ -395,7 +395,7 @@ library Arrays {
         assembly {
             slot := arr.slot
         }
-        return slot.derivateArray().offset(pos).getUint256Slot();
+        return slot.deriveArray().offset(pos).getUint256Slot();
     }
 
     /**
