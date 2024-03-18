@@ -1,15 +1,5 @@
 const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
-
-const TYPES = [
-  { type: 'address', isValueType: true },
-  { type: 'bool', isValueType: true, name: 'Boolean' },
-  { type: 'bytes32', isValueType: true },
-  { type: 'uint256', isValueType: true },
-  { type: 'int256', isValueType: true },
-  { type: 'string', isValueType: false },
-  { type: 'bytes', isValueType: false },
-].map(type => Object.assign(type, { name: (type.name ?? capitalize(type.type)) + 'Slot' }));
+const { TYPES } = require('./StorageSlot.opts');
 
 const header = `\
 pragma solidity ^0.8.24;
@@ -191,10 +181,7 @@ module.exports = format(
   tooling,
   TYPES.filter(type => type.isValueType).flatMap(type => derive(type)), // TODO support non-value type
   '/// Storage slots as structs',
-  TYPES.flatMap(type => [
-    struct(type),
-    type.isValueType ? '' : getStorage(type)
-  ]),
+  TYPES.flatMap(type => [struct(type), type.isValueType ? '' : getStorage(type)]),
   '/// Storage slots as udvt',
   TYPES.filter(type => type.isValueType).map(type => udvt(type)),
   '}',
