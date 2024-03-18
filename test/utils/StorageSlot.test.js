@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { erc1967slot, erc7201slot } = require('../helpers/storage');
 const { generators } = require('../helpers/random');
 
 const slot = ethers.id('some.storage.slot');
@@ -17,12 +18,26 @@ describe('StorageSlot', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  describe('slot derivation', function () {
+    const path = 'example.main';
+
+    it('erc-1967', async function () {
+      expect(await this.mock.erc1967slot(path)).to.equal(erc1967slot(path));
+    });
+
+    it('erc-7201', async function () {
+      expect(await this.mock.erc7201slot(path)).to.equal(erc7201slot(path));
+    });
+  });
+
   for (const { type, value, zero } of [
     { type: 'Boolean', value: true, zero: false },
-    { type: 'Address', value: generators.address(), zero: ethers.ZeroAddress },
-    { type: 'Bytes32', value: generators.bytes32(), zero: ethers.ZeroHash },
+    { type: 'Address', value: generators.address(), zero: generators.address.zero },
+    { type: 'Bytes32', value: generators.bytes32(), zero: generators.bytes32.zero },
+    { type: 'Uint256', value: generators.uint256(), zero: generators.uint256.zero },
+    { type: 'Int256', value: generators.int256(), zero: generators.int256.zero },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: generators.hexBytes.zero },
     { type: 'String', value: 'lorem ipsum', zero: '' },
-    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
   ]) {
     describe(`${type} storage slot`, function () {
       it('set', async function () {

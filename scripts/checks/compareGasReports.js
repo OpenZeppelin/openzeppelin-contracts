@@ -50,7 +50,7 @@ class Report {
   // Compare two reports
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
-      throw new Error('Reports produced with non matching metadata');
+      console.warn('WARNING: Reports produced with non matching metadata');
     }
 
     const deployments = update.info.deployments

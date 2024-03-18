@@ -7,6 +7,14 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 contract StorageSlotMock {
     using StorageSlot for *;
 
+    function erc1967slot(string memory path) public pure returns (bytes32) {
+        return path.erc1967slot();
+    }
+
+    function erc7201slot(string memory path) public pure returns (bytes32) {
+        return path.erc7201slot();
+    }
+
     function setBooleanSlot(bytes32 slot, bool value) public {
         slot.getBooleanSlot().value = value;
     }
@@ -23,6 +31,10 @@ contract StorageSlotMock {
         slot.getUint256Slot().value = value;
     }
 
+    function setInt256Slot(bytes32 slot, int256 value) public {
+        slot.getInt256Slot().value = value;
+    }
+
     function getBooleanSlot(bytes32 slot) public view returns (bool) {
         return slot.getBooleanSlot().value;
     }
@@ -37,6 +49,10 @@ contract StorageSlotMock {
 
     function getUint256Slot(bytes32 slot) public view returns (uint256) {
         return slot.getUint256Slot().value;
+    }
+
+    function getInt256Slot(bytes32 slot) public view returns (int256) {
+        return slot.getInt256Slot().value;
     }
 
     mapping(uint256 key => string) public stringMap;
