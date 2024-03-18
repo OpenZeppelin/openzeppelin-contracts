@@ -10,6 +10,27 @@ pragma solidity ^0.8.24;
  */
 library Slots {
     /**
+     * @dev Derivate an ERC-1967 slot from a string (path).
+     */
+    function erc1967slot(string memory path) internal pure returns (bytes32 slot) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            slot := sub(keccak256(add(path, 0x20), mload(path)), 1)
+        }
+    }
+
+    /**
+     * @dev Derivate an ERC-7201 slot from a string (path).
+     */
+    function erc7201slot(string memory path) internal pure returns (bytes32 slot) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0x00, sub(keccak256(add(path, 0x20), mload(path)), 1))
+            slot := and(keccak256(0x00, 0x20), not(0xff))
+        }
+    }
+
+    /**
      * @dev Add an offset to a slot to get the n-th element of a structure or an array.
      */
     function offset(bytes32 slot, uint256 pos) internal pure returns (bytes32 result) {

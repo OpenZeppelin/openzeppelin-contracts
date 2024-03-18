@@ -9,6 +9,14 @@ import {Slots} from "../utils/Slots.sol";
 contract SlotsMock is Multicall {
     using Slots for *;
 
+    function erc1967slot(string memory path) public pure returns (bytes32 slot) {
+        return path.erc1967slot();
+    }
+
+    function erc7201slot(string memory path) public pure returns (bytes32 slot) {
+        return path.erc7201slot();
+    }
+
     event BoolSlotValue(bytes32 slot, bool value);
 
     function tloadBoolSlot(bytes32 slot) public {
