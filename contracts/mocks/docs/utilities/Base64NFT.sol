@@ -1,11 +1,10 @@
-// contracts/Base64NFT.sol
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.20;
 
-import {ERC721} from "../../../token/ERC721/ERC721.sol";
-import {Strings} from "../../../utils/Strings.sol";
-import {Base64} from "../../../utils/Base64.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract Base64NFT is ERC721 {
     using Strings for uint256;
@@ -20,8 +19,8 @@ contract Base64NFT is ERC721 {
         //   "name": "Base64NFT #1",
         //   // Replace with extra ERC-721 Metadata properties
         // }
-        bytes memory dataURI = abi.encodePacked("{", '"name": "Base64NFT #', tokenId.toString(), '"', "}");
+        string memory dataURI = string.concat('{"name": "Base64NFT #', tokenId.toString(), '"}');
 
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
+        return string.concat("data:application/json;base64,", Base64.encode(bytes(dataURI)));
     }
 }
