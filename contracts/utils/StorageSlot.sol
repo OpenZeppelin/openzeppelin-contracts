@@ -31,22 +31,22 @@ pragma solidity ^0.8.24;
 library StorageSlot {
     /// Derivation tooling
     /**
-     * @dev Derive an ERC-1967 slot from a string (path).
+     * @dev Derive an ERC-1967 slot from a string (namespace).
      */
-    function erc1967slot(string memory path) internal pure returns (bytes32 slot) {
+    function erc1967slot(string memory namespace) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
         assembly {
-            slot := sub(keccak256(add(path, 0x20), mload(path)), 1)
+            slot := sub(keccak256(add(namespace, 0x20), mload(namespace)), 1)
         }
     }
 
     /**
-     * @dev Derive an ERC-7201 slot from a string (path).
+     * @dev Derive an ERC-7201 slot from a string (namespace).
      */
-    function erc7201slot(string memory path) internal pure returns (bytes32 slot) {
+    function erc7201slot(string memory namespace) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0x00, sub(keccak256(add(path, 0x20), mload(path)), 1))
+            mstore(0x00, sub(keccak256(add(namespace, 0x20), mload(namespace)), 1))
             slot := and(keccak256(0x00, 0x20), not(0xff))
         }
     }
@@ -63,7 +63,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of the first element in an array from the slot where the length is stored.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveArray(bytes32 slot) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -76,7 +76,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, address key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -90,7 +90,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, bool key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -104,7 +104,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, bytes32 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -118,7 +118,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, uint256 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -132,7 +132,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, int256 key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -146,7 +146,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, string memory key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -164,7 +164,7 @@ library StorageSlot {
     /**
      * @dev Derive the location of a mapping element from the key.
      *
-     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
      */
     function deriveMapping(bytes32 slot, bytes memory key) internal pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
