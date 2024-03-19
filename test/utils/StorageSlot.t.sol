@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // This file was procedurally generated from scripts/generate/templates/StorageSlot.t.js.
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -123,367 +123,195 @@ contract StorageSlotTest is Test {
         assertEq(_int256Variable, value);
     }
 
-    address[] private _addressArray;
+    bytes[] private _array;
 
-    function testArrayAddress_1(address[] calldata values) public {
-        bytes32 slot;
+    function testArray(uint256 length, uint256 offset) public {
+        length = bound(length, 1, type(uint256).max);
+        offset = bound(offset, 0, length - 1);
+
+        bytes32 baseSlot;
         assembly {
-            slot := _addressArray.slot
+            baseSlot := _array.slot
+        }
+        baseSlot.asUint256Slot().sstore(length);
+
+        bytes storage derived = _array[offset];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
 
-        // set in solidity
-        _addressArray = values;
-
-        // read using Slots
-        assertEq(slot.asUint256Slot().sload(), values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(slot.deriveArray().offset(i).asAddressSlot().sload(), values[i]);
-        }
+        assertEq(baseSlot.asUint256Slot().sload(), _array.length);
+        assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
     }
 
-    function testArrayAddress_2(address[] calldata values) public {
-        bytes32 slot;
+    mapping(address => bytes) private _addressMapping;
+
+    function testMappingAddress(address key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _addressArray.slot
+            baseSlot := _addressMapping.slot
         }
 
-        // set using Slots
-        slot.asUint256Slot().sstore(values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            slot.deriveArray().offset(i).asAddressSlot().sstore(values[i]);
+        bytes storage derived = _addressMapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
 
-        // read in solidity
-        assertEq(_addressArray.length, values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(_addressArray[i], values[i]);
-        }
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    bytes32[] private _bytes32Array;
+    mapping(bool => bytes) private _boolMapping;
 
-    function testArrayBytes32_1(bytes32[] calldata values) public {
-        bytes32 slot;
+    function testMappingBoolean(bool key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _bytes32Array.slot
+            baseSlot := _boolMapping.slot
         }
 
-        // set in solidity
-        _bytes32Array = values;
-
-        // read using Slots
-        assertEq(slot.asUint256Slot().sload(), values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(slot.deriveArray().offset(i).asBytes32Slot().sload(), values[i]);
+        bytes storage derived = _boolMapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
+
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    function testArrayBytes32_2(bytes32[] calldata values) public {
-        bytes32 slot;
+    mapping(bytes32 => bytes) private _bytes32Mapping;
+
+    function testMappingBytes32(bytes32 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _bytes32Array.slot
+            baseSlot := _bytes32Mapping.slot
         }
 
-        // set using Slots
-        slot.asUint256Slot().sstore(values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            slot.deriveArray().offset(i).asBytes32Slot().sstore(values[i]);
+        bytes storage derived = _bytes32Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
 
-        // read in solidity
-        assertEq(_bytes32Array.length, values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(_bytes32Array[i], values[i]);
-        }
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    uint256[] private _uint256Array;
+    mapping(bytes4 => bytes) private _bytes4Mapping;
 
-    function testArrayUint256_1(uint256[] calldata values) public {
-        bytes32 slot;
+    function testMappingBytes4(bytes4 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _uint256Array.slot
+            baseSlot := _bytes4Mapping.slot
         }
 
-        // set in solidity
-        _uint256Array = values;
-
-        // read using Slots
-        assertEq(slot.asUint256Slot().sload(), values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(slot.deriveArray().offset(i).asUint256Slot().sload(), values[i]);
+        bytes storage derived = _bytes4Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
+
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    function testArrayUint256_2(uint256[] calldata values) public {
-        bytes32 slot;
+    mapping(uint256 => bytes) private _uint256Mapping;
+
+    function testMappingUint256(uint256 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _uint256Array.slot
+            baseSlot := _uint256Mapping.slot
         }
 
-        // set using Slots
-        slot.asUint256Slot().sstore(values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            slot.deriveArray().offset(i).asUint256Slot().sstore(values[i]);
+        bytes storage derived = _uint256Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
 
-        // read in solidity
-        assertEq(_uint256Array.length, values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(_uint256Array[i], values[i]);
-        }
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    int256[] private _int256Array;
+    mapping(uint32 => bytes) private _uint32Mapping;
 
-    function testArrayInt256_1(int256[] calldata values) public {
-        bytes32 slot;
+    function testMappingUint32(uint32 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _int256Array.slot
+            baseSlot := _uint32Mapping.slot
         }
 
-        // set in solidity
-        _int256Array = values;
-
-        // read using Slots
-        assertEq(slot.asUint256Slot().sload(), values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(slot.deriveArray().offset(i).asInt256Slot().sload(), values[i]);
+        bytes storage derived = _uint32Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
+
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    function testArrayInt256_2(int256[] calldata values) public {
-        bytes32 slot;
+    mapping(int256 => bytes) private _int256Mapping;
+
+    function testMappingInt256(int256 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _int256Array.slot
+            baseSlot := _int256Mapping.slot
         }
 
-        // set using Slots
-        slot.asUint256Slot().sstore(values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            slot.deriveArray().offset(i).asInt256Slot().sstore(values[i]);
+        bytes storage derived = _int256Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
         }
 
-        // read in solidity
-        assertEq(_int256Array.length, values.length);
-        for (uint256 i = 0; i < values.length; ++i) {
-            assertEq(_int256Array[i], values[i]);
-        }
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    mapping(address => uint256) private _addressMapping;
+    mapping(int32 => bytes) private _int32Mapping;
 
-    function testMappingAddress_1(address key, uint256 value) public {
-        bytes32 slot;
+    function testMappingInt32(int32 key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _addressMapping.slot
+            baseSlot := _int32Mapping.slot
         }
 
-        // set in solidity
-        _addressMapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
+        bytes storage derived = _int32Mapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
+        }
+
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    function testMappingAddress_2(address key, uint256 value) public {
-        bytes32 slot;
+    mapping(string => bytes) private _stringMapping;
+
+    function testMappingString(string memory key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _addressMapping.slot
+            baseSlot := _stringMapping.slot
         }
 
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
+        bytes storage derived = _stringMapping[key];
+        bytes32 derivedSlot;
+        assembly {
+            derivedSlot := derived.slot
+        }
 
-        // read in solidity
-        assertEq(_addressMapping[key], value);
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 
-    mapping(bool => uint256) private _boolMapping;
+    mapping(bytes => bytes) private _bytesMapping;
 
-    function testMappingBoolean_1(bool key, uint256 value) public {
-        bytes32 slot;
+    function testMappingBytes(bytes memory key) public {
+        bytes32 baseSlot;
         assembly {
-            slot := _boolMapping.slot
+            baseSlot := _bytesMapping.slot
         }
 
-        // set in solidity
-        _boolMapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingBoolean_2(bool key, uint256 value) public {
-        bytes32 slot;
+        bytes storage derived = _bytesMapping[key];
+        bytes32 derivedSlot;
         assembly {
-            slot := _boolMapping.slot
+            derivedSlot := derived.slot
         }
 
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_boolMapping[key], value);
-    }
-
-    mapping(bytes32 => uint256) private _bytes32Mapping;
-
-    function testMappingBytes32_1(bytes32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _bytes32Mapping.slot
-        }
-
-        // set in solidity
-        _bytes32Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingBytes32_2(bytes32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _bytes32Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_bytes32Mapping[key], value);
-    }
-
-    mapping(bytes4 => uint256) private _bytes4Mapping;
-
-    function testMappingBytes4_1(bytes4 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _bytes4Mapping.slot
-        }
-
-        // set in solidity
-        _bytes4Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingBytes4_2(bytes4 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _bytes4Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_bytes4Mapping[key], value);
-    }
-
-    mapping(uint256 => uint256) private _uint256Mapping;
-
-    function testMappingUint256_1(uint256 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _uint256Mapping.slot
-        }
-
-        // set in solidity
-        _uint256Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingUint256_2(uint256 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _uint256Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_uint256Mapping[key], value);
-    }
-
-    mapping(uint32 => uint256) private _uint32Mapping;
-
-    function testMappingUint32_1(uint32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _uint32Mapping.slot
-        }
-
-        // set in solidity
-        _uint32Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingUint32_2(uint32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _uint32Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_uint32Mapping[key], value);
-    }
-
-    mapping(int256 => uint256) private _int256Mapping;
-
-    function testMappingInt256_1(int256 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _int256Mapping.slot
-        }
-
-        // set in solidity
-        _int256Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingInt256_2(int256 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _int256Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_int256Mapping[key], value);
-    }
-
-    mapping(int32 => uint256) private _int32Mapping;
-
-    function testMappingInt32_1(int32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _int32Mapping.slot
-        }
-
-        // set in solidity
-        _int32Mapping[key] = value;
-        // read using Slots
-        assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-    }
-
-    function testMappingInt32_2(int32 key, uint256 value) public {
-        bytes32 slot;
-        assembly {
-            slot := _int32Mapping.slot
-        }
-
-        // set using Slots
-        slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-        // read in solidity
-        assertEq(_int32Mapping[key], value);
+        assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 }

@@ -3,7 +3,7 @@ const { capitalize } = require('../../helpers');
 const { TYPES } = require('./StorageSlot.opts');
 
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -40,71 +40,46 @@ function testValue${name}_2(${type} value) public {
 }
 `;
 
-const array = ({ type, name }) => `\
-${type}[] private _${type}Array;
+const array = `\
+bytes[] private _array;
 
-function testArray${name}_1(${type}[] calldata values) public {
-  bytes32 slot;
+function testArray(uint256 length, uint256 offset) public {
+  length = bound(length, 1, type(uint256).max);
+  offset = bound(offset, 0, length - 1);
+
+  bytes32 baseSlot;
   assembly {
-    slot := _${type}Array.slot
+    baseSlot := _array.slot
   }
+  baseSlot.asUint256Slot().sstore(length);
 
-  // set in solidity
-  _${type}Array = values;
-
-  // read using Slots
-  assertEq(slot.asUint256Slot().sload(), values.length);
-  for (uint256 i = 0; i < values.length; ++i) {
-    assertEq(slot.deriveArray().offset(i).as${name}Slot().sload(), values[i]);
-  }
-}
-
-function testArray${name}_2(${type}[] calldata values) public {
-  bytes32 slot;
+  bytes storage derived = _array[offset];
+  bytes32 derivedSlot;
   assembly {
-    slot := _${type}Array.slot
+    derivedSlot := derived.slot
   }
 
-  // set using Slots
-  slot.asUint256Slot().sstore(values.length);
-  for (uint256 i = 0; i < values.length; ++i) {
-    slot.deriveArray().offset(i).as${name}Slot().sstore(values[i]);
-  }
-
-  // read in solidity
-  assertEq(_${type}Array.length, values.length);
-  for (uint256 i = 0; i < values.length; ++i) {
-    assertEq(_${type}Array[i], values[i]);
-  }
+  assertEq(baseSlot.asUint256Slot().sload(), _array.length);
+  assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
 }
 `;
 
-const mapping = ({ type, name }) => `\
-mapping(${type} => uint256) private _${type}Mapping;
+const mapping = ({ type, name, isValueType }) => `\
+mapping(${type} => bytes) private _${type}Mapping;
 
-function testMapping${name}_1(${type} key, uint256 value) public {
-  bytes32 slot;
+function testMapping${name}(${type} ${isValueType ? '' : 'memory'} key) public {
+  bytes32 baseSlot;
   assembly {
-    slot := _${type}Mapping.slot
+    baseSlot := _${type}Mapping.slot
   }
 
-  // set in solidity
-  _${type}Mapping[key] = value;
-  // read using Slots
-  assertEq(slot.deriveMapping(key).asUint256Slot().sload(), value);
-}
-
-function testMapping${name}_2(${type} key, uint256 value) public {
-  bytes32 slot;
+  bytes storage derived = _${type}Mapping[key];
+  bytes32 derivedSlot;
   assembly {
-    slot := _${type}Mapping.slot
+    derivedSlot := derived.slot
   }
 
-  // set using Slots
-  slot.deriveMapping(key).asUint256Slot().sstore(value);
-
-  // read in solidity
-  assertEq(_${type}Mapping[key], value);
+  assertEq(baseSlot.deriveMapping(key), derivedSlot);
 }
 `;
 
@@ -115,15 +90,18 @@ module.exports = format(
   'contract StorageSlotTest is Test {',
   'using StorageSlot for *;',
   '',
-  // bool is not using a full word, solidity allocation in storage is not right aligned
+  // bool is not using a full word, solidity allocation packs such values
   TYPES.filter(type => type.isValueType && type.type !== 'bool').map(type => variable(type)),
-  // bool is not using a full word, solidity allocation in storage is not right aligned
-  TYPES.filter(type => type.isValueType && type.type !== 'bool').map(type => array(type)),
-  TYPES.filter(type => type.isValueType).flatMap(type =>
+  array,
+  TYPES.flatMap(type =>
     [].concat(
-      mapping(type),
-      (type.variants ?? []).map(variant => mapping({ type: variant, name: capitalize(variant) })),
+      type,
+      (type.variants ?? []).map(variant => ({
+        type: variant,
+        name: capitalize(variant),
+        isValueType: type.isValueType,
+      })),
     ),
-  ),
+  ).map(type => mapping(type)),
   '}',
 );

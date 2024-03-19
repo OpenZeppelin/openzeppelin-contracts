@@ -143,6 +143,42 @@ library StorageSlot {
         }
     }
 
+    /**
+     * @dev Derive the location of a mapping element from the key.
+     *
+     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     */
+    function deriveMapping(bytes32 slot, string memory key) internal pure returns (bytes32 result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let length := mload(key)
+            let begin := add(key, 0x20)
+            let end := add(begin, length)
+            let cache := mload(end)
+            mstore(end, slot)
+            result := keccak256(begin, add(length, 0x20))
+            mstore(end, cache)
+        }
+    }
+
+    /**
+     * @dev Derive the location of a mapping element from the key.
+     *
+     * See: https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+     */
+    function deriveMapping(bytes32 slot, bytes memory key) internal pure returns (bytes32 result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let length := mload(key)
+            let begin := add(key, 0x20)
+            let end := add(begin, length)
+            let cache := mload(end)
+            mstore(end, slot)
+            result := keccak256(begin, add(length, 0x20))
+            mstore(end, cache)
+        }
+    }
+
     /// Storage slots as structs
     struct AddressSlot {
         address value;
