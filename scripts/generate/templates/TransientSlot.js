@@ -10,7 +10,7 @@ import {TypedSlot} from "./types/TypedSlot.sol";
  * @dev Library for reading and writing primitive types to specific storage slots. This is a variant of {StorageSlot}
  * that supports transient storage.
  *
- * The functions in this library return types that give access to reading or writting primitives.
+ * The functions in this library return types that give access to reading or writing primitives.
  *
  * Example usage:
  * \`\`\`solidity
