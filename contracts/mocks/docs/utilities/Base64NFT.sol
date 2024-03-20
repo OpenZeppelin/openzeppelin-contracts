@@ -19,7 +19,8 @@ contract Base64NFT is ERC721 {
         //   "name": "Base64NFT #1",
         //   // Replace with extra ERC-721 Metadata properties
         // }
-        string memory dataURI = string.concat('{"name": "Base64NFT #', tokenId.toString(), '"}');
+        // prettier-ignore
+        string memory dataURI = string.concat("{\"name\": \"Base64NFT #", tokenId.toString(), "\"}");
 
         return string.concat("data:application/json;base64,", Base64.encode(bytes(dataURI)));
     }
