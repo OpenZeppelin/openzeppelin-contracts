@@ -36,6 +36,7 @@ for (const [file, template] of Object.entries({
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
   'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
+  'utils/types/TypedSlot.sol': './templates/TypedSlot.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
   'utils/TransientSlot.sol': './templates/TransientSlot.js',
