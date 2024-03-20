@@ -7,14 +7,6 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 contract StorageSlotMock {
     using StorageSlot for *;
 
-    function erc1967slot(string memory path) public pure returns (bytes32) {
-        return path.erc1967slot();
-    }
-
-    function erc7201slot(string memory path) public pure returns (bytes32) {
-        return path.erc7201slot();
-    }
-
     function setBooleanSlot(bytes32 slot, bool value) public {
         slot.getBooleanSlot().value = value;
     }

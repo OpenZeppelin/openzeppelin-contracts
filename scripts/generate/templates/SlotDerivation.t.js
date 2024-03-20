@@ -1,57 +1,27 @@
 const format = require('../format-lines');
 const { capitalize } = require('../../helpers');
-const { TYPES } = require('./StorageSlot.opts');
+const { TYPES } = require('./Slot.opts');
 
 const header = `\
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {StorageSlot} from "@openzeppelin/contracts/utils/StorageSlot.sol";
-`;
-
-const variable = ({ type, name }) => `\
-${type} private _${type}Variable;
-
-function testValue${name}_1(${type} value) public {
-  bytes32 slot;
-  assembly {
-    slot := _${type}Variable.slot
-  }
-
-  // set in solidity
-  _${type}Variable = value;
-
-  // read using Slots
-  assertEq(slot.as${name}Slot().sload(), value);
-}
-
-function testValue${name}_2(${type} value) public {
-  bytes32 slot;
-  assembly {
-    slot := _${type}Variable.slot
-  }
-
-  // set using Slots
-  slot.as${name}Slot().sstore(value);
-
-  // read in solidity
-  assertEq(_${type}Variable, value);
-}
+import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
 `;
 
 const array = `\
 bytes[] private _array;
 
-function testArray(uint256 length, uint256 offset) public {
+function testDeriveArray(uint256 length, uint256 offset) public {
   length = bound(length, 1, type(uint256).max);
   offset = bound(offset, 0, length - 1);
 
   bytes32 baseSlot;
   assembly {
     baseSlot := _array.slot
+    sstore(baseSlot, length) // store length so solidity access does not revert
   }
-  baseSlot.asUint256Slot().sstore(length);
 
   bytes storage derived = _array[offset];
   bytes32 derivedSlot;
@@ -59,7 +29,6 @@ function testArray(uint256 length, uint256 offset) public {
     derivedSlot := derived.slot
   }
 
-  assertEq(baseSlot.asUint256Slot().sload(), _array.length);
   assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
 }
 `;
@@ -67,7 +36,7 @@ function testArray(uint256 length, uint256 offset) public {
 const mapping = ({ type, name, isValueType }) => `\
 mapping(${type} => bytes) private _${type}Mapping;
 
-function testMapping${name}(${type} ${isValueType ? '' : 'memory'} key) public {
+function testDeriveMapping${name}(${type} ${isValueType ? '' : 'memory'} key) public {
   bytes32 baseSlot;
   assembly {
     baseSlot := _${type}Mapping.slot
@@ -87,11 +56,9 @@ function testMapping${name}(${type} ${isValueType ? '' : 'memory'} key) public {
 module.exports = format(
   header.trimEnd(),
   '// solhint-disable func-name-mixedcase',
-  'contract StorageSlotTest is Test {',
-  'using StorageSlot for *;',
+  'contract SlotDerivationTest is Test {',
+  'using SlotDerivation for bytes32;',
   '',
-  // bool is not using a full word, solidity allocation packs such values
-  TYPES.filter(type => type.isValueType && type.type !== 'bool').map(type => variable(type)),
   array,
   TYPES.flatMap(type =>
     [].concat(

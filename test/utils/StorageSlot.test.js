@@ -1,7 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { erc1967slot, erc7201slot } = require('../helpers/storage');
 const { generators } = require('../helpers/random');
 
 const slot = ethers.id('some.storage.slot');
@@ -16,18 +15,6 @@ async function fixture() {
 describe('StorageSlot', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
-  });
-
-  describe('slot derivation', function () {
-    const path = 'example.main';
-
-    it('erc-1967', async function () {
-      expect(await this.mock.erc1967slot(path)).to.equal(erc1967slot(path));
-    });
-
-    it('erc-7201', async function () {
-      expect(await this.mock.erc7201slot(path)).to.equal(erc7201slot(path));
-    });
   });
 
   for (const { type, value, zero } of [
