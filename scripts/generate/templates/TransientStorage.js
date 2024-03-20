@@ -57,7 +57,7 @@ function tstore(TypedSlot.${name}SlotType slot, ${type} value) internal {
 // GENERATE
 module.exports = format(
   header.trimEnd(),
-  'library TransientSlot {',
+  'library TransientStorage {',
   TYPES.filter(type => type.isValueType).map(type => transient(type)),
   '}',
 );

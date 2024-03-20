@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/TransientSlot.js.
+// This file was procedurally generated from scripts/generate/templates/TransientStorage.js.
 
 pragma solidity ^0.8.24;
 
@@ -29,7 +29,7 @@ import {TypedSlot} from "./types/TypedSlot.sol";
  * }
  * ```
  */
-library TransientSlot {
+library TransientStorage {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */

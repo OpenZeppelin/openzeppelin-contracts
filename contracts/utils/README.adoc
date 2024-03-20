@@ -31,7 +31,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {SlotDerivation}: Methods for deriving storage slot from ERC-1967 and ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {TypedSlot}: Types to represent storage slots as typed-objects.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
- * {TransientSlot}: Methods for accessing the transient storage space using the typed-slot representation for {TypedSlot}
+ * {TransientStorage}: Methods for accessing the transient storage space using the typed-slot representation for {TypedSlot}
  * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: An utility for abstracting the sender and calldata in the current execution context.
  * {Time}: Types (and helpers) to manipulate clocks and time objects such as delays.
@@ -116,7 +116,7 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{StorageSlot}}
 
-{{TransientSlot}}
+{{TransientStorage}}
 
 {{Multicall}}
 
