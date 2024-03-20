@@ -2,6 +2,6 @@
 
 set -euo pipefail
 
-if [ "$CI" != "true" ]; then
+if [ "${CI:-"false"}" != "false" ]; then
   npm run lint
 fi
