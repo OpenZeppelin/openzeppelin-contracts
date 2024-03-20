@@ -43,27 +43,27 @@ function as${name}Slot(bytes32 slot) internal pure returns (${name}SlotType) {
 }
 `;
 
-const storage = ({ type, name }) => `\
-/**
- * @dev Load the value held at location \`slot\` in (normal) storage.
- */
-function sload(${name}SlotType slot) internal view returns (${type} value) {
-  /// @solidity memory-safe-assembly
-  assembly {
-    value := sload(slot)
-  }
-}
-
-/**
- * @dev Store \`value\` at location \`slot\` in (normal) storage.
- */
-function sstore(${name}SlotType slot, ${type} value) internal {
-  /// @solidity memory-safe-assembly
-  assembly {
-    sstore(slot, value)
-  }
-}
-`;
+// const storage = ({ type, name }) => `\
+// /**
+//  * @dev Load the value held at location \`slot\` in (normal) storage.
+//  */
+// function sload(${name}SlotType slot) internal view returns (${type} value) {
+//   /// @solidity memory-safe-assembly
+//   assembly {
+//     value := sload(slot)
+//   }
+// }
+//
+// /**
+//  * @dev Store \`value\` at location \`slot\` in (normal) storage.
+//  */
+// function sstore(${name}SlotType slot, ${type} value) internal {
+//   /// @solidity memory-safe-assembly
+//   assembly {
+//     sstore(slot, value)
+//   }
+// }
+// `;
 
 const transient = ({ type, name }) => `\
 /**

@@ -96,6 +96,6 @@ module.exports = format(
   'library SlotDerivation {',
   namespace,
   array,
-  TYPES.flatMap(type => (type.isValueType ? mapping(type) : mapping2(type))),
+  TYPES.map(type => (type.isValueType ? mapping(type) : mapping2(type))),
   '}',
 );
