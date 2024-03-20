@@ -34,7 +34,9 @@ const struct = ({ type, name }) => `\
 struct ${name}Slot {
   ${type} value;
 }
+`;
 
+const get = ({ name }) => `\
 /**
  * @dev Returns an \`${name}Slot\` with member \`value\` located at \`slot\`.
  */
@@ -62,6 +64,7 @@ function get${name}Slot(${type} storage store) internal pure returns (${name}Slo
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
-  TYPES.flatMap(type => [struct(type), type.isValueType ? '' : getStorage(type)]),
+  TYPES.flatMap(type => struct(type)),
+  TYPES.flatMap(type => [get(type), type.isValueType ? '' : getStorage(type)]),
   '}',
 );

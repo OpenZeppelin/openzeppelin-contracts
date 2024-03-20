@@ -33,6 +33,30 @@ library StorageSlot {
         address value;
     }
 
+    struct BooleanSlot {
+        bool value;
+    }
+
+    struct Bytes32Slot {
+        bytes32 value;
+    }
+
+    struct Uint256Slot {
+        uint256 value;
+    }
+
+    struct Int256Slot {
+        int256 value;
+    }
+
+    struct StringSlot {
+        string value;
+    }
+
+    struct BytesSlot {
+        bytes value;
+    }
+
     /**
      * @dev Returns an `AddressSlot` with member `value` located at `slot`.
      */
@@ -41,10 +65,6 @@ library StorageSlot {
         assembly {
             r.slot := slot
         }
-    }
-
-    struct BooleanSlot {
-        bool value;
     }
 
     /**
@@ -57,10 +77,6 @@ library StorageSlot {
         }
     }
 
-    struct Bytes32Slot {
-        bytes32 value;
-    }
-
     /**
      * @dev Returns an `Bytes32Slot` with member `value` located at `slot`.
      */
@@ -69,10 +85,6 @@ library StorageSlot {
         assembly {
             r.slot := slot
         }
-    }
-
-    struct Uint256Slot {
-        uint256 value;
     }
 
     /**
@@ -85,10 +97,6 @@ library StorageSlot {
         }
     }
 
-    struct Int256Slot {
-        int256 value;
-    }
-
     /**
      * @dev Returns an `Int256Slot` with member `value` located at `slot`.
      */
@@ -97,10 +105,6 @@ library StorageSlot {
         assembly {
             r.slot := slot
         }
-    }
-
-    struct StringSlot {
-        string value;
     }
 
     /**
@@ -121,10 +125,6 @@ library StorageSlot {
         assembly {
             r.slot := store.slot
         }
-    }
-
-    struct BytesSlot {
-        bytes value;
     }
 
     /**
