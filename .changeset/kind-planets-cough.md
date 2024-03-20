@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`StorageSlot`: Add storage slot derivation tooling and typed-slot representation with transient storage support.
+`TransientSlot`: Add library for typed-slot representation with transient storage support.
