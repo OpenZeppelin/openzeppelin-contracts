@@ -64,7 +64,7 @@ function get${name}Slot(${type} storage store) internal pure returns (${name}Slo
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
-  TYPES.flatMap(type => struct(type)),
+  TYPES.map(type => struct(type)),
   TYPES.flatMap(type => [get(type), type.isValueType ? '' : getStorage(type)]),
   '}',
 );
