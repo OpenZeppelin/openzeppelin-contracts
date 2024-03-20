@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`SlotDerivation`: Add library for storage slot derivation.
+`SlotDerivation`: Add a library of methods for derivating common storage slots.

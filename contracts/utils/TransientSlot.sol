@@ -13,18 +13,18 @@ import {TypedSlot} from "./types/TypedSlot.sol";
  *
  * Example usage:
  * ```solidity
- * contract ReentrancyGuard {
+ * contract Lock {
  *     using TypedSlot for bytes32;
  *     using TransientSlot for *;
  *
- *     bytes32 internal constant _REENTRANCY_SLOT = 0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
+ *     bytes32 internal constant _LOCK_SLOT = 0xf4678858b2b588224636b8522b729e7722d32fc491da849ed75b3fdf3c84f542;
  *
- *     modifier nonReentrant() {
- *         require(!_REENTRANCY_SLOT.asBooleanSlot().tload());
+ *     modifier locked() {
+ *         require(!_LOCK_SLOT.asBooleanSlot().tload());
  *
- *         _REENTRANCY_SLOT.asBooleanSlot().tstore(true);
+ *         _LOCK_SLOT.asBooleanSlot().tstore(true);
  *         _;
- *         _REENTRANCY_SLOT.asBooleanSlot().tstore(false);
+ *         _LOCK_SLOT.asBooleanSlot().tstore(false);
  *     }
  * }
  * ```
