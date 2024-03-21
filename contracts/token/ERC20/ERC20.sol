@@ -133,9 +133,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     /**
      * @dev See {IERC20-transferFrom}.
      *
-     * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the ERC. See the note at the beginning of {ERC20}.
-     *
      * NOTE: Does not update the allowance if the current allowance
      * is the maximum `uint256`.
      *
