@@ -134,7 +134,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * @dev See {IERC20-transferFrom}.
      *
      * Skips emitting an {Approval} event indicating an allowance update. This is not
-     * required by the ERC. See {xref-ERC20-_approve-address-address-uint256-bool-}.
+     * required by the ERC. See {xref-ERC20-_approve-address-address-uint256-bool-}[_approve].
      *
      * NOTE: Does not update the allowance if the current allowance
      * is the maximum `uint256`.
@@ -268,7 +268,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      *
      * Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to
      * true using the following override:
-     * ```
+     *
+     * ```solidity
      * function _approve(address owner, address spender, uint256 value, bool) internal virtual override {
      *     super._approve(owner, spender, value, true);
      * }
