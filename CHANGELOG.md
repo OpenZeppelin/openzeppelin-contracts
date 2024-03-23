@@ -205,7 +205,7 @@ Batch transfers will now emit `TransferSingle` if the batch consists of a single
 
 #### ERC165Storage
 
-Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:
+Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so by overriding the `supportsInterface` function as seen below:
 
 ```solidity
 function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
