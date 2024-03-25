@@ -5,6 +5,8 @@ const { OPTS } = require('./MerkleProof.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
+import {Hashes} from "./Hashes.sol";
+
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
@@ -29,7 +31,7 @@ const errors = `\
 `;
 
 /* eslint-disable max-len */
-const templateProof = ({ suffix, location, visibility, hashType, hashName = '_hashPair' }) => `\
+const templateProof = ({ suffix, location, visibility, hashType, hashName = 'Hashes.commutativeKeccak256' }) => `\
     /**
      * @dev Returns true if a \`leaf\` can be proved to be a part of a Merkle tree
      * defined by \`root\`. For this, a \`proof\` must be provided, containing
@@ -72,7 +74,7 @@ const templateProof = ({ suffix, location, visibility, hashType, hashName = '_ha
     }
 `;
 
-const templateMultiProof = ({ suffix, location, visibility, hashType, hashName = '_hashPair' }) => `\
+const templateMultiProof = ({ suffix, location, visibility, hashType, hashName = 'Hashes.commutativeKeccak256' }) => `\
     /**
      * @dev Returns true if the \`leaves\` can be simultaneously proven to be a part of a Merkle tree defined by
      * \`root\`, according to \`proof\` and \`proofFlags\` as described in {processMultiProof}.
@@ -162,27 +164,6 @@ const templateMultiProof = ({ suffix, location, visibility, hashType, hashName =
 `;
 /* eslint-enable max-len */
 
-const suffix = `\
-    /**
-     * @dev Sorts the pair (a, b) and hashes the result.
-     */
-    function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
-        return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
-    }
-
-    /**
-     * @dev Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand memory.
-     */
-    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            value := keccak256(0x00, 0x40)
-        }
-    }
-`;
-
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -190,6 +171,5 @@ module.exports = format(
   errors,
   ...OPTS.flatMap(opts => templateProof(opts)),
   ...OPTS.flatMap(opts => templateMultiProof(opts)),
-  suffix.trimEnd(),
   '}',
 );
