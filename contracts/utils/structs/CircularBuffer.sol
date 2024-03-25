@@ -44,9 +44,9 @@ library CircularBuffer {
      *
      * If the CircularBuffer was already setup and used, calling that function again will reset it to a blank state.
      */
-    function setup(Bytes32CircularBuffer storage self, uint256 length) internal {
+    function setup(Bytes32CircularBuffer storage self, uint256 size) internal {
         clear(self);
-        Arrays.unsafeSetLength(self._data, length);
+        Arrays.unsafeSetLength(self._data, size);
     }
 
     /**
@@ -62,8 +62,8 @@ library CircularBuffer {
      */
     function push(Bytes32CircularBuffer storage self, bytes32 value) internal {
         uint256 index = self._count++;
-        uint256 length = self._data.length;
-        Arrays.unsafeAccess(self._data, index % length).value = value;
+        uint256 module = self._data.length;
+        Arrays.unsafeAccess(self._data, index % module).value = value;
     }
 
     /**
@@ -89,12 +89,12 @@ library CircularBuffer {
      */
     function last(Bytes32CircularBuffer storage self, uint256 i) internal view returns (bytes32) {
         uint256 index = self._count;
-        uint256 length = self._data.length;
-        uint256 total = Math.min(index, length); // count(self)
+        uint256 module = self._data.length;
+        uint256 total = Math.min(index, module); // count(self)
         if (i >= total) {
             Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         }
-        return Arrays.unsafeAccess(self._data, (index - i - 1) % length).value;
+        return Arrays.unsafeAccess(self._data, (index - i - 1) % module).value;
     }
 
     /**
@@ -102,10 +102,10 @@ library CircularBuffer {
      */
     function includes(Bytes32CircularBuffer storage self, bytes32 value) internal view returns (bool) {
         uint256 index = self._count;
-        uint256 length = self._data.length;
-        uint256 total = Math.min(index, length); // count(self)
+        uint256 module = self._data.length;
+        uint256 total = Math.min(index, module); // count(self)
         for (uint256 i = 0; i < total; ++i) {
-            if (Arrays.unsafeAccess(self._data, (index - i - 1) % length).value == value) {
+            if (Arrays.unsafeAccess(self._data, (index - i - 1) % module).value == value) {
                 return true;
             }
         }

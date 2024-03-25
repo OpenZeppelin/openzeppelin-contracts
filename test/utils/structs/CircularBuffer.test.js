@@ -20,7 +20,7 @@ describe('CircularBuffer', function () {
 
   it('starts empty', async function () {
     expect(await this.mock.$count(0)).to.equal(0n);
-    expect(await this.mock.$size(0)).to.equal(LENGTH);
+    expect(await this.mock.$length(0)).to.equal(LENGTH);
     expect(await this.mock.$includes(0, ethers.ZeroHash)).to.be.false;
     await expect(this.mock.$last(0, 0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
   });
@@ -38,7 +38,7 @@ describe('CircularBuffer', function () {
       const dropped = pushed.slice(0, -LENGTH);
 
       // check count
-      expect(await this.mock.$size(0)).to.equal(LENGTH);
+      expect(await this.mock.$length(0)).to.equal(LENGTH);
       expect(await this.mock.$count(0)).to.equal(stored.length);
 
       // check last
@@ -65,14 +65,14 @@ describe('CircularBuffer', function () {
     await this.mock.$push(0, value);
 
     expect(await this.mock.$count(0)).to.equal(1n);
-    expect(await this.mock.$size(0)).to.equal(LENGTH);
+    expect(await this.mock.$length(0)).to.equal(LENGTH);
     expect(await this.mock.$includes(0, value)).to.be.true;
     await this.mock.$last(0, 0); // not revert
 
     await this.mock.$clear(0);
 
     expect(await this.mock.$count(0)).to.equal(0n);
-    expect(await this.mock.$size(0)).to.equal(LENGTH);
+    expect(await this.mock.$length(0)).to.equal(LENGTH);
     expect(await this.mock.$includes(0, value)).to.be.false;
     await expect(this.mock.$last(0, 0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
   });
