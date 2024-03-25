@@ -6,9 +6,13 @@ import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
 
 /**
- * @dev A buffer of items of fixed size. When a new item is pushed, it takes the place of the oldest one in the buffer
- * so that at all times, only the last N elements are kept. Items cannot be removed. The entier buffer can be reset.
- * Last N elements can be accessed using their index from the end.
+ * @dev A fixed-length buffer for keeping `bytes32` items in storage.
+ *
+ * This data structure allows for pushing elements to it, and when its size exceeds the specified fixed length,
+ * new items take the place of the oldest element in the buffer, keeping at most `N` elements in the
+ * structure.
+ *
+ * Elements can't be removed but the data structure can be cleared. See {clear}.
  *
  * Complexity:
  * - insertion ({push}): O(1)
