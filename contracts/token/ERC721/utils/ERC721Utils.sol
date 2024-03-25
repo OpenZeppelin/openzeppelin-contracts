@@ -15,7 +15,7 @@ library ERC721Utils {
      * @dev Performs an acceptance check for the provided `operator` by calling {IERC721-onERC721Received}
      * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
      *
-     * The acceptance call is not executed and treated as a no-op if the target address is doesn't contain code (i.e. an EOA).
+     * The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
      * Otherwise, the recipient must implement {IERC721Receiver-onERC721Received} and return the acceptance magic value to accept
      * the transfer.
      */

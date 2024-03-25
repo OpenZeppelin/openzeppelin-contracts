@@ -23,7 +23,7 @@ describe('UpgradeableBeacon', function () {
       .withArgs(this.other);
   });
 
-  describe('once deployed', async function () {
+  describe('once deployed', function () {
     it('emits Upgraded event to the first implementation', async function () {
       await expect(this.beacon.deploymentTransaction()).to.emit(this.beacon, 'Upgraded').withArgs(this.v1);
     });

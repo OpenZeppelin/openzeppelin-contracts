@@ -171,7 +171,7 @@ describe('TimelockController', function () {
               MINDELAY,
             );
 
-          expect(tx)
+          await expect(tx)
             .to.emit(this.mock, 'CallScheduled')
             .withArgs(
               this.operation.id,
@@ -698,7 +698,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                 );
               for (const i in this.operation.targets) {
-                expect(tx)
+                await expect(tx)
                   .to.emit(this.mock, 'CallExecuted')
                   .withArgs(
                     this.operation.id,
@@ -843,7 +843,7 @@ describe('TimelockController', function () {
                   nonReentrantBatchOperation.salt,
                 );
               for (const i in nonReentrantBatchOperation.targets) {
-                expect(tx)
+                await expect(tx)
                   .to.emit(this.mock, 'CallExecuted')
                   .withArgs(
                     nonReentrantBatchOperation.id,
@@ -893,7 +893,7 @@ describe('TimelockController', function () {
                 operation.predecessor,
                 operation.salt,
               ),
-          ).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+          ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
         });
       });
     });
@@ -1099,7 +1099,7 @@ describe('TimelockController', function () {
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt),
-      ).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+      ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });
 
     it('call throw', async function () {
@@ -1146,7 +1146,7 @@ describe('TimelockController', function () {
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
             gasLimit: '100000',
           }),
-      ).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+      ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });
 
     it('call payable with eth', async function () {
@@ -1199,7 +1199,7 @@ describe('TimelockController', function () {
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt),
-      ).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+      ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
       expect(await ethers.provider.getBalance(this.callreceivermock)).to.equal(0n);
@@ -1227,7 +1227,7 @@ describe('TimelockController', function () {
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt),
-      ).to.be.revertedWithCustomError(this.mock, 'FailedInnerCall');
+      ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
       expect(await ethers.provider.getBalance(this.callreceivermock)).to.equal(0n);

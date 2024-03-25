@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.20;
 
+import {Hashes} from "./Hashes.sol";
+
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
@@ -49,7 +51,7 @@ library MerkleProof {
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -60,7 +62,7 @@ library MerkleProof {
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = _hashPair(computedHash, proof[i]);
+            computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
         }
         return computedHash;
     }
@@ -138,7 +140,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = Hashes.commutativeKeccak256(a, b);
         }
 
         if (totalHashes > 0) {
@@ -194,7 +196,7 @@ library MerkleProof {
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
-            hashes[i] = _hashPair(a, b);
+            hashes[i] = Hashes.commutativeKeccak256(a, b);
         }
 
         if (totalHashes > 0) {
@@ -208,25 +210,6 @@ library MerkleProof {
             return leaves[0];
         } else {
             return proof[0];
-        }
-    }
-
-    /**
-     * @dev Sorts the pair (a, b) and hashes the result.
-     */
-    function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
-        return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
-    }
-
-    /**
-     * @dev Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand memory.
-     */
-    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            value := keccak256(0x00, 0x40)
         }
     }
 }

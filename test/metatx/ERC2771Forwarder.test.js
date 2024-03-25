@@ -122,7 +122,7 @@ describe('ERC2771Forwarder', function () {
           data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
         });
 
-        await expect(this.forwarder.execute(request)).to.be.revertedWithCustomError(this.forwarder, 'FailedInnerCall');
+        await expect(this.forwarder.execute(request)).to.be.revertedWithCustomError(this.forwarder, 'FailedCall');
       });
     });
 
