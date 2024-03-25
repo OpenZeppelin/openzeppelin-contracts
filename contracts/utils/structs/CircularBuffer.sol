@@ -11,10 +11,10 @@ import {Panic} from "../Panic.sol";
  * Last N elements can be accessed using their index from the end.
  *
  * Complexity:
- * - insertion (`push`): O(1)
- * - lookup (`last`): O(1)
- * - inclusion (`includes`): O(N) (worst case)
- * - reset (`clear`): O(1)
+ * - insertion ({push}): O(1)
+ * - lookup ({last}): O(1)
+ * - inclusion ({includes}): O(N) (worst case)
+ * - reset ({clear}): O(1)
  *
  * * The struct is called `Bytes32CircularBuffer`. Other types can be cast to and from `bytes32`. This data structure
  * can only be used in storage, and not in memory.
@@ -67,7 +67,7 @@ library CircularBuffer {
     }
 
     /**
-     * @dev Number of values currently in the buffer. This values is 0 for empty buffer, and cannot exceed the size of
+     * @dev Number of values currently in the buffer. This value is 0 for an empty buffer, and cannot exceed the size of
      * the buffer.
      */
     function count(Bytes32CircularBuffer storage self) internal view returns (uint256) {
