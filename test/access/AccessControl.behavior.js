@@ -43,7 +43,7 @@ function shouldBehaveLikeAccessControl() {
 
     it('accounts can be granted a role multiple times', async function () {
       await this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized);
-      expect(this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized)).to.not.emit(
+      await expect(this.mock.connect(this.defaultAdmin).grantRole(ROLE, this.authorized)).to.not.emit(
         this.mock,
         'RoleGranted',
       );
@@ -82,7 +82,7 @@ function shouldBehaveLikeAccessControl() {
       it('a role can be revoked multiple times', async function () {
         await this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized);
 
-        expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
+        await expect(this.mock.connect(this.defaultAdmin).revokeRole(ROLE, this.authorized)).to.not.emit(
           this.mock,
           'RoleRevoked',
         );
@@ -112,10 +112,9 @@ function shouldBehaveLikeAccessControl() {
       });
 
       it('only the sender can renounce their roles', async function () {
-        expect(this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.authorized)).to.be.revertedWithCustomError(
-          this.mock,
-          'AccessControlBadConfirmation',
-        );
+        await expect(
+          this.mock.connect(this.defaultAdmin).renounceRole(ROLE, this.authorized),
+        ).to.be.revertedWithCustomError(this.mock, 'AccessControlBadConfirmation');
       });
 
       it('a role can be renounced multiple times', async function () {
@@ -571,7 +570,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       ]) {
         it(`should revert if block.timestamp is ${tag} to schedule`, async function () {
           await time.increaseTo.timestamp(this.acceptSchedule + fromSchedule, false);
-          expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
+          await expect(this.mock.connect(this.newDefaultAdmin).acceptDefaultAdminTransfer())
             .to.be.revertedWithCustomError(this.mock, 'AccessControlEnforcedDefaultAdminDelay')
             .withArgs(this.acceptSchedule);
         });
@@ -625,7 +624,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules() {
       });
     });
 
-    describe('when there is no pending default admin transfer', async function () {
+    describe('when there is no pending default admin transfer', function () {
       it('should succeed without changes', async function () {
         await expect(this.mock.connect(this.defaultAdmin).cancelDefaultAdminTransfer()).to.not.emit(
           this.mock,

@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { min } = require('../helpers/math');
 const time = require('../helpers/time');
 
-const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
+const { envSetup, shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
 async function fixture() {
   const amount = ethers.parseEther('100');
@@ -19,44 +19,9 @@ async function fixture() {
   await token.$_mint(mock, amount);
   await sender.sendTransaction({ to: mock, value: amount });
 
-  const pausableToken = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
-  const beneficiaryMock = await ethers.deployContract('EtherReceiverMock');
-
-  const env = {
-    eth: {
-      checkRelease: async (tx, amount) => {
-        await expect(tx).to.emit(mock, 'EtherReleased').withArgs(amount);
-        await expect(tx).to.changeEtherBalances([mock, beneficiary], [-amount, amount]);
-      },
-      setupFailure: async () => {
-        await beneficiaryMock.setAcceptEther(false);
-        await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
-        return { args: [], error: [mock, 'FailedInnerCall'] };
-      },
-      releasedEvent: 'EtherReleased',
-      argsVerify: [],
-      args: [],
-    },
-    token: {
-      checkRelease: async (tx, amount) => {
-        await expect(tx).to.emit(token, 'Transfer').withArgs(mock, beneficiary, amount);
-        await expect(tx).to.changeTokenBalances(token, [mock, beneficiary], [-amount, amount]);
-      },
-      setupFailure: async () => {
-        await pausableToken.$_pause();
-        return {
-          args: [ethers.Typed.address(pausableToken)],
-          error: [pausableToken, 'EnforcedPause'],
-        };
-      },
-      releasedEvent: 'ERC20Released',
-      argsVerify: [token],
-      args: [ethers.Typed.address(token)],
-    },
-  };
+  const env = await envSetup(mock, beneficiary, token);
 
   const schedule = Array.from({ length: 64 }, (_, i) => (BigInt(i) * duration) / 60n + start);
-
   const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
 
   return { mock, duration, start, beneficiary, schedule, vestingFn, env };

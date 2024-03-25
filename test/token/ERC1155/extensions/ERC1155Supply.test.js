@@ -111,7 +111,7 @@ describe('ERC1155Supply', function () {
 
   describe('other', function () {
     it('supply unaffected by no-op', async function () {
-      this.token.safeTransferFrom(ethers.ZeroAddress, ethers.ZeroAddress, firstTokenId, firstTokenValue, '0x');
+      await this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, [firstTokenId], [firstTokenValue]);
       expect(await this.token.totalSupply(ethers.Typed.uint256(firstTokenId))).to.equal(0n);
       expect(await this.token.totalSupply()).to.equal(0n);
     });
