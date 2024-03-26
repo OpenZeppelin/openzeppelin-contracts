@@ -1,4 +1,3 @@
-const TYPES_STORAGE = ['address', 'bytes32', 'uint256'];
-const TYPES_MEMORY = ['uint256', 'address'];
+const TYPES = ['address', 'bytes32', 'uint256'];
 
-module.exports = { TYPES_STORAGE, TYPES_MEMORY };
+module.exports = { TYPES };

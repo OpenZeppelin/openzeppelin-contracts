@@ -14,6 +14,49 @@ library Arrays {
     using StorageSlot for bytes32;
 
     /**
+     * @dev Sort an array of address (in memory) following the provided comparator function.
+     *
+     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+     *
+     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
+     * consume more gas than is available in a block, leading to potential DoS.
+     */
+    function sort(
+        address[] memory array,
+        function(address, address) pure returns (bool) comp
+    ) internal pure returns (address[] memory) {
+        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
+        return array;
+    }
+
+    /**
+     * @dev Variant of {sort} that sorts an array of address in increasing order.
+     */
+    function sort(address[] memory array) internal pure returns (address[] memory) {
+        sort(_castToBytes32Array(array), _defaultComp);
+        return array;
+    }
+
+    /// @dev Helper: low level cast address memory array to uint256 memory array
+    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast address comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(address, address) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /**
      * @dev Sort an array of bytes32 (in memory) following the provided comparator function.
      *
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
@@ -39,27 +82,21 @@ library Arrays {
         return sort(array, _defaultComp);
     }
 
-    /**
-     * @dev Variant of {sort} that sorts an array of address following a provided comparator function.
-     */
-    function sort(
-        address[] memory array,
-        function(address, address) pure returns (bool) comp
-    ) internal pure returns (address[] memory) {
-        sort(_castToBytes32Array(array), _castToBytes32Comp(comp));
-        return array;
+    /// @dev Comparator for sorting arrays in increasing order.
+    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
+        return a < b;
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of address in increasing order.
-     */
-    function sort(address[] memory array) internal pure returns (address[] memory) {
-        sort(_castToBytes32Array(array), _defaultComp);
-        return array;
-    }
-
-    /**
-     * @dev Variant of {sort} that sorts an array of uint256 following a provided comparator function.
+     * @dev Sort an array of uint256 (in memory) following the provided comparator function.
+     *
+     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+     *
+     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
+     * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(
         uint256[] memory array,
@@ -75,6 +112,42 @@ library Arrays {
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         sort(_castToBytes32Array(array), _defaultComp);
         return array;
+    }
+
+    /// @dev Helper: low level cast uint256 memory array to uint256 memory array
+    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast uint256 comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(uint256, uint256) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /**
+     * @dev Pointer to the memory location of the first element of `array`.
+     */
+    function _begin(bytes32[] memory array) private pure returns (uint256 ptr) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            ptr := add(array, 0x20)
+        }
+    }
+
+    /**
+     * @dev Pointer to the memory location of the first memory word (32bytes) after `array`. This is the memory word
+     * that comes just after the last element of the array.
+     */
+    function _end(bytes32[] memory array) private pure returns (uint256 ptr) {
+        unchecked {
+            return _begin(array) + array.length * 0x20;
+        }
     }
 
     /**
@@ -111,26 +184,6 @@ library Arrays {
     }
 
     /**
-     * @dev Pointer to the memory location of the first element of `array`.
-     */
-    function _begin(bytes32[] memory array) private pure returns (uint256 ptr) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            ptr := add(array, 0x20)
-        }
-    }
-
-    /**
-     * @dev Pointer to the memory location of the first memory word (32bytes) after `array`. This is the memory word
-     * that comes just after the last element of the array.
-     */
-    function _end(bytes32[] memory array) private pure returns (uint256 ptr) {
-        unchecked {
-            return _begin(array) + array.length * 0x20;
-        }
-    }
-
-    /**
      * @dev Load memory word (as a bytes32) at location `ptr`.
      */
     function _mload(uint256 ptr) private pure returns (bytes32 value) {
@@ -148,43 +201,6 @@ library Arrays {
             let value2 := mload(ptr2)
             mstore(ptr1, value2)
             mstore(ptr2, value1)
-        }
-    }
-
-    /// @dev Comparator for sorting arrays in increasing order.
-    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
-        return a < b;
-    }
-
-    /// @dev Helper: low level cast address memory array to uint256 memory array
-    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
-        assembly {
-            output := input
-        }
-    }
-
-    /// @dev Helper: low level cast uint256 memory array to uint256 memory array
-    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
-        assembly {
-            output := input
-        }
-    }
-
-    /// @dev Helper: low level cast address comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(address, address) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
-        assembly {
-            output := input
-        }
-    }
-
-    /// @dev Helper: low level cast uint256 comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(uint256, uint256) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
-        assembly {
-            output := input
         }
     }
 
