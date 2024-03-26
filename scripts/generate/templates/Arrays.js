@@ -129,14 +129,16 @@ const defaultComparator = `
     }
 `;
 
-const casting = type => `\
+const castArray = type => `\
     /// @dev Helper: low level cast ${type} memory array to uint256 memory array
     function _castToBytes32Array(${type}[] memory input) private pure returns (bytes32[] memory output) {
         assembly {
             output := input
         }
     }
+`;
 
+const castComparator = type => `\
     /// @dev Helper: low level cast ${type} comp function to bytes32 comp function
     function _castToBytes32Comp(
         function(${type}, ${type}) pure returns (bool) input
@@ -372,7 +374,8 @@ module.exports = format(
   TYPES.filter(type => type !== 'bytes32').map(sort),
   quickSort,
   defaultComparator,
-  TYPES.filter(type => type !== 'bytes32').map(casting),
+  TYPES.filter(type => type !== 'bytes32').map(castArray),
+  TYPES.filter(type => type !== 'bytes32').map(castComparator),
   // lookup
   search,
   // unsafe (direct) storage and memory access

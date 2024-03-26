@@ -180,17 +180,17 @@ library Arrays {
         }
     }
 
-    /// @dev Helper: low level cast address comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(address, address) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+    /// @dev Helper: low level cast uint256 memory array to uint256 memory array
+    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
         assembly {
             output := input
         }
     }
 
-    /// @dev Helper: low level cast uint256 memory array to uint256 memory array
-    function _castToBytes32Array(uint256[] memory input) private pure returns (bytes32[] memory output) {
+    /// @dev Helper: low level cast address comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(address, address) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
         assembly {
             output := input
         }
