@@ -311,7 +311,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         uint256 returnValue;
         /// @solidity memory-safe-assembly
         assembly {
-            // Perform the staticcal and save the result in the scratch space.
+            // Perform the statistical and save the result in the scratch space.
             // | Location  | Content  | Content (Hex)                                                      |
             // |-----------|----------|--------------------------------------------------------------------|
             // |           |          |                                                           result ↓ |
