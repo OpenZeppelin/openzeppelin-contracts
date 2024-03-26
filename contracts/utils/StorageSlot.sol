@@ -45,6 +45,10 @@ library StorageSlot {
         uint256 value;
     }
 
+    struct Int256Slot {
+        int256 value;
+    }
+
     struct StringSlot {
         string value;
     }
@@ -87,6 +91,16 @@ library StorageSlot {
      * @dev Returns an `Uint256Slot` with member `value` located at `slot`.
      */
     function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `Int256Slot` with member `value` located at `slot`.
+     */
+    function getInt256Slot(bytes32 slot) internal pure returns (Int256Slot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
