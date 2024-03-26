@@ -159,6 +159,8 @@ For a call to be authorized, the caller must bear the role that is assigned to t
 
 image::access-manager-functions.svg[AccessManager functions]
 
+IMPORTANT: For a visual role explorer, the https://access-manager.openzeppelin.com/[AccessManager explorer] can be used for exploring the roles and permissions of a deployed AccessManager. Connecting a wallet is supported to detect and display the roles granted and functions that are available to it.
+
 === Using `AccessManager`
 
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessManager[`AccessManager`] for managing roles across any number of contracts. The `AccessManager` itself is a contract that can be deployed and used out of the box. It sets an initial admin in the constructor who will be allowed to perform management operations.
