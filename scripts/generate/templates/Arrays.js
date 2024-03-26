@@ -13,17 +13,7 @@ import {Math} from "./math/Math.sol";
  */
 `;
 
-const sort = type => {
-  const sortLine =
-    type === 'bytes32'
-      ? '_quickSort(_begin(array), _end(array), comp);'
-      : 'sort(_castToBytes32Array(array), _castToBytes32Comp(comp));';
-  const ascendingSortLine =
-    type === 'bytes32'
-      ? 'return sort(array, _defaultComp);'
-      : 'sort(_castToBytes32Array(array), _defaultComp);\nreturn array;';
-
-  return `
+const sort = type => `\
     /**
      * @dev Sort an array of ${type} (in memory) following the provided comparator function.
      *
@@ -39,65 +29,21 @@ const sort = type => {
         ${type}[] memory array,
         function(${type}, ${type}) pure returns (bool) comp
     ) internal pure returns (${type}[] memory) {
-        ${sortLine}
+        ${
+          type === 'bytes32'
+            ? '_quickSort(_begin(array), _end(array), comp);'
+            : 'sort(_castToBytes32Array(array), _castToBytes32Comp(comp));'
+        }
         return array;
     }
-    
+
     /**
      * @dev Variant of {sort} that sorts an array of ${type} in increasing order.
      */
     function sort(${type}[] memory array) internal pure returns (${type}[] memory) {
-        ${ascendingSortLine}
+        ${type === 'bytes32' ? 'sort(array, _defaultComp);' : 'sort(_castToBytes32Array(array), _defaultComp);'}
+        return array;
     }
-    `;
-};
-
-const defaultComparator = `
-/// @dev Comparator for sorting arrays in increasing order.
-function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
-    return a < b;
-}
-`;
-
-const sortHelpers = type => {
-  if (type === 'bytes32') return '';
-  return `/// @dev Helper: low level cast ${type} memory array to uint256 memory array
-  function _castToBytes32Array(${type}[] memory input) private pure returns (bytes32[] memory output) {
-      assembly {
-          output := input
-      }
-  }
-  
-  /// @dev Helper: low level cast ${type} comp function to bytes32 comp function
-  function _castToBytes32Comp(
-      function(${type}, ${type}) pure returns (bool) input
-  ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
-      assembly {
-          output := input
-      }
-  }`;
-};
-
-const pointers = `
-/**
- * @dev Pointer to the memory location of the first element of \`array\`.
- */
-function _begin(bytes32[] memory array) private pure returns (uint256 ptr) {
-    /// @solidity memory-safe-assembly
-    assembly {
-        ptr := add(array, 0x20)
-    }
-}
-
-/**
- * @dev Pointer to the memory location of the first memory word (32bytes) after \`array\`. This is the memory word
- * that comes just after the last element of the array.
- */
-function _end(bytes32[] memory array) private pure returns (uint256 ptr) {
-    unchecked {
-        return _begin(array) + array.length * 0x20;
-    }
-}
 `;
 
 const quickSort = `
@@ -135,6 +81,26 @@ function _quickSort(uint256 begin, uint256 end, function(bytes32, bytes32) pure 
 }
 
 /**
+ * @dev Pointer to the memory location of the first element of \`array\`.
+ */
+function _begin(bytes32[] memory array) private pure returns (uint256 ptr) {
+    /// @solidity memory-safe-assembly
+    assembly {
+        ptr := add(array, 0x20)
+    }
+}
+
+/**
+ * @dev Pointer to the memory location of the first memory word (32bytes) after \`array\`. This is the memory word
+ * that comes just after the last element of the array.
+ */
+function _end(bytes32[] memory array) private pure returns (uint256 ptr) {
+    unchecked {
+        return _begin(array) + array.length * 0x20;
+    }
+}
+
+/**
  * @dev Load memory word (as a bytes32) at location \`ptr\`.
  */
 function _mload(uint256 ptr) private pure returns (bytes32 value) {
@@ -154,6 +120,31 @@ function _swap(uint256 ptr1, uint256 ptr2) private pure {
         mstore(ptr2, value1)
     }
 }
+`;
+
+const defaultComparator = `
+    /// @dev Comparator for sorting arrays in increasing order.
+    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
+        return a < b;
+    }
+`;
+
+const casting = type => `\
+    /// @dev Helper: low level cast ${type} memory array to uint256 memory array
+    function _castToBytes32Array(${type}[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast ${type} comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(${type}, ${type}) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
+    }
 `;
 
 const search = `
@@ -376,14 +367,17 @@ module.exports = format(
   header.trimEnd(),
   'library Arrays {',
   'using StorageSlot for bytes32;',
-  ...TYPES.map(sort),
-  defaultComparator,
-  ...TYPES.map(sortHelpers),
-  pointers,
+  // sorting, comparator, helpers and internal
+  sort('bytes32'),
+  TYPES.filter(type => type !== 'bytes32').map(sort),
   quickSort,
+  defaultComparator,
+  TYPES.filter(type => type !== 'bytes32').map(casting),
+  // lookup
   search,
-  ...TYPES.map(unsafeAccessStorage),
-  ...TYPES.map(unsafeAccessMemory),
-  ...TYPES.map(unsafeSetLength),
+  // unsafe (direct) storage and memory access
+  TYPES.map(unsafeAccessStorage),
+  TYPES.map(unsafeAccessMemory),
+  TYPES.map(unsafeSetLength),
   '}',
 );
