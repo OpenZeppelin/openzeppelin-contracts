@@ -40,22 +40,6 @@ library Arrays {
         return array;
     }
 
-    /// @dev Helper: low level cast address memory array to uint256 memory array
-    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
-        assembly {
-            output := input
-        }
-    }
-
-    /// @dev Helper: low level cast address comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(address, address) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
-        assembly {
-            output := input
-        }
-    }
-
     /**
      * @dev Sort an array of bytes32 (in memory) following the provided comparator function.
      *
@@ -80,11 +64,6 @@ library Arrays {
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
         return sort(array, _defaultComp);
-    }
-
-    /// @dev Comparator for sorting arrays in increasing order.
-    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
-        return a < b;
     }
 
     /**
@@ -112,6 +91,27 @@ library Arrays {
     function sort(uint256[] memory array) internal pure returns (uint256[] memory) {
         sort(_castToBytes32Array(array), _defaultComp);
         return array;
+    }
+
+    /// @dev Comparator for sorting arrays in increasing order.
+    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
+        return a < b;
+    }
+
+    /// @dev Helper: low level cast address memory array to uint256 memory array
+    function _castToBytes32Array(address[] memory input) private pure returns (bytes32[] memory output) {
+        assembly {
+            output := input
+        }
+    }
+
+    /// @dev Helper: low level cast address comp function to bytes32 comp function
+    function _castToBytes32Comp(
+        function(address, address) pure returns (bool) input
+    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+        assembly {
+            output := input
+        }
     }
 
     /// @dev Helper: low level cast uint256 memory array to uint256 memory array
