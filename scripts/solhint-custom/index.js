@@ -81,4 +81,34 @@ module.exports = [
   //     }
   //   }
   // },
+
+  class extends Base {
+    static ruleId = 'custom-error-domains';
+
+    ContractDefinition(node) {
+      const domains = [node?.name, ...(node?.baseContracts?.map(({ baseName }) => baseName.namePath) ?? [])].map(
+        this._getDomainFromContractName,
+      );
+
+      node?.subNodes
+        ?.filter(
+          ({ type, name }) => type === 'CustomErrorDefinition' && !domains.find(domain => name.startsWith(domain)),
+        )
+        .forEach(customError => this.error(customError, 'Custom errors should contain corresponding domain prefix'));
+    }
+
+    _getDomainFromContractName(contractName) {
+      let domainName = contractName;
+
+      if (/^I[A-Z]/.test(domainName)) {
+        domainName = contractName.substring(1);
+      }
+
+      if (/^ERC\d+/.test(domainName)) {
+        domainName = domainName.match(/^ERC\d+/)[0];
+      }
+
+      return domainName;
+    }
+  },
 ];
