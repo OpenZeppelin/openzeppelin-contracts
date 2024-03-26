@@ -44,7 +44,7 @@ jobs:
           fi
           echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Install python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
