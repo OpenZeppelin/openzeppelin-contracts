@@ -211,9 +211,7 @@ describe('Arrays', function () {
 
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
-              expect(await this.mock[fragment](elements, 2n ** i - 1n).then(ethers.toBigInt)).to.equal(
-                BigInt(elements.length),
-              );
+              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(BigInt(elements.length));
               expect(await this.mock[fragment](elements, 2n ** i + 0n)).to.equal(elements[0]);
               expect(await this.mock[fragment](elements, 2n ** i + 1n)).to.equal(elements[1]);
             }
