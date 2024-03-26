@@ -31,7 +31,7 @@ describe('SlotDerivation', function () {
     it('offset', async function () {
       const base = generators.bytes32();
       const offset = generators.uint256();
-      expect(await this.mock.$offset(base, offset)).to.equal((ethers.toBigInt(base) + offset) % 2n ** 256n);
+      expect(await this.mock.$offset(base, offset)).to.equal((ethers.toBigInt(base) + offset) & ethers.MaxUint256);
     });
 
     it('array', async function () {
