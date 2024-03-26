@@ -156,7 +156,7 @@ function _swap(uint256 ptr1, uint256 ptr2) private pure {
 }
 `;
 
-const bounds = `
+const search = `
 /**
  * @dev Searches a sorted \`array\` and returns the first index that contains
  * a value greater or equal to \`element\`. If no such index exists (i.e. all
@@ -381,7 +381,7 @@ module.exports = format(
   ...TYPES.map(sortHelpers),
   pointers,
   quickSort,
-  bounds,
+  search,
   ...TYPES.map(unsafeAccessStorage),
   ...TYPES.map(unsafeAccessMemory),
   ...TYPES.map(unsafeSetLength),
