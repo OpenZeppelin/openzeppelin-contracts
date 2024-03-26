@@ -102,7 +102,7 @@ module.exports = {
   exposed: {
     imports: true,
     initializers: true,
-    exclude: ['vendor/**/*'],
+    exclude: ['vendor/**/*', '**/*WithInit.sol'],
   },
   gasReporter: {
     enabled: argv.gas,

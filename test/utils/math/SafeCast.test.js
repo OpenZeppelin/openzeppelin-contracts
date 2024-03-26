@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { range } = require('../../../scripts/helpers');
+const { range } = require('../../helpers/iterate');
 
 async function fixture() {
   const mock = await ethers.deployContract('$SafeCast');
@@ -144,6 +144,16 @@ describe('SafeCast', function () {
       await expect(this.mock.$toInt256(ethers.MaxUint256))
         .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintToInt')
         .withArgs(ethers.MaxUint256);
+    });
+  });
+
+  describe('toUint (bool)', function () {
+    it('toUint(false) should be 0', async function () {
+      expect(await this.mock.$toUint(false)).to.equal(0n);
+    });
+
+    it('toUint(true) should be 1', async function () {
+      expect(await this.mock.$toUint(true)).to.equal(1n);
     });
   });
 });

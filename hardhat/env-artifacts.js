@@ -10,23 +10,6 @@ function isExpectedError(e, suffix) {
 extendEnvironment(hre => {
   const suffixes = ['UpgradeableWithInit', 'Upgradeable', ''];
 
-  // Truffe (deprecated)
-  const originalRequire = hre.artifacts.require;
-  hre.artifacts.require = function (name) {
-    for (const suffix of suffixes) {
-      try {
-        return originalRequire.call(this, name + suffix);
-      } catch (e) {
-        if (isExpectedError(e, suffix)) {
-          continue;
-        } else {
-          throw e;
-        }
-      }
-    }
-    throw new Error('Unreachable');
-  };
-
   // Ethers
   const originalReadArtifact = hre.artifacts.readArtifact;
   hre.artifacts.readArtifact = async function (name) {

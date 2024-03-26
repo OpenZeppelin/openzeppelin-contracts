@@ -23,13 +23,13 @@ describe('Address', function () {
   describe('sendValue', function () {
     describe('when sender contract has no funds', function () {
       it('sends 0 wei', async function () {
-        await expect(this.mock.$sendValue(this.other, 0)).to.changeEtherBalance(this.recipient, 0);
+        await expect(this.mock.$sendValue(this.other, 0n)).to.changeEtherBalance(this.recipient, 0n);
       });
 
       it('reverts when sending non-zero amounts', async function () {
-        await expect(this.mock.$sendValue(this.other, 1))
-          .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-          .withArgs(this.mock);
+        await expect(this.mock.$sendValue(this.other, 1n))
+          .to.be.revertedWithCustomError(this.mock, 'InsufficientBalance')
+          .withArgs(0n, 1n);
       });
     });
 
@@ -42,7 +42,7 @@ describe('Address', function () {
 
       describe('with EOA recipient', function () {
         it('sends 0 wei', async function () {
-          await expect(this.mock.$sendValue(this.recipient, 0)).to.changeEtherBalance(this.recipient, 0);
+          await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(this.recipient, 0n);
         });
 
         it('sends non-zero amounts', async function () {
@@ -59,8 +59,8 @@ describe('Address', function () {
 
         it('reverts when sending more than the balance', async function () {
           await expect(this.mock.$sendValue(this.recipient, funds + 1n))
-            .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-            .withArgs(this.mock);
+            .to.be.revertedWithCustomError(this.mock, 'InsufficientBalance')
+            .withArgs(funds, funds + 1n);
         });
       });
 
@@ -74,7 +74,7 @@ describe('Address', function () {
           await this.targetEther.setAcceptEther(false);
           await expect(this.mock.$sendValue(this.targetEther, funds)).to.be.revertedWithCustomError(
             this.mock,
-            'FailedInnerCall',
+            'FailedCall',
           );
         });
       });
@@ -101,10 +101,7 @@ describe('Address', function () {
       it('reverts when the called function reverts with no reason', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
 
-        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
-          this.mock,
-          'FailedInnerCall',
-        );
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(this.mock, 'FailedCall');
       });
 
       it('reverts when the called function reverts, bubbling up the revert reason', async function () {
@@ -118,7 +115,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCall(this.target, call, { gasLimit: 120_000n })).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
 
@@ -132,10 +129,7 @@ describe('Address', function () {
         const interface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
         const call = interface.encodeFunctionData('mockFunctionDoesNotExist');
 
-        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(
-          this.mock,
-          'FailedInnerCall',
-        );
+        await expect(this.mock.$functionCall(this.target, call)).to.be.revertedWithCustomError(this.mock, 'FailedCall');
       });
     });
 
@@ -155,7 +149,7 @@ describe('Address', function () {
       it('calls the requested function', async function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
 
-        await expect(this.mock.$functionCallWithValue(this.target, call, 0))
+        await expect(this.mock.$functionCallWithValue(this.target, call, 0n))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
           .withArgs(coder.encode(['string'], ['0x1234']));
@@ -169,8 +163,8 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
 
         await expect(this.mock.$functionCallWithValue(this.target, call, value))
-          .to.be.revertedWithCustomError(this.mock, 'AddressInsufficientBalance')
-          .withArgs(this.mock);
+          .to.be.revertedWithCustomError(this.mock, 'InsufficientBalance')
+          .withArgs(0n, value);
       });
 
       it('calls the requested function with existing value', async function () {
@@ -207,7 +201,7 @@ describe('Address', function () {
 
         await expect(this.mock.$functionCallWithValue(this.target, call, value)).to.be.revertedWithCustomError(
           this.mock,
-          'FailedInnerCall',
+          'FailedCall',
         );
       });
     });
@@ -225,7 +219,7 @@ describe('Address', function () {
 
       await expect(this.mock.$functionStaticCall(this.target, call)).to.be.revertedWithCustomError(
         this.mock,
-        'FailedInnerCall',
+        'FailedCall',
       );
     });
 

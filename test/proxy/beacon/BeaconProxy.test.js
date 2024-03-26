@@ -22,7 +22,7 @@ describe('BeaconProxy', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('bad beacon is not accepted', async function () {
+  describe('bad beacon is not accepted', function () {
     it('non-contract beacon', async function () {
       const notBeacon = this.other;
 
@@ -34,7 +34,9 @@ describe('BeaconProxy', function () {
     it('non-compliant beacon', async function () {
       const badBeacon = await ethers.deployContract('BadBeaconNoImpl');
 
-      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason;
+      // BadBeaconNoImpl does not provide `implementation()` has no fallback.
+      // This causes ERC1967Utils._setBeacon to revert.
+      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason();
     });
 
     it('non-contract implementation', async function () {
@@ -92,7 +94,7 @@ describe('BeaconProxy', function () {
     });
   });
 
-  describe('upgrade', async function () {
+  describe('upgrade', function () {
     it('upgrade a proxy by upgrading its beacon', async function () {
       const value = 10n;
       const data = this.v1.interface.encodeFunctionData('initializeNonPayableWithValue', [value]);

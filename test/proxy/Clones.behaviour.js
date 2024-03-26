@@ -13,6 +13,25 @@ module.exports = function shouldBehaveLikeClone() {
     });
   };
 
+  describe('construct with value', function () {
+    const value = 10n;
+
+    it('factory has enough balance', async function () {
+      await this.deployer.sendTransaction({ to: this.factory, value });
+
+      const instance = await this.createClone({ deployValue: value });
+      await expect(instance.deploymentTransaction()).to.changeEtherBalances([this.factory, instance], [-value, value]);
+
+      expect(await ethers.provider.getBalance(instance)).to.equal(value);
+    });
+
+    it('factory does not have enough balance', async function () {
+      await expect(this.createClone({ deployValue: value }))
+        .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
+        .withArgs(0n, value);
+    });
+  });
+
   describe('initialization without parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10n;
@@ -23,7 +42,7 @@ module.exports = function shouldBehaveLikeClone() {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData);
+          this.proxy = await this.createClone({ initData: this.initializeData });
         });
 
         assertProxyInitialization({
@@ -36,7 +55,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone(this.initializeData, { value })).to.be.reverted;
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.reverted;
         });
       });
     });
@@ -50,7 +69,7 @@ module.exports = function shouldBehaveLikeClone() {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData);
+          this.proxy = await this.createClone({ initData: this.initializeData });
         });
 
         assertProxyInitialization({
@@ -63,7 +82,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData, { value });
+          this.proxy = await this.createClone({ initData: this.initializeData, initValue: value });
         });
 
         assertProxyInitialization({
@@ -86,7 +105,7 @@ module.exports = function shouldBehaveLikeClone() {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData);
+          this.proxy = await this.createClone({ initData: this.initializeData });
         });
 
         assertProxyInitialization({
@@ -99,7 +118,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone(this.initializeData, { value })).to.be.reverted;
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.reverted;
         });
       });
     });
@@ -115,7 +134,7 @@ module.exports = function shouldBehaveLikeClone() {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData);
+          this.proxy = await this.createClone({ initData: this.initializeData });
         });
 
         assertProxyInitialization({
@@ -128,7 +147,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         beforeEach('creating proxy', async function () {
-          this.proxy = await this.createClone(this.initializeData, { value });
+          this.proxy = await this.createClone({ initData: this.initializeData, initValue: value });
         });
 
         assertProxyInitialization({

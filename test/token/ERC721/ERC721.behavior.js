@@ -653,8 +653,8 @@ function shouldBehaveLikeERC721() {
       });
     });
 
-    describe('getApproved', async function () {
-      describe('when token is not minted', async function () {
+    describe('getApproved', function () {
+      describe('when token is not minted', function () {
         it('reverts', async function () {
           await expect(this.token.getApproved(nonExistentTokenId))
             .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
@@ -662,12 +662,12 @@ function shouldBehaveLikeERC721() {
         });
       });
 
-      describe('when token has been minted ', async function () {
+      describe('when token has been minted ', function () {
         it('should return the zero address', async function () {
           expect(await this.token.getApproved(firstTokenId)).to.equal(ethers.ZeroAddress);
         });
 
-        describe('when account has been approved', async function () {
+        describe('when account has been approved', function () {
           beforeEach(async function () {
             await this.token.connect(this.owner).approve(this.approved, firstTokenId);
           });
@@ -687,7 +687,7 @@ function shouldBehaveLikeERC721() {
         .withArgs(ethers.ZeroAddress);
     });
 
-    describe('with minted token', async function () {
+    describe('with minted token', function () {
       beforeEach(async function () {
         this.tx = await this.token.$_mint(this.owner, firstTokenId);
       });
@@ -856,7 +856,7 @@ function shouldBehaveLikeERC721Enumerable() {
         .withArgs(ethers.ZeroAddress);
     });
 
-    describe('with minted token', async function () {
+    describe('with minted token', function () {
       beforeEach(async function () {
         await this.token.$_mint(this.owner, firstTokenId);
       });

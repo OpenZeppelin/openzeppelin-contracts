@@ -47,4 +47,13 @@ describe('Strings', function () {
         expect(await this.mock.$encodeURL(buffer)).to.equal(expected);
       });
   });
+
+  it('Encode reads beyond the input buffer into dirty memory', async function () {
+    const mock = await ethers.deployContract('Base64Dirty');
+    const buffer32 = ethers.id('example');
+    const buffer31 = buffer32.slice(0, -2);
+
+    expect(await mock.encode(buffer31)).to.equal(ethers.encodeBase64(buffer31));
+    expect(await mock.encode(buffer32)).to.equal(ethers.encodeBase64(buffer32));
+  });
 });

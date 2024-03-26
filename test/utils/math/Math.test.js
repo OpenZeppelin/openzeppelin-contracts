@@ -4,11 +4,17 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Rounding } = require('../../helpers/enums');
-const { min, max } = require('../../helpers/math');
-const { randomArray, generators } = require('../../helpers/random');
+const { min, max, modExp } = require('../../helpers/math');
+const { generators } = require('../../helpers/random');
+const { product, range } = require('../../helpers/iterate');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
+
+const bytes = (value, width = undefined) => ethers.Typed.bytes(ethers.toBeHex(value, width));
+const uint256 = value => ethers.Typed.uint256(value);
+bytes.zero = '0x';
+uint256.zero = 0n;
 
 async function testCommutative(fn, lhs, rhs, expected, ...extra) {
   expect(await fn(lhs, rhs, ...extra)).to.deep.equal(expected);
@@ -222,7 +228,7 @@ describe('Math', function () {
     });
   });
 
-  describe('muldiv', function () {
+  describe('mulDiv', function () {
     it('divide by 0', async function () {
       const a = 1n;
       const b = 1n;
@@ -234,9 +240,8 @@ describe('Math', function () {
       const a = 5n;
       const b = ethers.MaxUint256;
       const c = 2n;
-      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithCustomError(
-        this.mock,
-        'MathOverflowedMulDiv',
+      await expect(this.mock.$mulDiv(a, b, c, Rounding.Floor)).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW,
       );
     });
 
@@ -320,7 +325,7 @@ describe('Math', function () {
         });
 
         if (p != 0) {
-          for (const value of randomArray(generators.uint256, 16)) {
+          for (const value of Array.from({ length: 16 }, generators.uint256)) {
             const isInversible = factors.every(f => value % f);
             it(`trying to inverse ${value}`, async function () {
               const result = await this.mock.$invMod(value, p);
@@ -334,6 +339,83 @@ describe('Math', function () {
         }
       });
     }
+  });
+
+  describe('modExp', function () {
+    for (const [name, type] of Object.entries({ uint256, bytes })) {
+      describe(`with ${name} inputs`, function () {
+        it('is correctly calculating modulus', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 50n;
+
+          expect(await this.mock.$modExp(type(b), type(e), type(m))).to.equal(type(b ** e % m).value);
+        });
+
+        it('is correctly reverting when modulus is zero', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 0n;
+
+          await expect(this.mock.$modExp(type(b), type(e), type(m))).to.be.revertedWithPanic(
+            PANIC_CODES.DIVISION_BY_ZERO,
+          );
+        });
+      });
+    }
+
+    describe('with large bytes inputs', function () {
+      for (const [[b, log2b], [e, log2e], [m, log2m]] of product(
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 512, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+      )) {
+        it(`calculates b ** e % m (b=2**${log2b}+1) (e=2**${log2e}+1) (m=2**${log2m}+1)`, async function () {
+          const mLength = ethers.dataLength(ethers.toBeHex(m));
+
+          expect(await this.mock.$modExp(bytes(b), bytes(e), bytes(m))).to.equal(bytes(modExp(b, e, m), mLength).value);
+        });
+      }
+    });
+  });
+
+  describe('tryModExp', function () {
+    for (const [name, type] of Object.entries({ uint256, bytes })) {
+      describe(`with ${name} inputs`, function () {
+        it('is correctly calculating modulus', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 50n;
+
+          expect(await this.mock.$tryModExp(type(b), type(e), type(m))).to.deep.equal([true, type(b ** e % m).value]);
+        });
+
+        it('is correctly reverting when modulus is zero', async function () {
+          const b = 3n;
+          const e = 200n;
+          const m = 0n;
+
+          expect(await this.mock.$tryModExp(type(b), type(e), type(m))).to.deep.equal([false, type.zero]);
+        });
+      });
+    }
+
+    describe('with large bytes inputs', function () {
+      for (const [[b, log2b], [e, log2e], [m, log2m]] of product(
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+        range(320, 513, 64).map(e => [2n ** BigInt(e) + 1n, e]),
+      )) {
+        it(`calculates b ** e % m (b=2**${log2b}+1) (e=2**${log2e}+1) (m=2**${log2m}+1)`, async function () {
+          const mLength = ethers.dataLength(ethers.toBeHex(m));
+
+          expect(await this.mock.$tryModExp(bytes(b), bytes(e), bytes(m))).to.deep.equal([
+            true,
+            bytes(modExp(b, e, m), mLength).value,
+          ]);
+        });
+      }
+    });
   });
 
   describe('sqrt', function () {

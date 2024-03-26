@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 35083bc6e..05cf4fc27 100644
+index fa7b4e31e..4799b6376 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
@@ -89,8 +89,8 @@ index 35083bc6e..05cf4fc27 100644
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
--Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
-+Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.` 
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
  
  ### Usage
  
@@ -110,7 +110,7 @@ index 35083bc6e..05cf4fc27 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 6ab89138a..ece834a44 100644
+index 845e8c403..8dc181b91 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index 6ab89138a..ece834a44 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.0.1",
+   "version": "5.0.2",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -307,7 +307,7 @@ index 77c4c8990..602467f40 100644
      }
  }
 diff --git a/package.json b/package.json
-index ec2c44ced..46eedc98f 100644
+index c4b358e10..96ab2559c 100644
 --- a/package.json
 +++ b/package.json
 @@ -32,7 +32,7 @@
@@ -328,7 +328,7 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 166038b36..268e0d29d 100644
+index 2b6e7fa97..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -47,27 +47,6 @@ describe('EIP712', function () {
@@ -346,7 +346,7 @@ index 166038b36..268e0d29d 100644
 -            const clone = await factory
 -              .$clone(this.eip712)
 -              .then(tx => tx.wait())
--              .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone').args.instance)
+-              .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone_address').args.instance)
 -              .then(address => ethers.getContractAt('$EIP712Verifier', address));
 -
 -            const expectedDomain = { ...this.domain, verifyingContract: clone.target };
