@@ -4,7 +4,6 @@
 
 pragma solidity ^0.8.20;
 
-import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
 import {Math} from "./math/Math.sol";
 
@@ -12,7 +11,6 @@ import {Math} from "./math/Math.sol";
  * @dev Collection of functions related to array types.
  */
 library Arrays {
-    using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
 
     /**
@@ -381,11 +379,15 @@ library Arrays {
      */
     function unsafeAccess(address[] storage arr, uint256 pos) internal pure returns (StorageSlot.AddressSlot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
-            slot := arr.slot
+            mstore(0, arr.slot)
+            slot := add(keccak256(0, 0x20), pos)
         }
-        return slot.deriveArray().offset(pos).getAddressSlot();
+        return slot.getAddressSlot();
     }
 
     /**
@@ -395,11 +397,15 @@ library Arrays {
      */
     function unsafeAccess(bytes32[] storage arr, uint256 pos) internal pure returns (StorageSlot.Bytes32Slot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
-            slot := arr.slot
+            mstore(0, arr.slot)
+            slot := add(keccak256(0, 0x20), pos)
         }
-        return slot.deriveArray().offset(pos).getBytes32Slot();
+        return slot.getBytes32Slot();
     }
 
     /**
@@ -409,11 +415,15 @@ library Arrays {
      */
     function unsafeAccess(uint256[] storage arr, uint256 pos) internal pure returns (StorageSlot.Uint256Slot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
-            slot := arr.slot
+            mstore(0, arr.slot)
+            slot := add(keccak256(0, 0x20), pos)
         }
-        return slot.deriveArray().offset(pos).getUint256Slot();
+        return slot.getUint256Slot();
     }
 
     /**
