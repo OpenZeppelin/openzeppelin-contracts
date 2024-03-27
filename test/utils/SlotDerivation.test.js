@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { erc1967slot, erc7201slot } = require('../helpers/storage');
+const { erc1967Slot, erc7201Slot } = require('../helpers/storage');
 const { generators } = require('../helpers/random');
 
 async function fixture() {
@@ -19,11 +19,11 @@ describe('SlotDerivation', function () {
     const namespace = 'example.main';
 
     it('erc-1967', async function () {
-      expect(await this.mock.$erc1967slot(namespace)).to.equal(erc1967slot(namespace));
+      expect(await this.mock.$erc1967Slot(namespace)).to.equal(erc1967Slot(namespace));
     });
 
     it('erc-7201', async function () {
-      expect(await this.mock.$erc7201slot(namespace)).to.equal(erc7201slot(namespace));
+      expect(await this.mock.$erc7201Slot(namespace)).to.equal(erc7201Slot(namespace));
     });
   });
 

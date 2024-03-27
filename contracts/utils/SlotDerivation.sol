@@ -9,12 +9,29 @@ pragma solidity ^0.8.20;
  * the solidity language / compiler.
  *
  * See https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays[Solidity docs for mappings and dynamic arrays.].
+ *
+ * Example usage:
+ * ```solidity
+ * contract Example {
+ *     // Add the library methods
+ *     using SlotDerivation for bytes32;
+ *
+ *     // Declare a namespace
+ *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
+ *
+ *     function storagePointer() internal view returns (bytes32) {
+ *         return _NAMESPACE.erc7201Slot(); // or erc1967Slot()
+ *     }
+ * }
+ * ```
+ *
+ * TIP: Consider using this library along with {StorageSlot}.
  */
 library SlotDerivation {
     /**
      * @dev Derive an ERC-1967 slot from a string (namespace).
      */
-    function erc1967slot(string memory namespace) internal pure returns (bytes32 slot) {
+    function erc1967Slot(string memory namespace) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
         assembly {
             slot := sub(keccak256(add(namespace, 0x20), mload(namespace)), 1)
@@ -24,7 +41,7 @@ library SlotDerivation {
     /**
      * @dev Derive an ERC-7201 slot from a string (namespace).
      */
-    function erc7201slot(string memory namespace) internal pure returns (bytes32 slot) {
+    function erc7201Slot(string memory namespace) internal pure returns (bytes32 slot) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, sub(keccak256(add(namespace, 0x20), mload(namespace)), 1))

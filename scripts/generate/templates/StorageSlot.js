@@ -15,6 +15,7 @@ pragma solidity ^0.8.20;
  * Example usage to set ERC-1967 implementation slot:
  * \`\`\`solidity
  * contract ERC1967 {
+ *     // Define the slot. Alternatively, use the SlotDerivation library to derive the slot.
  *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
  *
  *     function _getImplementation() internal view returns (address) {
@@ -27,6 +28,8 @@ pragma solidity ^0.8.20;
  *     }
  * }
  * \`\`\`
+ * 
+ * TIP: Consider using this library along with {SlotDerivation}.
  */
 `;
 
