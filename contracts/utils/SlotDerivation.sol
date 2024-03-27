@@ -14,13 +14,18 @@ pragma solidity ^0.8.20;
  * ```solidity
  * contract Example {
  *     // Add the library methods
+ *     using StorageSlot for bytes32;
  *     using SlotDerivation for bytes32;
  *
  *     // Declare a namespace
  *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
  *
- *     function storagePointer() internal view returns (bytes32) {
- *         return _NAMESPACE.erc7201Slot();
+ *     function setValueInNamespace(uint256 key, address newValue) internal {
+ *         _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value = newValue;
+ *     }
+ *
+ *     function getValueInNamespace(uint256 key) internal view returns (address) {
+ *         return _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value;
  *     }
  * }
  * ```
