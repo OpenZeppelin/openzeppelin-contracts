@@ -55,7 +55,6 @@ function testDeriveMapping${name}(${type} ${isValueType ? '' : 'memory'} key) pu
 // GENERATE
 module.exports = format(
   header.trimEnd(),
-  '// solhint-disable func-name-mixedcase',
   'contract SlotDerivationTest is Test {',
   'using SlotDerivation for bytes32;',
   '',

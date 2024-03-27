@@ -7,7 +7,6 @@ import {Test} from "forge-std/Test.sol";
 
 import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
 
-// solhint-disable func-name-mixedcase
 contract SlotDerivationTest is Test {
     using SlotDerivation for bytes32;
 
