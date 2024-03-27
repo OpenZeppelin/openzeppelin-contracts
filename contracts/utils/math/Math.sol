@@ -430,6 +430,7 @@ library Math {
             xn := or(xn, shift)
 
             // now xn = log2(a), so we compute: xn = 2 ** (xn / 2)
+            // slither-disable-next-line incorrect-shift
             xn := shl(shr(1, xn), 1)
 
             // Newton's method
