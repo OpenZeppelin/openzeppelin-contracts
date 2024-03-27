@@ -455,6 +455,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(address[] storage array, uint256 len) internal {
+        /// @solidity memory-safe-assembly
         assembly {
             sstore(array.slot, len)
         }
@@ -466,6 +467,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(bytes32[] storage array, uint256 len) internal {
+        /// @solidity memory-safe-assembly
         assembly {
             sstore(array.slot, len)
         }
@@ -477,6 +479,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(uint256[] storage array, uint256 len) internal {
+        /// @solidity memory-safe-assembly
         assembly {
             sstore(array.slot, len)
         }
