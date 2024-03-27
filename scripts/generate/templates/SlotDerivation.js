@@ -15,32 +15,30 @@ pragma solidity ^0.8.20;
  * \`\`\`solidity
  * contract Example {
  *     // Add the library methods
+ *     using StorageSlot for bytes32;
  *     using SlotDerivation for bytes32;
  *
  *     // Declare a namespace
  *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
- *  
- *     function storagePointer() internal view returns (bytes32) {
- *         return _NAMESPACE.erc7201Slot(); // or erc1967Slot()
+ *
+ *     function setValueInNamespace(uint256 key, address newValue) internal {
+ *         _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value = newValue;
+ *     }
+ *
+ *     function getValueInNamespace(uint256 key) internal view returns (address) {
+ *         return _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value;
  *     }
  * }
  * \`\`\`
  * 
  * TIP: Consider using this library along with {StorageSlot}.
+ * 
+ * NOTE: This library provides a way to manipulate storage locations in a non-standard way. Tooling for checking
+ * upgrade safety will ignore the slots accessed through this library.
  */
 `;
 
 const namespace = `\
-/**
- * @dev Derive an ERC-1967 slot from a string (namespace).
- */
-function erc1967Slot(string memory namespace) internal pure returns (bytes32 slot) {
-  /// @solidity memory-safe-assembly
-  assembly {
-      slot := sub(keccak256(add(namespace, 0x20), mload(namespace)), 1)
-  }
-}
-
 /**
  * @dev Derive an ERC-7201 slot from a string (namespace).
  */

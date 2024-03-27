@@ -168,22 +168,17 @@ function _setImplementation(address newImplementation) internal {
 
 WARNING: Manipulating storage slots directly is an advanced practice. Developers MUST make sure that the storage pointer is not colliding with other variables.
 
-The most common use cases for writing directly to storage slots include ERC-1967 for upgradeable slots and ERC-7201 for namespaced storage. The latter is guaranteed to not collide with other storage slots derived by Solidity.
+One of the most common use cases for writing directly to storage slots is ERC-7201 for namespaced storage, which is guaranteed to not collide with other storage slots derived by Solidity.
 
-Users can leverage these standards using the xref:api:utils.adoc#SlotDerivation[`SlotDerivation`] library.
+Users can leverage this standard using the xref:api:utils.adoc#SlotDerivation[`SlotDerivation`] library.
 
 [source,solidity]
 ----
 using SlotDerivation for bytes32;
 string private constant _NAMESPACE = "<namespace>" // eg. example.main
-string private constant _UPGRADEABLE_NAMESPACE = "<namespace>" // eg. eip1967.proxy.implementation
 
 function erc7201Pointer() internal view returns (bytes32) {
     return _NAMESPACE.erc7201Slot();
-}
-
-function implementationPointer() internal view returns (bytes32) {
-    return _UPGRADEABLE_NAMESPACE.erc7201Slot();
 }
 ----
 
