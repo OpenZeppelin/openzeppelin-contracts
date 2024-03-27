@@ -491,7 +491,7 @@ library Math {
             value := shr(shift, value)
             result := or(result, shift)
 
-            result := or(result, eq(value, 2))
+            result := or(result, gt(value, 1))
         }
     }
 
