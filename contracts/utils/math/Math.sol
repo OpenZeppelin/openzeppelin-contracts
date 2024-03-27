@@ -393,7 +393,7 @@ library Math {
      * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
      * towards zero.
      *
-     * This method first appro based on Newton's method for computing square roots; the algorithm is restricted to only
+     * This method is based on Newton's method for computing square roots; the algorithm is restricted to only
      * using integer operations.
      */
     function sqrt(uint256 a) internal pure returns (uint256 xn) {
