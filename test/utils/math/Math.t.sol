@@ -7,6 +7,12 @@ import {Test, stdError} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
+    // MIN & MAX
+    function testMinMax(uint256 a, uint256 b) public {
+        assertEq(Math.min(a, b), a < b ? a : b);
+        assertEq(Math.max(a, b), a > b ? a : b);
+    }
+
     // CEILDIV
     function testCeilDiv(uint256 a, uint256 b) public {
         vm.assume(b > 0);
