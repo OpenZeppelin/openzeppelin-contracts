@@ -5,6 +5,7 @@ const { TYPES } = require('./Arrays.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
+import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
 import {Math} from "./math/Math.sol";
 
@@ -327,16 +328,12 @@ const unsafeAccessStorage = type => `
 function unsafeAccess(${type}[] storage arr, uint256 pos) internal pure returns (StorageSlot.${capitalize(
   type,
 )}Slot storage) {
-   bytes32 slot;
-   // We use assembly to calculate the storage slot of the element at index \`pos\` of the dynamic array \`arr\`
-   // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
-
-   /// @solidity memory-safe-assembly
-   assembly {
-       mstore(0, arr.slot)
-       slot := add(keccak256(0, 0x20), pos)
-   }
-   return slot.get${capitalize(type)}Slot();
+    bytes32 slot;
+    /// @solidity memory-safe-assembly
+    assembly {
+        slot := arr.slot
+    }
+    return slot.deriveArray().offset(pos).get${capitalize(type)}Slot();
 }`;
 
 const unsafeAccessMemory = type => `
@@ -368,6 +365,7 @@ function unsafeSetLength(${type}[] storage array, uint256 len) internal {
 module.exports = format(
   header.trimEnd(),
   'library Arrays {',
+  'using SlotDerivation for bytes32;',
   'using StorageSlot for bytes32;',
   // sorting, comparator, helpers and internal
   sort('bytes32'),

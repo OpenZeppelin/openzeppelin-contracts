@@ -15,6 +15,7 @@ pragma solidity ^0.8.20;
  * Example usage to set ERC-1967 implementation slot:
  * ```solidity
  * contract ERC1967 {
+ *     // Define the slot. Alternatively, use the SlotDerivation library to derive the slot.
  *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
  *
  *     function _getImplementation() internal view returns (address) {
@@ -27,6 +28,8 @@ pragma solidity ^0.8.20;
  *     }
  * }
  * ```
+ *
+ * TIP: Consider using this library along with {SlotDerivation}.
  */
 library StorageSlot {
     struct AddressSlot {
@@ -43,6 +46,10 @@ library StorageSlot {
 
     struct Uint256Slot {
         uint256 value;
+    }
+
+    struct Int256Slot {
+        int256 value;
     }
 
     struct StringSlot {
@@ -87,6 +94,16 @@ library StorageSlot {
      * @dev Returns an `Uint256Slot` with member `value` located at `slot`.
      */
     function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `Int256Slot` with member `value` located at `slot`.
+     */
+    function getInt256Slot(bytes32 slot) internal pure returns (Int256Slot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
