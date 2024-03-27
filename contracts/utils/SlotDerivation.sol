@@ -20,7 +20,7 @@ pragma solidity ^0.8.20;
  *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
  *
  *     function storagePointer() internal view returns (bytes32) {
- *         return _NAMESPACE.erc7201Slot(); // or erc1967Slot()
+ *         return _NAMESPACE.erc7201Slot();
  *     }
  * }
  * ```
