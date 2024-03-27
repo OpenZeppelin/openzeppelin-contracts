@@ -12,6 +12,7 @@ import {Math} from "./math/Math.sol";
  * @dev Collection of functions related to array types.
  */
 library Arrays {
+    using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
 
     /**

@@ -365,6 +365,7 @@ function unsafeSetLength(${type}[] storage array, uint256 len) internal {
 module.exports = format(
   header.trimEnd(),
   'library Arrays {',
+  'using SlotDerivation for bytes32;',
   'using StorageSlot for bytes32;',
   // sorting, comparator, helpers and internal
   sort('bytes32'),
