@@ -29,16 +29,6 @@ pragma solidity ^0.8.20;
  */
 library SlotDerivation {
     /**
-     * @dev Derive an ERC-1967 slot from a string (namespace).
-     */
-    function erc1967Slot(string memory namespace) internal pure returns (bytes32 slot) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            slot := sub(keccak256(add(namespace, 0x20), mload(namespace)), 1)
-        }
-    }
-
-    /**
      * @dev Derive an ERC-7201 slot from a string (namespace).
      */
     function erc7201Slot(string memory namespace) internal pure returns (bytes32 slot) {
