@@ -38,6 +38,7 @@ for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
+  'utils/Arrays.sol': './templates/Arrays.js',
 })) {
   generateFromTemplate(file, template, './contracts/');
 }
