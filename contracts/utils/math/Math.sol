@@ -74,17 +74,34 @@ library Math {
     }
 
     /**
+     * @dev If `condition` is true, returns `a`, otherwise returns `b`.
+     */
+    function choice(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            // branchless choice function, works because:
+            // b ^ (a ^ b) == a
+            // b ^ 0 == b
+            //
+            // This is better than doing `condition ? a : b` for the give reasons:
+            // - Consumes less gas
+            // - Constant gas cost regardless the inputs
+            // - Reduces the final bytecode size
+            return b ^ ((a ^ b) * SafeCast.toUint(condition));
+        }
+    }
+
+    /**
      * @dev Returns the largest of two numbers.
      */
     function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a > b ? a : b;
+        return choice(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two numbers.
      */
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
+        return choice(a < b, a, b);
     }
 
     /**
@@ -114,7 +131,7 @@ library Math {
         // but the largest value we can obtain is type(uint256).max - 1, which happens
         // when a = type(uint256).max and b = 1.
         unchecked {
-            return a == 0 ? 0 : (a - 1) / b + 1;
+            return choice(a == 0, 0, (a - 1) / b + 1);
         }
     }
 
@@ -147,7 +164,7 @@ library Math {
 
             // Make sure the result is less than 2²⁵⁶. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
+                Panic.panic(choice(denominator == 0, Panic.DIVISION_BY_ZERO, Panic.UNDER_OVERFLOW));
             }
 
             ///////////////////////////////////////////////
@@ -268,7 +285,7 @@ library Math {
             }
 
             if (gcd != 1) return 0; // No inverse exists.
-            return x < 0 ? (n - uint256(-x)) : uint256(x); // Wrap the result if it's negative.
+            return choice(x < 0, n - uint256(-x), uint256(x)); // Wrap the result if it's negative.
         }
     }
 
