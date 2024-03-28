@@ -2,7 +2,7 @@ const format = require('../format-lines');
 const { TYPES } = require('./Slot.opts');
 
 const header = `\
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.24;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.
