@@ -63,7 +63,7 @@ library SignedMath {
             // - Consumes less gas
             // - Constant gas cost regardless the inputs
             // - Reduces the final bytecode size
-            return b ^ (a ^ b) * int256(SafeCast.toUint(condition));
+            return b ^ ((a ^ b) * int256(SafeCast.toUint(condition)));
         }
     }
 }
