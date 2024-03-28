@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.20;
 
+import {SafeCast} from "./SafeCast.sol";
+
 /**
  * @dev Standard signed math utilities missing in the Solidity language.
  */
@@ -11,14 +13,14 @@ library SignedMath {
      * @dev Returns the largest of two signed numbers.
      */
     function max(int256 a, int256 b) internal pure returns (int256) {
-        return a > b ? a : b;
+        return choice(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two signed numbers.
      */
     function min(int256 a, int256 b) internal pure returns (int256) {
-        return a < b ? a : b;
+        return choice(a < b, a, b);
     }
 
     /**
@@ -45,6 +47,23 @@ library SignedMath {
 
             // A `bytes(0)` mask leaves the input unchanged, while a `~bytes32(0)` mask complements it.
             return uint256((n + mask) ^ mask);
+        }
+    }
+
+    /**
+     * @dev If `condition` is true, returns `a`, otherwise returns `b`.
+     */
+    function choice(bool condition, int256 a, int256 b) internal pure returns (int256) {
+        unchecked {
+            // branchless choice function, works because:
+            // b ^ (a ^ b) == a
+            // b ^ 0 == b
+            //
+            // This is better than doing `condition ? a : b` for the give reasons:
+            // - Consumes less gas
+            // - Constant gas cost regardless the inputs
+            // - Reduces the final bytecode size
+            return b ^ (a ^ b) * int256(SafeCast.toUint(condition));
         }
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.0.2) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -77,21 +77,30 @@ library Math {
      * @dev Returns the largest of two numbers.
      */
     function max(uint256 a, uint256 b) internal pure returns (uint256 result) {
-        assembly ("memory-safe") {
-            // gas efficient branchless max function:
-            // max(x,y) = a ^ ((a ^ b) * (a < b))
-            result := xor(a, mul(xor(a, b), lt(a, b)))
-        }
+        return choice(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two numbers.
      */
     function min(uint256 a, uint256 b) internal pure returns (uint256 result) {
-        assembly {
-            // gas efficient branchless min function:
-            // min(a,b) = b ^ ((a ^ b) * (a < b))
-            result := xor(b, mul(xor(a, b), lt(a, b)))
+        return choice(a < b, a, b);
+    }
+
+    /**
+     * @dev If `condition` is true, returns `a`, otherwise returns `b`.
+     */
+    function choice(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            // branchless choice function, works because:
+            // b ^ (a ^ b) == a
+            // b ^ 0 == b
+            //
+            // This is better than doing `condition ? a : b` for the give reasons:
+            // - Consumes less gas
+            // - Constant gas cost regardless the inputs
+            // - Reduces the final bytecode size
+            return b ^ (a ^ b) * SafeCast.toUint(condition);
         }
     }
 
@@ -122,7 +131,7 @@ library Math {
         // but the largest value we can obtain is type(uint256).max - 1, which happens
         // when a = type(uint256).max and b = 1.
         unchecked {
-            return a == 0 ? 0 : (a - 1) / b + 1;
+            return choice(a == 0, 0, (a - 1) / b + 1);
         }
     }
 
@@ -155,7 +164,7 @@ library Math {
 
             // Make sure the result is less than 2²⁵⁶. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(denominator == 0 ? Panic.DIVISION_BY_ZERO : Panic.UNDER_OVERFLOW);
+                Panic.panic(choice(denominator == 0, Panic.DIVISION_BY_ZERO, Panic.UNDER_OVERFLOW));
             }
 
             ///////////////////////////////////////////////
@@ -276,7 +285,7 @@ library Math {
             }
 
             if (gcd != 1) return 0; // No inverse exists.
-            return x < 0 ? (n - uint256(-x)) : uint256(x); // Wrap the result if it's negative.
+            return choice(x < 0, n - uint256(-x), uint256(x)); // Wrap the result if it's negative.
         }
     }
 
@@ -396,56 +405,109 @@ library Math {
      * This method is based on Newton's method for computing square roots; the algorithm is restricted to only
      * using integer operations.
      */
-    function sqrt(uint256 a) internal pure returns (uint256 xn) {
-        assembly {
-            // First we approximate the square root by calculate xn = 2 ** (log(x) / 2)
-            // then we need less iterations of Newton's method to find the result.
+    function sqrt(uint256 a) internal pure returns (uint256) {
+        unchecked {
+            // Take care of easy edge cases when a == 0 or a == 1
+            if (a <= 1) {
+                return a;
+            }
+
+            // In this function, we use Newton's method to get a root of `f(x) := x² - a`. It involves building a
+            // sequence x_n that converges toward sqrt(a). For each iteration x_n, we also define the error between
+            // the current value as `ε_n = | x_n - sqrt(a) |`.
             //
-            // For that we use an optimized log2 function that doesn't do the final approximation step,
-            // once doing `log(x) / 2` will discard the least significant bit anyway.
-            xn := shl(7, gt(a, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
-            let remainder := shr(xn, a)
+            // For our first estimation, we consider `e` the smallest power of 2 which is bigger than the square root
+            // of the target. (i.e. `2**(e-1) ≤ sqrt(a) < 2**e`). We know that `e ≤ 128` because `(2¹²⁸)² = 2²⁵⁶` is
+            // bigger than any uint256.
+            //
+            // By noticing that
+            // `2**(e-1) ≤ sqrt(a) < 2**e → (2**(e-1))² ≤ a < (2**e)² → 2**(2*e-2) ≤ a < 2**(2*e)`
+            // we can deduce that `e - 1` is `log2(a) / 2`. We can thus compute `x_n = 2**(e-1)` using a method similar
+            // to the msb function.
+            uint256 aa = a;
+            uint256 xn = 1;
 
-            let shift := shl(6, gt(remainder, 0xFFFFFFFFFFFFFFFF))
-            remainder := shr(shift, remainder)
-            xn := or(xn, shift)
+            if (aa >= (1 << 128)) {
+                aa >>= 128;
+                xn <<= 64;
+            }
+            if (aa >= (1 << 64)) {
+                aa >>= 64;
+                xn <<= 32;
+            }
+            if (aa >= (1 << 32)) {
+                aa >>= 32;
+                xn <<= 16;
+            }
+            if (aa >= (1 << 16)) {
+                aa >>= 16;
+                xn <<= 8;
+            }
+            if (aa >= (1 << 8)) {
+                aa >>= 8;
+                xn <<= 4;
+            }
+            if (aa >= (1 << 4)) {
+                aa >>= 4;
+                xn <<= 2;
+            }
+            if (aa >= (1 << 2)) {
+                xn <<= 1;
+            }
 
-            shift := shl(5, gt(remainder, 0xFFFFFFFF))
-            remainder := shr(shift, remainder)
-            xn := or(xn, shift)
+            // We now have x_n such that `x_n = 2**(e-1) ≤ sqrt(a) < 2**e = 2 * x_n`. This implies ε_n ≤ 2**(e-1).
+            //
+            // We can refine our estimation by noticing that the middle of that interval minimizes the error.
+            // If we move x_n to equal 2**(e-1) + 2**(e-2), then we reduce the error to ε_n ≤ 2**(e-2).
+            // This is going to be our x_0 (and ε_0)
+            xn = (3 * xn) >> 1; // ε_0 := | x_0 - sqrt(a) | ≤ 2**(e-2)
 
-            shift := shl(4, gt(remainder, 0xFFFF))
-            remainder := shr(shift, remainder)
-            xn := or(xn, shift)
+            // From here, Newton's method give us:
+            // x_{n+1} = (x_n + a / x_n) / 2
+            //
+            // One should note that:
+            // x_{n+1}² - a = ((x_n + a / x_n) / 2)² - a
+            //              = ((x_n² + a) / (2 * x_n))² - a
+            //              = (x_n⁴ + 2 * a * x_n² + a²) / (4 * x_n²) - a
+            //              = (x_n⁴ + 2 * a * x_n² + a² - 4 * a * x_n²) / (4 * x_n²)
+            //              = (x_n⁴ - 2 * a * x_n² + a²) / (4 * x_n²)
+            //              = (x_n² - a)² / (2 * x_n)²
+            //              = ((x_n² - a) / (2 * x_n))²
+            //              ≥ 0
+            // Which proves that for all n ≥ 1, sqrt(a) ≤ x_n
+            //
+            // This gives us the proof of quadratic convergence of the sequence:
+            // ε_{n+1} = | x_{n+1} - sqrt(a) |
+            //         = | (x_n + a / x_n) / 2 - sqrt(a) |
+            //         = | (x_n² + a - 2*x_n*sqrt(a)) / (2 * x_n) |
+            //         = | (x_n - sqrt(a))² / (2 * x_n) |
+            //         = | ε_n² / (2 * x_n) |
+            //         = ε_n² / | (2 * x_n) |
+            //
+            // For the first iteration, we have a special case where x_0 is known:
+            // ε_1 = ε_0² / | (2 * x_0) |
+            //     ≤ (2**(e-2))² / (2 * (2**(e-1) + 2**(e-2)))
+            //     ≤ 2**(2*e-4) / (3 * 2**(e-1))
+            //     ≤ 2**(e-3) / 3
+            //     ≤ 2**(e-3-log2(3))
+            //     ≤ 2**(e-4.5)
+            //
+            // For the following iterations, we use the fact that, 2**(e-1) ≤ sqrt(a) ≤ x_n:
+            // ε_{n+1} = ε_n² / | (2 * x_n) |
+            //         ≤ (2**(e-k))² / (2 * 2**(e-1))
+            //         ≤ 2**(2*e-2*k) / 2**e
+            //         ≤ 2**(e-2*k)
+            xn = (xn + a / xn) >> 1; // ε_1 := | x_1 - sqrt(a) | ≤ 2**(e-4.5)  -- special case, see above
+            xn = (xn + a / xn) >> 1; // ε_2 := | x_2 - sqrt(a) | ≤ 2**(e-9)    -- general case with k = 4.5
+            xn = (xn + a / xn) >> 1; // ε_3 := | x_3 - sqrt(a) | ≤ 2**(e-18)   -- general case with k = 9
+            xn = (xn + a / xn) >> 1; // ε_4 := | x_4 - sqrt(a) | ≤ 2**(e-36)   -- general case with k = 18
+            xn = (xn + a / xn) >> 1; // ε_5 := | x_5 - sqrt(a) | ≤ 2**(e-72)   -- general case with k = 36
+            xn = (xn + a / xn) >> 1; // ε_6 := | x_6 - sqrt(a) | ≤ 2**(e-144)  -- general case with k = 72
 
-            shift := shl(3, gt(remainder, 0xFF))
-            remainder := shr(shift, remainder)
-            xn := or(xn, shift)
-
-            shift := shl(2, gt(remainder, 0x0F))
-            remainder := shr(shift, remainder)
-            xn := or(xn, shift)
-
-            shift := shl(1, gt(remainder, 0x03))
-            xn := or(xn, shift)
-
-            // now xn = log2(a), so we compute: xn = 2 ** (xn / 2)
-            // slither-disable-next-line incorrect-shift
-            xn := shl(shr(1, xn), 1)
-
-            // Newton's method
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-            xn := shr(1, add(xn, div(a, xn)))
-
-            // Once we round towards zero, we want the minimum between xn and a/xn
-            // we can safely assume that |xn - a/xn| is either 0 or 1, so we can easily compute the minimum as
-            // xn = xn - (xn > a/xn)
-            xn := sub(xn, gt(xn, div(a, xn)))
+            // Because e ≤ 128 (as discussed during the first estimation phase), we know have reached a precision
+            // ε_6 ≤ 2**(e-144) < 1. Given we're operating on integers, then we can ensure that xn is now either
+            // sqrt(a) or sqrt(a) + 1.
+            return xn - SafeCast.toUint(xn > a / xn);
         }
     }
 
@@ -463,37 +525,41 @@ library Math {
      * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
-    function log2(uint256 value) internal pure returns (uint256 result) {
-        assembly {
-            result := shl(7, gt(value, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
-            value := shr(result, value)
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        uint256 exp;
+        unchecked {
+            exp = 128 * SafeCast.toUint(value > (1 << 128) - 1);
+            value >>= exp;
+            result += exp;
 
-            let shift := shl(6, gt(value, 0xFFFFFFFFFFFFFFFF))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 64 * SafeCast.toUint(value > (1 << 64) - 1);
+            value >>= exp;
+            result += exp;
 
-            shift := shl(5, gt(value, 0xFFFFFFFF))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 32 * SafeCast.toUint(value > (1 << 32) - 1);
+            value >>= exp;
+            result += exp;
 
-            shift := shl(4, gt(value, 0xFFFF))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 16 * SafeCast.toUint(value > (1 << 16) - 1);
+            value >>= exp;
+            result += exp;
 
-            shift := shl(3, gt(value, 0xFF))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 8 * SafeCast.toUint(value > (1 << 8) - 1);
+            value >>= exp;
+            result += exp;
 
-            shift := shl(2, gt(value, 0x0F))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 4 * SafeCast.toUint(value > (1 << 4) - 1);
+            value >>= exp;
+            result += exp;
 
-            shift := shl(1, gt(value, 0x03))
-            value := shr(shift, value)
-            result := or(result, shift)
+            exp = 2 * SafeCast.toUint(value > (1 << 2) - 1);
+            value >>= exp;
+            result += exp;
 
-            result := or(result, gt(value, 1))
+            result += SafeCast.toUint(value > 1);
         }
+        return result;
     }
 
     /**

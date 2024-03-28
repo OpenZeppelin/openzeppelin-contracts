@@ -1,5 +1,5 @@
 ---
-'openzeppelin-solidity': patch
+'openzeppelin-solidity': minor
 ---
 
-Improved Math.sol sqrt, log2, min and max methods
+Replaces simple ternary operations `cond ? a : b` by a more efficient branchless `choice` function, now supported by `Math.sol` and `SignedMath.sol`.
