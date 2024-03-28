@@ -28,7 +28,25 @@ pragma solidity ^0.8.20;
  *     }
  * }
  * \`\`\`
- * 
+ *
+ * Since version 5.1, this library also support writting and reading value types to and from transient storage.
+ *
+ *  * Example usaging transiant storage:
+ * \`\`\`solidity
+ * contract Lock {
+ *     // Define the slot. Alternatively, use the SlotDerivation library to derive the slot.
+ *     bytes32 internal constant _LOCK_SLOT = 0xf4678858b2b588224636b8522b729e7722d32fc491da849ed75b3fdf3c84f542;
+ *
+ *     modifier locked() {
+ *         require(!_LOCK_SLOT.asBoolean().tload());
+ *
+ *         _LOCK_SLOT.asBoolean().tstore(true);
+ *         _;
+ *         _LOCK_SLOT.asBoolean().tstore(false);
+ *     }
+ * }
+ * \`\`\`
+ *
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 `;
@@ -63,11 +81,47 @@ function get${name}Slot(${type} storage store) internal pure returns (${name}Slo
 }
 `;
 
+const udvt = ({ type, name }) => `\
+/**
+ * @dev UDVT that represent a slot holding a ${type}.
+ */
+type ${name}SlotType is bytes32;
+/**
+ * @dev Cast an arbitrary slot to a ${name}SlotType.
+ */
+function as${name}(bytes32 slot) internal pure returns (${name}SlotType) {
+  return ${name}SlotType.wrap(slot);
+}
+`;
+
+const transient = ({ type, name }) => `\
+/**
+ * @dev Load the value held at location \`slot\` in transient storage.
+ */
+function tload(TypedSlot.${name}SlotType slot) internal view returns (${type} value) {
+  /// @solidity memory-safe-assembly
+  assembly {
+    value := tload(slot)
+  }
+}
+/**
+ * @dev Store \`value\` at location \`slot\` in transient storage.
+ */
+function tstore(TypedSlot.${name}SlotType slot, ${type} value) internal {
+  /// @solidity memory-safe-assembly
+  assembly {
+    tstore(slot, value)
+  }
+}
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
   TYPES.map(type => struct(type)),
   TYPES.flatMap(type => [get(type), type.isValueType ? '' : getStorage(type)]),
+  TYPES.filter(type => type.isValueType).map(type => udvt(type)),
+  TYPES.filter(type => type.isValueType).map(type => transient(type)),
   '}',
 );
