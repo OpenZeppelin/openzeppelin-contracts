@@ -110,7 +110,7 @@ module.exports = {
   exposed: {
     imports: true,
     initializers: true,
-    exclude: ['vendor/**/*', '**/*WithInit.sol', 'utils/TransientSlot.sol'],
+    exclude: ['vendor/**/*', '**/*WithInit.sol'],
   },
   gasReporter: {
     enabled: argv.gas,
