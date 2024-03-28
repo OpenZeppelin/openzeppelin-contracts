@@ -28,6 +28,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: An utility for abstracting the sender and calldata in the current execution context.
@@ -107,6 +108,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Strings}}
 
 {{ShortStrings}}
+
+{{SlotDerivation}}
 
 {{StorageSlot}}
 

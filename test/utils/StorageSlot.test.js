@@ -19,10 +19,12 @@ describe('StorageSlot', function () {
 
   for (const { type, value, zero } of [
     { type: 'Boolean', value: true, zero: false },
-    { type: 'Address', value: generators.address(), zero: ethers.ZeroAddress },
-    { type: 'Bytes32', value: generators.bytes32(), zero: ethers.ZeroHash },
+    { type: 'Address', value: generators.address(), zero: generators.address.zero },
+    { type: 'Bytes32', value: generators.bytes32(), zero: generators.bytes32.zero },
+    { type: 'Uint256', value: generators.uint256(), zero: generators.uint256.zero },
+    { type: 'Int256', value: generators.int256(), zero: generators.int256.zero },
+    { type: 'Bytes', value: generators.hexBytes(128), zero: generators.hexBytes.zero },
     { type: 'String', value: 'lorem ipsum', zero: '' },
-    { type: 'Bytes', value: generators.hexBytes(128), zero: '0x' },
   ]) {
     describe(`${type} storage slot`, function () {
       it('set', async function () {
