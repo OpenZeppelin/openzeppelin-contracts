@@ -2,7 +2,7 @@ const format = require('../format-lines');
 const { TYPES } = require('./Slot.opts');
 
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.25;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.
@@ -98,7 +98,7 @@ const transient = ({ type, name }) => `\
 /**
  * @dev Load the value held at location \`slot\` in transient storage.
  */
-function tload(TypedSlot.${name}SlotType slot) internal view returns (${type} value) {
+function tload(${name}SlotType slot) internal view returns (${type} value) {
   /// @solidity memory-safe-assembly
   assembly {
     value := tload(slot)
@@ -107,7 +107,7 @@ function tload(TypedSlot.${name}SlotType slot) internal view returns (${type} va
 /**
  * @dev Store \`value\` at location \`slot\` in transient storage.
  */
-function tstore(TypedSlot.${name}SlotType slot, ${type} value) internal {
+function tstore(${name}SlotType slot, ${type} value) internal {
   /// @solidity memory-safe-assembly
   assembly {
     tstore(slot, value)

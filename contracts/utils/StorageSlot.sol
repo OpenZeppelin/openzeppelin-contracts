@@ -231,7 +231,7 @@ library StorageSlot {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(TypedSlot.AddressSlotType slot) internal view returns (address value) {
+    function tload(AddressSlotType slot) internal view returns (address value) {
         /// @solidity memory-safe-assembly
         assembly {
             value := tload(slot)
@@ -241,7 +241,7 @@ library StorageSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(TypedSlot.AddressSlotType slot, address value) internal {
+    function tstore(AddressSlotType slot, address value) internal {
         /// @solidity memory-safe-assembly
         assembly {
             tstore(slot, value)
@@ -251,7 +251,7 @@ library StorageSlot {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(TypedSlot.BooleanSlotType slot) internal view returns (bool value) {
+    function tload(BooleanSlotType slot) internal view returns (bool value) {
         /// @solidity memory-safe-assembly
         assembly {
             value := tload(slot)
@@ -261,7 +261,7 @@ library StorageSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(TypedSlot.BooleanSlotType slot, bool value) internal {
+    function tstore(BooleanSlotType slot, bool value) internal {
         /// @solidity memory-safe-assembly
         assembly {
             tstore(slot, value)
@@ -271,7 +271,7 @@ library StorageSlot {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(TypedSlot.Bytes32SlotType slot) internal view returns (bytes32 value) {
+    function tload(Bytes32SlotType slot) internal view returns (bytes32 value) {
         /// @solidity memory-safe-assembly
         assembly {
             value := tload(slot)
@@ -281,7 +281,7 @@ library StorageSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(TypedSlot.Bytes32SlotType slot, bytes32 value) internal {
+    function tstore(Bytes32SlotType slot, bytes32 value) internal {
         /// @solidity memory-safe-assembly
         assembly {
             tstore(slot, value)
@@ -291,7 +291,7 @@ library StorageSlot {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(TypedSlot.Uint256SlotType slot) internal view returns (uint256 value) {
+    function tload(Uint256SlotType slot) internal view returns (uint256 value) {
         /// @solidity memory-safe-assembly
         assembly {
             value := tload(slot)
@@ -301,7 +301,7 @@ library StorageSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(TypedSlot.Uint256SlotType slot, uint256 value) internal {
+    function tstore(Uint256SlotType slot, uint256 value) internal {
         /// @solidity memory-safe-assembly
         assembly {
             tstore(slot, value)
@@ -311,7 +311,7 @@ library StorageSlot {
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(TypedSlot.Int256SlotType slot) internal view returns (int256 value) {
+    function tload(Int256SlotType slot) internal view returns (int256 value) {
         /// @solidity memory-safe-assembly
         assembly {
             value := tload(slot)
@@ -321,7 +321,7 @@ library StorageSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(TypedSlot.Int256SlotType slot, int256 value) internal {
+    function tstore(Int256SlotType slot, int256 value) internal {
         /// @solidity memory-safe-assembly
         assembly {
             tstore(slot, value)
