@@ -74,20 +74,6 @@ library Math {
     }
 
     /**
-     * @dev Returns the largest of two numbers.
-     */
-    function max(uint256 a, uint256 b) internal pure returns (uint256 result) {
-        return choice(a > b, a, b);
-    }
-
-    /**
-     * @dev Returns the smallest of two numbers.
-     */
-    function min(uint256 a, uint256 b) internal pure returns (uint256 result) {
-        return choice(a < b, a, b);
-    }
-
-    /**
      * @dev If `condition` is true, returns `a`, otherwise returns `b`.
      */
     function choice(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
@@ -102,6 +88,20 @@ library Math {
             // - Reduces the final bytecode size
             return b ^ ((a ^ b) * SafeCast.toUint(condition));
         }
+    }
+
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256 result) {
+        return choice(a > b, a, b);
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256 result) {
+        return choice(a < b, a, b);
     }
 
     /**
