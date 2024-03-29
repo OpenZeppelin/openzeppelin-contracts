@@ -131,8 +131,8 @@ describe('Arrays', function () {
         Object.assign(this, await loadFixture(fixture));
       });
 
-      describe('sort', function () {
-        for (const length of [0, 1, 2, 8, 32, 128]) {
+      describe.only('sort', function () {
+        for (const length of [0, 1, 3, 2, 6, 8, 32, 128]) {
           describe(`${type}[] of length ${length}`, function () {
             beforeEach(async function () {
               this.array = Array.from({ length }, generators[type]);
