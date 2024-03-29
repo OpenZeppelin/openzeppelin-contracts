@@ -64,7 +64,8 @@ function _mergeSort(
 ) private pure {
     if(end - begin < 0x40) return;
 
-    uint256 middle = Math.average(begin, end) & ~uint256(31);
+    uint256 diff = (end - begin) >> 1 & ~uint256(31);
+    uint256 middle = begin + diff;
     _mergeSort(begin, middle, comp);
     _mergeSort(middle, end, comp);
 
