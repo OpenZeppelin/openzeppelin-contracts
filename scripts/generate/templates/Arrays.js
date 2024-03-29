@@ -129,7 +129,7 @@ function _merge(
     uint256 middle, 
     uint256 end,
     function(bytes32, bytes32) pure returns (bool) comp
-) internal pure {
+) private pure {
     uint256 ptr = uint256(_mload(0x40));
 
     uint256 i = begin;

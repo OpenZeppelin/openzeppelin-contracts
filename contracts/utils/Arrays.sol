@@ -21,7 +21,7 @@ library Arrays {
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
-     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * NOTE: this function's cost is `O(n · log(n))` in average, with n the length of the
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
@@ -48,7 +48,7 @@ library Arrays {
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
-     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * NOTE: this function's cost is `O(n · log(n))` in average, with n the length of the
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
@@ -75,7 +75,7 @@ library Arrays {
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
-     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * NOTE: this function's cost is `O(n · log(n))` in average, with n the length of the
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
@@ -173,7 +173,7 @@ library Arrays {
         uint256 middle,
         uint256 end,
         function(bytes32, bytes32) pure returns (bool) comp
-    ) internal pure {
+    ) private pure {
         uint256 ptr = uint256(_mload(0x40));
 
         uint256 i = begin;
