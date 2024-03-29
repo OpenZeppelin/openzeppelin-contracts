@@ -31,7 +31,7 @@ pragma solidity ^0.8.24;
  *
  * Since version 5.1, this library also support writing and reading value types to and from transient storage.
  *
- *  * Example usaging transiant storage:
+ *  * Example using transient storage:
  * ```solidity
  * contract Lock {
  *     // Define the slot. Alternatively, use the SlotDerivation library to derive the slot.
