@@ -108,7 +108,7 @@ library Arrays {
     function _mergeSort(uint256 begin, uint256 end, function(bytes32, bytes32) pure returns (bool) comp) private pure {
         if (end - begin < 0x40) return;
 
-        uint256 middle = Math.average(begin, end);
+        uint256 middle = Math.average(begin, end) & ~uint256(31);
         _mergeSort(begin, middle, comp);
         _mergeSort(middle, end, comp);
 
