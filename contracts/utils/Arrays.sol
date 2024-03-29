@@ -106,14 +106,16 @@ library Arrays {
      * be used only if the limits are within a memory array.
      */
     function _mergeSort(uint256 begin, uint256 end, function(bytes32, bytes32) pure returns (bool) comp) private pure {
-        if (end - begin < 0x40) return;
+        unchecked {
+            if (end - begin < 0x40) return;
 
-        uint256 diff = ((end - begin) >> 1) & ~uint256(31);
-        uint256 middle = begin + diff;
-        _mergeSort(begin, middle, comp);
-        _mergeSort(middle, end, comp);
+            uint256 diff = ((end - begin) >> 1) & ~uint256(31);
+            uint256 middle = begin + diff;
+            _mergeSort(begin, middle, comp);
+            _mergeSort(middle, end, comp);
 
-        _merge(begin, middle, end, comp);
+            _merge(begin, middle, end, comp);
+        }
     }
 
     /**
@@ -160,9 +162,11 @@ library Arrays {
      * WARNING: Only use if `size` is multiple of 32.
      */
     function _mcopy(uint256 ptr1, uint256 ptr2, uint256 size) private pure {
-        for (uint256 i = 0; i < size; i += 0x20) {
-            bytes32 val = _mload(ptr1 + i);
-            _mstore(ptr2 + i, val);
+        unchecked {
+            for (uint256 i = 0; i < size; i += 0x20) {
+                bytes32 val = _mload(ptr1 + i);
+                _mstore(ptr2 + i, val);
+            }
         }
     }
 
@@ -175,31 +179,33 @@ library Arrays {
         uint256 end,
         function(bytes32, bytes32) pure returns (bool) comp
     ) private pure {
-        uint256 ptr = uint256(_mload(0x40));
+        unchecked {
+            uint256 ptr = uint256(_mload(0x40));
 
-        uint256 i = begin;
-        uint256 j = middle;
-        uint256 k = ptr;
+            uint256 i = begin;
+            uint256 j = middle;
+            uint256 k = ptr;
 
-        for (; i < middle && j < end; k += 0x20) {
-            bytes32 a = _mload(i);
-            bytes32 b = _mload(j);
+            for (; i < middle && j < end; k += 0x20) {
+                bytes32 a = _mload(i);
+                bytes32 b = _mload(j);
 
-            if (comp(a, b)) {
-                _mstore(k, a);
-                i += 0x20;
-            } else {
-                _mstore(k, b);
-                j += 0x20;
+                if (comp(a, b)) {
+                    _mstore(k, a);
+                    i += 0x20;
+                } else {
+                    _mstore(k, b);
+                    j += 0x20;
+                }
             }
-        }
 
-        if (i < middle) {
-            uint256 size = middle - i;
-            _mcopy(i, end - size, size);
-        }
+            if (i < middle) {
+                uint256 size = middle - i;
+                _mcopy(i, end - size, size);
+            }
 
-        _mcopy(ptr, begin, k - ptr);
+            _mcopy(ptr, begin, k - ptr);
+        }
     }
 
     /// @dev Comparator for sorting arrays in increasing order.
