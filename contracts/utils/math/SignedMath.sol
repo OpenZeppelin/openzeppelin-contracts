@@ -12,9 +12,9 @@ library SignedMath {
     /**
      * @dev If `condition` is true, returns `a`, otherwise returns `b`.
      */
-    function choice(bool condition, int256 a, int256 b) internal pure returns (int256) {
+    function select(bool condition, int256 a, int256 b) internal pure returns (int256) {
         unchecked {
-            // branchless choice function, works because:
+            // branchless select function, works because:
             // b ^ (a ^ b) == a
             // b ^ 0 == b
             //
@@ -30,14 +30,14 @@ library SignedMath {
      * @dev Returns the largest of two signed numbers.
      */
     function max(int256 a, int256 b) internal pure returns (int256) {
-        return choice(a > b, a, b);
+        return select(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two signed numbers.
      */
     function min(int256 a, int256 b) internal pure returns (int256) {
-        return choice(a < b, a, b);
+        return select(a < b, a, b);
     }
 
     /**
