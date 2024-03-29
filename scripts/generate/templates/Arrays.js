@@ -21,7 +21,7 @@ const sort = type => `\
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
      *
-     * NOTE: this function's cost is \`O(n · log(n))\` in average and \`O(n²)\` in the worst case, with n the length of the
+     * NOTE: this function's cost is \`O(n · log(n))\` in average, with n the length of the
      * array. Using it in view functions that are executed through \`eth_call\` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
@@ -32,7 +32,7 @@ const sort = type => `\
     ) internal pure returns (${type}[] memory) {
         ${
           type === 'bytes32'
-            ? '_quickSort(_begin(array), _end(array), comp);'
+            ? '_mergeSort(_begin(array), _end(array), comp);'
             : 'sort(_castToBytes32Array(array), _castToBytes32Comp(comp));'
         }
         return array;
@@ -47,9 +47,9 @@ const sort = type => `\
     }
 `;
 
-const quickSort = `
+const mergeSort = `
 /**
- * @dev Performs a quick sort of a segment of memory. The segment sorted starts at \`begin\` (inclusive), and stops
+ * @dev Performs a merge sort of a segment of memory. The segment sorted starts at \`begin\` (inclusive), and stops
  * at end (exclusive). Sorting follows the \`comp\` comparator.
  *
  * Invariant: \`begin <= end\`. This is the case when initially called by {sort} and is preserved in subcalls.
@@ -57,28 +57,18 @@ const quickSort = `
  * IMPORTANT: Memory locations between \`begin\` and \`end\` are not validated/zeroed. This function should
  * be used only if the limits are within a memory array.
  */
-function _quickSort(uint256 begin, uint256 end, function(bytes32, bytes32) pure returns (bool) comp) private pure {
-    unchecked {
-        if (end - begin < 0x40) return;
+function _mergeSort(
+    uint256 begin, 
+    uint256 end, 
+    function(bytes32, bytes32) pure returns (bool) comp
+) private pure {
+    if(end - begin < 0x40) return;
 
-        // Use first element as pivot
-        bytes32 pivot = _mload(begin);
-        // Position where the pivot should be at the end of the loop
-        uint256 pos = begin;
+    uint256 middle = Math.average(begin, end);
+    _mergeSort(begin, middle, comp);
+    _mergeSort(middle, end, comp);
 
-        for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-            if (comp(_mload(it), pivot)) {
-                // If the value stored at the iterator's position comes before the pivot, we increment the
-                // position of the pivot and move the value there.
-                pos += 0x20;
-                _swap(pos, it);
-            }
-        }
-
-        _swap(begin, pos); // Swap pivot into place
-        _quickSort(begin, pos, comp); // Sort the left side of the pivot
-        _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
-    }
+    _merge(begin, middle, end, comp);
 }
 
 /**
@@ -111,15 +101,60 @@ function _mload(uint256 ptr) private pure returns (bytes32 value) {
 }
 
 /**
- * @dev Swaps the elements memory location \`ptr1\` and \`ptr2\`.
+ * @dev Store a bytes32 \`val\` in memory at location \`ptr\`.
  */
-function _swap(uint256 ptr1, uint256 ptr2) private pure {
+function _mstore(uint256 ptr, bytes32 val) private pure {
     assembly {
-        let value1 := mload(ptr1)
-        let value2 := mload(ptr2)
-        mstore(ptr1, value2)
-        mstore(ptr2, value1)
+        mstore(ptr, val)
     }
+}
+
+/**
+ * @dev Copies a memory region of size \`size\` starting from \`ptr1\` to \`ptr2\`.
+ * 
+ * WARNING: Only use if \`size\` is multiple of 32.
+ */
+function _mcopy(uint256 ptr1, uint256 ptr2, uint256 size) private pure {
+    for(uint256 i=0; i<size; i += 0x20) {
+        bytes32 val = _mload(ptr1 + i);
+        _mstore(ptr2 + i, val);
+    }
+}
+
+/**
+ * @dev Merge two consecutives arrays in memory.
+ */
+function _merge(
+    uint256 begin, 
+    uint256 middle, 
+    uint256 end,
+    function(bytes32, bytes32) pure returns (bool) comp
+) internal pure {
+    uint256 ptr = uint256(_mload(0x40));
+
+    uint256 i = begin;
+    uint256 j = middle;
+    uint256 k = ptr;
+
+    for(; i < middle && j < end; k += 0x20) {
+        bytes32 a = _mload(i);
+        bytes32 b = _mload(j);
+
+        if(comp(a, b)) {
+            _mstore(k, a);
+            i += 0x20;
+        } else {
+            _mstore(k, b);
+            j += 0x20;
+        }
+    }
+
+    if(i < middle) {
+        uint256 size = middle - i;
+        _mcopy(i, end - size, size);
+    }
+
+    _mcopy(ptr, begin, k - ptr);
 }
 `;
 
@@ -370,7 +405,7 @@ module.exports = format(
   // sorting, comparator, helpers and internal
   sort('bytes32'),
   TYPES.filter(type => type !== 'bytes32').map(sort),
-  quickSort,
+  mergeSort,
   defaultComparator,
   TYPES.filter(type => type !== 'bytes32').map(castArray),
   TYPES.filter(type => type !== 'bytes32').map(castComparator),
