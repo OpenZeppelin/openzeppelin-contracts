@@ -180,6 +180,12 @@ library Arrays {
         function(bytes32, bytes32) pure returns (bool) comp
     ) private pure {
         unchecked {
+            {
+                bytes32 b = _mload(middle);
+                while (begin < middle && comp(_mload(begin), b)) begin += 0x20;
+                if (begin == middle) return;
+            }
+
             uint256 ptr = uint256(_mload(0x40));
 
             uint256 i = begin;
