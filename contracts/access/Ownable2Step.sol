@@ -23,6 +23,9 @@ import {Ownable} from "./Ownable.sol";
  * from parent (Ownable).
  */
 abstract contract Ownable2Step is Ownable {
+
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
     address private _pendingOwner;
 
     event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
