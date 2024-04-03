@@ -50,7 +50,7 @@ class Report {
   // Compare two reports
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     if (JSON.stringify(update.options?.solcInfo) !== JSON.stringify(ref.options?.solcInfo)) {
-      console.warn('WARNING: Reports produced with non matching metadata');
+      throw new Error('Reports produced with non matching metadata');
     }
 
     // gasReporter 1.0.0 uses ".info", but 2.0.0 uses ".data"
