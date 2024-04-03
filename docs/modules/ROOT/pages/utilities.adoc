@@ -166,6 +166,21 @@ function _setImplementation(address newImplementation) internal {
 }
 ----
 
+The xref:api:utils.adoc#StorageSlot[`StorageSlot`] library also supports transient storage through user defined value types (UDVTs[https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types]), which enables the same value types as in Solidity.
+
+[source,solidity]
+----
+bytes32 internal constant _LOCK_SLOT = 0xf4678858b2b588224636b8522b729e7722d32fc491da849ed75b3fdf3c84f542;
+
+function _getTransientLock() internal view returns (bool) {
+    return _LOCK_SLOT.asBoolean().tload();
+}
+
+function _setTransientLock(bool lock) internal {
+    _LOCK_SLOT.asBoolean().tstore(lock);
+}
+----
+
 WARNING: Manipulating storage slots directly is an advanced practice. Developers MUST make sure that the storage pointer is not colliding with other variables.
 
 One of the most common use cases for writing directly to storage slots is ERC-7201 for namespaced storage, which is guaranteed to not collide with other storage slots derived by Solidity.
