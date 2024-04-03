@@ -115,6 +115,7 @@ module.exports = {
   gasReporter: {
     enabled: argv.gas,
     showMethodSig: true,
+    includeBytecodeInJSON: true,
     currency: 'USD',
     coinmarketcap: argv.coinmarketcap,
   },
