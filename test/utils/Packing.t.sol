@@ -9,19 +9,19 @@ contract PackingTest is Test {
     using Packing for *;
 
     // Pack a pair of arbitrary uint128, and check that split recovers the correct values
-    function testUint128x2(uint128 high, uint128 low) external {
-        Packing.Uint128x2 packed = Packing.pack(high, low);
-        assertEq(packed.high(), high);
-        assertEq(packed.low(), low);
+    function testUint128x2(uint128 first, uint128 second) external {
+        Packing.Uint128x2 packed = Packing.pack(first, second);
+        assertEq(packed.first(), first);
+        assertEq(packed.second(), second);
 
-        (uint128 recoveredHigh, uint128 recoveredLow) = packed.split();
-        assertEq(recoveredHigh, high);
-        assertEq(recoveredLow, low);
+        (uint128 recoveredFirst, uint128 recoveredSecond) = packed.split();
+        assertEq(recoveredFirst, first);
+        assertEq(recoveredSecond, second);
     }
 
     // split an arbitrary bytes32 into a pair of uint128, and check that repack matches the input
     function testUint128x2(bytes32 input) external {
-        (uint128 high, uint128 low) = input.asUint128x2().split();
-        assertEq(Packing.pack(high, low).asBytes32(), input);
+        (uint128 first, uint128 second) = input.asUint128x2().split();
+        assertEq(Packing.pack(first, second).asBytes32(), input);
     }
 }

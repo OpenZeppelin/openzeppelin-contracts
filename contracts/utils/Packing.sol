@@ -19,22 +19,22 @@ library Packing {
     }
 
     /// @dev Pack two uint128 into a Uint128x2
-    function pack(uint128 high128, uint128 low128) internal pure returns (Uint128x2) {
-        return Uint128x2.wrap(bytes32(bytes16(high128)) | bytes32(uint256(low128)));
+    function pack(uint128 first128, uint128 second128) internal pure returns (Uint128x2) {
+        return Uint128x2.wrap(bytes32(bytes16(first128)) | bytes32(uint256(second128)));
     }
 
     /// @dev Split a Uint128x2 into two uint128
     function split(Uint128x2 self) internal pure returns (uint128, uint128) {
-        return (high(self), low(self));
+        return (first(self), second(self));
     }
 
-    /// @dev Get the first element of a Uint128x2 (high part)
-    function high(Uint128x2 self) internal pure returns (uint128) {
+    /// @dev Get the first element of a Uint128x2 counting from higher to lower bytes
+    function first(Uint128x2 self) internal pure returns (uint128) {
         return uint128(bytes16(Uint128x2.unwrap(self)));
     }
 
-    /// @dev Get the second element of a Uint128x2 (low part)
-    function low(Uint128x2 self) internal pure returns (uint128) {
+    /// @dev Get the second element of a Uint128x2 counting from higher to lower bytes
+    function second(Uint128x2 self) internal pure returns (uint128) {
         return uint128(uint256(Uint128x2.unwrap(self)));
     }
 }
