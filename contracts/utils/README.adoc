@@ -13,6 +13,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
+ * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
  * {Nonces}: Utility for tracking and verifying address nonces that only increment.
  * {ERC165, ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
@@ -64,6 +65,8 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 == Security
 
 {{ReentrancyGuard}}
+
+{{ReentrancyGuardTransient}}
 
 {{Pausable}}
 
