@@ -13,6 +13,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
+ * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
  * {Nonces}: Utility for tracking and verifying address nonces that only increment.
  * {ERC165, ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
@@ -28,7 +29,8 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
- * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
+ * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types. Also include primitives for reading from and writing to transient storage (only value types are currently supported).
  * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: An utility for abstracting the sender and calldata in the current execution context.
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
@@ -63,6 +65,8 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 == Security
 
 {{ReentrancyGuard}}
+
+{{ReentrancyGuardTransient}}
 
 {{Pausable}}
 
@@ -107,6 +111,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Strings}}
 
 {{ShortStrings}}
+
+{{SlotDerivation}}
 
 {{StorageSlot}}
 

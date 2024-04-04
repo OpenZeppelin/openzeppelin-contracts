@@ -3,6 +3,8 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { generators } = require('../helpers/random');
+const { capitalize } = require('../../scripts/helpers');
+const { TYPES } = require('../../scripts/generate/templates/Arrays.opts');
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
@@ -117,25 +119,12 @@ describe('Arrays', function () {
     }
   });
 
-  for (const [type, { artifact, format }] of Object.entries({
-    address: {
-      artifact: 'AddressArraysMock',
-      format: x => ethers.getAddress(ethers.toBeHex(x, 20)),
-    },
-    bytes32: {
-      artifact: 'Bytes32ArraysMock',
-      format: x => ethers.toBeHex(x, 32),
-    },
-    uint256: {
-      artifact: 'Uint256ArraysMock',
-      format: x => ethers.toBigInt(x),
-    },
-  })) {
+  for (const type of TYPES) {
     const elements = Array.from({ length: 10 }, generators[type]);
 
     describe(type, function () {
       const fixture = async () => {
-        return { instance: await ethers.deployContract(artifact, [elements]) };
+        return { instance: await ethers.deployContract(`${capitalize(type)}ArraysMock`, [elements]) };
       };
 
       beforeEach(async function () {
@@ -222,7 +211,7 @@ describe('Arrays', function () {
 
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
-              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(format(elements.length));
+              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(BigInt(elements.length));
               expect(await this.mock[fragment](elements, 2n ** i + 0n)).to.equal(elements[0]);
               expect(await this.mock[fragment](elements, 2n ** i + 1n)).to.equal(elements[1]);
             }
