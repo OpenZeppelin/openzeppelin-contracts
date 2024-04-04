@@ -4,28 +4,14 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "../interfaces/IERC4337.sol";
 import {Math} from "../utils/math/Math.sol";
-
-// TODO: move that to a dedicated file in `contracts/utils/math` ?
-library Unpack {
-    function split(bytes32 packed) internal pure returns (uint256 high128, uint256 low128) {
-        return (uint128(bytes16(packed)), uint128(uint256(packed)));
-    }
-
-    function high(bytes32 packed) internal pure returns (uint256) {
-        return uint256(packed) >> 128;
-    }
-
-    function low(bytes32 packed) internal pure returns (uint256) {
-        return uint128(uint256(packed));
-    }
-}
+import {Packing} from "../utils/Packing.sol";
 
 library UserOperationUtils {
-    using Unpack for bytes32;
+    using Packing for *;
 
-    uint256 public constant PAYMASTER_VALIDATION_GAS_OFFSET = 20;
-    uint256 public constant PAYMASTER_POSTOP_GAS_OFFSET = 36;
-    uint256 public constant PAYMASTER_DATA_OFFSET = 52;
+    uint256 internal constant PAYMASTER_VALIDATION_GAS_OFFSET = 20;
+    uint256 internal constant PAYMASTER_POSTOP_GAS_OFFSET = 36;
+    uint256 internal constant PAYMASTER_DATA_OFFSET = 52;
 
     // Need to fuzz this against `userOp.sender`
     function getSender(PackedUserOperation calldata userOp) internal pure returns (address) {
@@ -37,16 +23,16 @@ library UserOperationUtils {
     }
 
     function getMaxPriorityFeePerGas(PackedUserOperation calldata userOp) internal pure returns (uint256) {
-        return userOp.gasFees.high();
+        return userOp.gasFees.asUint128x2().high();
     }
 
     function getMaxFeePerGas(PackedUserOperation calldata userOp) internal pure returns (uint256) {
-        return userOp.gasFees.low();
+        return userOp.gasFees.asUint128x2().low();
     }
 
     function getGasPrice(PackedUserOperation calldata userOp) internal view returns (uint256) {
         unchecked {
-            (uint256 maxPriorityFeePerGas, uint256 maxFeePerGas) = userOp.gasFees.split();
+            (uint256 maxPriorityFeePerGas, uint256 maxFeePerGas) = userOp.gasFees.asUint128x2().split();
             return
                 maxFeePerGas == maxPriorityFeePerGas
                     ? maxFeePerGas
@@ -55,11 +41,11 @@ library UserOperationUtils {
     }
 
     function getVerificationGasLimit(PackedUserOperation calldata userOp) internal pure returns (uint256) {
-        return userOp.accountGasLimits.high();
+        return userOp.accountGasLimits.asUint128x2().high();
     }
 
     function getCallGasLimit(PackedUserOperation calldata userOp) internal pure returns (uint256) {
-        return userOp.accountGasLimits.low();
+        return userOp.accountGasLimits.asUint128x2().low();
     }
 
     function getPaymasterVerificationGasLimit(PackedUserOperation calldata userOp) internal pure returns (uint256) {
