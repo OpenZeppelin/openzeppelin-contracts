@@ -15,8 +15,8 @@ pragma solidity ^0.8.20;
  * those functions `private`, and then adding `external` `nonReentrant` entry
  * points to them.
  *
- * NOTE: If EIP-1153 (transient storage) is available on the targeted network, you
- * should consider using {TransientReentrancyGuard} instead.
+ * TIP: If EIP-1153 (transient storage) is available on the chain you're deploying at,
+ * consider using {ReentrancyGuardTransient} instead.
  *
  * TIP: If you would like to learn more about reentrancy and alternative ways
  * to protect against it, check out our blog post
