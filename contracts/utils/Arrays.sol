@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (utils/Arrays.sol)
+// This file was procedurally generated from scripts/generate/templates/Arrays.js.
 
 pragma solidity ^0.8.20;
 
+import {SlotDerivation} from "./SlotDerivation.sol";
 import {StorageSlot} from "./StorageSlot.sol";
 import {Math} from "./math/Math.sol";
 
@@ -10,6 +12,7 @@ import {Math} from "./math/Math.sol";
  * @dev Collection of functions related to array types.
  */
 library Arrays {
+    using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
 
     /**
@@ -35,11 +38,20 @@ library Arrays {
      * @dev Variant of {sort} that sorts an array of bytes32 in increasing order.
      */
     function sort(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        return sort(array, _defaultComp);
+        sort(array, _defaultComp);
+        return array;
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of address following a provided comparator function.
+     * @dev Sort an array of address (in memory) following the provided comparator function.
+     *
+     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+     *
+     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
+     * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(
         address[] memory array,
@@ -58,7 +70,15 @@ library Arrays {
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of uint256 following a provided comparator function.
+     * @dev Sort an array of uint256 (in memory) following the provided comparator function.
+     *
+     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+     *
+     * NOTE: this function's cost is `O(n · log(n))` in average and `O(n²)` in the worst case, with n the length of the
+     * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
+     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
+     * consume more gas than is available in a block, leading to potential DoS.
      */
     function sort(
         uint256[] memory array,
@@ -361,15 +381,11 @@ library Arrays {
      */
     function unsafeAccess(address[] storage arr, uint256 pos) internal pure returns (StorageSlot.AddressSlot storage) {
         bytes32 slot;
-        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
-        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
-
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0, arr.slot)
-            slot := add(keccak256(0, 0x20), pos)
+            slot := arr.slot
         }
-        return slot.getAddressSlot();
+        return slot.deriveArray().offset(pos).getAddressSlot();
     }
 
     /**
@@ -379,15 +395,11 @@ library Arrays {
      */
     function unsafeAccess(bytes32[] storage arr, uint256 pos) internal pure returns (StorageSlot.Bytes32Slot storage) {
         bytes32 slot;
-        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
-        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
-
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0, arr.slot)
-            slot := add(keccak256(0, 0x20), pos)
+            slot := arr.slot
         }
-        return slot.getBytes32Slot();
+        return slot.deriveArray().offset(pos).getBytes32Slot();
     }
 
     /**
@@ -397,15 +409,11 @@ library Arrays {
      */
     function unsafeAccess(uint256[] storage arr, uint256 pos) internal pure returns (StorageSlot.Uint256Slot storage) {
         bytes32 slot;
-        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
-        // following https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
-
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0, arr.slot)
-            slot := add(keccak256(0, 0x20), pos)
+            slot := arr.slot
         }
-        return slot.getUint256Slot();
+        return slot.deriveArray().offset(pos).getUint256Slot();
     }
 
     /**

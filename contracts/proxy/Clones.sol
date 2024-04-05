@@ -110,7 +110,7 @@ library Clones {
             mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73)
             mstore(add(ptr, 0x58), salt)
             mstore(add(ptr, 0x78), keccak256(add(ptr, 0x0c), 0x37))
-            predicted := keccak256(add(ptr, 0x43), 0x55)
+            predicted := and(keccak256(add(ptr, 0x43), 0x55), 0xffffffffffffffffffffffffffffffffffffffff)
         }
     }
 
