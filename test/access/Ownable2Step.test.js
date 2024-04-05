@@ -48,7 +48,7 @@ describe('Ownable2Step', function () {
     });
   });
 
-  describe('renouncing ownership', async function () {
+  describe('renouncing ownership', function () {
     it('changes owner after renouncing ownership', async function () {
       await expect(this.ownable2Step.connect(this.owner).renounceOwnership())
         .to.emit(this.ownable2Step, 'OwnershipTransferred')

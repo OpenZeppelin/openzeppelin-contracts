@@ -11,7 +11,7 @@ import {Panic} from "../Panic.sol";
  *
  * Each tree is a complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a
  * non-zero value and updating its root. This structure allows inserting commitments (or other entries) that are not
- * stored, but can be proven to be part of the tree at a later time. See {MerkleProof}.
+ * stored, but can be proven to be part of the tree at a later time if the root is kept. See {MerkleProof}.
  *
  * A tree is defined by the following parameters:
  *
@@ -34,13 +34,13 @@ library MerkleTree {
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
      * lead to unexpected behavior.
      *
-     * NOTE: The `root` is kept up to date after each insertion without keeping track of its history. Consider
-     * using a secondary structure to store a list of historical roots (e.g. a mapping, {BitMaps} or {Checkpoints}).
+     * NOTE: The `root` and the updates history is not stored within the tree. Consider using a secondary structure to
+     * store a list of historical roots from the values returned from {setup} and {push} (e.g. a mapping, {BitMaps} or
+     * {Checkpoints}).
      *
      * WARNING: Updating any of the tree's parameters after the first insertion will result in a corrupted tree.
      */
     struct Bytes32PushTree {
-        bytes32 _root;
         uint256 _nextLeafIndex;
         bytes32[] _sides;
         bytes32[] _zeros;
@@ -56,7 +56,7 @@ library MerkleTree {
      * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
      * empty leaves. It should be a value that is not expected to be part of the tree.
      */
-    function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal {
+    function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal returns (bytes32 initialRoot) {
         return setup(self, levels, zero, Hashes.commutativeKeccak256);
     }
 
@@ -71,7 +71,7 @@ library MerkleTree {
         uint8 levels,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
-    ) internal {
+    ) internal returns (bytes32 initialRoot) {
         // Store depth in the dynamic array
         Arrays.unsafeSetLength(self._sides, levels);
         Arrays.unsafeSetLength(self._zeros, levels);
@@ -84,9 +84,10 @@ library MerkleTree {
         }
 
         // Set the first root
-        self._root = currentZero;
         self._nextLeafIndex = 0;
         self._fnHash = fnHash;
+
+        return currentZero;
     }
 
     /**
@@ -102,15 +103,15 @@ library MerkleTree {
         function(bytes32, bytes32) view returns (bytes32) fnHash = self._fnHash;
 
         // Get leaf index
-        uint256 leafIndex = self._nextLeafIndex++;
+        index = self._nextLeafIndex++;
 
         // Check if tree is full.
-        if (leafIndex >= 1 << levels) {
+        if (index >= 1 << levels) {
             Panic.panic(Panic.RESOURCE_ERROR);
         }
 
         // Rebuild branch from leaf to root
-        uint256 currentIndex = leafIndex;
+        uint256 currentIndex = index;
         bytes32 currentLevelHash = leaf;
         for (uint32 i = 0; i < levels; i++) {
             // Reaching the parent node, is currentLevelHash the left child?
@@ -132,17 +133,7 @@ library MerkleTree {
             currentIndex >>= 1;
         }
 
-        // Record new root
-        self._root = currentLevelHash;
-
-        return (leafIndex, currentLevelHash);
-    }
-
-    /**
-     * @dev Tree's current root
-     */
-    function root(Bytes32PushTree storage self) internal view returns (bytes32) {
-        return self._root;
+        return (index, currentLevelHash);
     }
 
     /**

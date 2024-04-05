@@ -46,7 +46,7 @@ describe('ERC4626', function () {
     }
   });
 
-  describe('reentrancy', async function () {
+  describe('reentrancy', function () {
     const reenterType = Enum('No', 'Before', 'After');
 
     const value = 1_000_000_000_000_000_000n;
@@ -182,7 +182,7 @@ describe('ERC4626', function () {
     });
   });
 
-  describe('limits', async function () {
+  describe('limits', function () {
     beforeEach(async function () {
       const token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
       const vault = await ethers.deployContract('$ERC4626LimitsMock', ['', '', token]);
