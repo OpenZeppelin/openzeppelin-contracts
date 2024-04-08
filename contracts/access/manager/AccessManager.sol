@@ -110,6 +110,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
+     * See {AccessManager} description for a detailed breakdown of the authorization logic.
      */
     modifier onlyAuthorized() {
         _checkAuthorized();

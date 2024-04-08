@@ -107,6 +107,9 @@ interface IAccessManager {
      * NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
      * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
+     *
+     * NOTE: This function does not report the permissions of this manager itself. These are defined by the
+     * {AccessManager} documentation.
      */
     function canCall(
         address caller,
