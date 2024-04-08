@@ -32,7 +32,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     error ERC3156ExceededMaxLoan(uint256 maxLoan);
 
     /**
-     * @dev The receiver of a flashloan is not a valid {onFlashLoan} implementer.
+     * @dev The receiver of a flashloan is not a valid {IERC3156FlashBorrower-onFlashLoan} implementer.
      */
     error ERC3156InvalidReceiver(address receiver);
 

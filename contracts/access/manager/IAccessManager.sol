@@ -109,7 +109,7 @@ interface IAccessManager {
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      *
      * NOTE: This function does not report the permissions of this manager itself. These are defined by the
-     * {_canCallSelf} function instead.
+     * {AccessManager} documentation.
      */
     function canCall(
         address caller,
