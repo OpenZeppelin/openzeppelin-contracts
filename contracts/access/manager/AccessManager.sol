@@ -470,7 +470,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Reverts if the operation is currently scheduled and has not expired.
      *
-     * Note: This function was introduced due to stack too deep errors in schedule.
+     * NOTE: This function was introduced due to stack too deep errors in schedule.
      */
     function _checkNotScheduled(bytes32 operationId) private view {
         uint48 prevTimepoint = _schedules[operationId].timepoint;
