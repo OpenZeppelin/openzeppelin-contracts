@@ -118,6 +118,7 @@ jobs:
       - uses: crytic/slither-action@v0.3.2
         with:
           node-version: 18.15
+          slither-version: 0.10.1
 
   codespell:
     runs-on: ubuntu-latest
