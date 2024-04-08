@@ -34,6 +34,35 @@ struct PackedUserOperation {
     bytes signature;
 }
 
+interface IAggregator {
+    function validateSignatures(PackedUserOperation[] calldata userOps, bytes calldata signature) external view;
+
+    function validateUserOpSignature(
+        PackedUserOperation calldata userOp
+    ) external view returns (bytes memory sigForUserOp);
+
+    function aggregateSignatures(
+        PackedUserOperation[] calldata userOps
+    ) external view returns (bytes memory aggregatesSignature);
+}
+
+interface IEntryPoint {
+    struct UserOpsPerAggregator {
+        PackedUserOperation[] userOps;
+        IAggregator aggregator;
+        bytes signature;
+    }
+
+    function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) external;
+
+    function handleAggregatedOps(
+        UserOpsPerAggregator[] calldata opsPerAggregator,
+        address payable beneficiary
+    ) external;
+
+    function getNonce(address sender, uint192 key) external view returns (uint256 nonce);
+}
+
 interface IAccount {
     function validateUserOp(
         PackedUserOperation calldata userOp,

@@ -18,22 +18,13 @@ library UserOperationUtils {
             abi.encode(
                 userOp.sender,
                 userOp.nonce,
-                _keccak(userOp.initCode),
-                _keccak(userOp.callData),
+                keccak256(userOp.initCode),
+                keccak256(userOp.callData),
                 userOp.accountGasLimits,
                 userOp.preVerificationGas,
                 userOp.gasFees,
-                _keccak(userOp.paymasterAndData)
+                keccak256(userOp.paymasterAndData)
             );
-    }
-
-    // Need to fuzz this against `userOp.sender`
-    function sender(PackedUserOperation calldata userOp) internal pure returns (address) {
-        address data;
-        assembly {
-            data := calldataload(userOp)
-        }
-        return address(uint160(data));
     }
 
     function verificationGasLimit(PackedUserOperation calldata userOp) internal pure returns (uint256) {
@@ -70,14 +61,5 @@ library UserOperationUtils {
 
     function paymasterPostOpGasLimit(PackedUserOperation calldata userOp) internal pure returns (uint256) {
         return uint128(bytes16(userOp.paymasterAndData[36:52]));
-    }
-
-    function _keccak(bytes calldata data) private pure returns (bytes32 ret) {
-        assembly ("memory-safe") {
-            let ptr := mload(0x40)
-            let len := data.length
-            calldatacopy(ptr, data.offset, len)
-            ret := keccak256(ptr, len)
-        }
     }
 }
