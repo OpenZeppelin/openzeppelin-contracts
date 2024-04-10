@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`AccessManager`: Allow the `onlyAuthorize` modifier to restrict functions added to the manager.
+`AccessManager`: Allow the `onlyAuthorized` modifier to restrict functions added to the manager.
