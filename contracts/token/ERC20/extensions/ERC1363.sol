@@ -31,12 +31,12 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Indicates a failure within the {transfer} part of a transferAndCall operation.
      */
-    error ERC1363TransferFailed(address to, uint256 value);
+    error ERC1363TransferFailed(address receiver, uint256 value);
 
     /**
      * @dev Indicates a failure within the {transferFrom} part of a transferFromAndCall operation.
      */
-    error ERC1363TransferFromFailed(address from, address to, uint256 value);
+    error ERC1363TransferFromFailed(address sender, address receiver, uint256 value);
 
     /**
      * @dev Indicates a failure within the {approve} part of a approveAndCall operation.
