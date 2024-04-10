@@ -23,6 +23,7 @@ const {
   shouldBehaveLikeNotDelayedAdminOperation,
   shouldBehaveLikeRoleAdminOperation,
   shouldBehaveLikeAManagedRestrictedOperation,
+  shouldBehaveLikeASelfRestrictedOperation,
 } = require('./AccessManager.behavior');
 
 const {
@@ -48,7 +49,7 @@ async function fixture() {
   roles.SOME.members = [member];
   roles.PUBLIC.members = [admin, roleAdmin, roleGuardian, member, user, other];
 
-  const manager = await ethers.deployContract('$AccessManager', [admin]);
+  const manager = await ethers.deployContract('$AccessManagerMock', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
 
   for (const { id: roleId, admin, guardian, members } of Object.values(roles)) {
@@ -1666,6 +1667,60 @@ describe('AccessManager', function () {
             ).to.be.revertedWithCustomError(this.manager, 'AccessManagerBadConfirmation');
           });
         });
+      });
+    });
+  });
+
+  describe('access managed self operations', function () {
+    describe('when calling a restricted target function', function () {
+      beforeEach('set required role', function () {
+        this.method = this.target.fnRestricted.getFragment();
+        this.role = { id: 785913n };
+        this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
+      });
+
+      describe('restrictions', function () {
+        beforeEach('set method and args', function () {
+          this.calldata = this.target.interface.encodeFunctionData(this.method, []);
+          this.caller = this.user;
+        });
+
+        shouldBehaveLikeASelfRestrictedOperation();
+      });
+
+      it('succeeds called by a role member', async function () {
+        await this.manager.$_grantRole(this.role.id, this.user, 0, 0);
+
+        await expect(
+          this.target.connect(this.user)[this.method.selector]({
+            data: this.calldata,
+          }),
+        )
+          .to.emit(this.target, 'CalledRestricted')
+          .withArgs(this.user);
+      });
+    });
+
+    describe('when calling a non-restricted target function', function () {
+      const method = 'fnUnrestricted()';
+
+      beforeEach('set required role', async function () {
+        this.role = { id: 879435n };
+        await this.manager.$_setTargetFunctionRole(
+          this.target,
+          this.target[method].getFragment().selector,
+          this.role.id,
+        );
+      });
+
+      it('succeeds called by anyone', async function () {
+        await expect(
+          this.target.connect(this.user)[method]({
+            data: this.calldata,
+          }),
+        )
+          .to.emit(this.target, 'CalledUnrestricted')
+          .withArgs(this.user);
       });
     });
   });

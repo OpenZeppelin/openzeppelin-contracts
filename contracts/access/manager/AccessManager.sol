@@ -586,14 +586,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // ================================================= ADMIN LOGIC ==================================================
     /**
-     * @dev Check if the current call is authorized according to admin logic.
+     * @dev Check if the current call is authorized according to admin and roles logic.
+     *
+     * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+        (bool immediate, uint64 requiredRole, uint32 delay) = _canCallSelf(caller, _msgData());
         if (!immediate) {
             if (delay == 0) {
-                (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
                 revert AccessManagerUnauthorizedAccount(caller, requiredRole);
             } else {
                 _consumeScheduledOp(hashOperation(caller, address(this), _msgData()));
@@ -666,39 +667,49 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes calldata data
     ) private view returns (bool immediate, uint32 delay) {
         if (target == address(this)) {
-            return _canCallSelf(caller, data);
+            (immediate, , delay) = _canCallSelf(caller, data);
+            return (immediate, delay);
         } else {
             return data.length < 4 ? (false, 0) : canCall(caller, target, _checkSelector(data));
         }
     }
 
     /**
-     * @dev A version of {canCall} that checks for admin restrictions in this contract.
+     * @dev A version of {canCall} that checks for restrictions in this contract.
      */
-    function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+    function _canCallSelf(
+        address caller,
+        bytes calldata data
+    ) private view returns (bool immediate, uint64 requiredRole, uint32 delay) {
         if (data.length < 4) {
-            return (false, 0);
+            return (false, 0, 0);
         }
+
+        bytes4 selector = _checkSelector(data);
+
+        (bool isAdminRestriction, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
 
         if (caller == address(this)) {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
-            return (_isExecuting(address(this), _checkSelector(data)), 0);
+            return (_isExecuting(address(this), selector), roleId, 0);
         }
 
-        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
-        if (!enabled) {
-            return (false, 0);
+        if (!isAdminRestriction) {
+            if (isTargetClosed(address(this))) {
+                return (false, roleId, 0);
+            }
+            roleId = getTargetFunctionRole(address(this), selector);
         }
 
         (bool inRole, uint32 executionDelay) = hasRole(roleId, caller);
         if (!inRole) {
-            return (false, 0);
+            return (false, roleId, 0);
         }
 
         // downcast is safe because both options are uint32
         delay = uint32(Math.max(operationDelay, executionDelay));
-        return (delay == 0, delay);
+        return (delay == 0, roleId, delay);
     }
 
     /**

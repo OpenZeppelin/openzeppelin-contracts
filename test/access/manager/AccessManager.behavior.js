@@ -193,9 +193,62 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
   });
 }
 
+/**
+ * @requires this.{manager,roles,calldata,role}
+ */
+function shouldBehaveLikeASelfRestrictedOperation() {
+  const getAccessPath = LIKE_COMMON_GET_ACCESS;
+
+  function testScheduleOperation(mineDelay) {
+    return function self() {
+      self.mineDelay = mineDelay;
+      beforeEach('sets execution delay', async function () {
+        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+      });
+      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+    };
+  }
+
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
+    testScheduleOperation(true);
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
+
+  beforeEach('set target as manager', function () {
+    this.target = this.manager;
+  });
+
+  const isExecutingPath = LIKE_COMMON_IS_EXECUTING;
+  isExecutingPath.notExecuting = function () {
+    it('reverts as AccessManagerUnauthorizedAccount', async function () {
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+        .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
+        .withArgs(this.caller, 0); // There's no way to know the required role of a function executed by the manager since the selector will be that of "execute"
+    });
+  };
+
+  testAsRestrictedOperation({
+    callerIsTheManager: isExecutingPath,
+    callerIsNotTheManager() {
+      testAsHasRole({
+        publicRoleIsRequired() {
+          it('succeeds called directly', async function () {
+            await this.caller.sendTransaction({ to: this.target, data: this.calldata });
+          });
+
+          it('succeeds via execute', async function () {
+            await this.manager.connect(this.caller).execute(this.target, this.calldata);
+          });
+        },
+        specificRoleIsRequired: getAccessPath,
+      });
+    },
+  });
+}
+
 module.exports = {
   shouldBehaveLikeDelayedAdminOperation,
   shouldBehaveLikeNotDelayedAdminOperation,
   shouldBehaveLikeRoleAdminOperation,
   shouldBehaveLikeAManagedRestrictedOperation,
+  shouldBehaveLikeASelfRestrictedOperation,
 };
