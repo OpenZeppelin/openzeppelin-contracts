@@ -46,7 +46,34 @@ interface IAggregator {
     ) external view returns (bytes memory aggregatesSignature);
 }
 
-interface IEntryPoint {
+interface IEntryPointNonces {
+    function getNonce(address sender, uint192 key) external view returns (uint256 nonce);
+}
+
+interface IEntryPointStake {
+    // add a stake to the calling entity
+    function addStake(uint32 unstakeDelaySec) external payable;
+
+    // unlock the stake (must wait unstakeDelay before can withdraw)
+    function unlockStake() external;
+
+    // withdraw the unlocked stake
+    function withdrawStake(address payable withdrawAddress) external;
+
+    // return the deposit of an account
+    function balanceOf(address account) external view returns (uint256);
+
+    // add to the deposit of the given account
+    function depositTo(address account) external payable;
+
+    // withdraw from the deposit of the current account
+    function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
+}
+
+interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
+    error FailedOp(uint256 opIndex, string reason);
+    error FailedOpWithRevert(uint256 opIndex, string reason, bytes inner);
+
     struct UserOpsPerAggregator {
         PackedUserOperation[] userOps;
         IAggregator aggregator;
@@ -59,9 +86,9 @@ interface IEntryPoint {
         UserOpsPerAggregator[] calldata opsPerAggregator,
         address payable beneficiary
     ) external;
-
-    function getNonce(address sender, uint192 key) external view returns (uint256 nonce);
 }
+
+// TODO: EntryPointSimulation
 
 interface IAccount {
     function validateUserOp(
@@ -73,4 +100,25 @@ interface IAccount {
 
 interface IAccountExecute {
     function executeUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external;
+}
+
+interface IPaymaster {
+    enum PostOpMode {
+        opSucceeded,
+        opReverted,
+        postOpReverted
+    }
+
+    function validatePaymasterUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash,
+        uint256 maxCost
+    ) external returns (bytes memory context, uint256 validationData);
+
+    function postOp(
+        PostOpMode mode,
+        bytes calldata context,
+        uint256 actualGasCost,
+        uint256 actualUserOpFeePerGas
+    ) external;
 }
