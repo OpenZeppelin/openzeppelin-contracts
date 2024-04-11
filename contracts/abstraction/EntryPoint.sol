@@ -79,13 +79,15 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
 
         // Allocate memory and reset the free memory pointer. Buffer for innerCall is not kept/protected
         Memory.FreePtr ptr = Memory.save();
-        bytes memory innerCall = userOp.callData.length >= 4 &&
-            bytes4(userOp.callData[0:4]) == IAccountExecute.executeUserOp.selector
-            ? abi.encodeCall(
-                this.innerHandleOp,
-                (abi.encodeCall(IAccountExecute.executeUserOp, (userOp, opInfo.userOpHash)), opInfo)
+        bytes memory innerCall = abi.encodeCall(
+            this.innerHandleOp,
+            (
+                userOp.callData.length >= 0x04 && bytes4(userOp.callData[0:4]) == IAccountExecute.executeUserOp.selector
+                    ? abi.encodeCall(IAccountExecute.executeUserOp, (userOp, opInfo.userOpHash))
+                    : userOp.callData,
+                opInfo
             )
-            : abi.encodeCall(this.innerHandleOp, (userOp.callData, opInfo));
+        );
         Memory.load(ptr);
 
         bool success = Call.call(address(this), 0, innerCall);
