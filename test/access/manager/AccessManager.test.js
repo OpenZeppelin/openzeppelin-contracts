@@ -1674,15 +1674,16 @@ describe('AccessManager', function () {
   describe('access managed self operations', function () {
     describe('when calling a restricted target function', function () {
       beforeEach('set required role', function () {
-        this.method = this.target.fnRestricted.getFragment();
+        this.method = this.manager.fnRestricted.getFragment();
         this.role = { id: 785913n };
         this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
       });
 
       describe('restrictions', function () {
         beforeEach('set method and args', function () {
-          this.calldata = this.target.interface.encodeFunctionData(this.method, []);
+          this.calldata = this.manager.interface.encodeFunctionData(this.method, []);
           this.caller = this.user;
+          this.target = this.manager; // For shouldBehaveLikeASelfRestrictedOperation
         });
 
         shouldBehaveLikeASelfRestrictedOperation();
@@ -1692,11 +1693,11 @@ describe('AccessManager', function () {
         await this.manager.$_grantRole(this.role.id, this.user, 0, 0);
 
         await expect(
-          this.target.connect(this.user)[this.method.selector]({
+          this.manager.connect(this.user)[this.method.selector]({
             data: this.calldata,
           }),
         )
-          .to.emit(this.target, 'CalledRestricted')
+          .to.emit(this.manager, 'CalledRestricted')
           .withArgs(this.user);
       });
     });
@@ -1707,19 +1708,19 @@ describe('AccessManager', function () {
       beforeEach('set required role', async function () {
         this.role = { id: 879435n };
         await this.manager.$_setTargetFunctionRole(
-          this.target,
-          this.target[method].getFragment().selector,
+          this.manager,
+          this.manager[method].getFragment().selector,
           this.role.id,
         );
       });
 
       it('succeeds called by anyone', async function () {
         await expect(
-          this.target.connect(this.user)[method]({
+          this.manager.connect(this.user)[method]({
             data: this.calldata,
           }),
         )
-          .to.emit(this.target, 'CalledUnrestricted')
+          .to.emit(this.manager, 'CalledUnrestricted')
           .withArgs(this.user);
       });
     });

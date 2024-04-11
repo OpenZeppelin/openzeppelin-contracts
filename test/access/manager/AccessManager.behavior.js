@@ -194,7 +194,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
 }
 
 /**
- * @requires this.{manager,roles,calldata,role}
+ * @requires this.{target,manager,roles,calldata,role}
  */
 function shouldBehaveLikeASelfRestrictedOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
