@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation, IEntryPoint} from "../interfaces/IERC4337.sol";
+import {PackedUserOperation, IEntryPoint} from "../../interfaces/IERC4337.sol";
+import {Ownable} from "../../access/Ownable.sol";
+import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
+import {Address} from "../../utils/Address.sol";
 import {Account} from "./Account.sol";
-import {Ownable} from "../access/Ownable.sol";
-import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
-import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
-import {Address} from "../utils/Address.sol";
 
 contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
     IEntryPoint private immutable _entryPoint;

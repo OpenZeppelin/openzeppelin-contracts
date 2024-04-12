@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.23;
 
-import {IEntryPointStake} from "../interfaces/IERC4337.sol";
-import {Address} from "../utils/Address.sol";
+import {IEntryPointStake} from "../../interfaces/IERC4337.sol";
+import {Address} from "../../utils/Address.sol";
 
 abstract contract StakeManager is IEntryPointStake {
     event Deposited(address indexed account, uint256 totalDeposit);
