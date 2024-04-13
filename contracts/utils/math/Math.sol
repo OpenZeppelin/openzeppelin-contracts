@@ -47,9 +47,8 @@ library Math {
             // benefit is lost if 'b' is also tested.
             // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
             if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
+            if ((a * b) / a != b) return (false, 0);
+            return (true, a * b);
         }
     }
 
