@@ -1,5 +1,38 @@
 # Changelog
 
+
+## 5.1.0-rc.0 (2024-04-16)
+
+- `Clones`: Add version of `clone` and `cloneDeterministic` that support sending value at creation. ([#4936](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4936))
+- `Math`: add an `invMod` function to get the modular multiplicative inverse of a number in Z/nZ. ([#4839](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4839))
+- `Arrays`: add a `sort` functions for `address[]`, `bytes32[]` and `uint256[]` memory arrays. ([#4846](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4846))
+- `Arrays`: deprecate `findUpperBound` in favor of the new `lowerBound`. ([#4842](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4842))
+- `ERC1363`: Add implementation of the token payable standard allowing execution of contract code after transfers and approvals. ([#4631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4631))
+- `DoubleEndedQueue`: Custom errors replaced with native panic codes. ([#4872](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4872))
+- `SlotDerivation`: Add a library of methods for derivating common storage slots. ([#4975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4975))
+- `Packing`: Added a new utility for packing and unpacking multiple values into a single bytes32. Includes initial support for packing two `uint128` in an `Uint128x2` type. ([#4992](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4992))
+- `StorageSlot`: Add primitives for operating on the transient storage space using a typed-slot representation. ([#4980](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4980))
+- `Votes`: Set `_moveDelegateVotes` visibility to internal instead of private. ([#5007](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5007))
+- `SafeERC20`: Add "relaxed" function for interacting with ERC-1363 functions in a way that is compatible with EOAs. ([#4631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4631))
+- `Hashes`: A library with commonly used hash functions. ([#3617](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3617))
+- `ERC721Utils` and `ERC1155Utils`: Add reusable libraries with functions to perform acceptance checks on `IERC721Receiver` and `IERC1155Receiver` implementers. ([#4845](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4845))
+- `Math`: Add `modExp` function that exposes the `EIP-198` precompile. Includes `uint256` and `bytes memory` versions. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
+- `Panic`: Add a library for reverting with panic codes. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
+- `Math`: Custom errors replaced with native panic codes. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
+- `Errors`: New library of common custom errors. ([#4936](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4936))
+- `Arrays`: add new functions `lowerBound`, `upperBound`, `lowerBoundMemory` and `upperBoundMemory` for lookups in sorted arrays with potential duplicates. ([#4842](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4842))
+- `AccessManager`, `VestingWallet`, `TimelockController` and `ERC2771Forwarder`: Added a public `initializer` function in their corresponding upgradeable variants. ([#5008](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5008))
+- `Base64`: Add `encodeURL` following section 5 of RFC4648 for URL encoding ([#4822](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4822))
+- `AccessControlEnumerable`: Add a `getRoleMembers` method to return all accounts that have `role`. ([#4546](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4546))
+- `MerkleTree`: A data structure that allows inserting elements into a merkle tree and updating its root hash. ([#3617](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3617))
+- `VestingWalletCliff`: Add an extension of the `VestingWallet` contract with an added cliff. ([#4870](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4870))
+- `ReentrancyGuardTransient`: Added a variant of `ReentrancyGuard` that uses transient storage. ([#4988](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4988))
+- `EnumerableMap`: add `UintToBytes32Map`, `AddressToAddressMap`, `AddressToBytes32Map` and `Bytes32ToAddressMap`. ([#4843](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4843))
+- `SignatureChecker`: refactor `isValidSignatureNow` to avoid validating ECDSA signatures if there is code deployed at the signer's address. ([#4951](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4951))
+- `TransparentUpgradeableProxy`: Make internal `_proxyAdmin()` getter have `view` visibility. ([#4688](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4688))
+- `Create2`, `Clones`: Mask `computeAddress` and `cloneDeterministic` outputs to produce a clean value for an `address` type (i.e. only use 20 bytes) ([#4941](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4941))
+- `SafeCast`: Add `toUint(bool)` for operating on `bool` values as `uint256`. ([#4878](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4878))
+
 ### Breaking changes
 
 - `ERC1967Utils`: Removed duplicate declaration of the `Upgraded`, `AdminChanged` and `BeaconUpgraded` events. These events are still available through the `IERC1967` interface located under the `contracts/interfaces/` directory. Minimum pragma version is now 0.8.21.
