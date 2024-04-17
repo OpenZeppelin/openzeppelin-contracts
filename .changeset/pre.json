@@ -4,5 +4,35 @@
   "initialVersions": {
     "openzeppelin-solidity": "5.0.2"
   },
-  "changesets": []
+  "changesets": [
+    "chilled-walls-develop",
+    "cool-mangos-compare",
+    "dirty-cobras-smile",
+    "eleven-planets-relax",
+    "flat-turtles-repeat",
+    "fluffy-steaks-exist",
+    "friendly-nails-push",
+    "gentle-bulldogs-turn",
+    "gorgeous-badgers-vanish",
+    "heavy-baboons-give",
+    "kind-planets-cough",
+    "lucky-crews-eat",
+    "nervous-pans-grow",
+    "nice-paws-pull",
+    "odd-files-protect",
+    "poor-chefs-cheat",
+    "shiny-poets-whisper",
+    "silver-swans-promise",
+    "smart-bugs-switch",
+    "strong-singers-talk",
+    "thick-pumpkins-report",
+    "thin-walls-drop",
+    "twenty-feet-grin",
+    "violet-moons-tell",
+    "warm-sheep-cover",
+    "wise-bobcats-speak",
+    "witty-chicken-smile",
+    "yellow-deers-walk",
+    "yellow-moles-hammer"
+  ]
 }
