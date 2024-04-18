@@ -113,7 +113,7 @@ ghost mapping(address => mathint) _ownedByUser {
     init_state axiom forall address a. _ownedByUser[a] == 0;
 }
 
-hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STORAGE {
+hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) {
     _ownedByUser[newOwner] = _ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
     _ownedByUser[oldOwner] = _ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
     _ownedTotal = _ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
@@ -132,13 +132,13 @@ ghost mapping(address => mathint) _balances {
     init_state axiom forall address a. _balances[a] == 0;
 }
 
-hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
+hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     _supply = _supply - oldValue + newValue;
 }
 
 // TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
 // many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
-hook Sload uint256 value _balances[KEY address user] STORAGE {
+hook Sload uint256 value _balances[KEY address user] {
     require _balances[user] == to_mathint(value);
 }
 
