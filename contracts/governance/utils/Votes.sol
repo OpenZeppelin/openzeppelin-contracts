@@ -167,6 +167,9 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     function _delegate(address account, address delegatee) internal virtual {
         address oldDelegate = delegates(account);
+        if (oldDelegate == delegatee) {
+        return;
+        }
         _delegatee[account] = delegatee;
 
         emit DelegateChanged(account, oldDelegate, delegatee);
