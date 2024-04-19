@@ -7,6 +7,9 @@ methods {
     function authority_canCall_immediate(address) external returns (bool);
     function authority_canCall_delay(address)     external returns (uint32);
     function authority_getSchedule(address)       external returns (uint48);
+
+    // Summaries
+    function _.setAuthority(address)               external => DISPATCHER(true);
 }
 
 invariant isConsumingScheduledOpClean()
