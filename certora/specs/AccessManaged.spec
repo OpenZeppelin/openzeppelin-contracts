@@ -7,9 +7,10 @@ methods {
     function authority_canCall_immediate(address) external returns (bool);
     function authority_canCall_delay(address)     external returns (uint32);
     function authority_getSchedule(address)       external returns (uint48);
+    function _hasCode(address)                    external returns (bool) envfree;
 
     // Summaries
-    function _.setAuthority(address)               external => DISPATCHER(true);
+    function _.setAuthority(address)              external => DISPATCHER(true);
 }
 
 invariant isConsumingScheduledOpClean()
@@ -33,5 +34,26 @@ rule callRestrictedFunction(env e) {
             isSetAndPast(e, scheduleBefore) &&
             scheduleAfter == 0
         )
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Only valid authorities can be set by the current authority                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule setAuthority(env e) {
+    require nonpayable(e);
+
+    address newAuthority;
+
+    address previousAuthority = authority();
+
+    setAuthority@withrevert(e, newAuthority);
+    bool success = !lastReverted;
+
+    assert (success && authority() == newAuthority) <=> (
+        previousAuthority == e.msg.sender &&
+        _hasCode(newAuthority)
     );
 }
