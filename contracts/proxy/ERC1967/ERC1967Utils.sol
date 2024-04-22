@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (proxy/ERC1967/ERC1967Utils.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {IBeacon} from "../beacon/IBeacon.sol";
+import {IERC1967} from "../../interfaces/IERC1967.sol";
 import {Address} from "../../utils/Address.sol";
 import {StorageSlot} from "../../utils/StorageSlot.sol";
 
@@ -12,21 +13,6 @@ import {StorageSlot} from "../../utils/StorageSlot.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots.
  */
 library ERC1967Utils {
-    /**
-     * @dev Emitted when the implementation is upgraded.
-     */
-    event Upgraded(address indexed implementation);
-
-    /**
-     * @dev Emitted when the admin account has changed.
-     */
-    event AdminChanged(address previousAdmin, address newAdmin);
-
-    /**
-     * @dev Emitted when the beacon is changed.
-     */
-    event BeaconUpgraded(address indexed beacon);
-
     /**
      * @dev Storage slot with the address of the current implementation.
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1.
@@ -80,7 +66,7 @@ library ERC1967Utils {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) internal {
         _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
+        emit IERC1967.Upgraded(newImplementation);
 
         if (data.length > 0) {
             Address.functionDelegateCall(newImplementation, data);
@@ -123,7 +109,7 @@ library ERC1967Utils {
      * Emits an {IERC1967-AdminChanged} event.
      */
     function changeAdmin(address newAdmin) internal {
-        emit AdminChanged(getAdmin(), newAdmin);
+        emit IERC1967.AdminChanged(getAdmin(), newAdmin);
         _setAdmin(newAdmin);
     }
 
@@ -170,7 +156,7 @@ library ERC1967Utils {
      */
     function upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
         _setBeacon(newBeacon);
-        emit BeaconUpgraded(newBeacon);
+        emit IERC1967.BeaconUpgraded(newBeacon);
 
         if (data.length > 0) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
