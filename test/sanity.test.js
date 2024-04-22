@@ -11,7 +11,7 @@ describe('Environment sanity', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe.only('snapshot', function () {
+  describe('snapshot', function () {
     let blockNumberBefore;
 
     it('cache and mine', async function () {
