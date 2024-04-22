@@ -74,18 +74,17 @@ library Math {
     }
 
     /**
-     * @dev If `condition` is true, returns `a`, otherwise returns `b`.
+     * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
+     * 
+     * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
+     * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
+     * one branch when needed, making this function more expensive.
      */
-    function select(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
+    function ternary(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
-            // branchless select function, works because:
+            // branchless ternary works because:
             // b ^ (a ^ b) == a
             // b ^ 0 == b
-            //
-            // This is better than doing `condition ? a : b` for the give reasons:
-            // - Consumes less gas
-            // - Constant gas cost regardless the inputs
-            // - Reduces the final bytecode size
             return b ^ ((a ^ b) * SafeCast.toUint(condition));
         }
     }
@@ -94,14 +93,14 @@ library Math {
      * @dev Returns the largest of two numbers.
      */
     function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return select(a > b, a, b);
+        return ternary(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two numbers.
      */
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return select(a < b, a, b);
+        return ternary(a < b, a, b);
     }
 
     /**
@@ -164,7 +163,7 @@ library Math {
 
             // Make sure the result is less than 2²⁵⁶. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                Panic.panic(select(denominator == 0, Panic.DIVISION_BY_ZERO, Panic.UNDER_OVERFLOW));
+                Panic.panic(ternary(denominator == 0, Panic.DIVISION_BY_ZERO, Panic.UNDER_OVERFLOW));
             }
 
             ///////////////////////////////////////////////
@@ -285,7 +284,7 @@ library Math {
             }
 
             if (gcd != 1) return 0; // No inverse exists.
-            return select(x < 0, n - uint256(-x), uint256(x)); // Wrap the result if it's negative.
+            return ternary(x < 0, n - uint256(-x), uint256(x)); // Wrap the result if it's negative.
         }
     }
 

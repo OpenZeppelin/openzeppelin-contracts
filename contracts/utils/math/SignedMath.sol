@@ -10,18 +10,17 @@ import {SafeCast} from "./SafeCast.sol";
  */
 library SignedMath {
     /**
-     * @dev If `condition` is true, returns `a`, otherwise returns `b`.
+     * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
+     * 
+     * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
+     * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
+     * one branch when needed, making this function more expensive.
      */
-    function select(bool condition, int256 a, int256 b) internal pure returns (int256) {
+    function ternary(bool condition, int256 a, int256 b) internal pure returns (int256) {
         unchecked {
-            // branchless select function, works because:
+            // branchless terinary works because:
             // b ^ (a ^ b) == a
             // b ^ 0 == b
-            //
-            // This is better than doing `condition ? a : b` for the give reasons:
-            // - Consumes less gas
-            // - Constant gas cost regardless the inputs
-            // - Reduces the final bytecode size
             return b ^ ((a ^ b) * int256(SafeCast.toUint(condition)));
         }
     }
@@ -30,14 +29,14 @@ library SignedMath {
      * @dev Returns the largest of two signed numbers.
      */
     function max(int256 a, int256 b) internal pure returns (int256) {
-        return select(a > b, a, b);
+        return ternary(a > b, a, b);
     }
 
     /**
      * @dev Returns the smallest of two signed numbers.
      */
     function min(int256 a, int256 b) internal pure returns (int256) {
-        return select(a < b, a, b);
+        return ternary(a < b, a, b);
     }
 
     /**
