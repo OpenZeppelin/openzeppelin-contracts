@@ -22,8 +22,17 @@ import {Panic} from "../Panic.sol";
  *
  * * The struct is called `Bytes32CircularBuffer`. Other types can be cast to and from `bytes32`. This data structure
  * can only be used in storage, and not in memory.
+ *
+ * Example usage:
+ *
  * ```solidity
- * CircularBuffer.Bytes32CircularBuffer buffer;
+ * contract Example {
+ *     // Add the library methods
+ *     using CircularBuffer for CircularBuffer.Bytes32CircularBuffer;
+ *
+ *     // Declare a buffer storage variable
+ *     CircularBuffer.Bytes32CircularBuffer private myBuffer;
+ * }
  * ```
  */
 library CircularBuffer {
