@@ -94,8 +94,8 @@ jobs:
       - name: Run coverage
         run: npm run coverage
       - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   harnesses:
     runs-on: ubuntu-latest
