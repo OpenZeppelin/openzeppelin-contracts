@@ -11,7 +11,7 @@ import {SafeCast} from "./SafeCast.sol";
 library SignedMath {
     /**
      * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
-     * 
+     *
      * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
      * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
      * one branch when needed, making this function more expensive.
