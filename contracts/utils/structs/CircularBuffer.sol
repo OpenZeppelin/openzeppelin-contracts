@@ -6,9 +6,9 @@ import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
 
 /**
- * @dev A fixed-length buffer for keeping `bytes32` items in storage.
+ * @dev A fixed-size buffer for keeping `bytes32` items in storage.
  *
- * This data structure allows for pushing elements to it, and when its size exceeds the specified fixed length,
+ * This data structure allows for pushing elements to it, and when its length exceeds the specified fixed size,
  * new items take the place of the oldest element in the buffer, keeping at most `N` elements in the
  * structure.
  *
@@ -28,7 +28,7 @@ import {Panic} from "../Panic.sol";
  */
 library CircularBuffer {
     /**
-     * @dev Counts the number of items that have been pushed to the buffer. The residu modulo _data.length indicates
+     * @dev Counts the number of items that have been pushed to the buffer. The residuo modulo _data.length indicates
      * where the next value should be stored.
      *
      * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
@@ -44,9 +44,12 @@ library CircularBuffer {
     }
 
     /**
-     * @dev Initialize a new CircularBuffer of given length.
+     * @dev Initialize a new CircularBuffer of given size.
      *
      * If the CircularBuffer was already setup and used, calling that function again will reset it to a blank state.
+     *
+     * NOTE: The size of the buffer will affect the execution of {includes} function, as it has a complexity of O(N).
+     * Consider a large buffer size may render the function unusable.
      */
     function setup(Bytes32CircularBuffer storage self, uint256 size) internal {
         clear(self);
@@ -54,7 +57,7 @@ library CircularBuffer {
     }
 
     /**
-     * @dev Clear all data in the buffer, keeping the existing length.
+     * @dev Clear all data in the buffer without resetting memory, keeping the existing size.
      */
     function clear(Bytes32CircularBuffer storage self) internal {
         self._count = 0;
@@ -66,8 +69,8 @@ library CircularBuffer {
      */
     function push(Bytes32CircularBuffer storage self, bytes32 value) internal {
         uint256 index = self._count++;
-        uint256 module = self._data.length;
-        Arrays.unsafeAccess(self._data, index % module).value = value;
+        uint256 modulus = self._data.length;
+        Arrays.unsafeAccess(self._data, index % modulus).value = value;
     }
 
     /**
@@ -93,12 +96,12 @@ library CircularBuffer {
      */
     function last(Bytes32CircularBuffer storage self, uint256 i) internal view returns (bytes32) {
         uint256 index = self._count;
-        uint256 module = self._data.length;
-        uint256 total = Math.min(index, module); // count(self)
+        uint256 modulus = self._data.length;
+        uint256 total = Math.min(index, modulus); // count(self)
         if (i >= total) {
             Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         }
-        return Arrays.unsafeAccess(self._data, (index - i - 1) % module).value;
+        return Arrays.unsafeAccess(self._data, (index - i - 1) % modulus).value;
     }
 
     /**
@@ -106,10 +109,10 @@ library CircularBuffer {
      */
     function includes(Bytes32CircularBuffer storage self, bytes32 value) internal view returns (bool) {
         uint256 index = self._count;
-        uint256 module = self._data.length;
-        uint256 total = Math.min(index, module); // count(self)
+        uint256 modulus = self._data.length;
+        uint256 total = Math.min(index, modulus); // count(self)
         for (uint256 i = 0; i < total; ++i) {
-            if (Arrays.unsafeAccess(self._data, (index - i - 1) % module).value == value) {
+            if (Arrays.unsafeAccess(self._data, (index - i - 1) % modulus).value == value) {
                 return true;
             }
         }
