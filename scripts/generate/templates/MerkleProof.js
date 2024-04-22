@@ -38,7 +38,7 @@ const templateProof = ({ suffix, location, visibility, hashType, hashName = 'Has
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      *
-     * This version handles proofs in ${location} with ${hashType ? 'custom' : 'default'} hashing function.
+     * This version handles proofs in ${location} with ${hashType ? 'a custom' : 'the default'} hashing function.
      */
     function verify${suffix}(${[
       `bytes32[] ${location} proof`,
@@ -57,7 +57,7 @@ const templateProof = ({ suffix, location, visibility, hashType, hashName = 'Has
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      *
-     * This version handles proofs in ${location} with ${hashType ? 'custom' : 'default'} hashing function.
+     * This version handles proofs in ${location} with ${hashType ? 'a custom' : 'the default'} hashing function.
      */
     function processProof${suffix}(${[
       `bytes32[] ${location} proof`,
@@ -79,7 +79,7 @@ const templateMultiProof = ({ suffix, location, visibility, hashType, hashName =
      * @dev Returns true if the \`leaves\` can be simultaneously proven to be a part of a Merkle tree defined by
      * \`root\`, according to \`proof\` and \`proofFlags\` as described in {processMultiProof}.
      *
-     * This version handles multiproofs in ${location} with ${hashType ? 'custom' : 'default'} hashing function.
+     * This version handles multiproofs in ${location} with ${hashType ? 'a custom' : 'the default'} hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -103,7 +103,7 @@ const templateMultiProof = ({ suffix, location, visibility, hashType, hashName =
      * leaf/inner node or a proof sibling node, depending on whether each \`proofFlags\` item is true or false
      * respectively.
      *
-     * This version handles multiproofs in ${location} with ${hashType ? 'custom' : 'default'} hashing function.
+     * This version handles multiproofs in ${location} with ${hashType ? 'a custom' : 'the default'} hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the

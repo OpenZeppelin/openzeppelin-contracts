@@ -32,7 +32,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      *
-     * This version handles proofs in memory with default hashing function.
+     * This version handles proofs in memory with the default hashing function.
      */
     function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
@@ -44,7 +44,7 @@ library MerkleProof {
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      *
-     * This version handles proofs in memory with default hashing function.
+     * This version handles proofs in memory with the default hashing function.
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
@@ -60,7 +60,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      *
-     * This version handles proofs in memory with custom hashing function.
+     * This version handles proofs in memory with a custom hashing function.
      */
     function verify(
         bytes32[] memory proof,
@@ -77,7 +77,7 @@ library MerkleProof {
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      *
-     * This version handles proofs in memory with custom hashing function.
+     * This version handles proofs in memory with a custom hashing function.
      */
     function processProof(
         bytes32[] memory proof,
@@ -97,7 +97,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      *
-     * This version handles proofs in calldata with default hashing function.
+     * This version handles proofs in calldata with the default hashing function.
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
@@ -109,7 +109,7 @@ library MerkleProof {
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      *
-     * This version handles proofs in calldata with default hashing function.
+     * This version handles proofs in calldata with the default hashing function.
      */
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
@@ -125,7 +125,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      *
-     * This version handles proofs in calldata with custom hashing function.
+     * This version handles proofs in calldata with a custom hashing function.
      */
     function verifyCalldata(
         bytes32[] calldata proof,
@@ -142,7 +142,7 @@ library MerkleProof {
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      *
-     * This version handles proofs in calldata with custom hashing function.
+     * This version handles proofs in calldata with a custom hashing function.
      */
     function processProofCalldata(
         bytes32[] calldata proof,
@@ -160,7 +160,7 @@ library MerkleProof {
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
-     * This version handles multiproofs in memory with default hashing function.
+     * This version handles multiproofs in memory with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -179,7 +179,7 @@ library MerkleProof {
      * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
      * respectively.
      *
-     * This version handles multiproofs in memory with default hashing function.
+     * This version handles multiproofs in memory with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
@@ -239,7 +239,7 @@ library MerkleProof {
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
-     * This version handles multiproofs in memory with custom hashing function.
+     * This version handles multiproofs in memory with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -259,7 +259,7 @@ library MerkleProof {
      * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
      * respectively.
      *
-     * This version handles multiproofs in memory with custom hashing function.
+     * This version handles multiproofs in memory with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
@@ -320,7 +320,7 @@ library MerkleProof {
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
-     * This version handles multiproofs in calldata with default hashing function.
+     * This version handles multiproofs in calldata with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -339,7 +339,7 @@ library MerkleProof {
      * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
      * respectively.
      *
-     * This version handles multiproofs in calldata with default hashing function.
+     * This version handles multiproofs in calldata with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
@@ -399,7 +399,7 @@ library MerkleProof {
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
-     * This version handles multiproofs in calldata with custom hashing function.
+     * This version handles multiproofs in calldata with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      */
@@ -419,7 +419,7 @@ library MerkleProof {
      * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
      * respectively.
      *
-     * This version handles multiproofs in calldata with custom hashing function.
+     * This version handles multiproofs in calldata with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
