@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_OPTIONS: --max_old_space_size=5120
+  NODE_OPTIONS: --max_old_space_size=8192
 
 jobs:
   lint:
@@ -93,9 +93,9 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   harnesses:
     runs-on: ubuntu-latest
@@ -115,9 +115,10 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: rm foundry.toml
-      - uses: crytic/slither-action@v0.3.0
+      - uses: crytic/slither-action@v0.3.2
         with:
           node-version: 18.15
+          slither-version: 0.10.1
 
   codespell:
     runs-on: ubuntu-latest

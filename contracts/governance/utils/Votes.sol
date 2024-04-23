@@ -190,7 +190,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveDelegateVotes(address from, address to, uint256 amount) private {
+    function _moveDelegateVotes(address from, address to, uint256 amount) internal virtual {
         if (from != to && amount > 0) {
             if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _push(
