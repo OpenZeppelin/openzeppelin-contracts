@@ -52,8 +52,9 @@ rule setAuthority(env e) {
     setAuthority@withrevert(e, newAuthority);
     bool success = !lastReverted;
 
-    assert (success && authority() == newAuthority) <=> (
+    assert success <=> (
         previousAuthority == e.msg.sender &&
         _hasCode(newAuthority)
     );
+    assert success => newAuthority == authority();
 }
