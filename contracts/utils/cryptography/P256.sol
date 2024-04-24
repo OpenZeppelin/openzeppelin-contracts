@@ -261,8 +261,8 @@ library P256 {
     }
 
     /**
-     * @dev Precompute a matrice of useful jacobian points associated to a given P. This can be seen as a 4x4 matrix
-     * that contains combinaison of P and G (generator) up to 3 times each. See table below:
+     * @dev Precompute a matrice of useful jacobian points associated with a given P. This can be seen as a 4x4 matrix
+     * that contains combination of P and G (generator) up to 3 times each. See the table below:
      *
      * ┌────┬─────────────────────┐
      * │  i │  0    1     2     3 │
