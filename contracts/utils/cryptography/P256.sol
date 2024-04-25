@@ -7,7 +7,7 @@ import {Math} from "../math/Math.sol";
  * @dev Implementation of secp256r1 verification and recovery functions.
  *
  * Based on
- * - https://github.com/itsobvioustech/A-passkeys-wallet/blob/main/src/Secp256r1.sol
+ * - https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol
  * Which is heavily inspired from
  * - https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol
  * - https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol
@@ -146,7 +146,7 @@ library P256 {
 
     /**
      * @dev Point addition on the jacobian coordinates
-     * https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Jacobian_Coordinates
+     * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      */
     function _jAdd(
         uint256 x1,
@@ -187,7 +187,7 @@ library P256 {
 
     /**
      * @dev Point doubling on the jacobian coordinates
-     * https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Jacobian_Coordinates
+     * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-1998-cmo-2
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 x2, uint256 y2, uint256 z2) {
         /// @solidity memory-safe-assembly
@@ -197,10 +197,11 @@ library P256 {
             let zz := mulmod(z, z, p)
             let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
             let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
+            let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
 
-            // x' = m²-2*s
-            x2 := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
-            // y' = m*(s-x')-8*y⁴
+            // x' = t
+            x2 := t
+            // y' = m*(s-t)-8*y⁴
             y2 := addmod(mulmod(m, addmod(s, sub(p, x2), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             z2 := mulmod(2, mulmod(y, z, p), p)
@@ -250,9 +251,7 @@ library P256 {
                 }
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
-                if (pos > 0) {
-                    (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
-                }
+                (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
                 u1 <<= 2;
                 u2 <<= 2;
             }
