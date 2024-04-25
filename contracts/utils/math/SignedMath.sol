@@ -18,7 +18,7 @@ library SignedMath {
      */
     function ternary(bool condition, int256 a, int256 b) internal pure returns (int256) {
         unchecked {
-            // branchless terinary works because:
+            // branchless ternary works because:
             // b ^ (a ^ b) == a
             // b ^ 0 == b
             return b ^ ((a ^ b) * int256(SafeCast.toUint(condition)));
