@@ -251,7 +251,9 @@ library P256 {
                 }
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
-                (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
+                if (pos > 0) {
+                    (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
+                }
                 u1 <<= 2;
                 u2 <<= 2;
             }
