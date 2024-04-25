@@ -19,7 +19,7 @@ const { argv } = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.20',
+      default: '0.8.24',
     },
     src: {
       alias: 'source',
@@ -35,6 +35,11 @@ const { argv } = require('yargs/yargs')()
       alias: 'enableIR',
       type: 'boolean',
       default: false,
+    },
+    evm: {
+      alias: 'evmVersion',
+      type: 'string',
+      default: 'cancun',
     },
     unlimited: {
       alias: 'allowUnlimitedContractSize',
@@ -81,6 +86,7 @@ module.exports = {
         runs: argv.runs,
         details: { yul: true },
       },
+      evmVersion: argv.evm,
       viaIR: argv.ir,
       outputSelection: { '*': { '*': ['storageLayout'] } },
     },
@@ -93,11 +99,13 @@ module.exports = {
     '*': {
       'code-size': true,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      'transient-storage': false,
       default: 'error',
     },
   },
   networks: {
     hardhat: {
+      hardfork: argv.evm,
       allowUnlimitedContractSize: argv.gas || argv.coverage || argv.unlimited,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
@@ -110,6 +118,7 @@ module.exports = {
   gasReporter: {
     enabled: argv.gas,
     showMethodSig: true,
+    includeBytecodeInJSON: true,
     currency: 'USD',
     coinmarketcap: argv.coinmarketcap,
   },

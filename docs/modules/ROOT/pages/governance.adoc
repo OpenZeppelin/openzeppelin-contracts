@@ -230,7 +230,6 @@ contract MyGovernor is Governor, GovernorCountingSimple, GovernorVotes, Governor
 
     // ...
 }
-
 ```
 
 === Disclaimer

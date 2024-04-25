@@ -32,27 +32,7 @@ Here's what a contract for tokenized items might look like:
 
 [source,solidity]
 ----
-// contracts/GameItems.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-
-contract GameItems is ERC1155 {
-    uint256 public constant GOLD = 0;
-    uint256 public constant SILVER = 1;
-    uint256 public constant THORS_HAMMER = 2;
-    uint256 public constant SWORD = 3;
-    uint256 public constant SHIELD = 4;
-
-    constructor() ERC1155("https://game.example/api/item/{id}.json") {
-        _mint(msg.sender, GOLD, 10**18, "");
-        _mint(msg.sender, SILVER, 10**27, "");
-        _mint(msg.sender, THORS_HAMMER, 1, "");
-        _mint(msg.sender, SWORD, 10**9, "");
-        _mint(msg.sender, SHIELD, 10**9, "");
-    }
-}
+include::api:example$token/ERC1155/GameItems.sol[]
 ----
 
 Note that for our Game Items, Gold is a fungible token whilst Thor's Hammer is a non-fungible token as we minted only one.
@@ -119,27 +99,20 @@ TIP: If you'd like to put all item information on-chain, you can extend ERC-721 
 [[sending-to-contracts]]
 == Sending Tokens to Contracts
 
-A key difference when using xref:api:token/ERC1155.adoc#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`safeTransferFrom`] is that token transfers to other contracts may revert with the following message:
+A key difference when using xref:api:token/ERC1155.adoc#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`safeTransferFrom`] is that token transfers to other contracts may revert with the following custom error:
 
 [source,text]
 ----
-ERC-1155: transfer to non ERC-1155 Receiver implementer
+ERC1155InvalidReceiver("<ADDRESS>")
 ----
 
 This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC-1155 protocol, so transfers to it are disabled to *prevent tokens from being locked forever*. As an example, https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d[the Golem contract currently holds over 350k `GNT` tokens], worth multiple tens of thousands of dollars, and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
 
-In order for our contract to receive ERC-1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us.  Though we need to remember to implement functionality to allow tokens to be transferred out of our contract:
+In order for our contract to receive ERC-1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us. Though we need to remember to implement functionality to allow tokens to be transferred out of our contract:
 
 [source,solidity]
 ----
-// contracts/MyContract.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-
-contract MyContract is ERC1155Holder {
-}
+include::api:example$token/ERC1155/MyERC115HolderContract.sol[]
 ----
 
 We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] functions.
