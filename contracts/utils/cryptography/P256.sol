@@ -155,13 +155,7 @@ library P256 {
         uint256 x2,
         uint256 y2,
         uint256 z2
-    ) private pure returns (uint256 x3, uint256 y3, uint256 z3) {
-        if (z1 == 0) {
-            return (x2, y2, z2);
-        }
-        if (z2 == 0) {
-            return (x1, y1, z1);
-        }
+    ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         /// @solidity memory-safe-assembly
         assembly {
             let p := P
@@ -177,11 +171,11 @@ library P256 {
             let r := addmod(s2, sub(p, s1), p) // r = s2-s1
 
             // x' = r²-h³-2*u1*h²
-            x3 := addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, mulmod(u1, hh, p), p)), p)
+            rx := addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, mulmod(u1, hh, p), p)), p)
             // y' = r*(u1*h²-x')-s1*h³
-            y3 := addmod(mulmod(r, addmod(mulmod(u1, hh, p), sub(p, x3), p), p), sub(p, mulmod(s1, hhh, p)), p)
+            ry := addmod(mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p), sub(p, mulmod(s1, hhh, p)), p)
             // z' = h*z1*z2
-            z3 := mulmod(h, mulmod(z1, z2, p), p)
+            rz := mulmod(h, mulmod(z1, z2, p), p)
         }
     }
 
@@ -189,7 +183,7 @@ library P256 {
      * @dev Point doubling on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-1998-cmo-2
      */
-    function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 x2, uint256 y2, uint256 z2) {
+    function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         /// @solidity memory-safe-assembly
         assembly {
             let p := P
@@ -200,11 +194,11 @@ library P256 {
             let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
 
             // x' = t
-            x2 := t
+            rx := t
             // y' = m*(s-t)-8*y⁴
-            y2 := addmod(mulmod(m, addmod(s, sub(p, x2), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
+            ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
-            z2 := mulmod(2, mulmod(y, z, p), p)
+            rz := mulmod(2, mulmod(y, z, p), p)
         }
     }
 
@@ -216,14 +210,18 @@ library P256 {
         uint256 y,
         uint256 z,
         uint256 k
-    ) private pure returns (uint256 x2, uint256 y2, uint256 z2) {
+    ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         unchecked {
             for (uint256 i = 0; i < 256; ++i) {
-                if (z > 0) {
-                    (x2, y2, z2) = _jDouble(x2, y2, z2);
+                if (rz > 0) {
+                    (rx, ry, rz) = _jDouble(rx, ry, rz);
                 }
                 if (k >> 255 > 0) {
-                    (x2, y2, z2) = _jAdd(x2, y2, z2, x, y, z);
+                    if (rz == 0) {
+                        (rx, ry, rz) = (x, y, z);
+                    } else {
+                        (rx, ry, rz) = _jAdd(rx, ry, rz, x, y, z);
+                    }
                 }
                 k <<= 1;
             }
@@ -252,7 +250,11 @@ library P256 {
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
                 if (pos > 0) {
-                    (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
+                    if (z == 0) {
+                        (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
+                    } else {
+                        (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
+                    }
                 }
                 u1 <<= 2;
                 u2 <<= 2;
