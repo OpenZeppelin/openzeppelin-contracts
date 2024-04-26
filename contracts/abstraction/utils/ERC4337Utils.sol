@@ -21,14 +21,6 @@ library ERC4337Utils {
      */
     uint256 internal constant SIG_VALIDATION_FAILED = 1;
 
-    // Create sender from initcode
-    function createSender(bytes calldata initCode, uint256 gas) internal returns (address sender) {
-        return
-            Call.call(address(bytes20(initCode[0:20])), 0, initCode[20:], gas) && Call.getReturnDataSize() >= 0x20
-                ? abi.decode(Call.getReturnData(0x20), (address))
-                : address(0);
-    }
-
     // Validation data
     function parseValidationData(
         uint256 validationData

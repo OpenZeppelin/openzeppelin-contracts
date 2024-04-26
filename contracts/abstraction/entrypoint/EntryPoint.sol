@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {IEntryPoint, IEntryPointNonces, IEntryPointStake, IAccount, IAccountExecute, IAggregator, IPaymaster, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
+import {ERC20} from "../../token/ERC20/ERC20.sol";
 import {ERC165} from "../../utils/introspection/ERC165.sol";
 import {Address} from "../../utils/Address.sol";
 import {Call} from "../../utils/Call.sol";
@@ -11,14 +12,16 @@ import {Memory} from "../../utils/Memory.sol";
 import {NoncesWithKey} from "../../utils/NoncesWithKey.sol";
 import {ReentrancyGuard} from "../../utils/ReentrancyGuard.sol";
 import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
-import {StakeManager} from "./StakeManager.sol";
+import {SenderCreationHelper} from "./../utils/SenderCreationHelper.sol";
 
 /*
  * Account-Abstraction (EIP-4337) singleton EntryPoint implementation.
  * Only one instance required on each chain.
  */
-contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard, ERC165 {
+contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, NoncesWithKey, ReentrancyGuard {
     using ERC4337Utils for *;
+
+    SenderCreationHelper private immutable _senderCreator = new SenderCreationHelper();
 
     // TODO: move to interface?
     event UserOperationEvent(
@@ -43,7 +46,6 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
     event SignatureAggregatorChanged(address indexed aggregator);
     error PostOpReverted(bytes returnData);
     error SignatureValidationFailed(address aggregator);
-    error SenderAddressResult(address sender);
 
     //compensate for innerHandleOps' emit message and deposit refund.
     // allow some slack for future gas price changes.
@@ -53,7 +55,7 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
     uint256 private constant REVERT_REASON_MAX_LEN = 2048;
     uint256 private constant PENALTY_PERCENT = 10;
 
-    // TODO
+    // ERC165: TODO
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return super.supportsInterface(interfaceId);
         // || interfaceId == (type(IEntryPoint).interfaceId ^ type(IStakeManager).interfaceId ^ type(INonceManager).interfaceId)
@@ -62,70 +64,58 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
         // || interfaceId == type(INonceManager).interfaceId;
     }
 
-    /**
-     * Execute a user operation.
-     * @param opIndex    - Index into the opInfo array.
-     * @param userOp     - The userOp to execute.
-     * @param opInfo     - The opInfo filled by validatePrepayment for this userOp.
-     * @return collected - The total amount this userOp paid.
-     */
-    function _executeUserOp(
-        uint256 opIndex,
-        PackedUserOperation calldata userOp,
-        ERC4337Utils.UserOpInfo memory opInfo
-    ) internal returns (uint256 collected) {
-        uint256 preGas = gasleft();
-
-        // Allocate memory and reset the free memory pointer. Buffer for innerCall is not kept/protected
-        Memory.FreePtr ptr = Memory.save();
-        bytes memory innerCall = abi.encodeCall(
-            this.innerHandleOp,
-            (
-                userOp.callData.length >= 0x04 && bytes4(userOp.callData[0:4]) == IAccountExecute.executeUserOp.selector
-                    ? abi.encodeCall(IAccountExecute.executeUserOp, (userOp, opInfo.userOpHash))
-                    : userOp.callData,
-                opInfo
-            )
-        );
-        Memory.load(ptr);
-
-        bool success = Call.call(address(this), 0, innerCall);
-        bytes32 result = abi.decode(Call.getReturnDataFixed(0x20), (bytes32));
-
-        if (success) {
-            collected = uint256(result);
-        } else if (result == INNER_OUT_OF_GAS) {
-            // handleOps was called with gas limit too low. abort entire bundle.
-            //can only be caused by bundler (leaving not enough gas for inner call)
-            revert FailedOp(opIndex, "AA95 out of gas");
-        } else if (result == INNER_REVERT_LOW_PREFUND) {
-            // innerCall reverted on prefund too low. treat entire prefund as "gas cost"
-            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
-            uint256 actualGasCost = opInfo.prefund;
-            emit UserOperationPrefundTooLow(opInfo.userOpHash, opInfo.sender, opInfo.nonce);
-            emit UserOperationEvent(
-                opInfo.userOpHash,
-                opInfo.sender,
-                opInfo.paymaster,
-                opInfo.nonce,
-                success,
-                actualGasCost,
-                actualGas
-            );
-            collected = actualGasCost;
-        } else {
-            emit PostOpRevertReason(
-                opInfo.userOpHash,
-                opInfo.sender,
-                opInfo.nonce,
-                Call.getReturnData(REVERT_REASON_MAX_LEN)
-            );
-
-            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
-            collected = _postExecution(IPaymaster.PostOpMode.postOpReverted, opInfo, actualGas);
-        }
+    function getSenderAddress(bytes calldata initCode) public returns (address) {
+        return _senderCreator.getSenderAddress(initCode);
     }
 
+    /****************************************************************************************************************
+     *                                               IEntryPointStake                                               *
+     ****************************************************************************************************************/
+    receive() external payable {
+        _mint(msg.sender, msg.value);
+    }
+
+    function balanceOf(address account) public view virtual override(ERC20, IEntryPointStake) returns (uint256) {
+        return super.balanceOf(account);
+    }
+
+    function depositTo(address account) public payable virtual {
+        _mint(account, msg.value);
+    }
+
+    function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) public virtual {
+        _burn(msg.sender, withdrawAmount);
+        Address.sendValue(withdrawAddress, withdrawAmount);
+    }
+
+    // TODO: implement
+    function addStake(uint32 /*unstakeDelaySec*/) public payable virtual {
+        revert("Stake not Implemented yet");
+    }
+
+    // TODO: implement and remove pure
+    function unlockStake() public pure virtual {
+        revert("Stake not Implemented yet");
+    }
+
+    // TODO: implement and remove pure
+    function withdrawStake(address payable /*withdrawAddress*/) public pure virtual {
+        revert("Stake not Implemented yet");
+    }
+
+    /****************************************************************************************************************
+     *                                              IEntryPointNonces                                               *
+     ****************************************************************************************************************/
+    function getNonce(
+        address owner,
+        uint192 key
+    ) public view virtual override(IEntryPointNonces, NoncesWithKey) returns (uint256) {
+        return super.getNonce(owner, key);
+    }
+
+    /****************************************************************************************************************
+     *                                            Handle user operations                                            *
+     ****************************************************************************************************************/
     function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) public nonReentrant {
         ERC4337Utils.UserOpInfo[] memory opInfos = new ERC4337Utils.UserOpInfo[](ops.length);
 
@@ -208,6 +198,70 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
     }
 
     /**
+     * Execute a user operation.
+     * @param opIndex    - Index into the opInfo array.
+     * @param userOp     - The userOp to execute.
+     * @param opInfo     - The opInfo filled by validatePrepayment for this userOp.
+     * @return collected - The total amount this userOp paid.
+     */
+    function _executeUserOp(
+        uint256 opIndex,
+        PackedUserOperation calldata userOp,
+        ERC4337Utils.UserOpInfo memory opInfo
+    ) internal returns (uint256 collected) {
+        uint256 preGas = gasleft();
+
+        // Allocate memory and reset the free memory pointer. Buffer for innerCall is not kept/protected
+        Memory.FreePtr ptr = Memory.save();
+        bytes memory innerCall = abi.encodeCall(
+            this.innerHandleOp,
+            (
+                userOp.callData.length >= 0x04 && bytes4(userOp.callData[0:4]) == IAccountExecute.executeUserOp.selector
+                    ? abi.encodeCall(IAccountExecute.executeUserOp, (userOp, opInfo.userOpHash))
+                    : userOp.callData,
+                opInfo
+            )
+        );
+        Memory.load(ptr);
+
+        bool success = Call.call(address(this), 0, innerCall);
+        bytes32 result = abi.decode(Call.getReturnDataFixed(0x20), (bytes32));
+
+        if (success) {
+            collected = uint256(result);
+        } else if (result == INNER_OUT_OF_GAS) {
+            // handleOps was called with gas limit too low. abort entire bundle.
+            //can only be caused by bundler (leaving not enough gas for inner call)
+            revert FailedOp(opIndex, "AA95 out of gas");
+        } else if (result == INNER_REVERT_LOW_PREFUND) {
+            // innerCall reverted on prefund too low. treat entire prefund as "gas cost"
+            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
+            uint256 actualGasCost = opInfo.prefund;
+            emit UserOperationPrefundTooLow(opInfo.userOpHash, opInfo.sender, opInfo.nonce);
+            emit UserOperationEvent(
+                opInfo.userOpHash,
+                opInfo.sender,
+                opInfo.paymaster,
+                opInfo.nonce,
+                success,
+                actualGasCost,
+                actualGas
+            );
+            collected = actualGasCost;
+        } else {
+            emit PostOpRevertReason(
+                opInfo.userOpHash,
+                opInfo.sender,
+                opInfo.nonce,
+                Call.getReturnData(REVERT_REASON_MAX_LEN)
+            );
+
+            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
+            collected = _postExecution(IPaymaster.PostOpMode.postOpReverted, opInfo, actualGas);
+        }
+    }
+
+    /**
      * Inner function to handle a UserOperation.
      * Must be declared "external" to open a call context, but it can only be called by handleOps.
      * @param callData - The callData to execute.
@@ -263,143 +317,12 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
             address sender = opInfo.sender;
             if (sender.code.length != 0) revert FailedOp(opIndex, "AA10 sender already constructed");
 
-            address deployed = ERC4337Utils.createSender(initCode, opInfo.verificationGasLimit);
+            address deployed = _senderCreator.createSender{gas: opInfo.verificationGasLimit}(initCode);
             if (deployed == address(0)) revert FailedOp(opIndex, "AA13 initCode failed or OOG");
             else if (deployed != sender) revert FailedOp(opIndex, "AA14 initCode must return sender");
             else if (deployed.code.length == 0) revert FailedOp(opIndex, "AA15 initCode must create sender");
 
             emit AccountDeployed(opInfo.userOpHash, sender, address(bytes20(initCode[0:20])), opInfo.paymaster);
-        }
-    }
-
-    function getSenderAddress(bytes calldata initCode) public {
-        revert SenderAddressResult(ERC4337Utils.createSender(initCode, gasleft()));
-    }
-
-    /**
-     * Call account.validateUserOp.
-     * Revert (with FailedOp) in case validateUserOp reverts, or account didn't send required prefund.
-     * Decrement account's deposit if needed.
-     * @param opIndex         - The operation index.
-     * @param op              - The user operation.
-     * @param opInfo          - The operation info.
-     * @param requiredPrefund - The required prefund amount.
-     */
-    function _validateAccountPrepayment(
-        uint256 opIndex,
-        PackedUserOperation calldata op,
-        ERC4337Utils.UserOpInfo memory opInfo,
-        uint256 requiredPrefund
-    ) internal returns (uint256 validationData) {
-        unchecked {
-            address sender = opInfo.sender;
-            address paymaster = opInfo.paymaster;
-            uint256 verificationGasLimit = opInfo.verificationGasLimit;
-
-            _createSenderIfNeeded(opIndex, opInfo, op.initCode);
-
-            uint256 missingAccountFunds = 0;
-            if (paymaster == address(0)) {
-                uint256 balance = balanceOf(sender);
-                if (requiredPrefund > balance) {
-                    missingAccountFunds = requiredPrefund - balance;
-                }
-            }
-
-            try
-                IAccount(sender).validateUserOp{gas: verificationGasLimit}(op, opInfo.userOpHash, missingAccountFunds)
-            returns (uint256 _validationData) {
-                validationData = _validationData;
-            } catch {
-                revert FailedOpWithRevert(opIndex, "AA23 reverted", Call.getReturnData(REVERT_REASON_MAX_LEN));
-            }
-
-            if (paymaster == address(0)) {
-                uint256 balance = balanceOf(sender);
-                if (requiredPrefund > balance) {
-                    revert FailedOp(opIndex, "AA21 didn't pay prefund");
-                } else if (requiredPrefund > 0) {
-                    _decrementDeposit(sender, requiredPrefund);
-                }
-            }
-        }
-    }
-
-    /**
-     * In case the request has a paymaster:
-     *  - Validate paymaster has enough deposit.
-     *  - Call paymaster.validatePaymasterUserOp.
-     *  - Revert with proper FailedOp in case paymaster reverts.
-     *  - Decrement paymaster's deposit.
-     * @param opIndex                            - The operation index.
-     * @param op                                 - The user operation.
-     * @param opInfo                             - The operation info.
-     * @param requiredPrefund                    - The required prefund amount.
-     */
-    function _validatePaymasterPrepayment(
-        uint256 opIndex,
-        PackedUserOperation calldata op,
-        ERC4337Utils.UserOpInfo memory opInfo,
-        uint256 requiredPrefund
-    ) internal returns (bytes memory context, uint256 validationData) {
-        unchecked {
-            uint256 preGas = gasleft();
-
-            address paymaster = opInfo.paymaster;
-            uint256 verificationGasLimit = opInfo.paymasterVerificationGasLimit;
-
-            uint256 balance = balanceOf(paymaster);
-            if (requiredPrefund > balance) {
-                revert FailedOp(opIndex, "AA31 paymaster deposit too low");
-            } else if (requiredPrefund > 0) {
-                _decrementDeposit(paymaster, requiredPrefund);
-            }
-
-            try
-                IPaymaster(paymaster).validatePaymasterUserOp{gas: verificationGasLimit}(
-                    op,
-                    opInfo.userOpHash,
-                    requiredPrefund
-                )
-            returns (bytes memory _context, uint256 _validationData) {
-                context = _context;
-                validationData = _validationData;
-            } catch {
-                revert FailedOpWithRevert(opIndex, "AA33 reverted", Call.getReturnData(REVERT_REASON_MAX_LEN));
-            }
-
-            if (preGas - gasleft() > verificationGasLimit) {
-                revert FailedOp(opIndex, "AA36 over paymasterVerificationGasLimit");
-            }
-        }
-    }
-
-    /**
-     * Revert if either account validationData or paymaster validationData is expired.
-     * @param opIndex                 - The operation index.
-     * @param validationData          - The account validationData.
-     * @param paymasterValidationData - The paymaster validationData.
-     * @param expectedAggregator      - The expected aggregator.
-     */
-    function _validateAccountAndPaymasterValidationData(
-        uint256 opIndex,
-        uint256 validationData,
-        uint256 paymasterValidationData,
-        address expectedAggregator
-    ) internal view {
-        (address aggregator, bool aggregatorOutOfTimeRange) = validationData.getValidationData();
-        if (aggregator != expectedAggregator) {
-            revert FailedOp(opIndex, "AA24 signature error");
-        } else if (aggregatorOutOfTimeRange) {
-            revert FailedOp(opIndex, "AA22 expired or not due");
-        }
-        // pmAggregator is not a real signature aggregator: we don't have logic to handle it as address.
-        // Non-zero address means that the paymaster fails due to some signature check (which is ok only during estimation).
-        (address pmAggregator, bool pmAggregatorOutOfTimeRange) = paymasterValidationData.getValidationData();
-        if (pmAggregator != address(0)) {
-            revert FailedOp(opIndex, "AA34 signature error");
-        } else if (pmAggregatorOutOfTimeRange) {
-            revert FailedOp(opIndex, "AA32 paymaster expired or not due");
         }
     }
 
@@ -459,6 +382,133 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
     }
 
     /**
+     * Call account.validateUserOp.
+     * Revert (with FailedOp) in case validateUserOp reverts, or account didn't send required prefund.
+     * Decrement account's deposit if needed.
+     * @param opIndex         - The operation index.
+     * @param op              - The user operation.
+     * @param opInfo          - The operation info.
+     * @param requiredPrefund - The required prefund amount.
+     */
+    function _validateAccountPrepayment(
+        uint256 opIndex,
+        PackedUserOperation calldata op,
+        ERC4337Utils.UserOpInfo memory opInfo,
+        uint256 requiredPrefund
+    ) internal returns (uint256 validationData) {
+        unchecked {
+            address sender = opInfo.sender;
+            address paymaster = opInfo.paymaster;
+            uint256 verificationGasLimit = opInfo.verificationGasLimit;
+
+            _createSenderIfNeeded(opIndex, opInfo, op.initCode);
+
+            uint256 missingAccountFunds = 0;
+            if (paymaster == address(0)) {
+                uint256 balance = balanceOf(sender);
+                if (requiredPrefund > balance) {
+                    missingAccountFunds = requiredPrefund - balance;
+                }
+            }
+
+            try
+                IAccount(sender).validateUserOp{gas: verificationGasLimit}(op, opInfo.userOpHash, missingAccountFunds)
+            returns (uint256 _validationData) {
+                validationData = _validationData;
+            } catch {
+                revert FailedOpWithRevert(opIndex, "AA23 reverted", Call.getReturnData(REVERT_REASON_MAX_LEN));
+            }
+
+            if (paymaster == address(0)) {
+                uint256 balance = balanceOf(sender);
+                if (requiredPrefund > balance) {
+                    revert FailedOp(opIndex, "AA21 didn't pay prefund");
+                } else if (requiredPrefund > 0) {
+                    _burn(sender, requiredPrefund);
+                }
+            }
+        }
+    }
+
+    /**
+     * In case the request has a paymaster:
+     *  - Validate paymaster has enough deposit.
+     *  - Call paymaster.validatePaymasterUserOp.
+     *  - Revert with proper FailedOp in case paymaster reverts.
+     *  - Decrement paymaster's deposit.
+     * @param opIndex                            - The operation index.
+     * @param op                                 - The user operation.
+     * @param opInfo                             - The operation info.
+     * @param requiredPrefund                    - The required prefund amount.
+     */
+    function _validatePaymasterPrepayment(
+        uint256 opIndex,
+        PackedUserOperation calldata op,
+        ERC4337Utils.UserOpInfo memory opInfo,
+        uint256 requiredPrefund
+    ) internal returns (bytes memory context, uint256 validationData) {
+        unchecked {
+            uint256 preGas = gasleft();
+
+            address paymaster = opInfo.paymaster;
+            uint256 verificationGasLimit = opInfo.paymasterVerificationGasLimit;
+
+            uint256 balance = balanceOf(paymaster);
+            if (requiredPrefund > balance) {
+                revert FailedOp(opIndex, "AA31 paymaster deposit too low");
+            } else if (requiredPrefund > 0) {
+                _burn(paymaster, requiredPrefund);
+            }
+
+            try
+                IPaymaster(paymaster).validatePaymasterUserOp{gas: verificationGasLimit}(
+                    op,
+                    opInfo.userOpHash,
+                    requiredPrefund
+                )
+            returns (bytes memory _context, uint256 _validationData) {
+                context = _context;
+                validationData = _validationData;
+            } catch {
+                revert FailedOpWithRevert(opIndex, "AA33 reverted", Call.getReturnData(REVERT_REASON_MAX_LEN));
+            }
+
+            if (preGas - gasleft() > verificationGasLimit) {
+                revert FailedOp(opIndex, "AA36 over paymasterVerificationGasLimit");
+            }
+        }
+    }
+
+    /**
+     * Revert if either account validationData or paymaster validationData is expired.
+     * @param opIndex                 - The operation index.
+     * @param validationData          - The account validationData.
+     * @param paymasterValidationData - The paymaster validationData.
+     * @param expectedAggregator      - The expected aggregator.
+     */
+    function _validateAccountAndPaymasterValidationData(
+        uint256 opIndex,
+        uint256 validationData,
+        uint256 paymasterValidationData,
+        address expectedAggregator
+    ) internal view {
+        (address aggregator, bool aggregatorOutOfTimeRange) = validationData.getValidationData();
+        if (aggregator != expectedAggregator) {
+            revert FailedOp(opIndex, "AA24 signature error");
+        } else if (aggregatorOutOfTimeRange) {
+            revert FailedOp(opIndex, "AA22 expired or not due");
+        }
+        // pmAggregator is not a real signature aggregator: we don't have logic to handle it as address.
+        // Non-zero address means that the paymaster fails due to some signature check (which is ok only during estimation).
+        (address pmAggregator, bool pmAggregatorOutOfTimeRange) = paymasterValidationData.getValidationData();
+        if (pmAggregator != address(0)) {
+            revert FailedOp(opIndex, "AA34 signature error");
+        } else if (pmAggregatorOutOfTimeRange) {
+            revert FailedOp(opIndex, "AA32 paymaster expired or not due");
+        }
+    }
+
+    /**
      * Process post-operation, called just after the callData is executed.
      * If a paymaster is defined and its validation returned a non-empty context, its postOp is called.
      * The excess amount is refunded to the account (or paymaster - if it was used in the request).
@@ -510,7 +560,7 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
                     Call.revertWithCode(INNER_REVERT_LOW_PREFUND);
                 }
             } else if (prefund > actualGasCost) {
-                _incrementDeposit(refundAddress, prefund - actualGasCost);
+                _mint(refundAddress, prefund - actualGasCost);
             }
             emit UserOperationEvent(
                 opInfo.userOpHash,
@@ -522,12 +572,5 @@ contract EntryPoint is IEntryPoint, StakeManager, NoncesWithKey, ReentrancyGuard
                 actualGas
             );
         }
-    }
-
-    function getNonce(
-        address owner,
-        uint192 key
-    ) public view virtual override(IEntryPointNonces, NoncesWithKey) returns (uint256) {
-        return super.getNonce(owner, key);
     }
 }

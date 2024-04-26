@@ -51,23 +51,17 @@ interface IEntryPointNonces {
 }
 
 interface IEntryPointStake {
-    // add a stake to the calling entity
-    function addStake(uint32 unstakeDelaySec) external payable;
-
-    // unlock the stake (must wait unstakeDelay before can withdraw)
-    function unlockStake() external;
-
-    // withdraw the unlocked stake
-    function withdrawStake(address payable withdrawAddress) external;
-
-    // return the deposit of an account
     function balanceOf(address account) external view returns (uint256);
 
-    // add to the deposit of the given account
     function depositTo(address account) external payable;
 
-    // withdraw from the deposit of the current account
     function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
+
+    function addStake(uint32 unstakeDelaySec) external payable;
+
+    function unlockStake() external;
+
+    function withdrawStake(address payable withdrawAddress) external;
 }
 
 interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
