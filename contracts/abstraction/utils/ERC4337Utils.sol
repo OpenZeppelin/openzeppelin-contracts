@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Call} from "../../utils/Call.sol";
+import {Memory} from "../../utils/Memory.sol";
 import {Packing} from "../../utils/Packing.sol";
 
 library ERC4337Utils {
@@ -198,6 +199,7 @@ library ERC4337Utils {
     }
 
     function load(UserOpInfo memory self, PackedUserOperation calldata source) internal view {
+        Memory.FreePtr ptr = Memory.save();
         self.sender = source.sender;
         self.nonce = source.nonce;
         (self.verificationGasLimit, self.callGasLimit) = source.accountGasLimits.asUint128x2().split();
@@ -218,6 +220,7 @@ library ERC4337Utils {
         self.prefund = 0;
         self.preOpGas = 0;
         self.context = "";
+        Memory.load(ptr);
     }
 
     function requiredPrefund(UserOpInfo memory self) internal pure returns (uint256) {
