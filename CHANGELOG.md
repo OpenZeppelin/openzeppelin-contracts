@@ -14,6 +14,10 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
 - Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
 
+## 5.0.3 (2024-xx-xx)
+
+- `IERC7160`: Add an interface for EIP-7160 that is now final. ([#4456](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4456))
+
 ## 5.0.2 (2024-02-29)
 
 - `Base64`: Fix issue where dirty memory located just after the input buffer is affecting the result. ([#4926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4926))
