@@ -8,7 +8,7 @@ import {Math} from "../../../contracts/utils/math/Math.sol";
 import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
-    function testSelect(bool f, int256 a, int256 b) public {
+    function testTernary(bool f, int256 a, int256 b) public {
         assertEq(SignedMath.ternary(f, a, b), f ? a : b);
     }
 

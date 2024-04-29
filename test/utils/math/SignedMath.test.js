@@ -50,4 +50,85 @@ describe('SignedMath', function () {
       });
     }
   });
+
+  describe('saturatingAdd', function () {
+    it('adds correctly', async function () {
+      expect(await this.mock.$saturatingAdd(0n, 0)).to.equal(0n);
+      const a = 5678n;
+      const b = 1234n;
+      await testCommutative(this.mock.$saturatingAdd, a, b, a + b);
+      await testCommutative(this.mock.$saturatingAdd, 0, 1n, 1n);
+      await testCommutative(this.mock.$saturatingAdd, 0, -1n, -1n);
+      await testCommutative(this.mock.$saturatingAdd, 1n, -1n, 0n);
+      expect(await this.mock.$saturatingAdd(1n, 1n)).to.equal(2n);
+      expect(await this.mock.$saturatingAdd(-1n, -1n)).to.equal(-2n);
+
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, 0n, ethers.MaxInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, -1n, ethers.MaxInt256 - 1n);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, -2n, ethers.MaxInt256 - 2n);
+
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, 0n, ethers.MinInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, 1n, ethers.MinInt256 + 1n);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, 2n, ethers.MinInt256 + 2n);
+
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, ethers.MaxInt256, -1n);
+    });
+
+    it('bounds on addition overflow', async function () {
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, 1n, ethers.MaxInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, 2n, ethers.MaxInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxInt256, ethers.MaxInt256, ethers.MaxInt256);
+    });
+
+    it('bounds on addition underflow', async function () {
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, -1n, ethers.MinInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, -2n, ethers.MinInt256);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MinInt256, ethers.MinInt256, ethers.MinInt256);
+    });
+  });
+
+  describe('saturatingSub', function () {
+    it('subtracts correctly', async function () {
+      const a = 5678n;
+      const b = 1234n;
+      expect(await this.mock.$saturatingSub(a, b)).to.equal(a - b);
+
+      expect(await this.mock.$saturatingSub(0n, 1n)).to.equal(-1n);
+      expect(await this.mock.$saturatingSub(0n, 0)).to.equal(0n);
+      expect(await this.mock.$saturatingSub(0n, -1n)).to.equal(1n);
+
+      expect(await this.mock.$saturatingSub(1n, 1n)).to.equal(0n);
+      expect(await this.mock.$saturatingSub(1n, 0n)).to.equal(1n);
+      expect(await this.mock.$saturatingSub(1n, -1n)).to.equal(2n);
+
+      expect(await this.mock.$saturatingSub(-1n, 0n)).to.equal(-1n);
+      expect(await this.mock.$saturatingSub(-1n, 1n)).to.equal(-2n);
+      expect(await this.mock.$saturatingSub(-1n, -1n)).to.equal(0n);
+
+      expect(await this.mock.$saturatingSub(0n, ethers.MaxInt256)).to.equal(0n - ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(1n, ethers.MaxInt256)).to.equal(1n - ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(-1n, ethers.MinInt256)).to.equal(-1n - ethers.MinInt256);
+      expect(await this.mock.$saturatingSub(-2n, ethers.MinInt256)).to.equal(-2n - ethers.MinInt256);
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, 0n)).to.equal(ethers.MinInt256 - 0n);
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, -1n)).to.equal(ethers.MinInt256 + 1n);
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, ethers.MinInt256)).to.equal(0n);
+      expect(await this.mock.$saturatingSub(ethers.MaxInt256, ethers.MaxInt256)).to.equal(0n);
+      expect(await this.mock.$saturatingSub(ethers.MaxInt256, 0n)).to.equal(ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, 0n)).to.equal(ethers.MinInt256);
+    });
+
+    it('bounds on subtraction overflow', async function () {
+      expect(await this.mock.$saturatingSub(0n, ethers.MinInt256)).to.equal(ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(ethers.MaxInt256, -1n)).to.equal(ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(ethers.MaxInt256, ethers.MinInt256)).to.equal(ethers.MaxInt256);
+      expect(await this.mock.$saturatingSub(1n << 254n, -(1n << 254n))).to.equal(ethers.MaxInt256);
+    });
+
+    it('bounds on subtraction underflow', async function () {
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, 1n)).to.equal(ethers.MinInt256);
+      expect(await this.mock.$saturatingSub(-1n, ethers.MaxInt256)).to.equal(ethers.MinInt256);
+      expect(await this.mock.$saturatingSub(-2n, ethers.MaxInt256)).to.equal(ethers.MinInt256);
+      expect(await this.mock.$saturatingSub(ethers.MinInt256, ethers.MaxInt256)).to.equal(ethers.MinInt256);
+    });
+  });
 });

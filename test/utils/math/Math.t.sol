@@ -7,7 +7,7 @@ import {Test, stdError} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
-    function testSelect(bool f, uint256 a, uint256 b) public {
+    function testTernary(bool f, uint256 a, uint256 b) public {
         assertEq(Math.ternary(f, a, b), f ? a : b);
     }
 
