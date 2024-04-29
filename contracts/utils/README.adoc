@@ -21,6 +21,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
+ * {CircularBuffer}: A data structure to store the last N values pushed to it.
  * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
@@ -94,6 +95,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{EnumerableSet}}
 
 {{DoubleEndedQueue}}
+
+{{CircularBuffer}}
 
 {{Checkpoints}}
 
