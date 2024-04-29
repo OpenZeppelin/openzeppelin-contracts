@@ -41,7 +41,7 @@ library Math {
     }
 
     /**
-     * @dev Unsigned saturating substraction, bounds to zero instead of overflowing.
+     * @dev Unsigned saturating subtraction, bounds to zero instead of overflowing.
      */
     function saturatingSub(uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
@@ -111,9 +111,9 @@ library Math {
      */
     function tryMod(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
-            // In EVM a value modulus zero is equal to zero.
+            success = b > 0;
             assembly {
-                success := gt(b, 0)
+                // In EVM a value modulus zero is equal to zero.
                 result := mod(a, b)
             }
         }
