@@ -77,7 +77,7 @@ library SignedMath {
             // - underflow is only possible when both `a` and `b` are negative
             //
             // Lemma:
-            // (i)  - if `a > (a + b)` is true, then `b` MUST be negative, othewise overflow happened.
+            // (i)  - if `a > (a + b)` is true, then `b` MUST be negative, otherwise overflow happened.
             // (ii) - if `a > (a + b)` is false, then `b` MUST be non-negative, otherwise underflow happened.
             //
             // So the following statement will be true only if an overflow or underflow happened:
@@ -112,7 +112,7 @@ library SignedMath {
             // - underflow is only possible when `a` is negative and `b` is positive
             //
             // Lemma:
-            // (i)  - if `a >= (a - b)` is true, then `b` MUST be non-negative, othewise overflow happened.
+            // (i)  - if `a >= (a - b)` is true, then `b` MUST be non-negative, otherwise overflow happened.
             // (ii) - if `a >= (a - b)` is false, then `b` MUST be negative, otherwise underflow happened.
             //
             // So the following statement will be true only if an overflow or underflow happened:

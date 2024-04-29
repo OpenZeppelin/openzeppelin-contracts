@@ -116,7 +116,6 @@ library Math {
                 success := gt(b, 0)
                 result := mod(a, b)
             }
-            // return (b > 0, a % b);
         }
     }
 
