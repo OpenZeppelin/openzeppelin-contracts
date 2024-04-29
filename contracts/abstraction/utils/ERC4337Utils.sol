@@ -56,93 +56,37 @@ library ERC4337Utils {
         }
     }
 
-    /*
-    enum ErrorCodes {
-        AA10_SENDER_ALREADY_CONSTRUCTED,
-        AA13_INITCODE_FAILLED,
-        AA14_INITCODE_WRONG_SENDER,
-        AA15_INITCODE_NO_DEPLOYMENT,
-        // Account
-        AA21_MISSING_FUNDS,
-        AA22_EXPIRED_OR_NOT_DUE,
-        AA23_REVERTED,
-        AA24_SIGNATURE_ERROR,
-        AA25_INVALID_NONCE,
-        AA26_OVER_VERIFICATION_GAS_LIMIT,
-        // Paymaster
-        AA31_MISSING_FUNDS,
-        AA32_EXPIRED_OR_NOT_DUE,
-        AA33_REVERTED,
-        AA34_SIGNATURE_ERROR,
-        AA36_OVER_VERIFICATION_GAS_LIMIT,
-        // other
-        AA95_OUT_OF_GAS
-    }
-
-    function toString(ErrorCodes err) internal pure returns (string memory) {
-        if (err == ErrorCodes.AA10_SENDER_ALREADY_CONSTRUCTED) {
-            return "AA10 sender already constructed";
-        } else if (err == ErrorCodes.AA13_INITCODE_FAILLED) {
-            return "AA13 initCode failed or OOG";
-        } else if (err == ErrorCodes.AA14_INITCODE_WRONG_SENDER) {
-            return "AA14 initCode must return sender";
-        } else if (err == ErrorCodes.AA15_INITCODE_NO_DEPLOYMENT) {
-            return "AA15 initCode must create sender";
-        } else if (err == ErrorCodes.AA21_MISSING_FUNDS) {
-            return "AA21 didn't pay prefund";
-        } else if (err == ErrorCodes.AA22_EXPIRED_OR_NOT_DUE) {
-            return "AA22 expired or not due";
-        } else if (err == ErrorCodes.AA23_REVERTED) {
-            return "AA23 reverted";
-        } else if (err == ErrorCodes.AA24_SIGNATURE_ERROR) {
-            return "AA24 signature error";
-        } else if (err == ErrorCodes.AA25_INVALID_NONCE) {
-            return "AA25 invalid account nonce";
-        } else if (err == ErrorCodes.AA26_OVER_VERIFICATION_GAS_LIMIT) {
-            return "AA26 over verificationGasLimit";
-        } else if (err == ErrorCodes.AA31_MISSING_FUNDS) {
-            return "AA31 paymaster deposit too low";
-        } else if (err == ErrorCodes.AA32_EXPIRED_OR_NOT_DUE) {
-            return "AA32 paymaster expired or not due";
-        } else if (err == ErrorCodes.AA33_REVERTED) {
-            return "AA33 reverted";
-        } else if (err == ErrorCodes.AA34_SIGNATURE_ERROR) {
-            return "AA34 signature error";
-        } else if (err == ErrorCodes.AA36_OVER_VERIFICATION_GAS_LIMIT) {
-            return "AA36 over paymasterVerificationGasLimit";
-        } else if (err == ErrorCodes.AA95_OUT_OF_GAS) {
-            return "AA95 out of gas";
-        } else {
-            return "Unknown error code";
-        }
-    }
-
-    function failedOp(uint256 index, ErrorCodes err) internal pure {
-        revert IEntryPoint.FailedOp(index, toString(err));
-    }
-
-    function failedOp(uint256 index, ErrorCodes err, bytes memory extraData) internal pure {
-        revert IEntryPoint.FailedOpWithRevert(index, toString(err), extraData);
-    }
-    */
-
     // Packed user operation
-    function hash(PackedUserOperation calldata self) internal pure returns (bytes32) {
-        return keccak256(encode(self));
+    function hash(PackedUserOperation calldata self) internal view returns (bytes32) {
+        return hash(self, address(this), block.chainid);
     }
 
-    function encode(PackedUserOperation calldata self) internal pure returns (bytes memory ret) {
-        return
+    function hash(
+        PackedUserOperation calldata self,
+        address entrypoint,
+        uint256 chainid
+    ) internal pure returns (bytes32) {
+        Memory.FreePtr ptr = Memory.save();
+        bytes32 result = keccak256(
             abi.encode(
-                self.sender,
-                self.nonce,
-                keccak256(self.initCode),
-                keccak256(self.callData),
-                self.accountGasLimits,
-                self.preVerificationGas,
-                self.gasFees,
-                keccak256(self.paymasterAndData)
-            );
+                keccak256(
+                    abi.encode(
+                        self.sender,
+                        self.nonce,
+                        keccak256(self.initCode),
+                        keccak256(self.callData),
+                        self.accountGasLimits,
+                        self.preVerificationGas,
+                        self.gasFees,
+                        keccak256(self.paymasterAndData)
+                    )
+                ),
+                entrypoint,
+                chainid
+            )
+        );
+        Memory.load(ptr);
+        return result;
     }
 
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
@@ -199,7 +143,6 @@ library ERC4337Utils {
     }
 
     function load(UserOpInfo memory self, PackedUserOperation calldata source) internal view {
-        Memory.FreePtr ptr = Memory.save();
         self.sender = source.sender;
         self.nonce = source.nonce;
         (self.verificationGasLimit, self.callGasLimit) = source.accountGasLimits.asUint128x2().split();
@@ -216,11 +159,10 @@ library ERC4337Utils {
             self.paymasterVerificationGasLimit = 0;
             self.paymasterPostOpGasLimit = 0;
         }
-        self.userOpHash = keccak256(abi.encode(hash(source), address(this), block.chainid));
+        self.userOpHash = hash(source);
         self.prefund = 0;
         self.preOpGas = 0;
         self.context = "";
-        Memory.load(ptr);
     }
 
     function requiredPrefund(UserOpInfo memory self) internal pure returns (uint256) {

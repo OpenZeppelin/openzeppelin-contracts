@@ -1,10 +1,10 @@
 const { ethers } = require('hardhat');
 
 function pack(left, right) {
-  return ethers.toBeHex((left << 128n) | right, 32);
+  return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
-class ERC4337Context {
+class ERC4337Helper {
   constructor() {
     this.entrypointAsPromise = ethers.deployContract('EntryPoint');
     this.factoryAsPromise = ethers.deployContract('$Create2');
@@ -41,19 +41,30 @@ class AbstractAccount extends ethers.BaseContract {
     this.context = context;
   }
 
-  createOp(params = {}, withInit = false) {
-    return new UserOperation({
-      ...params,
-      sender: this,
-      initCode: withInit ? this.initCode : '0x',
-    });
+  async createOp(args = {}, withInit = false) {
+    const params = Object.assign({ sender: this, initCode: withInit ? this.initCode : '0x' }, args);
+    // fetch nonce
+    if (!params.nonce) {
+      params.nonce = await this.context.entrypointAsPromise.then(entrypoint => entrypoint.getNonce(this, 0));
+    }
+    // prepare paymaster and data
+    if (ethers.isAddressable(params.paymaster)) {
+      params.paymaster = await ethers.resolveAddress(params.paymaster);
+      params.paymasterVerificationGasLimit ??= 100_000n;
+      params.paymasterPostOpGasLimit ??= 100_000n;
+      params.paymasterAndData = ethers.solidityPacked(
+        ['address', 'uint128', 'uint128'],
+        [params.paymaster, params.paymasterVerificationGasLimit, params.paymasterPostOpGasLimit],
+      );
+    }
+    return new UserOperation(params);
   }
 }
 
 class UserOperation {
   constructor(params) {
     this.sender = params.sender;
-    this.nonce = params.nonce ?? 0n;
+    this.nonce = params.nonce;
     this.initCode = params.initCode ?? '0x';
     this.callData = params.callData ?? '0x';
     this.verificationGas = params.verificationGas ?? 2_000_000n;
@@ -106,7 +117,7 @@ class UserOperation {
 }
 
 module.exports = {
-  ERC4337Context,
+  ERC4337Helper,
   AbstractAccount,
   UserOperation,
 };
