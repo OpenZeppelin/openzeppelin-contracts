@@ -22,9 +22,9 @@ library Math {
      */
     function saturatingAdd(uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
-            a = a + b;
-            b = 0 - SafeCast.toUint(a < b);
-            return a | b;
+            uint256 c = a + b;
+            // equivalent to: c < a ? type(uint256).max : c
+            return c | (0 - SafeCast.toUint(c < a));
         }
     }
 
@@ -45,7 +45,7 @@ library Math {
      */
     function saturatingSub(uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
-            // equivalent to: a >= b ? a - b : 0
+            // equivalent to: a > b ? a - b : 0
             return (a - b) * SafeCast.toUint(a > b);
         }
     }
@@ -56,7 +56,7 @@ library Math {
     function trySub(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             success = a >= b;
-            // equivalent to: success ? c : 0
+            // equivalent to: success ? (a - b) : 0
             result = SafeCast.toUint(success) * (a - b);
         }
     }
