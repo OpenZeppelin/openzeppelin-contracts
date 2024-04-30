@@ -8,8 +8,8 @@ import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {Address} from "../../utils/Address.sol";
 import {Account} from "../account/Account.sol";
-import {AccountECDSA} from "../account/AccountECDSA.sol";
-import {AccountP256} from "../account/AccountP256.sol";
+import {AccountECDSA} from "../account/modules/AccountECDSA.sol";
+import {AccountP256} from "../account/modules/AccountP256.sol";
 
 abstract contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
     IEntryPoint private immutable _entryPoint;

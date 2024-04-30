@@ -2,14 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
-import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
-import {P256} from "../../utils/cryptography/P256.sol";
-import {Account} from "./Account.sol";
+import {PackedUserOperation} from "../../../interfaces/IERC4337.sol";
+import {MessageHashUtils} from "../../../utils/cryptography/MessageHashUtils.sol";
+import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
+import {Account} from "../Account.sol";
 
-abstract contract AccountP256 is Account {
-    error P256InvalidSignatureLength(uint256 length);
-
+abstract contract AccountECDSA is Account {
     function _processSignature(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
@@ -31,9 +29,18 @@ abstract contract AccountP256 is Account {
                 s := calldataload(add(signature.offset, 0x20))
                 v := byte(0, calldataload(add(signature.offset, 0x40)))
             }
-            return (P256.recoveryAddress(uint256(msgHash), v, uint256(r), uint256(s)), 0, 0);
+            return (ECDSA.recover(msgHash, v, r, s), 0, 0);
+        } else if (signature.length == 64) {
+            bytes32 r;
+            bytes32 vs;
+            /// @solidity memory-safe-assembly
+            assembly {
+                r := calldataload(add(signature.offset, 0x00))
+                vs := calldataload(add(signature.offset, 0x20))
+            }
+            return (ECDSA.recover(msgHash, r, vs), 0, 0);
         } else {
-            revert P256InvalidSignatureLength(signature.length);
+            revert ECDSA.ECDSAInvalidSignatureLength(signature.length);
         }
     }
 }
