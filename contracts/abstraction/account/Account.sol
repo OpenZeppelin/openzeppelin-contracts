@@ -3,13 +3,10 @@
 pragma solidity ^0.8.20;
 
 import {PackedUserOperation, IAccount, IEntryPoint} from "../../interfaces/IERC4337.sol";
-import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
 
 abstract contract Account is IAccount {
-    using SafeCast for bool;
-
     error AccountEntryPointRestricted();
     error AccountUserRestricted();
     error AccountInvalidBatchLength();
@@ -22,21 +19,30 @@ abstract contract Account is IAccount {
         _;
     }
 
-    modifier onlyAuthorizedOrSelf() {
-        if (msg.sender != address(this) && !_isAuthorized(msg.sender)) {
+    modifier onlyAuthorizedOrEntryPoint() {
+        if (msg.sender != address(entryPoint()) && !_isAuthorized(msg.sender)) {
             revert AccountUserRestricted();
         }
         _;
     }
 
-    // Virtual pure (not implemented) hooks
+    // Hooks
     function entryPoint() public view virtual returns (IEntryPoint);
 
-    function _isAuthorized(address) internal view virtual returns (bool);
+    function _isAuthorized(address) internal virtual returns (bool);
+
+    function _getSignerAndWindow(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal virtual returns (address, uint48, uint48);
 
     // Public interface
     function getNonce() public view virtual returns (uint256) {
         return entryPoint().getNonce(address(this), 0);
+    }
+
+    function getNonce(uint192 key) public view virtual returns (uint256) {
+        return entryPoint().getNonce(address(this), key);
     }
 
     function validateUserOp(
@@ -49,25 +55,19 @@ abstract contract Account is IAccount {
         _payPrefund(missingAccountFunds);
     }
 
+    // Internal mechanisms
     function _validateSignature(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual returns (uint256 validationData) {
-        return
-            (_isAuthorized(userOp.sender) &&
-                SignatureChecker.isValidSignatureNow(
-                    userOp.sender,
-                    MessageHashUtils.toEthSignedMessageHash(userOpHash),
-                    userOp.signature
-                )).toUint();
+        (address signer, uint48 validAfter, uint48 validUntil) = _getSignerAndWindow(userOp, userOpHash);
+        return ERC4337Utils.packValidationData(signer != address(0) && _isAuthorized(signer), validAfter, validUntil);
     }
 
-    function _validateNonce(uint256 nonce) internal view virtual {
-        // TODO ?
-    }
+    function _validateNonce(uint256 nonce) internal view virtual {}
 
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
-        if (missingAccountFunds != 0) {
+        if (missingAccountFunds > 0) {
             (bool success, ) = payable(msg.sender).call{value: missingAccountFunds}("");
             success;
             //ignore failure (its EntryPoint's job to verify, not account.)

@@ -28,7 +28,7 @@ class ERC4337Helper {
       .then(deployCode => ethers.concat([this.factory.target, deployCode]));
     const instance = await this.entrypoint.getSenderAddress
       .staticCall(initCode)
-      .then(address => this.account.attach(address));
+      .then(address => this.account.attach(address).connect(user));
     return new AbstractAccount(instance, initCode, this);
   }
 }
@@ -41,8 +41,16 @@ class AbstractAccount extends ethers.BaseContract {
     this.context = context;
   }
 
-  async createOp(args = {}, withInit = false) {
-    const params = Object.assign({ sender: this, initCode: withInit ? this.initCode : '0x' }, args);
+  async deploy() {
+    this.deployTx = await this.runner.sendTransaction({
+      to: '0x' + this.initCode.replace(/0x/, '').slice(0, 40),
+      data: '0x' + this.initCode.replace(/0x/, '').slice(40),
+    });
+    return this;
+  }
+
+  async createOp(args = {}) {
+    const params = Object.assign({ sender: this }, args);
     // fetch nonce
     if (!params.nonce) {
       params.nonce = await this.context.entrypointAsPromise.then(entrypoint => entrypoint.getNonce(this, 0));
@@ -67,7 +75,7 @@ class UserOperation {
     this.nonce = params.nonce;
     this.initCode = params.initCode ?? '0x';
     this.callData = params.callData ?? '0x';
-    this.verificationGas = params.verificationGas ?? 2_000_000n;
+    this.verificationGas = params.verificationGas ?? 10_000_000n;
     this.callGas = params.callGas ?? 100_000n;
     this.preVerificationGas = params.preVerificationGas ?? 100_000n;
     this.maxPriorityFee = params.maxPriorityFee ?? 100_000n;
@@ -113,6 +121,16 @@ class UserOperation {
         [h, this.sender.context.entrypoint.target, this.sender.context.chainId],
       ),
     );
+  }
+
+  addInitCode() {
+    this.initCode = this.sender.initCode;
+    return this;
+  }
+
+  async sign(signer = this.sender.runner) {
+    this.signature = await signer.signMessage(ethers.toBeArray(this.hash));
+    return this;
   }
 }
 

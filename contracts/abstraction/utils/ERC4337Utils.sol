@@ -40,9 +40,9 @@ library ERC4337Utils {
         return uint160(aggregator) | (uint256(validUntil) << 160) | (uint256(validAfter) << 208);
     }
 
-    function packValidationData(bool sigFailed, uint48 validUntil, uint48 validAfter) internal pure returns (uint256) {
+    function packValidationData(bool sigSuccess, uint48 validUntil, uint48 validAfter) internal pure returns (uint256) {
         return
-            (sigFailed ? SIG_VALIDATION_FAILED : SIG_VALIDATION_SUCCESS) |
+            Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED) |
             (uint256(validUntil) << 160) |
             (uint256(validAfter) << 208);
     }
@@ -109,7 +109,7 @@ library ERC4337Utils {
         unchecked {
             // Following values are "per gas"
             (uint256 maxPriorityFee, uint256 maxFee) = self.gasFees.asUint128x2().split();
-            return maxFee == maxPriorityFee ? maxFee : Math.min(maxFee, maxPriorityFee + block.basefee);
+            return Math.ternary(maxFee == maxPriorityFee, maxFee, Math.min(maxFee, maxPriorityFee + block.basefee));
         }
     }
 
@@ -178,7 +178,7 @@ library ERC4337Utils {
         unchecked {
             uint256 maxFee = self.maxFeePerGas;
             uint256 maxPriorityFee = self.maxPriorityFeePerGas;
-            return maxFee == maxPriorityFee ? maxFee : Math.min(maxFee, maxPriorityFee + block.basefee);
+            return Math.ternary(maxFee == maxPriorityFee, maxFee, Math.min(maxFee, maxPriorityFee + block.basefee));
         }
     }
 }

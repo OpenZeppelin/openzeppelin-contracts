@@ -7,9 +7,9 @@ import {Ownable} from "../../access/Ownable.sol";
 import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {Address} from "../../utils/Address.sol";
-import {Account} from "../account/Account.sol";
+import {AccountECDSA} from "../account/AccountECDSA.sol";
 
-contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
+contract SimpleAccount is AccountECDSA, Ownable, ERC721Holder, ERC1155Holder {
     IEntryPoint private immutable _entryPoint;
 
     constructor(IEntryPoint entryPoint_, address initialOwner) Ownable(initialOwner) {
@@ -26,7 +26,7 @@ contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
         return user == owner();
     }
 
-    function execute(address target, uint256 value, bytes calldata data) external onlyAuthorizedOrSelf {
+    function execute(address target, uint256 value, bytes calldata data) public virtual onlyAuthorizedOrEntryPoint {
         _call(target, value, data);
     }
 
@@ -34,7 +34,7 @@ contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
         address[] calldata targets,
         uint256[] calldata values,
         bytes[] calldata calldatas
-    ) external onlyAuthorizedOrSelf {
+    ) public virtual onlyAuthorizedOrEntryPoint {
         if (targets.length != calldatas.length || (values.length != 0 && values.length != targets.length)) {
             revert AccountInvalidBatchLength();
         }
