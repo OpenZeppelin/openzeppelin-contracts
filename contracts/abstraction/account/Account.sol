@@ -50,7 +50,7 @@ abstract contract Account is IAccount {
      * Subclass must implement this following their choice of cryptography.
      * If a signature is ill-formed, address(0) should be returned.
      */
-    function _getSignerAndWindow(
+    function _processSignature(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual returns (address, uint48, uint48);
@@ -106,7 +106,7 @@ abstract contract Account is IAccount {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual returns (uint256 validationData) {
-        (address signer, uint48 validAfter, uint48 validUntil) = _getSignerAndWindow(userOp, userOpHash);
+        (address signer, uint48 validAfter, uint48 validUntil) = _processSignature(userOp, userOpHash);
         return ERC4337Utils.packValidationData(signer != address(0) && _isAuthorized(signer), validAfter, validUntil);
     }
 

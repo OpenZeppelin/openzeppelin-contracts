@@ -5,10 +5,10 @@ function pack(left, right) {
 }
 
 class ERC4337Helper {
-  constructor() {
+  constructor(account = 'SimpleAccountECDSA') {
     this.entrypointAsPromise = ethers.deployContract('EntryPoint');
     this.factoryAsPromise = ethers.deployContract('$Create2');
-    this.accountAsPromise = ethers.getContractFactory('SimpleAccount');
+    this.accountAsPromise = ethers.getContractFactory(account);
     this.chainIdAsPromise = ethers.provider.getNetwork().then(({ chainId }) => chainId);
   }
 
@@ -41,8 +41,8 @@ class AbstractAccount extends ethers.BaseContract {
     this.context = context;
   }
 
-  async deploy() {
-    this.deployTx = await this.runner.sendTransaction({
+  async deploy(account = this.runner) {
+    this.deployTx = await account.sendTransaction({
       to: '0x' + this.initCode.replace(/0x/, '').slice(0, 40),
       data: '0x' + this.initCode.replace(/0x/, '').slice(40),
     });

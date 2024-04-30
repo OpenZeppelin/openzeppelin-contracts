@@ -163,7 +163,7 @@ describe('EntryPoint', function () {
         await this.sender.deploy();
       });
 
-      it('success: deploy and call', async function () {
+      it('success: call', async function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
