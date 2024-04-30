@@ -13,14 +13,23 @@ abstract contract AccountECDSA is Account {
         bytes32 userOpHash
     ) internal virtual override returns (address, uint48, uint48) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
+
         // This implementation support both "normal" and short signature formats:
         // - If signature length is 65, process as "normal" signature (R,S,V)
         // - If signature length is 64, process as https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signature] (R,SV) ECDSA signature
         // This is safe because the UserOperations include a nonce (which is managed by the entrypoint) for replay protection.
         bytes calldata signature = userOp.signature;
         if (signature.length == 65) {
-            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(msgHash, signature);
-            return (err == ECDSA.RecoverError.NoError ? recovered : address(0), 0, 0);
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            /// @solidity memory-safe-assembly
+            assembly {
+                r := calldataload(add(signature.offset, 0x20))
+                s := calldataload(add(signature.offset, 0x40))
+                v := byte(0, calldataload(add(signature.offset, 0x60)))
+            }
+            return (ECDSA.recover(msgHash, signature), 0, 0);
         } else if (signature.length == 64) {
             bytes32 r;
             bytes32 vs;
@@ -29,10 +38,9 @@ abstract contract AccountECDSA is Account {
                 r := calldataload(add(signature.offset, 0x20))
                 vs := calldataload(add(signature.offset, 0x40))
             }
-            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(msgHash, r, vs);
-            return (err == ECDSA.RecoverError.NoError ? recovered : address(0), 0, 0);
+            return (ECDSA.recover(msgHash, r, vs), 0, 0);
         } else {
-            return (address(0), 0, 0);
+            revert ECDSA.ECDSAInvalidSignatureLength(signature.length);
         }
     }
 }
