@@ -129,7 +129,7 @@ class UserOperation {
   }
 
   async sign(signer = this.sender.runner) {
-    this.signature = await signer.signMessage(ethers.toBeArray(this.hash));
+    this.signature = await signer.signMessage(ethers.getBytes(this.hash));
     return this;
   }
 }
