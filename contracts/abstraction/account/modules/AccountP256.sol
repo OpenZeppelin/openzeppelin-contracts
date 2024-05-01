@@ -16,14 +16,11 @@ abstract contract AccountP256 is Account {
     ) internal virtual override returns (address, uint48, uint48) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
-        // This implementation support both "normal" and short signature formats:
-        // - If signature length is 65, process as "normal" signature (R,S,V)
-        // - If signature length is 64, process as https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signature] (R,SV) ECDSA signature
-        // This is safe because the UserOperations include a nonce (which is managed by the entrypoint) for replay protection.
+        // This implementation support signature that are 65 bytes long in the (R,S,V) format
         bytes calldata signature = userOp.signature;
         if (signature.length == 65) {
-            bytes32 r;
-            bytes32 s;
+            uint256 r;
+            uint256 s;
             uint8 v;
             /// @solidity memory-safe-assembly
             assembly {
@@ -31,7 +28,7 @@ abstract contract AccountP256 is Account {
                 s := calldataload(add(signature.offset, 0x20))
                 v := byte(0, calldataload(add(signature.offset, 0x40)))
             }
-            return (P256.recoveryAddress(uint256(msgHash), v, uint256(r), uint256(s)), 0, 0);
+            return (P256.recoveryAddress(uint256(msgHash), v, r, s), 0, 0);
         } else {
             revert P256InvalidSignatureLength(signature.length);
         }
