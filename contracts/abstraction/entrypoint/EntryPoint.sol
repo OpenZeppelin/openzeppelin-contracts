@@ -17,13 +17,18 @@ import {SenderCreationHelper} from "./../utils/SenderCreationHelper.sol";
 /*
  * Account-Abstraction (EIP-4337) singleton EntryPoint implementation.
  * Only one instance required on each chain.
+ *
+ * WARNING: This contract is not properly tested. It is only present as an helper for the development of account
+ * contracts. The EntryPoint is a critical element or ERC-4337, and must be developped with exterm care to avoid any
+ * issue with gas payments/refunds in corner cases. A fully tested, production-ready, version may be available in the
+ * future, but for the moment this should NOT be used in production!
  */
 contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, NoncesWithKey, ReentrancyGuard {
     using ERC4337Utils for *;
 
     SenderCreationHelper private immutable _senderCreator = new SenderCreationHelper();
 
-    // TODO: move to interface?
+    // TODO: move events to interface?
     event UserOperationEvent(
         bytes32 indexed userOpHash,
         address indexed sender,
@@ -47,7 +52,7 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     error PostOpReverted(bytes returnData);
     error SignatureValidationFailed(address aggregator);
 
-    //compensate for innerHandleOps' emit message and deposit refund.
+    // compensate for innerHandleOps' emit message and deposit refund.
     // allow some slack for future gas price changes.
     uint256 private constant INNER_GAS_OVERHEAD = 10000;
     bytes32 private constant INNER_OUT_OF_GAS = hex"deaddead";
@@ -75,37 +80,44 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
         _mint(msg.sender, msg.value);
     }
 
+    /// @inheritdoc IEntryPointStake
     function balanceOf(address account) public view virtual override(ERC20, IEntryPointStake) returns (uint256) {
         return super.balanceOf(account);
     }
 
+    /// @inheritdoc IEntryPointStake
     function depositTo(address account) public payable virtual {
         _mint(account, msg.value);
     }
 
+    /// @inheritdoc IEntryPointStake
     function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) public virtual {
         _burn(msg.sender, withdrawAmount);
         Address.sendValue(withdrawAddress, withdrawAmount);
     }
 
-    // TODO: implement
+    /// @inheritdoc IEntryPointStake
     function addStake(uint32 /*unstakeDelaySec*/) public payable virtual {
+        // TODO: implement
         revert("Stake not Implemented yet");
     }
 
-    // TODO: implement and remove pure
+    /// @inheritdoc IEntryPointStake
     function unlockStake() public pure virtual {
+        // TODO: implement and remove pure
         revert("Stake not Implemented yet");
     }
 
-    // TODO: implement and remove pure
+    /// @inheritdoc IEntryPointStake
     function withdrawStake(address payable /*withdrawAddress*/) public pure virtual {
+        // TODO: implement and remove pure
         revert("Stake not Implemented yet");
     }
 
     /****************************************************************************************************************
      *                                              IEntryPointNonces                                               *
      ****************************************************************************************************************/
+    /// @inheritdoc IEntryPointNonces
     function getNonce(
         address owner,
         uint192 key
@@ -116,24 +128,26 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     /****************************************************************************************************************
      *                                            Handle user operations                                            *
      ****************************************************************************************************************/
+    /// @inheritdoc IEntryPoint
     function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) public nonReentrant {
-        ERC4337Utils.UserOpInfo[] memory opInfos = new ERC4337Utils.UserOpInfo[](ops.length);
+        ERC4337Utils.UserOpInfo[] memory userOpInfos = new ERC4337Utils.UserOpInfo[](ops.length);
 
         for (uint256 i = 0; i < ops.length; ++i) {
-            (uint256 validationData, uint256 pmValidationData) = _validatePrepayment(i, ops[i], opInfos[i]);
-            _validateAccountAndPaymasterValidationData(i, validationData, pmValidationData, address(0));
+            (uint256 validationData, uint256 paymasterValidationData) = _validatePrepayment(i, ops[i], userOpInfos[i]);
+            _validateAccountAndPaymasterValidationData(i, validationData, paymasterValidationData, address(0));
         }
 
         emit BeforeExecution();
 
         uint256 collected = 0;
         for (uint256 i = 0; i < ops.length; ++i) {
-            collected += _executeUserOp(i, ops[i], opInfos[i]);
+            collected += _executeUserOp(i, ops[i], userOpInfos[i]);
         }
 
         Address.sendValue(beneficiary, collected);
     }
 
+    /// @inheritdoc IEntryPoint
     function handleAggregatedOps(
         UserOpsPerAggregator[] calldata opsPerAggregator,
         address payable beneficiary
@@ -144,9 +158,9 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             IAggregator aggregator = opsPerAggregator[i].aggregator;
 
             //address(1) is special marker of "signature error"
-            require(address(aggregator) != address(1), "AA96 invalid aggregator");
-            if (address(aggregator) != address(0)) {
-                // solhint-disable-next-line no-empty-blocks
+            if (address(aggregator) == address(1)) {
+                revert("AA96 invalid aggregator");
+            } else if (address(aggregator) != address(0)) {
                 try aggregator.validateSignatures(ops, opsPerAggregator[i].signature) {} catch {
                     revert SignatureValidationFailed(address(aggregator));
                 }
@@ -154,7 +168,7 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             totalOps += ops.length;
         }
 
-        ERC4337Utils.UserOpInfo[] memory opInfos = new ERC4337Utils.UserOpInfo[](totalOps);
+        ERC4337Utils.UserOpInfo[] memory userOpInfos = new ERC4337Utils.UserOpInfo[](totalOps);
 
         uint256 opIndex = 0;
         for (uint256 a = 0; a < opsPerAggregator.length; ++a) {
@@ -165,7 +179,7 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
                 (uint256 validationData, uint256 paymasterValidationData) = _validatePrepayment(
                     opIndex,
                     ops[i],
-                    opInfos[opIndex]
+                    userOpInfos[opIndex]
                 );
                 _validateAccountAndPaymasterValidationData(
                     i,
@@ -173,7 +187,7 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
                     paymasterValidationData,
                     address(aggregator)
                 );
-                opIndex++;
+                ++opIndex;
             }
         }
 
@@ -188,8 +202,8 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
 
             emit SignatureAggregatorChanged(address(aggregator));
             for (uint256 i = 0; i < ops.length; ++i) {
-                collected += _executeUserOp(opIndex, ops[i], opInfos[opIndex]);
-                opIndex++;
+                collected += _executeUserOp(opIndex, ops[i], userOpInfos[opIndex]);
+                ++opIndex;
             }
         }
         emit SignatureAggregatorChanged(address(0));
@@ -198,16 +212,16 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     }
 
     /**
-     * Execute a user operation.
-     * @param opIndex    - Index into the opInfo array.
+     * @dev Execute a user operation.
+     * @param opIndex    - Index into the userOpInfo array.
      * @param userOp     - The userOp to execute.
-     * @param opInfo     - The opInfo filled by validatePrepayment for this userOp.
+     * @param userOpInfo - The userOpInfo filled by validatePrepayment for this userOp.
      * @return collected - The total amount this userOp paid.
      */
     function _executeUserOp(
         uint256 opIndex,
         PackedUserOperation calldata userOp,
-        ERC4337Utils.UserOpInfo memory opInfo
+        ERC4337Utils.UserOpInfo memory userOpInfo
     ) internal returns (uint256 collected) {
         uint256 preGas = gasleft();
 
@@ -217,9 +231,9 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             this.innerHandleOp,
             (
                 userOp.callData.length >= 0x04 && bytes4(userOp.callData[0:4]) == IAccountExecute.executeUserOp.selector
-                    ? abi.encodeCall(IAccountExecute.executeUserOp, (userOp, opInfo.userOpHash))
+                    ? abi.encodeCall(IAccountExecute.executeUserOp, (userOp, userOpInfo.userOpHash))
                     : userOp.callData,
-                opInfo
+                userOpInfo
             )
         );
         Memory.load(ptr);
@@ -235,14 +249,14 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             revert FailedOp(opIndex, "AA95 out of gas");
         } else if (result == INNER_REVERT_LOW_PREFUND) {
             // innerCall reverted on prefund too low. treat entire prefund as "gas cost"
-            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
-            uint256 actualGasCost = opInfo.prefund;
-            emit UserOperationPrefundTooLow(opInfo.userOpHash, opInfo.sender, opInfo.nonce);
+            uint256 actualGas = preGas - gasleft() + userOpInfo.preOpGas;
+            uint256 actualGasCost = userOpInfo.prefund;
+            emit UserOperationPrefundTooLow(userOpInfo.userOpHash, userOpInfo.sender, userOpInfo.nonce);
             emit UserOperationEvent(
-                opInfo.userOpHash,
-                opInfo.sender,
-                opInfo.paymaster,
-                opInfo.nonce,
+                userOpInfo.userOpHash,
+                userOpInfo.sender,
+                userOpInfo.paymaster,
+                userOpInfo.nonce,
                 success,
                 actualGasCost,
                 actualGas
@@ -250,87 +264,89 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             collected = actualGasCost;
         } else {
             emit PostOpRevertReason(
-                opInfo.userOpHash,
-                opInfo.sender,
-                opInfo.nonce,
+                userOpInfo.userOpHash,
+                userOpInfo.sender,
+                userOpInfo.nonce,
                 Call.getReturnData(REVERT_REASON_MAX_LEN)
             );
 
-            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
-            collected = _postExecution(IPaymaster.PostOpMode.postOpReverted, opInfo, actualGas);
+            uint256 actualGas = preGas - gasleft() + userOpInfo.preOpGas;
+            collected = _postExecution(IPaymaster.PostOpMode.postOpReverted, userOpInfo, actualGas);
         }
     }
 
     /**
-     * Inner function to handle a UserOperation.
+     * @dev Inner function to handle a UserOperation.
      * Must be declared "external" to open a call context, but it can only be called by handleOps.
-     * @param callData - The callData to execute.
-     * @param opInfo   - The UserOpInfo struct.
+     * @param callData       - The callData to execute.
+     * @param userOpInfo     - The UserOpInfo struct.
      * @return actualGasCost - the actual cost in eth this UserOperation paid for gas
      */
     function innerHandleOp(
         bytes memory callData,
-        ERC4337Utils.UserOpInfo memory opInfo
+        ERC4337Utils.UserOpInfo memory userOpInfo
     ) external returns (uint256 actualGasCost) {
         uint256 preGas = gasleft();
         require(msg.sender == address(this), "AA92 internal call only");
 
         unchecked {
             // handleOps was called with gas limit too low. abort entire bundle.
-            if ((gasleft() * 63) / 64 < opInfo.callGasLimit + opInfo.paymasterPostOpGasLimit + INNER_GAS_OVERHEAD) {
+            if (
+                (gasleft() * 63) / 64 <
+                userOpInfo.callGasLimit + userOpInfo.paymasterPostOpGasLimit + INNER_GAS_OVERHEAD
+            ) {
                 Call.revertWithCode(INNER_OUT_OF_GAS);
             }
 
             IPaymaster.PostOpMode mode;
-            if (callData.length == 0 || Call.call(opInfo.sender, 0, callData, opInfo.callGasLimit)) {
+            if (callData.length == 0 || Call.call(userOpInfo.sender, 0, callData, userOpInfo.callGasLimit)) {
                 mode = IPaymaster.PostOpMode.opSucceeded;
             } else {
                 mode = IPaymaster.PostOpMode.opReverted;
                 // if we get here, that means callData.length > 0 and the Call failed
                 if (Call.getReturnDataSize() > 0) {
                     emit UserOperationRevertReason(
-                        opInfo.userOpHash,
-                        opInfo.sender,
-                        opInfo.nonce,
+                        userOpInfo.userOpHash,
+                        userOpInfo.sender,
+                        userOpInfo.nonce,
                         Call.getReturnData(REVERT_REASON_MAX_LEN)
                     );
                 }
             }
 
-            uint256 actualGas = preGas - gasleft() + opInfo.preOpGas;
-            return _postExecution(mode, opInfo, actualGas);
+            uint256 actualGas = preGas - gasleft() + userOpInfo.preOpGas;
+            return _postExecution(mode, userOpInfo, actualGas);
         }
     }
 
     /**
-     * Create sender smart contract account if init code is provided.
-     * @param opIndex  - The operation index.
-     * @param opInfo   - The operation info.
-     * @param initCode - The init code for the smart contract account.
+     * @dev Create sender smart contract account if init code is provided.
+     * @param opIndex    - The operation index.
+     * @param userOpInfo - The operation info.
+     * @param initCode   - The init code for the smart contract account.
      */
     function _createSenderIfNeeded(
         uint256 opIndex,
-        ERC4337Utils.UserOpInfo memory opInfo,
+        ERC4337Utils.UserOpInfo memory userOpInfo,
         bytes calldata initCode
     ) internal {
         if (initCode.length != 0) {
-            address sender = opInfo.sender;
+            address sender = userOpInfo.sender;
             if (sender.code.length != 0) revert FailedOp(opIndex, "AA10 sender already constructed");
 
-            address deployed = _senderCreator.createSender{gas: opInfo.verificationGasLimit}(initCode);
+            address deployed = _senderCreator.createSender{gas: userOpInfo.verificationGasLimit}(initCode);
             if (deployed == address(0)) revert FailedOp(opIndex, "AA13 initCode failed or OOG");
             else if (deployed != sender) revert FailedOp(opIndex, "AA14 initCode must return sender");
             else if (deployed.code.length == 0) revert FailedOp(opIndex, "AA15 initCode must create sender");
 
-            emit AccountDeployed(opInfo.userOpHash, sender, address(bytes20(initCode[0:20])), opInfo.paymaster);
+            emit AccountDeployed(userOpInfo.userOpHash, sender, address(bytes20(initCode[0:20])), userOpInfo.paymaster);
         }
     }
 
     /**
-     * Validate account and paymaster (if defined) and
-     * also make sure total validation doesn't exceed verificationGasLimit.
-     * This method is called off-chain (simulateValidation()) and on-chain (from handleOps)
-     * @param opIndex - The index of this userOp into the "opInfos" array.
+     * @dev Validate account and paymaster (if defined) and also make sure total validation doesn't exceed
+     * verificationGasLimit.
+     * @param opIndex - The index of this userOp into the "userOpInfos" array.
      * @param userOp  - The userOp to validate.
      */
     function _validatePrepayment(
@@ -382,26 +398,27 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     }
 
     /**
-     * Call account.validateUserOp.
-     * Revert (with FailedOp) in case validateUserOp reverts, or account didn't send required prefund.
-     * Decrement account's deposit if needed.
+     * @dev Validate prepayment (account part)
+     *  - Call account.validateUserOp.
+     *  - Revert (with FailedOp) in case validateUserOp reverts, or account didn't send required prefund.
+     *  - Decrement account's deposit if needed.
      * @param opIndex         - The operation index.
-     * @param op              - The user operation.
-     * @param opInfo          - The operation info.
+     * @param userOp          - The user operation.
+     * @param userOpInfo      - The operation info.
      * @param requiredPrefund - The required prefund amount.
      */
     function _validateAccountPrepayment(
         uint256 opIndex,
-        PackedUserOperation calldata op,
-        ERC4337Utils.UserOpInfo memory opInfo,
+        PackedUserOperation calldata userOp,
+        ERC4337Utils.UserOpInfo memory userOpInfo,
         uint256 requiredPrefund
     ) internal returns (uint256 validationData) {
         unchecked {
-            address sender = opInfo.sender;
-            address paymaster = opInfo.paymaster;
-            uint256 verificationGasLimit = opInfo.verificationGasLimit;
+            address sender = userOpInfo.sender;
+            address paymaster = userOpInfo.paymaster;
+            uint256 verificationGasLimit = userOpInfo.verificationGasLimit;
 
-            _createSenderIfNeeded(opIndex, opInfo, op.initCode);
+            _createSenderIfNeeded(opIndex, userOpInfo, userOp.initCode);
 
             uint256 missingAccountFunds = 0;
             if (paymaster == address(0)) {
@@ -412,7 +429,11 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             }
 
             try
-                IAccount(sender).validateUserOp{gas: verificationGasLimit}(op, opInfo.userOpHash, missingAccountFunds)
+                IAccount(sender).validateUserOp{gas: verificationGasLimit}(
+                    userOp,
+                    userOpInfo.userOpHash,
+                    missingAccountFunds
+                )
             returns (uint256 _validationData) {
                 validationData = _validationData;
             } catch {
@@ -431,27 +452,27 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     }
 
     /**
-     * In case the request has a paymaster:
+     * @dev Validate prepayment (paymaster part)
      *  - Validate paymaster has enough deposit.
      *  - Call paymaster.validatePaymasterUserOp.
      *  - Revert with proper FailedOp in case paymaster reverts.
      *  - Decrement paymaster's deposit.
-     * @param opIndex                            - The operation index.
-     * @param op                                 - The user operation.
-     * @param opInfo                             - The operation info.
-     * @param requiredPrefund                    - The required prefund amount.
+     * @param opIndex         - The operation index.
+     * @param userOp          - The user operation.
+     * @param userOpInfo      - The operation info.
+     * @param requiredPrefund - The required prefund amount.
      */
     function _validatePaymasterPrepayment(
         uint256 opIndex,
-        PackedUserOperation calldata op,
-        ERC4337Utils.UserOpInfo memory opInfo,
+        PackedUserOperation calldata userOp,
+        ERC4337Utils.UserOpInfo memory userOpInfo,
         uint256 requiredPrefund
     ) internal returns (bytes memory context, uint256 validationData) {
         unchecked {
             uint256 preGas = gasleft();
 
-            address paymaster = opInfo.paymaster;
-            uint256 verificationGasLimit = opInfo.paymasterVerificationGasLimit;
+            address paymaster = userOpInfo.paymaster;
+            uint256 verificationGasLimit = userOpInfo.paymasterVerificationGasLimit;
 
             uint256 balance = balanceOf(paymaster);
             if (requiredPrefund > balance) {
@@ -462,8 +483,8 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
 
             try
                 IPaymaster(paymaster).validatePaymasterUserOp{gas: verificationGasLimit}(
-                    op,
-                    opInfo.userOpHash,
+                    userOp,
+                    userOpInfo.userOpHash,
                     requiredPrefund
                 )
             returns (bytes memory _context, uint256 _validationData) {
@@ -480,7 +501,7 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     }
 
     /**
-     * Revert if either account validationData or paymaster validationData is expired.
+     * @dev Revert if either account validationData or paymaster validationData is expired.
      * @param opIndex                 - The operation index.
      * @param validationData          - The account validationData.
      * @param paymasterValidationData - The paymaster validationData.
@@ -509,30 +530,30 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
     }
 
     /**
-     * Process post-operation, called just after the callData is executed.
+     * @dev Process post-operation, called just after the callData is executed.
      * If a paymaster is defined and its validation returned a non-empty context, its postOp is called.
      * The excess amount is refunded to the account (or paymaster - if it was used in the request).
-     * @param mode      - Whether is called from innerHandleOp, or outside (postOpReverted).
-     * @param opInfo    - UserOp fields and info collected during validation.
-     * @param actualGas - The gas used so far by this user operation.
+     * @param mode       - Whether is called from innerHandleOp, or outside (postOpReverted).
+     * @param userOpInfo - UserOp fields and info collected during validation.
+     * @param actualGas  - The gas used so far by this user operation.
      */
     function _postExecution(
         IPaymaster.PostOpMode mode,
-        ERC4337Utils.UserOpInfo memory opInfo,
+        ERC4337Utils.UserOpInfo memory userOpInfo,
         uint256 actualGas
     ) private returns (uint256 actualGasCost) {
         uint256 preGas = gasleft();
         unchecked {
-            address refundAddress = opInfo.paymaster;
-            uint256 gasPrice = opInfo.gasPrice();
+            address refundAddress = userOpInfo.paymaster;
+            uint256 gasPrice = userOpInfo.gasPrice();
 
             if (refundAddress == address(0)) {
-                refundAddress = opInfo.sender;
-            } else if (opInfo.context.length > 0 && mode != IPaymaster.PostOpMode.postOpReverted) {
+                refundAddress = userOpInfo.sender;
+            } else if (userOpInfo.context.length > 0 && mode != IPaymaster.PostOpMode.postOpReverted) {
                 try
-                    IPaymaster(refundAddress).postOp{gas: opInfo.paymasterPostOpGasLimit}(
+                    IPaymaster(refundAddress).postOp{gas: userOpInfo.paymasterPostOpGasLimit}(
                         mode,
-                        opInfo.context,
+                        userOpInfo.context,
                         actualGas * gasPrice,
                         gasPrice
                     )
@@ -543,19 +564,19 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
             actualGas += preGas - gasleft();
 
             // Calculating a penalty for unused execution gas
-            uint256 executionGasLimit = opInfo.callGasLimit + opInfo.paymasterPostOpGasLimit;
-            uint256 executionGasUsed = actualGas - opInfo.preOpGas;
+            uint256 executionGasLimit = userOpInfo.callGasLimit + userOpInfo.paymasterPostOpGasLimit;
+            uint256 executionGasUsed = actualGas - userOpInfo.preOpGas;
             // this check is required for the gas used within EntryPoint and not covered by explicit gas limits
             if (executionGasLimit > executionGasUsed) {
                 actualGas += ((executionGasLimit - executionGasUsed) * PENALTY_PERCENT) / 100;
             }
 
             actualGasCost = actualGas * gasPrice;
-            uint256 prefund = opInfo.prefund;
+            uint256 prefund = userOpInfo.prefund;
             if (prefund < actualGasCost) {
                 if (mode == IPaymaster.PostOpMode.postOpReverted) {
                     actualGasCost = prefund;
-                    emit UserOperationPrefundTooLow(opInfo.userOpHash, opInfo.sender, opInfo.nonce);
+                    emit UserOperationPrefundTooLow(userOpInfo.userOpHash, userOpInfo.sender, userOpInfo.nonce);
                 } else {
                     Call.revertWithCode(INNER_REVERT_LOW_PREFUND);
                 }
@@ -563,10 +584,10 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
                 _mint(refundAddress, prefund - actualGasCost);
             }
             emit UserOperationEvent(
-                opInfo.userOpHash,
-                opInfo.sender,
-                opInfo.paymaster,
-                opInfo.nonce,
+                userOpInfo.userOpHash,
+                userOpInfo.sender,
+                userOpInfo.paymaster,
+                userOpInfo.nonce,
                 mode == IPaymaster.PostOpMode.opSucceeded,
                 actualGasCost,
                 actualGas
