@@ -69,6 +69,11 @@ contract EntryPoint is IEntryPoint, ERC20("EntryPoint Deposit", "EPD"), ERC165, 
         // || interfaceId == type(INonceManager).interfaceId;
     }
 
+    /**
+     * @dev Simulate the deployment of an account.
+     * @param initCode - The init code for the smart contract account, formated according to PackedUserOperation
+     * specifications.
+     */
     function getSenderAddress(bytes calldata initCode) public returns (address) {
         return _senderCreator.getSenderAddress(initCode);
     }
