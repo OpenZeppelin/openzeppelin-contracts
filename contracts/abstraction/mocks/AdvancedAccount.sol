@@ -86,6 +86,10 @@ contract AdvancedAccountECDSA is AdvancedAccount, AccountECDSA {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual override(Account, AccountMultisig) returns (uint256 validationData) {
+        // In this mock, calling super would work, but it may not depending on how the function is overriden by other
+        // modules. Using a more explicit override may bypass additional modules though.
+        //
+        // If possible, this should be improved.
         return AccountMultisig._validateSignature(userOp, userOpHash);
     }
 }
@@ -102,6 +106,10 @@ contract AdvancedAccountP256 is AdvancedAccount, AccountP256 {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual override(Account, AccountMultisig) returns (uint256 validationData) {
+        // In this mock, calling super would work, but it may not depending on how the function is overriden by other
+        // modules. Using a more explicit override may bypass additional modules though.
+        //
+        // If possible, this should be improved.
         return AccountMultisig._validateSignature(userOp, userOpHash);
     }
 }
