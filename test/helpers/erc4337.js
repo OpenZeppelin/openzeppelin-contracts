@@ -20,10 +20,10 @@ class ERC4337Helper {
     return this;
   }
 
-  async newAccount(user, salt = ethers.randomBytes(32)) {
+  async newAccount(user, extraArgs = [], salt = ethers.randomBytes(32)) {
     await this.wait();
     const initCode = await this.account
-      .getDeployTransaction(this.entrypoint, user)
+      .getDeployTransaction(this.entrypoint, user, ...extraArgs)
       .then(tx => this.factory.interface.encodeFunctionData('$deploy', [0, salt, tx.data]))
       .then(deployCode => ethers.concat([this.factory.target, deployCode]));
     const instance = await this.entrypoint.getSenderAddress
@@ -129,7 +129,13 @@ class UserOperation {
   }
 
   async sign(signer = this.sender.runner) {
-    this.signature = await signer.signMessage(ethers.getBytes(this.hash));
+    this.signature = await Promise.all(
+      (Array.isArray(signer) ? signer : [signer])
+        .sort((signer1, signer2) => signer1.address - signer2.address)
+        .map(signer => signer.signMessage(ethers.getBytes(this.hash))),
+    ).then(signatures =>
+      Array.isArray(signer) ? ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]'], [signatures]) : signatures[0],
+    );
     return this;
   }
 }

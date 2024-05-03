@@ -8,7 +8,6 @@ import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
 
 abstract contract Account is IAccount {
     error AccountEntryPointRestricted();
-    error AccountUserRestricted();
     error AccountInvalidBatchLength();
 
     /****************************************************************************************************************
@@ -18,13 +17,6 @@ abstract contract Account is IAccount {
     modifier onlyEntryPoint() {
         if (msg.sender != address(entryPoint())) {
             revert AccountEntryPointRestricted();
-        }
-        _;
-    }
-
-    modifier onlyAuthorizedOrEntryPoint() {
-        if (msg.sender != address(entryPoint()) && !_isAuthorized(msg.sender)) {
-            revert AccountUserRestricted();
         }
         _;
     }
@@ -51,7 +43,7 @@ abstract contract Account is IAccount {
      * If a signature is ill-formed, address(0) should be returned.
      */
     function _processSignature(
-        PackedUserOperation calldata userOp,
+        bytes memory signature,
         bytes32 userOpHash
     ) internal virtual returns (address, uint48, uint48);
 
@@ -106,7 +98,7 @@ abstract contract Account is IAccount {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual returns (uint256 validationData) {
-        (address signer, uint48 validAfter, uint48 validUntil) = _processSignature(userOp, userOpHash);
+        (address signer, uint48 validAfter, uint48 validUntil) = _processSignature(userOp.signature, userOpHash);
         return ERC4337Utils.packValidationData(signer != address(0) && _isAuthorized(signer), validAfter, validUntil);
     }
 

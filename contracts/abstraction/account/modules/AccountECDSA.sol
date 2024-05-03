@@ -9,7 +9,7 @@ import {Account} from "../Account.sol";
 
 abstract contract AccountECDSA is Account {
     function _processSignature(
-        PackedUserOperation calldata userOp,
+        bytes memory signature,
         bytes32 userOpHash
     ) internal virtual override returns (address, uint48, uint48) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
@@ -18,16 +18,15 @@ abstract contract AccountECDSA is Account {
         // - If signature length is 65, process as "normal" signature (R,S,V)
         // - If signature length is 64, process as https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signature] (R,SV) ECDSA signature
         // This is safe because the UserOperations include a nonce (which is managed by the entrypoint) for replay protection.
-        bytes calldata signature = userOp.signature;
         if (signature.length == 65) {
             bytes32 r;
             bytes32 s;
             uint8 v;
             /// @solidity memory-safe-assembly
             assembly {
-                r := calldataload(add(signature.offset, 0x00))
-                s := calldataload(add(signature.offset, 0x20))
-                v := byte(0, calldataload(add(signature.offset, 0x40)))
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
             }
             return (ECDSA.recover(msgHash, v, r, s), 0, 0);
         } else if (signature.length == 64) {
@@ -35,8 +34,8 @@ abstract contract AccountECDSA is Account {
             bytes32 vs;
             /// @solidity memory-safe-assembly
             assembly {
-                r := calldataload(add(signature.offset, 0x00))
-                vs := calldataload(add(signature.offset, 0x20))
+                r := mload(add(signature, 0x20))
+                vs := mload(add(signature, 0x40))
             }
             return (ECDSA.recover(msgHash, r, vs), 0, 0);
         } else {

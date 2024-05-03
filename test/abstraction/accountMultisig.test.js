@@ -8,11 +8,14 @@ async function fixture() {
   const accounts = await ethers.getSigners();
   accounts.user = accounts.shift();
   accounts.beneficiary = accounts.shift();
+  accounts.signers = Array(3)
+    .fill()
+    .map(() => accounts.shift());
 
   const target = await ethers.deployContract('CallReceiverMock');
-  const helper = new ERC4337Helper('SimpleAccountECDSA');
+  const helper = new ERC4337Helper('AdvancedAccountECDSA');
   await helper.wait();
-  const sender = await helper.newAccount(accounts.user);
+  const sender = await helper.newAccount(accounts.user, [accounts.signers, 2]); // 2-of-3
 
   return {
     accounts,
@@ -24,7 +27,7 @@ async function fixture() {
   };
 }
 
-describe('AccountECDSA', function () {
+describe('AccountMultisig', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -45,7 +48,7 @@ describe('AccountECDSA', function () {
             ]),
           })
           .then(op => op.addInitCode())
-          .then(op => op.sign());
+          .then(op => op.sign(this.accounts.signers));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.entrypoint, 'AccountDeployed')
@@ -60,7 +63,7 @@ describe('AccountECDSA', function () {
         await this.sender.deploy();
       });
 
-      it('success: call', async function () {
+      it('success: 3 signers', async function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
@@ -69,14 +72,14 @@ describe('AccountECDSA', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign());
+          .then(op => op.sign(this.accounts.signers));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
           .withArgs(this.sender, 42);
       });
 
-      it('success: call with short signature', async function () {
+      it('success: 2 signers', async function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
@@ -85,14 +88,43 @@ describe('AccountECDSA', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign());
-
-        // compact signature
-        operation.signature = ethers.Signature.from(operation.signature).compactSerialized;
+          .then(op => op.sign([this.accounts.signers[0], this.accounts.signers[2]]));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
           .withArgs(this.sender, 42);
+      });
+
+      it('revert: not enough signers', async function () {
+        const operation = await this.sender
+          .createOp({
+            callData: this.sender.interface.encodeFunctionData('execute', [
+              this.target.target,
+              42,
+              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+            ]),
+          })
+          .then(op => op.sign([this.accounts.signers[2]]));
+
+        await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
+          .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
+          .withArgs(0, 'AA24 signature error');
+      });
+
+      it('revert: unauthorized signer', async function () {
+        const operation = await this.sender
+          .createOp({
+            callData: this.sender.interface.encodeFunctionData('execute', [
+              this.target.target,
+              42,
+              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+            ]),
+          })
+          .then(op => op.sign([this.accounts.user, this.accounts.signers[2]]));
+
+        await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
+          .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
+          .withArgs(0, 'AA24 signature error');
       });
     });
   });

@@ -11,22 +11,21 @@ abstract contract AccountP256 is Account {
     error P256InvalidSignatureLength(uint256 length);
 
     function _processSignature(
-        PackedUserOperation calldata userOp,
+        bytes memory signature,
         bytes32 userOpHash
     ) internal virtual override returns (address, uint48, uint48) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
         // This implementation support signature that are 65 bytes long in the (R,S,V) format
-        bytes calldata signature = userOp.signature;
         if (signature.length == 65) {
             uint256 r;
             uint256 s;
             uint8 v;
             /// @solidity memory-safe-assembly
             assembly {
-                r := calldataload(add(signature.offset, 0x00))
-                s := calldataload(add(signature.offset, 0x20))
-                v := byte(0, calldataload(add(signature.offset, 0x40)))
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
             }
             return (P256.recoveryAddress(uint256(msgHash), v, r, s), 0, 0);
         } else {

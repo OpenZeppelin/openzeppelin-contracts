@@ -7,9 +7,13 @@ const { ERC4337Helper } = require('../helpers/erc4337');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
+  accounts.user = accounts.shift();
+  accounts.beneficiary = accounts.shift();
+
   const target = await ethers.deployContract('CallReceiverMock');
   const helper = new ERC4337Helper();
   await helper.wait();
+  const sender = await helper.newAccount(accounts.user);
 
   return {
     accounts,
@@ -17,21 +21,18 @@ async function fixture() {
     helper,
     entrypoint: helper.entrypoint,
     factory: helper.factory,
+    sender,
   };
 }
 
 describe('EntryPoint', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
-
-    this.user = this.accounts.shift();
-    this.beneficiary = this.accounts.shift();
-    this.sender = await this.helper.newAccount(this.user);
   });
 
   describe('deploy wallet contract', function () {
     it('success: counterfactual funding', async function () {
-      await this.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
 
       expect(await ethers.provider.getCode(this.sender)).to.equal('0x');
 
@@ -40,9 +41,9 @@ describe('EntryPoint', function () {
         .then(op => op.addInitCode())
         .then(op => op.sign());
 
-      await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+      await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
         .to.emit(this.sender, 'OwnershipTransferred')
-        .withArgs(ethers.ZeroAddress, this.user)
+        .withArgs(ethers.ZeroAddress, this.accounts.user)
         .to.emit(this.factory, 'return$deploy')
         .withArgs(this.sender)
         .to.emit(this.entrypoint, 'AccountDeployed')
@@ -63,13 +64,13 @@ describe('EntryPoint', function () {
 
       expect(await ethers.provider.getCode(this.sender)).to.equal('0x');
 
-      // const operation = await this.sender.createOp({ paymaster: this.user })
+      // const operation = await this.sender.createOp({ paymaster: this.accounts.user })
       //   .then(op => op.addInitCode())
       //   .then(op => op.sign());
       //
-      // await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+      // await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
       //   .to.emit(this.sender, 'OwnershipTransferred')
-      //   .withArgs(ethers.ZeroAddress, this.user)
+      //   .withArgs(ethers.ZeroAddress, this.accounts.user)
       //   .to.emit(this.factory, 'return$deploy')
       //   .withArgs(this.sender)
       //   .to.emit(this.entrypoint, 'AccountDeployed')
@@ -94,7 +95,7 @@ describe('EntryPoint', function () {
         .then(op => op.addInitCode())
         .then(op => op.sign());
 
-      await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+      await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
         .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
         .withArgs(0, 'AA10 sender already constructed');
     });
@@ -107,7 +108,7 @@ describe('EntryPoint', function () {
         .then(op => op.addInitCode())
         .then(op => op.sign());
 
-      await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+      await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
         .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
         .withArgs(0, "AA21 didn't pay prefund");
 
@@ -115,7 +116,7 @@ describe('EntryPoint', function () {
     });
 
     it('error: AA25 invalid account nonce', async function () {
-      await this.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
 
       expect(await ethers.provider.getCode(this.sender)).to.equal('0x');
 
@@ -124,7 +125,7 @@ describe('EntryPoint', function () {
         .then(op => op.addInitCode())
         .then(op => op.sign());
 
-      await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+      await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
         .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
         .withArgs(0, 'AA25 invalid account nonce');
 
@@ -134,7 +135,7 @@ describe('EntryPoint', function () {
 
   describe('execute operation', function () {
     beforeEach('fund account', async function () {
-      await this.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
     });
 
     describe('account not deployed yet', function () {
@@ -150,7 +151,7 @@ describe('EntryPoint', function () {
           .then(op => op.addInitCode())
           .then(op => op.sign());
 
-        await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+        await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.entrypoint, 'AccountDeployed')
           .withArgs(operation.hash, this.sender, this.factory, ethers.ZeroAddress)
           .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -174,7 +175,7 @@ describe('EntryPoint', function () {
           })
           .then(op => op.sign());
 
-        await expect(this.entrypoint.handleOps([operation.packed], this.beneficiary))
+        await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
           .withArgs(this.sender, 42);
       });

@@ -14,7 +14,16 @@ import {AccountP256} from "../account/modules/AccountP256.sol";
 abstract contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder {
     IEntryPoint private immutable _entryPoint;
 
-    constructor(IEntryPoint entryPoint_, address initialOwner) Ownable(initialOwner) {
+    error AccountUserRestricted();
+
+    modifier onlyOwnerOrEntryPoint() {
+        if (msg.sender != address(entryPoint()) && msg.sender != owner()) {
+            revert AccountUserRestricted();
+        }
+        _;
+    }
+
+    constructor(IEntryPoint entryPoint_, address owner_) Ownable(owner_) {
         _entryPoint = entryPoint_;
     }
 
@@ -28,7 +37,7 @@ abstract contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder
         return user == owner();
     }
 
-    function execute(address target, uint256 value, bytes calldata data) public virtual onlyAuthorizedOrEntryPoint {
+    function execute(address target, uint256 value, bytes calldata data) public virtual onlyOwnerOrEntryPoint {
         _call(target, value, data);
     }
 
@@ -36,7 +45,7 @@ abstract contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder
         address[] calldata targets,
         uint256[] calldata values,
         bytes[] calldata calldatas
-    ) public virtual onlyAuthorizedOrEntryPoint {
+    ) public virtual onlyOwnerOrEntryPoint {
         if (targets.length != calldatas.length || (values.length != 0 && values.length != targets.length)) {
             revert AccountInvalidBatchLength();
         }
@@ -53,9 +62,9 @@ abstract contract SimpleAccount is Account, Ownable, ERC721Holder, ERC1155Holder
 }
 
 contract SimpleAccountECDSA is SimpleAccount, AccountECDSA {
-    constructor(IEntryPoint entryPoint_, address initialOwner) SimpleAccount(entryPoint_, initialOwner) {}
+    constructor(IEntryPoint entryPoint_, address owner_) SimpleAccount(entryPoint_, owner_) {}
 }
 
 contract SimpleAccountP256 is SimpleAccount, AccountP256 {
-    constructor(IEntryPoint entryPoint_, address initialOwner) SimpleAccount(entryPoint_, initialOwner) {}
+    constructor(IEntryPoint entryPoint_, address owner_) SimpleAccount(entryPoint_, owner_) {}
 }
