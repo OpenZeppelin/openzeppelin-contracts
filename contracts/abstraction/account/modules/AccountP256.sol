@@ -10,10 +10,7 @@ import {Account} from "../Account.sol";
 abstract contract AccountP256 is Account {
     error P256InvalidSignatureLength(uint256 length);
 
-    function _processSignature(
-        bytes memory signature,
-        bytes32 userOpHash
-    ) internal virtual override returns (address, uint48, uint48) {
+    function _recoverSigner(bytes memory signature, bytes32 userOpHash) internal virtual override returns (address) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
         // This implementation support signature that are 65 bytes long in the (R,S,V) format
@@ -27,7 +24,7 @@ abstract contract AccountP256 is Account {
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
             }
-            return (P256.recoveryAddress(uint256(msgHash), v, r, s), 0, 0);
+            return P256.recoveryAddress(uint256(msgHash), v, r, s);
         } else {
             revert P256InvalidSignatureLength(signature.length);
         }

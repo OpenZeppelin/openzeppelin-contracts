@@ -27,25 +27,27 @@ abstract contract Account is IAccount {
 
     /**
      * @dev Return the entryPoint used by this account.
+     *
      * Subclass should return the current entryPoint used by this account.
      */
     function entryPoint() public view virtual returns (IEntryPoint);
 
     /**
-     * @dev Return weither an address (identity) is authorized to operate on this account.
+     * @dev Return weither an address (identity) is authorized to operate on this account. Depending on how the
+     * account is configured, this can be interpreted as either the owner of the account (if operating using a single
+     * owner -- default) or as an authorized signer if operating using as a multisig account.
+     *
      * Subclass must implement this using their own access control mechanism.
      */
     function _isAuthorized(address) internal virtual returns (bool);
 
     /**
-     * @dev Return the recovered signer, and signature validity window.
-     * Subclass must implement this following their choice of cryptography.
-     * If a signature is ill-formed, address(0) should be returned.
+     * @dev Recover the signer for a given signature and user operation hash. This function does not need to verify
+     * that the recovered signer is authorized.
+     *
+     * Subclass must implement this using their own choice of cryptography.
      */
-    function _processSignature(
-        bytes memory signature,
-        bytes32 userOpHash
-    ) internal virtual returns (address, uint48, uint48);
+    function _recoverSigner(bytes memory signature, bytes32 userOpHash) internal virtual returns (address);
 
     /****************************************************************************************************************
      *                                               Public interface                                               *
@@ -71,9 +73,10 @@ abstract contract Account is IAccount {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) external virtual override onlyEntryPoint returns (uint256 validationData) {
-        validationData = _validateSignature(userOp, userOpHash);
+        (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOp.signature, userOpHash);
         _validateNonce(userOp.nonce);
         _payPrefund(missingAccountFunds);
+        return ERC4337Utils.packValidationData(valid, validAfter, validUntil);
     }
 
     /****************************************************************************************************************
@@ -81,25 +84,20 @@ abstract contract Account is IAccount {
      ****************************************************************************************************************/
 
     /**
-     * @dev Validate the signature is valid for this message.
-     * @param userOp          - Validate the userOp.signature field.
-     * @param userOpHash      - Convenient field: the hash of the request, to check the signature against.
-     *                          (also hashes the entrypoint and chain id)
-     * @return validationData - Signature and time-range of this operation.
-     *                          <20-byte> aggregatorOrSigFail - 0 for valid signature, 1 to mark signature failure,
-     *                                    otherwise, an address of an aggregator contract.
-     *                          <6-byte> validUntil - last timestamp this operation is valid. 0 for "indefinite"
-     *                          <6-byte> validAfter - first timestamp this operation is valid
-     *                          If the account doesn't use time-range, it is enough to return
-     *                          SIG_VALIDATION_FAILED value (1) for signature failure.
-     *                          Note that the validation code cannot use block.timestamp (or block.number) directly.
+     * @dev Process the signature is valid for this message.
+     * @param signature   - The user's signature
+     * @param userOpHash  - Hash of the request that must be signed (includes the entrypoint and chain id)
+     * @return valid      - Signature is valid
+     * @return signer     - Address of the signer that produced the signature
+     * @return validAfter - first timestamp this operation is valid
+     * @return validUntil - last timestamp this operation is valid. 0 for "indefinite"
      */
-    function _validateSignature(
-        PackedUserOperation calldata userOp,
+    function _processSignature(
+        bytes memory signature,
         bytes32 userOpHash
-    ) internal virtual returns (uint256 validationData) {
-        (address signer, uint48 validAfter, uint48 validUntil) = _processSignature(userOp.signature, userOpHash);
-        return ERC4337Utils.packValidationData(signer != address(0) && _isAuthorized(signer), validAfter, validUntil);
+    ) internal virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
+        address recovered = _recoverSigner(signature, userOpHash);
+        return (_isAuthorized(recovered), recovered, 0, 0);
     }
 
     /**

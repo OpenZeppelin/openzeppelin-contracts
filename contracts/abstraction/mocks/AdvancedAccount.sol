@@ -40,9 +40,7 @@ abstract contract AdvancedAccount is AccountMultisig, AccessControl, ERC721Holde
         return _entryPoint;
     }
 
-    function requiredSignatures(
-        PackedUserOperation calldata /*userOp*/
-    ) public view virtual override returns (uint256) {
+    function requiredSignatures() public view virtual override returns (uint256) {
         return _requiredSignatures;
     }
 
@@ -82,15 +80,11 @@ contract AdvancedAccountECDSA is AdvancedAccount, AccountECDSA {
         uint256 requiredSignatures_
     ) AdvancedAccount(entryPoint_, admin_, signers_, requiredSignatures_) {}
 
-    function _validateSignature(
-        PackedUserOperation calldata userOp,
+    function _processSignature(
+        bytes memory signature,
         bytes32 userOpHash
-    ) internal virtual override(Account, AccountMultisig) returns (uint256 validationData) {
-        // In this mock, calling super would work, but it may not depending on how the function is overriden by other
-        // modules. Using a more explicit override may bypass additional modules though.
-        //
-        // If possible, this should be improved.
-        return AccountMultisig._validateSignature(userOp, userOpHash);
+    ) internal virtual override(Account, AccountMultisig) returns (bool, address, uint48, uint48) {
+        return super._processSignature(signature, userOpHash);
     }
 }
 
@@ -102,14 +96,10 @@ contract AdvancedAccountP256 is AdvancedAccount, AccountP256 {
         uint256 requiredSignatures_
     ) AdvancedAccount(entryPoint_, admin_, signers_, requiredSignatures_) {}
 
-    function _validateSignature(
-        PackedUserOperation calldata userOp,
+    function _processSignature(
+        bytes memory signature,
         bytes32 userOpHash
-    ) internal virtual override(Account, AccountMultisig) returns (uint256 validationData) {
-        // In this mock, calling super would work, but it may not depending on how the function is overriden by other
-        // modules. Using a more explicit override may bypass additional modules though.
-        //
-        // If possible, this should be improved.
-        return AccountMultisig._validateSignature(userOp, userOpHash);
+    ) internal virtual override(Account, AccountMultisig) returns (bool, address, uint48, uint48) {
+        return super._processSignature(signature, userOpHash);
     }
 }

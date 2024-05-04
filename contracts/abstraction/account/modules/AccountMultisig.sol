@@ -8,16 +8,16 @@ import {ERC4337Utils} from "./../../utils/ERC4337Utils.sol";
 import {Account} from "../Account.sol";
 
 abstract contract AccountMultisig is Account {
-    function requiredSignatures(PackedUserOperation calldata userOp) public view virtual returns (uint256);
+    function requiredSignatures() public view virtual returns (uint256);
 
-    function _validateSignature(
-        PackedUserOperation calldata userOp,
+    function _processSignature(
+        bytes memory signature,
         bytes32 userOpHash
-    ) internal virtual override returns (uint256 validationData) {
-        bytes[] memory signatures = abi.decode(userOp.signature, (bytes[]));
+    ) internal virtual override returns (bool, address, uint48, uint48) {
+        bytes[] memory signatures = abi.decode(signature, (bytes[]));
 
-        if (signatures.length < requiredSignatures(userOp)) {
-            return ERC4337Utils.SIG_VALIDATION_FAILED;
+        if (signatures.length < requiredSignatures()) {
+            return (false, address(0), 0, 0);
         }
 
         address lastSigner = address(0);
@@ -25,17 +25,20 @@ abstract contract AccountMultisig is Account {
         uint48 globalValidUntil = 0;
 
         for (uint256 i = 0; i < signatures.length; ++i) {
-            (address signer, uint48 validAfter, uint48 validUntil) = _processSignature(signatures[i], userOpHash);
-            if (_isAuthorized(signer) && signer > lastSigner) {
+            (bool valid, address signer, uint48 validAfter, uint48 validUntil) = super._processSignature(
+                signatures[i],
+                userOpHash
+            );
+            if (valid && signer > lastSigner) {
                 lastSigner = signer;
                 globalValidAfter = uint48(Math.ternary(validUntil < globalValidUntil, globalValidUntil, validAfter));
                 globalValidUntil = uint48(
                     Math.ternary(validUntil > globalValidUntil || validUntil == 0, globalValidUntil, validUntil)
                 );
             } else {
-                return ERC4337Utils.SIG_VALIDATION_FAILED;
+                return (false, address(0), 0, 0);
             }
         }
-        return ERC4337Utils.packValidationData(true, globalValidAfter, globalValidUntil);
+        return (true, address(this), globalValidAfter, globalValidUntil);
     }
 }
