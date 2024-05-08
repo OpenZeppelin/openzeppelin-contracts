@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable func-name-mixedcase
+
 import {Test, stdError} from "forge-std/Test.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";

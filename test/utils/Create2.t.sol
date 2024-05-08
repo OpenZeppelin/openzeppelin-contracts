@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable func-name-mixedcase
+
 import {Test} from "forge-std/Test.sol";
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 

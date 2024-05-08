@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable func-name-mixedcase
+
 import {Test} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
