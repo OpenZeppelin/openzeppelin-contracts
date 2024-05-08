@@ -16,7 +16,7 @@ contract ArraysTest is Test, SymTest {
 
     function check_Sort() public {
         uint256[] memory values = new uint256[](3);
-        for (uint i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 3; i++) {
             values[i] = svm.createUint256("arrayElement");
         }
         Arrays.sort(values);
