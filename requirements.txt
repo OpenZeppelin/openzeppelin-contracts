@@ -1,1 +1,2 @@
 certora-cli==4.13.1
+halmos==0.1.12

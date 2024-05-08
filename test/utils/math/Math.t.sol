@@ -7,12 +7,12 @@ import {Test, stdError} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
-    function testSelect(bool f, uint256 a, uint256 b) public {
+    function check_Ternary(bool f, uint256 a, uint256 b) public {
         assertEq(Math.ternary(f, a, b), f ? a : b);
     }
 
     // MIN & MAX
-    function testMinMax(uint256 a, uint256 b) public {
+    function check_MinMax(uint256 a, uint256 b) public {
         assertEq(Math.min(a, b), a < b ? a : b);
         assertEq(Math.max(a, b), a > b ? a : b);
     }
@@ -101,7 +101,7 @@ contract MathTest is Test {
     }
 
     // LOG2
-    function testLog2(uint256 input, uint8 r) public {
+    function check_Log2(uint256 input, uint8 r) public {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log2(input, rounding);

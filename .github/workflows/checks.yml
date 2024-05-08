@@ -15,6 +15,7 @@ concurrency:
 
 env:
   NODE_OPTIONS: --max_old_space_size=8192
+  PIP_VERSION: '3.10'
 
 jobs:
   lint:
@@ -84,6 +85,22 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run tests
         run: forge test -vv
+
+  halmos-fv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PIP_VERSION }}
+          cache: 'pip'
+      - name: Install python packages
+        run: pip install -r requirements.txt
+      - name: Run Halmos
+        run: halmos -vv
 
   coverage:
     runs-on: ubuntu-latest

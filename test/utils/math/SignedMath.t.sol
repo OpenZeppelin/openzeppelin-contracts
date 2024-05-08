@@ -8,18 +8,18 @@ import {Math} from "../../../contracts/utils/math/Math.sol";
 import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
-    function testSelect(bool f, int256 a, int256 b) public {
+    function check_Ternary(bool f, int256 a, int256 b) public {
         assertEq(SignedMath.ternary(f, a, b), f ? a : b);
     }
 
     // MIN & MAX
-    function testMinMax(int256 a, int256 b) public {
+    function check_MinMax(int256 a, int256 b) public {
         assertEq(SignedMath.min(a, b), a < b ? a : b);
         assertEq(SignedMath.max(a, b), a > b ? a : b);
     }
 
     // MIN
-    function testMin(int256 a, int256 b) public {
+    function check_Min(int256 a, int256 b) public {
         int256 result = SignedMath.min(a, b);
 
         assertLe(result, a);
@@ -28,7 +28,7 @@ contract SignedMathTest is Test {
     }
 
     // MAX
-    function testMax(int256 a, int256 b) public {
+    function check_Max(int256 a, int256 b) public {
         int256 result = SignedMath.max(a, b);
 
         assertGe(result, a);
@@ -69,7 +69,7 @@ contract SignedMathTest is Test {
     }
 
     // ABS
-    function testAbs(int256 a) public {
+    function check_Abs(int256 a) public {
         uint256 result = SignedMath.abs(a);
 
         unchecked {
