@@ -18,6 +18,35 @@ library Math {
     }
 
     /**
+     * @dev Return the 512-bit addition of two uint256.
+     *
+     * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
+     */
+    function addFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
+        unchecked {
+            low = a + b;
+            high = SafeCast.toUint(low < a);
+        }
+    }
+
+    /**
+     * @dev Return the 512-bit multiplication of two uint256.
+     *
+     * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
+     */
+    function mulFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
+        // Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use use the Chinese Remainder Theorem to reconstruct
+        // the 512 bit result.
+        unchecked {
+            low = a * b;
+            assembly {
+                let mm := mulmod(a, b, not(0))
+                high := sub(sub(mm, low), lt(mm, low))
+            }
+        }
+    }
+
+    /**
      * @dev Returns the addition of two unsigned integers, with an success flag (no overflow).
      */
     function tryAdd(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
@@ -143,15 +172,7 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
-            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
-            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
-            // variables such that product = prod1 * 2²⁵⁶ + prod0.
-            uint256 prod0 = x * y; // Least significant 256 bits of the product
-            uint256 prod1; // Most significant 256 bits of the product
-            assembly {
-                let mm := mulmod(x, y, not(0))
-                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
-            }
+            (uint256 prod1, uint256 prod0) = mulFull(x, y);
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
