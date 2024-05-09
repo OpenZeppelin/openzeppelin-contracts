@@ -50,7 +50,8 @@ library MerkleProof {
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
-        for (uint256 i; i < proof.length; ) {
+        uint256 len = proof.length;
+        for (uint256 i; i < len; ) {
             computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
             unchecked {
                 ++i;
@@ -64,7 +65,8 @@ library MerkleProof {
      */
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
-        for (uint256 i; i < proof.length; ) {
+        uint256 len = proof.length;
+        for (uint256 i; i < len; ) {
             computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
             unchecked {
                 ++i;
