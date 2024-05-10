@@ -14,9 +14,9 @@ contract SlotDerivationTest is Test, SymTest {
 
     bytes[] private _array;
 
-    function check_DeriveArray(uint256 length, uint256 offset) public {
-        length = bound(length, 1, type(uint256).max);
-        offset = bound(offset, 0, length - 1);
+    function testSymbolicDeriveArray(uint256 length, uint256 offset) public {
+        vm.assume(length > 0);
+        vm.assume(offset < length);
 
         bytes32 baseSlot;
         assembly {
@@ -35,7 +35,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(address => bytes) private _addressMapping;
 
-    function check_DeriveMappingAddress(address key) public {
+    function testSymbolicDeriveMappingAddress(address key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _addressMapping.slot
@@ -52,7 +52,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(bool => bytes) private _boolMapping;
 
-    function check_DeriveMappingBoolean(bool key) public {
+    function testSymbolicDeriveMappingBoolean(bool key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _boolMapping.slot
@@ -69,7 +69,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(bytes32 => bytes) private _bytes32Mapping;
 
-    function check_DeriveMappingBytes32(bytes32 key) public {
+    function testSymbolicDeriveMappingBytes32(bytes32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _bytes32Mapping.slot
@@ -86,7 +86,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(bytes4 => bytes) private _bytes4Mapping;
 
-    function check_DeriveMappingBytes4(bytes4 key) public {
+    function testSymbolicDeriveMappingBytes4(bytes4 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _bytes4Mapping.slot
@@ -103,7 +103,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(uint256 => bytes) private _uint256Mapping;
 
-    function check_DeriveMappingUint256(uint256 key) public {
+    function testSymbolicDeriveMappingUint256(uint256 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _uint256Mapping.slot
@@ -120,7 +120,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(uint32 => bytes) private _uint32Mapping;
 
-    function check_DeriveMappingUint32(uint32 key) public {
+    function testSymbolicDeriveMappingUint32(uint32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _uint32Mapping.slot
@@ -137,7 +137,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(int256 => bytes) private _int256Mapping;
 
-    function check_DeriveMappingInt256(int256 key) public {
+    function testSymbolicDeriveMappingInt256(int256 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _int256Mapping.slot
@@ -154,7 +154,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     mapping(int32 => bytes) private _int32Mapping;
 
-    function check_DeriveMappingInt32(int32 key) public {
+    function testSymbolicDeriveMappingInt32(int32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _int32Mapping.slot

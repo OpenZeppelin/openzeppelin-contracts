@@ -2,19 +2,17 @@
 
 pragma solidity ^0.8.20;
 
-// solhint-disable func-name-mixedcase
-
 import {Test, stdError} from "forge-std/Test.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
-    function check_Ternary(bool f, uint256 a, uint256 b) public {
+    function testSymbolicTernary(bool f, uint256 a, uint256 b) public {
         assertEq(Math.ternary(f, a, b), f ? a : b);
     }
 
     // MIN & MAX
-    function check_MinMax(uint256 a, uint256 b) public {
+    function testSymbolicMinMax(uint256 a, uint256 b) public {
         assertEq(Math.min(a, b), a < b ? a : b);
         assertEq(Math.max(a, b), a > b ? a : b);
     }
@@ -103,7 +101,7 @@ contract MathTest is Test {
     }
 
     // LOG2
-    function check_Log2(uint256 input, uint8 r) public {
+    function testSymbolicLog2(uint256 input, uint8 r) public {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log2(input, rounding);

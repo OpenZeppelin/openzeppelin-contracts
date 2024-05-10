@@ -100,7 +100,7 @@ jobs:
       - name: Install python packages
         run: pip install -r requirements.txt
       - name: Run Halmos
-        run: halmos -vv
+        run: halmos -mt '^check_|^testSymbolic' -vv
 
   coverage:
     runs-on: ubuntu-latest
