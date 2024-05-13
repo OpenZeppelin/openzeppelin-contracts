@@ -66,3 +66,19 @@ jobs:
           node certora/run.js ${{ steps.arguments.outputs.result }} >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+  halmos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PIP_VERSION }}
+          cache: 'pip'
+      - name: Install python packages
+        run: pip install -r requirements.txt
+      - name: Run Halmos
+        run: halmos --match-test '^check_|^testSymbolic' -vv
