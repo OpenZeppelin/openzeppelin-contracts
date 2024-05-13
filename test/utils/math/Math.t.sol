@@ -101,7 +101,7 @@ contract MathTest is Test {
     }
 
     // LOG2
-    function testSymbolicLog2(uint256 input, uint8 r) public {
+    function testLog2(uint256 input, uint8 r) public {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log2(input, rounding);
