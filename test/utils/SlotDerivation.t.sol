@@ -179,18 +179,6 @@ contract SlotDerivationTest is Test, SymTest {
         _assertDeriveMappingString(svm.createString(256, "DeriveMappingStringInput"));
     }
 
-    mapping(bytes => bytes) private _bytesMapping;
-
-    function testDeriveMappingBytes(bytes memory key) public {
-        _assertDeriveMappingBytes(key);
-    }
-
-    function check_DeriveMappingBytes() public {
-        _assertDeriveMappingBytes(svm.createBytes(256, "DeriveMappingBytesInput"));
-    }
-
-    /// Asserts
-
     function _assertDeriveMappingString(string memory key) internal {
         bytes32 baseSlot;
         assembly {
@@ -204,6 +192,16 @@ contract SlotDerivationTest is Test, SymTest {
         }
 
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
+    }
+
+    mapping(bytes => bytes) private _bytesMapping;
+
+    function testDeriveMappingBytes(bytes memory key) public {
+        _assertDeriveMappingBytes(key);
+    }
+
+    function check_DeriveMappingBytes() public {
+        _assertDeriveMappingBytes(svm.createBytes(256, "DeriveMappingBytesInput"));
     }
 
     function _assertDeriveMappingBytes(bytes memory key) internal {
