@@ -25,8 +25,18 @@ abstract contract AccountP256 is Account {
                 v := byte(0, mload(add(signature, 0x60)))
             }
             return P256.recoveryAddress(uint256(msgHash), v, r, s);
+        } else if (signature.length == 96) {
+            uint256 qx;
+            uint256 r;
+            uint256 s;
+            /// @solidity memory-safe-assembly
+            assembly {
+                qx := mload(add(signature, 0x20))
+                r := mload(add(signature, 0x40))
+                s := mload(add(signature, 0x60))
+            }
         } else {
-            revert P256InvalidSignatureLength(signature.length);
+            return address(0);
         }
     }
 }

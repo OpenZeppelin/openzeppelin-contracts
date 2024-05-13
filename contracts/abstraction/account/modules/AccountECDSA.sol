@@ -8,7 +8,10 @@ import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {Account} from "../Account.sol";
 
 abstract contract AccountECDSA is Account {
-    function _recoverSigner(bytes memory signature, bytes32 userOpHash) internal virtual override returns (address) {
+    function _recoverSigner(
+        bytes memory signature,
+        bytes32 userOpHash
+    ) internal virtual override returns (address signer) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
         // This implementation support both "normal" and short signature formats:
@@ -25,7 +28,7 @@ abstract contract AccountECDSA is Account {
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
             }
-            return ECDSA.recover(msgHash, v, r, s);
+            (signer, , ) = ECDSA.tryRecover(msgHash, v, r, s); // return address(0) on errors
         } else if (signature.length == 64) {
             bytes32 r;
             bytes32 vs;
@@ -34,9 +37,9 @@ abstract contract AccountECDSA is Account {
                 r := mload(add(signature, 0x20))
                 vs := mload(add(signature, 0x40))
             }
-            return ECDSA.recover(msgHash, r, vs);
+            (signer, , ) = ECDSA.tryRecover(msgHash, r, vs);
         } else {
-            revert ECDSA.ECDSAInvalidSignatureLength(signature.length);
+            return address(0);
         }
     }
 }

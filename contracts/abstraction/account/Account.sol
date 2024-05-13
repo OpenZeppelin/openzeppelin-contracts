@@ -72,7 +72,7 @@ abstract contract Account is IAccount {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
-    ) external virtual override onlyEntryPoint returns (uint256 validationData) {
+    ) public virtual override onlyEntryPoint returns (uint256 validationData) {
         (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOp.signature, userOpHash);
         _validateNonce(userOp.nonce);
         _payPrefund(missingAccountFunds);
@@ -97,7 +97,7 @@ abstract contract Account is IAccount {
         bytes32 userOpHash
     ) internal virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
         address recovered = _recoverSigner(signature, userOpHash);
-        return (_isAuthorized(recovered), recovered, 0, 0);
+        return (recovered != address(0) && _isAuthorized(recovered), recovered, 0, 0);
     }
 
     /**
