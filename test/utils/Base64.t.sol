@@ -2,8 +2,6 @@
 
 pragma solidity ^0.8.20;
 
-// solhint-disable func-name-mixedcase
-
 import {Test} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
@@ -13,19 +11,9 @@ contract Base64Test is Test, SymTest {
         assertEq(Base64.encode(input), vm.toBase64(input));
     }
 
-    // function check_Encode() public {
-    //     bytes memory input = svm.createBytes(3, "EncodeInput");
-    //     assertEq(Base64.encode(input), vm.toBase64(input));
-    // }
-
     function testEncodeURL(bytes memory input) external {
         assertEq(Base64.encodeURL(input), _removePadding(vm.toBase64URL(input)));
     }
-
-    // function check_EncodeURL() public {
-    //     bytes memory input = svm.createBytes(3, "EncodeURLInput");
-    //     assertEq(Base64.encodeURL(input), _removePadding(vm.toBase64URL(input)));
-    // }
 
     function _removePadding(string memory inputStr) internal pure returns (string memory) {
         bytes memory input = bytes(inputStr);

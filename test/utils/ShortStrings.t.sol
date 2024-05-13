@@ -43,11 +43,6 @@ contract ShortStringsTest is Test, SymTest {
         _assertRevertLong(input);
     }
 
-    // function check_RevertLong() external {
-    //     string memory input = svm.createString(256, "RevertLongInput");
-    //     _assertRevertLong(input);
-    // }
-
     function testLengthShort(string memory input) external {
         vm.assume(_isShort(input));
         _assertLengthShort(input);
