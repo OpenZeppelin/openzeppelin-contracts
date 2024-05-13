@@ -93,9 +93,9 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   harnesses:
     runs-on: ubuntu-latest

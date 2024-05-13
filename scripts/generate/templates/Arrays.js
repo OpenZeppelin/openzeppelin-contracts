@@ -356,6 +356,7 @@ const unsafeSetLength = type => `
  * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
  */
 function unsafeSetLength(${type}[] storage array, uint256 len) internal {
+    /// @solidity memory-safe-assembly
     assembly {
         sstore(array.slot, len)
     }
