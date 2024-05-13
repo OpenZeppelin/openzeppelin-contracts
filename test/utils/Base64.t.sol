@@ -3,10 +3,9 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
-contract Base64Test is Test, SymTest {
+contract Base64Test is Test {
     function testEncode(bytes memory input) external {
         assertEq(Base64.encode(input), vm.toBase64(input));
     }
