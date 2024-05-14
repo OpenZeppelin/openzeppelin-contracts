@@ -92,7 +92,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior.
      */
     function _fallback() internal virtual override {
-        if (msg.sender == _proxyAdmin()) {
+        if (msg.sender == _proxyAdmin() || msg.sender == ProxyAdmin(_admin).owner()) {
             if (msg.sig != ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 revert ProxyDeniedAdminAccess();
             } else {
