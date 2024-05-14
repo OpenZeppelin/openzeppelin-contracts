@@ -49,7 +49,7 @@ jobs:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
       - name: Install python packages
-        run: pip install -r requirements.txt
+        run: pip install -r fv-requirements.txt
       - name: Install java
         uses: actions/setup-java@v3
         with:
@@ -79,6 +79,6 @@ jobs:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
       - name: Install python packages
-        run: pip install -r requirements.txt
+        run: pip install -r -fv-requirements.txt
       - name: Run Halmos
         run: halmos --match-test '^check_|^testSymbolic' -vv
