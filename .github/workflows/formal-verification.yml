@@ -48,6 +48,7 @@ jobs:
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
       - name: Install python packages
         run: pip install -r fv-requirements.txt
       - name: Install java
@@ -78,6 +79,7 @@ jobs:
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
       - name: Install python packages
         run: pip install -r fv-requirements.txt
       - name: Run Halmos
