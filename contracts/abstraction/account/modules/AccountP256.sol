@@ -25,16 +25,22 @@ abstract contract AccountP256 is Account {
                 v := byte(0, mload(add(signature, 0x60)))
             }
             return P256.recoveryAddress(uint256(msgHash), v, r, s);
-        } else if (signature.length == 96) {
+        } else if (signature.length == 128) {
             uint256 qx;
+            uint256 qy;
             uint256 r;
             uint256 s;
             /// @solidity memory-safe-assembly
             assembly {
                 qx := mload(add(signature, 0x20))
-                r := mload(add(signature, 0x40))
-                s := mload(add(signature, 0x60))
+                qy := mload(add(signature, 0x40))
+                r := mload(add(signature, 0x60))
+                s := mload(add(signature, 0x80))
             }
+            // can qx be reconstructed from qy to reduce size of signatures?
+
+            // this can leverage EIP-7212 precompile if available
+            return P256.verify(uint256(msgHash), r, s, qx, qy) ? P256.getAddress(qx, qy) : address(0);
         } else {
             return address(0);
         }
