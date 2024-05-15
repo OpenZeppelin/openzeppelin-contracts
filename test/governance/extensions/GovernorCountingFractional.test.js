@@ -71,6 +71,7 @@ describe('GovernorCountingFractional', function () {
         expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo&quorum=for,abstain&params=fractional');
       });
 
       it('nominal is unaffected', async function () {
@@ -90,18 +91,54 @@ describe('GovernorCountingFractional', function () {
         expect(await ethers.provider.getBalance(this.receiver)).to.equal(value);
       });
 
-      it('voting with a fraction of the weight: twice', async function () {
-        await this.helper.connect(this.proposer).propose();
-        await this.helper.waitForSnapshot();
+      describe('voting with a fraction of the weight', function () {
+        it('twice', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
 
-        expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-        expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
+          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
+          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
 
-        const steps = [['0', '2', '1'].map(ethers.parseEther), ['1', '0', '1'].map(ethers.parseEther)];
+          const steps = [['0', '2', '1'].map(ethers.parseEther), ['1', '0', '1'].map(ethers.parseEther)];
 
-        for (const votes of steps) {
-          const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
+          for (const votes of steps) {
+            const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
+            await expect(
+              this.helper.connect(this.voter2).vote({
+                support: 0,
+                reason: 'no particular reason',
+                params,
+              }),
+            )
+              .to.emit(this.mock, 'VoteCastWithParams')
+              .withArgs(
+                this.voter2,
+                this.proposal.id,
+                0,
+                ethers.parseEther('7'), // total weight for voter2
+                'no particular reason',
+                params,
+              );
+          }
+
+          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
+          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(sum(...[].concat(...steps)));
+        });
+
+        it('fractional then nominal', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
+
+          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
+          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
+
+          const weight = ethers.parseEther('7');
+          const fractional = ['1', '2', '1'].map(ethers.parseEther);
+
+          const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
           await expect(
             this.helper.connect(this.voter2).vote({
               support: 0,
@@ -114,81 +151,87 @@ describe('GovernorCountingFractional', function () {
               this.voter2,
               this.proposal.id,
               0,
-              ethers.parseEther('7'), // total weight for voter2
+              weight, // total weight for voter2
               'no particular reason',
               params,
             );
-        }
 
-        expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-        expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(sum(...[].concat(...steps)));
-      });
+          await expect(this.helper.connect(this.voter2).vote({ support: VoteType.Against }))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(
+              this.voter2,
+              this.proposal.id,
+              VoteType.Against,
+              weight, // total weight for voter2
+              '',
+            );
 
-      it('voting with a fraction of the weight, then finish with nominal', async function () {
-        await this.helper.connect(this.proposer).propose();
-        await this.helper.waitForSnapshot();
+          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([
+            weight - sum(...fractional.slice(1)),
+            ...fractional.slice(1),
+          ]);
+          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
+          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(weight);
+        });
 
-        expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-        expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
+        it('revert if params spend more than available', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
 
-        const weight = ethers.parseEther('7');
-        const fractional = ['1', '2', '1'].map(ethers.parseEther);
+          const weight = ethers.parseEther('7');
+          const fractional = ['0', '1000', '0'].map(ethers.parseEther);
 
-        const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
-        await expect(
-          this.helper.connect(this.voter2).vote({
-            support: 0,
-            reason: 'no particular reason',
-            params,
-          }),
-        )
-          .to.emit(this.mock, 'VoteCastWithParams')
-          .withArgs(
-            this.voter2,
-            this.proposal.id,
-            0,
-            weight, // total weight for voter2
-            'no particular reason',
-            params,
+          await expect(
+            this.helper.connect(this.voter2).vote({
+              support: 0,
+              reason: 'no particular reason',
+              params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional),
+            }),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUsedVotesExceedRemainingWeight')
+            .withArgs(this.voter2, sum(...fractional), weight);
+        });
+
+        it('revert if no weight remaining', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+
+          await expect(
+            this.helper.connect(this.voter2).vote({
+              support: 0,
+              reason: 'no particular reason',
+              params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], [0n, 1n, 0n]),
+            }),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVote')
+            .withArgs(this.voter2);
+        });
+
+        it('revert if params are not properly formated', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
+
+          await expect(
+            this.helper.connect(this.voter2).vote({
+              support: 0,
+              reason: 'no particular reason',
+              params: ethers.solidityPacked(['uint128', 'uint128'], [0n, 1n]),
+            }),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidParamsFormat')
+            .withArgs(this.voter2);
+        });
+
+        it('revert if vote type is invalid', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
+
+          await expect(this.helper.connect(this.voter2).vote({ support: 128n })).to.be.revertedWithCustomError(
+            this.mock,
+            'GovernorInvalidVoteType',
           );
-
-        await expect(this.helper.connect(this.voter2).vote({ support: VoteType.Against }))
-          .to.emit(this.mock, 'VoteCast')
-          .withArgs(
-            this.voter2,
-            this.proposal.id,
-            VoteType.Against,
-            weight, // total weight for voter2
-            '',
-          );
-
-        expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([
-          weight - sum(...fractional.slice(1)),
-          ...fractional.slice(1),
-        ]);
-        expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-        expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(weight);
-      });
-
-      it('voting with a fraction of the weight: params spend more than available', async function () {
-        await this.helper.connect(this.proposer).propose();
-        await this.helper.waitForSnapshot();
-
-        const weight = ethers.parseEther('7');
-        const fractional = ['0', '1000', '0'].map(ethers.parseEther);
-
-        const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
-        await expect(
-          this.helper.connect(this.voter2).vote({
-            support: 0,
-            reason: 'no particular reason',
-            params,
-          }),
-        )
-          .to.be.revertedWithCustomError(this.mock, 'GovernorUsedVotesExceedRemainingWeight')
-          .withArgs(this.voter2, sum(...fractional), weight);
+        });
       });
     });
   }
