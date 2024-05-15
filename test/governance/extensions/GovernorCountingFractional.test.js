@@ -100,7 +100,10 @@ describe('GovernorCountingFractional', function () {
           expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
           expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
 
-          const steps = [['0', '2', '1'].map(ethers.parseEther), ['1', '0', '1'].map(ethers.parseEther)];
+          const steps = [
+            ['0', '2', '1'],
+            ['1', '0', '1'],
+          ].map(votes => votes.map(vote => ethers.parseEther(vote)));
 
           for (const votes of steps) {
             const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
