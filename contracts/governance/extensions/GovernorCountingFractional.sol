@@ -109,7 +109,7 @@ abstract contract GovernorCountingFractional is Governor {
         uint8 support,
         uint256 totalWeight,
         bytes memory params
-    ) internal virtual override {
+    ) internal virtual override returns (uint256) {
         // Compute number of remaining votes. Returns 0 on overflow.
         (, uint256 remainingWeight) = totalWeight.trySub(voteWeightCast(proposalId, account));
         if (remainingWeight == 0) {
@@ -117,9 +117,9 @@ abstract contract GovernorCountingFractional is Governor {
         }
 
         if (params.length == 0) {
-            _countVoteNominal(proposalId, account, support, remainingWeight);
+            return _countVoteNominal(proposalId, account, support, remainingWeight);
         } else if (params.length == 0x30) {
-            _countVoteFractional(proposalId, account, params, remainingWeight);
+            return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
             revert GovernorInvalidParamsFormat(account);
         }
@@ -131,7 +131,12 @@ abstract contract GovernorCountingFractional is Governor {
      * Because this function votes with the delegate's remaining weight, it can only be called once per proposal and
      * thus does not require any replay protection.
      */
-    function _countVoteNominal(uint256 proposalId, address account, uint8 support, uint256 weight) private {
+    function _countVoteNominal(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) private returns (uint256) {
         ProposalVote storage details = _proposalVotes[proposalId];
         details.usedVotes[account] += weight;
 
@@ -144,6 +149,8 @@ abstract contract GovernorCountingFractional is Governor {
         } else {
             revert GovernorInvalidVoteType();
         }
+
+        return weight;
     }
 
     /**
@@ -162,7 +169,12 @@ abstract contract GovernorCountingFractional is Governor {
      * ABSTAIN on the proposal. Though partial, votes are still final once cast and cannot be changed or overridden.
      * Subsequent partial votes simply increment existing totals.
      */
-    function _countVoteFractional(uint256 proposalId, address account, bytes memory params, uint256 weight) private {
+    function _countVoteFractional(
+        uint256 proposalId,
+        address account,
+        bytes memory params,
+        uint256 weight
+    ) private returns (uint256) {
         uint128 againstVotes = _extractUint128(params, 0);
         uint128 forVotes = _extractUint128(params, 1);
         uint128 abstainVotes = _extractUint128(params, 2);
@@ -177,6 +189,8 @@ abstract contract GovernorCountingFractional is Governor {
         details.forVotes += forVotes;
         details.abstainVotes += abstainVotes;
         details.usedVotes[account] += usedWeight;
+
+        return usedWeight;
     }
 
     function _extractUint128(bytes memory data, uint256 pos) private pure returns (uint128 result) {

@@ -255,9 +255,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight,
+        uint256 totalWeight,
         bytes memory params
-    ) internal virtual;
+    ) internal virtual returns (uint256);
 
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
@@ -639,16 +639,16 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) internal virtual returns (uint256) {
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Active));
 
-        uint256 weight = _getVotes(account, proposalSnapshot(proposalId), params);
-        _countVote(proposalId, account, support, weight, params);
+        uint256 totalWeight = _getVotes(account, proposalSnapshot(proposalId), params);
+        uint256 votedWeight = _countVote(proposalId, account, support, totalWeight, params);
 
         if (params.length == 0) {
-            emit VoteCast(account, proposalId, support, weight, reason);
+            emit VoteCast(account, proposalId, support, votedWeight, reason);
         } else {
-            emit VoteCastWithParams(account, proposalId, support, weight, reason, params);
+            emit VoteCastWithParams(account, proposalId, support, votedWeight, reason, params);
         }
 
-        return weight;
+        return votedWeight;
     }
 
     /**

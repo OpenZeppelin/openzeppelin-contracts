@@ -115,14 +115,7 @@ describe('GovernorCountingFractional', function () {
               }),
             )
               .to.emit(this.mock, 'VoteCastWithParams')
-              .withArgs(
-                this.voter2,
-                this.proposal.id,
-                0,
-                ethers.parseEther('7'), // total weight for voter2
-                'no particular reason',
-                params,
-              );
+              .withArgs(this.voter2, this.proposal.id, 0, sum(...votes), 'no particular reason', params);
           }
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
@@ -150,24 +143,11 @@ describe('GovernorCountingFractional', function () {
             }),
           )
             .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter2,
-              this.proposal.id,
-              0,
-              weight, // total weight for voter2
-              'no particular reason',
-              params,
-            );
+            .withArgs(this.voter2, this.proposal.id, 0, sum(...fractional), 'no particular reason', params);
 
           await expect(this.helper.connect(this.voter2).vote({ support: VoteType.Against }))
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(
-              this.voter2,
-              this.proposal.id,
-              VoteType.Against,
-              weight, // total weight for voter2
-              '',
-            );
+            .withArgs(this.voter2, this.proposal.id, VoteType.Against, weight - sum(...fractional), '');
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([
             weight - sum(...fractional.slice(1)),
