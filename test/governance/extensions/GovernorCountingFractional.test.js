@@ -98,7 +98,7 @@ describe('GovernorCountingFractional', function () {
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
           expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
+          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(0n);
 
           const steps = [
             ['0', '2', '1'],
@@ -120,7 +120,7 @@ describe('GovernorCountingFractional', function () {
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
           expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(sum(...[].concat(...steps)));
+          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(sum(...[].concat(...steps)));
         });
 
         it('fractional then nominal', async function () {
@@ -129,7 +129,7 @@ describe('GovernorCountingFractional', function () {
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
           expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(0n);
+          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(0n);
 
           const weight = ethers.parseEther('7');
           const fractional = ['1', '2', '1'].map(ethers.parseEther);
@@ -154,7 +154,7 @@ describe('GovernorCountingFractional', function () {
             ...fractional.slice(1),
           ]);
           expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-          expect(await this.mock.voteWeightCast(this.proposal.id, this.voter2)).to.equal(weight);
+          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(weight);
         });
 
         it('revert if params spend more than available', async function () {

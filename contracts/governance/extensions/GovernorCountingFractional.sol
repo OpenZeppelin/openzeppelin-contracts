@@ -48,14 +48,14 @@ abstract contract GovernorCountingFractional is Governor {
      * @dev See {IGovernor-hasVoted}.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
-        return voteWeightCast(proposalId, account) > 0;
+        return usedVotes(proposalId, account) > 0;
     }
 
     /**
      * @dev Get the number of votes cast thus far on proposal `proposalId` by account `account`. Useful for
      * integrations that allow delegates to cast rolling, partial votes.
      */
-    function voteWeightCast(uint256 proposalId, address account) public view virtual returns (uint256) {
+    function usedVotes(uint256 proposalId, address account) public view virtual returns (uint256) {
         return _proposalVotes[proposalId].usedVotes[account];
     }
 
@@ -113,7 +113,7 @@ abstract contract GovernorCountingFractional is Governor {
         bytes memory params
     ) internal virtual override returns (uint256) {
         // Compute number of remaining votes. Returns 0 on overflow.
-        (, uint256 remainingWeight) = totalWeight.trySub(voteWeightCast(proposalId, account));
+        (, uint256 remainingWeight) = totalWeight.trySub(usedVotes(proposalId, account));
         if (remainingWeight == 0) {
             revert GovernorAlreadyCastVote(account);
         }
@@ -187,9 +187,15 @@ abstract contract GovernorCountingFractional is Governor {
         }
 
         ProposalVote storage details = _proposalVotes[proposalId];
-        details.againstVotes += againstVotes;
-        details.forVotes += forVotes;
-        details.abstainVotes += abstainVotes;
+        if (againstVotes > 0) {
+            details.againstVotes += againstVotes;
+        }
+        if (forVotes > 0) {
+            details.forVotes += forVotes;
+        }
+        if (abstainVotes > 0) {
+            details.abstainVotes += abstainVotes;
+        }
         details.usedVotes[account] += usedWeight;
 
         return usedWeight;
