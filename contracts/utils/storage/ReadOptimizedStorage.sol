@@ -123,7 +123,7 @@ library ReadOptimizedStorage {
 
         bytes memory code = new bytes(size);
         assembly {
-            extcodecopy(storageContract, add(code, 0x20), 3, size)
+            extcodecopy(storageContract, add(code, 0x20), 0, size)
         }
 
         (bytes32[] memory keys, bytes32[] memory values) = abi.decode(code, (bytes32[], bytes32[]));
@@ -169,7 +169,7 @@ library ReadOptimizedStorage {
         if (size > 0) {
             bytes memory code = new bytes(size);
             assembly {
-                extcodecopy(storageContract, add(code, 0x20), 3, size)
+                extcodecopy(storageContract, add(code, 0x20), 0, size)
             }
             (keys, values) = abi.decode(code, (bytes32[], bytes32[]));
         }
@@ -192,11 +192,11 @@ library ReadOptimizedStorage {
 
         newCode = createContractCreationCode(abi.encode(keys, values));
         assembly {
-            // Create new storage contract
+        // Create new storage contract
             storageContract := create(0, add(newCode, 0x20), mload(newCode))
             sstore(location, storageContract)
 
-            // Copy the new storage to transient storage
+        // Copy the new storage to transient storage
             let keysLength := mload(keys)
             let keysPtr := add(keys, 0x20)
             let valuesPtr := add(values, 0x20)
@@ -218,55 +218,15 @@ library ReadOptimizedStorage {
      * @param _code The code to store in the new storage contract
      * @return result The contract creation code
      */
-    function createContractCreationCode(bytes memory _code) private pure returns (bytes memory result) {
-        unchecked {
-            bytes memory prefix;
-            uint256 codeLength = _code.length;
-
-            if (codeLength < 512) {
-                prefix = hex"608060405234801561000f575f80fd5b506102038061001d5f395ff3fe";
-            } else if (codeLength < 1024) {
-                prefix = hex"608060405234801561000f575f80fd5b506104038061001d5f395ff3fe";
-            } else if (codeLength < 1536) {
-                prefix = hex"608060405234801561000f575f80fd5b506106038061001d5f395ff3fe";
-            } else if (codeLength < 2048) {
-                prefix = hex"608060405234801561000f575f80fd5b506108038061001d5f395ff3fe";
-            } else if (codeLength < 2560) {
-                prefix = hex"608060405234801561000f575f80fd5b50610a038061001d5f395ff3fe";
-            } else if (codeLength < 3072) {
-                prefix = hex"608060405234801561000f575f80fd5b50610c038061001d5f395ff3fe";
-            } else if (codeLength < 3584) {
-                prefix = hex"608060405234801561000f575f80fd5b50610e038061001d5f395ff3fe";
-            } else {
-                revert("Do not store too much data in read-optimized storage");
-            }
-
-            assembly {
-                let totalLength := add(codeLength, 32)
-
-                // Allocate memory for result
-                result := mload(0x40)
-                mstore(result, totalLength)
-                mstore(0x40, add(add(result, 0x20), totalLength))
-
-                let resultPtr := add(result, 0x20)
-                let prefixPtr := add(prefix, 0x20)
-                let codePtr := add(_code, 0x20)
-
-                // Copy prefix to result
-                mstore(resultPtr, mload(prefixPtr))
-
-                // Copy code to result
-                for { let i := 0 } lt(i, codeLength) { i := add(i, 0x20) } {
-                    mstore(add(resultPtr, add(i, 32)), mload(add(codePtr, i)))
-                }
-
-                // Update free-memory pointer
-                mstore(0x40, add(resultPtr, add(totalLength, 0x20)))
-            }
-            return result;
-        }
+    function createContractCreationCode(bytes memory _code) private pure returns (bytes memory) {
+        return abi.encodePacked(
+            hex"63",
+            uint32(_code.length),
+            hex"80_60_0E_60_00_39_60_00_F3",
+            _code
+        );
     }
+
 
     /*
      * @dev Copy a bytes32 array
