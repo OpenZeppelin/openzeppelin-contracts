@@ -171,7 +171,7 @@ describe('GovernorCountingFractional', function () {
               params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional),
             }),
           )
-            .to.be.revertedWithCustomError(this.mock, 'GovernorUsedVotesExceedRemainingWeight')
+            .to.be.revertedWithCustomError(this.mock, 'GovernorExceedRemainingWeight')
             .withArgs(this.voter2, sum(...fractional), weight);
         });
 
@@ -201,9 +201,7 @@ describe('GovernorCountingFractional', function () {
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128'], [0n, 1n]),
             }),
-          )
-            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidParamsFormat')
-            .withArgs(this.voter2);
+          ).to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVoteParams');
         });
 
         it('revert if vote type is invalid', async function () {

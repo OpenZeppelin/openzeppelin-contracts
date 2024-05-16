@@ -84,6 +84,11 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
+     * @dev The provided params buffer is not supported by the counting module.
+     */
+    error GovernorInvalidVoteParams();
+
+    /**
      * @dev Queue operation is not implemented for this governor. Execute should be called directly.
      */
     error GovernorQueueNotImplemented();

@@ -31,8 +31,10 @@ abstract contract GovernorCountingFractional is Governor {
      */
     mapping(uint256 => ProposalVote) private _proposalVotes;
 
-    error GovernorInvalidParamsFormat(address voter);
-    error GovernorUsedVotesExceedRemainingWeight(address voter, uint256 usedVotes, uint256 remainingWeight);
+    /**
+     * @dev A fractional vote params uses more votes than are available for that user.
+     */
+    error GovernorExceedRemainingWeight(address voter, uint256 usedVotes, uint256 remainingWeight);
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
@@ -88,9 +90,9 @@ abstract contract GovernorCountingFractional is Governor {
      *
      * @dev Function that records the delegate's votes.
      *
-     * If the `params` bytes parameter is empty, then this module behaves identically to {GovernorCountingSimple}.
-     * That is, it assigns the remaining weight of the delegate to the `support` parameter, which follows the
-     * `VoteType` enum from Governor Bravo (as defined in {GovernorCountingSimple}).
+     * If the `params` bytes parameter is empty, then this module behaves identically to {GovernorCountingSimple} for
+     * the remaining weight. That is, it assigns the remaining weight of the delegate to the `support` parameter,
+     * which follows the `VoteType` enum from Governor Bravo (as defined in {GovernorCountingSimple}).
      *
      * If the `params` bytes parameter is not zero, then it _must_ be tree packed uint128s, totaling 48 bytes,
      * representing the weight the delegate assigns to Against, For, and Abstain respectively. This format can be
@@ -121,7 +123,7 @@ abstract contract GovernorCountingFractional is Governor {
         } else if (params.length == 0x30) {
             return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
-            revert GovernorInvalidParamsFormat(account);
+            revert GovernorInvalidVoteParams();
         }
     }
 
@@ -181,7 +183,7 @@ abstract contract GovernorCountingFractional is Governor {
 
         uint256 usedWeight = againstVotes + forVotes + abstainVotes;
         if (usedWeight > weight) {
-            revert GovernorUsedVotesExceedRemainingWeight(account, usedWeight, weight);
+            revert GovernorExceedRemainingWeight(account, usedWeight, weight);
         }
 
         ProposalVote storage details = _proposalVotes[proposalId];
