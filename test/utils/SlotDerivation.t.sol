@@ -12,10 +12,19 @@ contract SlotDerivationTest is Test, SymTest {
 
     bytes[] private _array;
 
-    function testSymbolicDeriveArray(uint256 length, uint256 offset) public {
+    function checkSymbolicDeriveArray(uint256 length, uint256 offset) public {
         vm.assume(length > 0);
         vm.assume(offset < length);
+        _assertDeriveArray(length, offset);
+    }
 
+    function testDeriveArray(uint256 length, uint256 offset) public {
+        length = bound(length, 1, type(uint256).max);
+        offset = bound(offset, 0, length - 1);
+        _assertDeriveArray(length, offset);
+    }
+
+    function _assertDeriveArray(uint256 length, uint256 offset) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _array.slot
