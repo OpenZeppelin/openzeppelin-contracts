@@ -5,8 +5,6 @@ const { TYPES } = require('./Slot.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
-// solhint-disable func-name-mixedcase
-
 import {Test} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
