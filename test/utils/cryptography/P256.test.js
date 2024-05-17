@@ -32,6 +32,7 @@ describe('P256', function () {
 
   it('verify valid signature', async function () {
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
+    expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
   });
 
   it('recover public key', async function () {
@@ -45,11 +46,13 @@ describe('P256', function () {
   it('reject signature with flipped public key coordinates ([x,y] >> [y,x])', async function () {
     const reversedPublicKey = Array.from(this.publicKey).reverse();
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...reversedPublicKey)).to.be.false;
+    expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...reversedPublicKey)).to.be.false;
   });
 
   it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
     const reversedSignature = Array.from(this.signature).reverse();
     expect(await this.mock.$verify(this.messageHash, ...reversedSignature, ...this.publicKey)).to.be.false;
+    expect(await this.mock.$verifySolidity(this.messageHash, ...reversedSignature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$recovery(this.messageHash, this.recovery, ...reversedSignature)).to.not.deep.equal(
       this.publicKey,
     );
@@ -61,6 +64,7 @@ describe('P256', function () {
   it('reject signature with invalid message hash', async function () {
     const invalidMessageHash = ethers.hexlify(ethers.randomBytes(32));
     expect(await this.mock.$verify(invalidMessageHash, ...this.signature, ...this.publicKey)).to.be.false;
+    expect(await this.mock.$verifySolidity(invalidMessageHash, ...this.signature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$recovery(invalidMessageHash, this.recovery, ...this.signature)).to.not.deep.equal(
       this.publicKey,
     );

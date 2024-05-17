@@ -37,7 +37,9 @@ library P256 {
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
     /**
-     * @dev signature verification
+     * @dev signature verification - generic version that uses the EIP-7212 precompile is available, and fallback to
+     * the solidity implementation otherwise.
+     *
      * @param h - hashed message
      * @param r - signature half R
      * @param s - signature half S
@@ -45,6 +47,22 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
+        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
+        return
+            success && returndata.length == 0x20
+                ? abi.decode(returndata, (uint256)) == 1
+                : verifySolidity(h, r, s, qx, qy);
+    }
+
+    /**
+     * @dev signature verification - solidity implementation
+     * @param h - hashed message
+     * @param r - signature half R
+     * @param s - signature half S
+     * @param qx - public key coordinate X
+     * @param qy - public key coordinate Y
+     */
+    function verifySolidity(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
         if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
 
         JPoint[16] memory points = _preComputeJacobianPoints(qx, qy);

@@ -13,6 +13,7 @@ contract P256Test is Test {
         (uint256 x, uint256 y) = P256.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
         assertTrue(P256.verify(uint256(digest), uint256(r), uint256(s), x, y));
+        assertTrue(P256.verifySolidity(uint256(digest), uint256(r), uint256(s), x, y));
     }
 
     /// forge-config: default.fuzz.runs = 512
