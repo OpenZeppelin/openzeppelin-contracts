@@ -175,7 +175,7 @@ contract SlotDerivationTest is Test, SymTest {
         _assertDeriveMappingString(key);
     }
 
-    function check_DeriveMappingString() public {
+    function checkSymbolicDeriveMappingString() public {
         _assertDeriveMappingString(svm.createString(256, "DeriveMappingStringInput"));
     }
 
@@ -200,7 +200,7 @@ contract SlotDerivationTest is Test, SymTest {
         _assertDeriveMappingBytes(key);
     }
 
-    function check_DeriveMappingBytes() public {
+    function checkSymbolicDeriveMappingBytes() public {
         _assertDeriveMappingBytes(svm.createBytes(256, "DeriveMappingBytesInput"));
     }
 

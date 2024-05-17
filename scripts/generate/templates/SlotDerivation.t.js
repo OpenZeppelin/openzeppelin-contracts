@@ -61,7 +61,7 @@ function testDeriveMapping${name}(${type} memory key) public {
   _assertDeriveMapping${name}(key);
 }
 
-function check_DeriveMapping${name}() public {
+function checkSymbolicDeriveMapping${name}() public {
   _assertDeriveMapping${name}(svm.create${name}(256, "DeriveMapping${name}Input"));
 }
 

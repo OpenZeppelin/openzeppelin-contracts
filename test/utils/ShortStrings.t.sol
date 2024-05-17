@@ -17,7 +17,7 @@ contract ShortStringsTest is Test, SymTest {
         _assertRoundtripShort(input);
     }
 
-    function check_RoundtripShort() external {
+    function checkSymbolicRoundtripShort() external {
         string memory input = svm.createString(31, "RoundtripShortInput");
         _assertRoundtripShort(input);
     }
@@ -26,13 +26,13 @@ contract ShortStringsTest is Test, SymTest {
         _assertRoundtripWithFallback(input, fallbackInitial);
     }
 
-    function check_RoundtripWithFallbackLong() external {
+    function checkSymbolicRoundtripWithFallbackLong() external {
         string memory input = svm.createString(256, "RoundtripWithFallbackInput");
         string memory fallbackInitial = svm.createString(256, "RoundtripWithFallbackFallbackInitial");
         _assertRoundtripWithFallback(input, fallbackInitial);
     }
 
-    function check_RoundtripWithFallbackShort() external {
+    function checkSymbolicRoundtripWithFallbackShort() external {
         string memory input = svm.createString(31, "RoundtripWithFallbackInput");
         string memory fallbackInitial = svm.createString(31, "RoundtripWithFallbackFallbackInitial");
         _assertRoundtripWithFallback(input, fallbackInitial);
@@ -48,7 +48,7 @@ contract ShortStringsTest is Test, SymTest {
         _assertLengthShort(input);
     }
 
-    function check_LengthShort() external {
+    function checkSymbolicLengthShort() external {
         string memory input = svm.createString(31, "LengthShortInput");
         _assertLengthShort(input);
     }
@@ -58,7 +58,7 @@ contract ShortStringsTest is Test, SymTest {
         _assertLengthWithFallback(input);
     }
 
-    function check_LengthWithFallback() external {
+    function checkSymbolicLengthWithFallback() external {
         uint256 length = 256;
         string memory input = svm.createString(length, "LengthWithFallbackInput");
         string memory fallbackInitial = svm.createString(length, "LengthWithFallbackFallbackInitial");
