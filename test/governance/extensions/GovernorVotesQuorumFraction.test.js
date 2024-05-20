@@ -74,7 +74,7 @@ describe('GovernorVotesQuorumFraction', function () {
         );
       });
 
-      it('quroum reached', async function () {
+      it('quorum reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
@@ -82,7 +82,7 @@ describe('GovernorVotesQuorumFraction', function () {
         await this.helper.execute();
       });
 
-      it('quroum not reached', async function () {
+      it('quorum not reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter2).vote({ support: VoteType.For });

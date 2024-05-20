@@ -26,7 +26,7 @@ contract GovernorInternalTest is Test, Governor {
         assertFalse(_isValidDescriptionForProposer(actualProposer, description));
     }
 
-    // We don't need to truly implement implement the missing functions because we are just testing
+    // We don't need to truly implement the missing functions because we are just testing
     // internal helpers.
 
     function clock() public pure override returns (uint48) {}
