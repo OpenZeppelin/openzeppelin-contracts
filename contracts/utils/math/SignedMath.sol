@@ -65,4 +65,74 @@ library SignedMath {
             return uint256((n + mask) ^ mask);
         }
     }
+
+    /**
+     * @dev Signed saturating addition, computes `a + b` saturating at the numeric bounds instead of overflowing.
+     */
+    function saturatingAdd(int256 a, int256 b) internal pure returns (int256) {
+        unchecked {
+            int256 c = a + b;
+            // Rationale:
+            // - overflow is only possible when both `a` and `b` are positive
+            // - underflow is only possible when both `a` and `b` are negative
+            //
+            // Lemma:
+            // (i)  - if `a > (a + b)` is true, then `b` MUST be negative, otherwise overflow happened.
+            // (ii) - if `a > (a + b)` is false, then `b` MUST be non-negative, otherwise underflow happened.
+            //
+            // So the following statement will be true only if an overflow or underflow happened:
+            // statement: a > (a + b) == (b >= 0)
+            //
+            // We can use the sign of `b` to distinguish between overflow and underflow, as demonstrated below:
+            // | a > (a + b) | b >= 0  |
+            // | true        | true    | Lemma (i) thus Overflow
+            // | false       | false   | Lemma (ii) thus Underflow
+            // | true        | false   | Ok
+            // | false       | true    | Ok
+            bool sign = b >= 0;
+            bool overflow = a > c == sign;
+
+            // Efficient branchless method to retrieve the boundary limit:
+            // (1 << 255)     == type(int256).min
+            // (1 << 255) - 1 == type(int256).max
+            uint256 limit = (SafeCast.toUint(overflow) << 255) - SafeCast.toUint(sign);
+
+            return ternary(overflow, int256(limit), c);
+        }
+    }
+
+    /**
+     * @dev Signed saturating subtraction, computes `a - b` saturating at the numeric bounds instead of overflowing.
+     */
+    function saturatingSub(int256 a, int256 b) internal pure returns (int256) {
+        unchecked {
+            int256 c = a - b;
+            // Rationale:
+            // - overflow is only possible when `a` is zero or positive and `b` is negative
+            // - underflow is only possible when `a` is negative and `b` is positive
+            //
+            // Lemma:
+            // (i)  - if `a >= (a - b)` is true, then `b` MUST be non-negative, otherwise overflow happened.
+            // (ii) - if `a >= (a - b)` is false, then `b` MUST be negative, otherwise underflow happened.
+            //
+            // So the following statement will be true only if an overflow or underflow happened:
+            // statement: a >= (a - b) == (b < 0)
+            //
+            // We can use the sign of `b` to distinguish between overflow and underflow, as demonstrated below:
+            // | a >= (a - b) | b < 0  |
+            // | true         | true   | Lemma (i) thus Overflow
+            // | false        | false  | Lemma (ii) thus Underflow
+            // | true         | false  | Ok
+            // | false        | true   | Ok
+            bool sign = b < 0;
+            bool overflow = a >= c == sign;
+
+            // Efficient branchless method to retrieve the boundary limit:
+            // (1 << 255)     == type(int256).min
+            // (1 << 255) - 1 == type(int256).max
+            uint256 limit = (SafeCast.toUint(overflow) << 255) - SafeCast.toUint(sign);
+
+            return ternary(overflow, int256(limit), c);
+        }
+    }
 }
