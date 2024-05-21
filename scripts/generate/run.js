@@ -36,6 +36,7 @@ for (const [file, template] of Object.entries({
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
   'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
+  'utils/Packing.sol': './templates/Packing.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
   'utils/Arrays.sol': './templates/Arrays.js',
@@ -48,6 +49,7 @@ for (const [file, template] of Object.entries({
 for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.t.sol': './templates/Checkpoints.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
+  'utils/Packing.t.sol': './templates/Packing.t.js',
 })) {
   generateFromTemplate(file, template, './test/');
 }
