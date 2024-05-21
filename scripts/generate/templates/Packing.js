@@ -19,9 +19,9 @@ const natspec = (fromBytesSize, toUintType, packSize) => `\
  *
  *     function foo(bytes${fromBytesSize} value) internal {
  *        // Convert any bytes${fromBytesSize} into a packed ${toUintType}x${packSize}
- *        Packing.${capitalize(toUintType)}x${packSize} my${capitalize(toUintType)}x${packSize} = value.as${capitalize(
+ *        PackingBytes${fromBytesSize}.${capitalize(toUintType)}x${packSize} my${capitalize(
    toUintType,
- )}x${packSize}();
+ )}x${packSize} = value.as${capitalize(toUintType)}x${packSize}();
  *        
  *        // Access values through index
  *        ${toUintType} b = my${capitalize(toUintType)}x${packSize}.at(1);

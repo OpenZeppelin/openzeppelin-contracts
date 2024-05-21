@@ -15,7 +15,7 @@ pragma solidity ^0.8.20;
  *
  *     function foo(bytes4 value) internal {
  *        // Convert any bytes4 into a packed uint16x2
- *        Packing.Uint16x2 myUint16x2 = value.asUint16x2();
+ *        PackingBytes4.Uint16x2 myUint16x2 = value.asUint16x2();
  *
  *        // Access values through index
  *        uint16 b = myUint16x2.at(1);
@@ -104,7 +104,7 @@ library PackingBytes4 {
  *
  *     function foo(bytes8 value) internal {
  *        // Convert any bytes8 into a packed uint32x2
- *        Packing.Uint32x2 myUint32x2 = value.asUint32x2();
+ *        PackingBytes8.Uint32x2 myUint32x2 = value.asUint32x2();
  *
  *        // Access values through index
  *        uint32 b = myUint32x2.at(1);
@@ -193,7 +193,7 @@ library PackingBytes8 {
  *
  *     function foo(bytes16 value) internal {
  *        // Convert any bytes16 into a packed uint64x2
- *        Packing.Uint64x2 myUint64x2 = value.asUint64x2();
+ *        PackingBytes16.Uint64x2 myUint64x2 = value.asUint64x2();
  *
  *        // Access values through index
  *        uint64 b = myUint64x2.at(1);
@@ -282,7 +282,7 @@ library PackingBytes16 {
  *
  *     function foo(bytes32 value) internal {
  *        // Convert any bytes32 into a packed uint128x2
- *        Packing.Uint128x2 myUint128x2 = value.asUint128x2();
+ *        PackingBytes32.Uint128x2 myUint128x2 = value.asUint128x2();
  *
  *        // Access values through index
  *        uint128 b = myUint128x2.at(1);
