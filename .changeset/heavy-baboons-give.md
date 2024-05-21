@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Packing`: Added a new utility for packing and unpacking multiple values into a single bytes32. Includes initial support for packing two `uint128` in an `Uint128x2` type.
+`PackingBytes32`, `PackingBytes16`, `PackingBytes8`, `PackingBytes4`: Added a new utility for packing and unpacking multiple values into bytes. It includes initial support for packing 2 or 4 values on each available bytes type.
