@@ -12,40 +12,52 @@ pragma solidity ^0.8.20;
  */
 `;
 
-const types = ({ j, inner, outer, pack, shift }) => `\
+const types = ({ inner, outer, pack, count, shift }) => `\
   type ${outer} is ${pack};
+
+  error OutOfBoundAccess${outer}(uint8);
 
   /// @dev Cast a ${pack} into a ${outer}
   function as${outer}(${pack} self) internal pure returns (${outer}) {
-      return ${outer}.wrap(self);
+    return ${outer}.wrap(self);
   }
 
   /// @dev Cast a ${outer} into a ${pack}
   function as${capitalize(pack)}(${outer} self) internal pure returns (${pack}) {
-      return ${outer}.unwrap(self);
+    return ${outer}.unwrap(self);
   }
 
   function at(${outer} self, uint8 pos) internal pure returns (${inner}) {
-    return ${inner}(bytes${j}(${outer}.unwrap(self) << (pos * ${shift})));
+    if (pos > ${count - 1}) revert OutOfBoundAccess${outer}(pos);
+    return unsafeAt(self, pos);
+  }
+
+  function unsafeAt(${outer} self, uint8 pos) internal pure returns (${inner} result) {
+    ${inner} mask = type(${inner}).max;
+    assembly {
+      result := and(shr(sub(${256 - shift}, mul(pos, ${shift})), self), mask)
+    }
   }
 `;
 
-const utils = ({ j, inner, outer, pack, count, shift }) => `\
+const utils = ({ inner, outer, count, shift }) => `\
   /// @dev Pack ${count} ${inner} into a ${outer}
   function pack(
     ${Array(count)
       .fill()
       .map((_, i) => `${inner} arg${i}`)
       .join(',')}
-  ) internal pure returns (${outer}) {
-    return ${outer}.wrap(
+  ) internal pure returns (${outer} result) {
+    assembly {
       ${Array(count)
         .fill()
         .map((_, i) =>
-          count == i + 1 ? `${pack}(bytes${j}(arg${i}))` : `${pack}(bytes${j}(arg${i})) << ${shift * (count - i - 1)}`,
+          i == 0
+            ? `result := shr(${256 - shift * (i + 1)}, arg${i})`
+            : `result := or(result, shr(${256 - shift * (i + 1)}, arg${i}))`,
         )
-        .join('|')}
-    );
+        .join('\n')}
+    }
   }
 
   /// @dev Split a ${outer} into ${count} ${inner}
@@ -55,7 +67,7 @@ const utils = ({ j, inner, outer, pack, count, shift }) => `\
     return (
       ${Array(count)
         .fill()
-        .map((_, i) => `at(self, ${i})`)
+        .map((_, i) => `unsafeAt(self, ${i})`)
         .join(',')}
     );
   }
