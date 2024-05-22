@@ -11,8 +11,8 @@ contract PackingTest is Test {
     // Pack a pair of arbitrary uint128, and check that split recovers the correct values
     function testUint128x2(uint128 first, uint128 second) external {
         Packing.Uint128x2 packed = Packing.pack(first, second);
-        assertEq(packed.first(), first);
-        assertEq(packed.second(), second);
+        assertEq(packed.at(0), first);
+        assertEq(packed.at(1), second);
 
         (uint128 recoveredFirst, uint128 recoveredSecond) = packed.split();
         assertEq(recoveredFirst, first);
