@@ -104,6 +104,6 @@ module.exports = format(
         isValueType: type.isValueType,
       })),
     ),
-  ).map(type => (!type.isValueType ? boundedMapping(type) : mapping(type))),
+  ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
   '}',
 );
