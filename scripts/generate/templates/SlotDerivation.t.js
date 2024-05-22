@@ -13,7 +13,7 @@ import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
 const array = `\
 bytes[] private _array;
 
-function checkSymbolicDeriveArray(uint256 length, uint256 offset) public {
+function symbolicDeriveArray(uint256 length, uint256 offset) public {
   vm.assume(length > 0);
   vm.assume(offset < length);
   _assertDeriveArray(length, offset);
@@ -68,7 +68,7 @@ function testDeriveMapping${name}(${type} memory key) public {
   _assertDeriveMapping${name}(key);
 }
 
-function checkSymbolicDeriveMapping${name}() public {
+function symbolicDeriveMapping${name}() public {
   _assertDeriveMapping${name}(svm.create${name}(256, "DeriveMapping${name}Input"));
 }
 

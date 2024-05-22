@@ -83,4 +83,4 @@ jobs:
       - name: Install python packages
         run: pip install -r fv-requirements.txt
       - name: Run Halmos
-        run: halmos --match-test '^checkSymbolic|^testSymbolic' -vv
+        run: halmos --match-test '^symbolic|^testSymbolic' -vv

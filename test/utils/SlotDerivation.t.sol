@@ -12,7 +12,7 @@ contract SlotDerivationTest is Test, SymTest {
 
     bytes[] private _array;
 
-    function checkSymbolicDeriveArray(uint256 length, uint256 offset) public {
+    function symbolicDeriveArray(uint256 length, uint256 offset) public {
         vm.assume(length > 0);
         vm.assume(offset < length);
         _assertDeriveArray(length, offset);
@@ -182,7 +182,7 @@ contract SlotDerivationTest is Test, SymTest {
         _assertDeriveMappingString(key);
     }
 
-    function checkSymbolicDeriveMappingString() public {
+    function symbolicDeriveMappingString() public {
         _assertDeriveMappingString(svm.createString(256, "DeriveMappingStringInput"));
     }
 
@@ -207,7 +207,7 @@ contract SlotDerivationTest is Test, SymTest {
         _assertDeriveMappingBytes(key);
     }
 
-    function checkSymbolicDeriveMappingBytes() public {
+    function symbolicDeriveMappingBytes() public {
         _assertDeriveMappingBytes(svm.createBytes(256, "DeriveMappingBytesInput"));
     }
 
