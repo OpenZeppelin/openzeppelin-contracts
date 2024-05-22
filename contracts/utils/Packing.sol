@@ -16,9 +16,19 @@ library Packing {
         return Uint128x2.wrap(self);
     }
 
+    /// @dev Cast a uint256 into a Uint128x2
+    function asUint128x2(uint256 self) internal pure returns (Uint128x2) {
+        return Uint128x2.wrap(bytes32(self));
+    }
+
     /// @dev Cast a Uint128x2 into a bytes32
     function asBytes32(Uint128x2 self) internal pure returns (bytes32) {
         return Uint128x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint128x2 into a uint256
+    function asUint256(Uint128x2 self) internal pure returns (uint256) {
+        return uint256(Uint128x2.unwrap(self));
     }
 
     function at(Uint128x2 self, uint8 pos) internal pure returns (uint128) {
@@ -55,9 +65,19 @@ library Packing {
         return Uint64x4.wrap(self);
     }
 
+    /// @dev Cast a uint256 into a Uint64x4
+    function asUint64x4(uint256 self) internal pure returns (Uint64x4) {
+        return Uint64x4.wrap(bytes32(self));
+    }
+
     /// @dev Cast a Uint64x4 into a bytes32
     function asBytes32(Uint64x4 self) internal pure returns (bytes32) {
         return Uint64x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint64x4 into a uint256
+    function asUint256(Uint64x4 self) internal pure returns (uint256) {
+        return uint256(Uint64x4.unwrap(self));
     }
 
     function at(Uint64x4 self, uint8 pos) internal pure returns (uint64) {
@@ -96,9 +116,19 @@ library Packing {
         return Uint32x8.wrap(self);
     }
 
+    /// @dev Cast a uint256 into a Uint32x8
+    function asUint32x8(uint256 self) internal pure returns (Uint32x8) {
+        return Uint32x8.wrap(bytes32(self));
+    }
+
     /// @dev Cast a Uint32x8 into a bytes32
     function asBytes32(Uint32x8 self) internal pure returns (bytes32) {
         return Uint32x8.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x8 into a uint256
+    function asUint256(Uint32x8 self) internal pure returns (uint256) {
+        return uint256(Uint32x8.unwrap(self));
     }
 
     function at(Uint32x8 self, uint8 pos) internal pure returns (uint32) {
@@ -161,9 +191,19 @@ library Packing {
         return Uint16x16.wrap(self);
     }
 
+    /// @dev Cast a uint256 into a Uint16x16
+    function asUint16x16(uint256 self) internal pure returns (Uint16x16) {
+        return Uint16x16.wrap(bytes32(self));
+    }
+
     /// @dev Cast a Uint16x16 into a bytes32
     function asBytes32(Uint16x16 self) internal pure returns (bytes32) {
         return Uint16x16.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x16 into a uint256
+    function asUint256(Uint16x16 self) internal pure returns (uint256) {
+        return uint256(Uint16x16.unwrap(self));
     }
 
     function at(Uint16x16 self, uint8 pos) internal pure returns (uint16) {
@@ -187,9 +227,19 @@ library Packing {
         return Uint8x32.wrap(self);
     }
 
+    /// @dev Cast a uint256 into a Uint8x32
+    function asUint8x32(uint256 self) internal pure returns (Uint8x32) {
+        return Uint8x32.wrap(bytes32(self));
+    }
+
     /// @dev Cast a Uint8x32 into a bytes32
     function asBytes32(Uint8x32 self) internal pure returns (bytes32) {
         return Uint8x32.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x32 into a uint256
+    function asUint256(Uint8x32 self) internal pure returns (uint256) {
+        return uint256(Uint8x32.unwrap(self));
     }
 
     function at(Uint8x32 self, uint8 pos) internal pure returns (uint8) {
@@ -213,9 +263,19 @@ library Packing {
         return Uint8x31.wrap(self);
     }
 
+    /// @dev Cast a uint248 into a Uint8x31
+    function asUint8x31(uint248 self) internal pure returns (Uint8x31) {
+        return Uint8x31.wrap(bytes31(self));
+    }
+
     /// @dev Cast a Uint8x31 into a bytes31
     function asBytes31(Uint8x31 self) internal pure returns (bytes31) {
         return Uint8x31.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x31 into a uint248
+    function asUint248(Uint8x31 self) internal pure returns (uint248) {
+        return uint248(Uint8x31.unwrap(self));
     }
 
     function at(Uint8x31 self, uint8 pos) internal pure returns (uint8) {
@@ -239,9 +299,19 @@ library Packing {
         return Uint120x2.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint120x2
+    function asUint120x2(uint240 self) internal pure returns (Uint120x2) {
+        return Uint120x2.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint120x2 into a bytes30
     function asBytes30(Uint120x2 self) internal pure returns (bytes30) {
         return Uint120x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint120x2 into a uint240
+    function asUint240(Uint120x2 self) internal pure returns (uint240) {
+        return uint240(Uint120x2.unwrap(self));
     }
 
     function at(Uint120x2 self, uint8 pos) internal pure returns (uint120) {
@@ -278,9 +348,19 @@ library Packing {
         return Uint80x3.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint80x3
+    function asUint80x3(uint240 self) internal pure returns (Uint80x3) {
+        return Uint80x3.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint80x3 into a bytes30
     function asBytes30(Uint80x3 self) internal pure returns (bytes30) {
         return Uint80x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint80x3 into a uint240
+    function asUint240(Uint80x3 self) internal pure returns (uint240) {
+        return uint240(Uint80x3.unwrap(self));
     }
 
     function at(Uint80x3 self, uint8 pos) internal pure returns (uint80) {
@@ -318,9 +398,19 @@ library Packing {
         return Uint48x5.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint48x5
+    function asUint48x5(uint240 self) internal pure returns (Uint48x5) {
+        return Uint48x5.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint48x5 into a bytes30
     function asBytes30(Uint48x5 self) internal pure returns (bytes30) {
         return Uint48x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint48x5 into a uint240
+    function asUint240(Uint48x5 self) internal pure returns (uint240) {
+        return uint240(Uint48x5.unwrap(self));
     }
 
     function at(Uint48x5 self, uint8 pos) internal pure returns (uint48) {
@@ -366,9 +456,19 @@ library Packing {
         return Uint40x6.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint40x6
+    function asUint40x6(uint240 self) internal pure returns (Uint40x6) {
+        return Uint40x6.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint40x6 into a bytes30
     function asBytes30(Uint40x6 self) internal pure returns (bytes30) {
         return Uint40x6.unwrap(self);
+    }
+
+    /// @dev Cast a Uint40x6 into a uint240
+    function asUint240(Uint40x6 self) internal pure returns (uint240) {
+        return uint240(Uint40x6.unwrap(self));
     }
 
     function at(Uint40x6 self, uint8 pos) internal pure returns (uint40) {
@@ -423,9 +523,19 @@ library Packing {
         return Uint24x10.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint24x10
+    function asUint24x10(uint240 self) internal pure returns (Uint24x10) {
+        return Uint24x10.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint24x10 into a bytes30
     function asBytes30(Uint24x10 self) internal pure returns (bytes30) {
         return Uint24x10.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x10 into a uint240
+    function asUint240(Uint24x10 self) internal pure returns (uint240) {
+        return uint240(Uint24x10.unwrap(self));
     }
 
     function at(Uint24x10 self, uint8 pos) internal pure returns (uint24) {
@@ -449,9 +559,19 @@ library Packing {
         return Uint16x15.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint16x15
+    function asUint16x15(uint240 self) internal pure returns (Uint16x15) {
+        return Uint16x15.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint16x15 into a bytes30
     function asBytes30(Uint16x15 self) internal pure returns (bytes30) {
         return Uint16x15.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x15 into a uint240
+    function asUint240(Uint16x15 self) internal pure returns (uint240) {
+        return uint240(Uint16x15.unwrap(self));
     }
 
     function at(Uint16x15 self, uint8 pos) internal pure returns (uint16) {
@@ -475,9 +595,19 @@ library Packing {
         return Uint8x30.wrap(self);
     }
 
+    /// @dev Cast a uint240 into a Uint8x30
+    function asUint8x30(uint240 self) internal pure returns (Uint8x30) {
+        return Uint8x30.wrap(bytes30(self));
+    }
+
     /// @dev Cast a Uint8x30 into a bytes30
     function asBytes30(Uint8x30 self) internal pure returns (bytes30) {
         return Uint8x30.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x30 into a uint240
+    function asUint240(Uint8x30 self) internal pure returns (uint240) {
+        return uint240(Uint8x30.unwrap(self));
     }
 
     function at(Uint8x30 self, uint8 pos) internal pure returns (uint8) {
@@ -501,9 +631,19 @@ library Packing {
         return Uint8x29.wrap(self);
     }
 
+    /// @dev Cast a uint232 into a Uint8x29
+    function asUint8x29(uint232 self) internal pure returns (Uint8x29) {
+        return Uint8x29.wrap(bytes29(self));
+    }
+
     /// @dev Cast a Uint8x29 into a bytes29
     function asBytes29(Uint8x29 self) internal pure returns (bytes29) {
         return Uint8x29.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x29 into a uint232
+    function asUint232(Uint8x29 self) internal pure returns (uint232) {
+        return uint232(Uint8x29.unwrap(self));
     }
 
     function at(Uint8x29 self, uint8 pos) internal pure returns (uint8) {
@@ -527,9 +667,19 @@ library Packing {
         return Uint112x2.wrap(self);
     }
 
+    /// @dev Cast a uint224 into a Uint112x2
+    function asUint112x2(uint224 self) internal pure returns (Uint112x2) {
+        return Uint112x2.wrap(bytes28(self));
+    }
+
     /// @dev Cast a Uint112x2 into a bytes28
     function asBytes28(Uint112x2 self) internal pure returns (bytes28) {
         return Uint112x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint112x2 into a uint224
+    function asUint224(Uint112x2 self) internal pure returns (uint224) {
+        return uint224(Uint112x2.unwrap(self));
     }
 
     function at(Uint112x2 self, uint8 pos) internal pure returns (uint112) {
@@ -566,9 +716,19 @@ library Packing {
         return Uint56x4.wrap(self);
     }
 
+    /// @dev Cast a uint224 into a Uint56x4
+    function asUint56x4(uint224 self) internal pure returns (Uint56x4) {
+        return Uint56x4.wrap(bytes28(self));
+    }
+
     /// @dev Cast a Uint56x4 into a bytes28
     function asBytes28(Uint56x4 self) internal pure returns (bytes28) {
         return Uint56x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint56x4 into a uint224
+    function asUint224(Uint56x4 self) internal pure returns (uint224) {
+        return uint224(Uint56x4.unwrap(self));
     }
 
     function at(Uint56x4 self, uint8 pos) internal pure returns (uint56) {
@@ -607,9 +767,19 @@ library Packing {
         return Uint32x7.wrap(self);
     }
 
+    /// @dev Cast a uint224 into a Uint32x7
+    function asUint32x7(uint224 self) internal pure returns (Uint32x7) {
+        return Uint32x7.wrap(bytes28(self));
+    }
+
     /// @dev Cast a Uint32x7 into a bytes28
     function asBytes28(Uint32x7 self) internal pure returns (bytes28) {
         return Uint32x7.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x7 into a uint224
+    function asUint224(Uint32x7 self) internal pure returns (uint224) {
+        return uint224(Uint32x7.unwrap(self));
     }
 
     function at(Uint32x7 self, uint8 pos) internal pure returns (uint32) {
@@ -667,9 +837,19 @@ library Packing {
         return Uint16x14.wrap(self);
     }
 
+    /// @dev Cast a uint224 into a Uint16x14
+    function asUint16x14(uint224 self) internal pure returns (Uint16x14) {
+        return Uint16x14.wrap(bytes28(self));
+    }
+
     /// @dev Cast a Uint16x14 into a bytes28
     function asBytes28(Uint16x14 self) internal pure returns (bytes28) {
         return Uint16x14.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x14 into a uint224
+    function asUint224(Uint16x14 self) internal pure returns (uint224) {
+        return uint224(Uint16x14.unwrap(self));
     }
 
     function at(Uint16x14 self, uint8 pos) internal pure returns (uint16) {
@@ -693,9 +873,19 @@ library Packing {
         return Uint8x28.wrap(self);
     }
 
+    /// @dev Cast a uint224 into a Uint8x28
+    function asUint8x28(uint224 self) internal pure returns (Uint8x28) {
+        return Uint8x28.wrap(bytes28(self));
+    }
+
     /// @dev Cast a Uint8x28 into a bytes28
     function asBytes28(Uint8x28 self) internal pure returns (bytes28) {
         return Uint8x28.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x28 into a uint224
+    function asUint224(Uint8x28 self) internal pure returns (uint224) {
+        return uint224(Uint8x28.unwrap(self));
     }
 
     function at(Uint8x28 self, uint8 pos) internal pure returns (uint8) {
@@ -719,9 +909,19 @@ library Packing {
         return Uint72x3.wrap(self);
     }
 
+    /// @dev Cast a uint216 into a Uint72x3
+    function asUint72x3(uint216 self) internal pure returns (Uint72x3) {
+        return Uint72x3.wrap(bytes27(self));
+    }
+
     /// @dev Cast a Uint72x3 into a bytes27
     function asBytes27(Uint72x3 self) internal pure returns (bytes27) {
         return Uint72x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint72x3 into a uint216
+    function asUint216(Uint72x3 self) internal pure returns (uint216) {
+        return uint216(Uint72x3.unwrap(self));
     }
 
     function at(Uint72x3 self, uint8 pos) internal pure returns (uint72) {
@@ -759,9 +959,19 @@ library Packing {
         return Uint24x9.wrap(self);
     }
 
+    /// @dev Cast a uint216 into a Uint24x9
+    function asUint24x9(uint216 self) internal pure returns (Uint24x9) {
+        return Uint24x9.wrap(bytes27(self));
+    }
+
     /// @dev Cast a Uint24x9 into a bytes27
     function asBytes27(Uint24x9 self) internal pure returns (bytes27) {
         return Uint24x9.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x9 into a uint216
+    function asUint216(Uint24x9 self) internal pure returns (uint216) {
+        return uint216(Uint24x9.unwrap(self));
     }
 
     function at(Uint24x9 self, uint8 pos) internal pure returns (uint24) {
@@ -785,9 +995,19 @@ library Packing {
         return Uint8x27.wrap(self);
     }
 
+    /// @dev Cast a uint216 into a Uint8x27
+    function asUint8x27(uint216 self) internal pure returns (Uint8x27) {
+        return Uint8x27.wrap(bytes27(self));
+    }
+
     /// @dev Cast a Uint8x27 into a bytes27
     function asBytes27(Uint8x27 self) internal pure returns (bytes27) {
         return Uint8x27.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x27 into a uint216
+    function asUint216(Uint8x27 self) internal pure returns (uint216) {
+        return uint216(Uint8x27.unwrap(self));
     }
 
     function at(Uint8x27 self, uint8 pos) internal pure returns (uint8) {
@@ -811,9 +1031,19 @@ library Packing {
         return Uint104x2.wrap(self);
     }
 
+    /// @dev Cast a uint208 into a Uint104x2
+    function asUint104x2(uint208 self) internal pure returns (Uint104x2) {
+        return Uint104x2.wrap(bytes26(self));
+    }
+
     /// @dev Cast a Uint104x2 into a bytes26
     function asBytes26(Uint104x2 self) internal pure returns (bytes26) {
         return Uint104x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint104x2 into a uint208
+    function asUint208(Uint104x2 self) internal pure returns (uint208) {
+        return uint208(Uint104x2.unwrap(self));
     }
 
     function at(Uint104x2 self, uint8 pos) internal pure returns (uint104) {
@@ -850,9 +1080,19 @@ library Packing {
         return Uint16x13.wrap(self);
     }
 
+    /// @dev Cast a uint208 into a Uint16x13
+    function asUint16x13(uint208 self) internal pure returns (Uint16x13) {
+        return Uint16x13.wrap(bytes26(self));
+    }
+
     /// @dev Cast a Uint16x13 into a bytes26
     function asBytes26(Uint16x13 self) internal pure returns (bytes26) {
         return Uint16x13.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x13 into a uint208
+    function asUint208(Uint16x13 self) internal pure returns (uint208) {
+        return uint208(Uint16x13.unwrap(self));
     }
 
     function at(Uint16x13 self, uint8 pos) internal pure returns (uint16) {
@@ -876,9 +1116,19 @@ library Packing {
         return Uint8x26.wrap(self);
     }
 
+    /// @dev Cast a uint208 into a Uint8x26
+    function asUint8x26(uint208 self) internal pure returns (Uint8x26) {
+        return Uint8x26.wrap(bytes26(self));
+    }
+
     /// @dev Cast a Uint8x26 into a bytes26
     function asBytes26(Uint8x26 self) internal pure returns (bytes26) {
         return Uint8x26.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x26 into a uint208
+    function asUint208(Uint8x26 self) internal pure returns (uint208) {
+        return uint208(Uint8x26.unwrap(self));
     }
 
     function at(Uint8x26 self, uint8 pos) internal pure returns (uint8) {
@@ -902,9 +1152,19 @@ library Packing {
         return Uint40x5.wrap(self);
     }
 
+    /// @dev Cast a uint200 into a Uint40x5
+    function asUint40x5(uint200 self) internal pure returns (Uint40x5) {
+        return Uint40x5.wrap(bytes25(self));
+    }
+
     /// @dev Cast a Uint40x5 into a bytes25
     function asBytes25(Uint40x5 self) internal pure returns (bytes25) {
         return Uint40x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint40x5 into a uint200
+    function asUint200(Uint40x5 self) internal pure returns (uint200) {
+        return uint200(Uint40x5.unwrap(self));
     }
 
     function at(Uint40x5 self, uint8 pos) internal pure returns (uint40) {
@@ -950,9 +1210,19 @@ library Packing {
         return Uint8x25.wrap(self);
     }
 
+    /// @dev Cast a uint200 into a Uint8x25
+    function asUint8x25(uint200 self) internal pure returns (Uint8x25) {
+        return Uint8x25.wrap(bytes25(self));
+    }
+
     /// @dev Cast a Uint8x25 into a bytes25
     function asBytes25(Uint8x25 self) internal pure returns (bytes25) {
         return Uint8x25.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x25 into a uint200
+    function asUint200(Uint8x25 self) internal pure returns (uint200) {
+        return uint200(Uint8x25.unwrap(self));
     }
 
     function at(Uint8x25 self, uint8 pos) internal pure returns (uint8) {
@@ -976,9 +1246,19 @@ library Packing {
         return Uint96x2.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint96x2
+    function asUint96x2(uint192 self) internal pure returns (Uint96x2) {
+        return Uint96x2.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint96x2 into a bytes24
     function asBytes24(Uint96x2 self) internal pure returns (bytes24) {
         return Uint96x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint96x2 into a uint192
+    function asUint192(Uint96x2 self) internal pure returns (uint192) {
+        return uint192(Uint96x2.unwrap(self));
     }
 
     function at(Uint96x2 self, uint8 pos) internal pure returns (uint96) {
@@ -1015,9 +1295,19 @@ library Packing {
         return Uint64x3.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint64x3
+    function asUint64x3(uint192 self) internal pure returns (Uint64x3) {
+        return Uint64x3.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint64x3 into a bytes24
     function asBytes24(Uint64x3 self) internal pure returns (bytes24) {
         return Uint64x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint64x3 into a uint192
+    function asUint192(Uint64x3 self) internal pure returns (uint192) {
+        return uint192(Uint64x3.unwrap(self));
     }
 
     function at(Uint64x3 self, uint8 pos) internal pure returns (uint64) {
@@ -1055,9 +1345,19 @@ library Packing {
         return Uint48x4.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint48x4
+    function asUint48x4(uint192 self) internal pure returns (Uint48x4) {
+        return Uint48x4.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint48x4 into a bytes24
     function asBytes24(Uint48x4 self) internal pure returns (bytes24) {
         return Uint48x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint48x4 into a uint192
+    function asUint192(Uint48x4 self) internal pure returns (uint192) {
+        return uint192(Uint48x4.unwrap(self));
     }
 
     function at(Uint48x4 self, uint8 pos) internal pure returns (uint48) {
@@ -1096,9 +1396,19 @@ library Packing {
         return Uint32x6.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint32x6
+    function asUint32x6(uint192 self) internal pure returns (Uint32x6) {
+        return Uint32x6.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint32x6 into a bytes24
     function asBytes24(Uint32x6 self) internal pure returns (bytes24) {
         return Uint32x6.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x6 into a uint192
+    function asUint192(Uint32x6 self) internal pure returns (uint192) {
+        return uint192(Uint32x6.unwrap(self));
     }
 
     function at(Uint32x6 self, uint8 pos) internal pure returns (uint32) {
@@ -1153,9 +1463,19 @@ library Packing {
         return Uint24x8.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint24x8
+    function asUint24x8(uint192 self) internal pure returns (Uint24x8) {
+        return Uint24x8.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint24x8 into a bytes24
     function asBytes24(Uint24x8 self) internal pure returns (bytes24) {
         return Uint24x8.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x8 into a uint192
+    function asUint192(Uint24x8 self) internal pure returns (uint192) {
+        return uint192(Uint24x8.unwrap(self));
     }
 
     function at(Uint24x8 self, uint8 pos) internal pure returns (uint24) {
@@ -1218,9 +1538,19 @@ library Packing {
         return Uint16x12.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint16x12
+    function asUint16x12(uint192 self) internal pure returns (Uint16x12) {
+        return Uint16x12.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint16x12 into a bytes24
     function asBytes24(Uint16x12 self) internal pure returns (bytes24) {
         return Uint16x12.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x12 into a uint192
+    function asUint192(Uint16x12 self) internal pure returns (uint192) {
+        return uint192(Uint16x12.unwrap(self));
     }
 
     function at(Uint16x12 self, uint8 pos) internal pure returns (uint16) {
@@ -1244,9 +1574,19 @@ library Packing {
         return Uint8x24.wrap(self);
     }
 
+    /// @dev Cast a uint192 into a Uint8x24
+    function asUint8x24(uint192 self) internal pure returns (Uint8x24) {
+        return Uint8x24.wrap(bytes24(self));
+    }
+
     /// @dev Cast a Uint8x24 into a bytes24
     function asBytes24(Uint8x24 self) internal pure returns (bytes24) {
         return Uint8x24.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x24 into a uint192
+    function asUint192(Uint8x24 self) internal pure returns (uint192) {
+        return uint192(Uint8x24.unwrap(self));
     }
 
     function at(Uint8x24 self, uint8 pos) internal pure returns (uint8) {
@@ -1270,9 +1610,19 @@ library Packing {
         return Uint8x23.wrap(self);
     }
 
+    /// @dev Cast a uint184 into a Uint8x23
+    function asUint8x23(uint184 self) internal pure returns (Uint8x23) {
+        return Uint8x23.wrap(bytes23(self));
+    }
+
     /// @dev Cast a Uint8x23 into a bytes23
     function asBytes23(Uint8x23 self) internal pure returns (bytes23) {
         return Uint8x23.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x23 into a uint184
+    function asUint184(Uint8x23 self) internal pure returns (uint184) {
+        return uint184(Uint8x23.unwrap(self));
     }
 
     function at(Uint8x23 self, uint8 pos) internal pure returns (uint8) {
@@ -1296,9 +1646,19 @@ library Packing {
         return Uint88x2.wrap(self);
     }
 
+    /// @dev Cast a uint176 into a Uint88x2
+    function asUint88x2(uint176 self) internal pure returns (Uint88x2) {
+        return Uint88x2.wrap(bytes22(self));
+    }
+
     /// @dev Cast a Uint88x2 into a bytes22
     function asBytes22(Uint88x2 self) internal pure returns (bytes22) {
         return Uint88x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint88x2 into a uint176
+    function asUint176(Uint88x2 self) internal pure returns (uint176) {
+        return uint176(Uint88x2.unwrap(self));
     }
 
     function at(Uint88x2 self, uint8 pos) internal pure returns (uint88) {
@@ -1335,9 +1695,19 @@ library Packing {
         return Uint16x11.wrap(self);
     }
 
+    /// @dev Cast a uint176 into a Uint16x11
+    function asUint16x11(uint176 self) internal pure returns (Uint16x11) {
+        return Uint16x11.wrap(bytes22(self));
+    }
+
     /// @dev Cast a Uint16x11 into a bytes22
     function asBytes22(Uint16x11 self) internal pure returns (bytes22) {
         return Uint16x11.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x11 into a uint176
+    function asUint176(Uint16x11 self) internal pure returns (uint176) {
+        return uint176(Uint16x11.unwrap(self));
     }
 
     function at(Uint16x11 self, uint8 pos) internal pure returns (uint16) {
@@ -1361,9 +1731,19 @@ library Packing {
         return Uint8x22.wrap(self);
     }
 
+    /// @dev Cast a uint176 into a Uint8x22
+    function asUint8x22(uint176 self) internal pure returns (Uint8x22) {
+        return Uint8x22.wrap(bytes22(self));
+    }
+
     /// @dev Cast a Uint8x22 into a bytes22
     function asBytes22(Uint8x22 self) internal pure returns (bytes22) {
         return Uint8x22.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x22 into a uint176
+    function asUint176(Uint8x22 self) internal pure returns (uint176) {
+        return uint176(Uint8x22.unwrap(self));
     }
 
     function at(Uint8x22 self, uint8 pos) internal pure returns (uint8) {
@@ -1387,9 +1767,19 @@ library Packing {
         return Uint56x3.wrap(self);
     }
 
+    /// @dev Cast a uint168 into a Uint56x3
+    function asUint56x3(uint168 self) internal pure returns (Uint56x3) {
+        return Uint56x3.wrap(bytes21(self));
+    }
+
     /// @dev Cast a Uint56x3 into a bytes21
     function asBytes21(Uint56x3 self) internal pure returns (bytes21) {
         return Uint56x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint56x3 into a uint168
+    function asUint168(Uint56x3 self) internal pure returns (uint168) {
+        return uint168(Uint56x3.unwrap(self));
     }
 
     function at(Uint56x3 self, uint8 pos) internal pure returns (uint56) {
@@ -1427,9 +1817,19 @@ library Packing {
         return Uint24x7.wrap(self);
     }
 
+    /// @dev Cast a uint168 into a Uint24x7
+    function asUint24x7(uint168 self) internal pure returns (Uint24x7) {
+        return Uint24x7.wrap(bytes21(self));
+    }
+
     /// @dev Cast a Uint24x7 into a bytes21
     function asBytes21(Uint24x7 self) internal pure returns (bytes21) {
         return Uint24x7.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x7 into a uint168
+    function asUint168(Uint24x7 self) internal pure returns (uint168) {
+        return uint168(Uint24x7.unwrap(self));
     }
 
     function at(Uint24x7 self, uint8 pos) internal pure returns (uint24) {
@@ -1487,9 +1887,19 @@ library Packing {
         return Uint8x21.wrap(self);
     }
 
+    /// @dev Cast a uint168 into a Uint8x21
+    function asUint8x21(uint168 self) internal pure returns (Uint8x21) {
+        return Uint8x21.wrap(bytes21(self));
+    }
+
     /// @dev Cast a Uint8x21 into a bytes21
     function asBytes21(Uint8x21 self) internal pure returns (bytes21) {
         return Uint8x21.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x21 into a uint168
+    function asUint168(Uint8x21 self) internal pure returns (uint168) {
+        return uint168(Uint8x21.unwrap(self));
     }
 
     function at(Uint8x21 self, uint8 pos) internal pure returns (uint8) {
@@ -1513,9 +1923,19 @@ library Packing {
         return Uint80x2.wrap(self);
     }
 
+    /// @dev Cast a uint160 into a Uint80x2
+    function asUint80x2(uint160 self) internal pure returns (Uint80x2) {
+        return Uint80x2.wrap(bytes20(self));
+    }
+
     /// @dev Cast a Uint80x2 into a bytes20
     function asBytes20(Uint80x2 self) internal pure returns (bytes20) {
         return Uint80x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint80x2 into a uint160
+    function asUint160(Uint80x2 self) internal pure returns (uint160) {
+        return uint160(Uint80x2.unwrap(self));
     }
 
     function at(Uint80x2 self, uint8 pos) internal pure returns (uint80) {
@@ -1552,9 +1972,19 @@ library Packing {
         return Uint40x4.wrap(self);
     }
 
+    /// @dev Cast a uint160 into a Uint40x4
+    function asUint40x4(uint160 self) internal pure returns (Uint40x4) {
+        return Uint40x4.wrap(bytes20(self));
+    }
+
     /// @dev Cast a Uint40x4 into a bytes20
     function asBytes20(Uint40x4 self) internal pure returns (bytes20) {
         return Uint40x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint40x4 into a uint160
+    function asUint160(Uint40x4 self) internal pure returns (uint160) {
+        return uint160(Uint40x4.unwrap(self));
     }
 
     function at(Uint40x4 self, uint8 pos) internal pure returns (uint40) {
@@ -1593,9 +2023,19 @@ library Packing {
         return Uint32x5.wrap(self);
     }
 
+    /// @dev Cast a uint160 into a Uint32x5
+    function asUint32x5(uint160 self) internal pure returns (Uint32x5) {
+        return Uint32x5.wrap(bytes20(self));
+    }
+
     /// @dev Cast a Uint32x5 into a bytes20
     function asBytes20(Uint32x5 self) internal pure returns (bytes20) {
         return Uint32x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x5 into a uint160
+    function asUint160(Uint32x5 self) internal pure returns (uint160) {
+        return uint160(Uint32x5.unwrap(self));
     }
 
     function at(Uint32x5 self, uint8 pos) internal pure returns (uint32) {
@@ -1641,9 +2081,19 @@ library Packing {
         return Uint16x10.wrap(self);
     }
 
+    /// @dev Cast a uint160 into a Uint16x10
+    function asUint16x10(uint160 self) internal pure returns (Uint16x10) {
+        return Uint16x10.wrap(bytes20(self));
+    }
+
     /// @dev Cast a Uint16x10 into a bytes20
     function asBytes20(Uint16x10 self) internal pure returns (bytes20) {
         return Uint16x10.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x10 into a uint160
+    function asUint160(Uint16x10 self) internal pure returns (uint160) {
+        return uint160(Uint16x10.unwrap(self));
     }
 
     function at(Uint16x10 self, uint8 pos) internal pure returns (uint16) {
@@ -1667,9 +2117,19 @@ library Packing {
         return Uint8x20.wrap(self);
     }
 
+    /// @dev Cast a uint160 into a Uint8x20
+    function asUint8x20(uint160 self) internal pure returns (Uint8x20) {
+        return Uint8x20.wrap(bytes20(self));
+    }
+
     /// @dev Cast a Uint8x20 into a bytes20
     function asBytes20(Uint8x20 self) internal pure returns (bytes20) {
         return Uint8x20.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x20 into a uint160
+    function asUint160(Uint8x20 self) internal pure returns (uint160) {
+        return uint160(Uint8x20.unwrap(self));
     }
 
     function at(Uint8x20 self, uint8 pos) internal pure returns (uint8) {
@@ -1693,9 +2153,19 @@ library Packing {
         return Uint8x19.wrap(self);
     }
 
+    /// @dev Cast a uint152 into a Uint8x19
+    function asUint8x19(uint152 self) internal pure returns (Uint8x19) {
+        return Uint8x19.wrap(bytes19(self));
+    }
+
     /// @dev Cast a Uint8x19 into a bytes19
     function asBytes19(Uint8x19 self) internal pure returns (bytes19) {
         return Uint8x19.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x19 into a uint152
+    function asUint152(Uint8x19 self) internal pure returns (uint152) {
+        return uint152(Uint8x19.unwrap(self));
     }
 
     function at(Uint8x19 self, uint8 pos) internal pure returns (uint8) {
@@ -1719,9 +2189,19 @@ library Packing {
         return Uint72x2.wrap(self);
     }
 
+    /// @dev Cast a uint144 into a Uint72x2
+    function asUint72x2(uint144 self) internal pure returns (Uint72x2) {
+        return Uint72x2.wrap(bytes18(self));
+    }
+
     /// @dev Cast a Uint72x2 into a bytes18
     function asBytes18(Uint72x2 self) internal pure returns (bytes18) {
         return Uint72x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint72x2 into a uint144
+    function asUint144(Uint72x2 self) internal pure returns (uint144) {
+        return uint144(Uint72x2.unwrap(self));
     }
 
     function at(Uint72x2 self, uint8 pos) internal pure returns (uint72) {
@@ -1758,9 +2238,19 @@ library Packing {
         return Uint48x3.wrap(self);
     }
 
+    /// @dev Cast a uint144 into a Uint48x3
+    function asUint48x3(uint144 self) internal pure returns (Uint48x3) {
+        return Uint48x3.wrap(bytes18(self));
+    }
+
     /// @dev Cast a Uint48x3 into a bytes18
     function asBytes18(Uint48x3 self) internal pure returns (bytes18) {
         return Uint48x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint48x3 into a uint144
+    function asUint144(Uint48x3 self) internal pure returns (uint144) {
+        return uint144(Uint48x3.unwrap(self));
     }
 
     function at(Uint48x3 self, uint8 pos) internal pure returns (uint48) {
@@ -1798,9 +2288,19 @@ library Packing {
         return Uint24x6.wrap(self);
     }
 
+    /// @dev Cast a uint144 into a Uint24x6
+    function asUint24x6(uint144 self) internal pure returns (Uint24x6) {
+        return Uint24x6.wrap(bytes18(self));
+    }
+
     /// @dev Cast a Uint24x6 into a bytes18
     function asBytes18(Uint24x6 self) internal pure returns (bytes18) {
         return Uint24x6.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x6 into a uint144
+    function asUint144(Uint24x6 self) internal pure returns (uint144) {
+        return uint144(Uint24x6.unwrap(self));
     }
 
     function at(Uint24x6 self, uint8 pos) internal pure returns (uint24) {
@@ -1855,9 +2355,19 @@ library Packing {
         return Uint16x9.wrap(self);
     }
 
+    /// @dev Cast a uint144 into a Uint16x9
+    function asUint16x9(uint144 self) internal pure returns (Uint16x9) {
+        return Uint16x9.wrap(bytes18(self));
+    }
+
     /// @dev Cast a Uint16x9 into a bytes18
     function asBytes18(Uint16x9 self) internal pure returns (bytes18) {
         return Uint16x9.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x9 into a uint144
+    function asUint144(Uint16x9 self) internal pure returns (uint144) {
+        return uint144(Uint16x9.unwrap(self));
     }
 
     function at(Uint16x9 self, uint8 pos) internal pure returns (uint16) {
@@ -1881,9 +2391,19 @@ library Packing {
         return Uint8x18.wrap(self);
     }
 
+    /// @dev Cast a uint144 into a Uint8x18
+    function asUint8x18(uint144 self) internal pure returns (Uint8x18) {
+        return Uint8x18.wrap(bytes18(self));
+    }
+
     /// @dev Cast a Uint8x18 into a bytes18
     function asBytes18(Uint8x18 self) internal pure returns (bytes18) {
         return Uint8x18.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x18 into a uint144
+    function asUint144(Uint8x18 self) internal pure returns (uint144) {
+        return uint144(Uint8x18.unwrap(self));
     }
 
     function at(Uint8x18 self, uint8 pos) internal pure returns (uint8) {
@@ -1907,9 +2427,19 @@ library Packing {
         return Uint8x17.wrap(self);
     }
 
+    /// @dev Cast a uint136 into a Uint8x17
+    function asUint8x17(uint136 self) internal pure returns (Uint8x17) {
+        return Uint8x17.wrap(bytes17(self));
+    }
+
     /// @dev Cast a Uint8x17 into a bytes17
     function asBytes17(Uint8x17 self) internal pure returns (bytes17) {
         return Uint8x17.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x17 into a uint136
+    function asUint136(Uint8x17 self) internal pure returns (uint136) {
+        return uint136(Uint8x17.unwrap(self));
     }
 
     function at(Uint8x17 self, uint8 pos) internal pure returns (uint8) {
@@ -1933,9 +2463,19 @@ library Packing {
         return Uint64x2.wrap(self);
     }
 
+    /// @dev Cast a uint128 into a Uint64x2
+    function asUint64x2(uint128 self) internal pure returns (Uint64x2) {
+        return Uint64x2.wrap(bytes16(self));
+    }
+
     /// @dev Cast a Uint64x2 into a bytes16
     function asBytes16(Uint64x2 self) internal pure returns (bytes16) {
         return Uint64x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint64x2 into a uint128
+    function asUint128(Uint64x2 self) internal pure returns (uint128) {
+        return uint128(Uint64x2.unwrap(self));
     }
 
     function at(Uint64x2 self, uint8 pos) internal pure returns (uint64) {
@@ -1972,9 +2512,19 @@ library Packing {
         return Uint32x4.wrap(self);
     }
 
+    /// @dev Cast a uint128 into a Uint32x4
+    function asUint32x4(uint128 self) internal pure returns (Uint32x4) {
+        return Uint32x4.wrap(bytes16(self));
+    }
+
     /// @dev Cast a Uint32x4 into a bytes16
     function asBytes16(Uint32x4 self) internal pure returns (bytes16) {
         return Uint32x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x4 into a uint128
+    function asUint128(Uint32x4 self) internal pure returns (uint128) {
+        return uint128(Uint32x4.unwrap(self));
     }
 
     function at(Uint32x4 self, uint8 pos) internal pure returns (uint32) {
@@ -2013,9 +2563,19 @@ library Packing {
         return Uint16x8.wrap(self);
     }
 
+    /// @dev Cast a uint128 into a Uint16x8
+    function asUint16x8(uint128 self) internal pure returns (Uint16x8) {
+        return Uint16x8.wrap(bytes16(self));
+    }
+
     /// @dev Cast a Uint16x8 into a bytes16
     function asBytes16(Uint16x8 self) internal pure returns (bytes16) {
         return Uint16x8.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x8 into a uint128
+    function asUint128(Uint16x8 self) internal pure returns (uint128) {
+        return uint128(Uint16x8.unwrap(self));
     }
 
     function at(Uint16x8 self, uint8 pos) internal pure returns (uint16) {
@@ -2078,9 +2638,19 @@ library Packing {
         return Uint8x16.wrap(self);
     }
 
+    /// @dev Cast a uint128 into a Uint8x16
+    function asUint8x16(uint128 self) internal pure returns (Uint8x16) {
+        return Uint8x16.wrap(bytes16(self));
+    }
+
     /// @dev Cast a Uint8x16 into a bytes16
     function asBytes16(Uint8x16 self) internal pure returns (bytes16) {
         return Uint8x16.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x16 into a uint128
+    function asUint128(Uint8x16 self) internal pure returns (uint128) {
+        return uint128(Uint8x16.unwrap(self));
     }
 
     function at(Uint8x16 self, uint8 pos) internal pure returns (uint8) {
@@ -2104,9 +2674,19 @@ library Packing {
         return Uint40x3.wrap(self);
     }
 
+    /// @dev Cast a uint120 into a Uint40x3
+    function asUint40x3(uint120 self) internal pure returns (Uint40x3) {
+        return Uint40x3.wrap(bytes15(self));
+    }
+
     /// @dev Cast a Uint40x3 into a bytes15
     function asBytes15(Uint40x3 self) internal pure returns (bytes15) {
         return Uint40x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint40x3 into a uint120
+    function asUint120(Uint40x3 self) internal pure returns (uint120) {
+        return uint120(Uint40x3.unwrap(self));
     }
 
     function at(Uint40x3 self, uint8 pos) internal pure returns (uint40) {
@@ -2144,9 +2724,19 @@ library Packing {
         return Uint24x5.wrap(self);
     }
 
+    /// @dev Cast a uint120 into a Uint24x5
+    function asUint24x5(uint120 self) internal pure returns (Uint24x5) {
+        return Uint24x5.wrap(bytes15(self));
+    }
+
     /// @dev Cast a Uint24x5 into a bytes15
     function asBytes15(Uint24x5 self) internal pure returns (bytes15) {
         return Uint24x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x5 into a uint120
+    function asUint120(Uint24x5 self) internal pure returns (uint120) {
+        return uint120(Uint24x5.unwrap(self));
     }
 
     function at(Uint24x5 self, uint8 pos) internal pure returns (uint24) {
@@ -2192,9 +2782,19 @@ library Packing {
         return Uint8x15.wrap(self);
     }
 
+    /// @dev Cast a uint120 into a Uint8x15
+    function asUint8x15(uint120 self) internal pure returns (Uint8x15) {
+        return Uint8x15.wrap(bytes15(self));
+    }
+
     /// @dev Cast a Uint8x15 into a bytes15
     function asBytes15(Uint8x15 self) internal pure returns (bytes15) {
         return Uint8x15.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x15 into a uint120
+    function asUint120(Uint8x15 self) internal pure returns (uint120) {
+        return uint120(Uint8x15.unwrap(self));
     }
 
     function at(Uint8x15 self, uint8 pos) internal pure returns (uint8) {
@@ -2218,9 +2818,19 @@ library Packing {
         return Uint56x2.wrap(self);
     }
 
+    /// @dev Cast a uint112 into a Uint56x2
+    function asUint56x2(uint112 self) internal pure returns (Uint56x2) {
+        return Uint56x2.wrap(bytes14(self));
+    }
+
     /// @dev Cast a Uint56x2 into a bytes14
     function asBytes14(Uint56x2 self) internal pure returns (bytes14) {
         return Uint56x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint56x2 into a uint112
+    function asUint112(Uint56x2 self) internal pure returns (uint112) {
+        return uint112(Uint56x2.unwrap(self));
     }
 
     function at(Uint56x2 self, uint8 pos) internal pure returns (uint56) {
@@ -2257,9 +2867,19 @@ library Packing {
         return Uint16x7.wrap(self);
     }
 
+    /// @dev Cast a uint112 into a Uint16x7
+    function asUint16x7(uint112 self) internal pure returns (Uint16x7) {
+        return Uint16x7.wrap(bytes14(self));
+    }
+
     /// @dev Cast a Uint16x7 into a bytes14
     function asBytes14(Uint16x7 self) internal pure returns (bytes14) {
         return Uint16x7.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x7 into a uint112
+    function asUint112(Uint16x7 self) internal pure returns (uint112) {
+        return uint112(Uint16x7.unwrap(self));
     }
 
     function at(Uint16x7 self, uint8 pos) internal pure returns (uint16) {
@@ -2317,9 +2937,19 @@ library Packing {
         return Uint8x14.wrap(self);
     }
 
+    /// @dev Cast a uint112 into a Uint8x14
+    function asUint8x14(uint112 self) internal pure returns (Uint8x14) {
+        return Uint8x14.wrap(bytes14(self));
+    }
+
     /// @dev Cast a Uint8x14 into a bytes14
     function asBytes14(Uint8x14 self) internal pure returns (bytes14) {
         return Uint8x14.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x14 into a uint112
+    function asUint112(Uint8x14 self) internal pure returns (uint112) {
+        return uint112(Uint8x14.unwrap(self));
     }
 
     function at(Uint8x14 self, uint8 pos) internal pure returns (uint8) {
@@ -2343,9 +2973,19 @@ library Packing {
         return Uint8x13.wrap(self);
     }
 
+    /// @dev Cast a uint104 into a Uint8x13
+    function asUint8x13(uint104 self) internal pure returns (Uint8x13) {
+        return Uint8x13.wrap(bytes13(self));
+    }
+
     /// @dev Cast a Uint8x13 into a bytes13
     function asBytes13(Uint8x13 self) internal pure returns (bytes13) {
         return Uint8x13.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x13 into a uint104
+    function asUint104(Uint8x13 self) internal pure returns (uint104) {
+        return uint104(Uint8x13.unwrap(self));
     }
 
     function at(Uint8x13 self, uint8 pos) internal pure returns (uint8) {
@@ -2369,9 +3009,19 @@ library Packing {
         return Uint48x2.wrap(self);
     }
 
+    /// @dev Cast a uint96 into a Uint48x2
+    function asUint48x2(uint96 self) internal pure returns (Uint48x2) {
+        return Uint48x2.wrap(bytes12(self));
+    }
+
     /// @dev Cast a Uint48x2 into a bytes12
     function asBytes12(Uint48x2 self) internal pure returns (bytes12) {
         return Uint48x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint48x2 into a uint96
+    function asUint96(Uint48x2 self) internal pure returns (uint96) {
+        return uint96(Uint48x2.unwrap(self));
     }
 
     function at(Uint48x2 self, uint8 pos) internal pure returns (uint48) {
@@ -2408,9 +3058,19 @@ library Packing {
         return Uint32x3.wrap(self);
     }
 
+    /// @dev Cast a uint96 into a Uint32x3
+    function asUint32x3(uint96 self) internal pure returns (Uint32x3) {
+        return Uint32x3.wrap(bytes12(self));
+    }
+
     /// @dev Cast a Uint32x3 into a bytes12
     function asBytes12(Uint32x3 self) internal pure returns (bytes12) {
         return Uint32x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x3 into a uint96
+    function asUint96(Uint32x3 self) internal pure returns (uint96) {
+        return uint96(Uint32x3.unwrap(self));
     }
 
     function at(Uint32x3 self, uint8 pos) internal pure returns (uint32) {
@@ -2448,9 +3108,19 @@ library Packing {
         return Uint24x4.wrap(self);
     }
 
+    /// @dev Cast a uint96 into a Uint24x4
+    function asUint24x4(uint96 self) internal pure returns (Uint24x4) {
+        return Uint24x4.wrap(bytes12(self));
+    }
+
     /// @dev Cast a Uint24x4 into a bytes12
     function asBytes12(Uint24x4 self) internal pure returns (bytes12) {
         return Uint24x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x4 into a uint96
+    function asUint96(Uint24x4 self) internal pure returns (uint96) {
+        return uint96(Uint24x4.unwrap(self));
     }
 
     function at(Uint24x4 self, uint8 pos) internal pure returns (uint24) {
@@ -2489,9 +3159,19 @@ library Packing {
         return Uint16x6.wrap(self);
     }
 
+    /// @dev Cast a uint96 into a Uint16x6
+    function asUint16x6(uint96 self) internal pure returns (Uint16x6) {
+        return Uint16x6.wrap(bytes12(self));
+    }
+
     /// @dev Cast a Uint16x6 into a bytes12
     function asBytes12(Uint16x6 self) internal pure returns (bytes12) {
         return Uint16x6.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x6 into a uint96
+    function asUint96(Uint16x6 self) internal pure returns (uint96) {
+        return uint96(Uint16x6.unwrap(self));
     }
 
     function at(Uint16x6 self, uint8 pos) internal pure returns (uint16) {
@@ -2546,9 +3226,19 @@ library Packing {
         return Uint8x12.wrap(self);
     }
 
+    /// @dev Cast a uint96 into a Uint8x12
+    function asUint8x12(uint96 self) internal pure returns (Uint8x12) {
+        return Uint8x12.wrap(bytes12(self));
+    }
+
     /// @dev Cast a Uint8x12 into a bytes12
     function asBytes12(Uint8x12 self) internal pure returns (bytes12) {
         return Uint8x12.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x12 into a uint96
+    function asUint96(Uint8x12 self) internal pure returns (uint96) {
+        return uint96(Uint8x12.unwrap(self));
     }
 
     function at(Uint8x12 self, uint8 pos) internal pure returns (uint8) {
@@ -2572,9 +3262,19 @@ library Packing {
         return Uint8x11.wrap(self);
     }
 
+    /// @dev Cast a uint88 into a Uint8x11
+    function asUint8x11(uint88 self) internal pure returns (Uint8x11) {
+        return Uint8x11.wrap(bytes11(self));
+    }
+
     /// @dev Cast a Uint8x11 into a bytes11
     function asBytes11(Uint8x11 self) internal pure returns (bytes11) {
         return Uint8x11.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x11 into a uint88
+    function asUint88(Uint8x11 self) internal pure returns (uint88) {
+        return uint88(Uint8x11.unwrap(self));
     }
 
     function at(Uint8x11 self, uint8 pos) internal pure returns (uint8) {
@@ -2598,9 +3298,19 @@ library Packing {
         return Uint40x2.wrap(self);
     }
 
+    /// @dev Cast a uint80 into a Uint40x2
+    function asUint40x2(uint80 self) internal pure returns (Uint40x2) {
+        return Uint40x2.wrap(bytes10(self));
+    }
+
     /// @dev Cast a Uint40x2 into a bytes10
     function asBytes10(Uint40x2 self) internal pure returns (bytes10) {
         return Uint40x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint40x2 into a uint80
+    function asUint80(Uint40x2 self) internal pure returns (uint80) {
+        return uint80(Uint40x2.unwrap(self));
     }
 
     function at(Uint40x2 self, uint8 pos) internal pure returns (uint40) {
@@ -2637,9 +3347,19 @@ library Packing {
         return Uint16x5.wrap(self);
     }
 
+    /// @dev Cast a uint80 into a Uint16x5
+    function asUint16x5(uint80 self) internal pure returns (Uint16x5) {
+        return Uint16x5.wrap(bytes10(self));
+    }
+
     /// @dev Cast a Uint16x5 into a bytes10
     function asBytes10(Uint16x5 self) internal pure returns (bytes10) {
         return Uint16x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x5 into a uint80
+    function asUint80(Uint16x5 self) internal pure returns (uint80) {
+        return uint80(Uint16x5.unwrap(self));
     }
 
     function at(Uint16x5 self, uint8 pos) internal pure returns (uint16) {
@@ -2685,9 +3405,19 @@ library Packing {
         return Uint8x10.wrap(self);
     }
 
+    /// @dev Cast a uint80 into a Uint8x10
+    function asUint8x10(uint80 self) internal pure returns (Uint8x10) {
+        return Uint8x10.wrap(bytes10(self));
+    }
+
     /// @dev Cast a Uint8x10 into a bytes10
     function asBytes10(Uint8x10 self) internal pure returns (bytes10) {
         return Uint8x10.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x10 into a uint80
+    function asUint80(Uint8x10 self) internal pure returns (uint80) {
+        return uint80(Uint8x10.unwrap(self));
     }
 
     function at(Uint8x10 self, uint8 pos) internal pure returns (uint8) {
@@ -2711,9 +3441,19 @@ library Packing {
         return Uint24x3.wrap(self);
     }
 
+    /// @dev Cast a uint72 into a Uint24x3
+    function asUint24x3(uint72 self) internal pure returns (Uint24x3) {
+        return Uint24x3.wrap(bytes9(self));
+    }
+
     /// @dev Cast a Uint24x3 into a bytes9
     function asBytes9(Uint24x3 self) internal pure returns (bytes9) {
         return Uint24x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x3 into a uint72
+    function asUint72(Uint24x3 self) internal pure returns (uint72) {
+        return uint72(Uint24x3.unwrap(self));
     }
 
     function at(Uint24x3 self, uint8 pos) internal pure returns (uint24) {
@@ -2751,9 +3491,19 @@ library Packing {
         return Uint8x9.wrap(self);
     }
 
+    /// @dev Cast a uint72 into a Uint8x9
+    function asUint8x9(uint72 self) internal pure returns (Uint8x9) {
+        return Uint8x9.wrap(bytes9(self));
+    }
+
     /// @dev Cast a Uint8x9 into a bytes9
     function asBytes9(Uint8x9 self) internal pure returns (bytes9) {
         return Uint8x9.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x9 into a uint72
+    function asUint72(Uint8x9 self) internal pure returns (uint72) {
+        return uint72(Uint8x9.unwrap(self));
     }
 
     function at(Uint8x9 self, uint8 pos) internal pure returns (uint8) {
@@ -2777,9 +3527,19 @@ library Packing {
         return Uint32x2.wrap(self);
     }
 
+    /// @dev Cast a uint64 into a Uint32x2
+    function asUint32x2(uint64 self) internal pure returns (Uint32x2) {
+        return Uint32x2.wrap(bytes8(self));
+    }
+
     /// @dev Cast a Uint32x2 into a bytes8
     function asBytes8(Uint32x2 self) internal pure returns (bytes8) {
         return Uint32x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint32x2 into a uint64
+    function asUint64(Uint32x2 self) internal pure returns (uint64) {
+        return uint64(Uint32x2.unwrap(self));
     }
 
     function at(Uint32x2 self, uint8 pos) internal pure returns (uint32) {
@@ -2816,9 +3576,19 @@ library Packing {
         return Uint16x4.wrap(self);
     }
 
+    /// @dev Cast a uint64 into a Uint16x4
+    function asUint16x4(uint64 self) internal pure returns (Uint16x4) {
+        return Uint16x4.wrap(bytes8(self));
+    }
+
     /// @dev Cast a Uint16x4 into a bytes8
     function asBytes8(Uint16x4 self) internal pure returns (bytes8) {
         return Uint16x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x4 into a uint64
+    function asUint64(Uint16x4 self) internal pure returns (uint64) {
+        return uint64(Uint16x4.unwrap(self));
     }
 
     function at(Uint16x4 self, uint8 pos) internal pure returns (uint16) {
@@ -2857,9 +3627,19 @@ library Packing {
         return Uint8x8.wrap(self);
     }
 
+    /// @dev Cast a uint64 into a Uint8x8
+    function asUint8x8(uint64 self) internal pure returns (Uint8x8) {
+        return Uint8x8.wrap(bytes8(self));
+    }
+
     /// @dev Cast a Uint8x8 into a bytes8
     function asBytes8(Uint8x8 self) internal pure returns (bytes8) {
         return Uint8x8.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x8 into a uint64
+    function asUint64(Uint8x8 self) internal pure returns (uint64) {
+        return uint64(Uint8x8.unwrap(self));
     }
 
     function at(Uint8x8 self, uint8 pos) internal pure returns (uint8) {
@@ -2920,9 +3700,19 @@ library Packing {
         return Uint8x7.wrap(self);
     }
 
+    /// @dev Cast a uint56 into a Uint8x7
+    function asUint8x7(uint56 self) internal pure returns (Uint8x7) {
+        return Uint8x7.wrap(bytes7(self));
+    }
+
     /// @dev Cast a Uint8x7 into a bytes7
     function asBytes7(Uint8x7 self) internal pure returns (bytes7) {
         return Uint8x7.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x7 into a uint56
+    function asUint56(Uint8x7 self) internal pure returns (uint56) {
+        return uint56(Uint8x7.unwrap(self));
     }
 
     function at(Uint8x7 self, uint8 pos) internal pure returns (uint8) {
@@ -2980,9 +3770,19 @@ library Packing {
         return Uint24x2.wrap(self);
     }
 
+    /// @dev Cast a uint48 into a Uint24x2
+    function asUint24x2(uint48 self) internal pure returns (Uint24x2) {
+        return Uint24x2.wrap(bytes6(self));
+    }
+
     /// @dev Cast a Uint24x2 into a bytes6
     function asBytes6(Uint24x2 self) internal pure returns (bytes6) {
         return Uint24x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint24x2 into a uint48
+    function asUint48(Uint24x2 self) internal pure returns (uint48) {
+        return uint48(Uint24x2.unwrap(self));
     }
 
     function at(Uint24x2 self, uint8 pos) internal pure returns (uint24) {
@@ -3019,9 +3819,19 @@ library Packing {
         return Uint16x3.wrap(self);
     }
 
+    /// @dev Cast a uint48 into a Uint16x3
+    function asUint16x3(uint48 self) internal pure returns (Uint16x3) {
+        return Uint16x3.wrap(bytes6(self));
+    }
+
     /// @dev Cast a Uint16x3 into a bytes6
     function asBytes6(Uint16x3 self) internal pure returns (bytes6) {
         return Uint16x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x3 into a uint48
+    function asUint48(Uint16x3 self) internal pure returns (uint48) {
+        return uint48(Uint16x3.unwrap(self));
     }
 
     function at(Uint16x3 self, uint8 pos) internal pure returns (uint16) {
@@ -3059,9 +3869,19 @@ library Packing {
         return Uint8x6.wrap(self);
     }
 
+    /// @dev Cast a uint48 into a Uint8x6
+    function asUint8x6(uint48 self) internal pure returns (Uint8x6) {
+        return Uint8x6.wrap(bytes6(self));
+    }
+
     /// @dev Cast a Uint8x6 into a bytes6
     function asBytes6(Uint8x6 self) internal pure returns (bytes6) {
         return Uint8x6.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x6 into a uint48
+    function asUint48(Uint8x6 self) internal pure returns (uint48) {
+        return uint48(Uint8x6.unwrap(self));
     }
 
     function at(Uint8x6 self, uint8 pos) internal pure returns (uint8) {
@@ -3116,9 +3936,19 @@ library Packing {
         return Uint8x5.wrap(self);
     }
 
+    /// @dev Cast a uint40 into a Uint8x5
+    function asUint8x5(uint40 self) internal pure returns (Uint8x5) {
+        return Uint8x5.wrap(bytes5(self));
+    }
+
     /// @dev Cast a Uint8x5 into a bytes5
     function asBytes5(Uint8x5 self) internal pure returns (bytes5) {
         return Uint8x5.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x5 into a uint40
+    function asUint40(Uint8x5 self) internal pure returns (uint40) {
+        return uint40(Uint8x5.unwrap(self));
     }
 
     function at(Uint8x5 self, uint8 pos) internal pure returns (uint8) {
@@ -3158,9 +3988,19 @@ library Packing {
         return Uint16x2.wrap(self);
     }
 
+    /// @dev Cast a uint32 into a Uint16x2
+    function asUint16x2(uint32 self) internal pure returns (Uint16x2) {
+        return Uint16x2.wrap(bytes4(self));
+    }
+
     /// @dev Cast a Uint16x2 into a bytes4
     function asBytes4(Uint16x2 self) internal pure returns (bytes4) {
         return Uint16x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint16x2 into a uint32
+    function asUint32(Uint16x2 self) internal pure returns (uint32) {
+        return uint32(Uint16x2.unwrap(self));
     }
 
     function at(Uint16x2 self, uint8 pos) internal pure returns (uint16) {
@@ -3197,9 +4037,19 @@ library Packing {
         return Uint8x4.wrap(self);
     }
 
+    /// @dev Cast a uint32 into a Uint8x4
+    function asUint8x4(uint32 self) internal pure returns (Uint8x4) {
+        return Uint8x4.wrap(bytes4(self));
+    }
+
     /// @dev Cast a Uint8x4 into a bytes4
     function asBytes4(Uint8x4 self) internal pure returns (bytes4) {
         return Uint8x4.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x4 into a uint32
+    function asUint32(Uint8x4 self) internal pure returns (uint32) {
+        return uint32(Uint8x4.unwrap(self));
     }
 
     function at(Uint8x4 self, uint8 pos) internal pure returns (uint8) {
@@ -3238,9 +4088,19 @@ library Packing {
         return Uint8x3.wrap(self);
     }
 
+    /// @dev Cast a uint24 into a Uint8x3
+    function asUint8x3(uint24 self) internal pure returns (Uint8x3) {
+        return Uint8x3.wrap(bytes3(self));
+    }
+
     /// @dev Cast a Uint8x3 into a bytes3
     function asBytes3(Uint8x3 self) internal pure returns (bytes3) {
         return Uint8x3.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x3 into a uint24
+    function asUint24(Uint8x3 self) internal pure returns (uint24) {
+        return uint24(Uint8x3.unwrap(self));
     }
 
     function at(Uint8x3 self, uint8 pos) internal pure returns (uint8) {
@@ -3278,9 +4138,19 @@ library Packing {
         return Uint8x2.wrap(self);
     }
 
+    /// @dev Cast a uint16 into a Uint8x2
+    function asUint8x2(uint16 self) internal pure returns (Uint8x2) {
+        return Uint8x2.wrap(bytes2(self));
+    }
+
     /// @dev Cast a Uint8x2 into a bytes2
     function asBytes2(Uint8x2 self) internal pure returns (bytes2) {
         return Uint8x2.unwrap(self);
+    }
+
+    /// @dev Cast a Uint8x2 into a uint16
+    function asUint16(Uint8x2 self) internal pure returns (uint16) {
+        return uint16(Uint8x2.unwrap(self));
     }
 
     function at(Uint8x2 self, uint8 pos) internal pure returns (uint8) {

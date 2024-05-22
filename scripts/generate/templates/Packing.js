@@ -12,42 +12,52 @@ pragma solidity ^0.8.20;
  */
 `;
 
-const types = ({ inner, outer, pack, count, shift }) => `\
-  type ${outer} is ${pack};
+const types = ({ type, field, bytes, integ, count, shift }) => `\
+  type ${type} is ${bytes};
 
-  error OutOfBoundAccess${outer}(uint8);
+  error OutOfBoundAccess${type}(uint8);
 
-  /// @dev Cast a ${pack} into a ${outer}
-  function as${outer}(${pack} self) internal pure returns (${outer}) {
-    return ${outer}.wrap(self);
+  /// @dev Cast a ${bytes} into a ${type}
+  function as${type}(${bytes} self) internal pure returns (${type}) {
+    return ${type}.wrap(self);
   }
 
-  /// @dev Cast a ${outer} into a ${pack}
-  function as${capitalize(pack)}(${outer} self) internal pure returns (${pack}) {
-    return ${outer}.unwrap(self);
+  /// @dev Cast a ${integ} into a ${type}
+  function as${type}(${integ} self) internal pure returns (${type}) {
+    return ${type}.wrap(${bytes}(self));
   }
 
-  function at(${outer} self, uint8 pos) internal pure returns (${inner}) {
-    if (pos > ${count - 1}) revert OutOfBoundAccess${outer}(pos);
+  /// @dev Cast a ${type} into a ${bytes}
+  function as${capitalize(bytes)}(${type} self) internal pure returns (${bytes}) {
+    return ${type}.unwrap(self);
+  }
+
+  /// @dev Cast a ${type} into a ${integ}
+  function as${capitalize(integ)}(${type} self) internal pure returns (${integ}) {
+    return ${integ}(${type}.unwrap(self));
+  }
+
+  function at(${type} self, uint8 pos) internal pure returns (${field}) {
+    if (pos > ${count - 1}) revert OutOfBoundAccess${type}(pos);
     return unsafeAt(self, pos);
   }
 
-  function unsafeAt(${outer} self, uint8 pos) internal pure returns (${inner} result) {
-    ${inner} mask = type(${inner}).max;
+  function unsafeAt(${type} self, uint8 pos) internal pure returns (${field} result) {
+    ${field} mask = type(${field}).max;
     assembly {
       result := and(shr(sub(${256 - shift}, mul(pos, ${shift})), self), mask)
     }
   }
 `;
 
-const utils = ({ inner, outer, count, shift }) => `\
-  /// @dev Pack ${count} ${inner} into a ${outer}
+const utils = ({ type, field, count, shift }) => `\
+  /// @dev Pack ${count} ${field} into a ${type}
   function pack(
     ${Array(count)
       .fill()
-      .map((_, i) => `${inner} arg${i}`)
+      .map((_, i) => `${field} arg${i}`)
       .join(',')}
-  ) internal pure returns (${outer} result) {
+  ) internal pure returns (${type} result) {
     assembly {
       ${Array(count)
         .fill()
@@ -60,9 +70,9 @@ const utils = ({ inner, outer, count, shift }) => `\
     }
   }
 
-  /// @dev Split a ${outer} into ${count} ${inner}
-  function split(${outer} self) internal pure returns (
-    ${Array(count).fill(inner).join(',')}
+  /// @dev Split a ${type} into ${count} ${field}
+  function split(${type} self) internal pure returns (
+    ${Array(count).fill(field).join(',')}
   ) {
     return (
       ${Array(count)

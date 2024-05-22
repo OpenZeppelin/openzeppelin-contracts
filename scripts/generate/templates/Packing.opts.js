@@ -6,9 +6,10 @@ const TYPES = product(LENGTHS, LENGTHS)
   .map(([i, j]) => ({
     i,
     j,
-    inner: `uint${8 * j}`,
-    outer: `Uint${8 * j}x${i / j}`,
-    pack: `bytes${i}`,
+    type: `Uint${8 * j}x${i / j}`,
+    field: `uint${8 * j}`,
+    integ: `uint${8 * i}`,
+    bytes: `bytes${i}`,
     count: i / j,
     shift: 8 * j,
   }));
