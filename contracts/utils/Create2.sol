@@ -41,12 +41,29 @@ library Create2 {
         if (bytecode.length == 0) {
             revert Create2EmptyBytecode();
         }
+
+        uint256 returndataSize;
+        bytes memory returndata;
+
         /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
+            if iszero(addr) {
+                returndataSize := returndatasize()
+                returndata := mload(0x40)
+                mstore(0x40, add(returndata, add(returndataSize, 0x20)))
+                returndatacopy(returndata, 0, returndataSize)
+            }
         }
+
         if (addr == address(0)) {
-            revert Errors.FailedDeployment();
+            if (returndataSize > 0) {
+                assembly {
+                    revert(add(returndata, 0x20), returndataSize)
+                }
+            } else {
+                revert Errors.FailedDeployment();
+            }
         }
     }
 
