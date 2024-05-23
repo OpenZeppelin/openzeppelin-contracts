@@ -1673,17 +1673,21 @@ describe('AccessManager', function () {
 
   describe('access managed self operations', function () {
     describe('when calling a restricted target function', function () {
-      beforeEach('set required role', function () {
-        this.method = this.manager.fnRestricted.getFragment();
+      const method = 'fnRestricted()';
+
+      beforeEach('set required role', async function () {
         this.role = { id: 785913n };
-        this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
+        await this.manager.$_setTargetFunctionRole(
+          this.manager,
+          this.manager[method].getFragment().selector,
+          this.role.id,
+        );
       });
 
       describe('restrictions', function () {
         beforeEach('set method and args', function () {
-          this.calldata = this.manager.interface.encodeFunctionData(this.method, []);
           this.caller = this.user;
-          this.target = this.manager; // For shouldBehaveLikeASelfRestrictedOperation
+          this.calldata = this.manager.interface.encodeFunctionData(method, []);
         });
 
         shouldBehaveLikeASelfRestrictedOperation();
@@ -1692,11 +1696,7 @@ describe('AccessManager', function () {
       it('succeeds called by a role member', async function () {
         await this.manager.$_grantRole(this.role.id, this.user, 0, 0);
 
-        await expect(
-          this.manager.connect(this.user)[this.method.selector]({
-            data: this.calldata,
-          }),
-        )
+        await expect(this.manager.connect(this.user)[method]())
           .to.emit(this.manager, 'CalledRestricted')
           .withArgs(this.user);
       });
@@ -1715,11 +1715,7 @@ describe('AccessManager', function () {
       });
 
       it('succeeds called by anyone', async function () {
-        await expect(
-          this.manager.connect(this.user)[method]({
-            data: this.calldata,
-          }),
-        )
+        await expect(this.manager.connect(this.user)[method]())
           .to.emit(this.manager, 'CalledUnrestricted')
           .withArgs(this.user);
       });
@@ -1728,16 +1724,21 @@ describe('AccessManager', function () {
 
   describe('access managed target operations', function () {
     describe('when calling a restricted target function', function () {
-      beforeEach('set required role', function () {
-        this.method = this.target.fnRestricted.getFragment();
+      const method = 'fnRestricted()';
+
+      beforeEach('set required role', async function () {
         this.role = { id: 3597243n };
-        this.manager.$_setTargetFunctionRole(this.target, this.method.selector, this.role.id);
+        await this.manager.$_setTargetFunctionRole(
+          this.target,
+          this.target[method].getFragment().selector,
+          this.role.id,
+        );
       });
 
       describe('restrictions', function () {
         beforeEach('set method and args', function () {
-          this.calldata = this.target.interface.encodeFunctionData(this.method, []);
           this.caller = this.user;
+          this.calldata = this.target.interface.encodeFunctionData(method, []);
         });
 
         shouldBehaveLikeAManagedRestrictedOperation();
@@ -1746,11 +1747,7 @@ describe('AccessManager', function () {
       it('succeeds called by a role member', async function () {
         await this.manager.$_grantRole(this.role.id, this.user, 0, 0);
 
-        await expect(
-          this.target.connect(this.user)[this.method.selector]({
-            data: this.calldata,
-          }),
-        )
+        await expect(this.target.connect(this.user)[method]())
           .to.emit(this.target, 'CalledRestricted')
           .withArgs(this.user);
       });
@@ -1769,11 +1766,7 @@ describe('AccessManager', function () {
       });
 
       it('succeeds called by anyone', async function () {
-        await expect(
-          this.target.connect(this.user)[method]({
-            data: this.calldata,
-          }),
-        )
+        await expect(this.target.connect(this.user)[method]())
           .to.emit(this.target, 'CalledUnrestricted')
           .withArgs(this.user);
       });

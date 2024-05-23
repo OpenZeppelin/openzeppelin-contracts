@@ -222,7 +222,7 @@ function shouldBehaveLikeASelfRestrictedOperation() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
         .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller, 0); // There's no way to know the required role of a function executed by the manager since the selector will be that of "execute"
+        .withArgs(this.caller, this.role?.id ?? 0n);
     });
   };
 
