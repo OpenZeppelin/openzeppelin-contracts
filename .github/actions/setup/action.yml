@@ -1,4 +1,5 @@
 name: Setup
+description: Common environment setup
 
 runs:
   using: composite
