@@ -202,35 +202,35 @@ describe('ERC721Consecutive', function () {
     const receiver = ethers.Wallet.createRandom();
 
     it('cannot mint a batch larger than 5000', async function () {
-      const { interface } = await ethers.getContractFactory('$ERC721ConsecutiveMock');
+      const factory = await ethers.getContractFactory('$ERC721ConsecutiveMock');
 
       await expect(ethers.deployContract('$ERC721ConsecutiveMock', [name, symbol, 0, [], [receiver], [5001n]]))
-        .to.be.revertedWithCustomError({ interface }, 'ERC721ExceededMaxBatchMint')
+        .to.be.revertedWithCustomError(factory, 'ERC721ExceededMaxBatchMint')
         .withArgs(5001n, 5000n);
     });
 
     it('cannot use single minting during construction', async function () {
-      const { interface } = await ethers.getContractFactory('$ERC721ConsecutiveNoConstructorMintMock');
+      const factory = await ethers.getContractFactory('$ERC721ConsecutiveNoConstructorMintMock');
 
       await expect(
         ethers.deployContract('$ERC721ConsecutiveNoConstructorMintMock', [name, symbol]),
-      ).to.be.revertedWithCustomError({ interface }, 'ERC721ForbiddenMint');
+      ).to.be.revertedWithCustomError(factory, 'ERC721ForbiddenMint');
     });
 
     it('cannot use single minting during construction', async function () {
-      const { interface } = await ethers.getContractFactory('$ERC721ConsecutiveNoConstructorMintMock');
+      const factory = await ethers.getContractFactory('$ERC721ConsecutiveNoConstructorMintMock');
 
       await expect(
         ethers.deployContract('$ERC721ConsecutiveNoConstructorMintMock', [name, symbol]),
-      ).to.be.revertedWithCustomError({ interface }, 'ERC721ForbiddenMint');
+      ).to.be.revertedWithCustomError(factory, 'ERC721ForbiddenMint');
     });
 
     it('consecutive mint not compatible with enumerability', async function () {
-      const { interface } = await ethers.getContractFactory('$ERC721ConsecutiveEnumerableMock');
+      const factory = await ethers.getContractFactory('$ERC721ConsecutiveEnumerableMock');
 
       await expect(
         ethers.deployContract('$ERC721ConsecutiveEnumerableMock', [name, symbol, [receiver], [100n]]),
-      ).to.be.revertedWithCustomError({ interface }, 'ERC721EnumerableForbiddenBatchMint');
+      ).to.be.revertedWithCustomError(factory, 'ERC721EnumerableForbiddenBatchMint');
     });
   });
 });

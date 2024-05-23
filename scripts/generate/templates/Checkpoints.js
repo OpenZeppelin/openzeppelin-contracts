@@ -236,7 +236,6 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(
