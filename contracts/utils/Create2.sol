@@ -42,28 +42,18 @@ library Create2 {
             revert Create2EmptyBytecode();
         }
 
-        uint256 returndataSize;
-        bytes memory returndata;
-
         /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
-            if iszero(addr) {
-                returndataSize := returndatasize()
-                returndata := mload(0x40)
-                mstore(0x40, add(returndata, add(returndataSize, 0x20)))
-                returndatacopy(returndata, 0, returndataSize)
+            // if no address was created, and returndata is not empty, bubble revert
+            if and(iszero(addr), not(iszero(returndatasize()))) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
             }
         }
 
         if (addr == address(0)) {
-            if (returndataSize > 0) {
-                assembly {
-                    revert(add(returndata, 0x20), returndataSize)
-                }
-            } else {
-                revert Errors.FailedDeployment();
-            }
+            revert Errors.FailedDeployment();
         }
     }
 
