@@ -62,7 +62,7 @@
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
     "@openzeppelin/upgrades-core": "^1.20.6",
     "chai": "^4.2.0",
-    "eslint": "^8.30.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.7.1",
     "glob": "^10.3.5",
