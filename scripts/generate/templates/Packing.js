@@ -12,50 +12,49 @@ pragma solidity ^0.8.20;
  */
 `;
 
-const types = ({ type, field, bytes, integ, count, shift }) => `\
-  type ${type} is ${bytes};
+const types = ({ type, block, field, count, shift }) => `\
+  type ${type} is ${block.b};
 
   error OutOfBoundAccess${type}(uint8);
 
-  /// @dev Cast a ${bytes} into a ${type}
-  function as${type}(${bytes} self) internal pure returns (${type}) {
+  /// @dev Cast a ${block.b} into a ${type}
+  function as${type}(${block.b} self) internal pure returns (${type}) {
     return ${type}.wrap(self);
   }
 
-  /// @dev Cast a ${integ} into a ${type}
-  function as${type}(${integ} self) internal pure returns (${type}) {
-    return ${type}.wrap(${bytes}(self));
+  /// @dev Cast a ${block.u} into a ${type}
+  function as${type}(${block.u} self) internal pure returns (${type}) {
+    return ${type}.wrap(${block.b}(self));
   }
 
-  /// @dev Cast a ${type} into a ${bytes}
-  function as${capitalize(bytes)}(${type} self) internal pure returns (${bytes}) {
+  /// @dev Cast a ${type} into a ${block.b}
+  function as${capitalize(block.b)}(${type} self) internal pure returns (${block.b}) {
     return ${type}.unwrap(self);
   }
 
-  /// @dev Cast a ${type} into a ${integ}
-  function as${capitalize(integ)}(${type} self) internal pure returns (${integ}) {
-    return ${integ}(${type}.unwrap(self));
+  /// @dev Cast a ${type} into a ${block.u}
+  function as${capitalize(block.u)}(${type} self) internal pure returns (${block.u}) {
+    return ${block.u}(${type}.unwrap(self));
   }
 
-  function at(${type} self, uint8 pos) internal pure returns (${field}) {
+  function at(${type} self, uint8 pos) internal pure returns (${field.u}) {
     if (pos > ${count - 1}) revert OutOfBoundAccess${type}(pos);
     return unsafeAt(self, pos);
   }
 
-  function unsafeAt(${type} self, uint8 pos) internal pure returns (${field} result) {
-    ${field} mask = type(${field}).max;
-    assembly {
-      result := and(shr(sub(${256 - shift}, mul(pos, ${shift})), self), mask)
+  function unsafeAt(${type} self, uint8 pos) internal pure returns (${field.u}) {
+    unchecked {
+      return ${field.u}(${field.b}(_extractLeftmostBits(bytes32(${type}.unwrap(self)), ${shift} * pos, ${shift})));
     }
   }
 `;
 
 const utils = ({ type, field, count, shift }) => `\
-  /// @dev Pack ${count} ${field} into a ${type}
+  /// @dev Pack ${count} ${field.u} into a ${type}
   function pack(
     ${Array(count)
       .fill()
-      .map((_, i) => `${field} arg${i}`)
+      .map((_, i) => `${field.u} arg${i}`)
       .join(',')}
   ) internal pure returns (${type} result) {
     assembly {
@@ -70,9 +69,9 @@ const utils = ({ type, field, count, shift }) => `\
     }
   }
 
-  /// @dev Split a ${type} into ${count} ${field}
+  /// @dev Split a ${type} into ${count} ${field.u}
   function split(${type} self) internal pure returns (
-    ${Array(count).fill(field).join(',')}
+    ${Array(count).fill(field.u).join(',')}
   ) {
     return (
       ${Array(count)
@@ -83,10 +82,19 @@ const utils = ({ type, field, count, shift }) => `\
   }
 `;
 
+const helpers = `\
+  function _extractLeftmostBits(bytes32 input, uint8 offset, uint8 count) private pure returns (bytes32 output) {
+    assembly {
+      output := and(shl(offset, input), shl(sub(0x100, count), not(0)))
+    }
+  }
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library Packing {',
   TYPES.flatMap(opts => [types(opts), opts.count <= 8 && utils(opts)]).filter(Boolean),
+  helpers,
   '}',
 );

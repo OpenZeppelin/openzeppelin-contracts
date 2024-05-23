@@ -36,10 +36,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint128x2 self, uint8 pos) internal pure returns (uint128 result) {
-        uint128 mask = type(uint128).max;
-        assembly {
-            result := and(shr(sub(128, mul(pos, 128)), self), mask)
+    function unsafeAt(Uint128x2 self, uint8 pos) internal pure returns (uint128) {
+        unchecked {
+            return uint128(bytes16(_extractLeftmostBits(bytes32(Uint128x2.unwrap(self)), 128 * pos, 128)));
         }
     }
 
@@ -85,10 +84,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint64x4 self, uint8 pos) internal pure returns (uint64 result) {
-        uint64 mask = type(uint64).max;
-        assembly {
-            result := and(shr(sub(192, mul(pos, 64)), self), mask)
+    function unsafeAt(Uint64x4 self, uint8 pos) internal pure returns (uint64) {
+        unchecked {
+            return uint64(bytes8(_extractLeftmostBits(bytes32(Uint64x4.unwrap(self)), 64 * pos, 64)));
         }
     }
 
@@ -136,10 +134,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x8 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x8 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x8.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -211,10 +208,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x16 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x16 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x16.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -247,10 +243,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x32 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x32 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x32.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -283,10 +278,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x31 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x31 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x31.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -319,10 +313,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint120x2 self, uint8 pos) internal pure returns (uint120 result) {
-        uint120 mask = type(uint120).max;
-        assembly {
-            result := and(shr(sub(136, mul(pos, 120)), self), mask)
+    function unsafeAt(Uint120x2 self, uint8 pos) internal pure returns (uint120) {
+        unchecked {
+            return uint120(bytes15(_extractLeftmostBits(bytes32(Uint120x2.unwrap(self)), 120 * pos, 120)));
         }
     }
 
@@ -368,10 +361,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint80x3 self, uint8 pos) internal pure returns (uint80 result) {
-        uint80 mask = type(uint80).max;
-        assembly {
-            result := and(shr(sub(176, mul(pos, 80)), self), mask)
+    function unsafeAt(Uint80x3 self, uint8 pos) internal pure returns (uint80) {
+        unchecked {
+            return uint80(bytes10(_extractLeftmostBits(bytes32(Uint80x3.unwrap(self)), 80 * pos, 80)));
         }
     }
 
@@ -418,10 +410,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint48x5 self, uint8 pos) internal pure returns (uint48 result) {
-        uint48 mask = type(uint48).max;
-        assembly {
-            result := and(shr(sub(208, mul(pos, 48)), self), mask)
+    function unsafeAt(Uint48x5 self, uint8 pos) internal pure returns (uint48) {
+        unchecked {
+            return uint48(bytes6(_extractLeftmostBits(bytes32(Uint48x5.unwrap(self)), 48 * pos, 48)));
         }
     }
 
@@ -476,10 +467,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint40x6 self, uint8 pos) internal pure returns (uint40 result) {
-        uint40 mask = type(uint40).max;
-        assembly {
-            result := and(shr(sub(216, mul(pos, 40)), self), mask)
+    function unsafeAt(Uint40x6 self, uint8 pos) internal pure returns (uint40) {
+        unchecked {
+            return uint40(bytes5(_extractLeftmostBits(bytes32(Uint40x6.unwrap(self)), 40 * pos, 40)));
         }
     }
 
@@ -543,10 +533,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x10 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x10 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x10.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -579,10 +568,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x15 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x15 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x15.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -615,10 +603,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x30 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x30 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x30.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -651,10 +638,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x29 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x29 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x29.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -687,10 +673,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint112x2 self, uint8 pos) internal pure returns (uint112 result) {
-        uint112 mask = type(uint112).max;
-        assembly {
-            result := and(shr(sub(144, mul(pos, 112)), self), mask)
+    function unsafeAt(Uint112x2 self, uint8 pos) internal pure returns (uint112) {
+        unchecked {
+            return uint112(bytes14(_extractLeftmostBits(bytes32(Uint112x2.unwrap(self)), 112 * pos, 112)));
         }
     }
 
@@ -736,10 +721,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint56x4 self, uint8 pos) internal pure returns (uint56 result) {
-        uint56 mask = type(uint56).max;
-        assembly {
-            result := and(shr(sub(200, mul(pos, 56)), self), mask)
+    function unsafeAt(Uint56x4 self, uint8 pos) internal pure returns (uint56) {
+        unchecked {
+            return uint56(bytes7(_extractLeftmostBits(bytes32(Uint56x4.unwrap(self)), 56 * pos, 56)));
         }
     }
 
@@ -787,10 +771,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x7 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x7 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x7.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -857,10 +840,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x14 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x14 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x14.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -893,10 +875,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x28 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x28 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x28.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -929,10 +910,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint72x3 self, uint8 pos) internal pure returns (uint72 result) {
-        uint72 mask = type(uint72).max;
-        assembly {
-            result := and(shr(sub(184, mul(pos, 72)), self), mask)
+    function unsafeAt(Uint72x3 self, uint8 pos) internal pure returns (uint72) {
+        unchecked {
+            return uint72(bytes9(_extractLeftmostBits(bytes32(Uint72x3.unwrap(self)), 72 * pos, 72)));
         }
     }
 
@@ -979,10 +959,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x9 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x9 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x9.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -1015,10 +994,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x27 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x27 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x27.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1051,10 +1029,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint104x2 self, uint8 pos) internal pure returns (uint104 result) {
-        uint104 mask = type(uint104).max;
-        assembly {
-            result := and(shr(sub(152, mul(pos, 104)), self), mask)
+    function unsafeAt(Uint104x2 self, uint8 pos) internal pure returns (uint104) {
+        unchecked {
+            return uint104(bytes13(_extractLeftmostBits(bytes32(Uint104x2.unwrap(self)), 104 * pos, 104)));
         }
     }
 
@@ -1100,10 +1077,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x13 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x13 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x13.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -1136,10 +1112,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x26 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x26 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x26.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1172,10 +1147,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint40x5 self, uint8 pos) internal pure returns (uint40 result) {
-        uint40 mask = type(uint40).max;
-        assembly {
-            result := and(shr(sub(216, mul(pos, 40)), self), mask)
+    function unsafeAt(Uint40x5 self, uint8 pos) internal pure returns (uint40) {
+        unchecked {
+            return uint40(bytes5(_extractLeftmostBits(bytes32(Uint40x5.unwrap(self)), 40 * pos, 40)));
         }
     }
 
@@ -1230,10 +1204,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x25 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x25 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x25.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1266,10 +1239,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint96x2 self, uint8 pos) internal pure returns (uint96 result) {
-        uint96 mask = type(uint96).max;
-        assembly {
-            result := and(shr(sub(160, mul(pos, 96)), self), mask)
+    function unsafeAt(Uint96x2 self, uint8 pos) internal pure returns (uint96) {
+        unchecked {
+            return uint96(bytes12(_extractLeftmostBits(bytes32(Uint96x2.unwrap(self)), 96 * pos, 96)));
         }
     }
 
@@ -1315,10 +1287,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint64x3 self, uint8 pos) internal pure returns (uint64 result) {
-        uint64 mask = type(uint64).max;
-        assembly {
-            result := and(shr(sub(192, mul(pos, 64)), self), mask)
+    function unsafeAt(Uint64x3 self, uint8 pos) internal pure returns (uint64) {
+        unchecked {
+            return uint64(bytes8(_extractLeftmostBits(bytes32(Uint64x3.unwrap(self)), 64 * pos, 64)));
         }
     }
 
@@ -1365,10 +1336,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint48x4 self, uint8 pos) internal pure returns (uint48 result) {
-        uint48 mask = type(uint48).max;
-        assembly {
-            result := and(shr(sub(208, mul(pos, 48)), self), mask)
+    function unsafeAt(Uint48x4 self, uint8 pos) internal pure returns (uint48) {
+        unchecked {
+            return uint48(bytes6(_extractLeftmostBits(bytes32(Uint48x4.unwrap(self)), 48 * pos, 48)));
         }
     }
 
@@ -1416,10 +1386,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x6 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x6 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x6.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -1483,10 +1452,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x8 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x8 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x8.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -1558,10 +1526,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x12 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x12 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x12.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -1594,10 +1561,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x24 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x24 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x24.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1630,10 +1596,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x23 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x23 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x23.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1666,10 +1631,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint88x2 self, uint8 pos) internal pure returns (uint88 result) {
-        uint88 mask = type(uint88).max;
-        assembly {
-            result := and(shr(sub(168, mul(pos, 88)), self), mask)
+    function unsafeAt(Uint88x2 self, uint8 pos) internal pure returns (uint88) {
+        unchecked {
+            return uint88(bytes11(_extractLeftmostBits(bytes32(Uint88x2.unwrap(self)), 88 * pos, 88)));
         }
     }
 
@@ -1715,10 +1679,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x11 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x11 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x11.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -1751,10 +1714,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x22 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x22 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x22.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1787,10 +1749,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint56x3 self, uint8 pos) internal pure returns (uint56 result) {
-        uint56 mask = type(uint56).max;
-        assembly {
-            result := and(shr(sub(200, mul(pos, 56)), self), mask)
+    function unsafeAt(Uint56x3 self, uint8 pos) internal pure returns (uint56) {
+        unchecked {
+            return uint56(bytes7(_extractLeftmostBits(bytes32(Uint56x3.unwrap(self)), 56 * pos, 56)));
         }
     }
 
@@ -1837,10 +1798,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x7 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x7 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x7.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -1907,10 +1867,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x21 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x21 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x21.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -1943,10 +1902,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint80x2 self, uint8 pos) internal pure returns (uint80 result) {
-        uint80 mask = type(uint80).max;
-        assembly {
-            result := and(shr(sub(176, mul(pos, 80)), self), mask)
+    function unsafeAt(Uint80x2 self, uint8 pos) internal pure returns (uint80) {
+        unchecked {
+            return uint80(bytes10(_extractLeftmostBits(bytes32(Uint80x2.unwrap(self)), 80 * pos, 80)));
         }
     }
 
@@ -1992,10 +1950,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint40x4 self, uint8 pos) internal pure returns (uint40 result) {
-        uint40 mask = type(uint40).max;
-        assembly {
-            result := and(shr(sub(216, mul(pos, 40)), self), mask)
+    function unsafeAt(Uint40x4 self, uint8 pos) internal pure returns (uint40) {
+        unchecked {
+            return uint40(bytes5(_extractLeftmostBits(bytes32(Uint40x4.unwrap(self)), 40 * pos, 40)));
         }
     }
 
@@ -2043,10 +2000,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x5 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x5 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x5.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -2101,10 +2057,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x10 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x10 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x10.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -2137,10 +2092,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x20 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x20 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x20.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2173,10 +2127,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x19 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x19 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x19.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2209,10 +2162,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint72x2 self, uint8 pos) internal pure returns (uint72 result) {
-        uint72 mask = type(uint72).max;
-        assembly {
-            result := and(shr(sub(184, mul(pos, 72)), self), mask)
+    function unsafeAt(Uint72x2 self, uint8 pos) internal pure returns (uint72) {
+        unchecked {
+            return uint72(bytes9(_extractLeftmostBits(bytes32(Uint72x2.unwrap(self)), 72 * pos, 72)));
         }
     }
 
@@ -2258,10 +2210,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint48x3 self, uint8 pos) internal pure returns (uint48 result) {
-        uint48 mask = type(uint48).max;
-        assembly {
-            result := and(shr(sub(208, mul(pos, 48)), self), mask)
+    function unsafeAt(Uint48x3 self, uint8 pos) internal pure returns (uint48) {
+        unchecked {
+            return uint48(bytes6(_extractLeftmostBits(bytes32(Uint48x3.unwrap(self)), 48 * pos, 48)));
         }
     }
 
@@ -2308,10 +2259,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x6 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x6 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x6.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -2375,10 +2325,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x9 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x9 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x9.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -2411,10 +2360,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x18 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x18 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x18.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2447,10 +2395,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x17 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x17 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x17.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2483,10 +2430,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint64x2 self, uint8 pos) internal pure returns (uint64 result) {
-        uint64 mask = type(uint64).max;
-        assembly {
-            result := and(shr(sub(192, mul(pos, 64)), self), mask)
+    function unsafeAt(Uint64x2 self, uint8 pos) internal pure returns (uint64) {
+        unchecked {
+            return uint64(bytes8(_extractLeftmostBits(bytes32(Uint64x2.unwrap(self)), 64 * pos, 64)));
         }
     }
 
@@ -2532,10 +2478,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x4 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x4 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x4.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -2583,10 +2528,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x8 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x8 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x8.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -2658,10 +2602,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x16 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x16 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x16.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2694,10 +2637,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint40x3 self, uint8 pos) internal pure returns (uint40 result) {
-        uint40 mask = type(uint40).max;
-        assembly {
-            result := and(shr(sub(216, mul(pos, 40)), self), mask)
+    function unsafeAt(Uint40x3 self, uint8 pos) internal pure returns (uint40) {
+        unchecked {
+            return uint40(bytes5(_extractLeftmostBits(bytes32(Uint40x3.unwrap(self)), 40 * pos, 40)));
         }
     }
 
@@ -2744,10 +2686,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x5 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x5 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x5.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -2802,10 +2743,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x15 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x15 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x15.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2838,10 +2778,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint56x2 self, uint8 pos) internal pure returns (uint56 result) {
-        uint56 mask = type(uint56).max;
-        assembly {
-            result := and(shr(sub(200, mul(pos, 56)), self), mask)
+    function unsafeAt(Uint56x2 self, uint8 pos) internal pure returns (uint56) {
+        unchecked {
+            return uint56(bytes7(_extractLeftmostBits(bytes32(Uint56x2.unwrap(self)), 56 * pos, 56)));
         }
     }
 
@@ -2887,10 +2826,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x7 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x7 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x7.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -2957,10 +2895,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x14 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x14 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x14.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -2993,10 +2930,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x13 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x13 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x13.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3029,10 +2965,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint48x2 self, uint8 pos) internal pure returns (uint48 result) {
-        uint48 mask = type(uint48).max;
-        assembly {
-            result := and(shr(sub(208, mul(pos, 48)), self), mask)
+    function unsafeAt(Uint48x2 self, uint8 pos) internal pure returns (uint48) {
+        unchecked {
+            return uint48(bytes6(_extractLeftmostBits(bytes32(Uint48x2.unwrap(self)), 48 * pos, 48)));
         }
     }
 
@@ -3078,10 +3013,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x3 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x3 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x3.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -3128,10 +3062,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x4 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x4 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x4.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -3179,10 +3112,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x6 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x6 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x6.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -3246,10 +3178,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x12 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x12 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x12.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3282,10 +3213,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x11 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x11 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x11.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3318,10 +3248,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint40x2 self, uint8 pos) internal pure returns (uint40 result) {
-        uint40 mask = type(uint40).max;
-        assembly {
-            result := and(shr(sub(216, mul(pos, 40)), self), mask)
+    function unsafeAt(Uint40x2 self, uint8 pos) internal pure returns (uint40) {
+        unchecked {
+            return uint40(bytes5(_extractLeftmostBits(bytes32(Uint40x2.unwrap(self)), 40 * pos, 40)));
         }
     }
 
@@ -3367,10 +3296,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x5 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x5 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x5.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -3425,10 +3353,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x10 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x10 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x10.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3461,10 +3388,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x3 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x3 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x3.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -3511,10 +3437,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x9 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x9 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x9.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3547,10 +3472,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint32x2 self, uint8 pos) internal pure returns (uint32 result) {
-        uint32 mask = type(uint32).max;
-        assembly {
-            result := and(shr(sub(224, mul(pos, 32)), self), mask)
+    function unsafeAt(Uint32x2 self, uint8 pos) internal pure returns (uint32) {
+        unchecked {
+            return uint32(bytes4(_extractLeftmostBits(bytes32(Uint32x2.unwrap(self)), 32 * pos, 32)));
         }
     }
 
@@ -3596,10 +3520,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x4 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x4 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x4.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -3647,10 +3570,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x8 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x8 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x8.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3720,10 +3642,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x7 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x7 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x7.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3790,10 +3711,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint24x2 self, uint8 pos) internal pure returns (uint24 result) {
-        uint24 mask = type(uint24).max;
-        assembly {
-            result := and(shr(sub(232, mul(pos, 24)), self), mask)
+    function unsafeAt(Uint24x2 self, uint8 pos) internal pure returns (uint24) {
+        unchecked {
+            return uint24(bytes3(_extractLeftmostBits(bytes32(Uint24x2.unwrap(self)), 24 * pos, 24)));
         }
     }
 
@@ -3839,10 +3759,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x3 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x3 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x3.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -3889,10 +3808,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x6 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x6 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x6.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -3956,10 +3874,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x5 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x5 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x5.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -4008,10 +3925,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint16x2 self, uint8 pos) internal pure returns (uint16 result) {
-        uint16 mask = type(uint16).max;
-        assembly {
-            result := and(shr(sub(240, mul(pos, 16)), self), mask)
+    function unsafeAt(Uint16x2 self, uint8 pos) internal pure returns (uint16) {
+        unchecked {
+            return uint16(bytes2(_extractLeftmostBits(bytes32(Uint16x2.unwrap(self)), 16 * pos, 16)));
         }
     }
 
@@ -4057,10 +3973,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x4 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x4 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x4.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -4108,10 +4023,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x3 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x3 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x3.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -4158,10 +4072,9 @@ library Packing {
         return unsafeAt(self, pos);
     }
 
-    function unsafeAt(Uint8x2 self, uint8 pos) internal pure returns (uint8 result) {
-        uint8 mask = type(uint8).max;
-        assembly {
-            result := and(shr(sub(248, mul(pos, 8)), self), mask)
+    function unsafeAt(Uint8x2 self, uint8 pos) internal pure returns (uint8) {
+        unchecked {
+            return uint8(bytes1(_extractLeftmostBits(bytes32(Uint8x2.unwrap(self)), 8 * pos, 8)));
         }
     }
 
@@ -4176,5 +4089,11 @@ library Packing {
     /// @dev Split a Uint8x2 into 2 uint8
     function split(Uint8x2 self) internal pure returns (uint8, uint8) {
         return (unsafeAt(self, 0), unsafeAt(self, 1));
+    }
+
+    function _extractLeftmostBits(bytes32 input, uint8 offset, uint8 count) private pure returns (bytes32 output) {
+        assembly {
+            output := and(shl(offset, input), shl(sub(0x100, count), not(0)))
+        }
     }
 }

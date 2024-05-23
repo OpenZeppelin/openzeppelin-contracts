@@ -7,9 +7,8 @@ const TYPES = product(LENGTHS, LENGTHS)
     i,
     j,
     type: `Uint${8 * j}x${i / j}`,
-    field: `uint${8 * j}`,
-    integ: `uint${8 * i}`,
-    bytes: `bytes${i}`,
+    block: { u: `uint${8 * i}`, b: `bytes${i}` },
+    field: { u: `uint${8 * j}`, b: `bytes${j}` },
     count: i / j,
     shift: 8 * j,
   }));
