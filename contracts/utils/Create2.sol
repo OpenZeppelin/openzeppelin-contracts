@@ -41,7 +41,6 @@ library Create2 {
         if (bytecode.length == 0) {
             revert Create2EmptyBytecode();
         }
-
         /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
@@ -51,7 +50,6 @@ library Create2 {
                 revert(0, returndatasize())
             }
         }
-
         if (addr == address(0)) {
             revert Errors.FailedDeployment();
         }
