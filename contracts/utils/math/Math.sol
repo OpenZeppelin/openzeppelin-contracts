@@ -311,7 +311,7 @@ library Math {
 
     /**
      * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m).
-     * It includes a success flag indicating if the operation succeeded. Operation will be marked has failed if trying
+     * It includes a success flag indicating if the operation succeeded. Operation will be marked as failed if trying
      * to operate modulo 0 or if the underlying precompile reverted.
      *
      * IMPORTANT: The result is only valid if the success flag is true. When using this function, make sure the chain
