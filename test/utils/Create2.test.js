@@ -137,7 +137,7 @@ describe('Create2', function () {
     });
 
     describe('reverts error thrown during contract creation', function () {
-      it('Revert without message', async function () {
+      it('bubbles up without message', async function () {
         await expect(
           this.factory.$deploy(
             0n,
@@ -150,7 +150,7 @@ describe('Create2', function () {
         ).to.be.revertedWithCustomError(this.factory, 'FailedDeployment');
       });
 
-      it('Revert with message', async function () {
+      it('bubbles up message', async function () {
         await expect(
           this.factory.$deploy(
             0n,
@@ -163,7 +163,7 @@ describe('Create2', function () {
         ).to.be.revertedWith('ConstructorMock: reverting');
       });
 
-      it('Revert with custom error', async function () {
+      it('bubbles up custom error', async function () {
         await expect(
           this.factory.$deploy(
             0n,
@@ -176,7 +176,7 @@ describe('Create2', function () {
         ).to.be.revertedWithCustomError({ interface: this.mockFactory.interface }, 'CustomError');
       });
 
-      it('Panic', async function () {
+      it('bubbles up panic', async function () {
         await expect(
           this.factory.$deploy(
             0n,
