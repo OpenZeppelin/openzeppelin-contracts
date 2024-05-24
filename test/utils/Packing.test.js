@@ -17,11 +17,13 @@ describe('Packing', function () {
     const second = generators.uint256() % 2n ** 128n;
     const packed = ethers.hexlify(ethers.toBeArray((first << 128n) | second));
 
-    expect(await this.mock.$asUint128x2(packed)).to.equal(packed);
+    expect(await this.mock.$asPackedBytes32(ethers.Typed.bytes32(packed))).to.equal(packed);
+    expect(await this.mock.$asPackedBytes32(ethers.Typed.uint256(packed))).to.equal(packed);
     expect(await this.mock.$asBytes32(packed)).to.equal(packed);
-    expect(await this.mock.$pack(first, second)).to.equal(packed);
-    expect(await this.mock.$split(packed)).to.deep.equal([first, second]);
-    expect(await this.mock.$first(packed)).to.equal(first);
-    expect(await this.mock.$second(packed)).to.equal(second);
+    expect(await this.mock.$asUint256(packed)).to.equal(packed);
+
+    expect(await this.mock.$pack(ethers.Typed.bytes16(first), ethers.Typed.bytes16(second))).to.equal(packed);
+    expect(await this.mock.$extract16(packed, 0x00)).to.deep.equal(first);
+    expect(await this.mock.$extract16(packed, 0x10)).to.deep.equal(second);
   });
 });
