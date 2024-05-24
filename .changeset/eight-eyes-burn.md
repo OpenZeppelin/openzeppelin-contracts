@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`GovernorCountingFlexible`: Add a governor counting module that support more flexible voting (voting with part of the weight, splitting the votes)
+`GovernorCountingFractional`: Add a governor counting module that allows distributing voting power amongst 3 options (For, Against, Abstain).

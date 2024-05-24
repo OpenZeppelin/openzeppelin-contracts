@@ -7,12 +7,17 @@ import {GovernorCountingSimple} from "./GovernorCountingSimple.sol";
 import {Math} from "../../utils/math/Math.sol";
 
 /**
- * @notice Extension of {Governor} for 3 option fractional vote counting. When voting, a delegate may split their vote
- * weight between Against/For/Abstain. This is most useful when the delegate is itself a contract, implementing its
- * own rules for voting. By allowing a contract-delegate to split its vote weight, the voting preferences of many
- * disparate token holders can be rolled up into a single vote to the Governor itself. Some example use cases include
- * voting with tokens that are held by a DeFi pool, voting from L2 with tokens held by a bridge, or voting privately
- * from a shielded pool using zero knowledge proofs.
+ * @dev Extension of {Governor} for fractional 3 option vote counting.
+ *
+ * Voters can split their voting power amongst 3 options: For, Against and Abstain.
+ * This is mostly useful when the delegate is a contract that implements its own rules for voting. These delegate-contracts
+ * can cast fractional votes according to the preferences of multiple entities delegating their voting power.
+ *
+ * Some example use cases include:
+ *
+ * * Voting from tokens that are held by a DeFi pool
+ * * Voting from an L2 with tokens held by a bridge
+ * * voting privately from a shielded pool using zero knowledge proofs.
  *
  * Based on ScopeLift's https://github.com/ScopeLift/flexible-voting/blob/master/src/GovernorCountingFractional.sol
  */
@@ -52,7 +57,7 @@ abstract contract GovernorCountingFractional is Governor {
     }
 
     /**
-     * @dev Get the number of votes cast thus far on proposal `proposalId` by account `account`. Useful for
+     * @dev Get the number of votes already cast by `account` for a proposal with `proposalId`. Useful for
      * integrations that allow delegates to cast rolling, partial votes.
      */
     function usedVotes(uint256 proposalId, address account) public view virtual returns (uint256) {
@@ -60,7 +65,7 @@ abstract contract GovernorCountingFractional is Governor {
     }
 
     /**
-     * @dev Accessor to the internal vote counts.
+     * @dev Get current distribution of votes for a given proposal.
      */
     function proposalVotes(
         uint256 proposalId
@@ -102,6 +107,10 @@ abstract contract GovernorCountingFractional is Governor {
      *
      * The sum total of the three decoded vote weights _must_ be less than or equal to the delegate's remaining weight
      * on the proposal, i.e. their checkpointed total weight minus votes already cast on the proposal.
+     *
+     * NOTE: Consider the number of votes is restricted to 128 bits. Depending on how many decimals the underlying token
+     * has, a single voter may require to split their vote into multiple transactions. For precision higher than
+     * ~30 decimals, large token holders may require an exponentially large number of transactions to cast their vote.
      *
      * See `_countVoteNominal` and `_countVoteFractional` for more details.
      */
@@ -158,17 +167,19 @@ abstract contract GovernorCountingFractional is Governor {
     /**
      * @dev Count votes with fractional weight.
      *
-     * `params` is expected to be tree packed uint128s:
+     * The `params` argument is expected to be three packed `uint128`:
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
      *
-     * This function can be called multiple times for the same account and proposal, i.e. partial/rolling votes are
-     * allowed. For example, an account with total weight of 10 could call this function three times with the
+     * This function can be called multiple times for the same account and proposal (i.e. partial/rolling votes are
+     * allowed). For example, an account with total weight of 10 could call this function three times with the
      * following vote data:
-     *   - against: 1, for: 0, abstain: 2
-     *   - against: 3, for: 1, abstain: 0
-     *   - against: 1, for: 1, abstain: 1
-     * The result of these three calls would be that the account casts 5 votes AGAINST, 2 votes FOR, and 3 votes
-     * ABSTAIN on the proposal. Though partial, votes are still final once cast and cannot be changed or overridden.
+     *
+     *   * Against: 1, For: 0, Abstain: 2
+     *   * Against: 3, For: 1, Abstain: 0
+     *   * Against: 1, For: 1, Abstain: 1
+     *
+     * Casting votes like this will make the calling account to cast a total of 5 `Against` votes, 2 `For` votes
+     * and 3 `Abstain` votes. Though partial, votes are still final once cast and cannot be changed or overridden.
      * Subsequent partial votes simply increment existing totals.
      */
     function _countVoteFractional(
