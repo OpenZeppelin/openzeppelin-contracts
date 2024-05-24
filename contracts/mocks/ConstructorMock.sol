@@ -3,6 +3,8 @@
 pragma solidity ^0.8.20;
 
 contract ConstructorMock {
+    bool foo;
+
     enum RevertType {
         None,
         RevertWithoutMessage,
@@ -14,6 +16,10 @@ contract ConstructorMock {
     error CustomError();
 
     constructor(RevertType error) {
+        // After transpilation to upgradeable contract, the constructor will become an initializer
+        // To silence the `... can be restricted to view` warning, we write to state
+        foo = true;
+
         if (error == RevertType.RevertWithoutMessage) {
             revert();
         } else if (error == RevertType.RevertWithMessage) {
