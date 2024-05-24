@@ -1106,10 +1106,18 @@ describe('AccessManager', function () {
           expect(await this.manager.isTargetClosed(this.target)).to.be.false;
         });
 
-        it('reverts if closing the manager', async function () {
-          await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
-            .to.be.revertedWithCustomError(this.manager, 'AccessManagerLockedAccount')
-            .withArgs(this.manager);
+        describe('when the target is the manager', async function () {
+          it('closes and opens the manager', async function () {
+            await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
+              .to.emit(this.manager, 'TargetClosed')
+              .withArgs(this.manager, true);
+            expect(await this.manager.isTargetClosed(this.manager)).to.be.true;
+
+            await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, false))
+              .to.emit(this.manager, 'TargetClosed')
+              .withArgs(this.manager, false);
+            expect(await this.manager.isTargetClosed(this.manager)).to.be.false;
+          });
         });
       });
 

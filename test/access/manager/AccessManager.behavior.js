@@ -197,6 +197,14 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
  * @requires this.{target,manager,roles,calldata,role}
  */
 function shouldBehaveLikeASelfRestrictedOperation() {
+  function revertUnauthorized() {
+    it('reverts as AccessManagerUnauthorizedAccount', async function () {
+      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
+        .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
+        .withArgs(this.caller, this.role?.id ?? 0n);
+    });
+  }
+
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
 
   function testScheduleOperation(mineDelay) {
@@ -218,18 +226,13 @@ function shouldBehaveLikeASelfRestrictedOperation() {
   });
 
   const isExecutingPath = LIKE_COMMON_IS_EXECUTING;
-  isExecutingPath.notExecuting = function () {
-    it('reverts as AccessManagerUnauthorizedAccount', async function () {
-      await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
-        .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedAccount')
-        .withArgs(this.caller, this.role?.id ?? 0n);
-    });
-  };
+  isExecutingPath.notExecuting = revertUnauthorized;
 
-  testAsRestrictedOperation({
-    callerIsTheManager: isExecutingPath,
-    callerIsNotTheManager() {
-      testAsHasRole({
+  testAsCanCall({
+    closed: revertUnauthorized,
+    open: {
+      callerIsTheManager: isExecutingPath,
+      callerIsNotTheManager: {
         publicRoleIsRequired() {
           it('succeeds called directly', async function () {
             await this.caller.sendTransaction({ to: this.target, data: this.calldata });
@@ -240,7 +243,7 @@ function shouldBehaveLikeASelfRestrictedOperation() {
           });
         },
         specificRoleIsRequired: getAccessPath,
-      });
+      },
     },
   });
 }

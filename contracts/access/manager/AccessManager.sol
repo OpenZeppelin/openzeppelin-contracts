@@ -412,9 +412,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetClosed} event.
      */
     function _setTargetClosed(address target, bool closed) internal virtual {
-        if (target == address(this)) {
-            revert AccessManagerLockedAccount(target);
-        }
         _targets[target].closed = closed;
         emit TargetClosed(target, closed);
     }
