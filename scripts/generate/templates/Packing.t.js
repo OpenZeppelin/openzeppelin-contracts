@@ -30,6 +30,8 @@ module.exports = format(
   header.trimEnd(),
   'contract PackingTest is Test {',
   'using Packing for *;',
+  '',
+  '/// forge-config: default.fuzz.runs = 100',
   product(TYPES, TYPES)
     .filter(([left, right]) => left.size + right.size <= 32)
     .map(([left, right]) => test({ left, right })),

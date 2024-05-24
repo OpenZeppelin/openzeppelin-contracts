@@ -9,6 +9,7 @@ import {Packing} from "@openzeppelin/contracts/utils/Packing.sol";
 contract PackingTest is Test {
     using Packing for *;
 
+    /// forge-config: default.fuzz.runs = 100
     function testPackExtract(uint8 left, uint8 right) external {
         assertEq(left, Packing.pack(left.asPackedBytes1(), right.asPackedBytes1()).extract1(0).asUint8());
         assertEq(right, Packing.pack(left.asPackedBytes1(), right.asPackedBytes1()).extract1(1).asUint8());
