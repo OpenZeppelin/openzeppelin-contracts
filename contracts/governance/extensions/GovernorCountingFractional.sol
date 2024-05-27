@@ -91,9 +91,7 @@ abstract contract GovernorCountingFractional is Governor {
     }
 
     /**
-     * @notice See {Governor-_countVote}.
-     *
-     * @dev Function that records the delegate's votes.
+     * @dev See {Governor-_countVote}. Function that records the delegate's votes.
      *
      * If the `params` bytes parameter is empty, then this module behaves identically to {GovernorCountingSimple} for
      * the remaining weight. That is, it assigns the remaining weight of the delegate to the `support` parameter,
