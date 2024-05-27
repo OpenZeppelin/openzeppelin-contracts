@@ -7,9 +7,16 @@ import {GovernorCountingSimple} from "./GovernorCountingSimple.sol";
 import {Math} from "../../utils/math/Math.sol";
 
 /**
- * @dev Extension of {Governor} for fractional 3 option vote counting.
+ * @dev Extension of {Governor} for fractional voting.
  *
- * Voters can split their voting power amongst 3 options: For, Against and Abstain.
+ * Similar to {GovernorCountingSimple}, this contract is a votes counting module for {Governor} that supports 3 options:
+ * Against, For, Abstain. Additionally, it includes a fourth option: Fractional, which allows voters to split their voting
+ * power amongst the other 3 options.
+ *
+ * Votes cast with the Fractional support must be accompanied by a `params` argument that is tree packed `uint128` values
+ * representing the weight the delegate assigns to Against, For, and Abstain respectively. For those votes cast for the other
+ * 3 options, the `params` argument must be empty.
+ *
  * This is mostly useful when the delegate is a contract that implements its own rules for voting. These delegate-contracts
  * can cast fractional votes according to the preferences of multiple entities delegating their voting power.
  *
@@ -93,13 +100,15 @@ abstract contract GovernorCountingFractional is Governor {
     /**
      * @dev See {Governor-_countVote}. Function that records the delegate's votes.
      *
-     * If the `params` bytes parameter is empty, then this module behaves identically to {GovernorCountingSimple} for
-     * the remaining weight. That is, it assigns the remaining weight of the delegate to the `support` parameter,
-     * which follows the `VoteType` enum from Governor Bravo (as defined in {GovernorCountingSimple}).
+     * Executing this function consume's the delegate's weight on the proposal. This weight can be distributed amongst
+     * the 3 options (Against, For, Abstain) by specifying a Fractional `support`.
      *
-     * If the `params` bytes parameter is not zero, then it _must_ be tree packed uint128s, totaling 48 bytes,
-     * representing the weight the delegate assigns to Against, For, and Abstain respectively. This format can be
-     * produced using:
+     * When support is anything other than Fractiona`, the `params` argument must be empty and the delegate's full remaining
+     * weight is cast for the specified `support` option, as in {GovernorCountingSimple} and following the `VoteType`
+     * enum from Governor Bravo.
+     *
+     * Given a Fractional `support`, the `params` argument must be tree packed `uint128` values representing the weight
+     * the delegate assigns to Against, For, and Abstain respectively. This format can be produced using:
      *
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
      *

@@ -205,7 +205,7 @@ describe('GovernorCountingFractional', function () {
             .withArgs(this.voter2);
         });
 
-        it('revert if params are not properly formated #1', async function () {
+        it('revert if params are not properly formatted #1', async function () {
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot();
 
@@ -218,7 +218,7 @@ describe('GovernorCountingFractional', function () {
           ).to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVoteParams');
         });
 
-        it('revert if params are not properly formated #2', async function () {
+        it('revert if params are not properly formatted #2', async function () {
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot();
 
