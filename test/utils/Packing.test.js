@@ -43,6 +43,7 @@ describe('Packing', function () {
         const right = ethers.Typed[t2.bytes](ethers.hexlify(ethers.randomBytes(t2.size)));
         const packed = ethers.Typed[t3.bytes](ethers.concat([left.value, right.value]));
 
+        // pack, extract left and extract right
         expect(
           await Promise.all([
             this.mock.getFunction('$pack')(left, right),
@@ -50,6 +51,12 @@ describe('Packing', function () {
             this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size),
           ]),
         ).to.deep.equal([packed.value, left.value, right.value]);
+
+        // revert is extracting out of bounds
+        await expect(this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size + 1)).to.be.revertedWithCustomError(
+          this.mock,
+          'OutOfRangeAccess',
+        );
       });
     }
   });
