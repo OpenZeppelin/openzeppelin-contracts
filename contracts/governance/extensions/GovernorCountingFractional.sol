@@ -103,7 +103,7 @@ abstract contract GovernorCountingFractional is Governor {
      * Executing this function consume's the delegate's weight on the proposal. This weight can be distributed amongst
      * the 3 options (Against, For, Abstain) by specifying a Fractional `support`.
      *
-     * When support is anything other than Fractiona`, the `params` argument must be empty and the delegate's full remaining
+     * When support is anything other than Fractional, the `params` argument must be empty and the delegate's full remaining
      * weight is cast for the specified `support` option, as in {GovernorCountingSimple} and following the `VoteType`
      * enum from Governor Bravo.
      *
