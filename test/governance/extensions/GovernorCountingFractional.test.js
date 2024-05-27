@@ -109,13 +109,20 @@ describe('GovernorCountingFractional', function () {
             const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
             await expect(
               this.helper.connect(this.voter2).vote({
-                support: 0,
+                support: VoteType.Fractional,
                 reason: 'no particular reason',
                 params,
               }),
             )
               .to.emit(this.mock, 'VoteCastWithParams')
-              .withArgs(this.voter2, this.proposal.id, 0, sum(...votes), 'no particular reason', params);
+              .withArgs(
+                this.voter2,
+                this.proposal.id,
+                VoteType.Fractional,
+                sum(...votes),
+                'no particular reason',
+                params,
+              );
           }
 
           expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
@@ -137,13 +144,20 @@ describe('GovernorCountingFractional', function () {
           const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: 0,
+              support: VoteType.Fractional,
               reason: 'no particular reason',
               params,
             }),
           )
             .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(this.voter2, this.proposal.id, 0, sum(...fractional), 'no particular reason', params);
+            .withArgs(
+              this.voter2,
+              this.proposal.id,
+              VoteType.Fractional,
+              sum(...fractional),
+              'no particular reason',
+              params,
+            );
 
           await expect(this.helper.connect(this.voter2).vote({ support: VoteType.Against }))
             .to.emit(this.mock, 'VoteCast')
@@ -166,7 +180,7 @@ describe('GovernorCountingFractional', function () {
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: 0,
+              support: VoteType.Fractional,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional),
             }),
@@ -182,7 +196,7 @@ describe('GovernorCountingFractional', function () {
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: 0,
+              support: VoteType.Fractional,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], [0n, 1n, 0n]),
             }),
@@ -191,15 +205,28 @@ describe('GovernorCountingFractional', function () {
             .withArgs(this.voter2);
         });
 
-        it('revert if params are not properly formated', async function () {
+        it('revert if params are not properly formated #1', async function () {
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot();
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: 0,
+              support: VoteType.Fractional,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128'], [0n, 1n]),
+            }),
+          ).to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVoteParams');
+        });
+
+        it('revert if params are not properly formated #2', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.helper.waitForSnapshot();
+
+          await expect(
+            this.helper.connect(this.voter2).vote({
+              support: VoteType.Against,
+              reason: 'no particular reason',
+              params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], [0n, 1n, 0n]),
             }),
           ).to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVoteParams');
         });

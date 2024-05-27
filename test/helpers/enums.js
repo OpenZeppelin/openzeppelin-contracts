@@ -5,7 +5,7 @@ function Enum(...options) {
 module.exports = {
   Enum,
   ProposalState: Enum('Pending', 'Active', 'Canceled', 'Defeated', 'Succeeded', 'Queued', 'Expired', 'Executed'),
-  VoteType: Enum('Against', 'For', 'Abstain'),
+  VoteType: Enum('Against', 'For', 'Abstain', 'Fractional'),
   Rounding: Enum('Floor', 'Ceil', 'Trunc', 'Expand'),
   OperationState: Enum('Unset', 'Waiting', 'Ready', 'Done'),
   RevertType: Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic'),

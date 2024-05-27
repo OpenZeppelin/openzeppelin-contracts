@@ -125,12 +125,15 @@ abstract contract GovernorCountingFractional is Governor {
             revert GovernorAlreadyCastVote(account);
         }
 
-        if (params.length == 0) {
+        // For clarity of event indexing, fractional voting must be clearly advertised in the "support" field.
+        if (support <= uint8(GovernorCountingSimple.VoteType.Abstain)) {
+            if (params.length != 0) revert GovernorInvalidVoteParams();
             return _countVoteNominal(proposalId, account, support, remainingWeight);
-        } else if (params.length == 0x30) {
+        } else if (support == uint8(GovernorCountingSimple.VoteType.Fractional)) {
+            if (params.length != 0x30) revert GovernorInvalidVoteParams();
             return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
-            revert GovernorInvalidVoteParams();
+            revert GovernorInvalidVoteType();
         }
     }
 
@@ -155,8 +158,6 @@ abstract contract GovernorCountingFractional is Governor {
             details.forVotes += weight;
         } else if (support == uint8(GovernorCountingSimple.VoteType.Abstain)) {
             details.abstainVotes += weight;
-        } else {
-            revert GovernorInvalidVoteType();
         }
 
         return weight;
