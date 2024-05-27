@@ -1,6 +1,8 @@
 const format = require('../format-lines');
 const { capitalize, product } = require('../../helpers');
-const { TYPES } = require('./Packing.opts');
+const { TYPES, findType } = require('./Packing.opts');
+
+const PackedBytes20 = findType(20);
 
 // TEMPLATE
 const header = `\
@@ -35,6 +37,16 @@ const type = ({ type, bytes, uint }) => `\
   }
 `;
 
+const address = `\
+  function as${PackedBytes20.type}(address self) internal pure returns (${PackedBytes20.type}) {
+    return ${PackedBytes20.type}.wrap(bytes20(self));
+  }
+
+  function asAddress(${PackedBytes20.type} self) internal pure returns (address) {
+    return address(bytes20(${PackedBytes20.type}.unwrap(self)));
+  }
+`;
+
 const pack = ({ left, right, packed }) => `\
   function pack(${left.type} left, ${right.type} right) internal pure returns (${packed.type} result) {
     assembly ("memory-safe") {
@@ -58,9 +70,10 @@ module.exports = format(
   'library Packing {',
   errors,
   TYPES.map(type),
+  address,
   product(TYPES, TYPES)
     .filter(([left, right]) => left.size + right.size <= 32)
-    .map(([left, right]) => pack({ left, right, packed: TYPES.find(t => t.size == left.size + right.size) })),
+    .map(([left, right]) => pack({ left, right, packed: findType(left.size + right.size) })),
   product(TYPES, TYPES)
     .filter(([outer, inner]) => outer.size > inner.size)
     .map(([outer, inner]) => extract({ outer, inner })),

@@ -7,4 +7,7 @@ const TYPES = range(1, 33).map(size => ({
   uint: `uint${8 * size}`,
 }));
 
-module.exports = { TYPES };
+module.exports = {
+  TYPES,
+  findType: size => TYPES.find(t => t.size == size),
+};

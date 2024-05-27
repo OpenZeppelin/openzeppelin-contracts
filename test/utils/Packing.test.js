@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { forceDeployCode } = require('../helpers/deploy');
 const { product } = require('../helpers/iterate');
 const { capitalize } = require('../helpers/strings');
-const { TYPES } = require('../../scripts/generate/templates/Packing.opts');
+const { TYPES, findType } = require('../../scripts/generate/templates/Packing.opts');
 
 async function fixture() {
   return { mock: await forceDeployCode('$Packing') };
@@ -18,46 +18,66 @@ describe('Packing', function () {
 
   describe('casting', function () {
     for (const { size, bytes, uint } of TYPES) {
-      it(`Packed${capitalize(bytes)}`, async function () {
-        const valueAsBytes = ethers.Typed[bytes](ethers.hexlify(ethers.randomBytes(size)));
-        const valueAsUint = ethers.Typed[uint](ethers.toBigInt(valueAsBytes.value));
+      const valueAsBytes = ethers.Typed[bytes](ethers.hexlify(ethers.randomBytes(size)));
+      const valueAsUint = ethers.Typed[uint](ethers.toBigInt(valueAsBytes.value));
 
-        expect(
-          await Promise.all([
-            this.mock.getFunction(`$asPacked${capitalize(bytes)}`)(valueAsBytes),
-            this.mock.getFunction(`$asPacked${capitalize(bytes)}`)(valueAsUint),
-            this.mock.getFunction(`$as${capitalize(bytes)}`)(valueAsBytes),
-            this.mock.getFunction(`$as${capitalize(uint)}`)(valueAsBytes),
-          ]),
-        ).to.deep.equal([valueAsBytes.value, valueAsBytes.value, valueAsBytes.value, valueAsUint.value]);
+      it(`Packed${capitalize(bytes)}`, async function () {
+        this.values = [
+          {
+            promise: this.mock.getFunction(`$asPacked${capitalize(bytes)}`)(valueAsBytes),
+            expected: valueAsBytes.value,
+          },
+          {
+            promise: this.mock.getFunction(`$asPacked${capitalize(bytes)}`)(valueAsUint),
+            expected: valueAsBytes.value,
+          },
+          { promise: this.mock.getFunction(`$as${capitalize(bytes)}`)(valueAsBytes), expected: valueAsBytes.value },
+          { promise: this.mock.getFunction(`$as${capitalize(uint)}`)(valueAsBytes), expected: valueAsUint.value },
+        ];
+
+        if (size == 20) {
+          const valueAsAddress = ethers.Typed.address(valueAsBytes.value);
+          this.values.push(
+            {
+              promise: this.mock.getFunction(`$asPacked${capitalize(bytes)}`)(valueAsAddress),
+              expected: valueAsBytes.value,
+            },
+            { promise: this.mock.getFunction('$asAddress')(valueAsBytes), expected: valueAsAddress.value },
+          );
+        }
       });
     }
   });
 
   describe('pack and extract', function () {
-    for (const [t1, t2] of product(TYPES, TYPES).filter(([t1, t2]) => t1.size + t2.size <= 32)) {
-      const t3 = TYPES.find(t => t.size == t1.size + t2.size);
+    for (const [t1, t2] of product(TYPES, TYPES)) {
+      const t3 = findType(t1.size + t2.size);
+      if (t3 == undefined) continue;
+
+      const left = ethers.Typed[t1.bytes](ethers.hexlify(ethers.randomBytes(t1.size)));
+      const right = ethers.Typed[t2.bytes](ethers.hexlify(ethers.randomBytes(t2.size)));
+      const packed = ethers.Typed[t3.bytes](ethers.concat([left.value, right.value]));
 
       it(`${t1.bytes} + ${t2.bytes} <> ${t3.bytes}`, async function () {
-        const left = ethers.Typed[t1.bytes](ethers.hexlify(ethers.randomBytes(t1.size)));
-        const right = ethers.Typed[t2.bytes](ethers.hexlify(ethers.randomBytes(t2.size)));
-        const packed = ethers.Typed[t3.bytes](ethers.concat([left.value, right.value]));
+        this.values = [
+          { promise: this.mock.getFunction('$pack')(left, right), expected: packed.value },
+          { promise: this.mock.getFunction(`$extract${t1.size}`)(packed, 0), expected: left.value },
+          { promise: this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size), expected: right.value },
+        ];
+      });
 
-        // pack, extract left and extract right
-        expect(
-          await Promise.all([
-            this.mock.getFunction('$pack')(left, right),
-            this.mock.getFunction(`$extract${t1.size}`)(packed, 0),
-            this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size),
-          ]),
-        ).to.deep.equal([packed.value, left.value, right.value]);
-
-        // revert if extracting out of bounds
+      it(`out of range extraction`, async function () {
         await expect(this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size + 1)).to.be.revertedWithCustomError(
           this.mock,
           'OutOfRangeAccess',
         );
       });
     }
+  });
+
+  afterEach(async function () {
+    expect(await Promise.all((this.values ?? []).map(({ promise }) => promise))).to.deep.equal(
+      (this.values ?? []).map(({ expected }) => expected),
+    );
   });
 });

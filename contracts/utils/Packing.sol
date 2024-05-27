@@ -585,6 +585,14 @@ library Packing {
         return uint256(PackedBytes32.unwrap(self));
     }
 
+    function asPackedBytes20(address self) internal pure returns (PackedBytes20) {
+        return PackedBytes20.wrap(bytes20(self));
+    }
+
+    function asAddress(PackedBytes20 self) internal pure returns (address) {
+        return address(bytes20(PackedBytes20.unwrap(self)));
+    }
+
     function pack(PackedBytes1 left, PackedBytes1 right) internal pure returns (PackedBytes2 result) {
         assembly ("memory-safe") {
             result := or(left, shr(8, right))
