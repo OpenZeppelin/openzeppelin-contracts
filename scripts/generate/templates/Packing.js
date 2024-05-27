@@ -64,6 +64,21 @@ const extract = ({ outer, inner }) => `\
   }
 `;
 
+const replace = ({ outer, inner }) => `\
+  function replace(
+    ${outer.type} self,
+    ${inner.type} value,
+    uint8 offset
+  ) internal pure returns (${outer.type} result) {
+    if (offset > ${outer.size - inner.size}) revert OutOfRangeAccess();
+    assembly ("memory-safe") {
+      result := or(and(self, not(shr(mul(8, offset), shl(${
+        256 - 8 * inner.size
+      }, not(0))))), shr(mul(8, offset), value))
+    }
+  }
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -76,6 +91,6 @@ module.exports = format(
     .map(([left, right]) => pack({ left, right, packed: findType(left.size + right.size) })),
   product(TYPES, TYPES)
     .filter(([outer, inner]) => outer.size > inner.size)
-    .map(([outer, inner]) => extract({ outer, inner })),
+    .flatMap(([outer, inner]) => [extract({ outer, inner }), replace({ outer, inner })]),
   '}',
 );

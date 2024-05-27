@@ -3576,10 +3576,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes2 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes2 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes3 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(PackedBytes3 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes3 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3590,10 +3604,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes3 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes3 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes4 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(PackedBytes4 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes4 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3604,10 +3632,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes4 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes4 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes4 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(PackedBytes4 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes4 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3618,10 +3660,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes5 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes5 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes5 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(PackedBytes5 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes5 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3632,10 +3688,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes5 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes5 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes5 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(PackedBytes5 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes5 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3646,10 +3716,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes6 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes6 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes6 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(PackedBytes6 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes6 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3660,10 +3744,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes6 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes6 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes6 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(PackedBytes6 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes6 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3674,10 +3772,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes6 self, PackedBytes5 value, uint8 offset) internal pure returns (PackedBytes6 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes7 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(PackedBytes7 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3688,10 +3800,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes7 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes7 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(PackedBytes7 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3702,10 +3828,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes7 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes7 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(PackedBytes7 self, PackedBytes5 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3716,10 +3856,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes7 self, PackedBytes6 value, uint8 offset) internal pure returns (PackedBytes7 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(PackedBytes8 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3730,10 +3884,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes8 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(PackedBytes8 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3744,10 +3912,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes8 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(PackedBytes8 self, PackedBytes5 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3758,10 +3940,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes8 self, PackedBytes6 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(PackedBytes8 self, PackedBytes7 value, uint8 offset) internal pure returns (PackedBytes8 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3772,10 +3968,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes9 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes9 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(PackedBytes9 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3786,10 +3996,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes9 self, PackedBytes3 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes9 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(PackedBytes9 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3800,10 +4024,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes9 self, PackedBytes5 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes9 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(PackedBytes9 self, PackedBytes6 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3814,10 +4052,24 @@ library Packing {
         }
     }
 
+    function replace(PackedBytes9 self, PackedBytes7 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes9 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(PackedBytes9 self, PackedBytes8 value, uint8 offset) internal pure returns (PackedBytes9 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3828,10 +4080,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes10 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes10 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes10 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3842,10 +4116,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes10 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes10 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes10 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3856,10 +4152,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes10 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes10 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes10 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3870,10 +4188,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes10 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes10 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes10 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3884,10 +4224,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes10 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes10 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes11 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes11 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3898,10 +4260,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes11 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes11 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes11 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3912,10 +4296,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes11 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes11 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes11 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3926,10 +4332,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes11 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes11 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes11 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3940,10 +4368,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes11 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes11 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes11 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3954,10 +4404,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes11 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes11 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3968,10 +4440,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes12 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3982,10 +4476,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes12 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -3996,10 +4512,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes12 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4010,10 +4548,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes12 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4024,10 +4584,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes12 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes12 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes12 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4038,10 +4620,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4052,10 +4656,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4066,10 +4692,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4080,10 +4728,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4094,10 +4764,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4108,10 +4800,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes13 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes13 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes13 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes13 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4122,10 +4836,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4136,10 +4872,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4150,10 +4908,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4164,10 +4944,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4178,10 +4980,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4192,10 +5016,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes14 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes14 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4206,10 +5052,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes14 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes14 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4220,10 +5088,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4234,10 +5124,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4248,10 +5160,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4262,10 +5196,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4276,10 +5232,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4290,10 +5268,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes15 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes15 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4304,10 +5304,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes15 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes15 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4318,10 +5340,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4332,10 +5376,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4346,10 +5412,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4360,10 +5448,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4374,10 +5484,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4388,10 +5520,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4402,10 +5556,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes16 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes16 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes16 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4416,10 +5592,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4430,10 +5628,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4444,10 +5664,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4458,10 +5700,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4472,10 +5736,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4486,10 +5772,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4500,10 +5808,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4514,10 +5844,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes17 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes17 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes17 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes17 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4528,10 +5880,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4542,10 +5916,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4556,10 +5952,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4570,10 +5988,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4584,10 +6024,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4598,10 +6060,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4612,10 +6096,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4626,10 +6132,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes18 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes18 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4640,10 +6168,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes18 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes18 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4654,10 +6204,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4668,10 +6240,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4682,10 +6276,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4696,10 +6312,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4710,10 +6348,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4724,10 +6384,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4738,10 +6420,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4752,10 +6456,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes19 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes19 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4766,10 +6492,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes19 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes19 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4780,10 +6528,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4794,10 +6564,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4808,10 +6600,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4822,10 +6636,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4836,10 +6672,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4850,10 +6708,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4864,10 +6744,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4878,10 +6780,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4892,10 +6816,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes20 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes20 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes20 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4906,10 +6852,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4920,10 +6888,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4934,10 +6924,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4948,10 +6960,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4962,10 +6996,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4976,10 +7032,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -4990,10 +7068,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5004,10 +7104,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5018,10 +7140,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5032,10 +7176,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes21 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes21 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes21 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes21 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5046,10 +7212,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5060,10 +7248,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5074,10 +7284,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5088,10 +7320,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5102,10 +7356,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5116,10 +7392,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5130,10 +7428,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5144,10 +7464,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5158,10 +7500,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5172,10 +7536,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes22 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes22 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5186,10 +7572,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes22 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes22 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5200,10 +7608,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5214,10 +7644,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5228,10 +7680,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5242,10 +7716,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5256,10 +7752,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5270,10 +7788,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5284,10 +7824,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5298,10 +7860,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5312,10 +7896,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5326,10 +7932,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes23 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes23 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5340,10 +7968,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes23 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes23 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5354,10 +8004,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 21) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5368,10 +8040,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5382,10 +8076,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5396,10 +8112,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5410,10 +8148,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5424,10 +8184,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5438,10 +8220,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5452,10 +8256,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5466,10 +8292,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5480,10 +8328,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5494,10 +8364,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes24 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract23(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes23 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(72, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes24 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes24 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5508,10 +8400,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5522,10 +8436,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 21) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5536,10 +8472,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5550,10 +8508,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5564,10 +8544,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5578,10 +8580,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5592,10 +8616,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5606,10 +8652,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5620,10 +8688,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5634,10 +8724,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5648,10 +8760,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract22(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes22 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(80, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5662,10 +8796,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes25 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract24(PackedBytes25 self, uint8 offset) internal pure returns (PackedBytes24 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes25 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes25 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5676,10 +8832,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5690,10 +8868,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5704,10 +8904,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5718,10 +8940,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5732,10 +8976,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5746,10 +9012,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5760,10 +9048,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5774,10 +9084,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5788,10 +9120,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5802,10 +9156,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5816,10 +9192,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract22(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes22 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(80, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5830,10 +9228,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract24(PackedBytes26 self, uint8 offset) internal pure returns (PackedBytes24 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes26 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5844,10 +9264,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes26 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes26 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 26) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5858,10 +9300,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5872,10 +9336,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5886,10 +9372,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5900,10 +9408,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5914,10 +9444,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5928,10 +9480,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5942,10 +9516,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5956,10 +9552,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5970,10 +9588,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5984,10 +9624,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -5998,10 +9660,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract23(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes23 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(72, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6012,10 +9696,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract25(PackedBytes27 self, uint8 offset) internal pure returns (PackedBytes25 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(56, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes27 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6026,10 +9732,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes27 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes27 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 27) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 27) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6040,10 +9768,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 25) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6054,10 +9804,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6068,10 +9840,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 21) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6082,10 +9876,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6096,10 +9912,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6110,10 +9948,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6124,10 +9984,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6138,10 +10020,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6152,10 +10056,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6166,10 +10092,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6180,10 +10128,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract23(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes23 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(72, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6194,10 +10164,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract25(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes25 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(56, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6208,10 +10200,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes28 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract27(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes27 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(40, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes28 self,
+        PackedBytes27 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes28 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(40, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6222,10 +10236,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 28) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 27) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 27) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6236,10 +10272,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 25) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6250,10 +10308,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6264,10 +10344,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 21) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6278,10 +10380,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6292,10 +10416,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6306,10 +10452,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6320,10 +10488,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6334,10 +10524,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6348,10 +10560,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6362,10 +10596,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract22(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes22 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(80, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6376,10 +10632,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract24(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes24 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6390,10 +10668,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract26(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes26 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(48, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6404,10 +10704,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes29 self,
+        PackedBytes27 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(40, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract28(PackedBytes29 self, uint8 offset) internal pure returns (PackedBytes28 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(32, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes29 self,
+        PackedBytes28 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes29 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(32, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6418,10 +10740,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 29) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract2(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes2 result) {
         if (offset > 28) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 28) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6432,10 +10776,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 27) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract4(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes4 result) {
         if (offset > 26) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6446,10 +10812,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract6(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes6 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(208, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6460,10 +10848,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract8(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes8 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6474,10 +10884,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract10(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes10 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(176, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6488,10 +10920,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract12(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes12 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6502,10 +10956,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract14(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes14 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(144, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6516,10 +10992,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract16(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes16 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6530,10 +11028,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract18(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes18 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(112, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6544,10 +11064,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract20(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes20 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6558,10 +11100,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract22(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes22 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(80, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6572,10 +11136,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract24(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes24 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6586,10 +11172,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract26(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes26 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(48, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6600,10 +11208,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes27 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(40, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract28(PackedBytes30 self, uint8 offset) internal pure returns (PackedBytes28 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(32, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes30 self,
+        PackedBytes28 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(32, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6614,10 +11244,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes30 self,
+        PackedBytes29 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes30 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(24, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 30) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 30) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6628,10 +11280,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 29) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 28) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 28) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6642,10 +11316,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 27) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 26) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6656,10 +11352,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6670,10 +11388,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6684,10 +11424,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6698,10 +11460,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6712,10 +11496,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6726,10 +11532,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6740,10 +11568,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6754,10 +11604,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6768,10 +11640,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract23(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes23 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(72, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6782,10 +11676,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract25(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes25 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(56, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6796,10 +11712,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract27(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes27 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(40, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes27 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(40, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6810,10 +11748,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes28 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(32, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract29(PackedBytes31 self, uint8 offset) internal pure returns (PackedBytes29 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(24, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes31 self,
+        PackedBytes29 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(24, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6824,10 +11784,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes31 self,
+        PackedBytes30 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes31 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(16, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract1(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes1 result) {
         if (offset > 31) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes1 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 31) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6838,10 +11820,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes2 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 30) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract3(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes3 result) {
         if (offset > 29) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(232, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes3 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 29) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(232, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6852,10 +11856,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes4 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 28) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract5(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes5 result) {
         if (offset > 27) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(216, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes5 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 27) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(216, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6866,10 +11892,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes6 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 26) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(208, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract7(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes7 result) {
         if (offset > 25) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(200, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes7 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 25) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(200, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6880,10 +11928,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes8 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 24) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract9(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes9 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(184, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes9 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 23) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(184, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6894,10 +11964,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes10 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 22) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(176, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract11(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes11 result) {
         if (offset > 21) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(168, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes11 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 21) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(168, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6908,10 +12000,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes12 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 20) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract13(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes13 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(152, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes13 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 19) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(152, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6922,10 +12036,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes14 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 18) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(144, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract15(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes15 result) {
         if (offset > 17) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(136, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes15 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 17) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(136, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6936,10 +12072,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes16 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 16) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract17(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes17 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(120, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes17 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 15) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(120, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6950,10 +12108,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes18 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 14) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(112, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract19(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes19 result) {
         if (offset > 13) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(104, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes19 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 13) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(104, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6964,10 +12144,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes20 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 12) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract21(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes21 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(88, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes21 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 11) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(88, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6978,10 +12180,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes22 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 10) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(80, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract23(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes23 result) {
         if (offset > 9) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(72, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes23 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 9) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(72, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -6992,10 +12216,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes24 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 8) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract25(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes25 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(56, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes25 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 7) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(56, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -7006,10 +12252,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes26 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 6) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(48, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract27(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes27 result) {
         if (offset > 5) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(40, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes27 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 5) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(40, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -7020,10 +12288,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes28 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 4) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(32, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract29(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes29 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(24, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes29 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 3) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(24, not(0))))), shr(mul(8, offset), value))
         }
     }
 
@@ -7034,10 +12324,32 @@ library Packing {
         }
     }
 
+    function replace(
+        PackedBytes32 self,
+        PackedBytes30 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 2) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(16, not(0))))), shr(mul(8, offset), value))
+        }
+    }
+
     function extract31(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes31 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(8, not(0)))
+        }
+    }
+
+    function replace(
+        PackedBytes32 self,
+        PackedBytes31 value,
+        uint8 offset
+    ) internal pure returns (PackedBytes32 result) {
+        if (offset > 1) revert OutOfRangeAccess();
+        assembly ("memory-safe") {
+            result := or(and(self, not(shr(mul(8, offset), shl(8, not(0))))), shr(mul(8, offset), value))
         }
     }
 }
