@@ -44,6 +44,11 @@ library Create2 {
         /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
+            // if no address was created, and returndata is not empty, bubble revert
+            if and(iszero(addr), not(iszero(returndatasize()))) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
         }
         if (addr == address(0)) {
             revert Errors.FailedDeployment();
