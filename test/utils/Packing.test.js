@@ -52,7 +52,7 @@ describe('Packing', function () {
           ]),
         ).to.deep.equal([packed.value, left.value, right.value]);
 
-        // revert is extracting out of bounds
+        // revert if extracting out of bounds
         await expect(this.mock.getFunction(`$extract${t2.size}`)(packed, t1.size + 1)).to.be.revertedWithCustomError(
           this.mock,
           'OutOfRangeAccess',

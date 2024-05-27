@@ -145,7 +145,7 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev Emitted when a vote is cast with params.
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
+     * `params` are additional encoded parameters. Their interpretation  also depends on the voting module used.
      */
     event VoteCastWithParams(
         address indexed voter,
