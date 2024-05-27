@@ -19,7 +19,7 @@ import {Math} from "../../utils/math/Math.sol";
  * * Voting from an L2 with tokens held by a bridge
  * * voting privately from a shielded pool using zero knowledge proofs.
  *
- * Based on ScopeLift's https://github.com/ScopeLift/flexible-voting/blob/master/src/GovernorCountingFractional.sol
+ * Based on ScopeLift's https://github.com/ScopeLift/flexible-voting/blob/e5de2efd1368387b840931f19f3c184c85842761/src/GovernorCountingFractional.sol
  */
 abstract contract GovernorCountingFractional is Governor {
     using Math for *;
