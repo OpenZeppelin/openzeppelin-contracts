@@ -71,7 +71,7 @@ describe('GovernorCountingFractional', function () {
         expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
-        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo&quorum=for,abstain&params=fractional');
+        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo,params&quorum=for,abstain&params=fractional');
       });
 
       it('nominal is unaffected', async function () {
