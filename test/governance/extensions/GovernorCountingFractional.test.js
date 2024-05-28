@@ -109,7 +109,7 @@ describe('GovernorCountingFractional', function () {
             const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
             await expect(
               this.helper.connect(this.voter2).vote({
-                support: VoteType.Fractional,
+                support: VoteType.Parameters,
                 reason: 'no particular reason',
                 params,
               }),
@@ -118,7 +118,7 @@ describe('GovernorCountingFractional', function () {
               .withArgs(
                 this.voter2,
                 this.proposal.id,
-                VoteType.Fractional,
+                VoteType.Parameters,
                 sum(...votes),
                 'no particular reason',
                 params,
@@ -144,7 +144,7 @@ describe('GovernorCountingFractional', function () {
           const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: VoteType.Fractional,
+              support: VoteType.Parameters,
               reason: 'no particular reason',
               params,
             }),
@@ -153,7 +153,7 @@ describe('GovernorCountingFractional', function () {
             .withArgs(
               this.voter2,
               this.proposal.id,
-              VoteType.Fractional,
+              VoteType.Parameters,
               sum(...fractional),
               'no particular reason',
               params,
@@ -180,7 +180,7 @@ describe('GovernorCountingFractional', function () {
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: VoteType.Fractional,
+              support: VoteType.Parameters,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional),
             }),
@@ -196,7 +196,7 @@ describe('GovernorCountingFractional', function () {
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: VoteType.Fractional,
+              support: VoteType.Parameters,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128', 'uint128'], [0n, 1n, 0n]),
             }),
@@ -211,7 +211,7 @@ describe('GovernorCountingFractional', function () {
 
           await expect(
             this.helper.connect(this.voter2).vote({
-              support: VoteType.Fractional,
+              support: VoteType.Parameters,
               reason: 'no particular reason',
               params: ethers.solidityPacked(['uint128', 'uint128'], [0n, 1n]),
             }),

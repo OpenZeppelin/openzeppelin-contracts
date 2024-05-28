@@ -15,8 +15,7 @@ abstract contract GovernorCountingSimple is Governor {
     enum VoteType {
         Against,
         For,
-        Abstain,
-        Fractional
+        Abstain
     }
 
     struct ProposalVote {

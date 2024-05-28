@@ -135,10 +135,14 @@ abstract contract GovernorCountingFractional is Governor {
         }
 
         // For clarity of event indexing, fractional voting must be clearly advertised in the "support" field.
+        //
+        // Supported `support` value must be:
+        // - "Full" voting: `support = 0` (Against), `1` (For) or `2` (Abstain), with empty params.
+        // - "Fractional" voting: `support = 255`, with 48 bytes params.
         if (support <= uint8(GovernorCountingSimple.VoteType.Abstain)) {
             if (params.length != 0) revert GovernorInvalidVoteParams();
             return _countVoteNominal(proposalId, account, support, remainingWeight);
-        } else if (support == uint8(GovernorCountingSimple.VoteType.Fractional)) {
+        } else if (support == type(uint8).max) {
             if (params.length != 0x30) revert GovernorInvalidVoteParams();
             return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
