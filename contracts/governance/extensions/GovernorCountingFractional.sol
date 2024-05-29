@@ -145,7 +145,6 @@ abstract contract GovernorCountingFractional is Governor {
             if (params.length != 0) revert GovernorInvalidVoteParams();
             return _countVoteNominal(proposalId, account, support, remainingWeight);
         } else if (support == VOTE_TYPE_FRACTIONAL) {
-            if (params.length != 0x30) revert GovernorInvalidVoteParams();
             return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
             revert GovernorInvalidVoteType();
@@ -202,9 +201,7 @@ abstract contract GovernorCountingFractional is Governor {
         bytes memory params,
         uint256 weight
     ) private returns (uint256) {
-        uint128 againstVotes = _extractUint128(params, 0);
-        uint128 forVotes = _extractUint128(params, 1);
-        uint128 abstainVotes = _extractUint128(params, 2);
+        (uint128 againstVotes, uint128 forVotes, uint128 abstainVotes) = _unpackParams(params);
 
         uint256 usedWeight = againstVotes + forVotes + abstainVotes;
         if (usedWeight > weight) {
@@ -226,9 +223,18 @@ abstract contract GovernorCountingFractional is Governor {
         return usedWeight;
     }
 
-    function _extractUint128(bytes memory data, uint256 pos) private pure returns (uint128 result) {
-        assembly {
-            result := shr(128, mload(add(data, add(0x20, mul(0x10, pos)))))
+    function _unpackParams(
+        bytes memory data
+    ) private pure returns (uint128 againstVotes, uint128 forVotes, uint128 abstainVotes) {
+        if (data.length != 0x30) {
+            revert GovernorInvalidVoteParams();
+        }
+
+        assembly ("memory-safe") {
+            let ptr := add(data, 0x20)
+            againstVotes := shr(128, mload(ptr))
+            forVotes := shr(128, mload(add(ptr, 0x10)))
+            abstainVotes := shr(128, mload(add(ptr, 0x20)))
         }
     }
 }
