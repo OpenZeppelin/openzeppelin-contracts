@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const { capitalize, product } = require('../../helpers');
-const { TYPES } = require('./Packing.opts');
+const { TYPES, findType } = require('./Packing.opts');
 
 // TEMPLATE
 const header = `\
@@ -33,7 +33,7 @@ module.exports = format(
   '',
   '/// forge-config: default.fuzz.runs = 100',
   product(TYPES, TYPES)
-    .filter(([left, right]) => left.size + right.size <= 32)
+    .filter(([left, right]) => findType(left.size + right.size))
     .map(([left, right]) => test({ left, right })),
   '}',
 );

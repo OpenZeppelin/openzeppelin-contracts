@@ -87,7 +87,7 @@ module.exports = format(
   TYPES.map(type),
   address,
   product(TYPES, TYPES)
-    .filter(([left, right]) => left.size + right.size <= 32)
+    .filter(([left, right]) => findType(left.size + right.size))
     .map(([left, right]) => pack({ left, right, packed: findType(left.size + right.size) })),
   product(TYPES, TYPES)
     .filter(([outer, inner]) => outer.size > inner.size)
