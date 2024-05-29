@@ -31,6 +31,8 @@ import {Math} from "../../utils/math/Math.sol";
 abstract contract GovernorCountingFractional is Governor {
     using Math for *;
 
+    uint8 internal constant VOTE_TYPE_FRACTIONAL = 255;
+
     struct ProposalVote {
         uint256 againstVotes;
         uint256 forVotes;
@@ -53,7 +55,7 @@ abstract contract GovernorCountingFractional is Governor {
      */
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
-        return "support=bravo,params&quorum=for,abstain&params=fractional";
+        return "support=bravo,fractional&quorum=for,abstain&params=fractional";
     }
 
     /**
@@ -142,7 +144,7 @@ abstract contract GovernorCountingFractional is Governor {
         if (support <= uint8(GovernorCountingSimple.VoteType.Abstain)) {
             if (params.length != 0) revert GovernorInvalidVoteParams();
             return _countVoteNominal(proposalId, account, support, remainingWeight);
-        } else if (support == type(uint8).max) {
+        } else if (support == VOTE_TYPE_FRACTIONAL) {
             if (params.length != 0x30) revert GovernorInvalidVoteParams();
             return _countVoteFractional(proposalId, account, params, remainingWeight);
         } else {
