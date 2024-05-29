@@ -13,7 +13,7 @@ import {Math} from "../../utils/math/Math.sol";
  * Against, For, Abstain. Additionally, it includes a fourth option: Fractional, which allows voters to split their voting
  * power amongst the other 3 options.
  *
- * Votes cast with the Fractional support must be accompanied by a `params` argument that is tree packed `uint128` values
+ * Votes cast with the Fractional support must be accompanied by a `params` argument that is three packed `uint128` values
  * representing the weight the delegate assigns to Against, For, and Abstain respectively. For those votes cast for the other
  * 3 options, the `params` argument must be empty.
  *
