@@ -385,9 +385,9 @@ library Packing {
     }
 
     function replace(PackedBytes2 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes2 result) {
-        if (offset > 1) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -399,9 +399,9 @@ library Packing {
     }
 
     function replace(PackedBytes4 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes4 result) {
-        if (offset > 3) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -413,9 +413,9 @@ library Packing {
     }
 
     function replace(PackedBytes4 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes4 result) {
-        if (offset > 2) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -427,9 +427,9 @@ library Packing {
     }
 
     function replace(PackedBytes8 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        if (offset > 7) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -441,9 +441,9 @@ library Packing {
     }
 
     function replace(PackedBytes8 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        if (offset > 6) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -455,9 +455,9 @@ library Packing {
     }
 
     function replace(PackedBytes8 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -473,9 +473,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes12 result) {
-        if (offset > 11) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -491,9 +491,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes12 result) {
-        if (offset > 10) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -509,9 +509,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes12 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -527,9 +527,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes12 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -545,9 +545,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes16 result) {
-        if (offset > 15) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -563,9 +563,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes16 result) {
-        if (offset > 14) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -581,9 +581,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes16 result) {
-        if (offset > 12) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -599,9 +599,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes16 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -617,9 +617,9 @@ library Packing {
         PackedBytes12 value,
         uint8 offset
     ) internal pure returns (PackedBytes16 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes12 oldValue = extract12(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -635,9 +635,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 19) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -653,9 +653,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 18) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -671,9 +671,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 16) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -689,9 +689,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 12) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -707,9 +707,9 @@ library Packing {
         PackedBytes12 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes12 oldValue = extract12(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -725,9 +725,9 @@ library Packing {
         PackedBytes16 value,
         uint8 offset
     ) internal pure returns (PackedBytes20 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes16 oldValue = extract16(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -743,9 +743,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 23) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -761,9 +761,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 22) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -779,9 +779,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 20) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -797,9 +797,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 16) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -815,9 +815,9 @@ library Packing {
         PackedBytes12 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 12) revert OutOfRangeAccess();
+        PackedBytes12 oldValue = extract12(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -833,9 +833,9 @@ library Packing {
         PackedBytes16 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes16 oldValue = extract16(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -851,9 +851,9 @@ library Packing {
         PackedBytes20 value,
         uint8 offset
     ) internal pure returns (PackedBytes24 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes20 oldValue = extract20(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -869,9 +869,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 27) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -887,9 +887,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 26) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -905,9 +905,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 24) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -923,9 +923,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 20) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -941,9 +941,9 @@ library Packing {
         PackedBytes12 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 16) revert OutOfRangeAccess();
+        PackedBytes12 oldValue = extract12(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -959,9 +959,9 @@ library Packing {
         PackedBytes16 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 12) revert OutOfRangeAccess();
+        PackedBytes16 oldValue = extract16(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -977,9 +977,9 @@ library Packing {
         PackedBytes20 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes20 oldValue = extract20(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -995,9 +995,9 @@ library Packing {
         PackedBytes24 value,
         uint8 offset
     ) internal pure returns (PackedBytes28 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes24 oldValue = extract24(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1013,9 +1013,9 @@ library Packing {
         PackedBytes1 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 31) revert OutOfRangeAccess();
+        PackedBytes1 oldValue = extract1(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(248, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1031,9 +1031,9 @@ library Packing {
         PackedBytes2 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 30) revert OutOfRangeAccess();
+        PackedBytes2 oldValue = extract2(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(240, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1049,9 +1049,9 @@ library Packing {
         PackedBytes4 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 28) revert OutOfRangeAccess();
+        PackedBytes4 oldValue = extract4(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(224, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1067,9 +1067,9 @@ library Packing {
         PackedBytes8 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 24) revert OutOfRangeAccess();
+        PackedBytes8 oldValue = extract8(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(192, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1085,9 +1085,9 @@ library Packing {
         PackedBytes12 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 20) revert OutOfRangeAccess();
+        PackedBytes12 oldValue = extract12(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(160, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1103,9 +1103,9 @@ library Packing {
         PackedBytes16 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 16) revert OutOfRangeAccess();
+        PackedBytes16 oldValue = extract16(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(128, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1121,9 +1121,9 @@ library Packing {
         PackedBytes20 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 12) revert OutOfRangeAccess();
+        PackedBytes20 oldValue = extract20(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(96, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1139,9 +1139,9 @@ library Packing {
         PackedBytes24 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 8) revert OutOfRangeAccess();
+        PackedBytes24 oldValue = extract24(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(64, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
@@ -1157,9 +1157,9 @@ library Packing {
         PackedBytes28 value,
         uint8 offset
     ) internal pure returns (PackedBytes32 result) {
-        if (offset > 4) revert OutOfRangeAccess();
+        PackedBytes28 oldValue = extract28(self, offset);
         assembly ("memory-safe") {
-            result := or(and(self, not(shr(mul(8, offset), shl(32, not(0))))), shr(mul(8, offset), value))
+            result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 }

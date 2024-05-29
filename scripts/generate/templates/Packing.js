@@ -70,11 +70,9 @@ const replace = ({ outer, inner }) => `\
     ${inner.type} value,
     uint8 offset
   ) internal pure returns (${outer.type} result) {
-    if (offset > ${outer.size - inner.size}) revert OutOfRangeAccess();
+    ${inner.type} oldValue = extract${inner.size}(self, offset);
     assembly ("memory-safe") {
-      result := or(and(self, not(shr(mul(8, offset), shl(${
-        256 - 8 * inner.size
-      }, not(0))))), shr(mul(8, offset), value))
+      result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
     }
   }
 `;

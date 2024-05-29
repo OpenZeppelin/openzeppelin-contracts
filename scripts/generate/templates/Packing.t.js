@@ -10,8 +10,8 @@ import {Test} from "forge-std/Test.sol";
 import {Packing} from "@openzeppelin/contracts/utils/Packing.sol";
 `;
 
-const test = ({ left, right }) => `\
-  function testPackExtract(${left.uint} left, ${right.uint} right) external {
+const testPack = ({ left, right }) => `\
+  function testPack(${left.uint} left, ${right.uint} right) external {
     assertEq(
       left,
       Packing.pack(left.as${left.type}(), right.as${right.type}()).extract${left.size}(0).as${capitalize(left.uint)}()
@@ -25,15 +25,34 @@ const test = ({ left, right }) => `\
   }
 `;
 
+const testReplace = ({ outer, inner }) => `\
+  function testReplace(${outer.uint} outer, ${inner.uint} inner, uint8 offset) external {
+    offset = uint8(bound(offset, 0, ${outer.size - inner.size}));
+
+    Packing.${outer.type} container = outer.as${outer.type}();
+    Packing.${inner.type} newValue = inner.as${inner.type}();
+    Packing.${inner.type} oldValue = container.extract${inner.size}(offset);
+
+    assertEq(container.replace(newValue, offset).extract${inner.size}(offset).as${capitalize(
+      inner.uint,
+    )}(), newValue.as${capitalize(inner.uint)}());
+    assertEq(container.replace(newValue, offset).replace(oldValue, offset).as${capitalize(
+      outer.uint,
+    )}(), container.as${capitalize(outer.uint)}());
+  }
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'contract PackingTest is Test {',
   'using Packing for *;',
   '',
-  '/// forge-config: default.fuzz.runs = 100',
   product(TYPES, TYPES)
     .filter(([left, right]) => findType(left.size + right.size))
-    .map(([left, right]) => test({ left, right })),
+    .map(([left, right]) => testPack({ left, right })),
+  product(TYPES, TYPES)
+    .filter(([outer, inner]) => outer.size > inner.size)
+    .map(([outer, inner]) => testReplace({ outer, inner })),
   '}',
 );
