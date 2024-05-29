@@ -6,1158 +6,815 @@ pragma solidity ^0.8.20;
 /**
  * @dev Helper library packing and unpacking multiple values into bytesXX.
  */
+// solhint-disable func-name-mixedcase
 library Packing {
     error OutOfRangeAccess();
 
-    type PackedBytes1 is bytes1;
-
-    function asPackedBytes1(bytes1 self) internal pure returns (PackedBytes1) {
-        return PackedBytes1.wrap(self);
-    }
-
-    function asPackedBytes1(uint8 self) internal pure returns (PackedBytes1) {
-        return PackedBytes1.wrap(bytes1(self));
-    }
-
-    function asBytes1(PackedBytes1 self) internal pure returns (bytes1) {
-        return PackedBytes1.unwrap(self);
-    }
-
-    function asUint8(PackedBytes1 self) internal pure returns (uint8) {
-        return uint8(PackedBytes1.unwrap(self));
-    }
-
-    type PackedBytes2 is bytes2;
-
-    function asPackedBytes2(bytes2 self) internal pure returns (PackedBytes2) {
-        return PackedBytes2.wrap(self);
-    }
-
-    function asPackedBytes2(uint16 self) internal pure returns (PackedBytes2) {
-        return PackedBytes2.wrap(bytes2(self));
-    }
-
-    function asBytes2(PackedBytes2 self) internal pure returns (bytes2) {
-        return PackedBytes2.unwrap(self);
-    }
-
-    function asUint16(PackedBytes2 self) internal pure returns (uint16) {
-        return uint16(PackedBytes2.unwrap(self));
-    }
-
-    type PackedBytes4 is bytes4;
-
-    function asPackedBytes4(bytes4 self) internal pure returns (PackedBytes4) {
-        return PackedBytes4.wrap(self);
-    }
-
-    function asPackedBytes4(uint32 self) internal pure returns (PackedBytes4) {
-        return PackedBytes4.wrap(bytes4(self));
-    }
-
-    function asBytes4(PackedBytes4 self) internal pure returns (bytes4) {
-        return PackedBytes4.unwrap(self);
-    }
-
-    function asUint32(PackedBytes4 self) internal pure returns (uint32) {
-        return uint32(PackedBytes4.unwrap(self));
-    }
-
-    type PackedBytes8 is bytes8;
-
-    function asPackedBytes8(bytes8 self) internal pure returns (PackedBytes8) {
-        return PackedBytes8.wrap(self);
-    }
-
-    function asPackedBytes8(uint64 self) internal pure returns (PackedBytes8) {
-        return PackedBytes8.wrap(bytes8(self));
-    }
-
-    function asBytes8(PackedBytes8 self) internal pure returns (bytes8) {
-        return PackedBytes8.unwrap(self);
-    }
-
-    function asUint64(PackedBytes8 self) internal pure returns (uint64) {
-        return uint64(PackedBytes8.unwrap(self));
-    }
-
-    type PackedBytes12 is bytes12;
-
-    function asPackedBytes12(bytes12 self) internal pure returns (PackedBytes12) {
-        return PackedBytes12.wrap(self);
-    }
-
-    function asPackedBytes12(uint96 self) internal pure returns (PackedBytes12) {
-        return PackedBytes12.wrap(bytes12(self));
-    }
-
-    function asBytes12(PackedBytes12 self) internal pure returns (bytes12) {
-        return PackedBytes12.unwrap(self);
-    }
-
-    function asUint96(PackedBytes12 self) internal pure returns (uint96) {
-        return uint96(PackedBytes12.unwrap(self));
-    }
-
-    type PackedBytes16 is bytes16;
-
-    function asPackedBytes16(bytes16 self) internal pure returns (PackedBytes16) {
-        return PackedBytes16.wrap(self);
-    }
-
-    function asPackedBytes16(uint128 self) internal pure returns (PackedBytes16) {
-        return PackedBytes16.wrap(bytes16(self));
-    }
-
-    function asBytes16(PackedBytes16 self) internal pure returns (bytes16) {
-        return PackedBytes16.unwrap(self);
-    }
-
-    function asUint128(PackedBytes16 self) internal pure returns (uint128) {
-        return uint128(PackedBytes16.unwrap(self));
-    }
-
-    type PackedBytes20 is bytes20;
-
-    function asPackedBytes20(bytes20 self) internal pure returns (PackedBytes20) {
-        return PackedBytes20.wrap(self);
-    }
-
-    function asPackedBytes20(uint160 self) internal pure returns (PackedBytes20) {
-        return PackedBytes20.wrap(bytes20(self));
-    }
-
-    function asBytes20(PackedBytes20 self) internal pure returns (bytes20) {
-        return PackedBytes20.unwrap(self);
-    }
-
-    function asUint160(PackedBytes20 self) internal pure returns (uint160) {
-        return uint160(PackedBytes20.unwrap(self));
-    }
-
-    type PackedBytes24 is bytes24;
-
-    function asPackedBytes24(bytes24 self) internal pure returns (PackedBytes24) {
-        return PackedBytes24.wrap(self);
-    }
-
-    function asPackedBytes24(uint192 self) internal pure returns (PackedBytes24) {
-        return PackedBytes24.wrap(bytes24(self));
-    }
-
-    function asBytes24(PackedBytes24 self) internal pure returns (bytes24) {
-        return PackedBytes24.unwrap(self);
-    }
-
-    function asUint192(PackedBytes24 self) internal pure returns (uint192) {
-        return uint192(PackedBytes24.unwrap(self));
-    }
-
-    type PackedBytes28 is bytes28;
-
-    function asPackedBytes28(bytes28 self) internal pure returns (PackedBytes28) {
-        return PackedBytes28.wrap(self);
-    }
-
-    function asPackedBytes28(uint224 self) internal pure returns (PackedBytes28) {
-        return PackedBytes28.wrap(bytes28(self));
-    }
-
-    function asBytes28(PackedBytes28 self) internal pure returns (bytes28) {
-        return PackedBytes28.unwrap(self);
-    }
-
-    function asUint224(PackedBytes28 self) internal pure returns (uint224) {
-        return uint224(PackedBytes28.unwrap(self));
-    }
-
-    type PackedBytes32 is bytes32;
-
-    function asPackedBytes32(bytes32 self) internal pure returns (PackedBytes32) {
-        return PackedBytes32.wrap(self);
-    }
-
-    function asPackedBytes32(uint256 self) internal pure returns (PackedBytes32) {
-        return PackedBytes32.wrap(bytes32(self));
-    }
-
-    function asBytes32(PackedBytes32 self) internal pure returns (bytes32) {
-        return PackedBytes32.unwrap(self);
-    }
-
-    function asUint256(PackedBytes32 self) internal pure returns (uint256) {
-        return uint256(PackedBytes32.unwrap(self));
-    }
-
-    function asPackedBytes20(address self) internal pure returns (PackedBytes20) {
-        return PackedBytes20.wrap(bytes20(self));
-    }
-
-    function asAddress(PackedBytes20 self) internal pure returns (address) {
-        return address(bytes20(PackedBytes20.unwrap(self)));
-    }
-
-    function pack(PackedBytes1 left, PackedBytes1 right) internal pure returns (PackedBytes2 result) {
+    function pack_1_1(bytes1 left, bytes1 right) internal pure returns (bytes2 result) {
         assembly ("memory-safe") {
             result := or(left, shr(8, right))
         }
     }
 
-    function pack(PackedBytes2 left, PackedBytes2 right) internal pure returns (PackedBytes4 result) {
+    function pack_2_2(bytes2 left, bytes2 right) internal pure returns (bytes4 result) {
         assembly ("memory-safe") {
             result := or(left, shr(16, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes4 right) internal pure returns (PackedBytes8 result) {
+    function pack_4_4(bytes4 left, bytes4 right) internal pure returns (bytes8 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes8 right) internal pure returns (PackedBytes12 result) {
+    function pack_4_8(bytes4 left, bytes8 right) internal pure returns (bytes12 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes12 right) internal pure returns (PackedBytes16 result) {
+    function pack_4_12(bytes4 left, bytes12 right) internal pure returns (bytes16 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes16 right) internal pure returns (PackedBytes20 result) {
+    function pack_4_16(bytes4 left, bytes16 right) internal pure returns (bytes20 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes20 right) internal pure returns (PackedBytes24 result) {
+    function pack_4_20(bytes4 left, bytes20 right) internal pure returns (bytes24 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes24 right) internal pure returns (PackedBytes28 result) {
+    function pack_4_24(bytes4 left, bytes24 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes4 left, PackedBytes28 right) internal pure returns (PackedBytes32 result) {
+    function pack_4_28(bytes4 left, bytes28 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(32, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes4 right) internal pure returns (PackedBytes12 result) {
+    function pack_8_4(bytes8 left, bytes4 right) internal pure returns (bytes12 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes8 right) internal pure returns (PackedBytes16 result) {
+    function pack_8_8(bytes8 left, bytes8 right) internal pure returns (bytes16 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes12 right) internal pure returns (PackedBytes20 result) {
+    function pack_8_12(bytes8 left, bytes12 right) internal pure returns (bytes20 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes16 right) internal pure returns (PackedBytes24 result) {
+    function pack_8_16(bytes8 left, bytes16 right) internal pure returns (bytes24 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes20 right) internal pure returns (PackedBytes28 result) {
+    function pack_8_20(bytes8 left, bytes20 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes8 left, PackedBytes24 right) internal pure returns (PackedBytes32 result) {
+    function pack_8_24(bytes8 left, bytes24 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(64, right))
         }
     }
 
-    function pack(PackedBytes12 left, PackedBytes4 right) internal pure returns (PackedBytes16 result) {
+    function pack_12_4(bytes12 left, bytes4 right) internal pure returns (bytes16 result) {
         assembly ("memory-safe") {
             result := or(left, shr(96, right))
         }
     }
 
-    function pack(PackedBytes12 left, PackedBytes8 right) internal pure returns (PackedBytes20 result) {
+    function pack_12_8(bytes12 left, bytes8 right) internal pure returns (bytes20 result) {
         assembly ("memory-safe") {
             result := or(left, shr(96, right))
         }
     }
 
-    function pack(PackedBytes12 left, PackedBytes12 right) internal pure returns (PackedBytes24 result) {
+    function pack_12_12(bytes12 left, bytes12 right) internal pure returns (bytes24 result) {
         assembly ("memory-safe") {
             result := or(left, shr(96, right))
         }
     }
 
-    function pack(PackedBytes12 left, PackedBytes16 right) internal pure returns (PackedBytes28 result) {
+    function pack_12_16(bytes12 left, bytes16 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(96, right))
         }
     }
 
-    function pack(PackedBytes12 left, PackedBytes20 right) internal pure returns (PackedBytes32 result) {
+    function pack_12_20(bytes12 left, bytes20 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(96, right))
         }
     }
 
-    function pack(PackedBytes16 left, PackedBytes4 right) internal pure returns (PackedBytes20 result) {
+    function pack_16_4(bytes16 left, bytes4 right) internal pure returns (bytes20 result) {
         assembly ("memory-safe") {
             result := or(left, shr(128, right))
         }
     }
 
-    function pack(PackedBytes16 left, PackedBytes8 right) internal pure returns (PackedBytes24 result) {
+    function pack_16_8(bytes16 left, bytes8 right) internal pure returns (bytes24 result) {
         assembly ("memory-safe") {
             result := or(left, shr(128, right))
         }
     }
 
-    function pack(PackedBytes16 left, PackedBytes12 right) internal pure returns (PackedBytes28 result) {
+    function pack_16_12(bytes16 left, bytes12 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(128, right))
         }
     }
 
-    function pack(PackedBytes16 left, PackedBytes16 right) internal pure returns (PackedBytes32 result) {
+    function pack_16_16(bytes16 left, bytes16 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(128, right))
         }
     }
 
-    function pack(PackedBytes20 left, PackedBytes4 right) internal pure returns (PackedBytes24 result) {
+    function pack_20_4(bytes20 left, bytes4 right) internal pure returns (bytes24 result) {
         assembly ("memory-safe") {
             result := or(left, shr(160, right))
         }
     }
 
-    function pack(PackedBytes20 left, PackedBytes8 right) internal pure returns (PackedBytes28 result) {
+    function pack_20_8(bytes20 left, bytes8 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(160, right))
         }
     }
 
-    function pack(PackedBytes20 left, PackedBytes12 right) internal pure returns (PackedBytes32 result) {
+    function pack_20_12(bytes20 left, bytes12 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(160, right))
         }
     }
 
-    function pack(PackedBytes24 left, PackedBytes4 right) internal pure returns (PackedBytes28 result) {
+    function pack_24_4(bytes24 left, bytes4 right) internal pure returns (bytes28 result) {
         assembly ("memory-safe") {
             result := or(left, shr(192, right))
         }
     }
 
-    function pack(PackedBytes24 left, PackedBytes8 right) internal pure returns (PackedBytes32 result) {
+    function pack_24_8(bytes24 left, bytes8 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(192, right))
         }
     }
 
-    function pack(PackedBytes28 left, PackedBytes4 right) internal pure returns (PackedBytes32 result) {
+    function pack_28_4(bytes28 left, bytes4 right) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             result := or(left, shr(224, right))
         }
     }
 
-    function extract1(PackedBytes2 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_2_1(bytes2 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 1) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(PackedBytes2 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes2 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_2_1(bytes2 self, bytes1 value, uint8 offset) internal pure returns (bytes2 result) {
+        bytes1 oldValue = extract_2_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes4 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_4_1(bytes4 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 3) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(PackedBytes4 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes4 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_4_1(bytes4 self, bytes1 value, uint8 offset) internal pure returns (bytes4 result) {
+        bytes1 oldValue = extract_4_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes4 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_4_2(bytes4 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 2) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(PackedBytes4 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes4 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_4_2(bytes4 self, bytes2 value, uint8 offset) internal pure returns (bytes4 result) {
+        bytes2 oldValue = extract_4_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_8_1(bytes8 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 7) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(PackedBytes8 self, PackedBytes1 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_8_1(bytes8 self, bytes1 value, uint8 offset) internal pure returns (bytes8 result) {
+        bytes1 oldValue = extract_8_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_8_2(bytes8 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 6) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(PackedBytes8 self, PackedBytes2 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_8_2(bytes8 self, bytes2 value, uint8 offset) internal pure returns (bytes8 result) {
+        bytes2 oldValue = extract_8_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes8 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_8_4(bytes8 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(PackedBytes8 self, PackedBytes4 value, uint8 offset) internal pure returns (PackedBytes8 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_8_4(bytes8 self, bytes4 value, uint8 offset) internal pure returns (bytes8 result) {
+        bytes4 oldValue = extract_8_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_12_1(bytes12 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 11) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes12 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes12 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_12_1(bytes12 self, bytes1 value, uint8 offset) internal pure returns (bytes12 result) {
+        bytes1 oldValue = extract_12_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_12_2(bytes12 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 10) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes12 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes12 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_12_2(bytes12 self, bytes2 value, uint8 offset) internal pure returns (bytes12 result) {
+        bytes2 oldValue = extract_12_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_12_4(bytes12 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes12 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes12 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_12_4(bytes12 self, bytes4 value, uint8 offset) internal pure returns (bytes12 result) {
+        bytes4 oldValue = extract_12_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes12 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_12_8(bytes12 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes12 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes12 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_12_8(bytes12 self, bytes8 value, uint8 offset) internal pure returns (bytes12 result) {
+        bytes8 oldValue = extract_12_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_16_1(bytes16 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 15) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes16 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes16 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_16_1(bytes16 self, bytes1 value, uint8 offset) internal pure returns (bytes16 result) {
+        bytes1 oldValue = extract_16_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_16_2(bytes16 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 14) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes16 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes16 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_16_2(bytes16 self, bytes2 value, uint8 offset) internal pure returns (bytes16 result) {
+        bytes2 oldValue = extract_16_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_16_4(bytes16 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes16 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes16 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_16_4(bytes16 self, bytes4 value, uint8 offset) internal pure returns (bytes16 result) {
+        bytes4 oldValue = extract_16_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_16_8(bytes16 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes16 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes16 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_16_8(bytes16 self, bytes8 value, uint8 offset) internal pure returns (bytes16 result) {
+        bytes8 oldValue = extract_16_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract12(PackedBytes16 self, uint8 offset) internal pure returns (PackedBytes12 result) {
+    function extract_16_12(bytes16 self, uint8 offset) internal pure returns (bytes12 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes16 self,
-        PackedBytes12 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes16 result) {
-        PackedBytes12 oldValue = extract12(self, offset);
+    function replace_16_12(bytes16 self, bytes12 value, uint8 offset) internal pure returns (bytes16 result) {
+        bytes12 oldValue = extract_16_12(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_20_1(bytes20 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 19) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_20_1(bytes20 self, bytes1 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes1 oldValue = extract_20_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_20_2(bytes20 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 18) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_20_2(bytes20 self, bytes2 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes2 oldValue = extract_20_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_20_4(bytes20 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_20_4(bytes20 self, bytes4 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes4 oldValue = extract_20_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_20_8(bytes20 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_20_8(bytes20 self, bytes8 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes8 oldValue = extract_20_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract12(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes12 result) {
+    function extract_20_12(bytes20 self, uint8 offset) internal pure returns (bytes12 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes12 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes12 oldValue = extract12(self, offset);
+    function replace_20_12(bytes20 self, bytes12 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes12 oldValue = extract_20_12(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract16(PackedBytes20 self, uint8 offset) internal pure returns (PackedBytes16 result) {
+    function extract_20_16(bytes20 self, uint8 offset) internal pure returns (bytes16 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes20 self,
-        PackedBytes16 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes20 result) {
-        PackedBytes16 oldValue = extract16(self, offset);
+    function replace_20_16(bytes20 self, bytes16 value, uint8 offset) internal pure returns (bytes20 result) {
+        bytes16 oldValue = extract_20_16(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_24_1(bytes24 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 23) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_24_1(bytes24 self, bytes1 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes1 oldValue = extract_24_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_24_2(bytes24 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 22) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_24_2(bytes24 self, bytes2 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes2 oldValue = extract_24_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_24_4(bytes24 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_24_4(bytes24 self, bytes4 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes4 oldValue = extract_24_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_24_8(bytes24 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_24_8(bytes24 self, bytes8 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes8 oldValue = extract_24_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract12(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes12 result) {
+    function extract_24_12(bytes24 self, uint8 offset) internal pure returns (bytes12 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes12 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes12 oldValue = extract12(self, offset);
+    function replace_24_12(bytes24 self, bytes12 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes12 oldValue = extract_24_12(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract16(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes16 result) {
+    function extract_24_16(bytes24 self, uint8 offset) internal pure returns (bytes16 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes16 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes16 oldValue = extract16(self, offset);
+    function replace_24_16(bytes24 self, bytes16 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes16 oldValue = extract_24_16(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract20(PackedBytes24 self, uint8 offset) internal pure returns (PackedBytes20 result) {
+    function extract_24_20(bytes24 self, uint8 offset) internal pure returns (bytes20 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes24 self,
-        PackedBytes20 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes24 result) {
-        PackedBytes20 oldValue = extract20(self, offset);
+    function replace_24_20(bytes24 self, bytes20 value, uint8 offset) internal pure returns (bytes24 result) {
+        bytes20 oldValue = extract_24_20(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_28_1(bytes28 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 27) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_28_1(bytes28 self, bytes1 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes1 oldValue = extract_28_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_28_2(bytes28 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 26) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_28_2(bytes28 self, bytes2 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes2 oldValue = extract_28_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_28_4(bytes28 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_28_4(bytes28 self, bytes4 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes4 oldValue = extract_28_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_28_8(bytes28 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_28_8(bytes28 self, bytes8 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes8 oldValue = extract_28_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract12(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes12 result) {
+    function extract_28_12(bytes28 self, uint8 offset) internal pure returns (bytes12 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes12 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes12 oldValue = extract12(self, offset);
+    function replace_28_12(bytes28 self, bytes12 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes12 oldValue = extract_28_12(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract16(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes16 result) {
+    function extract_28_16(bytes28 self, uint8 offset) internal pure returns (bytes16 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes16 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes16 oldValue = extract16(self, offset);
+    function replace_28_16(bytes28 self, bytes16 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes16 oldValue = extract_28_16(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract20(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes20 result) {
+    function extract_28_20(bytes28 self, uint8 offset) internal pure returns (bytes20 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes20 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes20 oldValue = extract20(self, offset);
+    function replace_28_20(bytes28 self, bytes20 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes20 oldValue = extract_28_20(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract24(PackedBytes28 self, uint8 offset) internal pure returns (PackedBytes24 result) {
+    function extract_28_24(bytes28 self, uint8 offset) internal pure returns (bytes24 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes28 self,
-        PackedBytes24 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes28 result) {
-        PackedBytes24 oldValue = extract24(self, offset);
+    function replace_28_24(bytes28 self, bytes24 value, uint8 offset) internal pure returns (bytes28 result) {
+        bytes24 oldValue = extract_28_24(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract1(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes1 result) {
+    function extract_32_1(bytes32 self, uint8 offset) internal pure returns (bytes1 result) {
         if (offset > 31) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(248, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes1 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes1 oldValue = extract1(self, offset);
+    function replace_32_1(bytes32 self, bytes1 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes1 oldValue = extract_32_1(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract2(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes2 result) {
+    function extract_32_2(bytes32 self, uint8 offset) internal pure returns (bytes2 result) {
         if (offset > 30) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(240, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes2 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes2 oldValue = extract2(self, offset);
+    function replace_32_2(bytes32 self, bytes2 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes2 oldValue = extract_32_2(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract4(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes4 result) {
+    function extract_32_4(bytes32 self, uint8 offset) internal pure returns (bytes4 result) {
         if (offset > 28) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(224, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes4 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes4 oldValue = extract4(self, offset);
+    function replace_32_4(bytes32 self, bytes4 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes4 oldValue = extract_32_4(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract8(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes8 result) {
+    function extract_32_8(bytes32 self, uint8 offset) internal pure returns (bytes8 result) {
         if (offset > 24) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(192, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes8 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes8 oldValue = extract8(self, offset);
+    function replace_32_8(bytes32 self, bytes8 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes8 oldValue = extract_32_8(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract12(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes12 result) {
+    function extract_32_12(bytes32 self, uint8 offset) internal pure returns (bytes12 result) {
         if (offset > 20) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(160, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes12 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes12 oldValue = extract12(self, offset);
+    function replace_32_12(bytes32 self, bytes12 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes12 oldValue = extract_32_12(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract16(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes16 result) {
+    function extract_32_16(bytes32 self, uint8 offset) internal pure returns (bytes16 result) {
         if (offset > 16) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(128, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes16 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes16 oldValue = extract16(self, offset);
+    function replace_32_16(bytes32 self, bytes16 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes16 oldValue = extract_32_16(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract20(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes20 result) {
+    function extract_32_20(bytes32 self, uint8 offset) internal pure returns (bytes20 result) {
         if (offset > 12) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(96, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes20 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes20 oldValue = extract20(self, offset);
+    function replace_32_20(bytes32 self, bytes20 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes20 oldValue = extract_32_20(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract24(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes24 result) {
+    function extract_32_24(bytes32 self, uint8 offset) internal pure returns (bytes24 result) {
         if (offset > 8) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(64, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes24 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes24 oldValue = extract24(self, offset);
+    function replace_32_24(bytes32 self, bytes24 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes24 oldValue = extract_32_24(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
     }
 
-    function extract28(PackedBytes32 self, uint8 offset) internal pure returns (PackedBytes28 result) {
+    function extract_32_28(bytes32 self, uint8 offset) internal pure returns (bytes28 result) {
         if (offset > 4) revert OutOfRangeAccess();
         assembly ("memory-safe") {
             result := and(shl(mul(8, offset), self), shl(32, not(0)))
         }
     }
 
-    function replace(
-        PackedBytes32 self,
-        PackedBytes28 value,
-        uint8 offset
-    ) internal pure returns (PackedBytes32 result) {
-        PackedBytes28 oldValue = extract28(self, offset);
+    function replace_32_28(bytes32 self, bytes28 value, uint8 offset) internal pure returns (bytes32 result) {
+        bytes28 oldValue = extract_32_28(self, offset);
         assembly ("memory-safe") {
             result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
         }
