@@ -103,24 +103,24 @@ abstract contract GovernorCountingFractional is Governor {
      * @dev See {Governor-_countVote}. Function that records the delegate's votes.
      *
      * Executing this function consumes (part of) the delegate's weight on the proposal. This weight can be
-     * distributed amongst the 3 options (Against, For, Abstain) by specifying a Fractional `support`.
+     * distributed amongst the 3 options (Against, For, Abstain) by specifying a fractional `support`.
      *
      * This counting module supports two vote casting modes: nominal and fractional.
      *
-     * - Voting in "nomainal" mode is achieved by setting `support` to on of the 3 bravo options (Against, For,
-     * Abstain). In this mode, the `params` argument must be empty and the delegate's full remaining weight is cast
-     * for the specified `support` option, as in {GovernorCountingSimple} and following the `VoteType` enum from
-     * Governor Bravo. As a consequence, no vote weight remains unspend so no further voting is possible (for this
-     * `proposalId` and this `account`).
+     * - Nominal: A nominal vote is cast by setting `support` to one of the 3 bravo options (Against, For, Abstain).
+     * - Fractional: A fractional vote is cast by setting `support` to `type(uint8).max` (255).
      *
-     * - Voting in "fractional" mode is achieved by setting `support` to `type(uint8).max` (255). In this mode, the
-     * `params` argument must be tree packed `uint128` values representing the weight the delegate assigns to each
-     * support option (Against, For, and Abstain respectively). This format can be produced using:
+     * Casting a nominal vote requires `params` to be empty and consumes the delegate's full remaining weight on the
+     * proposal for the specified `support` option. This is similar to the {GovernorCountingSimple} module and follows
+     * the `VoteType` enum from Governor Bravo. As a consequence, no vote weight remains unspent so no further voting
+     * is possible (for this `proposalId` and this `account`).
+     *
+     * Casting a fractional vote consumes a fraction of the delegate's remaining weight on the proposal according to the
+     * weights the delegate assigns to each support option (Against, For, Abstain respectively). The sum total of the
+     * three decoded vote weights _must_ be less than or equal to the delegate's remaining weight on the proposal (i.e.
+     * their checkpointed total weight minus votes already cast on the proposal). This format can be produced using:
      *
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
-     *
-     * The sum total of the three decoded vote weights _must_ be less than or equal to the delegate's remaining weight
-     * on the proposal, i.e. their checkpointed total weight minus votes already cast on the proposal.
      *
      * NOTE: Consider that fractional voting restricts the number of casted vote (in each category) to 128 bits.
      * Depending on how many decimals the underlying token has, a single voter may require to split their vote into
