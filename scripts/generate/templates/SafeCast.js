@@ -132,13 +132,8 @@ function toUint(bool b) internal pure returns (uint256 u) {
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  format([
-    errors,
-    ...LENGTHS.map(toUintDownCast),
-    toUint(256),
-    ...LENGTHS.map(toIntDownCast),
-    toInt(256),
-    boolToUint,
-  ]).trimEnd(),
+  format(
+    [].concat(errors, LENGTHS.map(toUintDownCast), toUint(256), LENGTHS.map(toIntDownCast), toInt(256), boolToUint),
+  ).trimEnd(),
   '}',
 );

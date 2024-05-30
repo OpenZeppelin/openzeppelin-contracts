@@ -368,23 +368,25 @@ function unsafeSetLength(${type}[] storage array, uint256 len) internal {
 module.exports = format(
   header.trimEnd(),
   'library Arrays {',
-  format([
-    'using SlotDerivation for bytes32;',
-    'using StorageSlot for bytes32;',
-    '',
-    // sorting, comparator, helpers and internal
-    sort('bytes32'),
-    ...TYPES.filter(type => type !== 'bytes32').map(sort),
-    quickSort,
-    defaultComparator,
-    ...TYPES.filter(type => type !== 'bytes32').map(castArray),
-    ...TYPES.filter(type => type !== 'bytes32').map(castComparator),
-    // lookup
-    search,
-    // unsafe (direct) storage and memory access
-    ...TYPES.map(unsafeAccessStorage),
-    ...TYPES.map(unsafeAccessMemory),
-    ...TYPES.map(unsafeSetLength),
-  ]).trimEnd(),
+  format(
+    [].concat(
+      'using SlotDerivation for bytes32;',
+      'using StorageSlot for bytes32;',
+      '',
+      // sorting, comparator, helpers and internal
+      sort('bytes32'),
+      TYPES.filter(type => type !== 'bytes32').map(sort),
+      quickSort,
+      defaultComparator,
+      TYPES.filter(type => type !== 'bytes32').map(castArray),
+      TYPES.filter(type => type !== 'bytes32').map(castComparator),
+      // lookup
+      search,
+      // unsafe (direct) storage and memory access
+      TYPES.map(unsafeAccessStorage),
+      TYPES.map(unsafeAccessMemory),
+      TYPES.map(unsafeSetLength),
+    ),
+  ).trimEnd(),
   '}',
 );

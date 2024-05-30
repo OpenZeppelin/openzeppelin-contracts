@@ -263,11 +263,13 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableMap {',
-  format([
-    'using EnumerableSet for EnumerableSet.Bytes32Set;',
-    '',
-    defaultMap,
-    ...TYPES.map(details => customMap(details)),
-  ]).trimEnd(),
+  format(
+    [].concat(
+      'using EnumerableSet for EnumerableSet.Bytes32Set;',
+      '',
+      defaultMap,
+      TYPES.map(details => customMap(details)),
+    ),
+  ).trimEnd(),
   '}',
 );

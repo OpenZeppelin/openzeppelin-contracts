@@ -121,11 +121,13 @@ function tstore(${name}SlotType slot, ${type} value) internal {
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
-  format([
-    ...TYPES.map(type => struct(type)),
-    ...TYPES.flatMap(type => [get(type), !type.isValueType && getStorage(type)].filter(Boolean)),
-    ...TYPES.filter(type => type.isValueType).map(type => udvt(type)),
-    ...TYPES.filter(type => type.isValueType).map(type => transient(type)),
-  ]).trimEnd(),
+  format(
+    [].concat(
+      TYPES.map(type => struct(type)),
+      TYPES.flatMap(type => [get(type), !type.isValueType && getStorage(type)].filter(Boolean)),
+      TYPES.filter(type => type.isValueType).map(type => udvt(type)),
+      TYPES.filter(type => type.isValueType).map(type => transient(type)),
+    ),
+  ).trimEnd(),
   '}',
 );

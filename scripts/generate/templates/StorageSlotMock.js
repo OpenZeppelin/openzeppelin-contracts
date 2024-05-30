@@ -56,13 +56,15 @@ function tstore(bytes32 slot, ${type} value) public {
 module.exports = format(
   header,
   'contract StorageSlotMock is Multicall {',
-  format([
-    'using StorageSlot for *;',
-    '',
-    ...TYPES.filter(type => type.isValueType).map(type => storageSetValueType(type)),
-    ...TYPES.filter(type => type.isValueType).map(type => storageGetValueType(type)),
-    ...TYPES.filter(type => !type.isValueType).map(type => storageSetNonValueType(type)),
-    ...TYPES.filter(type => type.isValueType).map(type => transient(type)),
-  ]).trimEnd(),
+  format(
+    [].concat(
+      'using StorageSlot for *;',
+      '',
+      TYPES.filter(type => type.isValueType).map(type => storageSetValueType(type)),
+      TYPES.filter(type => type.isValueType).map(type => storageGetValueType(type)),
+      TYPES.filter(type => !type.isValueType).map(type => storageSetNonValueType(type)),
+      TYPES.filter(type => type.isValueType).map(type => transient(type)),
+    ),
+  ).trimEnd(),
   '}',
 );

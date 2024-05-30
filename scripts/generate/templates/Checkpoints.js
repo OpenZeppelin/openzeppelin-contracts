@@ -225,6 +225,11 @@ function _unsafeAccess(
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
-  format([errors, ...OPTS.map(opts => template(opts))]).trimEnd(),
+  format(
+    [].concat(
+      errors,
+      OPTS.map(opts => template(opts)),
+    ),
+  ).trimEnd(),
   '}',
 );

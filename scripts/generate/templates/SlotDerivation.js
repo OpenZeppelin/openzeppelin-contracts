@@ -109,6 +109,12 @@ function deriveMapping(bytes32 slot, ${type} memory key) internal pure returns (
 module.exports = format(
   header.trimEnd(),
   'library SlotDerivation {',
-  format([namespace, array, ...TYPES.map(type => (type.isValueType ? mapping(type) : mapping2(type)))]).trimEnd(),
+  format(
+    [].concat(
+      namespace,
+      array,
+      TYPES.map(type => (type.isValueType ? mapping(type) : mapping2(type))),
+    ),
+  ).trimEnd(),
   '}',
 );

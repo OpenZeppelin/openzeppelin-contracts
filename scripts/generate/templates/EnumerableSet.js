@@ -240,6 +240,11 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableSet {',
-  format([defaultSet, ...TYPES.map(details => customSet(details))]).trimEnd(),
+  format(
+    [].concat(
+      defaultSet,
+      TYPES.map(details => customSet(details)),
+    ),
+  ).trimEnd(),
   '}',
 );

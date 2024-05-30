@@ -92,20 +92,22 @@ function _assertDeriveMapping${name}(${type} memory key) internal {
 module.exports = format(
   header,
   'contract SlotDerivationTest is Test, SymTest {',
-  format([
-    'using SlotDerivation for bytes32;',
-    '',
-    array,
-    ...TYPES.flatMap(type =>
-      [].concat(
-        type,
-        (type.variants ?? []).map(variant => ({
-          type: variant,
-          name: capitalize(variant),
-          isValueType: type.isValueType,
-        })),
-      ),
-    ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
-  ]).trimEnd(),
+  format(
+    [].concat(
+      'using SlotDerivation for bytes32;',
+      '',
+      array,
+      TYPES.flatMap(type =>
+        [].concat(
+          type,
+          (type.variants ?? []).map(variant => ({
+            type: variant,
+            name: capitalize(variant),
+            isValueType: type.isValueType,
+          })),
+        ),
+      ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
+    ),
+  ).trimEnd(),
   '}',
 );
