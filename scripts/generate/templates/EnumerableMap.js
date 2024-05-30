@@ -54,7 +54,7 @@ import {EnumerableSet} from "./EnumerableSet.sol";
 `;
 /* eslint-enable max-len */
 
-const defaultMap = () => `\
+const defaultMap = `\
 // To implement this library for multiple types with as little code repetition as possible, we write it in
 // terms of a generic Map type with bytes32 keys and values. The Map implementation uses private functions,
 // and user-facing implementations such as \`UintToAddressMap\` are just wrappers around the underlying Map.
@@ -78,11 +78,7 @@ struct Bytes32ToBytes32Map {
  * Returns true if the key was added to the map, that is if it was not
  * already present.
  */
-function set(
-    Bytes32ToBytes32Map storage map,
-    bytes32 key,
-    bytes32 value
-) internal returns (bool) {
+function set(Bytes32ToBytes32Map storage map, bytes32 key, bytes32 value) internal returns (bool) {
     map._values[key] = value;
     return map._keys.add(key);
 }
@@ -148,7 +144,7 @@ function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view retu
  */
 function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
     bytes32 value = map._values[key];
-    if(value == 0 && !contains(map, key)) {
+    if (value == 0 && !contains(map, key)) {
         revert EnumerableMapNonexistentKey(key);
     }
     return value;
@@ -181,11 +177,7 @@ struct ${name} {
  * Returns true if the key was added to the map, that is if it was not
  * already present.
  */
-function set(
-    ${name} storage map,
-    ${keyType} key,
-    ${valueType} value
-) internal returns (bool) {
+function set(${name} storage map, ${keyType} key, ${valueType} value) internal returns (bool) {
     return set(map._inner, ${toBytes32(keyType, 'key')}, ${toBytes32(valueType, 'value')});
 }
 
@@ -271,11 +263,13 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableMap {',
-  [
-    'using EnumerableSet for EnumerableSet.Bytes32Set;',
-    '',
-    defaultMap(),
-    TYPES.map(details => customMap(details).trimEnd()).join('\n\n'),
-  ],
+  format(
+    [].concat(
+      'using EnumerableSet for EnumerableSet.Bytes32Set;',
+      '',
+      defaultMap,
+      TYPES.map(details => customMap(details)),
+    ),
+  ).trimEnd(),
   '}',
 );
