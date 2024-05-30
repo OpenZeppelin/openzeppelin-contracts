@@ -128,6 +128,7 @@ abstract contract GovernorCountingFractional is Governor {
      * potentially large number of calls to cast all their votes. The voter has the possibility to cast all the
      * remaining votes in a single operation using the traditional "bravo" vote.
      */
+    // slither-disable-next-line cyclomatic-complexity
     function _countVote(
         uint256 proposalId,
         address account,
@@ -169,10 +170,10 @@ abstract contract GovernorCountingFractional is Governor {
                 againstVotes := shr(128, mload(add(params, 0x20)))
                 forVotes := shr(128, mload(add(params, 0x30)))
                 abstainVotes := shr(128, mload(add(params, 0x40)))
+                usedWeight := add(add(againstVotes, forVotes), abstainVotes) // inputs are uint128: cannot overflow
             }
 
             // check parsed arguments are valid
-            usedWeight = againstVotes + forVotes + abstainVotes;
             if (usedWeight > remainingWeight) {
                 revert GovernorExceedRemainingWeight(account, usedWeight, remainingWeight);
             }
@@ -182,15 +183,9 @@ abstract contract GovernorCountingFractional is Governor {
 
         // update votes tracking
         ProposalVote storage details = _proposalVotes[proposalId];
-        if (againstVotes > 0) {
-            details.againstVotes += againstVotes;
-        }
-        if (forVotes > 0) {
-            details.forVotes += forVotes;
-        }
-        if (abstainVotes > 0) {
-            details.abstainVotes += abstainVotes;
-        }
+        if (againstVotes > 0) details.againstVotes += againstVotes;
+        if (forVotes > 0) details.forVotes += forVotes;
+        if (abstainVotes > 0) details.abstainVotes += abstainVotes;
         details.usedVotes[account] += usedWeight;
 
         return usedWeight;
