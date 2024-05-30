@@ -102,26 +102,31 @@ abstract contract GovernorCountingFractional is Governor {
     /**
      * @dev See {Governor-_countVote}. Function that records the delegate's votes.
      *
-     * Executing this function consume's the delegate's weight on the proposal. This weight can be distributed amongst
-     * the 3 options (Against, For, Abstain) by specifying a Fractional `support`.
+     * Executing this function consumes (part of) the delegate's weight on the proposal. This weight can be
+     * distributed amongst the 3 options (Against, For, Abstain) by specifying a Fractional `support`.
      *
-     * When support is anything other than Fractional, the `params` argument must be empty and the delegate's full remaining
-     * weight is cast for the specified `support` option, as in {GovernorCountingSimple} and following the `VoteType`
-     * enum from Governor Bravo.
+     * This counting module supports two vote casting modes: nominal and fractional.
      *
-     * Given a Fractional `support`, the `params` argument must be tree packed `uint128` values representing the weight
-     * the delegate assigns to Against, For, and Abstain respectively. This format can be produced using:
+     * - Voting in "nomainal" mode is achieved by setting `support` to on of the 3 bravo options (Against, For,
+     * Abstain). In this mode, the `params` argument must be empty and the delegate's full remaining weight is cast
+     * for the specified `support` option, as in {GovernorCountingSimple} and following the `VoteType` enum from
+     * Governor Bravo. As a consequence, no vote weight remains unspend so no further voting is possible (for this
+     * `proposalId` and this `account`).
+     *
+     * - Voting in "fractional" mode is achieved by setting `support` to `type(uint8).max` (255). In this mode, the
+     * `params` argument must be tree packed `uint128` values representing the weight the delegate assigns to each
+     * support option (Against, For, and Abstain respectively). This format can be produced using:
      *
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
      *
      * The sum total of the three decoded vote weights _must_ be less than or equal to the delegate's remaining weight
      * on the proposal, i.e. their checkpointed total weight minus votes already cast on the proposal.
      *
-     * NOTE: Consider the number of votes is restricted to 128 bits. Depending on how many decimals the underlying token
-     * has, a single voter may require to split their vote into multiple transactions. For precision higher than
-     * ~30 decimals, large token holders may require an exponentially large number of transactions to cast their vote.
-     *
-     * See `_countVoteNominal` and `_countVoteFractional` for more details.
+     * NOTE: Consider that fractional voting restricts the number of casted vote (in each category) to 128 bits.
+     * Depending on how many decimals the underlying token has, a single voter may require to split their vote into
+     * multiple vote operations. For precision higher than ~30 decimals, large token holders may require an
+     * potentially large number of calls to cast all their votes. The voter has the possibility to cast all the
+     * remaining votes in a single operation using the traditional "bravo" vote.
      */
     function _countVote(
         uint256 proposalId,
@@ -136,78 +141,46 @@ abstract contract GovernorCountingFractional is Governor {
             revert GovernorAlreadyCastVote(account);
         }
 
+        uint256 againstVotes = 0;
+        uint256 forVotes = 0;
+        uint256 abstainVotes = 0;
+        uint256 usedWeight;
+
         // For clarity of event indexing, fractional voting must be clearly advertised in the "support" field.
         //
         // Supported `support` value must be:
         // - "Full" voting: `support = 0` (Against), `1` (For) or `2` (Abstain), with empty params.
         // - "Fractional" voting: `support = 255`, with 48 bytes params.
-        if (support <= uint8(GovernorCountingSimple.VoteType.Abstain)) {
+        if (support == uint8(GovernorCountingSimple.VoteType.Against)) {
             if (params.length != 0) revert GovernorInvalidVoteParams();
-            return _countVoteNominal(proposalId, account, support, remainingWeight);
+            usedWeight = againstVotes = remainingWeight;
+        } else if (support == uint8(GovernorCountingSimple.VoteType.For)) {
+            if (params.length != 0) revert GovernorInvalidVoteParams();
+            usedWeight = forVotes = remainingWeight;
+        } else if (support == uint8(GovernorCountingSimple.VoteType.Abstain)) {
+            if (params.length != 0) revert GovernorInvalidVoteParams();
+            usedWeight = abstainVotes = remainingWeight;
         } else if (support == VOTE_TYPE_FRACTIONAL) {
-            return _countVoteFractional(proposalId, account, params, remainingWeight);
+            // The `params` argument is expected to be three packed `uint128`:
+            // `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
+            if (params.length != 0x30) revert GovernorInvalidVoteParams();
+
+            assembly ("memory-safe") {
+                againstVotes := shr(128, mload(add(params, 0x20)))
+                forVotes := shr(128, mload(add(params, 0x30)))
+                abstainVotes := shr(128, mload(add(params, 0x40)))
+            }
+
+            // check parsed arguments are valid
+            usedWeight = againstVotes + forVotes + abstainVotes;
+            if (usedWeight > remainingWeight) {
+                revert GovernorExceedRemainingWeight(account, usedWeight, remainingWeight);
+            }
         } else {
             revert GovernorInvalidVoteType();
         }
-    }
 
-    /**
-     * @dev Record votes with full weight cast for `support`.
-     *
-     * Because this function votes with the delegate's remaining weight, it can only be called once per proposal and
-     * thus does not require any replay protection.
-     */
-    function _countVoteNominal(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        uint256 weight
-    ) private returns (uint256) {
-        ProposalVote storage details = _proposalVotes[proposalId];
-        details.usedVotes[account] += weight;
-
-        if (support == uint8(GovernorCountingSimple.VoteType.Against)) {
-            details.againstVotes += weight;
-        } else if (support == uint8(GovernorCountingSimple.VoteType.For)) {
-            details.forVotes += weight;
-        } else if (support == uint8(GovernorCountingSimple.VoteType.Abstain)) {
-            details.abstainVotes += weight;
-        }
-
-        return weight;
-    }
-
-    /**
-     * @dev Count votes with fractional weight.
-     *
-     * The `params` argument is expected to be three packed `uint128`:
-     * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
-     *
-     * This function can be called multiple times for the same account and proposal (i.e. partial/rolling votes are
-     * allowed). For example, an account with total weight of 10 could call this function three times with the
-     * following vote data:
-     *
-     *   * Against: 1, For: 0, Abstain: 2
-     *   * Against: 3, For: 1, Abstain: 0
-     *   * Against: 1, For: 1, Abstain: 1
-     *
-     * Casting votes like this will make the calling account to cast a total of 5 `Against` votes, 2 `For` votes
-     * and 3 `Abstain` votes. Though partial, votes are still final once cast and cannot be changed or overridden.
-     * Subsequent partial votes simply increment existing totals.
-     */
-    function _countVoteFractional(
-        uint256 proposalId,
-        address account,
-        bytes memory params,
-        uint256 weight
-    ) private returns (uint256) {
-        (uint128 againstVotes, uint128 forVotes, uint128 abstainVotes) = _unpackParams(params);
-
-        uint256 usedWeight = againstVotes + forVotes + abstainVotes;
-        if (usedWeight > weight) {
-            revert GovernorExceedRemainingWeight(account, usedWeight, weight);
-        }
-
+        // update votes tracking
         ProposalVote storage details = _proposalVotes[proposalId];
         if (againstVotes > 0) {
             details.againstVotes += againstVotes;
@@ -221,20 +194,5 @@ abstract contract GovernorCountingFractional is Governor {
         details.usedVotes[account] += usedWeight;
 
         return usedWeight;
-    }
-
-    function _unpackParams(
-        bytes memory data
-    ) private pure returns (uint128 againstVotes, uint128 forVotes, uint128 abstainVotes) {
-        if (data.length != 0x30) {
-            revert GovernorInvalidVoteParams();
-        }
-
-        assembly ("memory-safe") {
-            let ptr := add(data, 0x20)
-            againstVotes := shr(128, mload(ptr))
-            forVotes := shr(128, mload(add(ptr, 0x10)))
-            abstainVotes := shr(128, mload(add(ptr, 0x20)))
-        }
     }
 }
