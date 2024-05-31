@@ -4,18 +4,27 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-
+import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
 
-contract SlotDerivationTest is Test {
+contract SlotDerivationTest is Test, SymTest {
     using SlotDerivation for bytes32;
 
     bytes[] private _array;
 
+    function symbolicDeriveArray(uint256 length, uint256 offset) public {
+        vm.assume(length > 0);
+        vm.assume(offset < length);
+        _assertDeriveArray(length, offset);
+    }
+
     function testDeriveArray(uint256 length, uint256 offset) public {
         length = bound(length, 1, type(uint256).max);
         offset = bound(offset, 0, length - 1);
+        _assertDeriveArray(length, offset);
+    }
 
+    function _assertDeriveArray(uint256 length, uint256 offset) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _array.slot
@@ -33,7 +42,7 @@ contract SlotDerivationTest is Test {
 
     mapping(address => bytes) private _addressMapping;
 
-    function testDeriveMappingAddress(address key) public {
+    function testSymbolicDeriveMappingAddress(address key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _addressMapping.slot
@@ -50,7 +59,7 @@ contract SlotDerivationTest is Test {
 
     mapping(bool => bytes) private _boolMapping;
 
-    function testDeriveMappingBoolean(bool key) public {
+    function testSymbolicDeriveMappingBoolean(bool key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _boolMapping.slot
@@ -67,7 +76,7 @@ contract SlotDerivationTest is Test {
 
     mapping(bytes32 => bytes) private _bytes32Mapping;
 
-    function testDeriveMappingBytes32(bytes32 key) public {
+    function testSymbolicDeriveMappingBytes32(bytes32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _bytes32Mapping.slot
@@ -84,7 +93,7 @@ contract SlotDerivationTest is Test {
 
     mapping(bytes4 => bytes) private _bytes4Mapping;
 
-    function testDeriveMappingBytes4(bytes4 key) public {
+    function testSymbolicDeriveMappingBytes4(bytes4 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _bytes4Mapping.slot
@@ -101,7 +110,7 @@ contract SlotDerivationTest is Test {
 
     mapping(uint256 => bytes) private _uint256Mapping;
 
-    function testDeriveMappingUint256(uint256 key) public {
+    function testSymbolicDeriveMappingUint256(uint256 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _uint256Mapping.slot
@@ -118,7 +127,7 @@ contract SlotDerivationTest is Test {
 
     mapping(uint32 => bytes) private _uint32Mapping;
 
-    function testDeriveMappingUint32(uint32 key) public {
+    function testSymbolicDeriveMappingUint32(uint32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _uint32Mapping.slot
@@ -135,7 +144,7 @@ contract SlotDerivationTest is Test {
 
     mapping(int256 => bytes) private _int256Mapping;
 
-    function testDeriveMappingInt256(int256 key) public {
+    function testSymbolicDeriveMappingInt256(int256 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _int256Mapping.slot
@@ -152,7 +161,7 @@ contract SlotDerivationTest is Test {
 
     mapping(int32 => bytes) private _int32Mapping;
 
-    function testDeriveMappingInt32(int32 key) public {
+    function testSymbolicDeriveMappingInt32(int32 key) public {
         bytes32 baseSlot;
         assembly {
             baseSlot := _int32Mapping.slot
@@ -170,6 +179,14 @@ contract SlotDerivationTest is Test {
     mapping(string => bytes) private _stringMapping;
 
     function testDeriveMappingString(string memory key) public {
+        _assertDeriveMappingString(key);
+    }
+
+    function symbolicDeriveMappingString() public {
+        _assertDeriveMappingString(svm.createString(256, "DeriveMappingStringInput"));
+    }
+
+    function _assertDeriveMappingString(string memory key) internal {
         bytes32 baseSlot;
         assembly {
             baseSlot := _stringMapping.slot
@@ -187,6 +204,14 @@ contract SlotDerivationTest is Test {
     mapping(bytes => bytes) private _bytesMapping;
 
     function testDeriveMappingBytes(bytes memory key) public {
+        _assertDeriveMappingBytes(key);
+    }
+
+    function symbolicDeriveMappingBytes() public {
+        _assertDeriveMappingBytes(svm.createBytes(256, "DeriveMappingBytesInput"));
+    }
+
+    function _assertDeriveMappingBytes(bytes memory key) internal {
         bytes32 baseSlot;
         assembly {
             baseSlot := _bytesMapping.slot
