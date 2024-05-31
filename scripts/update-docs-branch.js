@@ -6,7 +6,7 @@ const run = cmd => {
 const tryRead = cmd => {
   try {
     return read(cmd);
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
