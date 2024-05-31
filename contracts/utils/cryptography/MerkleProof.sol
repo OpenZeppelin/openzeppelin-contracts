@@ -51,11 +51,8 @@ library MerkleProof {
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         uint256 len = proof.length;
-        for (uint256 i; i < len; ) {
+        for (uint256 i = 0; i < len; i++) {
             computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
-            unchecked {
-                ++i;
-            }
         }
         return computedHash;
     }
@@ -66,11 +63,8 @@ library MerkleProof {
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         uint256 len = proof.length;
-        for (uint256 i; i < len; ) {
+        for (uint256 i = 0; i < len; i++) {
             computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
-            unchecked {
-                ++i;
-            }
         }
         return computedHash;
     }
@@ -143,15 +137,12 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i; i < totalHashes; ) {
+        for (uint256 i = 0; i < totalHashes; ) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
             hashes[i] = Hashes.commutativeKeccak256(a, b);
-            unchecked {
-                ++i;
-            }
         }
 
         if (totalHashes > 0) {
@@ -202,15 +193,12 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i; i < totalHashes; ) {
+        for (uint256 i = 0; i < totalHashes; ) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
             hashes[i] = Hashes.commutativeKeccak256(a, b);
-            unchecked {
-                ++i;
-            }
         }
 
         if (totalHashes > 0) {
