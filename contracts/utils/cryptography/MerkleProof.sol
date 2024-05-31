@@ -137,7 +137,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < totalHashes; ) {
+        for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -193,7 +193,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < totalHashes; ) {
+        for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
