@@ -48,8 +48,9 @@ jobs:
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
       - name: Install python packages
-        run: pip install -r requirements.txt
+        run: pip install -r fv-requirements.txt
       - name: Install java
         uses: actions/setup-java@v3
         with:
@@ -66,3 +67,20 @@ jobs:
           node certora/run.js ${{ steps.arguments.outputs.result }} >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+  halmos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PIP_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
+      - name: Install python packages
+        run: pip install -r fv-requirements.txt
+      - name: Run Halmos
+        run: halmos --match-test '^symbolic|^testSymbolic' -vv

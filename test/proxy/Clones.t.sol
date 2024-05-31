@@ -6,7 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract ClonesTest is Test {
-    function testPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public {
+    function testSymbolicPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public {
         address predicted = Clones.predictDeterministicAddress(implementation, salt);
         bytes32 spillage;
         /// @solidity memory-safe-assembly
