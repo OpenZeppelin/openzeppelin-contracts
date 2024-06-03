@@ -11,7 +11,7 @@ import {SignedMath} from "./math/SignedMath.sol";
  */
 library Strings {
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
-    bytes16 private constant HEX_DIGITS_CAPITAL = "0123456789ABCDEF";
+    bytes16 private constant HEX_DIGITS_UPPERCASE = "0123456789ABCDEF";
     uint8 private constant ADDRESS_LENGTH = 20;
 
     /**
@@ -100,7 +100,7 @@ library Strings {
         uint160 hashValue = uint160(bytes20(hashedAddr));
         for (uint256 i = 41; i > 1; --i) {
             uint8 digit = uint8(addrValue & 0xf);
-            buffer[i] = hashValue & 0xf > 7 ? HEX_DIGITS_CAPITAL[digit] : HEX_DIGITS[digit];
+            buffer[i] = hashValue & 0xf > 7 ? HEX_DIGITS_UPPERCASE[digit] : HEX_DIGITS[digit];
             addrValue >>= 4;
             hashValue >>= 4;
         }
