@@ -90,7 +90,8 @@ library Strings {
      */
     function toChecksumHexString(address addr) internal pure returns (string memory) {
         bytes memory lowercase = new bytes(40);
-        _setHexString(lowercase, 0, uint160(addr));
+        uint160 addrValue = uint160(address)
+        _setHexString(lowercase, 0, addrValue);
         bytes32 hashedAddr = keccak256(abi.encodePacked(lowercase));
 
         bytes memory buffer = new bytes(42);
