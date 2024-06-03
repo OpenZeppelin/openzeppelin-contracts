@@ -71,7 +71,7 @@ library Strings {
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
-        _setHexString(buffer, 2, value);
+        _unsafeSetHexString(buffer, 2, value);
 
         return string(buffer);
     }
@@ -90,8 +90,8 @@ library Strings {
      */
     function toChecksumHexString(address addr) internal pure returns (string memory) {
         bytes memory lowercase = new bytes(40);
-        uint160 addrValue = uint160(address)
-        _setHexString(lowercase, 0, addrValue);
+        uint160 addrValue = uint160(addr);
+        _unsafeSetHexString(lowercase, 0, addrValue);
         bytes32 hashedAddr = keccak256(abi.encodePacked(lowercase));
 
         bytes memory buffer = new bytes(42);
@@ -99,11 +99,8 @@ library Strings {
         buffer[1] = "x";
         uint160 hashValue = uint160(bytes20(hashedAddr));
         for (uint256 i = 41; i > 1; --i) {
-            if (hashValue & 0xf > 7) {
-                buffer[i] = HEX_DIGITS_CAPITAL[addrValue & 0xf];
-            } else {
-                buffer[i] = HEX_DIGITS[addrValue & 0xf];
-            }
+            uint8 digit = uint8(addrValue & 0xf);
+            buffer[i] = hashValue & 0xf > 7 ? HEX_DIGITS_CAPITAL[digit] : HEX_DIGITS[digit];
             addrValue >>= 4;
             hashValue >>= 4;
         }
@@ -119,8 +116,11 @@ library Strings {
 
     /**
      * @dev Sets the hexadecimal representation of a value in the specified buffer starting from the given offset.
+     *
+     * NOTE: This function does not check that the `buffer` can allocate `value` without overflowing. Make sure
+     * to check whether `Math.log256(value) + 1` is larger than the specified `length`.
      */
-    function _setHexString(bytes memory buffer, uint256 offset, uint256 value) private pure {
+    function _unsafeSetHexString(bytes memory buffer, uint256 offset, uint256 value) private pure {
         for (uint256 i = buffer.length; i > offset; --i) {
             buffer[i - 1] = HEX_DIGITS[value & 0xf];
             value >>= 4;
