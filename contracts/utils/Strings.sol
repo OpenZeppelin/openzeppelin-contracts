@@ -97,7 +97,6 @@ library Strings {
         bytes memory buffer = new bytes(42);
         buffer[0] = "0";
         buffer[1] = "x";
-        uint160 addrValue = uint160(addr);
         uint160 hashValue = uint160(bytes20(hashedAddr));
         for (uint256 i = 41; i > 1; --i) {
             if (hashValue & 0xf > 7) {
