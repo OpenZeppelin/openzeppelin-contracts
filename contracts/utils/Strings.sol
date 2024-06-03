@@ -64,17 +64,15 @@ library Strings {
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
-        uint256 localValue = value;
+        if (length < Math.log256(value) + 1) {
+            revert StringsInsufficientHexLength(value, length);
+        }
+
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
-        for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = HEX_DIGITS[localValue & 0xf];
-            localValue >>= 4;
-        }
-        if (localValue != 0) {
-            revert StringsInsufficientHexLength(value, length);
-        }
+        _setHexString(buffer, 2, value);
+
         return string(buffer);
     }
 
@@ -91,12 +89,8 @@ library Strings {
      * representation, according to EIP-55.
      */
     function toChecksumHexString(address addr) internal pure returns (string memory) {
-        uint160 localValue = uint160(addr);
         bytes memory lowercase = new bytes(40);
-        for (uint256 i = 40; i > 0; --i) {
-            lowercase[i - 1] = HEX_DIGITS[localValue & 0xf];
-            localValue >>= 4;
-        }
+        _setHexString(lowercase, 0, uint160(addr));
         bytes32 hashedAddr = keccak256(abi.encodePacked(lowercase));
 
         bytes memory buffer = new bytes(42);
@@ -121,5 +115,15 @@ library Strings {
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
         return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+    }
+
+    /**
+     * @dev Sets the hexadecimal representation of a value in the specified buffer starting from the given offset.
+     */
+    function _setHexString(bytes memory buffer, uint256 offset, uint256 value) private pure {
+        for (uint256 i = buffer.length; i > offset; --i) {
+            buffer[i - 1] = HEX_DIGITS[value & 0xf];
+            value >>= 4;
+        }
     }
 }
