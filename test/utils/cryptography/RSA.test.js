@@ -40,7 +40,7 @@ describe('RSA', function () {
   });
 
   describe('others tests', function () {
-    it(`openssl`, async function () {
+    it('openssl', async function () {
       const data = ethers.toUtf8Bytes('hello world');
       const sig =
         '0x079bed733b48d69bdb03076cb17d9809072a5a765460bc72072d687dba492afe951d75b814f561f253ee5cc0f3d703b6eab5b5df635b03a5437c0a5c179309812f5b5c97650361c645bc99f806054de21eb187bc0a704ed38d3d4c2871a117c19b6da7e9a3d808481c46b22652d15b899ad3792da5419e50ee38759560002388';
@@ -54,7 +54,7 @@ describe('RSA', function () {
     // According to RFC4055, pg.5 and RFC8017, pg. 64, for SHA-1, and the SHA-2 family,
     // the algorithm parameter has to be NULL and both explicit NULL parameter and implicit
     // NULL parameter (ie, absent NULL parameter) are considered to be legal and equivalent.
-    it(`rfc8017 implicit null parameter`, async function () {
+    it('rfc8017 implicit null parameter', async function () {
       const data = ethers.toUtf8Bytes('hello world!');
       const sig =
         '0xa0073057133ff3758e7e111b4d7441f1d8cbe4b2dd5ee4316a14264290dee5ed7f175716639bd9bb43a14e4f9fcb9e84dedd35e2205caac04828b2c053f68176d971ea88534dd2eeec903043c3469fc69c206b2a8694fd262488441ed8852280c3d4994e9d42bd1d575c7024095f1a20665925c2175e089c0d731471f6cc145404edf5559fd2276e45e448086f71c78d0cc6628fad394a34e51e8c10bc39bfe09ed2f5f742cc68bee899d0a41e4c75b7b80afd1c321d89ccd9fe8197c44624d91cc935dfa48de3c201099b5b417be748aef29248527e8bbb173cab76b48478d4177b338fe1f1244e64d7d23f07add560d5ad50b68d6649a49d7bc3db686daaa7';
