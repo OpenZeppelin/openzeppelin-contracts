@@ -11,7 +11,6 @@ import {SignedMath} from "./math/SignedMath.sol";
  */
 library Strings {
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
-    bytes16 private constant HEX_DIGITS_UPPERCASE = "0123456789ABCDEF";
     uint8 private constant ADDRESS_LENGTH = 20;
 
     /**
@@ -64,15 +63,17 @@ library Strings {
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
-        if (length < Math.log256(value) + 1) {
-            revert StringsInsufficientHexLength(value, length);
-        }
-
+        uint256 localValue = value;
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
-        _unsafeSetHexString(buffer, 2, value);
-
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = HEX_DIGITS[localValue & 0xf];
+            localValue >>= 4;
+        }
+        if (localValue != 0) {
+            revert StringsInsufficientHexLength(value, length);
+        }
         return string(buffer);
     }
 
@@ -89,22 +90,23 @@ library Strings {
      * representation, according to EIP-55.
      */
     function toChecksumHexString(address addr) internal pure returns (string memory) {
-        bytes memory lowercase = new bytes(40);
-        uint160 addrValue = uint160(addr);
-        _unsafeSetHexString(lowercase, 0, addrValue);
-        bytes32 hashedAddr = keccak256(abi.encodePacked(lowercase));
+        bytes memory buffer = bytes(toHexString(addr));
 
-        bytes memory buffer = new bytes(42);
-        buffer[0] = "0";
-        buffer[1] = "x";
-        uint160 hashValue = uint160(bytes20(hashedAddr));
+        // hash the hex part of buffer (skip length + 2 bytes, length 40)
+        uint256 hashValue;
+        assembly ("memory-safe") {
+            hashValue := shr(96, keccak256(add(buffer, 0x22), 40))
+        }
+
         for (uint256 i = 41; i > 1; --i) {
-            uint8 digit = uint8(addrValue & 0xf);
-            buffer[i] = hashValue & 0xf > 7 ? HEX_DIGITS_UPPERCASE[digit] : HEX_DIGITS[digit];
-            addrValue >>= 4;
+            // possible values for buffer[i] are 48 (0) to 57 (9) and 97 (a) to 102 (f)
+            if (hashValue & 0xf > 7 && uint8(buffer[i]) > 96) {
+                // case shift by xoring with 0x20
+                buffer[i] ^= 0x20;
+            }
             hashValue >>= 4;
         }
-        return string(abi.encodePacked(buffer));
+        return string(buffer);
     }
 
     /**
@@ -112,18 +114,5 @@ library Strings {
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
         return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
-    }
-
-    /**
-     * @dev Sets the hexadecimal representation of a value in the specified buffer starting from the given offset.
-     *
-     * NOTE: This function does not check that the `buffer` can allocate `value` without overflowing. Make sure
-     * to check whether `Math.log256(value) + 1` is larger than the specified `length`.
-     */
-    function _unsafeSetHexString(bytes memory buffer, uint256 offset, uint256 value) private pure {
-        for (uint256 i = buffer.length; i > offset; --i) {
-            buffer[i - 1] = HEX_DIGITS[value & 0xf];
-            value >>= 4;
-        }
     }
 }
