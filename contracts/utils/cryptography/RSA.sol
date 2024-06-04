@@ -22,7 +22,7 @@ library RSA {
         bytes memory e,
         bytes memory n
     ) internal view returns (bool) {
-        return pkcs1Sha256(sha256(data), s, e, n);
+        return pkcs1(sha256(data), s, e, n);
     }
 
     /**
