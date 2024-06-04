@@ -55,8 +55,8 @@ import {Time} from "../../utils/types/Time.sol";
  * will be {AccessManager} itself.
  *
  * WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
- * mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
- * {{AccessControl-renounceRole}}.
+ * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
+ * {AccessControl-renounceRole}.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
     using Time for *;
@@ -109,8 +109,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     bytes32 private _executionId;
 
     /**
-     * @dev Check that the caller is authorized to perform the operation, following the restrictions encoded in
-     * {_getAdminRestrictions}.
+     * @dev Check that the caller is authorized to perform the operation.
+     * See {AccessManager} description for a detailed breakdown of the authorization logic.
      */
     modifier onlyAuthorized() {
         _checkAuthorized();
@@ -412,9 +412,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetClosed} event.
      */
     function _setTargetClosed(address target, bool closed) internal virtual {
-        if (target == address(this)) {
-            revert AccessManagerLockedAccount(target);
-        }
         _targets[target].closed = closed;
         emit TargetClosed(target, closed);
     }
@@ -470,7 +467,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /**
      * @dev Reverts if the operation is currently scheduled and has not expired.
-     * (Note: This function was introduced due to stack too deep errors in schedule.)
+     *
+     * NOTE: This function was introduced due to stack too deep errors in schedule.
      */
     function _checkNotScheduled(bytes32 operationId) private view {
         uint48 prevTimepoint = _schedules[operationId].timepoint;
@@ -585,7 +583,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // ================================================= ADMIN LOGIC ==================================================
     /**
-     * @dev Check if the current call is authorized according to admin logic.
+     * @dev Check if the current call is authorized according to admin and roles logic.
+     *
+     * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
@@ -610,7 +610,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _getAdminRestrictions(
         bytes calldata data
-    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
+    ) private view returns (bool adminRestricted, uint64 roleAdminId, uint32 executionDelay) {
         if (data.length < 4) {
             return (false, 0, 0);
         }
@@ -647,7 +647,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (true, getRoleAdmin(roleId), 0);
         }
 
-        return (false, 0, 0);
+        return (false, getTargetFunctionRole(address(this), selector), 0);
     }
 
     // =================================================== HELPERS ====================================================
@@ -672,7 +672,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev A version of {canCall} that checks for admin restrictions in this contract.
+     * @dev A version of {canCall} that checks for restrictions in this contract.
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
         if (data.length < 4) {
@@ -685,8 +685,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (_isExecuting(address(this), _checkSelector(data)), 0);
         }
 
-        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
-        if (!enabled) {
+        (bool adminRestricted, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
+
+        // isTragetClosed apply to non-admin-restricted function
+        if (!adminRestricted && isTargetClosed(address(this))) {
             return (false, 0);
         }
 
