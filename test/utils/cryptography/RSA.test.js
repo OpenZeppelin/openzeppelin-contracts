@@ -74,7 +74,8 @@ describe('RSA', function () {
 
     it('returns false for a signature with diferent length to n', async function () {
       const data = ethers.toUtf8Bytes('hello world!');
-      const sig = '0x0102';
+      const sig =
+        '0xa0073057133ff3758e7e111b4d7441f1d8cbe4b2dd5ee4316a14264290dee5ed7f175716639bd9bb43a14e4f9fcb9e84dedd35e2205caac04828b2c053f68176d971ea88534dd2eeec903043c3469fc69c206b2a8694fd262488441ed8852280c3d4994e9d42bd1d575c7024095f1a20665925c2175e089c0d731471f6cc145404edf5559fd2276e45e448086f71c78d0cc6628fad394a34e51e8c10bc39bfe09ed2f5f742cc68bee899d0a41e4c75b7b80afd1c321d89ccd9fe8197c44624d91cc935dfa48de3c201099b5b417be748aef29248527e8bbb173cab76b48478d4177b338fe1f1244e64d7d23f07add560d5ad50b68d6649a49d7bc3db686daaa7';
       const exp = '0x03';
       const mod = '0x04';
       expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
@@ -82,7 +83,8 @@ describe('RSA', function () {
 
     it('returns false if the modexp operation fails', async function () {
       const data = ethers.toUtf8Bytes('hello world!');
-      const sig = '0x01';
+      const sig =
+        '0xa0073057133ff3758e7e111b4d7441f1d8cbe4b2dd5ee4316a14264290dee5ed7f175716639bd9bb43a14e4f9fcb9e84dedd35e2205caac04828b2c053f68176d971ea88534dd2eeec903043c3469fc69c206b2a8694fd262488441ed8852280c3d4994e9d42bd1d575c7024095f1a20665925c2175e089c0d731471f6cc145404edf5559fd2276e45e448086f71c78d0cc6628fad394a34e51e8c10bc39bfe09ed2f5f742cc68bee899d0a41e4c75b7b80afd1c321d89ccd9fe8197c44624d91cc935dfa48de3c201099b5b417be748aef29248527e8bbb173cab76b48478d4177b338fe1f1244e64d7d23f07add560d5ad50b68d6649a49d7bc3db686daaa7';
       const exp = '0x03';
       const mod = '0x00';
       expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
