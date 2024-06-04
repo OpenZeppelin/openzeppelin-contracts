@@ -4,50 +4,52 @@ pragma solidity ^0.8.20;
 import {Math} from "../math/Math.sol";
 
 /**
- *  TODO:
- *  - Further optimize ?
- *  - Write documentation
+ * @dev RSA PKCS#1 v1.5 signature verification implementation according to https://datatracker.ietf.org/doc/html/rfc8017[RFC8017].
  *
- *  Inspired by Adrià Massanet's work: https://github.com/adria0/SolRsaVerify
+ * This library supports PKCS#1 v1.5 padding to avoid malleability via chosen plaintext attacks in practical implementations.
+ * The padding follows the EMSA-PKCS1-v1_5-ENCODE encoding definition as per section 9.2 of the RFC. This padding makes
+ * RSA semanticaly secure for signing messages.
+ *
+ * Inspired by https://github.com/adria0/SolRsaVerify[Adrià Massanet's work]
  */
 library RSA {
     /**
-     * @dev Verifies a PKCSv1.5 SHA256 signature
-     * @param data to verify
-     * @param sig is the signature
-     * @param exp is the exponent
-     * @param mod is the modulus
+     * @dev Same as {pkcs1} but using SHA256 to calculate the digest of `data`.
      */
     function pkcs1Sha256(
         bytes memory data,
-        bytes memory sig,
-        bytes memory exp,
-        bytes memory mod
+        bytes memory s,
+        bytes memory e,
+        bytes memory n
     ) internal view returns (bool) {
-        return pkcs1Sha256(sha256(data), sig, exp, mod);
+        return pkcs1Sha256(sha256(data), s, e, n);
     }
 
     /**
-     * @dev Verifies a PKCSv1.5 SHA256 signature
-     * @param digest is the sha256 of the data
-     * @param sig is the signature
-     * @param exp is the exponent
-     * @param mod is the modulus
+     * @dev Verifies a PKCSv1.5 signature given a digest according the verification
+     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017].
+     *
+     * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
+     * Consider using at least 2048 bits.
+     *
+     * @param digest the digest to verify
+     * @param s is a buffer containing the signature
+     * @param e is the exponent of the public key
+     * @param n is the modulus of the public key
      */
-    function pkcs1Sha256(
-        bytes32 digest,
-        bytes memory sig,
-        bytes memory exp,
-        bytes memory mod
-    ) internal view returns (bool) {
+    function pkcs1(bytes32 digest, bytes memory s, bytes memory e, bytes memory n) internal view returns (bool) {
         unchecked {
             // cache and check length
-            uint256 length = mod.length;
-            if (length < 0x40 || length != sig.length) {
+            uint256 length = n.length;
+            if (
+                length < 0x40 || // PKCS#1 padding is slightly less than 0x40 bytes at the bare minimum
+                length != s.length // signature must have the same length as the finite field
+            ) {
                 return false;
             }
 
-            (bool success, bytes memory buffer) = Math.tryModExp(sig, exp, mod);
+            // RSAVP1 https://datatracker.ietf.org/doc/html/rfc8017#section-5.2.2
+            (bool success, bytes memory buffer) = Math.tryModExp(s, e, n);
             if (!success) {
                 return false;
             }
@@ -89,16 +91,22 @@ library RSA {
             uint256 paddingEnd = length - offset;
 
             // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.
+            // This is required to ensure non-malleability. Not checking would allow an attacker to
+            // use the padding to manipulate the message in order to create a valid signature out of
+            // multiple valid signatures.
             for (uint256 i = 2; i < paddingEnd; ++i) {
                 if (_unsafeReadBytes1(buffer, i) != 0xFF) {
                     return false;
                 }
             }
+
             // All the other parameters are small enough to fit in a bytes32, so we can check them directly.
             return
-                bytes2(0x0001) == _unsafeReadBytes2(buffer, 0x00) &&
-                params == _unsafeReadBytes32(buffer, paddingEnd) & mask &&
-                digest == _unsafeReadBytes32(buffer, length - 0x20);
+                bytes2(0x0001) == _unsafeReadBytes2(buffer, 0x00) && // 00 | 01
+                // PS was checked in the loop
+                params == _unsafeReadBytes32(buffer, paddingEnd) & mask && // DigestInfo
+                // Optional parameters are not checked
+                digest == _unsafeReadBytes32(buffer, length - 0x20); // Digest
         }
     }
 
