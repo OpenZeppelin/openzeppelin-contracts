@@ -37,16 +37,16 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Indicates a failure within the {transferFrom} part of a transferFromAndCall operation.
-     * @param sender The address from which to send tokens.
-     * @param receiver The address to which tokens are being transferred.
-     * @param value The amount of tokens to be transferred.
+     * @param sender Address from which to send tokens.
+     * @param receiver Address to which tokens are being transferred.
+     * @param value Amount of tokens to be transferred.
      */
     error ERC1363TransferFromFailed(address sender, address receiver, uint256 value);
 
     /**
      * @dev Indicates a failure within the {approve} part of a approveAndCall operation.
-     * @param spender The address which will spend the funds.
-     * @param value The amount of tokens to be spent.
+     * @param spender Address which will spend the funds.
+     * @param value Amount of tokens to be spent.
      */
     error ERC1363ApproveFailed(address spender, uint256 value);
 
