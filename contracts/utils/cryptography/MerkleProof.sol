@@ -128,7 +128,6 @@ library MerkleProof {
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         bytes32[] memory hashes = new bytes32[](totalHashes);
         uint256 leafPos = 0;
-        uint256 hashPos = 0;
         uint256 proofPos = 0;
         // At each step, we compute the next hash using two values:
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
@@ -136,10 +135,12 @@ library MerkleProof {
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
-            bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i]
-                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
-                : proof[proofPos++];
+            // Get values from either leaves or proof based on proofFlag
+            bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[i - leavesLen];
+            bytes32 b = proofFlags[i] ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[i - leavesLen])
+            : proof[proofPos++];
+            
+            // Compute hash and store in hashes array
             hashes[i] = Hashes.commutativeKeccak256(a, b);
         }
 
