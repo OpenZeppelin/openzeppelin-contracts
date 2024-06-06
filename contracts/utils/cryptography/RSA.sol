@@ -49,19 +49,20 @@ library RSA {
             }
 
             // verify that s < n
-            bool ok = false;
             for (uint256 i = 0; i < length; i += 0x20) {
                 uint256 p = Math.min(i, length - 0x20);
                 bytes32 sp = _unsafeReadBytes32(s, p);
                 bytes32 np = _unsafeReadBytes32(n, p);
                 if (sp < np) {
-                    ok = true;
+                    // s < n in the upper bits (everything before is equal) → s < n globally: ok
                     break;
-                } else if (sp > np) {
+                } else if (sp > np || p == length - 0x20) {
+                    // s > n in the upper bits (everything before is equal) → s > n globally: fail
+                    // or
+                    // s = n and we are looking at the lower bits → s = n globally: fail
                     return false;
                 }
             }
-            if (!ok) return false;
 
             // RSAVP1 https://datatracker.ietf.org/doc/html/rfc8017#section-5.2.2
             (bool success, bytes memory buffer) = Math.tryModExp(s, e, n);
