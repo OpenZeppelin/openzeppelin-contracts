@@ -51,9 +51,8 @@ library RSA {
             // verify that s < n
             bool ok = false;
             for (uint256 i = 0; i < length; i += 0x20) {
-                bytes32 si = _unsafeReadBytes32(s, Math.min(i, length - 0x20));
-                bytes32 ni = _unsafeReadBytes32(n, Math.min(i, length - 0x20));
-                if (si < ni) {
+                uint256 p = Math.min(i, length - 0x20);
+                if (_unsafeReadBytes32(s, p) < _unsafeReadBytes32(n, p)) {
                     ok = true;
                     break;
                 }
