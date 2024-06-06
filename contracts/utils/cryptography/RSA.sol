@@ -52,9 +52,13 @@ library RSA {
             bool ok = false;
             for (uint256 i = 0; i < length; i += 0x20) {
                 uint256 p = Math.min(i, length - 0x20);
-                if (_unsafeReadBytes32(s, p) < _unsafeReadBytes32(n, p)) {
+                bytes32 sp = _unsafeReadBytes32(s, p);
+                bytes32 np = _unsafeReadBytes32(n, p);
+                if (sp < np) {
                     ok = true;
                     break;
+                } else if (sp > np) {
+                    return false;
                 }
             }
             if (!ok) return false;
