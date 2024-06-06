@@ -77,13 +77,13 @@ library RSA {
             // it should be at 32 (digest) + 2 bytes from the end. To those 34 bytes, we add the
             // OID (9 bytes) and its length (2 bytes) to get the position of the DigestInfo sequence,
             // which is expected to have a length of 0x31 when the NULL param is present or 0x2f if not.
-            if (_unsafeReadBytes1(buffer, length - 50) == 0x31) {
+            if (bytes1(_unsafeReadBytes32(buffer, length - 50)) == 0x31) {
                 offset = 0x34;
                 // 00 (1 byte) | SEQUENCE length (0x31) = 3031 (2 bytes) | SEQUENCE length (0x0d) = 300d (2 bytes) | OBJECT_IDENTIFIER length (0x09) = 0609 (2 bytes)
                 // SHA256 OID = 608648016503040201 (9 bytes) | NULL = 0500 (2 bytes) (explicit) | OCTET_STRING length (0x20) = 0420 (2 bytes)
                 params = 0x003031300d060960864801650304020105000420000000000000000000000000;
                 mask = 0xffffffffffffffffffffffffffffffffffffffff000000000000000000000000; // (20 bytes)
-            } else if (_unsafeReadBytes1(buffer, length - 48) == 0x2F) {
+            } else if (bytes1(_unsafeReadBytes32(buffer, length - 48)) == 0x2F) {
                 offset = 0x32;
                 // 00 (1 byte) | SEQUENCE length (0x2f) = 302f (2 bytes) | SEQUENCE length (0x0b) = 300b (2 bytes) | OBJECT_IDENTIFIER length (0x09) = 0609 (2 bytes)
                 // SHA256 OID = 608648016503040201 (9 bytes) | NULL = <implicit> | OCTET_STRING length (0x20) = 0420 (2 bytes)
@@ -102,14 +102,14 @@ library RSA {
             // use the padding to manipulate the message in order to create a valid signature out of
             // multiple valid signatures.
             for (uint256 i = 2; i < paddingEnd; ++i) {
-                if (_unsafeReadBytes1(buffer, i) != 0xFF) {
+                if (bytes1(_unsafeReadBytes32(buffer, i)) != 0xFF) {
                     return false;
                 }
             }
 
             // All the other parameters are small enough to fit in a bytes32, so we can check them directly.
             return
-                bytes2(0x0001) == _unsafeReadBytes2(buffer, 0x00) && // 00 | 01
+                bytes2(0x0001) == bytes2(_unsafeReadBytes32(buffer, 0x00)) && // 00 | 01
                 // PS was checked in the loop
                 params == _unsafeReadBytes32(buffer, paddingEnd) & mask && // DigestInfo
                 // Optional parameters are not checked
@@ -121,13 +121,5 @@ library RSA {
         assembly {
             result := mload(add(add(array, 0x20), offset))
         }
-    }
-
-    function _unsafeReadBytes1(bytes memory array, uint256 offset) private pure returns (bytes1) {
-        return bytes1(_unsafeReadBytes32(array, offset));
-    }
-
-    function _unsafeReadBytes2(bytes memory array, uint256 offset) private pure returns (bytes2) {
-        return bytes2(_unsafeReadBytes32(array, offset));
     }
 }
