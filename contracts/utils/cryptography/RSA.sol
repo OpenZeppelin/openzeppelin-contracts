@@ -48,6 +48,18 @@ library RSA {
                 return false;
             }
 
+            // verify that s < n
+            bool ok = false;
+            for (uint256 i = 0; i < length - 0x20; i += 0x20) {
+                bytes32 si = _unsafeReadBytes32(s, Math.min(i, length - 0x20));
+                bytes32 ni = _unsafeReadBytes32(n, Math.min(i, length - 0x20));
+                if (si < ni) {
+                    ok = true;
+                    break;
+                }
+            }
+            if (!ok) return false;
+
             // RSAVP1 https://datatracker.ietf.org/doc/html/rfc8017#section-5.2.2
             (bool success, bytes memory buffer) = Math.tryModExp(s, e, n);
             if (!success) {
