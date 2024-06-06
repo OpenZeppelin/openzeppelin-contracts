@@ -32,6 +32,9 @@ library RSA {
      * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
      * Consider using at least 2048 bits.
      *
+     * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
+     * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
+     *
      * @param digest the digest to verify
      * @param s is a buffer containing the signature
      * @param e is the exponent of the public key
@@ -48,7 +51,7 @@ library RSA {
                 return false;
             }
 
-            // verify that s < n
+            // Verify that s < n to ensure there's only one valid signature for a given message
             for (uint256 i = 0; i < length; i += 0x20) {
                 uint256 p = Math.min(i, length - 0x20);
                 bytes32 sp = _unsafeReadBytes32(s, p);
