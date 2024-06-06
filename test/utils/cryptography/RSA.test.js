@@ -41,6 +41,18 @@ describe('RSA', function () {
   });
 
   describe('others tests', function () {
+    it('should fail if s >= n', async function () {
+      // this is the openssl example where sig has been replaced by sig + mod
+      const data = ethers.toUtf8Bytes('hello world');
+      const sig =
+        '0xe6dacb53450242618b3e502a257c08acb44b456c7931988da84f0cda8182b435d6d5453ac1e72b07c7dadf2747609b7d544d15f3f14081f9dbad9c48b7aa78d2bdafd81d630f19a0270d7911f4ec82b171e9a95889ffc9e740dc9fac89407a82d152ecb514967d4d9165e67ce0d7f39a3082657cdfca148a5fc2b3a7348c4795';
+      const exp =
+        '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001';
+      const mod =
+        '0xdf3edde009b96bc5b03b48bd73fe70a3ad20eaf624d0dc1ba121a45cc739893741b7cf82acf1c91573ec8266538997c6699760148de57e54983191eca0176f518e547b85fe0bb7d9e150df19eee734cf5338219c7f8f7b13b39f5384179f62c135e544cb70be7505751f34568e06981095aeec4f3a887639718a3e11d48c240d';
+      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
+    });
+
     it('openssl', async function () {
       const data = ethers.toUtf8Bytes('hello world');
       const sig =
