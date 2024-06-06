@@ -117,8 +117,11 @@ library RSA {
         }
     }
 
+    /// @dev Reads a bytes32 from a bytes array without bounds checking.
     function _unsafeReadBytes32(bytes memory array, uint256 offset) private pure returns (bytes32 result) {
-        assembly {
+        // Memory safetiness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
+        // and `offset` is within bounds.
+        assembly ("memory-safe") {
             result := mload(add(add(array, 0x20), offset))
         }
     }
