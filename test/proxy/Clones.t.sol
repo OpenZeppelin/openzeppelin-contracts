@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 // solhint-disable func-name-mixedcase
 
-import {Test, console2} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract DummyContract {
