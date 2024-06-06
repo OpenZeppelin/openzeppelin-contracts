@@ -51,7 +51,7 @@ library RSA {
                 return false;
             }
 
-            // verify that s < n
+            // Verify that s < n to ensure there's only one valid signature for a given message
             bool ok = false;
             for (uint256 i = 0; i < length; i += 0x20) {
                 uint256 p = Math.min(i, length - 0x20);
