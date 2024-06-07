@@ -120,7 +120,7 @@ describe('ERC20TemporaryApproval', function () {
             ].filter(Boolean),
           ),
         )
-          .to.emit(this.getter, 'ERC20allowance')
+          .to.emit(this.getter, 'ERC20Allowance')
           .withArgs(this.token, this.batch, this.spender, temporaryExpected);
 
         expect(await this.token.allowance(this.batch, this.spender)).to.equal(persistentExpected);
