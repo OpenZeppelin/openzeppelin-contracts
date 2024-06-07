@@ -17,14 +17,21 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
-        );
+        (bool success, ) = authority.staticcall(abi.encodeCall(IAuthority.canCall, (caller, target, selector)));
         if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
+            assembly {
+                if gt(returndatasize(), 0x1f) {
+                    switch gt(returndatasize(), 0x3f)
+                    case 1 {
+                        returndatacopy(0, 0, 0x40)
+                        delay := mload(0x20)
+                    }
+                    case 0 {
+                        returndatacopy(0, 0, 0x20)
+                    }
+
+                    immediate := mload(0x00)
+                }
             }
         }
         return (immediate, delay);
