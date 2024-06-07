@@ -134,7 +134,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
     it('reverts when the token owner is the zero address', async function () {
       const value = 0n;
       await expect(this.token.connect(this.recipient).transferFrom(ethers.ZeroAddress, this.recipient, value))
-        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidApprover')
+        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidSender')
         .withArgs(ethers.ZeroAddress);
     });
   });
