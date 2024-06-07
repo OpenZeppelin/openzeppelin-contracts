@@ -2,52 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-// solhint-disable func-name-mixedcase
-
 import {Test} from "forge-std/Test.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-contract DummyContract {
+contract ClonesTest is Test {
     function getNumber() external pure returns (uint256) {
         return 42;
-    }
-}
-
-contract ClonesMock {
-    function cloneContract(address target) external returns (address) {
-        return Clones.clone(target);
-    }
-
-    function cloneDirtyTarget(address target) external returns (address) {
-        // Add dirty bits; will start with (0xff..)
-        assembly {
-            // Get type(uint256).max and shift to the left by 20 bytes => `or` with target
-            target := or(shl(160, not(0)), target)
-        }
-        return Clones.clone(target);
-    }
-
-    function cloneContractDeterministic(address target) external returns (address) {
-        return Clones.clone(target);
-    }
-
-    function cloneDirtyTargetDeterministic(address target) external returns (address) {
-        // Add dirty bits; will start with (0xff..)
-        assembly {
-            // Get type(uint256).max and shift to the left by 20 bytes => `or` with target
-            target := or(shl(160, not(0)), target)
-        }
-        return Clones.clone(target);
-    }
-}
-
-contract ClonesTest is Test {
-    DummyContract private dummy;
-    ClonesMock private clonesWrapper;
-
-    function setUp() public {
-        dummy = new DummyContract();
-        clonesWrapper = new ClonesMock();
     }
 
     function testSymbolicPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public {
@@ -60,47 +20,41 @@ contract ClonesTest is Test {
         assertEq(spillage, bytes32(0));
     }
 
-    function test_DummyContractReturnsCorrectNumber() external {
-        assertEq(dummy.getNumber(), 42);
+    function testCloneDirty() external {
+        address cloneClean = Clones.clone(address(this));
+        address cloneDirty = Clones.clone(_dirty(address(this)));
+
+        // both clones have the same code
+        assertEq(keccak256(cloneClean.code), keccak256(cloneDirty.code));
+
+        // both clones behave as expected
+        assertEq(ClonesTest(cloneClean).getNumber(), this.getNumber());
+        assertEq(ClonesTest(cloneDirty).getNumber(), this.getNumber());
     }
 
-    /// Clone
+    function testCloneDeterministicDirty() external {
+        address cloneClean = Clones.cloneDeterministic(address(this), bytes32(block.prevrandao));
+        address cloneDirty = Clones.cloneDeterministic(_dirty(address(this)), bytes32(~block.prevrandao));
 
-    function test_ValidCloneOfDummyContractReturnsCorrectNumber() external {
-        DummyContract dummyClone = DummyContract(clonesWrapper.cloneContract(address(dummy)));
-        assertEq(dummyClone.getNumber(), dummy.getNumber());
+        // both clones have the same code
+        assertEq(keccak256(cloneClean.code), keccak256(cloneDirty.code));
+
+        // both clones behave as expected
+        assertEq(ClonesTest(cloneClean).getNumber(), this.getNumber());
+        assertEq(ClonesTest(cloneDirty).getNumber(), this.getNumber());
     }
 
-    function test_ClonesOfSameAddressHaveSameCodeDirty() external {
-        address clone = clonesWrapper.cloneContract(address(dummy));
-        address invalidClone = clonesWrapper.cloneDirtyTarget(address(dummy));
+    function testPredictDeterministicAddressDirty(bytes32 salt) external {
+        address predictClean = Clones.predictDeterministicAddress(address(this), salt);
+        address predictDirty = Clones.predictDeterministicAddress(_dirty(address(this)), salt);
 
-        assertEq(keccak256(clone.code), keccak256(invalidClone.code));
+        //prediction should be similar
+        assertEq(predictClean, predictDirty);
     }
 
-    function testFail_CallToInvalidCloneWillRevertBecauseItHasNoCode() external {
-        DummyContract invalidDummyClone = DummyContract(clonesWrapper.cloneDirtyTarget(address(dummy)));
-        vm.expectRevert();
-        invalidDummyClone.getNumber();
-    }
-
-    /// Clone Deterministic
-
-    function test_ValidCloneOfDummyContractReturnsCorrectNumber_Deterministic() external {
-        DummyContract dummyClone = DummyContract(clonesWrapper.cloneContractDeterministic(address(dummy)));
-        assertEq(dummyClone.getNumber(), dummy.getNumber());
-    }
-
-    function test_ClonesOfSameAddressHaveSameCodeDirty_Deterministic() external {
-        address clone = clonesWrapper.cloneContractDeterministic(address(dummy));
-        address invalidClone = clonesWrapper.cloneDirtyTargetDeterministic(address(dummy));
-
-        assertEq(keccak256(clone.code), keccak256(invalidClone.code));
-    }
-
-    function testFail_CallToInvalidCloneWillRevertBecauseItHasNoCode_Deterministic() external {
-        DummyContract invalidDummyClone = DummyContract(clonesWrapper.cloneDirtyTargetDeterministic(address(dummy)));
-        vm.expectRevert();
-        invalidDummyClone.getNumber();
+    function _dirty(address input) private pure returns (address output) {
+        assembly {
+            output := or(input, shl(160, not(0)))
+        }
     }
 }
