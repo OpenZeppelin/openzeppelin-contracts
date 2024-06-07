@@ -19,6 +19,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     using StorageSlot for StorageSlot.Uint256SlotType;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20TemporaryApproval")) - 1)) & ~bytes32(uint256(0xff))
+    // solhint-disable-next-line const-name-snakecase
     bytes32 private constant ERC20TemporaryApprovalStorageLocation =
         0x0fd66af0be6cb88466bb5c49c7ea8fbb4acdc82057e863d0a17fddeaaf18fe00;
 
@@ -29,9 +30,16 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     function allowance(address owner, address spender) public view virtual override returns (uint256) {
         (bool success, uint256 amount) = Math.tryAdd(
             super.allowance(owner, spender),
-            _loadTemporaryAllowance(owner, spender)
+            _temporaryAllowance(owner, spender)
         );
         return success ? amount : type(uint256).max;
+    }
+
+    /**
+     * @dev Internal getter for the current temporary allowance that `spender` has over `owner` tokens.
+     */
+    function _temporaryAllowance(address owner, address spender) internal view virtual returns (uint256) {
+        return ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tload();
     }
 
     /**
@@ -40,12 +48,36 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
+     * Requirements:
+     * - `spender` cannot be the zero address.
+     *
      * Does NOT emit an {Approval} event.
      */
     function temporaryApprove(address spender, uint256 value) public virtual returns (bool) {
-        address owner = _msgSender();
-        _storeTemporaryAllowance(owner, spender, value);
+        _temporaryApprove(_msgSender(), spender, value);
         return true;
+    }
+
+    /**
+     * @dev Sets `value` as the temporary allowance of `spender` over the `owner` s tokens.
+     *
+     * This internal function is equivalent to `temporaryApprove`, and can be used to e.g. set automatic allowances
+     * for certain subsystems, etc.
+     *
+     * Requirements:
+     * - `owner` cannot be the zero address.
+     * - `spender` cannot be the zero address.
+     *
+     * Does NOT emit an {Approval} event.
+     */
+    function _temporaryApprove(address owner, address spender, uint256 value) internal virtual {
+        if (owner == address(0)) {
+            revert ERC20InvalidApprover(address(0));
+        }
+        if (spender == address(0)) {
+            revert ERC20InvalidSpender(address(0));
+        }
+        ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tstore(value);
     }
 
     /**
@@ -55,7 +87,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
         unchecked {
             // load transient allowance
-            uint256 currentTemporaryAllowance = _loadTemporaryAllowance(owner, spender);
+            uint256 currentTemporaryAllowance = _temporaryAllowance(owner, spender);
             // if there is temporary allowance
             if (currentTemporaryAllowance > 0) {
                 // if infinite, do nothing
@@ -63,20 +95,12 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
                 // check how much of the value is covered by the transient allowance
                 uint256 spendTemporaryAllowance = Math.min(currentTemporaryAllowance, value);
                 // decrease transient allowance accordingly
-                _storeTemporaryAllowance(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
+                _temporaryApprove(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
                 // update value necessary
                 value -= spendTemporaryAllowance;
             }
             // reduce any remaining value from the persistent allowance
             super._spendAllowance(owner, spender, value);
         }
-    }
-
-    function _loadTemporaryAllowance(address owner, address spender) private view returns (uint256) {
-        return ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tload();
-    }
-
-    function _storeTemporaryAllowance(address owner, address spender, uint256 value) private {
-        ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tstore(value);
     }
 }
