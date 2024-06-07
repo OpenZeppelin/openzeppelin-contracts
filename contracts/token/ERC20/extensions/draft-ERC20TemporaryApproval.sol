@@ -24,7 +24,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
 
     /**
      * @dev {allowance} override that includes the temporary allowance when looking up the current allowance. If
-     * adding up the "traditional" and the temporary allowances result in an overflow, type(uint256).max is returned.
+     * adding up the persistent and the temporary allowances result in an overflow, type(uint256).max is returned.
      */
     function allowance(address owner, address spender) public view virtual override returns (uint256) {
         (bool success, uint256 amount) = Math.tryAdd(
@@ -50,10 +50,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
 
     /**
      * @dev {_spendAllowance} override that consumes the temporary allowance (if any) before eventually falling back
-     * onto the the transitional, persistent, allowance.
-     *
-     * In case the temporary allowance is enough to cover the required value, this will NOT make a super call. This
-     * should be considered in case this extension is used with code that also overrides {_spendAllowance}.
+     * to consumming the persistent allowance.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
         unchecked {
@@ -70,10 +67,8 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
                 // update value necessary
                 value -= spendTemporaryAllowance;
             }
-            // if allowance is still needed, or if
-            if (value > 0) {
-                super._spendAllowance(owner, spender, value);
-            }
+            // reduce any remaining value from the persistent allowance
+            super._spendAllowance(owner, spender, value);
         }
     }
 
