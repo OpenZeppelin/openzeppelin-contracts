@@ -77,7 +77,7 @@ describe('ERC20TemporaryApproval', function () {
       temporaryAllowance ??= 0n;
       amount ??= 0n;
       temporaryExpected ??= min(persistentAllowance + temporaryAllowance - amount, ethers.MaxUint256);
-      persistentExpected ??= persistentAllowance - max(0n, amount - temporaryAllowance);
+      persistentExpected ??= persistentAllowance - max(amount - temporaryAllowance, 0n);
 
       it(description, async function () {
         await expect(
