@@ -126,5 +126,17 @@ describe('ERC20TemporaryApproval', function () {
         expect(await this.token.allowance(this.batch, this.spender)).to.equal(persistentExpected);
       });
     }
+
+    it('reverts when the recipient is the zero address', async function () {
+      await expect(this.token.connect(this.holder).temporaryApprove(ethers.ZeroAddress, 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidSpender')
+        .withArgs(ethers.ZeroAddress);
+    });
+
+    it('reverts when the token owner is the zero address', async function () {
+      await expect(this.token.$_temporaryApprove(ethers.ZeroAddress, this.recipient, 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidApprover')
+        .withArgs(ethers.ZeroAddress);
+    });
   });
 });
