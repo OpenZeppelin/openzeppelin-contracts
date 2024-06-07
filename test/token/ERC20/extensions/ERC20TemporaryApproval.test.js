@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { max, min } = require('../../../helpers/math.js');
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
 
@@ -30,167 +31,100 @@ describe('ERC20TemporaryApproval', function () {
 
   shouldBehaveLikeERC20(initialSupply);
 
-  describe('setting temporary allowance', function () {
-    const persistentAmount = 42n;
-    const temporaryAmount = 17n;
-
-    it('can set temporary allowance', async function () {
-      await expect(
-        this.batch.execute([
-          {
-            target: this.token,
-            value: 0n,
-            data: this.token.interface.encodeFunctionData('temporaryApprove', [this.spender.target, temporaryAmount]),
-          },
-          {
-            target: this.getter,
-            value: 0n,
-            data: this.getter.interface.encodeFunctionData('allowance', [
-              this.token.target,
-              this.batch.target,
-              this.spender.target,
-            ]),
-          },
-        ]),
-      )
-        .to.emit(this.getter, 'erc20allowance')
-        .withArgs(this.token, this.batch, this.spender, temporaryAmount);
-
-      expect(await this.token.allowance(this.batch, this.spender)).to.equal(0n);
-    });
-
-    it('can set temporary allowance on top of persistent allowance', async function () {
-      await this.token.$_approve(this.batch, this.spender, persistentAmount);
-
-      await expect(
-        this.batch.execute([
-          {
-            target: this.token,
-            value: 0n,
-            data: this.token.interface.encodeFunctionData('temporaryApprove', [this.spender.target, temporaryAmount]),
-          },
-          {
-            target: this.getter,
-            value: 0n,
-            data: this.getter.interface.encodeFunctionData('allowance', [
-              this.token.target,
-              this.batch.target,
-              this.spender.target,
-            ]),
-          },
-        ]),
-      )
-        .to.emit(this.getter, 'erc20allowance')
-        .withArgs(this.token, this.batch, this.spender, persistentAmount + temporaryAmount);
-
-      expect(await this.token.allowance(this.batch, this.spender)).to.equal(persistentAmount);
-    });
-  });
-
-  describe('spending temporary allowance', function () {
+  describe('setting and spending temporary allowance', function () {
     beforeEach(async function () {
       await this.token.connect(this.holder).transfer(this.batch, initialSupply);
     });
 
-    it('consumming temporary allowance alone', async function () {
-      await expect(
-        this.batch.execute([
-          {
-            target: this.token,
-            value: 0n,
-            data: this.token.interface.encodeFunctionData('temporaryApprove', [this.spender.target, 10n]),
-          },
-          {
-            target: this.spender,
-            value: 0n,
-            data: this.spender.interface.encodeFunctionData('$functionCall', [
-              this.token.target,
-              this.token.interface.encodeFunctionData('transferFrom', [this.batch.target, this.recipient.address, 2n]),
-            ]),
-          },
-          {
-            target: this.getter,
-            value: 0n,
-            data: this.getter.interface.encodeFunctionData('allowance', [
-              this.token.target,
-              this.batch.target,
-              this.spender.target,
-            ]),
-          },
-        ]),
-      )
-        .to.emit(this.getter, 'erc20allowance')
-        .withArgs(this.token, this.batch, this.spender, 8n); // 10 - 2
+    for (let {
+      description,
+      persistentAllowance,
+      temporaryAllowance,
+      amount,
+      temporaryExpected,
+      persistentExpected,
+    } of [
+      { description: 'can set temporary allowance', temporaryAllowance: 42n },
+      {
+        description: 'can set temporary allowance on top of persistent allowance',
+        temporaryAllowance: 42n,
+        persistentAllowance: 17n,
+      },
+      { description: 'support allowance overflow', temporaryAllowance: ethers.MaxUint256, persistentAllowance: 17n },
+      { description: 'consumming temporary allowance alone', temporaryAllowance: 42n, amount: 2n },
+      {
+        description: 'fallback to persistent allowance if temporary allowance is not sufficient',
+        temporaryAllowance: 42n,
+        persistentAllowance: 17n,
+        amount: 50n,
+      },
+      {
+        description: 'do not reduce infinite temporary allowance #1',
+        temporaryAllowance: ethers.MaxUint256,
+        amount: 50n,
+        temporaryExpected: ethers.MaxUint256,
+      },
+      {
+        description: 'do not reduce infinite temporary allowance #2',
+        temporaryAllowance: 17n,
+        persistentAllowance: ethers.MaxUint256,
+        amount: 50n,
+        temporaryExpected: ethers.MaxUint256,
+        persistentExpected: ethers.MaxUint256,
+      },
+    ]) {
+      persistentAllowance ??= 0n;
+      temporaryAllowance ??= 0n;
+      amount ??= 0n;
+      temporaryExpected ??= min(persistentAllowance + temporaryAllowance - amount, ethers.MaxUint256);
+      persistentExpected ??= persistentAllowance - max(0n, amount - temporaryAllowance);
 
-      expect(await this.token.allowance(this.batch, this.spender)).to.equal(0n);
-    });
+      it(description, async function () {
+        await expect(
+          this.batch.execute(
+            [
+              persistentAllowance && {
+                target: this.token,
+                value: 0n,
+                data: this.token.interface.encodeFunctionData('approve', [this.spender.target, persistentAllowance]),
+              },
+              temporaryAllowance && {
+                target: this.token,
+                value: 0n,
+                data: this.token.interface.encodeFunctionData('temporaryApprove', [
+                  this.spender.target,
+                  temporaryAllowance,
+                ]),
+              },
+              amount && {
+                target: this.spender,
+                value: 0n,
+                data: this.spender.interface.encodeFunctionData('$functionCall', [
+                  this.token.target,
+                  this.token.interface.encodeFunctionData('transferFrom', [
+                    this.batch.target,
+                    this.recipient.address,
+                    amount,
+                  ]),
+                ]),
+              },
+              {
+                target: this.getter,
+                value: 0n,
+                data: this.getter.interface.encodeFunctionData('allowance', [
+                  this.token.target,
+                  this.batch.target,
+                  this.spender.target,
+                ]),
+              },
+            ].filter(Boolean),
+          ),
+        )
+          .to.emit(this.getter, 'ERC20allowance')
+          .withArgs(this.token, this.batch, this.spender, temporaryExpected);
 
-    it('do not reduce infinite temporary allowance', async function () {
-      await expect(
-        this.batch.execute([
-          {
-            target: this.token,
-            value: 0n,
-            data: this.token.interface.encodeFunctionData('temporaryApprove', [this.spender.target, ethers.MaxUint256]),
-          },
-          {
-            target: this.spender,
-            value: 0n,
-            data: this.spender.interface.encodeFunctionData('$functionCall', [
-              this.token.target,
-              this.token.interface.encodeFunctionData('transferFrom', [this.batch.target, this.recipient.address, 2n]),
-            ]),
-          },
-          {
-            target: this.getter,
-            value: 0n,
-            data: this.getter.interface.encodeFunctionData('allowance', [
-              this.token.target,
-              this.batch.target,
-              this.spender.target,
-            ]),
-          },
-        ]),
-      )
-        .to.emit(this.getter, 'erc20allowance')
-        .withArgs(this.token, this.batch, this.spender, ethers.MaxUint256);
-
-      expect(await this.token.allowance(this.batch, this.spender)).to.equal(0n);
-    });
-
-    it('fallback to persistent allowance if temporary allowance is not sufficient', async function () {
-      await this.token.$_approve(this.batch, this.spender, 10n);
-
-      await expect(
-        this.batch.execute([
-          {
-            target: this.token,
-            value: 0n,
-            data: this.token.interface.encodeFunctionData('temporaryApprove', [this.spender.target, 1n]),
-          },
-          {
-            target: this.spender,
-            value: 0n,
-            data: this.spender.interface.encodeFunctionData('$functionCall', [
-              this.token.target,
-              this.token.interface.encodeFunctionData('transferFrom', [this.batch.target, this.recipient.address, 2n]),
-            ]),
-          },
-          {
-            target: this.getter,
-            value: 0n,
-            data: this.getter.interface.encodeFunctionData('allowance', [
-              this.token.target,
-              this.batch.target,
-              this.spender.target,
-            ]),
-          },
-        ]),
-      )
-        .to.emit(this.getter, 'erc20allowance')
-        .withArgs(this.token, this.batch, this.spender, 9n); // 10 + 1 - 2
-
-      expect(await this.token.allowance(this.batch, this.spender)).to.equal(9n); // 10 - 1
-    });
+        expect(await this.token.allowance(this.batch, this.spender)).to.equal(persistentExpected);
+      });
+    }
   });
 });
