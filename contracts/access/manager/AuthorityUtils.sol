@@ -21,15 +21,12 @@ library AuthorityUtils {
         if (success) {
             assembly {
                 if gt(returndatasize(), 0x1f) {
-                    switch gt(returndatasize(), 0x3f)
-                    case 1 {
-                        returndatacopy(0, 0, 0x40)
-                        delay := mload(0x20)
-                    }
-                    case 0 {
-                        returndatacopy(0, 0, 0x20)
+                    if gt(returndatasize(), 0x3f) {
+                        returndatacopy(0x00, 0x20, 0x20)
+                        delay := mload(0x00)
                     }
 
+                    returndatacopy(0, 0, 0x20)
                     immediate := mload(0x00)
                 }
             }
