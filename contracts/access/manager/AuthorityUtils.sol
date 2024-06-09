@@ -19,6 +19,7 @@ library AuthorityUtils {
     ) internal view returns (bool immediate, uint32 delay) {
         (bool success, ) = authority.staticcall(abi.encodeCall(IAuthority.canCall, (caller, target, selector)));
         if (success) {
+            /// @solidity memory-safe-assembly
             assembly {
                 if gt(returndatasize(), 0x1f) {
                     if gt(returndatasize(), 0x3f) {
