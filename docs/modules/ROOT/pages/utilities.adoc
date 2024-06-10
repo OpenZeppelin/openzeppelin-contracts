@@ -147,6 +147,39 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 [[misc]]
 == Misc
 
+=== Packing
+
+The EVM works on 32-bytes chunks known as "words", which can hold multiple values together as long as these values don't exceed its size. This technique is known as _packing_, and consists of putting values together on a single storage slot to reduce gas costs by only accessing that particular slot.
+Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires to load such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without
+involving calldata or memory.
+
+The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for packing values that fit in 32 bytes. The library includes 3 main functionalities:
+
+* Packing 2 `bytesXX` values
+* Extracting a packed `bytesXX` value from a `bytesYY`
+* Replacing a packed `bytesXX` value from a `bytesYY`
+
+With these primitives, one can build a custom (UDVTs[https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types]) to create custom packed types. For example, suppose you need to pack an `address` of 20 bytes with a `bytes4` selector and an `uint64` time period in seconds:
+
+[source,solidity]
+----
+type MyCustomPack is bytes32;
+type Subpack is bytes12;
+
+function _pack(address account, bytes4 selector, uint64 period) internal returns (bytes32) {
+    bytes12 subpack = pack_4_8(selector, bytes8(period));
+    return pack_20_12(account, subpack);
+}
+
+function _unpack(bytes32 pack) internal returns (address, bytes4, uint64) {
+    return (
+        extract_32_20(pack),
+        extract_32_4(pack, 160),
+        extract_32_8(pack, 192)
+    )
+}
+----
+
 === Storage Slots
 
 Solidity allocates a storage pointer for each variable declared in a contract. However, there are cases when it's required to access storage pointers that can't be derived by using regular Solidity.
