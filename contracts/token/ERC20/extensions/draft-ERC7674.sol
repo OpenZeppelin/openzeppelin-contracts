@@ -13,15 +13,13 @@ import {StorageSlot} from "../../../utils/StorageSlot.sol";
  *
  * WARNING: This is a draft contract. The corresponding ERC is still subject to changes.
  */
-abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
+abstract contract ERC7674 is ERC20, IERC7674 {
     using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
     using StorageSlot for StorageSlot.Uint256SlotType;
 
-    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20TemporaryApproval")) - 1)) & ~bytes32(uint256(0xff))
-    // solhint-disable-next-line const-name-snakecase
-    bytes32 private constant ERC20TemporaryApprovalStorageLocation =
-        0x0fd66af0be6cb88466bb5c49c7ea8fbb4acdc82057e863d0a17fddeaaf18fe00;
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC7674")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant ERC7674_STORAGE = 0xf9459e0e3709f2b5aaa798666bbb2eb0d06d2c3958e71e4a32973e445fe1ce00;
 
     /**
      * @dev {allowance} override that includes the temporary allowance when looking up the current allowance. If
@@ -112,6 +110,6 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         address owner,
         address spender
     ) private pure returns (StorageSlot.Uint256SlotType) {
-        return ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256();
+        return ERC7674_STORAGE.deriveMapping(owner).deriveMapping(spender).asUint256();
     }
 }

@@ -14,7 +14,7 @@ async function fixture() {
   const accounts = await ethers.getSigners();
   const [holder, recipient, other] = accounts;
 
-  const token = await ethers.deployContract('$ERC20TemporaryApproval', [name, symbol]);
+  const token = await ethers.deployContract('$ERC7674', [name, symbol]);
   await token.$_mint(holder, initialSupply);
 
   const spender = await ethers.deployContract('$Address');
@@ -24,7 +24,7 @@ async function fixture() {
   return { accounts, holder, recipient, other, token, spender, batch, getter };
 }
 
-describe('ERC20TemporaryApproval', function () {
+describe('ERC7674', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
