@@ -8,6 +8,29 @@ pragma solidity ^0.8.20;
 
 /**
  * @dev Helper library packing and unpacking multiple values into bytesXX.
+ * 
+ * Example usage:
+ * 
+ * \`\`\`solidity
+ * library MyPacker {
+ *     type MyType is bytes32;
+ *
+ *     function _pack(address account, bytes4 selector, uint64 period) external pure returns (MyType) {
+ *         bytes12 subpack = Packing.pack_4_8(selector, bytes8(period));
+ *         bytes32 pack = Packing.pack_20_12(bytes20(account), subpack);
+ *         return MyType.wrap(pack);
+ *     }
+ *
+ *     function _unpack(MyType self) external pure returns (address, bytes4, uint64) {
+ *         bytes32 pack = MyType.unwrap(self);
+ *         return (
+ *             address(Packing.extract_32_20(pack, 0)),
+ *             Packing.extract_32_4(pack, 20),
+ *             uint64(Packing.extract_32_8(pack, 24))
+ *         );
+ *     }
+ * }
+ * \`\`\`
  */
 // solhint-disable func-name-mixedcase
 `;
