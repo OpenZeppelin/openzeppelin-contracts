@@ -86,6 +86,30 @@ library Strings {
     }
 
     /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its checksummed ASCII `string` hexadecimal
+     * representation, according to EIP-55.
+     */
+    function toChecksumHexString(address addr) internal pure returns (string memory) {
+        bytes memory buffer = bytes(toHexString(addr));
+
+        // hash the hex part of buffer (skip length + 2 bytes, length 40)
+        uint256 hashValue;
+        assembly ("memory-safe") {
+            hashValue := shr(96, keccak256(add(buffer, 0x22), 40))
+        }
+
+        for (uint256 i = 41; i > 1; --i) {
+            // possible values for buffer[i] are 48 (0) to 57 (9) and 97 (a) to 102 (f)
+            if (hashValue & 0xf > 7 && uint8(buffer[i]) > 96) {
+                // case shift by xoring with 0x20
+                buffer[i] ^= 0x20;
+            }
+            hashValue >>= 4;
+        }
+        return string(buffer);
+    }
+
+    /**
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {

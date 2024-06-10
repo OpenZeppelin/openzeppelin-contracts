@@ -28,6 +28,8 @@ Counting modules determine valid voting options.
 
 * {GovernorCountingSimple}: Simple voting mechanism with 3 voting options: Against, For and Abstain.
 
+* {GovernorCountingFractional}: A more modular voting system that allows a user to vote with only part of its voting power, and to split that weight arbitrarily between the 3 different options (Against, For and Abstain).
+
 Timelock extensions add a delay for governance decisions to be executed. The workflow is extended to require a `queue` step before execution. With these modules, proposals are executed by the external timelock contract, thus it is the timelock that has to hold the assets that are being governed.
 
 * {GovernorTimelockAccess}: Connects with an instance of an {AccessManager}. This allows restrictions (and delays) enforced by the manager to be considered by the Governor and integrated into the AccessManager's "schedule + execute" workflow.
@@ -61,6 +63,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 === Modules
 
 {{GovernorCountingSimple}}
+
+{{GovernorCountingFractional}}
 
 {{GovernorVotes}}
 
