@@ -149,7 +149,7 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 
 === Packing
 
-The storage in the EVM is shaped in chunks of 32 bytes, each of this chunks is known as _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allows for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots intead of just one.
+The storage in the EVM is shaped in chunks of 32 bytes, each of this chunks is known as _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allows for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
 
 Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires to load such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
 
