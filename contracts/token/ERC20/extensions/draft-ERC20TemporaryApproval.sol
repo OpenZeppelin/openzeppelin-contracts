@@ -39,7 +39,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      * @dev Internal getter for the current temporary allowance that `spender` has over `owner` tokens.
      */
     function _temporaryAllowance(address owner, address spender) internal view virtual returns (uint256) {
-        return ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tload();
+        return _temporaryAllowanceSlot(owner, spender).tload();
     }
 
     /**
@@ -77,7 +77,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         if (spender == address(0)) {
             revert ERC20InvalidSpender(address(0));
         }
-        ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256().tstore(value);
+        _temporaryAllowanceSlot(owner, spender).tstore(value);
     }
 
     /**
@@ -85,22 +85,33 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      * to consumming the persistent allowance.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
-        unchecked {
-            // load transient allowance
-            uint256 currentTemporaryAllowance = _temporaryAllowance(owner, spender);
-            // if there is temporary allowance
-            if (currentTemporaryAllowance > 0) {
-                // if infinite, do nothing
-                if (currentTemporaryAllowance == type(uint256).max) return;
+        // load transient allowance
+        uint256 currentTemporaryAllowance = _temporaryAllowance(owner, spender);
+
+        // Check and update (if needed) the temporary allowance + set remaining value
+        if (currentTemporaryAllowance > 0) {
+            if (currentTemporaryAllowance == type(uint256).max) {
+                // all value is covered by the infinite allowance. nothing left to spend.
+                value = 0;
+            } else {
                 // check how much of the value is covered by the transient allowance
                 uint256 spendTemporaryAllowance = Math.min(currentTemporaryAllowance, value);
-                // decrease transient allowance accordingly
-                _temporaryApprove(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
-                // update value necessary
-                value -= spendTemporaryAllowance;
+                unchecked {
+                    // decrease transient allowance accordingly
+                    _temporaryApprove(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
+                    // update value necessary
+                    value -= spendTemporaryAllowance;
+                }
             }
-            // reduce any remaining value from the persistent allowance
-            super._spendAllowance(owner, spender, value);
         }
+        // reduce any remaining value from the persistent allowance
+        super._spendAllowance(owner, spender, value);
+    }
+
+    function _temporaryAllowanceSlot(
+        address owner,
+        address spender
+    ) private pure returns (StorageSlot.Uint256SlotType) {
+        return ERC20TemporaryApprovalStorageLocation.deriveMapping(owner).deriveMapping(spender).asUint256();
     }
 }
