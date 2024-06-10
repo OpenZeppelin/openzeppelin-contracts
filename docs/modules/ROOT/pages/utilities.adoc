@@ -159,13 +159,10 @@ The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for pac
 * Extracting a packed `bytesXX` value from a `bytesYY`
 * Replacing a packed `bytesXX` value from a `bytesYY`
 
-With these primitives, one can build a custom (UDVTs[https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types]) to create custom packed types. For example, suppose you need to pack an `address` of 20 bytes with a `bytes4` selector and an `uint64` time period in seconds:
+With these primitives, one can build custom functions to create custom packed types. For example, suppose you need to pack an `address` of 20 bytes with a `bytes4` selector and an `uint64` time period in seconds:
 
 [source,solidity]
 ----
-type MyCustomPack is bytes32;
-type Subpack is bytes12;
-
 function _pack(address account, bytes4 selector, uint64 period) internal returns (bytes32) {
     bytes12 subpack = pack_4_8(selector, bytes8(period));
     return pack_20_12(account, subpack);
