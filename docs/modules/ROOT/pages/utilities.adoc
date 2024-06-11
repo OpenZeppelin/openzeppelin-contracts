@@ -8,6 +8,10 @@ Here are some of the more popular ones.
 
 === Checking Signatures On-Chain
 
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself owner of a _private key_ used to authorize an piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256r1 field, however other signature algorithms such as RSA are supported.
+
+==== Ethereum Signatures (secp256r1)
+
 xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
@@ -25,6 +29,32 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 ----
 
 WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
+
+==== RSA
+
+RSA a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC]. 
+
+This cryptosystem consists of using a private key that's the product of 2 large prime numbers. The message is signed by applying a modular exponentiation to its hash (commonly SHA256), where both the exponent and modulus compose the public key of the signer.
+
+RSA signatures are known for being less efficient than elliptic curve signatures given the size of the keys, which are big compared to ECDSA keys with the same security level. Using plain RSA is considered unsafe, this is why the implementation uses the `EMSA-PKCS1-v1_5` encoding method from https://datatracker.ietf.org/doc/html/rfc8017[RFC8017] to include padding to the signature.
+
+To verify a signature using RSA, you can leverage the xref:api:utils.adoc#RSA[`RSA`] library that exposes a method for verifying RSA with the PKCS 1.5 standard:
+
+[source,solidity]
+----
+using RSA for bytes32;
+
+function _verify(
+    bytes32 data,
+    bytes memory signature,
+    bytes memory e,
+    bytes memory n
+) internal pure returns (bool) {
+    return data.pkcs1(signature, e, n);
+}
+----
+
+IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
 
 === Verifying Merkle Proofs
 
