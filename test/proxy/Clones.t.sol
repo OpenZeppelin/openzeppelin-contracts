@@ -20,9 +20,11 @@ contract ClonesTest is Test {
         assertEq(spillage, bytes32(0));
     }
 
-    function testCloneDirty() external {
+    function testCloneDirty(address caller) external {
+        vm.startPrank(caller);
         address cloneClean = Clones.clone(address(this));
         address cloneDirty = Clones.clone(_dirty(address(this)));
+        vm.stopPrank();
 
         // both clones have the same code
         assertEq(keccak256(cloneClean.code), keccak256(cloneDirty.code));
@@ -32,9 +34,9 @@ contract ClonesTest is Test {
         assertEq(ClonesTest(cloneDirty).getNumber(), this.getNumber());
     }
 
-    function testCloneDeterministicDirty() external {
-        address cloneClean = Clones.cloneDeterministic(address(this), bytes32(block.prevrandao));
-        address cloneDirty = Clones.cloneDeterministic(_dirty(address(this)), bytes32(~block.prevrandao));
+    function testCloneDeterministicDirty(bytes32 salt) external {
+        address cloneClean = Clones.cloneDeterministic(address(this), salt);
+        address cloneDirty = Clones.cloneDeterministic(_dirty(address(this)), ~salt);
 
         // both clones have the same code
         assertEq(keccak256(cloneClean.code), keccak256(cloneDirty.code));
@@ -53,7 +55,7 @@ contract ClonesTest is Test {
     }
 
     function _dirty(address input) private pure returns (address output) {
-        assembly {
+        assembly ("memory-safe") {
             output := or(input, shl(160, not(0)))
         }
     }
