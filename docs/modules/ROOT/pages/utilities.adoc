@@ -54,7 +54,7 @@ function _verify(
 }
 ----
 
-IMPORTANT: Always use keys of at least 2048 bits.
+IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
 
 === Verifying Merkle Proofs
 
