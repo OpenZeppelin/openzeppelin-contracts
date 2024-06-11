@@ -177,6 +177,36 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 [[misc]]
 == Misc
 
+=== Packing
+
+The storage in the EVM is shaped in chunks of 32 bytes, each of this chunks is known as _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allows for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
+
+Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires to load such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
+
+The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for packing values that fit in 32 bytes. The library includes 3 main functionalities:
+
+* Packing 2 `bytesXX` values
+* Extracting a packed `bytesXX` value from a `bytesYY`
+* Replacing a packed `bytesXX` value from a `bytesYY`
+
+With these primitives, one can build custom functions to create custom packed types. For example, suppose you need to pack an `address` of 20 bytes with a `bytes4` selector and an `uint64` time period:
+
+[source,solidity]
+----
+function _pack(address account, bytes4 selector, uint64 period) external pure returns (bytes32) {
+    bytes12 subpack = Packing.pack_4_8(selector, bytes8(period));
+    return Packing.pack_20_12(bytes20(account), subpack);
+}
+
+function _unpack(bytes32 pack) external pure returns (address, bytes4, uint64) {
+    return (
+        address(Packing.extract_32_20(pack, 0)),
+        Packing.extract_32_4(pack, 20),
+        uint64(Packing.extract_32_8(pack, 24))
+    );
+}
+----
+
 === Storage Slots
 
 Solidity allocates a storage pointer for each variable declared in a contract. However, there are cases when it's required to access storage pointers that can't be derived by using regular Solidity.
