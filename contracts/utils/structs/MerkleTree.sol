@@ -17,7 +17,7 @@ import {Panic} from "../Panic.sol";
  *
  * * Depth: The number of levels in the tree, it also defines the maximum number of leaves as 2**depth.
  * * Zero value: The value that represents an empty leaf. Used to avoid regular zero values to be part of the tree.
- * * Hashing function: A cryptographic hash function used to produce internal nodes.
+ * * Hashing function: A cryptographic hash function used to produce internal nodes. Defaults to {Hashes-commutativeKeccak256}.
  *
  * _Available since v5.1._
  */
@@ -26,9 +26,6 @@ library MerkleTree {
      * @dev A complete `bytes32` Merkle tree.
      *
      * The `sides` and `zero` arrays are set to have a length equal to the depth of the tree during setup.
-     *
-     * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
-     * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
      *
      * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
@@ -148,7 +145,7 @@ library MerkleTree {
             }
 
             // Compute the current node hash by using the hash function
-            // with either the its sibling (side) or the zero value for that level.
+            // with either its sibling (side) or the zero value for that level.
             currentLevelHash = fnHash(
                 isLeft ? currentLevelHash : Arrays.unsafeAccess(self._sides, i).value,
                 isLeft ? Arrays.unsafeAccess(self._zeros, i).value : currentLevelHash
