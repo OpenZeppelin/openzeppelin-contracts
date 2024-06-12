@@ -102,7 +102,7 @@ library MerkleTree {
      * second pre-image attacks.
      *
      * This variant uses {Hashes-commutativeKeccak256} to hash internal nodes. It should only be used on merkle trees
-     * that were setup using the same (default) hashing function (i.e. by calling 
+     * that were setup using the same (default) hashing function (i.e. by calling
      * {xref-MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-}[the default setup] function).
      */
     function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256 index, bytes32 newRoot) {
