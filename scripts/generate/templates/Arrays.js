@@ -15,39 +15,39 @@ import {Math} from "./math/Math.sol";
 `;
 
 const sort = type => `\
-    /**
-     * @dev Sort an array of ${type} (in memory) following the provided comparator function.
-     *
-     * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
-     * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
-     *
-     * NOTE: this function's cost is \`O(n · log(n))\` in average and \`O(n²)\` in the worst case, with n the length of the
-     * array. Using it in view functions that are executed through \`eth_call\` is safe, but one should be very careful
-     * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
-     * consume more gas than is available in a block, leading to potential DoS.
-     */
-    function sort(
-        ${type}[] memory array,
-        function(${type}, ${type}) pure returns (bool) comp
-    ) internal pure returns (${type}[] memory) {
-        ${
-          type === 'bytes32'
-            ? '_quickSort(_begin(array), _end(array), comp);'
-            : 'sort(_castToBytes32Array(array), _castToBytes32Comp(comp));'
-        }
-        return array;
+/**
+ * @dev Sort an array of ${type} (in memory) following the provided comparator function.
+ *
+ * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
+ * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
+ *
+ * NOTE: this function's cost is \`O(n · log(n))\` in average and \`O(n²)\` in the worst case, with n the length of the
+ * array. Using it in view functions that are executed through \`eth_call\` is safe, but one should be very careful
+ * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
+ * consume more gas than is available in a block, leading to potential DoS.
+ */
+function sort(
+    ${type}[] memory array,
+    function(${type}, ${type}) pure returns (bool) comp
+) internal pure returns (${type}[] memory) {
+    ${
+      type === 'bytes32'
+        ? '_quickSort(_begin(array), _end(array), comp);'
+        : 'sort(_castToBytes32Array(array), _castToBytes32Comp(comp));'
     }
+    return array;
+}
 
-    /**
-     * @dev Variant of {sort} that sorts an array of ${type} in increasing order.
-     */
-    function sort(${type}[] memory array) internal pure returns (${type}[] memory) {
-        ${type === 'bytes32' ? 'sort(array, _defaultComp);' : 'sort(_castToBytes32Array(array), _defaultComp);'}
-        return array;
-    }
+/**
+ * @dev Variant of {sort} that sorts an array of ${type} in increasing order.
+ */
+function sort(${type}[] memory array) internal pure returns (${type}[] memory) {
+    ${type === 'bytes32' ? 'sort(array, _defaultComp);' : 'sort(_castToBytes32Array(array), _defaultComp);'}
+    return array;
+}
 `;
 
-const quickSort = `
+const quickSort = `\
 /**
  * @dev Performs a quick sort of a segment of memory. The segment sorted starts at \`begin\` (inclusive), and stops
  * at end (exclusive). Sorting follows the \`comp\` comparator.
@@ -123,34 +123,34 @@ function _swap(uint256 ptr1, uint256 ptr2) private pure {
 }
 `;
 
-const defaultComparator = `
-    /// @dev Comparator for sorting arrays in increasing order.
-    function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
-        return a < b;
-    }
+const defaultComparator = `\
+/// @dev Comparator for sorting arrays in increasing order.
+function _defaultComp(bytes32 a, bytes32 b) private pure returns (bool) {
+    return a < b;
+}
 `;
 
 const castArray = type => `\
-    /// @dev Helper: low level cast ${type} memory array to uint256 memory array
-    function _castToBytes32Array(${type}[] memory input) private pure returns (bytes32[] memory output) {
-        assembly {
-            output := input
-        }
+/// @dev Helper: low level cast ${type} memory array to uint256 memory array
+function _castToBytes32Array(${type}[] memory input) private pure returns (bytes32[] memory output) {
+    assembly {
+        output := input
     }
+}
 `;
 
 const castComparator = type => `\
-    /// @dev Helper: low level cast ${type} comp function to bytes32 comp function
-    function _castToBytes32Comp(
-        function(${type}, ${type}) pure returns (bool) input
-    ) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
-        assembly {
-            output := input
-        }
+/// @dev Helper: low level cast ${type} comp function to bytes32 comp function
+function _castToBytes32Comp(
+    function(${type}, ${type}) pure returns (bool) input
+) private pure returns (function(bytes32, bytes32) pure returns (bool) output) {
+    assembly {
+        output := input
     }
+}
 `;
 
-const search = `
+const search = `\
 /**
  * @dev Searches a sorted \`array\` and returns the first index that contains
  * a value greater or equal to \`element\`. If no such index exists (i.e. all
@@ -319,12 +319,12 @@ function upperBoundMemory(uint256[] memory array, uint256 element) internal pure
 }
 `;
 
-const unsafeAccessStorage = type => `
+const unsafeAccessStorage = type => `\
 /**
-* @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
-*
-* WARNING: Only use if you are certain \`pos\` is lower than the array length.
-*/
+ * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+ *
+ * WARNING: Only use if you are certain \`pos\` is lower than the array length.
+ */
 function unsafeAccess(${type}[] storage arr, uint256 pos) internal pure returns (StorageSlot.${capitalize(
   type,
 )}Slot storage) {
@@ -334,9 +334,10 @@ function unsafeAccess(${type}[] storage arr, uint256 pos) internal pure returns 
         slot := arr.slot
     }
     return slot.deriveArray().offset(pos).get${capitalize(type)}Slot();
-}`;
+}
+`;
 
-const unsafeAccessMemory = type => `
+const unsafeAccessMemory = type => `\
 /**
  * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
  *
@@ -349,7 +350,7 @@ function unsafeMemoryAccess(${type}[] memory arr, uint256 pos) internal pure ret
 }
 `;
 
-const unsafeSetLength = type => `
+const unsafeSetLength = type => `\
 /**
  * @dev Helper to set the length of an dynamic array. Directly writing to \`.length\` is forbidden.
  *
@@ -360,26 +361,32 @@ function unsafeSetLength(${type}[] storage array, uint256 len) internal {
     assembly {
         sstore(array.slot, len)
     }
-}`;
+}
+`;
 
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library Arrays {',
-  'using SlotDerivation for bytes32;',
-  'using StorageSlot for bytes32;',
-  // sorting, comparator, helpers and internal
-  sort('bytes32'),
-  TYPES.filter(type => type !== 'bytes32').map(sort),
-  quickSort,
-  defaultComparator,
-  TYPES.filter(type => type !== 'bytes32').map(castArray),
-  TYPES.filter(type => type !== 'bytes32').map(castComparator),
-  // lookup
-  search,
-  // unsafe (direct) storage and memory access
-  TYPES.map(unsafeAccessStorage),
-  TYPES.map(unsafeAccessMemory),
-  TYPES.map(unsafeSetLength),
+  format(
+    [].concat(
+      'using SlotDerivation for bytes32;',
+      'using StorageSlot for bytes32;',
+      '',
+      // sorting, comparator, helpers and internal
+      sort('bytes32'),
+      TYPES.filter(type => type !== 'bytes32').map(sort),
+      quickSort,
+      defaultComparator,
+      TYPES.filter(type => type !== 'bytes32').map(castArray),
+      TYPES.filter(type => type !== 'bytes32').map(castComparator),
+      // lookup
+      search,
+      // unsafe (direct) storage and memory access
+      TYPES.map(unsafeAccessStorage),
+      TYPES.map(unsafeAccessMemory),
+      TYPES.map(unsafeSetLength),
+    ),
+  ).trimEnd(),
   '}',
 );
