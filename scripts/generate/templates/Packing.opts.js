@@ -1,5 +1,3 @@
-const { range } = require('../../helpers');
-
-const SIZES = range(1, 33).filter(size => size == 1 || size == 2 || size % 4 == 0);
-
-module.exports = { SIZES };
+module.exports = {
+  SIZES: [1, 2, 4, 6, 8, 12, 16, 20, 24, 28, 32],
+};

@@ -19,6 +19,21 @@ contract PackingTest is Test {
         assertEq(right, Packing.pack_2_2(left, right).extract_4_2(2));
     }
 
+    function testPack(bytes2 left, bytes4 right) external {
+        assertEq(left, Packing.pack_2_4(left, right).extract_6_2(0));
+        assertEq(right, Packing.pack_2_4(left, right).extract_6_4(2));
+    }
+
+    function testPack(bytes2 left, bytes6 right) external {
+        assertEq(left, Packing.pack_2_6(left, right).extract_8_2(0));
+        assertEq(right, Packing.pack_2_6(left, right).extract_8_6(2));
+    }
+
+    function testPack(bytes4 left, bytes2 right) external {
+        assertEq(left, Packing.pack_4_2(left, right).extract_6_4(0));
+        assertEq(right, Packing.pack_4_2(left, right).extract_6_2(4));
+    }
+
     function testPack(bytes4 left, bytes4 right) external {
         assertEq(left, Packing.pack_4_4(left, right).extract_8_4(0));
         assertEq(right, Packing.pack_4_4(left, right).extract_8_4(4));
@@ -52,6 +67,16 @@ contract PackingTest is Test {
     function testPack(bytes4 left, bytes28 right) external {
         assertEq(left, Packing.pack_4_28(left, right).extract_32_4(0));
         assertEq(right, Packing.pack_4_28(left, right).extract_32_28(4));
+    }
+
+    function testPack(bytes6 left, bytes2 right) external {
+        assertEq(left, Packing.pack_6_2(left, right).extract_8_6(0));
+        assertEq(right, Packing.pack_6_2(left, right).extract_8_2(6));
+    }
+
+    function testPack(bytes6 left, bytes6 right) external {
+        assertEq(left, Packing.pack_6_6(left, right).extract_12_6(0));
+        assertEq(right, Packing.pack_6_6(left, right).extract_12_6(6));
     }
 
     function testPack(bytes8 left, bytes4 right) external {
@@ -186,6 +211,33 @@ contract PackingTest is Test {
         assertEq(container, container.replace_4_2(newValue, offset).replace_4_2(oldValue, offset));
     }
 
+    function testReplace(bytes6 container, bytes1 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 5));
+
+        bytes1 oldValue = container.extract_6_1(offset);
+
+        assertEq(newValue, container.replace_6_1(newValue, offset).extract_6_1(offset));
+        assertEq(container, container.replace_6_1(newValue, offset).replace_6_1(oldValue, offset));
+    }
+
+    function testReplace(bytes6 container, bytes2 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 4));
+
+        bytes2 oldValue = container.extract_6_2(offset);
+
+        assertEq(newValue, container.replace_6_2(newValue, offset).extract_6_2(offset));
+        assertEq(container, container.replace_6_2(newValue, offset).replace_6_2(oldValue, offset));
+    }
+
+    function testReplace(bytes6 container, bytes4 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 2));
+
+        bytes4 oldValue = container.extract_6_4(offset);
+
+        assertEq(newValue, container.replace_6_4(newValue, offset).extract_6_4(offset));
+        assertEq(container, container.replace_6_4(newValue, offset).replace_6_4(oldValue, offset));
+    }
+
     function testReplace(bytes8 container, bytes1 newValue, uint8 offset) external {
         offset = uint8(bound(offset, 0, 7));
 
@@ -213,6 +265,15 @@ contract PackingTest is Test {
         assertEq(container, container.replace_8_4(newValue, offset).replace_8_4(oldValue, offset));
     }
 
+    function testReplace(bytes8 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 2));
+
+        bytes6 oldValue = container.extract_8_6(offset);
+
+        assertEq(newValue, container.replace_8_6(newValue, offset).extract_8_6(offset));
+        assertEq(container, container.replace_8_6(newValue, offset).replace_8_6(oldValue, offset));
+    }
+
     function testReplace(bytes12 container, bytes1 newValue, uint8 offset) external {
         offset = uint8(bound(offset, 0, 11));
 
@@ -238,6 +299,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_12_4(newValue, offset).extract_12_4(offset));
         assertEq(container, container.replace_12_4(newValue, offset).replace_12_4(oldValue, offset));
+    }
+
+    function testReplace(bytes12 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 6));
+
+        bytes6 oldValue = container.extract_12_6(offset);
+
+        assertEq(newValue, container.replace_12_6(newValue, offset).extract_12_6(offset));
+        assertEq(container, container.replace_12_6(newValue, offset).replace_12_6(oldValue, offset));
     }
 
     function testReplace(bytes12 container, bytes8 newValue, uint8 offset) external {
@@ -274,6 +344,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_16_4(newValue, offset).extract_16_4(offset));
         assertEq(container, container.replace_16_4(newValue, offset).replace_16_4(oldValue, offset));
+    }
+
+    function testReplace(bytes16 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 10));
+
+        bytes6 oldValue = container.extract_16_6(offset);
+
+        assertEq(newValue, container.replace_16_6(newValue, offset).extract_16_6(offset));
+        assertEq(container, container.replace_16_6(newValue, offset).replace_16_6(oldValue, offset));
     }
 
     function testReplace(bytes16 container, bytes8 newValue, uint8 offset) external {
@@ -319,6 +398,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_20_4(newValue, offset).extract_20_4(offset));
         assertEq(container, container.replace_20_4(newValue, offset).replace_20_4(oldValue, offset));
+    }
+
+    function testReplace(bytes20 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 14));
+
+        bytes6 oldValue = container.extract_20_6(offset);
+
+        assertEq(newValue, container.replace_20_6(newValue, offset).extract_20_6(offset));
+        assertEq(container, container.replace_20_6(newValue, offset).replace_20_6(oldValue, offset));
     }
 
     function testReplace(bytes20 container, bytes8 newValue, uint8 offset) external {
@@ -373,6 +461,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_24_4(newValue, offset).extract_24_4(offset));
         assertEq(container, container.replace_24_4(newValue, offset).replace_24_4(oldValue, offset));
+    }
+
+    function testReplace(bytes24 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 18));
+
+        bytes6 oldValue = container.extract_24_6(offset);
+
+        assertEq(newValue, container.replace_24_6(newValue, offset).extract_24_6(offset));
+        assertEq(container, container.replace_24_6(newValue, offset).replace_24_6(oldValue, offset));
     }
 
     function testReplace(bytes24 container, bytes8 newValue, uint8 offset) external {
@@ -436,6 +533,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_28_4(newValue, offset).extract_28_4(offset));
         assertEq(container, container.replace_28_4(newValue, offset).replace_28_4(oldValue, offset));
+    }
+
+    function testReplace(bytes28 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 22));
+
+        bytes6 oldValue = container.extract_28_6(offset);
+
+        assertEq(newValue, container.replace_28_6(newValue, offset).extract_28_6(offset));
+        assertEq(container, container.replace_28_6(newValue, offset).replace_28_6(oldValue, offset));
     }
 
     function testReplace(bytes28 container, bytes8 newValue, uint8 offset) external {
@@ -508,6 +614,15 @@ contract PackingTest is Test {
 
         assertEq(newValue, container.replace_32_4(newValue, offset).extract_32_4(offset));
         assertEq(container, container.replace_32_4(newValue, offset).replace_32_4(oldValue, offset));
+    }
+
+    function testReplace(bytes32 container, bytes6 newValue, uint8 offset) external {
+        offset = uint8(bound(offset, 0, 26));
+
+        bytes6 oldValue = container.extract_32_6(offset);
+
+        assertEq(newValue, container.replace_32_6(newValue, offset).extract_32_6(offset));
+        assertEq(container, container.replace_32_6(newValue, offset).replace_32_6(oldValue, offset));
     }
 
     function testReplace(bytes32 container, bytes8 newValue, uint8 offset) external {
