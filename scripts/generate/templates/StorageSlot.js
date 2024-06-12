@@ -53,7 +53,7 @@ pragma solidity ^0.8.24;
 
 const struct = ({ type, name }) => `\
 struct ${name}Slot {
-  ${type} value;
+    ${type} value;
 }
 `;
 
@@ -62,10 +62,10 @@ const get = ({ name }) => `\
  * @dev Returns an \`${name}Slot\` with member \`value\` located at \`slot\`.
  */
 function get${name}Slot(bytes32 slot) internal pure returns (${name}Slot storage r) {
-  /// @solidity memory-safe-assembly
-  assembly {
-      r.slot := slot
-  }
+    /// @solidity memory-safe-assembly
+    assembly {
+        r.slot := slot
+    }
 }
 `;
 
@@ -74,10 +74,10 @@ const getStorage = ({ type, name }) => `\
  * @dev Returns an \`${name}Slot\` representation of the ${type} storage pointer \`store\`.
  */
 function get${name}Slot(${type} storage store) internal pure returns (${name}Slot storage r) {
-  /// @solidity memory-safe-assembly
-  assembly {
-      r.slot := store.slot
-  }
+    /// @solidity memory-safe-assembly
+    assembly {
+        r.slot := store.slot
+    }
 }
 `;
 
@@ -86,11 +86,12 @@ const udvt = ({ type, name }) => `\
  * @dev UDVT that represent a slot holding a ${type}.
  */
 type ${name}SlotType is bytes32;
+
 /**
  * @dev Cast an arbitrary slot to a ${name}SlotType.
  */
 function as${name}(bytes32 slot) internal pure returns (${name}SlotType) {
-  return ${name}SlotType.wrap(slot);
+    return ${name}SlotType.wrap(slot);
 }
 `;
 
@@ -99,19 +100,20 @@ const transient = ({ type, name }) => `\
  * @dev Load the value held at location \`slot\` in transient storage.
  */
 function tload(${name}SlotType slot) internal view returns (${type} value) {
-  /// @solidity memory-safe-assembly
-  assembly {
-    value := tload(slot)
-  }
+    /// @solidity memory-safe-assembly
+    assembly {
+        value := tload(slot)
+    }
 }
+
 /**
  * @dev Store \`value\` at location \`slot\` in transient storage.
  */
 function tstore(${name}SlotType slot, ${type} value) internal {
-  /// @solidity memory-safe-assembly
-  assembly {
-    tstore(slot, value)
-  }
+    /// @solidity memory-safe-assembly
+    assembly {
+        tstore(slot, value)
+    }
 }
 `;
 
@@ -119,9 +121,13 @@ function tstore(${name}SlotType slot, ${type} value) internal {
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
-  TYPES.map(type => struct(type)),
-  TYPES.flatMap(type => [get(type), type.isValueType ? '' : getStorage(type)]),
-  TYPES.filter(type => type.isValueType).map(type => udvt(type)),
-  TYPES.filter(type => type.isValueType).map(type => transient(type)),
+  format(
+    [].concat(
+      TYPES.map(type => struct(type)),
+      TYPES.flatMap(type => [get(type), !type.isValueType && getStorage(type)].filter(Boolean)),
+      TYPES.filter(type => type.isValueType).map(type => udvt(type)),
+      TYPES.filter(type => type.isValueType).map(type => transient(type)),
+    ),
+  ).trimEnd(),
   '}',
 );
