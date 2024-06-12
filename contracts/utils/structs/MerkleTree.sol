@@ -52,25 +52,24 @@ library MerkleTree {
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
      *
+     * Once a tree is setup, any push to it must use the same hashing function. This means that values
+     * should be pushed to it using the default {xref-MerkleTree-push-struct-MerkleTree-Bytes32PushTree-bytes32-}[push] function.
+     *
      * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
      * empty leaves. It should be a value that is not expected to be part of the tree.
-     *
-     * Once a tree is setup, any push to it must use the same hashing function. This means that values
-     * should be pushed to it using this push variant that uses the default hashing function.
      */
     function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal returns (bytes32 initialRoot) {
         return setup(self, levels, zero, Hashes.commutativeKeccak256);
     }
 
     /**
-     * @dev Same as {setup}, but allows to specify a custom hashing function.
+     * @dev Same as {xref-MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-}[setup], but allows to specify a custom hashing function.
+     *
+     * Once a tree is setup, any push to it must use the same hashing function. This means that values
+     * should be pushed to it using the custom push function, which should be the same one as used during the setup.
      *
      * IMPORTANT: Providing a custom hashing function is a security-sensitive operation since it may
      * compromise the soundness of the tree. Consider using functions from {Hashes}.
-     *
-     * Once a tree is setup, any push to it must use the same hashing function. This means that values
-     * should be pushed to it using this push variant that takes a custom hashing function, which should
-     * be the same one as used during the setup.
      */
     function setup(
         Bytes32PushTree storage self,
@@ -103,7 +102,8 @@ library MerkleTree {
      * second pre-image attacks.
      *
      * This variant uses {Hashes-commutativeKeccak256} to hash internal nodes. It should only be used on merkle trees
-     * that were setup using the same (default) hashing function.
+     * that were setup using the same (default) hashing function (i.e. by calling 
+     * {xref-MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-}[the default setup] function).
      */
     function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256 index, bytes32 newRoot) {
         return push(self, leaf, Hashes.commutativeKeccak256);
