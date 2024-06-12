@@ -241,7 +241,7 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
       }
     });
 
-    describe('when _executionId is in storage for target and selector', function () {
+    describe.skip('when _executionId is in storage for target and selector', function () {
       beforeEach('set _executionId flag from calldata and target', async function () {
         const executionId = ethers.keccak256(
           ethers.AbiCoder.defaultAbiCoder().encode(
@@ -249,6 +249,7 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
             [this.target.target, this.calldata.substring(0, 10)],
           ),
         );
+        // Note: this testing methods doesn't work with execution id in temporary storage
         await setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
       });
 

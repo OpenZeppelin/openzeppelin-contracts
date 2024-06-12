@@ -8,6 +8,7 @@ import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
 import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
+import {StorageSlot} from "../../utils/StorageSlot.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Time} from "../../utils/types/Time.sol";
 
@@ -59,6 +60,7 @@ import {Time} from "../../utils/types/Time.sol";
  * {AccessControl-renounceRole}.
  */
 contract AccessManager is Context, Multicall, IAccessManager {
+    using StorageSlot for *;
     using Time for *;
 
     // Structure that stores the details for a target contract.
@@ -104,9 +106,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
     mapping(uint64 roleId => Role) private _roles;
     mapping(bytes32 operationId => Schedule) private _schedules;
 
-    // Used to identify operations that are currently being executed via {execute}.
-    // This should be transient storage when supported by the EVM.
-    bytes32 private _executionId;
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.AccessManager.executionId")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant ACCESS_MANAGER_EXECUTION_ID_STORAGE =
+        0xcd345b53ed666c7ef33210216f8d27ceee269613372bda4998fd5fcd86a8b100;
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
@@ -502,14 +504,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Mark the target and selector as authorised
-        bytes32 executionIdBefore = _executionId;
-        _executionId = _hashExecutionId(target, _checkSelector(data));
+        bytes32 executionIdBefore = ACCESS_MANAGER_EXECUTION_ID_STORAGE.asBytes32().tload();
+        ACCESS_MANAGER_EXECUTION_ID_STORAGE.asBytes32().tstore(_hashExecutionId(target, _checkSelector(data)));
 
         // Perform call
         Address.functionCallWithValue(target, data, msg.value);
 
         // Reset execute identifier
-        _executionId = executionIdBefore;
+        ACCESS_MANAGER_EXECUTION_ID_STORAGE.asBytes32().tstore(executionIdBefore);
 
         return nonce;
     }
@@ -706,7 +708,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
     function _isExecuting(address target, bytes4 selector) private view returns (bool) {
-        return _executionId == _hashExecutionId(target, selector);
+        return ACCESS_MANAGER_EXECUTION_ID_STORAGE.asBytes32().tload() == _hashExecutionId(target, selector);
     }
 
     /**
