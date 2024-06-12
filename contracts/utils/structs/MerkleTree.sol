@@ -55,9 +55,8 @@ library MerkleTree {
      * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
      * empty leaves. It should be a value that is not expected to be part of the tree.
      *
-     * Once a tree is setup, any push that that tree must use the same hashing function. This means that after a
-     * tree is setup using this function will, values should be pushed to it using the push variant that uses the
-     * default hashing function.
+     * Once a tree is setup, any push to it must use the same hashing function. This means that values
+     * should be pushed to it using this push variant that uses the default hashing function.
      */
     function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal returns (bytes32 initialRoot) {
         return setup(self, levels, zero, Hashes.commutativeKeccak256);
@@ -69,9 +68,9 @@ library MerkleTree {
      * IMPORTANT: Providing a custom hashing function is a security-sensitive operation since it may
      * compromise the soundness of the tree. Consider using functions from {Hashes}.
      *
-     * Once a tree is setup, any push that that tree must use the same hashing function. This means that after a
-     * tree is setup using this function will, values must be pushed to it using the push variant that takes a
-     * custom hashing function, and the hashing function provided must be the same one as the one used during setup.
+     * Once a tree is setup, any push to it must use the same hashing function. This means that values
+     * should be pushed to it using this push variant that takes a custom hashing function, which should
+     * be the same one as used during the setup.
      */
     function setup(
         Bytes32PushTree storage self,
@@ -104,7 +103,7 @@ library MerkleTree {
      * second pre-image attacks.
      *
      * This variant uses {Hashes-commutativeKeccak256} to hash internal nodes. It should only be used on merkle trees
-     * setup using the same (default) ahshing function.
+     * that were setup using the same (default) hashing function.
      */
     function push(Bytes32PushTree storage self, bytes32 leaf) internal returns (uint256 index, bytes32 newRoot) {
         return push(self, leaf, Hashes.commutativeKeccak256);
@@ -117,7 +116,7 @@ library MerkleTree {
      * Hashing the leaf before calling this function is recommended as a protection against
      * second pre-image attacks.
      *
-     * This variant uses a custom hasing function to hash internal nodes. It should only be called with the same
+     * This variant uses a custom hashing function to hash internal nodes. It should only be called with the same
      * function as the one used during the initial setup of the merkle tree.
      */
     function push(
