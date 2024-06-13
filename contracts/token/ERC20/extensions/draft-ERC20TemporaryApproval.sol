@@ -89,22 +89,23 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
 
         // Check and update (if needed) the temporary allowance + set remaining value
         if (currentTemporaryAllowance > 0) {
+            // All value is covered by the infinite allowance. nothing left to spend, we can return early
             if (currentTemporaryAllowance == type(uint256).max) {
-                // all value is covered by the infinite allowance. nothing left to spend.
-                value = 0;
-            } else {
-                // check how much of the value is covered by the transient allowance
-                uint256 spendTemporaryAllowance = Math.min(currentTemporaryAllowance, value);
-                unchecked {
-                    // decrease transient allowance accordingly
-                    _temporaryApprove(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
-                    // update value necessary
-                    value -= spendTemporaryAllowance;
-                }
+                return;
+            }
+            // check how much of the value is covered by the transient allowance
+            uint256 spendTemporaryAllowance = Math.min(currentTemporaryAllowance, value);
+            unchecked {
+                // decrease transient allowance accordingly
+                _temporaryApprove(owner, spender, currentTemporaryAllowance - spendTemporaryAllowance);
+                // update value necessary
+                value -= spendTemporaryAllowance;
             }
         }
         // reduce any remaining value from the persistent allowance
-        super._spendAllowance(owner, spender, value);
+        if (value > 0) {
+            super._spendAllowance(owner, spender, value);
+        }
     }
 
     function _temporaryAllowanceSlot(
