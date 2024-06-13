@@ -157,10 +157,10 @@ Building an on-chain Merkle Tree allow developers to keep track of the history o
 
 The Merkle Tree does not keep track of the roots purposely, so that developers can choose their tracking mechanism. Setting up and using an Merkle Tree in Solidity is as simple as follows:
 
+NOTE: Functions are exposed without access control for demonstration purposes
+
 [source,solidity]
 ----
-// NOTE: Functions are exposed without access control for demonstration purposes
-
 using MerkleTree for MerkleTree.Bytes32PushTree;
 MerkleTree.Bytes32PushTree private _tree;
 
@@ -173,6 +173,31 @@ function push(bytes32 leaf) public /* onlyOwner */ {
     // Store the new root.
 }
 ----
+
+The library also supports custom hashing functions, which can be passed as an extra parameter to the xref:api:utils.adoc#MerkleTree-push-struct-MerkleTree-Bytes32PushTree-bytes32-[`push`] and xref:api:utils.adoc#MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-[`setup`] functions.
+
+Using custom hashing functions is a sensitive operation. After setup, it requires to keep using the same hashing function for every new valued pushed to the tree to avoid corrupting the tree. For this reason, it's a good practice to keep your hashing function static in your implementation contract as follows:
+
+[source,solidity]
+----
+using MerkleTree for MerkleTree.Bytes32PushTree;
+MerkleTree.Bytes32PushTree private _tree;
+
+function setup(uint8 _depth, bytes32 _zero) public /* onlyOwner */ {
+    root = _tree.setup(_depth, _zero, _hashFn);
+}
+
+function push(bytes32 leaf) public /* onlyOwner */ {
+    (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf, _hashFn);
+    // Store the new root.
+}
+
+function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
+    // Custom hash function implementation
+    // Kept as an internal implementation detail to 
+    // guarantee the same function is always used
+}
+---- 
 
 [[misc]]
 == Misc
