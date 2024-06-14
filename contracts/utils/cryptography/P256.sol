@@ -6,11 +6,13 @@ import {Math} from "../math/Math.sol";
 /**
  * @dev Implementation of secp256r1 verification and recovery functions.
  *
- * Based on
- * - https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol
- * Which is heavily inspired from
- * - https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol
- * - https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol
+ * The secp256r1 curve (also known as P256) is a NIST standard curve with wide support in modern devices
+ * and cryptographic standards. Some notable examples include Apple's Secure Enclave and Android's Keystore
+ * as well as authentication protocols like FIDO2.
+ *
+ * Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol[implementation of itsobvioustech].
+ * Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol[maxrobot] and
+ * https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
  */
 library P256 {
     struct JPoint {
@@ -32,13 +34,19 @@ library P256 {
     /// @dev B parameter of the weierstrass equation
     uint256 internal constant B = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B;
 
+    // P - 2 constant to speed up invModP
     uint256 private constant P2 = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFD;
+    // N - 2 constant to speed up invModN
     uint256 private constant N2 = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254F;
+
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
+    /// N/2 for excluding higher order `s` values
+    uint256 private constant HALF_N = 0x7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8;
+
     /**
-     * @dev signature verification - generic version that uses the EIP-7212 precompile is available, and fallback to
-     * the solidity implementation otherwise.
+     * @dev Verifies a secp256r1 signature using the RIP-7212 precompile at `address(0x100)` and falls back to the
+     * Solidity implementation if the precompile is not available.
      *
      * @param h - hashed message
      * @param r - signature half R
@@ -47,11 +55,11 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
+        if (s > HALF_N) {
+            return false;
+        }
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
-        return
-            success && returndata.length == 0x20
-                ? abi.decode(returndata, (uint256)) == 1
-                : verifySolidity(h, r, s, qx, qy);
+        return success && returndata.length == 0x20 ? abi.decode(returndata, (bool)) : verifySolidity(h, r, s, qx, qy);
     }
 
     /**
@@ -124,8 +132,7 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function getAddress(uint256 qx, uint256 qy) internal pure returns (address result) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(0x00, qx)
             mstore(0x20, qy)
             result := keccak256(0x00, 0x40)
@@ -136,12 +143,11 @@ library P256 {
      * @dev check if a point is on the curve.
      */
     function isOnCurve(uint256 x, uint256 y) internal pure returns (bool result) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let p := P
-            let lhs := mulmod(y, y, p)
-            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p)
-            result := eq(lhs, rhs)
+            let lhs := mulmod(y, y, p) // y^2
+            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
+            result := eq(lhs, rhs) // Should conform with the Weierstrass equation
         }
     }
 
@@ -174,8 +180,7 @@ library P256 {
         uint256 y2,
         uint256 z2
     ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let p := P
             let zz1 := mulmod(z1, z1, p) // zz1 = z1²
             let zz2 := mulmod(z2, z2, p) // zz2 = z2²
@@ -202,8 +207,7 @@ library P256 {
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-1998-cmo-2
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let p := P
             let yy := mulmod(y, y, p)
             let zz := mulmod(z, z, p)
@@ -323,15 +327,21 @@ library P256 {
         return JPoint(x, y, z);
     }
 
-    /**
-     *@dev From Fermat's little theorem https://en.wikipedia.org/wiki/Fermat%27s_little_theorem:
-     * `a**(p-1) ≡ 1 mod p`. This means that `a**(p-2)` is an inverse of a in Fp.
-     */
     function _invModN(uint256 value) private view returns (uint256) {
-        return Math.modExp(value, N2, N);
+        return _invMod(value, N2, N);
     }
 
     function _invModP(uint256 value) private view returns (uint256) {
-        return Math.modExp(value, P2, P);
+        return _invMod(value, P2, P);
+    }
+
+    /**
+     * @dev From https://en.wikipedia.org/wiki/Fermat%27s_little_theorem[Fermat's little theorem], we know that
+     * `a**(p-1) ≡ 1 mod p` if p is a prime number (and generates Fp). Given p is prime, it doesn't have a
+     * a coprime, so we can rewrite it as `a * a**(p-2) ≡ 1 mod p`, which means that `a**(p-2)` is the modular
+     * multiplicative inverse of a by rewritting it to to `a**-1 ≡ a**(p-2) mod p`.
+     */
+    function _invMod(uint256 value, uint256 p2, uint256 p) private view returns (uint256) {
+        return Math.modExp(value, p2, p);
     }
 }
