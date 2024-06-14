@@ -20,11 +20,9 @@ contract ClonesTest is Test {
         assertEq(spillage, bytes32(0));
     }
 
-    function testCloneDirty(address caller) external {
-        vm.startPrank(caller);
+    function testCloneDirty() external {
         address cloneClean = Clones.clone(address(this));
         address cloneDirty = Clones.clone(_dirty(address(this)));
-        vm.stopPrank();
 
         // both clones have the same code
         assertEq(keccak256(cloneClean.code), keccak256(cloneDirty.code));
