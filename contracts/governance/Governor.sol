@@ -44,7 +44,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     bytes32 private constant ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
-    string private _name;
 
     mapping(uint256 proposalId => ProposalCore) private _proposals;
 
@@ -72,9 +71,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     /**
      * @dev Sets the value for {name} and {version}
      */
-    constructor(string memory name_) EIP712(name_, version()) {
-        _name = name_;
-    }
+    constructor(string memory name_) EIP712(name_, version()) {}
 
     /**
      * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
@@ -99,7 +96,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev See {IGovernor-name}.
      */
     function name() public view virtual returns (string memory) {
-        return _name;
+        return _EIP712Name();
     }
 
     /**
