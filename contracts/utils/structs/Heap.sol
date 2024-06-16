@@ -69,11 +69,11 @@ library Heap {
         Uint256Heap storage self,
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
-        uint32 length = size(self);
+        uint32 size = length(self);
 
-        if (length == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-        uint32 last = length - 1; // could be unchecked (check above)
+        uint32 last = size - 1; // could be unchecked (check above)
 
         // get root location (in the data array) and value
         uint32 rootIdx = self.data[0].index;
@@ -128,16 +128,24 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) internal {
-        uint32 length = size(self);
-        self.data.push(Uint256HeapNode({index: length, lookup: length, value: value}));
-        _heapifyUp(self, length, value, comp);
+        uint32 size = length(self);
+        self.data.push(Uint256HeapNode({index: size, lookup: size, value: value}));
+        _heapifyUp(self, size, value, comp);
     }
 
     /**
      * @dev Returns the number of elements in the heap.
      */
-    function size(Uint256Heap storage self) internal view returns (uint32) {
+    function length(Uint256Heap storage self) internal view returns (uint32) {
         return self.data.length.toUint32();
+    }
+
+    function clear(Uint256Heap storage self) internal {
+        Uint256HeapNode[] storage data = self.data;
+        /// @solidity memory-safe-assembly
+        assembly {
+            sstore(data.slot, 0)
+        }
     }
 
     /*
@@ -158,13 +166,13 @@ library Heap {
      * @dev Perform heap maintenance on `self`, starting at position `pos` (with the `value`), using `comp` as a
      * comparator, and moving toward the leafs of the underlying tree.
      *
-     * Note: This is a private function that is called in a trusted context with already cached parameters. `length`
+     * Note: This is a private function that is called in a trusted context with already cached parameters. `lesizength`
      * and `value` could be extracted from `self` and `pos`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
     function _heapifyDown(
         Uint256Heap storage self,
-        uint32 length,
+        uint32 size,
         uint32 pos,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
@@ -172,23 +180,23 @@ library Heap {
         uint32 left = 2 * pos + 1;
         uint32 right = 2 * pos + 2;
 
-        if (right < length) {
+        if (right < size) {
             uint256 lValue = self.data[self.data[left].index].value;
             uint256 rValue = self.data[self.data[right].index].value;
             if (comp(lValue, value) || comp(rValue, value)) {
                 if (comp(lValue, rValue)) {
                     _swap(self, pos, left);
-                    _heapifyDown(self, length, left, value, comp);
+                    _heapifyDown(self, size, left, value, comp);
                 } else {
                     _swap(self, pos, right);
-                    _heapifyDown(self, length, right, value, comp);
+                    _heapifyDown(self, size, right, value, comp);
                 }
             }
-        } else if (left < length) {
+        } else if (left < size) {
             uint256 lValue = self.data[self.data[left].index].value;
             if (comp(lValue, value)) {
                 _swap(self, pos, left);
-                _heapifyDown(self, length, left, value, comp);
+                _heapifyDown(self, size, left, value, comp);
             }
         }
     }
