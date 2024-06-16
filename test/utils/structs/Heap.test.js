@@ -49,7 +49,7 @@ describe('Heap', function () {
     await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(42n);
     await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(42n);
 
-    // poping a 6th time panics
+    // popping a 6th time panics
     await expect(this.mock.$pop(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
   });
 
