@@ -28,9 +28,9 @@ contract HeapTest is Test {
         assertEq(heap.length(), 0);
 
         uint256 min = type(uint256).max;
-        for (uint256 i; i < input.length; ++i) {
+        for (uint256 i = 0; i < input.length; ++i) {
             heap.insert(input[i]);
-            assertEq(heap.length(), i);
+            assertEq(heap.length(), i + 1);
             _validateHeap(Comparators.lt);
 
             min = Math.min(min, input[i]);
@@ -38,7 +38,7 @@ contract HeapTest is Test {
         }
 
         uint256 max = 0;
-        for (uint256 i; i < input.length; ++i) {
+        for (uint256 i = 0; i < input.length; ++i) {
             uint256 top = heap.top();
             uint256 pop = heap.pop();
             assertEq(heap.length(), input.length - i - 1);
@@ -55,9 +55,9 @@ contract HeapTest is Test {
         assertEq(heap.length(), 0);
 
         uint256 max = 0;
-        for (uint256 i; i < input.length; ++i) {
+        for (uint256 i = 0; i < input.length; ++i) {
             heap.insert(input[i], Comparators.gt);
-            assertEq(heap.length(), i);
+            assertEq(heap.length(), i + 1);
             _validateHeap(Comparators.gt);
 
             max = Math.max(max, input[i]);
@@ -65,7 +65,7 @@ contract HeapTest is Test {
         }
 
         uint256 min = type(uint256).max;
-        for (uint256 i; i < input.length; ++i) {
+        for (uint256 i = 0; i < input.length; ++i) {
             uint256 top = heap.top();
             uint256 pop = heap.pop(Comparators.gt);
             assertEq(heap.length(), input.length - i - 1);
