@@ -4,13 +4,13 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
-import {Heaps} from "@openzeppelin/contracts/utils/structs/Heaps.sol";
+import {Heap} from "@openzeppelin/contracts/utils/structs/Heap.sol";
 import {Comparators} from "@openzeppelin/contracts/utils/Comparators.sol";
 
 contract HeapTest is Test {
-    using Heaps for *;
+    using Heap for *;
 
-    Heaps.Heap internal heap;
+    Heap.Uint256Heap internal heap;
 
     function _validateHeap(function(uint256, uint256) view returns (bool) comp) internal {
         for (uint32 i = 0; i < heap.size(); ++i) {

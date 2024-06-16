@@ -6,12 +6,12 @@ import {SafeCast} from "../math/SafeCast.sol";
 import {Comparators} from "../Comparators.sol";
 import {Panic} from "../Panic.sol";
 
-library Heaps {
+library Heap {
     using SafeCast for uint256;
 
     /**
      * A Heap is represented as an array of Node objects. In this array we store two overlapping structures:
-     * - A tree structure, where index 0 is the root, and for each index i, the childs are 2*i+1 and 2*i+2.
+     * - A tree structure, where index 0 is the root, and for each index i, the children are 2*i+1 and 2*i+2.
      *   For each index in this tree we have the `index` pointer that gives the position of the corresponding value.
      * - An array of values (payload). At each index we store a uint256 `value` and `lookup`, the index of the node
      *   that points to this value.
@@ -25,18 +25,18 @@ library Heaps {
      * The structure is order so that each node is bigger then its parent. An immediate consequence is that the
      * smallest value is the one at the root. It can be retrieved in O(1) at `heap.data[heap.data[0].index].value`
      *
-     * This stucture is designed for the following complexities:
+     * This structure is designed for the following complexities:
      * - insert: 0(log(n))
      * - pop (remove smallest value in set): O(log(n))
      * - top (get smallest value in set): O(1)
      */
-    struct Heap {
-        Node[] data;
+    struct Uint256Heap {
+        Uint256HeapNode[] data;
     }
 
-    // Index and lookup are bounded by the size of the structure. We could reasonnably limit that to uint20 (1 billion elemets)
+    // Index and lookup are bounded by the size of the structure. We could reasonably limit that to uint20 (1 billion entries)
     // Then could also limit the value to uint216 so that the entier structure fits into a single slot.
-    struct Node {
+    struct Uint256HeapNode {
         uint256 value;
         uint32 index; // position -> value
         uint32 lookup; // value -> position
@@ -45,7 +45,7 @@ library Heaps {
     /**
      * @dev Lookup the root element of the heap.
      */
-    function top(Heap storage self) internal view returns (uint256) {
+    function top(Uint256Heap storage self) internal view returns (uint256) {
         return self.data[self.data[0].index].value;
     }
 
@@ -55,7 +55,7 @@ library Heaps {
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
      */
-    function pop(Heap storage self) internal returns (uint256) {
+    function pop(Uint256Heap storage self) internal returns (uint256) {
         return pop(self, Comparators.lt);
     }
 
@@ -65,7 +65,10 @@ library Heaps {
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
      */
-    function pop(Heap storage self, function(uint256, uint256) view returns (bool) comp) internal returns (uint256) {
+    function pop(
+        Uint256Heap storage self,
+        function(uint256, uint256) view returns (bool) comp
+    ) internal returns (uint256) {
         uint32 length = size(self);
 
         if (length == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
@@ -110,7 +113,7 @@ library Heaps {
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
      */
-    function insert(Heap storage self, uint256 value) internal {
+    function insert(Uint256Heap storage self, uint256 value) internal {
         insert(self, value, Comparators.lt);
     }
 
@@ -120,23 +123,27 @@ library Heaps {
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
      */
-    function insert(Heap storage self, uint256 value, function(uint256, uint256) view returns (bool) comp) internal {
+    function insert(
+        Uint256Heap storage self,
+        uint256 value,
+        function(uint256, uint256) view returns (bool) comp
+    ) internal {
         uint32 length = size(self);
-        self.data.push(Node({index: length, lookup: length, value: value}));
+        self.data.push(Uint256HeapNode({index: length, lookup: length, value: value}));
         _heapifyUp(self, length, value, comp);
     }
 
     /**
      * @dev Returns the number of elements in the heap.
      */
-    function size(Heap storage self) internal view returns (uint32) {
+    function size(Uint256Heap storage self) internal view returns (uint32) {
         return self.data.length.toUint32();
     }
 
     /*
      * @dev Swap node `i` and `j` in the tree.
      */
-    function _swap(Heap storage self, uint32 i, uint32 j) private {
+    function _swap(Uint256Heap storage self, uint32 i, uint32 j) private {
         uint32 ii = self.data[i].index;
         uint32 jj = self.data[j].index;
         // update pointers to the data (swap the value)
@@ -156,7 +163,7 @@ library Heaps {
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
     function _heapifyDown(
-        Heap storage self,
+        Uint256Heap storage self,
         uint32 length,
         uint32 pos,
         uint256 value,
@@ -195,7 +202,7 @@ library Heaps {
      * verified. It is the caller role to make sure the parameters are correct.
      */
     function _heapifyUp(
-        Heap storage self,
+        Uint256Heap storage self,
         uint32 pos,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
