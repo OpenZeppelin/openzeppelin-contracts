@@ -17,21 +17,20 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, ) = authority.staticcall(abi.encodeCall(IAuthority.canCall, (caller, target, selector)));
-        if (success) {
-            /// @solidity memory-safe-assembly
-            assembly {
-                if gt(returndatasize(), 0x1f) {
-                    if gt(returndatasize(), 0x3f) {
-                        returndatacopy(0x00, 0x20, 0x20)
-                        delay := mload(0x00)
-                    }
+        bytes memory data = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
 
-                    returndatacopy(0, 0, 0x20)
-                    immediate := mload(0x00)
-                }
+        assembly {
+            mstore(0x00, 0x00)
+            mstore(0x20, 0x00)
+
+            let success := staticcall(gas(), authority, add(data, 0x20), mload(data), 0x00, 0x40)
+
+            if success {
+                immediate := mload(0x00)
+                delay := mload(0x20)
             }
         }
+
         return (immediate, delay);
     }
 }
