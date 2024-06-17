@@ -347,7 +347,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
         // Let Y be the gas used in the subcall. gasleft() measured immediately after the subcall will be gasleft() = X - Y.
         // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
-        // Under this assumption req.gas / 63 > gasleft() is true is true if and only if
+        // Under this assumption req.gas / 63 > gasleft() is true if and only if
         // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
         // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
         //
