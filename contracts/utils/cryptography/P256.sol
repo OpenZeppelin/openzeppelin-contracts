@@ -35,7 +35,7 @@ library P256 {
     /// @dev B parameter of the weierstrass equation
     uint256 internal constant B = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B;
 
-    /// @dev (P + 1) / 4. Usefull to compute sqrt
+    /// @dev (P + 1) / 4. Useful to compute sqrt
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
     /**
