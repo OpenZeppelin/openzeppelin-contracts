@@ -33,9 +33,9 @@ describe('P256', function () {
   it('verify valid signature', async function () {
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
     expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
-    await expect(this.mock.$verifyPrecompile(this.messageHash, ...this.signature, ...this.publicKey))
-      .to.be.revertedWithCustomError(this.mock, 'MissingEIP')
-      .withArgs(7212);
+    await expect(this.mock.$verify7212(this.messageHash, ...this.signature, ...this.publicKey))
+      .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
+      .withArgs('0x0000000000000000000000000000000000000100');
   });
 
   it('recover public key', async function () {
@@ -50,18 +50,18 @@ describe('P256', function () {
     const reversedPublicKey = Array.from(this.publicKey).reverse();
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...reversedPublicKey)).to.be.false;
     expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...reversedPublicKey)).to.be.false;
-    await expect(this.mock.$verifyPrecompile(this.messageHash, ...this.signature, ...reversedPublicKey))
-      .to.be.revertedWithCustomError(this.mock, 'MissingEIP')
-      .withArgs(7212);
+    await expect(this.mock.$verify7212(this.messageHash, ...this.signature, ...reversedPublicKey))
+      .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
+      .withArgs('0x0000000000000000000000000000000000000100');
   });
 
   it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
     const reversedSignature = Array.from(this.signature).reverse();
     expect(await this.mock.$verify(this.messageHash, ...reversedSignature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$verifySolidity(this.messageHash, ...reversedSignature, ...this.publicKey)).to.be.false;
-    await expect(this.mock.$verifyPrecompile(this.messageHash, ...reversedSignature, ...this.publicKey))
-      .to.be.revertedWithCustomError(this.mock, 'MissingEIP')
-      .withArgs(7212);
+    await expect(this.mock.$verify7212(this.messageHash, ...reversedSignature, ...this.publicKey))
+      .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
+      .withArgs('0x0000000000000000000000000000000000000100');
     expect(await this.mock.$recovery(this.messageHash, this.recovery, ...reversedSignature)).to.not.deep.equal(
       this.publicKey,
     );
@@ -74,9 +74,9 @@ describe('P256', function () {
     const invalidMessageHash = ethers.hexlify(ethers.randomBytes(32));
     expect(await this.mock.$verify(invalidMessageHash, ...this.signature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$verifySolidity(invalidMessageHash, ...this.signature, ...this.publicKey)).to.be.false;
-    await expect(this.mock.$verifyPrecompile(invalidMessageHash, ...this.signature, ...this.publicKey))
-      .to.be.revertedWithCustomError(this.mock, 'MissingEIP')
-      .withArgs(7212);
+    await expect(this.mock.$verify7212(invalidMessageHash, ...this.signature, ...this.publicKey))
+      .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
+      .withArgs('0x0000000000000000000000000000000000000100');
     expect(await this.mock.$recovery(invalidMessageHash, this.recovery, ...this.signature)).to.not.deep.equal(
       this.publicKey,
     );

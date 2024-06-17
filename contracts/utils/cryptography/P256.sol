@@ -39,9 +39,9 @@ library P256 {
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
     /**
-     * @dev Verifies a secp256r1 signature using the EIP-7212 or RIP-7212 precompiles and falls back to the Solidity
-     * implementation if the precompile is not available. This version should work on all chains, but requires the
-     * deployment of more bytecode.
+     * @dev Verifies a secp256r1 signature using the RIP-7212 precompile and falls back to the Solidity implementation
+     * if the precompile is not available. This version should work on all chains, but requires the deployment of more
+     * bytecode.
      *
      * @param h - hashed message
      * @param r - signature half R
@@ -50,13 +50,13 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        (bool valid, bool supported) = tryVerifyPrecompile(h, r, s, qx, qy);
+        (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
         return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
 
     /**
-     * @dev signature verification - using EIP-7212 and RIP-7212 precompiles. This version will only work on chains
-     * that have one of these precompile available. On chains that do not have these precompile, this function reverts.
+     * @dev signature verification - using the RIP-7212 precompile. This version will only work on chains that have
+     * the precompile available. This function will revert on networks that do not have this precompile.
      *
      * @param h - hashed message
      * @param r - signature half R
@@ -64,18 +64,18 @@ library P256 {
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
      */
-    function verifyPrecompile(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        (bool valid, bool supported) = tryVerifyPrecompile(h, r, s, qx, qy);
+    function verify7212(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
+        (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
         if (supported) {
             return valid;
         } else {
-            revert Errors.MissingEIP(7212);
+            revert Errors.MissingPrecompile(address(0x100));
         }
     }
 
     /**
-     * @dev try signature verification - using EIP-7212 and RIP-7212 precompiles. This function does not revert is the
-     * required precompiles are missing. Instead it will return with `supported = false`.
+     * @dev try signature verification - using the RIP-7212 precompiles. This function does not revert is the required
+     * precompile is missing. Instead it will return with `supported = false`.
      *
      * @param h - hashed message
      * @param r - signature half R
@@ -83,28 +83,15 @@ library P256 {
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
      */
-    function tryVerifyPrecompile(
+    function tryVerify7212(
         uint256 h,
         uint256 r,
         uint256 s,
         uint256 qx,
         uint256 qy
     ) internal view returns (bool valid, bool supported) {
-        bytes memory params = abi.encode(h, r, s, qx, qy);
-
-        // try using EIP-7212 precompile at 0x0B
-        (bool success, bytes memory returndata) = address(0x0B).staticcall(params);
-        if (success && returndata.length == 0x20) {
-            return (abi.decode(returndata, (bool)), true);
-        }
-
-        // try using RIP-7212 precompile at 0x100
-        (success, returndata) = address(0x100).staticcall(params);
-        if (success && returndata.length == 0x20) {
-            return (abi.decode(returndata, (bool)), true);
-        }
-
-        return (false, false);
+        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
+        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
     }
 
     /**
