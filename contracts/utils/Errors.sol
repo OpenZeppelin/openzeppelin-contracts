@@ -23,4 +23,9 @@ library Errors {
      * @dev The deployment failed.
      */
     error FailedDeployment();
+
+    /**
+     * @dev A necessary EIP/RIP is missing on the current network.
+     */
+    error MissingEIP(uint256);
 }
