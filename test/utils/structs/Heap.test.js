@@ -54,77 +54,44 @@ describe('Heap', function () {
   });
 
   it('insert and pop', async function () {
-    expect(await this.mock.$length(0)).to.equal(0n);
-    await expect(this.mock.$top(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
-
-    await this.mock.$insert(0, 712n); // 712
-
-    expect(await this.mock.$length(0)).to.equal(1n);
-    expect(await this.mock.$top(0)).to.equal(712n);
-
-    await this.mock.$insert(0, 20n); // 20, 712
-
-    expect(await this.mock.$length(0)).to.equal(2n);
-    expect(await this.mock.$top(0)).to.equal(20n);
-
-    await this.mock.$insert(0, 4337n); // 20, 712, 4337
-
-    expect(await this.mock.$length(0)).to.equal(3n);
-    expect(await this.mock.$top(0)).to.equal(20n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(20n); // 712, 4337
-
-    expect(await this.mock.$length(0)).to.equal(2n);
-    expect(await this.mock.$top(0)).to.equal(712n);
-
-    await this.mock.$insert(0, 1559n); // 712, 1559, 4337
-
-    expect(await this.mock.$length(0)).to.equal(3n);
-    expect(await this.mock.$top(0)).to.equal(712n);
-
-    await this.mock.$insert(0, 155n); // 155, 712, 1559, 4337
-
-    expect(await this.mock.$length(0)).to.equal(4n);
-    expect(await this.mock.$top(0)).to.equal(155n);
-
-    await this.mock.$insert(0, 7702n); // 155, 712, 1559, 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(5n);
-    expect(await this.mock.$top(0)).to.equal(155n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(155n); // 712, 1559, 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(4n);
-    expect(await this.mock.$top(0)).to.equal(712n);
-
-    await this.mock.$insert(0, 721n); // 712, 721, 1559, 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(5n);
-    expect(await this.mock.$top(0)).to.equal(712n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(712n); // 721, 1559, 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(4n);
-    expect(await this.mock.$top(0)).to.equal(721n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(721n); // 1559, 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(3n);
-    expect(await this.mock.$top(0)).to.equal(1559n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(1559n); // 4337, 7702
-
-    expect(await this.mock.$length(0)).to.equal(2n);
-    expect(await this.mock.$top(0)).to.equal(4337n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(4337n); // 7702
-
-    expect(await this.mock.$length(0)).to.equal(1n);
-    expect(await this.mock.$top(0)).to.equal(7702n);
-
-    await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(7702n); // <empty>
-
-    expect(await this.mock.$length(0)).to.equal(0n);
-    await expect(this.mock.$top(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    const heap = [];
+    for (const { op, value } of [
+      { op: 'insert', value: 712 }, // [712]
+      { op: 'insert', value: 20 }, // [20, 712]
+      { op: 'insert', value: 4337 }, // [20, 712, 4437]
+      { op: 'pop' }, // 20, [712, 4437]
+      { op: 'insert', value: 1559 }, // [712, 1159, 4437]
+      { op: 'insert', value: 155 }, // [155, 712, 1159, 4437]
+      { op: 'insert', value: 7702 }, // [155, 712, 1159, 4437, 7702]
+      { op: 'pop' }, // 155, [712, 1159, 4437, 7702]
+      { op: 'insert', value: 721 }, // [712, 721, 1159, 4437, 7702]
+      { op: 'pop' }, // 712, [721, 1159, 4437, 7702]
+      { op: 'pop' }, // 721, [1159, 4437, 7702]
+      { op: 'pop' }, // 1159, [4437, 7702]
+      { op: 'pop' }, // 4437, [7702]
+      { op: 'pop' }, // 7702, []
+      { op: 'pop' }, // panic
+    ]) {
+      switch (op) {
+        case 'insert':
+          await this.mock.$insert(0, value);
+          heap.push(value);
+          heap.sort((a, b) => a - b);
+          break;
+        case 'pop':
+          if (heap.length == 0) {
+            await expect(this.mock.$pop(0)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+          } else {
+            await expect(this.mock.$pop(0)).to.emit(this.mock, 'return$pop').withArgs(heap.shift());
+          }
+          break;
+      }
+      expect(await this.mock.$length(0)).to.equal(heap.length);
+      if (heap.length == 0) {
+        await expect(this.mock.$top(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      } else {
+        expect(await this.mock.$top(0)).to.equal(heap[0]);
+      }
+    }
   });
 });
