@@ -34,15 +34,8 @@ library P256 {
     /// @dev B parameter of the weierstrass equation
     uint256 internal constant B = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B;
 
-    // P - 2 constant to speed up invModP
-    uint256 private constant P2 = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFD;
-    // N - 2 constant to speed up invModN
-    uint256 private constant N2 = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254F;
-
+    /// @dev (P + 1) / 4. Usefull to compute sqrt
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
-
-    /// N/2 for excluding higher order `s` values
-    uint256 private constant HALF_N = 0x7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8;
 
     /**
      * @dev Verifies a secp256r1 signature using the RIP-7212 precompile at `address(0x100)` and falls back to the
@@ -55,9 +48,6 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        if (s > HALF_N) {
-            return false;
-        }
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
         return success && returndata.length == 0x20 ? abi.decode(returndata, (bool)) : verifySolidity(h, r, s, qx, qy);
     }
@@ -74,7 +64,7 @@ library P256 {
         if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
 
         JPoint[16] memory points = _preComputeJacobianPoints(qx, qy);
-        uint256 w = _invModN(s);
+        uint256 w = Math.invModPrime(s, N);
         uint256 u1 = mulmod(h, w, N);
         uint256 u2 = mulmod(r, w, N);
         (uint256 x, ) = _jMultShamir(points, u1, u2);
@@ -98,7 +88,7 @@ library P256 {
         if (ry % 2 != v % 2) ry = P - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
-        uint256 w = _invModN(r);
+        uint256 w = Math.invModPrime(r, N);
         uint256 u1 = mulmod(N - (h % N), w, N);
         uint256 u2 = mulmod(s, w, N);
         (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
@@ -161,7 +151,7 @@ library P256 {
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
-        uint256 zinv = _invModP(jz);
+        uint256 zinv = Math.invModPrime(jz, P);
         uint256 zzinv = mulmod(zinv, zinv, P);
         uint256 zzzinv = mulmod(zzinv, zinv, P);
         ax = mulmod(jx, zzinv, P);
@@ -325,23 +315,5 @@ library P256 {
     function _jDoublePoint(JPoint memory p) private pure returns (JPoint memory) {
         (uint256 x, uint256 y, uint256 z) = _jDouble(p.x, p.y, p.z);
         return JPoint(x, y, z);
-    }
-
-    function _invModN(uint256 value) private view returns (uint256) {
-        return _invMod(value, N2, N);
-    }
-
-    function _invModP(uint256 value) private view returns (uint256) {
-        return _invMod(value, P2, P);
-    }
-
-    /**
-     * @dev From https://en.wikipedia.org/wiki/Fermat%27s_little_theorem[Fermat's little theorem], we know that
-     * `a**(p-1) ≡ 1 mod p` if p is a prime number (and generates Fp). Given p is prime, it doesn't have a
-     * a coprime, so we can rewrite it as `a * a**(p-2) ≡ 1 mod p`, which means that `a**(p-2)` is the modular
-     * multiplicative inverse of a by rewritting it to to `a**-1 ≡ a**(p-2) mod p`.
-     */
-    function _invMod(uint256 value, uint256 p2, uint256 p) private view returns (uint256) {
-        return Math.modExp(value, p2, p);
     }
 }
