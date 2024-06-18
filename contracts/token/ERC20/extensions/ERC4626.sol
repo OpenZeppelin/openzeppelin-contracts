@@ -84,10 +84,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
-        (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
-            abi.encodeCall(IERC20Metadata.decimals, ())
-        );
-        if (success && encodedDecimals.length >= 32) {
+        bool success = LowLevelCalls.staticcall(asset_, abi.encodeCall(IERC20Metadata.decimals, ())) &&
+            LowLevelCalls.getReturnDataSize() >= 0x20;
+
+        if (success) {
             uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
             if (returnedDecimals <= type(uint8).max) {
                 return (true, uint8(returnedDecimals));
