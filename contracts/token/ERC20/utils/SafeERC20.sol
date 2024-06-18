@@ -144,12 +144,23 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        if (!_callOptionalReturnBool(token, data)) {
-            if (address(token).code.length == 0) {
-                revert Address.AddressEmptyCode(address(token));
-            } else {
-                revert SafeERC20FailedOperation(address(token));
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly ("memory-safe") {
+            let success := call(not(0), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            // bubble errors
+            if iszero(success) {
+                let ptr := mload(0x40)
+                returndatacopy(ptr, 0, returndatasize())
+                revert(ptr, returndatasize())
             }
+            returnSize := returndatasize()
+            returnValue := mload(0)
+        }
+        if (returnSize == 0) {
+            if (address(token).code.length == 0) revert Address.AddressEmptyCode(address(token));
+        } else {
+            if (returnValue == 0) revert SafeERC20FailedOperation(address(token));
         }
     }
 
@@ -161,22 +172,15 @@ library SafeERC20 {
      *
      * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
      */
-    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool success) {
+    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
         assembly ("memory-safe") {
-            // call function, and protect against return bomb
-            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
-            // if call was successful, additionnal checks are required
-            if success {
-                switch returndatasize()
-                // if no return data, target must be a contract with deployed code
-                case 0 {
-                    success := gt(extcodesize(token), 0)
-                }
-                // if return data, that data is interpreted as a boolean
-                default {
-                    success := gt(mload(0), 0)
-                }
-            }
+            success := call(not(0), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0)
         }
+        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue > 0);
     }
 }

@@ -341,7 +341,7 @@ library Math {
 
             // Given the result < m, it's guaranteed to fit in 32 bytes,
             // so we can use the memory scratch space located at offset 0.
-            success := staticcall(gas(), 0x05, ptr, 0xc0, 0x00, 0x20)
+            success := staticcall(not(0), 0x05, ptr, 0xc0, 0x00, 0x20)
             result := mload(0x00)
         }
     }
@@ -376,7 +376,7 @@ library Math {
         assembly {
             let dataPtr := add(result, 0x20)
             // Write result on top of args to avoid allocating extra memory.
-            success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)
+            success := staticcall(not(0), 0x05, dataPtr, mload(result), dataPtr, mLen)
             // Overwrite the length.
             // result.length > returndatasize() is guaranteed because returndatasize() == m.length
             mstore(result, mLen)
