@@ -65,6 +65,19 @@ library MessageHashUtils {
     }
 
     /**
+     * @dev Returns the keccak256 digest of an ERC-191 signed data with version
+     * `0x00` (data with intended validator).
+     *
+     * The digest is calculated by prefixing a bytes32 `messageHash` with `"\x19\x00"` and the intended
+     * `validator` address. Then hashing the result.
+     *
+     * See {ECDSA-recover}.
+     */
+    function toDataWithIntendedValidatorHash(address validator, bytes32 messageHash) internal pure returns (bytes32) {
+        return toDataWithIntendedValidatorHash(validator, abi.encodePacked(messageHash));
+    }
+
+    /**
      * @dev Returns the keccak256 digest of an EIP-712 typed data (ERC-191 version `0x01`).
      *
      * The digest is calculated from a `domainSeparator` and a `structHash`, by prefixing them with
