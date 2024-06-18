@@ -4,6 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority} from "./IAuthority.sol";
+import {LowLevelCalls} from "../../utils/LowLevelCalls.sol";
+import {LowLevelMemory} from "../../utils/LowLevelMemory.sol";
 
 library AuthorityUtils {
     /**
@@ -17,16 +19,20 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
-        );
-        if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
+        // snapshot free memory pointer (moved by encodeCall and getReturnDataFixed)
+        LowLevelMemory.FreePtr ptr = LowLevelMemory.save();
+
+        if (LowLevelCalls.staticcall(authority, abi.encodeCall(IAuthority.canCall, (caller, target, selector)))) {
+            if (LowLevelCalls.getReturnDataSize() >= 0x40) {
+                (immediate, delay) = abi.decode(LowLevelCalls.getReturnDataFixed(0x40), (bool, uint32));
+            } else if (LowLevelCalls.getReturnDataSize() >= 0x20) {
+                immediate = abi.decode(LowLevelCalls.getReturnDataFixed(0x20), (bool));
             }
         }
+
+        // restore free memory pointer to reduce memory leak
+        LowLevelMemory.load(ptr);
+
         return (immediate, delay);
     }
 }
