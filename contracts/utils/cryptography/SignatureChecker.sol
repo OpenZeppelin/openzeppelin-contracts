@@ -5,8 +5,7 @@ pragma solidity ^0.8.20;
 
 import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {LowLevelCalls} from "../LowLevelCalls.sol";
-import {LowLevelMemory} from "../LowLevelMemory.sol";
+import {Memory} from "../Memory.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA
@@ -41,18 +40,18 @@ library SignatureChecker {
         address signer,
         bytes32 hash,
         bytes memory signature
-    ) internal view returns (bool) {
-        // snapshot free memory pointer (moved by encodeCall and getReturnDataFixed)
-        LowLevelMemory.FreePtr ptr = LowLevelMemory.save();
+    ) internal view returns (bool success) {
+        bytes4 magic = IERC1271.isValidSignature.selector;
 
-        bool success = LowLevelCalls.staticcall(signer, abi.encodeCall(IERC1271.isValidSignature, (hash, signature))) &&
-            LowLevelCalls.getReturnDataSize() >= 0x20 &&
-            abi.decode(LowLevelCalls.getReturnDataFixed(0x20), (bytes32)) ==
-            bytes32(IERC1271.isValidSignature.selector);
+        Memory.FreePtr ptr = Memory.save();
 
-        // restore free memory pointer to reduce memory leak
-        LowLevelMemory.load(ptr);
+        bytes memory params = abi.encodeCall(IERC1271.isValidSignature, (hash, signature));
+        assembly ("memory-safe") {
+            if staticcall(not(0), signer, add(params, 0x20), mload(params), 0, 0x20) {
+                success := and(gt(returndatasize(), 0x1F), eq(mload(0), magic))
+            }
+        }
 
-        return success;
+        Memory.load(ptr);
     }
 }

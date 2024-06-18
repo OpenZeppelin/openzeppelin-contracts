@@ -3,9 +3,9 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Helper library packing and unpacking multiple values into bytes32
+ * @dev Helper library for deallocating memory reserved by abi.encode or low level calls.
  */
-library LowLevelMemory {
+library Memory {
     type FreePtr is bytes32;
 
     function save() internal pure returns (FreePtr ptr) {
