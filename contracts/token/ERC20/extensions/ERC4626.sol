@@ -7,6 +7,7 @@ import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {LowLevelCalls} from "../../../utils/LowLevelCalls.sol";
 
 /**
  * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in
@@ -84,11 +85,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
-        bool success = LowLevelCalls.staticcall(asset_, abi.encodeCall(IERC20Metadata.decimals, ())) &&
+        bool success = LowLevelCalls.staticcall(address(asset_), abi.encodeCall(IERC20Metadata.decimals, ())) &&
             LowLevelCalls.getReturnDataSize() >= 0x20;
 
         if (success) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
+            uint256 returnedDecimals = abi.decode(LowLevelCalls.getReturnDataFixed(0x20), (uint256));
             if (returnedDecimals <= type(uint8).max) {
                 return (true, uint8(returnedDecimals));
             }

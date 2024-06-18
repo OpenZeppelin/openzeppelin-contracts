@@ -9,7 +9,7 @@ import {Math} from "./math/Math.sol";
  */
 library LowLevelCalls {
     function call(address to, uint256 value, bytes memory data) internal returns (bool success) {
-        return call(to, value, data, gasleft());
+        return call(to, value, data, type(uint256).max);
     }
 
     function call(address to, uint256 value, bytes memory data, uint256 txGas) internal returns (bool success) {
@@ -19,7 +19,7 @@ library LowLevelCalls {
     }
 
     function staticcall(address to, bytes memory data) internal view returns (bool success) {
-        return staticcall(to, data, gasleft());
+        return staticcall(to, data, type(uint256).max);
     }
 
     function staticcall(address to, bytes memory data, uint256 txGas) internal view returns (bool success) {
@@ -29,7 +29,7 @@ library LowLevelCalls {
     }
 
     function delegateCall(address to, bytes memory data) internal returns (bool success) {
-        return delegateCall(to, data, gasleft());
+        return delegateCall(to, data, type(uint256).max);
     }
 
     function delegateCall(address to, bytes memory data, uint256 txGas) internal returns (bool success) {
