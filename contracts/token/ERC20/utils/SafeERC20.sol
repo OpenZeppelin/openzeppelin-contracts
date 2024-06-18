@@ -17,8 +17,6 @@ import {Address} from "../../../utils/Address.sol";
  * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
  */
 library SafeERC20 {
-    using Address for address;
-
     /**
      * @dev An operation with an ERC-20 token failed.
      */
@@ -142,15 +140,16 @@ library SafeERC20 {
      * on the return value: the return value is optional (but if data is returned, it must not be false).
      * @param token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
+     *
+     * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
-        // the target address contains contract code and also asserts for success in the low-level call.
-
-        bytes memory returndata = address(token).functionCall(data);
-        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
-            revert SafeERC20FailedOperation(address(token));
+        if (!_callOptionalReturnBool(token, data)) {
+            if (address(token).code.length == 0) {
+                revert Address.AddressEmptyCode(address(token));
+            } else {
+                revert SafeERC20FailedOperation(address(token));
+            }
         }
     }
 
@@ -162,12 +161,22 @@ library SafeERC20 {
      *
      * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
      */
-    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
-        // and not revert is the subcall reverts.
-
-        (bool success, bytes memory returndata) = address(token).call(data);
-        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
+    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool success) {
+        assembly ("memory-safe") {
+            // call function, and protect against return bomb
+            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            // if call was successful, additionnal checks are required
+            if success {
+                switch returndatasize()
+                // if no return data, target must be a contract with deployed code
+                case 0 {
+                    success := gt(extcodesize(token), 0)
+                }
+                // if return data, that data is interpreted as a boolean
+                default {
+                    success := gt(mload(0), 0)
+                }
+            }
+        }
     }
 }
