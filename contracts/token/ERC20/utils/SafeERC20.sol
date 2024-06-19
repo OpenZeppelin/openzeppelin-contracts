@@ -147,7 +147,7 @@ library SafeERC20 {
         uint256 returnSize;
         uint256 returnValue;
         assembly ("memory-safe") {
-            let success := call(not(0), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
             // bubble errors
             if iszero(success) {
                 let ptr := mload(0x40)
@@ -177,7 +177,7 @@ library SafeERC20 {
         uint256 returnSize;
         uint256 returnValue;
         assembly ("memory-safe") {
-            success := call(not(0), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
             returnSize := returndatasize()
             returnValue := mload(0)
         }
