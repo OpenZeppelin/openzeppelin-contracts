@@ -157,10 +157,9 @@ library SafeERC20 {
             returnSize := returndatasize()
             returnValue := mload(0)
         }
-        if (returnSize == 0) {
-            if (address(token).code.length == 0) revert Address.AddressEmptyCode(address(token));
-        } else {
-            if (returnValue == 0) revert SafeERC20FailedOperation(address(token));
+
+        if (returnSize == 0 ? address(token).code.length == 0 : returnValue == 0) {
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
