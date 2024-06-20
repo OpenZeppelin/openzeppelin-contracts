@@ -173,10 +173,14 @@ function _upperBinaryLookup(
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (_unsafeAccess(self, mid).${opts.keyFieldName} > key) {
+        ${opts.keyTypeName} currentKey = _unsafeAccess(self, mid).${opts.keyFieldName};
+        if (currentKey > key) {
             high = mid;
         } else {
             low = mid + 1;
+            if (currentKey == key) {
+                return low;
+            }
         }
     }
     return high;
@@ -197,10 +201,14 @@ function _lowerBinaryLookup(
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (_unsafeAccess(self, mid).${opts.keyFieldName} < key) {
+        ${opts.keyTypeName} currentKey = _unsafeAccess(self, mid).${opts.keyFieldName};
+        if (currentKey < key) {
             low = mid + 1;
         } else {
             high = mid;
+            if (currentKey == key) {
+                return high;
+            }
         }
     }
     return high;
