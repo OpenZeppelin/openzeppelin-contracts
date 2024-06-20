@@ -22,6 +22,11 @@ contract StringsTest is Test {
         assertEq(actual, vm.toString(bytes32(value)));
     }
 
+    function testHexStringAddress(address value) public {
+        string memory actual = Strings.toHexString(value);
+        assertEq(actual, vm.toLowercase(vm.toString(value)));
+    }
+
     function testChecksumHexStringAddress(address value) public {
         string memory actual = Strings.toChecksumHexString(value);
         assertEq(actual, vm.toString(value));
