@@ -108,7 +108,7 @@ describe('P256', function () {
   });
 
   it('fail to recover signature with invalid recovery bit', async function () {
-    // filp recovery bit
+    // flip recovery bit
     this.recovery = 1 - this.recovery;
 
     expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.not.deep.equal(

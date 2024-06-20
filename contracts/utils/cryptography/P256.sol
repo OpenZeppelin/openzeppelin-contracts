@@ -48,6 +48,9 @@ library P256 {
      * @param s - signature half S
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
+     *
+     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
+     * the upper half order of the curve (i.e. s > N/2)
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
         (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
@@ -55,14 +58,7 @@ library P256 {
     }
 
     /**
-     * @dev signature verification - using the RIP-7212 precompile. This version will only work on chains that have
-     * the precompile available. This function will revert on networks that do not have this precompile.
-     *
-     * @param h - hashed message
-     * @param r - signature half R
-     * @param s - signature half S
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
+     * @dev Same as {verify}, but it will revert if the required precompile is not available.
      */
     function verify7212(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
         (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
@@ -74,14 +70,7 @@ library P256 {
     }
 
     /**
-     * @dev try signature verification - using the RIP-7212 precompiles. This function does not revert is the required
-     * precompile is missing. Instead it will return with `supported = false`.
-     *
-     * @param h - hashed message
-     * @param r - signature half R
-     * @param s - signature half S
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
+     * @dev Same as {verify}, but it will return false if the required precompile is not available.
      */
     function tryVerify7212(
         uint256 h,
@@ -95,14 +84,7 @@ library P256 {
     }
 
     /**
-     * @dev signature verification - solidity implementation. This version will work on all chains, but is more
-     * expensive to use, and to deploy, than the version that rely on precompiles.
-     *
-     * @param h - hashed message
-     * @param r - signature half R
-     * @param s - signature half S
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
+     * @dev Same as {verify}, but only the Solidity implementation is used.
      */
     function verifySolidity(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
         if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
@@ -116,11 +98,15 @@ library P256 {
     }
 
     /**
-     * @dev public key recovery
+     * @dev Public key recovery
+     *
      * @param h - hashed message
      * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
+     *
+     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
+     * the upper half order of the curve (i.e. s > N/2)
      */
     function recovery(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (uint256, uint256) {
         if (r == 0 || r >= N || s == 0 || s >= N || v > 1) return (0, 0);
@@ -140,11 +126,15 @@ library P256 {
     }
 
     /**
-     * @dev address recovery
+     * @dev Address recovery from public key
+     *
      * @param h - hashed message
      * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
+     *
+     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
+     * the upper half order of the curve (i.e. s > N/2)
      */
     function recoveryAddress(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (address) {
         (uint256 qx, uint256 qy) = recovery(h, v, r, s);
