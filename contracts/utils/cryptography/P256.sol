@@ -323,22 +323,22 @@ library P256 {
      * └────┴─────────────────────┘
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
-        points[0x00] = JPoint(0, 0, 0);
-        points[0x01] = JPoint(px, py, 1);
-        points[0x04] = JPoint(GX, GY, 1);
-        points[0x02] = _jDoublePoint(points[0x01]);
-        points[0x08] = _jDoublePoint(points[0x04]);
-        points[0x03] = _jAddPoint(points[0x01], points[0x02]);
-        points[0x05] = _jAddPoint(points[0x01], points[0x04]);
-        points[0x06] = _jAddPoint(points[0x02], points[0x04]);
-        points[0x07] = _jAddPoint(points[0x03], points[0x04]);
-        points[0x09] = _jAddPoint(points[0x01], points[0x08]);
-        points[0x0a] = _jAddPoint(points[0x02], points[0x08]);
-        points[0x0b] = _jAddPoint(points[0x03], points[0x08]);
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]);
-        points[0x0d] = _jAddPoint(points[0x01], points[0x0c]);
-        points[0x0e] = _jAddPoint(points[0x02], points[0x0c]);
-        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]);
+        points[0x00] = JPoint(0, 0, 0); // 0,0
+        points[0x01] = JPoint(px, py, 1); // 1,0 (p)
+        points[0x04] = JPoint(GX, GY, 1); // 0,1 (g)
+        points[0x02] = _jDoublePoint(points[0x01]); // 2,0 (2p)
+        points[0x08] = _jDoublePoint(points[0x04]); // 0,2 (2g)
+        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (3p)
+        points[0x05] = _jAddPoint(points[0x01], points[0x04]); // 1,1 (p+g)
+        points[0x06] = _jAddPoint(points[0x02], points[0x04]); // 2,1 (2p+g)
+        points[0x07] = _jAddPoint(points[0x03], points[0x04]); // 3,1 (3p+g)
+        points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
+        points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
+        points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
+        points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
+        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {
