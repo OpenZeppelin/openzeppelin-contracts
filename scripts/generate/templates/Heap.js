@@ -141,6 +141,46 @@ function insert(
 }
 
 /**
+ * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+ *
+ * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * during the lifecycle of a heap will result in undefined behavior.
+ */
+function replace(${struct} storage self, ${valueType} newValue) internal returns (${valueType}) {
+    return replace(self, newValue, Comparators.lt);
+}
+
+/**
+ * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+ *
+ * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * during the lifecycle of a heap will result in undefined behavior.
+ */
+function replace(
+    ${struct} storage self,
+    ${valueType} newValue,
+    function(uint256, uint256) view returns (bool) comp
+) internal returns (${valueType}) {
+    ${indexType} size = length(self);
+    if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+
+    // position of the node that holds the data for the root
+    ${indexType} rootIdx = _unsafeNodeAccess(self, 0).index;
+    // storage pointer to the node that holds the data for the root
+    ${node} storage rootData = _unsafeNodeAccess(self, rootIdx);
+
+    // cache old value and replace it
+    ${valueType} oldValue = rootData.value;
+    rootData.value = newValue;
+
+    // re-heapify
+    _heapifyDown(self, size, 0, newValue, comp);
+
+    // return old root value
+    return oldValue;
+}
+
+/**
  * @dev Returns the number of elements in the heap.
  */
 function length(${struct} storage self) internal view returns (${indexType}) {

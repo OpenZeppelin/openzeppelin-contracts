@@ -139,6 +139,46 @@ library Heap {
     }
 
     /**
+     * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+     *
+     * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+     * during the lifecycle of a heap will result in undefined behavior.
+     */
+    function replace(Uint256Heap storage self, uint256 newValue) internal returns (uint256) {
+        return replace(self, newValue, Comparators.lt);
+    }
+
+    /**
+     * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+     *
+     * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+     * during the lifecycle of a heap will result in undefined behavior.
+     */
+    function replace(
+        Uint256Heap storage self,
+        uint256 newValue,
+        function(uint256, uint256) view returns (bool) comp
+    ) internal returns (uint256) {
+        uint32 size = length(self);
+        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+
+        // position of the node that holds the data for the root
+        uint32 rootIdx = _unsafeNodeAccess(self, 0).index;
+        // storage pointer to the node that holds the data for the root
+        Uint256HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
+
+        // cache old value and replace it
+        uint256 oldValue = rootData.value;
+        rootData.value = newValue;
+
+        // re-heapify
+        _heapifyDown(self, size, 0, newValue, comp);
+
+        // return old root value
+        return oldValue;
+    }
+
+    /**
      * @dev Returns the number of elements in the heap.
      */
     function length(Uint256Heap storage self) internal view returns (uint32) {
@@ -374,6 +414,46 @@ library Heap {
         }
         self.data.push(Uint208HeapNode({index: size, lookup: size, value: value}));
         _heapifyUp(self, size, value, comp);
+    }
+
+    /**
+     * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+     *
+     * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+     * during the lifecycle of a heap will result in undefined behavior.
+     */
+    function replace(Uint208Heap storage self, uint208 newValue) internal returns (uint208) {
+        return replace(self, newValue, Comparators.lt);
+    }
+
+    /**
+     * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+     *
+     * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+     * during the lifecycle of a heap will result in undefined behavior.
+     */
+    function replace(
+        Uint208Heap storage self,
+        uint208 newValue,
+        function(uint256, uint256) view returns (bool) comp
+    ) internal returns (uint208) {
+        uint24 size = length(self);
+        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+
+        // position of the node that holds the data for the root
+        uint24 rootIdx = _unsafeNodeAccess(self, 0).index;
+        // storage pointer to the node that holds the data for the root
+        Uint208HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
+
+        // cache old value and replace it
+        uint208 oldValue = rootData.value;
+        rootData.value = newValue;
+
+        // re-heapify
+        _heapifyDown(self, size, 0, newValue, comp);
+
+        // return old root value
+        return oldValue;
     }
 
     /**
