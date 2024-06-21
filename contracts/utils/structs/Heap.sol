@@ -27,9 +27,10 @@ library Heap {
      * smallest value is the one at the root. It can be retrieved in O(1) at `heap.data[heap.data[0].index].value`
      *
      * This structure is designed for the following complexities:
-     * - insert: 0(log(n))
-     * - pop (remove smallest value in set): O(log(n))
-     * - top (get smallest value in set): O(1)
+     * - peek (get the smallest value in set): O(1)
+     * - insert (insert a value in the set): 0(log(n))
+     * - pop (remove the smallest value in set): O(log(n))
+     * - replace (replace the smallest value in set with a new value): O(log(n))
      */
     struct Uint256Heap {
         Uint256HeapNode[] data;
@@ -44,7 +45,7 @@ library Heap {
     /**
      * @dev Lookup the root element of the heap.
      */
-    function top(Uint256Heap storage self) internal view returns (uint256) {
+    function peek(Uint256Heap storage self) internal view returns (uint256) {
         return _unsafeNodeAccess(self, self.data[0].index).value;
     }
 
@@ -140,6 +141,7 @@ library Heap {
 
     /**
      * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+     * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
      *
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
@@ -150,6 +152,7 @@ library Heap {
 
     /**
      * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+     * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
      *
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
@@ -305,9 +308,10 @@ library Heap {
      * smallest value is the one at the root. It can be retrieved in O(1) at `heap.data[heap.data[0].index].value`
      *
      * This structure is designed for the following complexities:
-     * - insert: 0(log(n))
-     * - pop (remove smallest value in set): O(log(n))
-     * - top (get smallest value in set): O(1)
+     * - peek (get the smallest value in set): O(1)
+     * - insert (insert a value in the set): 0(log(n))
+     * - pop (remove the smallest value in set): O(log(n))
+     * - replace (replace the smallest value in set with a new value): O(log(n))
      */
     struct Uint208Heap {
         Uint208HeapNode[] data;
@@ -322,7 +326,7 @@ library Heap {
     /**
      * @dev Lookup the root element of the heap.
      */
-    function top(Uint208Heap storage self) internal view returns (uint208) {
+    function peek(Uint208Heap storage self) internal view returns (uint208) {
         return _unsafeNodeAccess(self, self.data[0].index).value;
     }
 
@@ -418,6 +422,7 @@ library Heap {
 
     /**
      * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+     * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
      *
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.
@@ -428,6 +433,7 @@ library Heap {
 
     /**
      * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+     * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
      *
      * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
      * during the lifecycle of a heap will result in undefined behavior.

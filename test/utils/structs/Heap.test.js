@@ -27,12 +27,12 @@ describe('Heap', function () {
           replace: (...args) => this.mock[`$replace(uint256,${valueType})`](0, ...args),
           length: (...args) => this.mock[`$length_Heap_${struct}`](0, ...args),
           pop: (...args) => this.mock[`$pop_Heap_${struct}`](0, ...args),
-          top: (...args) => this.mock[`$top_Heap_${struct}`](0, ...args),
+          peek: (...args) => this.mock[`$peek_Heap_${struct}`](0, ...args),
         };
       });
 
       it('starts empty', async function () {
-        await expect(this.helper.top()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+        await expect(this.helper.peek()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
         expect(await this.helper.length()).to.equal(0n);
       });
 
@@ -44,12 +44,12 @@ describe('Heap', function () {
         await this.helper.insert(42n);
 
         expect(await this.helper.length()).to.equal(1n);
-        expect(await this.helper.top()).to.equal(42n);
+        expect(await this.helper.peek()).to.equal(42n);
 
         await this.helper.clear();
 
         expect(await this.helper.length()).to.equal(0n);
-        await expect(this.helper.top()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+        await expect(this.helper.peek()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
       });
 
       it('support duplicated items', async function () {
@@ -119,9 +119,9 @@ describe('Heap', function () {
           }
           expect(await this.helper.length()).to.equal(heap.length);
           if (heap.length == 0) {
-            await expect(this.helper.top()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+            await expect(this.helper.peek()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
           } else {
-            expect(await this.helper.top()).to.equal(heap[0]);
+            expect(await this.helper.peek()).to.equal(heap[0]);
           }
         }
       });

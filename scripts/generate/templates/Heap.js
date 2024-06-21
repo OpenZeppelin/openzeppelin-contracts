@@ -29,9 +29,10 @@ const generate = ({ struct, node, valueType, indexType, blockSize }) => `\
  * smallest value is the one at the root. It can be retrieved in O(1) at \`heap.data[heap.data[0].index].value\`
  *
  * This structure is designed for the following complexities:
- * - insert: 0(log(n))
- * - pop (remove smallest value in set): O(log(n))
- * - top (get smallest value in set): O(1)
+ * - peek (get the smallest value in set): O(1)
+ * - insert (insert a value in the set): 0(log(n))
+ * - pop (remove the smallest value in set): O(log(n))
+ * - replace (replace the smallest value in set with a new value): O(log(n))
  */
 struct ${struct} {
     ${node}[] data;
@@ -46,7 +47,7 @@ struct ${node} {
 /**
  * @dev Lookup the root element of the heap.
  */
-function top(${struct} storage self) internal view returns (${valueType}) {
+function peek(${struct} storage self) internal view returns (${valueType}) {
     return _unsafeNodeAccess(self, self.data[0].index).value;
 }
 
@@ -142,6 +143,7 @@ function insert(
 
 /**
  * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
+ * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
  *
  * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
@@ -152,6 +154,7 @@ function replace(${struct} storage self, ${valueType} newValue) internal returns
 
 /**
  * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
+ * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
  *
  * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
