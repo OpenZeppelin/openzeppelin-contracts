@@ -133,6 +133,9 @@ function insert(
     function(uint256, uint256) view returns (bool) comp
 ) internal {
     ${indexType} size = length(self);
+    if (size == type(${indexType}).max) {
+        Panic.panic(Panic.RESOURCE_ERROR);
+    }
     self.data.push(${struct}Node({index: size, lookup: size, value: value}));
     _heapifyUp(self, size, value, comp);
 }
@@ -183,26 +186,31 @@ function _heapifyDown(
     ${valueType} value,
     function(uint256, uint256) view returns (bool) comp
 ) private {
-    ${indexType} left = 2 * pos + 1;
-    ${indexType} right = 2 * pos + 2;
+    uint256 left = 2 * pos + 1; // this could overflow ${indexType}
+    uint256 right = 2 * pos + 2; // this could overflow ${indexType}
 
     if (right < size) {
-        ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
-        ${valueType} rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, right).index).value;
+        // the check guarantees that \`left\` and \`right\` are both valid uint32
+        ${indexType} lIndex = ${indexType}(left);
+        ${indexType} rIndex = ${indexType}(right);
+        ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
+        ${valueType} rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
         if (comp(lValue, value) || comp(rValue, value)) {
             if (comp(lValue, rValue)) {
-                _swap(self, pos, left);
-                _heapifyDown(self, size, left, value, comp);
+                _swap(self, pos, lIndex);
+                _heapifyDown(self, size, lIndex, value, comp);
             } else {
-                _swap(self, pos, right);
-                _heapifyDown(self, size, right, value, comp);
+                _swap(self, pos, rIndex);
+                _heapifyDown(self, size, rIndex, value, comp);
             }
         }
     } else if (left < size) {
-        ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
+        // the check guarantees that \`left\` is a valid uint32
+        ${indexType} lIndex = ${indexType}(left);
+        ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
         if (comp(lValue, value)) {
-            _swap(self, pos, left);
-            _heapifyDown(self, size, left, value, comp);
+            _swap(self, pos, lIndex);
+            _heapifyDown(self, size, lIndex, value, comp);
         }
     }
 }

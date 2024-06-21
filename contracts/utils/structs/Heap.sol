@@ -131,6 +131,9 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal {
         uint32 size = length(self);
+        if (size == type(uint32).max) {
+            Panic.panic(Panic.RESOURCE_ERROR);
+        }
         self.data.push(Uint256HeapNode({index: size, lookup: size, value: value}));
         _heapifyUp(self, size, value, comp);
     }
@@ -181,26 +184,31 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint32 left = 2 * pos + 1;
-        uint32 right = 2 * pos + 2;
+        uint256 left = 2 * pos + 1; // this could overflow uint32
+        uint256 right = 2 * pos + 2; // this could overflow uint32
 
         if (right < size) {
-            uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
-            uint256 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, right).index).value;
+            // the check guarantees that `left` and `right` are both valid uint32
+            uint32 lIndex = uint32(left);
+            uint32 rIndex = uint32(right);
+            uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
+            uint256 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
             if (comp(lValue, value) || comp(rValue, value)) {
                 if (comp(lValue, rValue)) {
-                    _swap(self, pos, left);
-                    _heapifyDown(self, size, left, value, comp);
+                    _swap(self, pos, lIndex);
+                    _heapifyDown(self, size, lIndex, value, comp);
                 } else {
-                    _swap(self, pos, right);
-                    _heapifyDown(self, size, right, value, comp);
+                    _swap(self, pos, rIndex);
+                    _heapifyDown(self, size, rIndex, value, comp);
                 }
             }
         } else if (left < size) {
-            uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
+            // the check guarantees that `left` is a valid uint32
+            uint32 lIndex = uint32(left);
+            uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             if (comp(lValue, value)) {
-                _swap(self, pos, left);
-                _heapifyDown(self, size, left, value, comp);
+                _swap(self, pos, lIndex);
+                _heapifyDown(self, size, lIndex, value, comp);
             }
         }
     }
@@ -361,6 +369,9 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal {
         uint24 size = length(self);
+        if (size == type(uint24).max) {
+            Panic.panic(Panic.RESOURCE_ERROR);
+        }
         self.data.push(Uint208HeapNode({index: size, lookup: size, value: value}));
         _heapifyUp(self, size, value, comp);
     }
@@ -411,26 +422,31 @@ library Heap {
         uint208 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint24 left = 2 * pos + 1;
-        uint24 right = 2 * pos + 2;
+        uint256 left = 2 * pos + 1; // this could overflow uint24
+        uint256 right = 2 * pos + 2; // this could overflow uint24
 
         if (right < size) {
-            uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
-            uint208 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, right).index).value;
+            // the check guarantees that `left` and `right` are both valid uint32
+            uint24 lIndex = uint24(left);
+            uint24 rIndex = uint24(right);
+            uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
+            uint208 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
             if (comp(lValue, value) || comp(rValue, value)) {
                 if (comp(lValue, rValue)) {
-                    _swap(self, pos, left);
-                    _heapifyDown(self, size, left, value, comp);
+                    _swap(self, pos, lIndex);
+                    _heapifyDown(self, size, lIndex, value, comp);
                 } else {
-                    _swap(self, pos, right);
-                    _heapifyDown(self, size, right, value, comp);
+                    _swap(self, pos, rIndex);
+                    _heapifyDown(self, size, rIndex, value, comp);
                 }
             }
         } else if (left < size) {
-            uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, left).index).value;
+            // the check guarantees that `left` is a valid uint32
+            uint24 lIndex = uint24(left);
+            uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             if (comp(lValue, value)) {
-                _swap(self, pos, left);
-                _heapifyDown(self, size, left, value, comp);
+                _swap(self, pos, lIndex);
+                _heapifyDown(self, size, lIndex, value, comp);
             }
         }
     }
