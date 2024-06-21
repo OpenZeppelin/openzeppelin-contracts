@@ -46,6 +46,7 @@ library Heap {
      * @dev Lookup the root element of the heap.
      */
     function peek(Uint256Heap storage self) internal view returns (uint256) {
+        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
         return _unsafeNodeAccess(self, self.data[0].index).value;
     }
 
@@ -69,45 +70,46 @@ library Heap {
         Uint256Heap storage self,
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
-        uint32 size = length(self);
+        unchecked {
+            uint32 size = length(self);
+            if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+            uint32 last = size - 1;
 
-        uint32 last = size - 1; // could be unchecked (check above)
+            // get root location (in the data array) and value
+            Uint256HeapNode storage rootNode = _unsafeNodeAccess(self, 0);
+            uint32 rootIdx = rootNode.index;
+            Uint256HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
+            Uint256HeapNode storage lastNode = _unsafeNodeAccess(self, last);
+            uint256 rootDataValue = rootData.value;
 
-        // get root location (in the data array) and value
-        Uint256HeapNode storage rootNode = _unsafeNodeAccess(self, 0);
-        uint32 rootIdx = rootNode.index;
-        Uint256HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
-        Uint256HeapNode storage lastNode = _unsafeNodeAccess(self, last);
-        uint256 rootDataValue = rootData.value;
+            // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
+            if (rootIdx != last) {
+                // get details about the value stored in the last element of the array (that will get pop-ed)
+                uint32 lastDataIdx = lastNode.lookup;
+                uint256 lastDataValue = lastNode.value;
+                // copy these values to the location of the root (that is safe, and that we no longer use)
+                rootData.value = lastDataValue;
+                rootData.lookup = lastDataIdx;
+                // update the tree node that used to point to that last element (value now located where the root was)
+                _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+            }
 
-        // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
-        if (rootIdx != last) {
-            // get details about the value stored in the last element of the array (that will get pop-ed)
-            uint32 lastDataIdx = lastNode.lookup;
-            uint256 lastDataValue = lastNode.value;
-            // copy these values to the location of the root (that is safe, and that we no longer use)
-            rootData.value = lastDataValue;
-            rootData.lookup = lastDataIdx;
-            // update the tree node that used to point to that last element (value now located where the root was)
-            _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+            // get last leaf location (in the data array) and value
+            uint32 lastIdx = lastNode.index;
+            uint256 lastValue = _unsafeNodeAccess(self, lastIdx).value;
+
+            // move the last leaf to the root, pop last leaf ...
+            rootNode.index = lastIdx;
+            _unsafeNodeAccess(self, lastIdx).lookup = 0;
+            self.data.pop();
+
+            // ... and heapify
+            _siftDown(self, last, 0, lastValue, comp);
+
+            // return root value
+            return rootDataValue;
         }
-
-        // get last leaf location (in the data array) and value
-        uint32 lastIdx = lastNode.index;
-        uint256 lastValue = _unsafeNodeAccess(self, lastIdx).value;
-
-        // move the last leaf to the root, pop last leaf ...
-        rootNode.index = lastIdx;
-        _unsafeNodeAccess(self, lastIdx).lookup = 0;
-        self.data.pop();
-
-        // ... and heapify
-        _siftDown(self, last, 0, lastValue, comp);
-
-        // return root value
-        return rootDataValue;
     }
 
     /**
@@ -132,9 +134,8 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal {
         uint32 size = length(self);
-        if (size == type(uint32).max) {
-            Panic.panic(Panic.RESOURCE_ERROR);
-        }
+        if (size == type(uint32).max) Panic.panic(Panic.RESOURCE_ERROR);
+
         self.data.push(Uint256HeapNode({index: size, lookup: size, value: value}));
         _siftUp(self, size, value, comp);
     }
@@ -327,6 +328,7 @@ library Heap {
      * @dev Lookup the root element of the heap.
      */
     function peek(Uint208Heap storage self) internal view returns (uint208) {
+        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
         return _unsafeNodeAccess(self, self.data[0].index).value;
     }
 
@@ -350,45 +352,46 @@ library Heap {
         Uint208Heap storage self,
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint208) {
-        uint24 size = length(self);
+        unchecked {
+            uint24 size = length(self);
+            if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+            uint24 last = size - 1;
 
-        uint24 last = size - 1; // could be unchecked (check above)
+            // get root location (in the data array) and value
+            Uint208HeapNode storage rootNode = _unsafeNodeAccess(self, 0);
+            uint24 rootIdx = rootNode.index;
+            Uint208HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
+            Uint208HeapNode storage lastNode = _unsafeNodeAccess(self, last);
+            uint208 rootDataValue = rootData.value;
 
-        // get root location (in the data array) and value
-        Uint208HeapNode storage rootNode = _unsafeNodeAccess(self, 0);
-        uint24 rootIdx = rootNode.index;
-        Uint208HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
-        Uint208HeapNode storage lastNode = _unsafeNodeAccess(self, last);
-        uint208 rootDataValue = rootData.value;
+            // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
+            if (rootIdx != last) {
+                // get details about the value stored in the last element of the array (that will get pop-ed)
+                uint24 lastDataIdx = lastNode.lookup;
+                uint208 lastDataValue = lastNode.value;
+                // copy these values to the location of the root (that is safe, and that we no longer use)
+                rootData.value = lastDataValue;
+                rootData.lookup = lastDataIdx;
+                // update the tree node that used to point to that last element (value now located where the root was)
+                _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+            }
 
-        // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
-        if (rootIdx != last) {
-            // get details about the value stored in the last element of the array (that will get pop-ed)
-            uint24 lastDataIdx = lastNode.lookup;
-            uint208 lastDataValue = lastNode.value;
-            // copy these values to the location of the root (that is safe, and that we no longer use)
-            rootData.value = lastDataValue;
-            rootData.lookup = lastDataIdx;
-            // update the tree node that used to point to that last element (value now located where the root was)
-            _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+            // get last leaf location (in the data array) and value
+            uint24 lastIdx = lastNode.index;
+            uint208 lastValue = _unsafeNodeAccess(self, lastIdx).value;
+
+            // move the last leaf to the root, pop last leaf ...
+            rootNode.index = lastIdx;
+            _unsafeNodeAccess(self, lastIdx).lookup = 0;
+            self.data.pop();
+
+            // ... and heapify
+            _siftDown(self, last, 0, lastValue, comp);
+
+            // return root value
+            return rootDataValue;
         }
-
-        // get last leaf location (in the data array) and value
-        uint24 lastIdx = lastNode.index;
-        uint208 lastValue = _unsafeNodeAccess(self, lastIdx).value;
-
-        // move the last leaf to the root, pop last leaf ...
-        rootNode.index = lastIdx;
-        _unsafeNodeAccess(self, lastIdx).lookup = 0;
-        self.data.pop();
-
-        // ... and heapify
-        _siftDown(self, last, 0, lastValue, comp);
-
-        // return root value
-        return rootDataValue;
     }
 
     /**
@@ -413,9 +416,8 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal {
         uint24 size = length(self);
-        if (size == type(uint24).max) {
-            Panic.panic(Panic.RESOURCE_ERROR);
-        }
+        if (size == type(uint24).max) Panic.panic(Panic.RESOURCE_ERROR);
+
         self.data.push(Uint208HeapNode({index: size, lookup: size, value: value}));
         _siftUp(self, size, value, comp);
     }

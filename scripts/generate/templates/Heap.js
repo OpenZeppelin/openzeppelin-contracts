@@ -48,6 +48,7 @@ struct ${node} {
  * @dev Lookup the root element of the heap.
  */
 function peek(${struct} storage self) internal view returns (${valueType}) {
+    // self.data[0] will \`ARRAY_ACCESS_OUT_OF_BOUNDS\` panic if heap is empty.
     return _unsafeNodeAccess(self, self.data[0].index).value;
 }
 
@@ -71,45 +72,46 @@ function pop(
     ${struct} storage self,
     function(uint256, uint256) view returns (bool) comp
 ) internal returns (${valueType}) {
-    ${indexType} size = length(self);
+    unchecked {
+        ${indexType} size = length(self);
+        if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-    if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        ${indexType} last = size - 1;
 
-    ${indexType} last = size - 1; // could be unchecked (check above)
+        // get root location (in the data array) and value
+        ${node} storage rootNode = _unsafeNodeAccess(self, 0);
+        ${indexType} rootIdx = rootNode.index;
+        ${node} storage rootData = _unsafeNodeAccess(self, rootIdx);
+        ${node} storage lastNode = _unsafeNodeAccess(self, last);
+        ${valueType} rootDataValue = rootData.value;
 
-    // get root location (in the data array) and value
-    ${node} storage rootNode = _unsafeNodeAccess(self, 0);
-    ${indexType} rootIdx = rootNode.index;
-    ${node} storage rootData = _unsafeNodeAccess(self, rootIdx);
-    ${node} storage lastNode = _unsafeNodeAccess(self, last);
-    ${valueType} rootDataValue = rootData.value;
+        // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
+        if (rootIdx != last) {
+            // get details about the value stored in the last element of the array (that will get pop-ed)
+            ${indexType} lastDataIdx = lastNode.lookup;
+            ${valueType} lastDataValue = lastNode.value;
+            // copy these values to the location of the root (that is safe, and that we no longer use)
+            rootData.value = lastDataValue;
+            rootData.lookup = lastDataIdx;
+            // update the tree node that used to point to that last element (value now located where the root was)
+            _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+        }
 
-    // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
-    if (rootIdx != last) {
-        // get details about the value stored in the last element of the array (that will get pop-ed)
-        ${indexType} lastDataIdx = lastNode.lookup;
-        ${valueType} lastDataValue = lastNode.value;
-        // copy these values to the location of the root (that is safe, and that we no longer use)
-        rootData.value = lastDataValue;
-        rootData.lookup = lastDataIdx;
-        // update the tree node that used to point to that last element (value now located where the root was)
-        _unsafeNodeAccess(self, lastDataIdx).index = rootIdx;
+        // get last leaf location (in the data array) and value
+        ${indexType} lastIdx = lastNode.index;
+        ${valueType} lastValue = _unsafeNodeAccess(self, lastIdx).value;
+
+        // move the last leaf to the root, pop last leaf ...
+        rootNode.index = lastIdx;
+        _unsafeNodeAccess(self, lastIdx).lookup = 0;
+        self.data.pop();
+
+        // ... and heapify
+        _siftDown(self, last, 0, lastValue, comp);
+
+        // return root value
+        return rootDataValue;
     }
-
-    // get last leaf location (in the data array) and value
-    ${indexType} lastIdx = lastNode.index;
-    ${valueType} lastValue = _unsafeNodeAccess(self, lastIdx).value;
-
-    // move the last leaf to the root, pop last leaf ...
-    rootNode.index = lastIdx;
-    _unsafeNodeAccess(self, lastIdx).lookup = 0;
-    self.data.pop();
-
-    // ... and heapify
-    _siftDown(self, last, 0, lastValue, comp);
-
-    // return root value
-    return rootDataValue;
 }
 
 /**
@@ -134,9 +136,8 @@ function insert(
     function(uint256, uint256) view returns (bool) comp
 ) internal {
     ${indexType} size = length(self);
-    if (size == type(${indexType}).max) {
-        Panic.panic(Panic.RESOURCE_ERROR);
-    }
+    if (size == type(${indexType}).max) Panic.panic(Panic.RESOURCE_ERROR);
+
     self.data.push(${struct}Node({index: size, lookup: size, value: value}));
     _siftUp(self, size, value, comp);
 }
