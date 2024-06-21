@@ -35,12 +35,12 @@ contract Uint256HeapTest is Test {
             _validateHeap(Comparators.lt);
 
             min = Math.min(min, input[i]);
-            assertEq(heap.top(), min);
+            assertEq(heap.peek(), min);
         }
 
         uint256 max = 0;
         for (uint256 i = 0; i < input.length; ++i) {
-            uint256 top = heap.top();
+            uint256 top = heap.peek();
             uint256 pop = heap.pop();
             assertEq(heap.length(), input.length - i - 1);
             _validateHeap(Comparators.lt);
@@ -62,12 +62,12 @@ contract Uint256HeapTest is Test {
             _validateHeap(Comparators.gt);
 
             max = Math.max(max, input[i]);
-            assertEq(heap.top(), max);
+            assertEq(heap.peek(), max);
         }
 
         uint256 min = type(uint256).max;
         for (uint256 i = 0; i < input.length; ++i) {
-            uint256 top = heap.top();
+            uint256 top = heap.peek();
             uint256 pop = heap.pop(Comparators.gt);
             assertEq(heap.length(), input.length - i - 1);
             _validateHeap(Comparators.gt);
@@ -106,12 +106,12 @@ contract Uint208HeapTest is Test {
             _validateHeap(Comparators.lt);
 
             min = Math.min(min, input[i]);
-            assertEq(heap.top(), min);
+            assertEq(heap.peek(), min);
         }
 
         uint256 max = 0;
         for (uint256 i = 0; i < input.length; ++i) {
-            uint208 top = heap.top();
+            uint208 top = heap.peek();
             uint208 pop = heap.pop();
             assertEq(heap.length(), input.length - i - 1);
             _validateHeap(Comparators.lt);
@@ -133,12 +133,12 @@ contract Uint208HeapTest is Test {
             _validateHeap(Comparators.gt);
 
             max = Math.max(max, input[i]);
-            assertEq(heap.top(), max);
+            assertEq(heap.peek(), max);
         }
 
         uint256 min = type(uint256).max;
         for (uint256 i = 0; i < input.length; ++i) {
-            uint208 top = heap.top();
+            uint208 top = heap.peek();
             uint208 pop = heap.pop(Comparators.gt);
             assertEq(heap.length(), input.length - i - 1);
             _validateHeap(Comparators.gt);
