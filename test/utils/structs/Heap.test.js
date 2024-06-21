@@ -74,7 +74,7 @@ describe('Heap', function () {
         await expect(this.helper.pop()).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
       });
 
-      it('insert, pop ansd replace', async function () {
+      it('insert, pop and replace', async function () {
         const heap = [];
         for (const { op, value } of [
           { op: 'insert', value: 712 }, // [712]
