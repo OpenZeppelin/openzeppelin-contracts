@@ -3,10 +3,14 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
+import {stdJson} from "forge-std/StdJson.sol";
+
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract P256Test is Test {
+    using stdJson for string;
+
     /// forge-config: default.fuzz.runs = 512
     function testVerify(uint256 seed, bytes32 digest) public {
         uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
@@ -26,6 +30,25 @@ contract P256Test is Test {
         (uint256 qx0, uint256 qy0) = P256.recovery(uint256(digest), 0, uint256(r), uint256(s));
         (uint256 qx1, uint256 qy1) = P256.recovery(uint256(digest), 1, uint256(r), uint256(s));
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
+    }
+
+    // based on: https://github.com/pcaversaccio/snekmate/blob/4cb87bff4c1ca8901d9931772b1e58758bea6576/test/utils/P256.t.sol#L99
+    function testVerifyWycheproofData() public {
+        string memory file = "test/utils/cryptography/wycheproof.jsonl";
+        while (true) {
+            string memory vector = vm.readLine(file);
+            if (bytes(vector).length == 0) {
+                break;
+            }
+
+            uint256 r = uint256(vector.readBytes32(".r"));
+            uint256 s = uint256(vector.readBytes32(".s"));
+            uint256 x = uint256(vector.readBytes32(".x"));
+            uint256 y = uint256(vector.readBytes32(".y"));
+            bytes32 hash = vector.readBytes32(".hash");
+
+            assertEq(P256.verify(uint256(hash), r, s, x, y), vector.readBool(".valid"));
+        }
     }
 }
 
