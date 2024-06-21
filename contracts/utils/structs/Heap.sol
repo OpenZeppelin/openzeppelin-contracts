@@ -104,7 +104,7 @@ library Heap {
         self.data.pop();
 
         // ... and heapify
-        _heapifyDown(self, last, 0, lastValue, comp);
+        _siftDown(self, last, 0, lastValue, comp);
 
         // return root value
         return rootDataValue;
@@ -136,7 +136,7 @@ library Heap {
             Panic.panic(Panic.RESOURCE_ERROR);
         }
         self.data.push(Uint256HeapNode({index: size, lookup: size, value: value}));
-        _heapifyUp(self, size, value, comp);
+        _siftUp(self, size, value, comp);
     }
 
     /**
@@ -175,7 +175,7 @@ library Heap {
         rootData.value = newValue;
 
         // re-heapify
-        _heapifyDown(self, size, 0, newValue, comp);
+        _siftDown(self, size, 0, newValue, comp);
 
         // return old root value
         return oldValue;
@@ -220,7 +220,7 @@ library Heap {
      * and `value` could be extracted from `self` and `pos`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
-    function _heapifyDown(
+    function _siftDown(
         Uint256Heap storage self,
         uint32 size,
         uint32 pos,
@@ -239,10 +239,10 @@ library Heap {
             if (comp(lValue, value) || comp(rValue, value)) {
                 if (comp(lValue, rValue)) {
                     _swap(self, pos, lIndex);
-                    _heapifyDown(self, size, lIndex, value, comp);
+                    _siftDown(self, size, lIndex, value, comp);
                 } else {
                     _swap(self, pos, rIndex);
-                    _heapifyDown(self, size, rIndex, value, comp);
+                    _siftDown(self, size, rIndex, value, comp);
                 }
             }
         } else if (left < size) {
@@ -251,7 +251,7 @@ library Heap {
             uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             if (comp(lValue, value)) {
                 _swap(self, pos, lIndex);
-                _heapifyDown(self, size, lIndex, value, comp);
+                _siftDown(self, size, lIndex, value, comp);
             }
         }
     }
@@ -264,7 +264,7 @@ library Heap {
      * could be extracted from `self` and `pos`, but that would require redundant storage read. This parameters is not
      * verified. It is the caller role to make sure the parameters are correct.
      */
-    function _heapifyUp(
+    function _siftUp(
         Uint256Heap storage self,
         uint32 pos,
         uint256 value,
@@ -385,7 +385,7 @@ library Heap {
         self.data.pop();
 
         // ... and heapify
-        _heapifyDown(self, last, 0, lastValue, comp);
+        _siftDown(self, last, 0, lastValue, comp);
 
         // return root value
         return rootDataValue;
@@ -417,7 +417,7 @@ library Heap {
             Panic.panic(Panic.RESOURCE_ERROR);
         }
         self.data.push(Uint208HeapNode({index: size, lookup: size, value: value}));
-        _heapifyUp(self, size, value, comp);
+        _siftUp(self, size, value, comp);
     }
 
     /**
@@ -456,7 +456,7 @@ library Heap {
         rootData.value = newValue;
 
         // re-heapify
-        _heapifyDown(self, size, 0, newValue, comp);
+        _siftDown(self, size, 0, newValue, comp);
 
         // return old root value
         return oldValue;
@@ -501,7 +501,7 @@ library Heap {
      * and `value` could be extracted from `self` and `pos`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
-    function _heapifyDown(
+    function _siftDown(
         Uint208Heap storage self,
         uint24 size,
         uint24 pos,
@@ -520,10 +520,10 @@ library Heap {
             if (comp(lValue, value) || comp(rValue, value)) {
                 if (comp(lValue, rValue)) {
                     _swap(self, pos, lIndex);
-                    _heapifyDown(self, size, lIndex, value, comp);
+                    _siftDown(self, size, lIndex, value, comp);
                 } else {
                     _swap(self, pos, rIndex);
-                    _heapifyDown(self, size, rIndex, value, comp);
+                    _siftDown(self, size, rIndex, value, comp);
                 }
             }
         } else if (left < size) {
@@ -532,7 +532,7 @@ library Heap {
             uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             if (comp(lValue, value)) {
                 _swap(self, pos, lIndex);
-                _heapifyDown(self, size, lIndex, value, comp);
+                _siftDown(self, size, lIndex, value, comp);
             }
         }
     }
@@ -545,7 +545,7 @@ library Heap {
      * could be extracted from `self` and `pos`, but that would require redundant storage read. This parameters is not
      * verified. It is the caller role to make sure the parameters are correct.
      */
-    function _heapifyUp(
+    function _siftUp(
         Uint208Heap storage self,
         uint24 pos,
         uint208 value,
