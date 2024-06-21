@@ -3,5 +3,6 @@
 set -euo pipefail
 
 if [ "${CI:-"false"}" != "true" ]; then
+	npm run generate
   npm run lint
 fi
