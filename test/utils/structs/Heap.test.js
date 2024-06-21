@@ -32,12 +32,13 @@ describe('Heap', function () {
       });
 
       it('starts empty', async function () {
-        await expect(this.helper.peek()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
         expect(await this.helper.length()).to.equal(0n);
       });
 
-      it('pop from empty', async function () {
+      it('peek, pop and replace from empty', async function () {
+        await expect(this.helper.peek()).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
         await expect(this.helper.pop()).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
+        await expect(this.helper.replace(0n)).to.be.revertedWithPanic(PANIC_CODES.POP_ON_EMPTY_ARRAY);
       });
 
       it('clear', async function () {
