@@ -126,16 +126,7 @@ library P256 {
     }
 
     /**
-     * @dev derivate public key
-     * @param privateKey - private key
-     */
-    function getPublicKey(uint256 privateKey) internal view returns (uint256, uint256) {
-        (uint256 x, uint256 y, uint256 z) = _jMult(GX, GY, 1, privateKey);
-        return _affineFromJacobian(x, y, z);
-    }
-
-    /**
-     * @dev check if a point is on the curve.
+     * @dev Checks if a point is on the curve.
      */
     function isOnCurve(uint256 x, uint256 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
@@ -216,32 +207,6 @@ library P256 {
             ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
-        }
-    }
-
-    /**
-     * @dev Point multiplication on the jacobian coordinates
-     */
-    function _jMult(
-        uint256 x,
-        uint256 y,
-        uint256 z,
-        uint256 k
-    ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        unchecked {
-            for (uint256 i = 0; i < 256; ++i) {
-                if (rz > 0) {
-                    (rx, ry, rz) = _jDouble(rx, ry, rz);
-                }
-                if (k >> 255 > 0) {
-                    if (rz == 0) {
-                        (rx, ry, rz) = (x, y, z);
-                    } else {
-                        (rx, ry, rz) = _jAdd(rx, ry, rz, x, y, z);
-                    }
-                }
-                k <<= 1;
-            }
         }
     }
 
