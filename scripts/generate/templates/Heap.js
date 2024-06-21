@@ -106,7 +106,7 @@ function pop(
     self.data.pop();
 
     // ... and heapify
-    _heapifyDown(self, last, 0, lastValue, comp);
+    _siftDown(self, last, 0, lastValue, comp);
 
     // return root value
     return rootDataValue;
@@ -138,7 +138,7 @@ function insert(
         Panic.panic(Panic.RESOURCE_ERROR);
     }
     self.data.push(${struct}Node({index: size, lookup: size, value: value}));
-    _heapifyUp(self, size, value, comp);
+    _siftUp(self, size, value, comp);
 }
 
 /**
@@ -177,7 +177,7 @@ function replace(
     rootData.value = newValue;
 
     // re-heapify
-    _heapifyDown(self, size, 0, newValue, comp);
+    _siftDown(self, size, 0, newValue, comp);
 
     // return old root value
     return oldValue;
@@ -222,7 +222,7 @@ function _swap(${struct} storage self, ${indexType} i, ${indexType} j) private {
  * and \`value\` could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. These
  * parameters are not verified. It is the caller role to make sure the parameters are correct.
  */
-function _heapifyDown(
+function _siftDown(
     ${struct} storage self,
     ${indexType} size,
     ${indexType} pos,
@@ -241,10 +241,10 @@ function _heapifyDown(
         if (comp(lValue, value) || comp(rValue, value)) {
             if (comp(lValue, rValue)) {
                 _swap(self, pos, lIndex);
-                _heapifyDown(self, size, lIndex, value, comp);
+                _siftDown(self, size, lIndex, value, comp);
             } else {
                 _swap(self, pos, rIndex);
-                _heapifyDown(self, size, rIndex, value, comp);
+                _siftDown(self, size, rIndex, value, comp);
             }
         }
     } else if (left < size) {
@@ -253,7 +253,7 @@ function _heapifyDown(
         ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
         if (comp(lValue, value)) {
             _swap(self, pos, lIndex);
-            _heapifyDown(self, size, lIndex, value, comp);
+            _siftDown(self, size, lIndex, value, comp);
         }
     }
 }
@@ -266,7 +266,7 @@ function _heapifyDown(
  * could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. This parameters is not
  * verified. It is the caller role to make sure the parameters are correct.
  */
-function _heapifyUp(
+function _siftUp(
     ${struct} storage self,
     ${indexType} pos,
     ${valueType} value,
