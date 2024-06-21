@@ -126,41 +126,12 @@ library P256 {
     }
 
     /**
-     * @dev Address recovery from public key
-     *
-     * @param h - hashed message
-     * @param v - signature recovery param
-     * @param r - signature half R
-     * @param s - signature half S
-     *
-     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
-     * the upper half order of the curve (i.e. s > N/2)
-     */
-    function recoveryAddress(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (address) {
-        (uint256 qx, uint256 qy) = recovery(h, v, r, s);
-        return getAddress(qx, qy);
-    }
-
-    /**
      * @dev derivate public key
      * @param privateKey - private key
      */
     function getPublicKey(uint256 privateKey) internal view returns (uint256, uint256) {
         (uint256 x, uint256 y, uint256 z) = _jMult(GX, GY, 1, privateKey);
         return _affineFromJacobian(x, y, z);
-    }
-
-    /**
-     * @dev Hash public key into an address
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
-     */
-    function getAddress(uint256 qx, uint256 qy) internal pure returns (address result) {
-        assembly ("memory-safe") {
-            mstore(0x00, qx)
-            mstore(0x20, qy)
-            result := keccak256(0x00, 0x40)
-        }
     }
 
     /**
