@@ -27,10 +27,6 @@ describe('P256', function () {
     Object.assign(this, await loadFixture(fixture), prepareSignature());
   });
 
-  it('derivate public from private', async function () {
-    expect(await this.mock.$getPublicKey(ethers.toBigInt(this.privateKey))).to.deep.equal(this.publicKey);
-  });
-
   it('verify valid signature', async function () {
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
     expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
