@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
 import {Errors} from "../Errors.sol";
+import {ECDSA} from "./ECDSA.sol";
 
 /**
  * @dev Implementation of secp256r1 verification and recovery functions.
@@ -38,6 +39,9 @@ library P256 {
     /// @dev (P + 1) / 4. Useful to compute sqrt
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
+    /// @dev N/2 for excluding higher order `s` values
+    uint256 private constant HALF_N = 0x7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8;
+
     /**
      * @dev Verifies a secp256r1 signature using the RIP-7212 precompile and falls back to the Solidity implementation
      * if the precompile is not available. This version should work on all chains, but requires the deployment of more
@@ -48,20 +52,43 @@ library P256 {
      * @param s - signature half S
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
-     *
-     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
-     * the upper half order of the curve (i.e. s > N/2)
      */
     function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
+        if (s > HALF_N) {
+            return false;
+        }
+        return _verifyMalleable(h, r, s, qx, qy);
+    }
+
+    /**
+     * @dev Same as {verify}, but allows for `s` in the upper half order allowing for malleable signatures.
+     */
+    function _verifyMalleable(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) private view returns (bool) {
+        (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
 
     /**
      * @dev Same as {verify}, but it will revert if the required precompile is not available.
      */
-    function verify7212(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        (bool valid, bool supported) = tryVerify7212(h, r, s, qx, qy);
+    function verifyNative(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
+        if (s > HALF_N) {
+            return false;
+        }
+        return _verifyNativeMalleable(h, r, s, qx, qy);
+    }
+
+    /**
+     * @dev Same as {verifyNative}, but allows for `s` in the upper half order allowing for malleable signatures.
+     */
+    function _verifyNativeMalleable(
+        uint256 h,
+        uint256 r,
+        uint256 s,
+        uint256 qx,
+        uint256 qy
+    ) private view returns (bool) {
+        (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         if (supported) {
             return valid;
         } else {
@@ -72,13 +99,13 @@ library P256 {
     /**
      * @dev Same as {verify}, but it will return false if the required precompile is not available.
      */
-    function tryVerify7212(
+    function _tryVerifyNative(
         uint256 h,
         uint256 r,
         uint256 s,
         uint256 qx,
         uint256 qy
-    ) internal view returns (bool valid, bool supported) {
+    ) private view returns (bool valid, bool supported) {
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
         return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
     }
