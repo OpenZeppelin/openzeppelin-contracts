@@ -180,6 +180,6 @@ library SafeERC20 {
             returnSize := returndatasize()
             returnValue := mload(0)
         }
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue > 0);
+        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
     }
 }
