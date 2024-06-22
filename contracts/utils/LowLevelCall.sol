@@ -53,7 +53,7 @@ library LowLevelCall {
     /// === STATICCALL ===
 
     /// @dev Performs a Solidity function call using a low level `staticcall` and ignoring the return data.
-    function staticCallRaw(address target, bytes memory data) internal view returns (bool success) {
+    function staticcallRaw(address target, bytes memory data) internal view returns (bool success) {
         assembly ("memory-safe") {
             success := staticcall(gas(), target, add(data, 0x20), mload(data), 0, 0)
         }
