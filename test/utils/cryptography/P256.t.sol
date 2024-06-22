@@ -15,20 +15,20 @@ contract P256Test is Test {
     function testVerify(uint256 seed, bytes32 digest) public {
         uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
-        (uint256 x, uint256 y) = P256PublicKey.getPublicKey(privateKey);
+        (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
-        assertTrue(P256.verify(uint256(digest), uint256(r), uint256(s), x, y));
-        assertTrue(P256.verifySolidity(uint256(digest), uint256(r), uint256(s), x, y));
+        assertTrue(P256.verify(digest, r, s, x, y));
+        assertTrue(P256.verifySolidity(digest, r, s, x, y));
     }
 
     /// forge-config: default.fuzz.runs = 512
     function testRecover(uint256 seed, bytes32 digest) public {
         uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
-        (uint256 x, uint256 y) = P256PublicKey.getPublicKey(privateKey);
+        (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
-        (uint256 qx0, uint256 qy0) = P256.recovery(uint256(digest), 0, uint256(r), uint256(s));
-        (uint256 qx1, uint256 qy1) = P256.recovery(uint256(digest), 1, uint256(r), uint256(s));
+        (bytes32 qx0, bytes32 qy0) = P256.recovery(digest, 0, r, s);
+        (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
     }
 
@@ -41,13 +41,13 @@ contract P256Test is Test {
                 break;
             }
 
-            uint256 r = uint256(vector.readBytes32(".r"));
-            uint256 s = uint256(vector.readBytes32(".s"));
-            uint256 x = uint256(vector.readBytes32(".x"));
-            uint256 y = uint256(vector.readBytes32(".y"));
+            bytes32 r = vector.readBytes32(".r");
+            bytes32 s = vector.readBytes32(".s");
+            bytes32 x = vector.readBytes32(".x");
+            bytes32 y = vector.readBytes32(".y");
             bytes32 hash = vector.readBytes32(".hash");
 
-            assertEq(P256.verify(uint256(hash), r, s, x, y), vector.readBool(".valid"));
+            assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
         }
     }
 }
@@ -58,7 +58,7 @@ contract P256Test is Test {
  * See https://github.com/foundry-rs/foundry/issues/7908
  */
 library P256PublicKey {
-    function getPublicKey(uint256 privateKey) internal view returns (uint256, uint256) {
+    function getPublicKey(uint256 privateKey) internal view returns (bytes32, bytes32) {
         (uint256 x, uint256 y, uint256 z) = _jMult(P256.GX, P256.GY, 1, privateKey);
         return _affineFromJacobian(x, y, z);
     }
@@ -88,13 +88,13 @@ library P256PublicKey {
 
     /// From P256.sol
 
-    function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
+    function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (bytes32 ax, bytes32 ay) {
         if (jz == 0) return (0, 0);
         uint256 zinv = Math.invModPrime(jz, P256.P);
         uint256 zzinv = mulmod(zinv, zinv, P256.P);
         uint256 zzzinv = mulmod(zzinv, zinv, P256.P);
-        ax = mulmod(jx, zzinv, P256.P);
-        ay = mulmod(jy, zzzinv, P256.P);
+        ax = bytes32(mulmod(jx, zzinv, P256.P));
+        ay = bytes32(mulmod(jy, zzzinv, P256.P));
     }
 
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {

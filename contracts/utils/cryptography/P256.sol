@@ -53,8 +53,8 @@ library P256 {
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
      */
-    function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        if (s > HALF_N) {
+    function verify(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        if (uint256(s) > HALF_N) {
             return false;
         }
         return _verifyMalleable(h, r, s, qx, qy);
@@ -63,7 +63,7 @@ library P256 {
     /**
      * @dev Same as {verify}, but allows for `s` in the upper half order allowing for malleable signatures.
      */
-    function _verifyMalleable(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) private view returns (bool) {
+    function _verifyMalleable(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
@@ -71,8 +71,8 @@ library P256 {
     /**
      * @dev Same as {verify}, but it will revert if the required precompile is not available.
      */
-    function verifyNative(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        if (s > HALF_N) {
+    function verifyNative(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        if (uint256(s) > HALF_N) {
             return false;
         }
         return _verifyNativeMalleable(h, r, s, qx, qy);
@@ -82,11 +82,11 @@ library P256 {
      * @dev Same as {verifyNative}, but allows for `s` in the upper half order allowing for malleable signatures.
      */
     function _verifyNativeMalleable(
-        uint256 h,
-        uint256 r,
-        uint256 s,
-        uint256 qx,
-        uint256 qy
+        bytes32 h,
+        bytes32 r,
+        bytes32 s,
+        bytes32 qx,
+        bytes32 qy
     ) private view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         if (supported) {
@@ -100,11 +100,11 @@ library P256 {
      * @dev Same as {verify}, but it will return false if the required precompile is not available.
      */
     function _tryVerifyNative(
-        uint256 h,
-        uint256 r,
-        uint256 s,
-        uint256 qx,
-        uint256 qy
+        bytes32 h,
+        bytes32 r,
+        bytes32 s,
+        bytes32 qx,
+        bytes32 qy
     ) private view returns (bool valid, bool supported) {
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
         return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
@@ -113,15 +113,17 @@ library P256 {
     /**
      * @dev Same as {verify}, but only the Solidity implementation is used.
      */
-    function verifySolidity(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
+    function verifySolidity(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) >= N || !isOnCurve(qx, qy)) {
+            return false;
+        }
 
-        JPoint[16] memory points = _preComputeJacobianPoints(qx, qy);
-        uint256 w = Math.invModPrime(s, N);
-        uint256 u1 = mulmod(h, w, N);
-        uint256 u2 = mulmod(r, w, N);
+        JPoint[16] memory points = _preComputeJacobianPoints(uint256(qx), uint256(qy));
+        uint256 w = Math.invModPrime(uint256(s), N);
+        uint256 u1 = mulmod(uint256(h), w, N);
+        uint256 u2 = mulmod(uint256(r), w, N);
         (uint256 x, ) = _jMultShamir(points, u1, u2);
-        return (x == r);
+        return (x == uint256(r));
     }
 
     /**
@@ -135,27 +137,27 @@ library P256 {
      * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
      * the upper half order of the curve (i.e. s > N/2)
      */
-    function recovery(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (uint256, uint256) {
-        if (r == 0 || r >= N || s == 0 || s >= N || v > 1) return (0, 0);
+    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
+        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) >= N || v > 1) return (0, 0);
 
-        uint256 rx = r;
+        uint256 rx = uint256(r);
         uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
         uint256 ry = Math.modExp(ry2, P1DIV4, P); // This formula for sqrt work because P ≡ 3 (mod 4)
         if (mulmod(ry, ry, P) != ry2) return (0, 0); // Sanity check
         if (ry % 2 != v % 2) ry = P - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
-        uint256 w = Math.invModPrime(r, N);
-        uint256 u1 = mulmod(N - (h % N), w, N);
-        uint256 u2 = mulmod(s, w, N);
+        uint256 w = Math.invModPrime(uint256(r), N);
+        uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
+        uint256 u2 = mulmod(uint256(s), w, N);
         (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (x, y);
+        return (bytes32(x), bytes32(y));
     }
 
     /**
      * @dev Checks if a point is on the curve.
      */
-    function isOnCurve(uint256 x, uint256 y) internal pure returns (bool result) {
+    function isOnCurve(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
             let p := P
             let lhs := mulmod(y, y, p) // y^2
