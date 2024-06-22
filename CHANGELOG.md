@@ -14,7 +14,7 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
 - Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
 - Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
-- `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation`
+- `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation` if there is no code at the token's address.
 
 ## 5.0.2 (2024-02-29)
 
