@@ -158,7 +158,7 @@ library SafeERC20 {
             returnValue := mload(0)
         }
 
-        if (returnSize == 0 ? address(token).code.length == 0 : returnValue == 0) {
+        if (returnSize == 0 ? address(token).code.length == 0 : returnValue != 1) {
             revert SafeERC20FailedOperation(address(token));
         }
     }
