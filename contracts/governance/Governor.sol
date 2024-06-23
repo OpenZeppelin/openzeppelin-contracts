@@ -117,10 +117,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * can be produced from the proposal data which is part of the {ProposalCreated} event. It can even be computed in
      * advance, before the proposal is submitted.
      *
-     * Note that the chainId and the governor address are not part of the proposal id computation. Consequently, the
-     * same proposal (with same operation and same description) will have the same id if submitted on multiple governors
-     * across multiple networks. This also means that in order to execute the same operation twice (on the same
-     * governor) the proposer will have to change the description in order to avoid proposal id conflicts.
+     * Note that the chainId and the governor address are not part of the proposal id computation, but can be added to
+     * guarantee more uniqueness if the same proposal is to submitted on multiple governors across multiple networks.
      */
     function hashProposal(
         address[] memory targets,
