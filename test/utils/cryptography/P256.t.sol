@@ -8,8 +8,6 @@ import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract P256Test is Test {
-    using stdJson for string;
-
     /// forge-config: default.fuzz.runs = 512
     function testVerify(uint256 seed, bytes32 digest) public {
         uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
