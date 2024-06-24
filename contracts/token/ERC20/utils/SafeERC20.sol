@@ -169,7 +169,7 @@ library SafeERC20 {
      * @param token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      *
-     * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
+     * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
         bool success;

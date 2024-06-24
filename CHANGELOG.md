@@ -16,6 +16,7 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
 - `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation` if there is no code at the token's address.
 - `SafeERC20`: Replace generic `Error(string)` with `SafeERC20FailedOperation` if the returned data can't be decoded as `bool`.
+- `SafeERC20`: Replace generic `SafeERC20FailedOperation` with the revert message from the contract call if it fails.
 
 ## 5.0.2 (2024-02-29)
 
