@@ -52,6 +52,9 @@ library P256 {
      * @param s - signature half S
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
+     *
+     * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
+     * To flip the `s` value, compute `s = N - s`.
      */
     function verify(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
@@ -111,6 +114,9 @@ library P256 {
      * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
+     *
+     * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
+     * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
     function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
         if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || v > 1) return (0, 0);

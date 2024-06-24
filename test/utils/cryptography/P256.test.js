@@ -56,13 +56,27 @@ describe('P256', function () {
 
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-    await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey))
-      .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
-      .withArgs('0x0000000000000000000000000000000000000100');
+    expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false; // Flipped public key is not in the curve
   });
 
   it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
-    // flip public key
+    // Preselected signature where `r < N/2` and `s < N/2`
+    this.signature = [
+      '0x45350225bad31e89db662fcc4fb2f79f349adbb952b3f652eed1f2aa72fb0356',
+      '0x513eb68424c42630012309eee4a3b43e0bdc019d179ef0e0c461800845e237ee',
+    ];
+
+    // Corresponding hash and public key
+    this.messageHash = '0x2ad1f900fe63745deeaedfdf396cb6f0f991c4338a9edf114d52f7d1812040a0';
+    this.publicKey = [
+      '0x9e30de165e521257996425d9bf12a7d366925614bf204eabbb78172b48e52e59',
+      '0x94bf0fe72f99654d7beae4780a520848e306d46a1275b965c4f4c2b8e9a2c08d',
+    ];
+
+    // Make sure it works
+    expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
+
+    // Flip signature
     this.signature.reverse();
 
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
