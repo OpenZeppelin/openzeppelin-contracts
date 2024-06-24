@@ -81,7 +81,7 @@ library P256 {
         bytes32 qy
     ) private view returns (bool valid, bool supported) {
         if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || !isOnCurve(qx, qy)) {
-            return (true, false);
+            return (false, true); // signature is invalid, and its not because the precompile is missing
         }
 
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
