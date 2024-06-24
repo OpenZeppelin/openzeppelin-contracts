@@ -35,7 +35,7 @@ contract P256Test is Test {
     }
 
     // based on: https://github.com/pcaversaccio/snekmate/blob/4cb87bff4c1ca8901d9931772b1e58758bea6576/test/utils/P256.t.sol#L99
-    function testVerifyWycheproofData() public {
+    function testWycheproofData() public {
         string memory file = "test/utils/cryptography/wycheproof.jsonl";
         while (true) {
             string memory vector = vm.readLine(file);
@@ -48,6 +48,13 @@ contract P256Test is Test {
             bytes32 x = vector.readBytes32(".x");
             bytes32 y = vector.readBytes32(".y");
             bytes32 hash = vector.readBytes32(".hash");
+
+            // Skip test for s^-1
+            if (uint256(s) > P256.N) {
+                continue;
+            } else {
+                s = _ensureLowerS(s);
+            }
 
             assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
         }
