@@ -10,13 +10,14 @@ import {Test} from "forge-std/Test.sol";
 import {Packing} from "@openzeppelin/contracts/utils/Packing.sol";
 `;
 
-const testPack = (left, right) => `
+const testPack = (left, right) => `\
 function testPack(bytes${left} left, bytes${right} right) external {
     assertEq(left, Packing.pack_${left}_${right}(left, right).extract_${left + right}_${left}(0));
     assertEq(right, Packing.pack_${left}_${right}(left, right).extract_${left + right}_${right}(${left}));
-}`;
+}
+`;
 
-const testReplace = (outer, inner) => `
+const testReplace = (outer, inner) => `\
 function testReplace(bytes${outer} container, bytes${inner} newValue, uint8 offset) external {
     offset = uint8(bound(offset, 0, ${outer - inner}));
 
@@ -24,19 +25,24 @@ function testReplace(bytes${outer} container, bytes${inner} newValue, uint8 offs
 
     assertEq(newValue, container.replace_${outer}_${inner}(newValue, offset).extract_${outer}_${inner}(offset));
     assertEq(container, container.replace_${outer}_${inner}(newValue, offset).replace_${outer}_${inner}(oldValue, offset));
-}`;
+}
+`;
 
 // GENERATE
 module.exports = format(
-  header.trimEnd(),
-  '',
+  header,
   'contract PackingTest is Test {',
-  '    using Packing for *;',
-  product(SIZES, SIZES)
-    .filter(([left, right]) => SIZES.includes(left + right))
-    .map(([left, right]) => testPack(left, right)),
-  product(SIZES, SIZES)
-    .filter(([outer, inner]) => outer > inner)
-    .map(([outer, inner]) => testReplace(outer, inner)),
+  format(
+    [].concat(
+      'using Packing for *;',
+      '',
+      product(SIZES, SIZES)
+        .filter(([left, right]) => SIZES.includes(left + right))
+        .map(([left, right]) => testPack(left, right)),
+      product(SIZES, SIZES)
+        .filter(([outer, inner]) => outer > inner)
+        .map(([outer, inner]) => testReplace(outer, inner)),
+    ),
+  ).trimEnd(),
   '}',
 );

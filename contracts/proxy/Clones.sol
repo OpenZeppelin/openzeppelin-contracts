@@ -39,12 +39,11 @@ library Clones {
         }
         /// @solidity memory-safe-assembly
         assembly {
-            // Stores the bytecode after address
-            mstore(0x20, 0x5af43d82803e903d91602b57fd5bf3)
-            // implementation address
-            mstore(0x11, implementation)
-            // Packs the first 3 bytes of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0x88, implementation), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
+            // of the `implementation` address with the bytecode before the address.
+            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
+            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(value, 0x09, 0x37)
         }
         if (instance == address(0)) {
@@ -80,12 +79,11 @@ library Clones {
         }
         /// @solidity memory-safe-assembly
         assembly {
-            // Stores the bytecode after address
-            mstore(0x20, 0x5af43d82803e903d91602b57fd5bf3)
-            // implementation address
-            mstore(0x11, implementation)
-            // Packs the first 3 bytes of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0x88, implementation), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
+            // of the `implementation` address with the bytecode before the address.
+            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
+            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(value, 0x09, 0x37, salt)
         }
         if (instance == address(0)) {
