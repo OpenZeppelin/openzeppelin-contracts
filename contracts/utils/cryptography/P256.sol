@@ -57,13 +57,6 @@ library P256 {
         if (uint256(s) > HALF_N) {
             return false;
         }
-        return _verifyMalleable(h, r, s, qx, qy);
-    }
-
-    /**
-     * @dev Same as {verify}, but allows for `s` in the upper half order allowing for malleable signatures.
-     */
-    function _verifyMalleable(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
@@ -75,19 +68,6 @@ library P256 {
         if (uint256(s) > HALF_N) {
             return false;
         }
-        return _verifyNativeMalleable(h, r, s, qx, qy);
-    }
-
-    /**
-     * @dev Same as {verifyNative}, but allows for `s` in the upper half order allowing for malleable signatures.
-     */
-    function _verifyNativeMalleable(
-        bytes32 h,
-        bytes32 r,
-        bytes32 s,
-        bytes32 qx,
-        bytes32 qy
-    ) private view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         if (supported) {
             return valid;
