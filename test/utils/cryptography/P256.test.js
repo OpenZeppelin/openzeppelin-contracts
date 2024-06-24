@@ -138,7 +138,7 @@ describe('P256', function () {
           // split signature, and reduce modulo N
           let [r, s] = Array(2)
             .fill()
-            .map((_, i) => ethers.toBigInt('0x' + sig.substr(64 * i, 64 * (i + 1))));
+            .map((_, i) => ethers.toBigInt('0x' + sig.substring(64 * i, 64 * (i + 1))));
           // move s to lower part of the curve if needed
           if (s <= N && s > N / 2n) s = N - s;
           // prepare signature
