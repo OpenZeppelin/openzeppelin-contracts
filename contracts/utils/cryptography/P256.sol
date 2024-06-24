@@ -94,7 +94,7 @@ library P256 {
      * @dev Same as {verify}, but only the Solidity implementation is used.
      */
     function verifySolidity(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
-        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) >= N || !isOnCurve(qx, qy)) {
+        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || !isOnCurve(qx, qy)) {
             return false;
         }
 
