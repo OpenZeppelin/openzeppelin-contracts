@@ -295,7 +295,7 @@ library Math {
      * prime, then `a**(p-1) ≡ 1 mod p`. As a consequence, we have `a * a**(p-2) ≡ 1 mod p`, which means that
      * `a**(p-2)` is the modular multiplicative inverse of a in Fp.
      *
-     * Note: this function does NOT check that `p` is a prime greater than `2`.
+     * NOTE: this function does NOT check that `p` is a prime greater than `2`.
      */
     function invModPrime(uint256 a, uint256 p) internal view returns (uint256) {
         unchecked {
