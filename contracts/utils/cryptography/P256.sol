@@ -111,9 +111,6 @@ library P256 {
      * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
-     *
-     * WARNING: Signatures are malleable, and this function does not check for malleability. Consider rejecting
-     * the upper half order of the curve (i.e. s > N/2)
      */
     function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
         if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || v > 1) return (0, 0);
