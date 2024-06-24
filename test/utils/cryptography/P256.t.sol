@@ -55,7 +55,6 @@ contract P256Test is Test {
 
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
         uint256 _s = uint256(s);
-        // if (_s > P256.N) return s; // Some tests have S edge cases
         unchecked {
             return _s > P256.N / 2 ? bytes32(P256.N - _s) : s;
         }
