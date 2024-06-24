@@ -52,7 +52,7 @@ contract P256Test is Test {
             assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
         }
     }
-    
+
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
         uint256 _s = uint256(s);
         return _s > P256.N / 2 ? bytes32(P256.N - _s) : s;
