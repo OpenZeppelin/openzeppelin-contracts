@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {stdJson} from "forge-std/StdJson.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
