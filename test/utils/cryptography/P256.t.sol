@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console2} from "forge-std/Test.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
@@ -13,7 +13,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testVerify(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(seed, 4, P256.N - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -24,7 +24,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(seed, 4, P256.N - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -49,10 +49,7 @@ contract P256Test is Test {
             bytes32 y = vector.readBytes32(".y");
             bytes32 hash = vector.readBytes32(".hash");
 
-            if (s != bytes32(uint256(3))) {
-                // Values with s == 3 are failing
-                assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
-            }
+            assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
         }
     }
 
