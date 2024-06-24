@@ -56,7 +56,7 @@ describe('P256', function () {
 
     expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
     expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-    expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false; // Flipped public key is not in the curve
+    expect(await this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false; // Flipped public key is not in the curve
   });
 
   it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
