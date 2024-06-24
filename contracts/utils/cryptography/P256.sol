@@ -116,7 +116,7 @@ library P256 {
      * the upper half order of the curve (i.e. s > N/2)
      */
     function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
-        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) >= N || v > 1) return (0, 0);
+        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || v > 1) return (0, 0);
 
         uint256 rx = uint256(r);
         uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
