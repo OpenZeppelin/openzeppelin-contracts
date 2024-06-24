@@ -13,7 +13,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testVerify(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+        uint256 privateKey = bound(seed, 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -23,7 +23,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+        uint256 privateKey = bound(seed, 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
