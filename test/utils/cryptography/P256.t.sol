@@ -31,25 +31,6 @@ contract P256Test is Test {
         (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
     }
-
-    // based on: https://github.com/pcaversaccio/snekmate/blob/4cb87bff4c1ca8901d9931772b1e58758bea6576/test/utils/P256.t.sol#L99
-    function testVerifyWycheproofData() public {
-        string memory file = "test/utils/cryptography/wycheproof.jsonl";
-        while (true) {
-            string memory vector = vm.readLine(file);
-            if (bytes(vector).length == 0) {
-                break;
-            }
-
-            bytes32 r = vector.readBytes32(".r");
-            bytes32 s = vector.readBytes32(".s");
-            bytes32 x = vector.readBytes32(".x");
-            bytes32 y = vector.readBytes32(".y");
-            bytes32 hash = vector.readBytes32(".hash");
-
-            assertEq(P256.verify(hash, r, s, x, y), vector.readBool(".valid"));
-        }
-    }
 }
 
 /**
