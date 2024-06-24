@@ -54,9 +54,6 @@ library P256 {
      * @param qy - public key coordinate Y
      */
     function verify(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
-        if (uint256(s) > HALF_N) {
-            return false;
-        }
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
@@ -65,9 +62,6 @@ library P256 {
      * @dev Same as {verify}, but it will revert if the required precompile is not available.
      */
     function verifyNative(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
-        if (uint256(s) > HALF_N) {
-            return false;
-        }
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
         if (supported) {
             return valid;
@@ -86,6 +80,10 @@ library P256 {
         bytes32 qx,
         bytes32 qy
     ) private view returns (bool valid, bool supported) {
+        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || !isOnCurve(qx, qy)) {
+            return (true, false);
+        }
+
         (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
         return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
     }
