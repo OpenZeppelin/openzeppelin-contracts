@@ -131,7 +131,7 @@ describe('P256', function () {
 
       // run all tests for this key
       for (const { tcId, comment, msg, sig, result } of tests) {
-        // only keep properly formated signatures
+        // only keep properly formatted signatures
         if (sig.length != 128) continue;
 
         it(`${tcId}: ${comment}`, async function () {
