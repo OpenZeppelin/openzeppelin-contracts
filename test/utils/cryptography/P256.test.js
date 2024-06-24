@@ -52,7 +52,9 @@ describe('P256', function () {
     });
 
     it('recover public key', async function () {
-      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.deep.equal(this.publicKey);
+      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.deep.equal(
+        this.publicKey,
+      );
     });
 
     it('reject signature with flipped public key coordinates ([x,y] >> [y,x])', async function () {
@@ -120,21 +122,23 @@ describe('P256', function () {
 
   // test cases for https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json
   describe('wycheproof tests', function () {
-    for (const { key, sha, tests, ...rest1 } of require('./ecdsa_secp256r1_sha256_p1363_test.json').testGroups) {
+    for (const { key, tests } of require('./ecdsa_secp256r1_sha256_p1363_test.json').testGroups) {
       // parse public key
-      let [ x, y ] = [ key.wx, key.wy ].map(v => ethers.stripZerosLeft('0x' + v, 32));
+      let [x, y] = [key.wx, key.wy].map(v => ethers.stripZerosLeft('0x' + v, 32));
       if (x.length > 66 || y.length > 66) continue;
       x = ethers.zeroPadValue(x, 32);
       y = ethers.zeroPadValue(y, 32);
 
       // run all tests for this key
-      for (const { tcId, comment, msg, sig, result, ...rest2 } of tests) {
+      for (const { tcId, comment, msg, sig, result } of tests) {
         // only keep properly formated signatures
         if (sig.length != 128) continue;
 
         it(`${tcId}: ${comment}`, async function () {
           // split signature, and reduce modulo N
-          let [ r, s ] = Array(2).fill().map((_, i) => ethers.toBigInt('0x' + sig.substr(64 * i, 64 * (i + 1))));
+          let [r, s] = Array(2)
+            .fill()
+            .map((_, i) => ethers.toBigInt('0x' + sig.substr(64 * i, 64 * (i + 1))));
           // move s to lower part of the curve if needed
           if (s <= N && s > N / 2n) s = N - s;
           // prepare signature
@@ -144,10 +148,7 @@ describe('P256', function () {
           const messageHash = ethers.sha256('0x' + msg);
 
           // check verify
-          expect(await this.mock.$verify(messageHash, r, s, x, y)).to.equal(result == 'valid', JSON.stringify({
-            key, sha, ...rest1,
-            test: { comment, msg, sig, result, ...rest2 },
-          }, null, 4));
+          expect(await this.mock.$verify(messageHash, r, s, x, y)).to.equal(result == 'valid');
         });
       }
     }

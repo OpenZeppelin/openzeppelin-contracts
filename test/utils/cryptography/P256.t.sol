@@ -13,23 +13,30 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testVerify(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(seed, 1, P256.N - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
+        s = _ensureLowerS(s);
         assertTrue(P256.verify(digest, r, s, x, y));
         assertTrue(P256.verifySolidity(digest, r, s, x, y));
     }
 
     /// forge-config: default.fuzz.runs = 512
     function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(seed, 1, P256.N - 1);
+        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
+        s = _ensureLowerS(s);
         (bytes32 qx0, bytes32 qy0) = P256.recovery(digest, 0, r, s);
         (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
+    }
+
+    function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
+        uint256 _s = uint256(s);
+        return _s > P256.N / 2 ? bytes32(P256.N - _s) : s;
     }
 }
 

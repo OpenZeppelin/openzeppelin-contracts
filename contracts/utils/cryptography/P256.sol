@@ -104,7 +104,7 @@ library P256 {
         uint256 u1 = mulmod(uint256(h), w, N);
         uint256 u2 = mulmod(uint256(r), w, N);
         (uint256 x, ) = _jMultShamir(points, u1, u2);
-        return (x == uint256(r));
+        return ((x % N) == uint256(r));
     }
 
     /**
