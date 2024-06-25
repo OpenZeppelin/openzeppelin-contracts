@@ -44,7 +44,7 @@ const { argv } = require('yargs/yargs')()
     unlimited: {
       alias: 'allowUnlimitedContractSize',
       type: 'boolean',
-      default: false,
+      default: true, // this is needed by many exposed contracts. Enabling it by default.
     },
     // Extra modules
     coverage: {
@@ -105,7 +105,7 @@ module.exports = {
   networks: {
     hardhat: {
       hardfork: argv.evm,
-      allowUnlimitedContractSize: argv.gas || argv.coverage || argv.unlimited,
+      allowUnlimitedContractSize: argv.unlimited,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
