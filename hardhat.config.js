@@ -84,7 +84,6 @@ module.exports = {
       optimizer: {
         enabled: true,
         runs: argv.runs,
-        details: { yul: argv.coverage }, // needed when doing coverage
       },
       evmVersion: argv.evm,
       viaIR: argv.ir,
