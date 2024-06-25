@@ -16,7 +16,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
  * {Nonces}: Utility for tracking and verifying address nonces that only increment.
- * {ERC165, ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
+ * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
  * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
  * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
