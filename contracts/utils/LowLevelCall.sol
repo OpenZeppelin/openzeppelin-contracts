@@ -34,7 +34,7 @@ library LowLevelCall {
     }
 
     /// @dev Performs a Solidity function call using a low level `call` and returns the first 64 bytes of the result
-    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values values.
+    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
@@ -75,7 +75,7 @@ library LowLevelCall {
     }
 
     /// @dev Performs a Solidity function call using a low level `staticcall` and returns the first 64 bytes of the result
-    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values values.
+    /// in the scratch space of memory. Useful for functions that return a tuple of single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
