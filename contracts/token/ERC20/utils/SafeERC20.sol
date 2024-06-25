@@ -7,6 +7,7 @@ import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
 import {Address} from "../../../utils/Address.sol";
 import {Memory} from "../../../utils/Memory.sol";
+import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
 
 /**
  * @title SafeERC20
@@ -150,21 +151,18 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        uint256 returnSize;
-        uint256 returnValue;
+        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), 0, data);
+        uint256 returnSize = LowLevelCall.returnDataSize();
+
         assembly ("memory-safe") {
-            let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
-            // bubble errors
             if iszero(success) {
-                let ptr := mload(0x40)
-                returndatacopy(ptr, 0, returndatasize())
-                revert(ptr, returndatasize())
+                // Bubble up revert reason
+                returndatacopy(data, 0, returnSize)
+                revert(data, returnSize)
             }
-            returnSize := returndatasize()
-            returnValue := mload(0)
         }
 
-        if (returnSize == 0 ? address(token).code.length == 0 : returnValue != 1) {
+        if (returnSize == 0 ? address(token).code.length == 0 : uint256(returnValue) != 1) {
             revert SafeERC20FailedOperation(address(token));
         }
     }
@@ -178,14 +176,8 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
-        assembly ("memory-safe") {
-            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
-            returnSize := returndatasize()
-            returnValue := mload(0)
-        }
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
+        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), 0, data);
+        uint256 returnSize = LowLevelCall.returnDataSize();
+        return success && (returnSize == 0 ? address(token).code.length > 0 : uint256(returnValue) == 1);
     }
 }

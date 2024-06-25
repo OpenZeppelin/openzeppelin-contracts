@@ -42,14 +42,12 @@ library SignatureChecker {
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-        bytes4 magic = IERC1271.isValidSignature.selector;
-
         Memory.Pointer ptr = Memory.saveFreePointer();
         bytes memory params = abi.encodeCall(IERC1271.isValidSignature, (hash, signature));
         (bool success, bytes32 result) = LowLevelCall.staticcallReturnScratchBytes32(signer, params);
         uint256 length = LowLevelCall.returnDataSize();
         Memory.loadFreePointer(ptr);
 
-        return success && length >= 32 && result == bytes32(magic);
+        return success && length >= 32 && result == bytes32(IERC1271.isValidSignature.selector);
     }
 }
