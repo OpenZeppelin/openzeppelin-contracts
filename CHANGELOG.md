@@ -3,7 +3,7 @@
 ### Breaking changes
 
 - `ERC1967Utils`: Removed duplicate declaration of the `Upgraded`, `AdminChanged` and `BeaconUpgraded` events. These events are still available through the `IERC1967` interface located under the `contracts/interfaces/` directory. Minimum pragma version is now 0.8.21.
-- `Governor`, `GovernorCountingSimple`: The `_countVotes` virtual function now returns an `uint256` with the total votes casted. This change allows for more flexibility for partial and fractional voting. Upgrading users may get a compilation error that can be fixed by adding a return statement to the `_countVotes` function. 
+- `Governor`, `GovernorCountingSimple`: The `_countVotes` virtual function now returns an `uint256` with the total votes casted. This change allows for more flexibility for partial and fractional voting. Upgrading users may get a compilation error that can be fixed by adding a return statement to the `_countVotes` function.
 
 ### Custom error changes
 
@@ -14,6 +14,9 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
 - Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
 - Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
+- `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation` if there is no code at the token's address.
+- `SafeERC20`: Replace generic `Error(string)` with `SafeERC20FailedOperation` if the returned data can't be decoded as `bool`.
+- `SafeERC20`: Replace generic `SafeERC20FailedOperation` with the revert message from the contract call if it fails.
 
 ## 5.0.2 (2024-02-29)
 
