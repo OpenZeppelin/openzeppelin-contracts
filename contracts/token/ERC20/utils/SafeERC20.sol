@@ -150,8 +150,9 @@ library SafeERC20 {
             let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
             // bubble errors
             if iszero(success) {
-                returndatacopy(0x00, 0, returndatasize())
-                revert(0x00, returndatasize())
+                let ptr := mload(0x40)
+                returndatacopy(ptr, 0, returndatasize())
+                revert(ptr, returndatasize())
             }
             returnSize := returndatasize()
             returnValue := mload(0)
