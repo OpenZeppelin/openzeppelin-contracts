@@ -164,37 +164,40 @@ library P256 {
     }
 
     /**
-     * @dev Point addition on the jacobian coordinates.
-     *
-     * Computation is assisted by Solidity's memory to avoid "Stack too deep" errors.
-     * It takes x1 and y1 arguments from the scratch space and returns x' and y' to the scratch space.
-     *
+     * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      */
-    function _jAddMemoryAssisted(uint256 z1, uint256 x2, uint256 y2, uint256 z2) private pure returns (uint256 rz) {
+    function _jAdd(
+        JPoint memory p1,
+        uint256 x2,
+        uint256 y2,
+        uint256 z2
+    ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
             let p := P
-
-            let zz1 := mulmod(z1, z1, p) // zz1 = z1²
-            let zz2 := mulmod(z2, z2, p) // zz2 = z2²
-            let u1 := mulmod(mload(0x00), zz2, p) // u1 = x1*z2²
-            let u2 := mulmod(x2, zz1, p) // u2 = x2*z1²
-            let s1 := mulmod(mload(0x20), mulmod(zz2, z2, p), p) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(zz1, z1, p), p) // s2 = y2*z1³
-            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
-            rz := mulmod(h, mulmod(z1, z2, p), p)
-            let hh := mulmod(h, h, p) // h²
-            let hhh := mulmod(h, hh, p) // h³
+            let z1 := mload(add(p1, 0x40))
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
+            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
             let r := addmod(s2, sub(p, s1), p) // r = s2-s1
+            let u1 := mulmod(mload(add(p1, 0x00)), mulmod(z2, z2, p), p) // u1 = x1*z2²
+            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
+            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
+            let hh := mulmod(h, h, p) // h²
 
             // x' = r²-h³-2*u1*h²
-            mstore(0x00, addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, mulmod(u1, hh, p), p)), p))
-
-            // y' = r*(u1*h²-x')-s1*h³
-            mstore(
-                0x20,
-                addmod(mulmod(r, addmod(mulmod(u1, hh, p), sub(p, mload(0)), p), p), sub(p, mulmod(s1, hhh, p)), p)
+            rx := addmod(
+                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                p
             )
+            // y' = r*(u1*h²-x')-s1*h³
+            ry := addmod(
+                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                p
+            )
+            // z' = h*z1*z2
+            rz := mulmod(h, mulmod(z1, z2, p), p)
         }
     }
 
@@ -245,9 +248,7 @@ library P256 {
                     if (z == 0) {
                         (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
                     } else {
-                        _toScratchMemory(x, y);
-                        (z) = _jAddMemoryAssisted(z, points[pos].x, points[pos].y, points[pos].z);
-                        (x, y) = _fromScratchMemory();
+                        (x, y, z) = _jAdd(points[pos], x, y, z);
                     }
                 }
                 u1 <<= 2;
@@ -290,28 +291,12 @@ library P256 {
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {
-        _toScratchMemory(p1.x, p1.y);
-        uint256 z = _jAddMemoryAssisted(p1.z, p2.x, p2.y, p2.z);
-        (uint256 x, uint256 y) = _fromScratchMemory();
+        (uint256 x, uint256 y, uint256 z) = _jAdd(p1, p2.x, p2.y, p2.z);
         return JPoint(x, y, z);
     }
 
     function _jDoublePoint(JPoint memory p) private pure returns (JPoint memory) {
         (uint256 x, uint256 y, uint256 z) = _jDouble(p.x, p.y, p.z);
         return JPoint(x, y, z);
-    }
-
-    function _toScratchMemory(uint256 x, uint256 y) private pure {
-        assembly ("memory-safe") {
-            mstore(0x00, x)
-            mstore(0x20, y)
-        }
-    }
-
-    function _fromScratchMemory() private pure returns (uint256 x, uint256 y) {
-        assembly ("memory-safe") {
-            x := mload(0x00)
-            y := mload(0x20)
-        }
     }
 }
