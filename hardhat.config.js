@@ -3,7 +3,7 @@
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
-// - UNLIMITED:     allow deployment of contracts larger than 24k (default: false)
+// - UNLIMITED:     allow deployment of contracts larger than 24k (default: true)
 // - COVERAGE:      enable coverage report (default: false)
 // - GAS:           enable gas report (default: false)
 // - COINMARKETCAP: coinmarketcap api key for USD value in gas report
