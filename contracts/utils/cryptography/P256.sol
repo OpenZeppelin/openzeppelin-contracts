@@ -179,7 +179,7 @@ library P256 {
             let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
             let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
             let r := addmod(s2, sub(p, s1), p) // r = s2-s1
-            let u1 := mulmod(mload(add(p1, 0x00)), mulmod(z2, z2, p), p) // u1 = x1*z2²
+            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
             let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
             let h := addmod(u2, sub(p, u1), p) // h = u2-u1
             let hh := mulmod(h, h, p) // h²
