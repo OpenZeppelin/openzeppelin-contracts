@@ -1,13 +1,12 @@
 /// ENVVAR
-// - COMPILER:      compiler version (default: 0.8.20)
-// - SRC:           contracts folder to compile (default: contracts)
-// - RUNS:          number of optimization runs (default: 200)
-// - IR:            enable IR compilation (default: false)
-// - UNLIMITED:     allow deployment of contracts larger than 24k (default: false)
-// - COVERAGE:      enable coverage report (default: false)
-// - GAS:           enable gas report (default: false)
-// - COINMARKETCAP: coinmarketcap api key for USD value in gas report
-// - CI:            output gas report to file instead of stdout
+// - COMPILE_VERSION:   compiler version (default: 0.8.20)
+// - SRC:               contracts folder to compile (default: contracts)
+// - COMPILE_MODE:      production modes enables optimizations (default: development)
+// - IR:                enable IR compilation (default: false)
+// - COVERAGE:          enable coverage report
+// - ENABLE_GAS_REPORT: enable gas report
+// - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
+// - CI:                output gas report to file instead of stdout
 
 const fs = require('fs');
 const path = require('path');
@@ -26,10 +25,11 @@ const { argv } = require('yargs/yargs')()
       type: 'string',
       default: 'contracts',
     },
-    runs: {
-      alias: 'optimizationRuns',
-      type: 'number',
-      default: 200,
+    mode: {
+      alias: 'compileMode',
+      type: 'string',
+      choices: ['production', 'development'],
+      default: 'development',
     },
     ir: {
       alias: 'enableIR',
@@ -40,11 +40,6 @@ const { argv } = require('yargs/yargs')()
       alias: 'evmVersion',
       type: 'string',
       default: 'cancun',
-    },
-    unlimited: {
-      alias: 'allowUnlimitedContractSize',
-      type: 'boolean',
-      default: false,
     },
     // Extra modules
     coverage: {
@@ -74,6 +69,9 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
+const withOptimizations = argv.gas || argv.coverage || argv.compileMode === 'production';
+const allowUnlimitedContractSize = argv.gas || argv.coverage || argv.compileMode === 'development';
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -82,12 +80,11 @@ module.exports = {
     version: argv.compiler,
     settings: {
       optimizer: {
-        enabled: true,
-        runs: argv.runs,
-        details: { yul: true },
+        enabled: withOptimizations,
+        runs: 200,
       },
       evmVersion: argv.evm,
-      viaIR: argv.ir,
+      viaIR: withOptimizations && argv.ir,
       outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
@@ -97,7 +94,7 @@ module.exports = {
       'initcode-size': 'off',
     },
     '*': {
-      'code-size': true,
+      'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
       'transient-storage': false,
       default: 'error',
@@ -106,7 +103,7 @@ module.exports = {
   networks: {
     hardhat: {
       hardfork: argv.evm,
-      allowUnlimitedContractSize: argv.gas || argv.coverage || argv.unlimited,
+      allowUnlimitedContractSize,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
