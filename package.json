@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
-    "coverage": "env COVERAGE=true hardhat coverage && forge coverage --report lcov --ir-minimum && lcov -o lcov.info --remove lcov.info --rc lcov_branch_coverage=1 --rc lcov_function_coverage=1 'test/*' 'contracts/mocks/*'",
+    "coverage": "env COVERAGE=true hardhat coverage && forge coverage --report lcov && lcov -o lcov.info --remove lcov.info --rc lcov_branch_coverage=1 --rc lcov_function_coverage=1 'test/*' 'contracts/mocks/*'",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare": "git config --local core.hooksPath .githooks",
