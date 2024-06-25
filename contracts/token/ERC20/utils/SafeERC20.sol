@@ -151,7 +151,7 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), 0, data);
+        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), data);
         uint256 returnSize = LowLevelCall.returnDataSize();
 
         assembly ("memory-safe") {
@@ -176,7 +176,7 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), 0, data);
+        (bool success, bytes32 returnValue) = LowLevelCall.callReturnScratchBytes32(address(token), data);
         uint256 returnSize = LowLevelCall.returnDataSize();
         return success && (returnSize == 0 ? address(token).code.length > 0 : uint256(returnValue) == 1);
     }

@@ -11,7 +11,12 @@ library LowLevelCall {
     /// === CALL ===
 
     /// @dev Performs a Solidity function call using a low level `call` and ignoring the return data.
-    function callRaw(address target, uint256 value, bytes memory data) internal returns (bool success) {
+    function callRaw(address target, bytes memory data) internal returns (bool success) {
+        return callRaw(target, data, 0);
+    }
+
+    /// @dev Same as {callRaw}, but allows to specify the value to be sent in the call.
+    function callRaw(address target, bytes memory data, uint256 value) internal returns (bool success) {
         assembly ("memory-safe") {
             success := call(gas(), target, value, add(data, 0x20), mload(data), 0, 0)
         }
@@ -24,8 +29,16 @@ library LowLevelCall {
     /// and this function doesn't zero it out.
     function callReturnScratchBytes32(
         address target,
-        uint256 value,
         bytes memory data
+    ) internal returns (bool success, bytes32 result) {
+        return callReturnScratchBytes32(target, data, 0);
+    }
+
+    /// @dev Same as {callReturnScratchBytes32}, but allows to specify the value to be sent in the call.
+    function callReturnScratchBytes32(
+        address target,
+        bytes memory data,
+        uint256 value
     ) internal returns (bool success, bytes32 result) {
         assembly ("memory-safe") {
             success := call(gas(), target, value, add(data, 0x20), mload(data), 0, 0x20)
@@ -40,8 +53,16 @@ library LowLevelCall {
     /// and this function doesn't zero it out.
     function callReturnScratchBytes32Pair(
         address target,
-        uint256 value,
         bytes memory data
+    ) internal returns (bool success, bytes32 result1, bytes32 result2) {
+        return callReturnScratchBytes32Pair(target, data, 0);
+    }
+
+    /// @dev Same as {callReturnScratchBytes32Pair}, but allows to specify the value to be sent in the call.
+    function callReturnScratchBytes32Pair(
+        address target,
+        bytes memory data,
+        uint256 value
     ) internal returns (bool success, bytes32 result1, bytes32 result2) {
         assembly ("memory-safe") {
             success := call(gas(), target, value, add(data, 0x20), mload(data), 0, 0x40)
