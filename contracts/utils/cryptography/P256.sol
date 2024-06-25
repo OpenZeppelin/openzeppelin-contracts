@@ -166,8 +166,8 @@ library P256 {
     /**
      * @dev Point addition on the jacobian coordinates.
      *
-     * Computation is assisted by Solidity's memory. It takes x1 and y1 arguments from the scratch space
-     * and returns x' and y' to the scratch space.
+     * Computation is assisted by Solidity's memory to avoid "Stack too deep" errors.
+     * It takes x1 and y1 arguments from the scratch space and returns x' and y' to the scratch space.
      *
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      */
@@ -307,6 +307,7 @@ library P256 {
             mstore(0x20, y)
         }
     }
+
     function _fromScratchMemory() private pure returns (uint256 x, uint256 y) {
         assembly ("memory-safe") {
             x := mload(0x00)
