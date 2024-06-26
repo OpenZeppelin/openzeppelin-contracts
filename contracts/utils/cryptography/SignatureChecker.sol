@@ -44,7 +44,7 @@ library SignatureChecker {
     ) internal view returns (bool) {
         Memory.Pointer ptr = Memory.saveFreePointer();
         bytes memory params = abi.encodeCall(IERC1271.isValidSignature, (hash, signature));
-        (bool success, bytes32 result) = LowLevelCall.staticcallReturnScratchBytes32(signer, params);
+        (bool success, bytes32 result) = LowLevelCall.staticcallReturnBytes32(signer, params);
         uint256 length = LowLevelCall.returnDataSize();
         Memory.loadFreePointer(ptr);
 

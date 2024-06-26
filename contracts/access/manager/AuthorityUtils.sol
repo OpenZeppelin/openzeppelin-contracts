@@ -21,7 +21,7 @@ library AuthorityUtils {
     ) internal view returns (bool immediate, uint32 delay) {
         Memory.Pointer ptr = Memory.saveFreePointer();
         bytes memory params = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
-        (bool success, bytes32 immediateWord, bytes32 delayWord) = LowLevelCall.staticcallReturnScratchBytes32Pair(
+        (bool success, bytes32 immediateWord, bytes32 delayWord) = LowLevelCall.staticcallReturnBytes32Pair(
             authority,
             params
         );

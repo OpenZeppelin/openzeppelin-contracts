@@ -6,6 +6,9 @@ import {Errors} from "./Errors.sol";
 
 /**
  * @dev Library of low level call functions that implement different calling strategies to deal with the return data.
+ *
+ * WARNING: Using this library requires an advanced understanding of Solidity and how the EVM works. It is recommended
+ * to use the {Address} library instead.
  */
 library LowLevelCall {
     /// === CALL ===
@@ -27,15 +30,12 @@ library LowLevelCall {
     ///
     /// WARNING: Do not assume that the result is zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
-    function callReturnScratchBytes32(
-        address target,
-        bytes memory data
-    ) internal returns (bool success, bytes32 result) {
-        return callReturnScratchBytes32(target, data, 0);
+    function callReturnBytes32(address target, bytes memory data) internal returns (bool success, bytes32 result) {
+        return callReturnBytes32(target, data, 0);
     }
 
-    /// @dev Same as {callReturnScratchBytes32}, but allows to specify the value to be sent in the call.
-    function callReturnScratchBytes32(
+    /// @dev Same as {callReturnBytes32}, but allows to specify the value to be sent in the call.
+    function callReturnBytes32(
         address target,
         bytes memory data,
         uint256 value
@@ -51,15 +51,15 @@ library LowLevelCall {
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
-    function callReturnScratchBytes32Pair(
+    function callReturnBytes32Pair(
         address target,
         bytes memory data
     ) internal returns (bool success, bytes32 result1, bytes32 result2) {
-        return callReturnScratchBytes32Pair(target, data, 0);
+        return callReturnBytes32Pair(target, data, 0);
     }
 
-    /// @dev Same as {callReturnScratchBytes32Pair}, but allows to specify the value to be sent in the call.
-    function callReturnScratchBytes32Pair(
+    /// @dev Same as {callReturnBytes32Pair}, but allows to specify the value to be sent in the call.
+    function callReturnBytes32Pair(
         address target,
         bytes memory data,
         uint256 value
@@ -85,7 +85,7 @@ library LowLevelCall {
     ///
     /// WARNING: Do not assume that the result is zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
-    function staticcallReturnScratchBytes32(
+    function staticcallReturnBytes32(
         address target,
         bytes memory data
     ) internal view returns (bool success, bytes32 result) {
@@ -100,7 +100,7 @@ library LowLevelCall {
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
     /// and this function doesn't zero it out.
-    function staticcallReturnScratchBytes32Pair(
+    function staticcallReturnBytes32Pair(
         address target,
         bytes memory data
     ) internal view returns (bool success, bytes32 result1, bytes32 result2) {

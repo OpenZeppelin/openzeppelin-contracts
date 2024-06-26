@@ -85,7 +85,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         Memory.Pointer ptr = Memory.saveFreePointer();
         bytes memory params = abi.encodeCall(IERC20Metadata.decimals, ());
 
-        (bool success, bytes32 rawValue) = LowLevelCall.staticcallReturnScratchBytes32(address(asset_), params);
+        (bool success, bytes32 rawValue) = LowLevelCall.staticcallReturnBytes32(address(asset_), params);
         uint256 length = LowLevelCall.returnDataSize();
         uint256 value = uint256(rawValue);
 
