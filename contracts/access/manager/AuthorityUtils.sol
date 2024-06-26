@@ -19,13 +19,13 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        Memory.Pointer ptr = Memory.saveFreePointer();
+        Memory.Pointer ptr = Memory.getFreePointer();
         bytes memory params = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
         (bool success, bytes32 immediateWord, bytes32 delayWord) = LowLevelCall.staticcallReturnBytes32Pair(
             authority,
             params
         );
-        Memory.loadFreePointer(ptr);
+        Memory.setFreePointer(ptr);
 
         if (!success) {
             return (false, 0);

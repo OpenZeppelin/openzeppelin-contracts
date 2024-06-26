@@ -82,14 +82,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     function _tryGetAssetDecimalsWithFallback(IERC20 asset_, uint8 defaultValue) private view returns (uint8) {
-        Memory.Pointer ptr = Memory.saveFreePointer();
+        Memory.Pointer ptr = Memory.getFreePointer();
         bytes memory params = abi.encodeCall(IERC20Metadata.decimals, ());
 
         (bool success, bytes32 rawValue) = LowLevelCall.staticcallReturnBytes32(address(asset_), params);
         uint256 length = LowLevelCall.returnDataSize();
         uint256 value = uint256(rawValue);
 
-        Memory.loadFreePointer(ptr);
+        Memory.setFreePointer(ptr);
 
         return uint8(Math.ternary(success && length >= 0x20 && value <= type(uint8).max, value, defaultValue));
     }

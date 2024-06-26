@@ -34,9 +34,9 @@ library SafeERC20 {
      * non-reverting calls are assumed to be successful.
      */
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        Memory.Pointer ptr = Memory.saveFreePointer();
+        Memory.Pointer ptr = Memory.getFreePointer();
         _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
-        Memory.loadFreePointer(ptr);
+        Memory.setFreePointer(ptr);
     }
 
     /**
@@ -44,9 +44,9 @@ library SafeERC20 {
      * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        Memory.Pointer ptr = Memory.saveFreePointer();
+        Memory.Pointer ptr = Memory.getFreePointer();
         _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
-        Memory.loadFreePointer(ptr);
+        Memory.setFreePointer(ptr);
     }
 
     /**
@@ -78,13 +78,13 @@ library SafeERC20 {
      * to be set to zero before setting it to a non-zero value, such as USDT.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
-        Memory.Pointer ptr = Memory.saveFreePointer();
+        Memory.Pointer ptr = Memory.getFreePointer();
         bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
         if (!_callOptionalReturnBool(token, approvalCall)) {
             _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
             _callOptionalReturn(token, approvalCall);
         }
-        Memory.loadFreePointer(ptr);
+        Memory.setFreePointer(ptr);
     }
 
     /**
