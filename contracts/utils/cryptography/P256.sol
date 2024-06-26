@@ -82,7 +82,7 @@ library P256 {
         bytes32 qx,
         bytes32 qy
     ) private view returns (bool valid, bool supported) {
-        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || !isOnCurve(qx, qy)) {
+        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
             return (false, true); // signature is invalid, and its not because the precompile is missing
         }
 
@@ -94,7 +94,7 @@ library P256 {
      * @dev Same as {verify}, but only the Solidity implementation is used.
      */
     function verifySolidity(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
-        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || !isOnCurve(qx, qy)) {
+        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
             return false;
         }
 
@@ -118,7 +118,7 @@ library P256 {
      * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
     function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
-        if (r == 0 || uint256(r) >= N || s == 0 || uint256(s) > HALF_N || v > 1) {
+        if (!_isProperSignature(r, s) || v > 1) {
             return (0, 0);
         }
 
@@ -140,13 +140,21 @@ library P256 {
      * @dev Checks if (x, y) are valid coordinates of a point on the curve.
      * In particular this function checks that x <= P and y <= P.
      */
-    function isOnCurve(bytes32 x, bytes32 y) internal pure returns (bool result) {
+    function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
             let p := P
             let lhs := mulmod(y, y, p) // y^2
             let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
             result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
+    }
+
+    /**
+     * @dev Checks if (r, s) is a proper signature.
+     * In particular, this checks that `s` is in the "lower-range", making the signature non-maleable.
+     */
+    function _isProperSignature(bytes32 r, bytes32 s) private pure returns (bool) {
+        return uint256(r) > 0 && uint256(r) < N && uint256(s) > 0 && uint256(s) <= HALF_N;
     }
 
     /**
