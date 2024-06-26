@@ -137,14 +137,15 @@ library P256 {
     }
 
     /**
-     * @dev Checks if a point is on the curve.
+     * @dev Checks if (x, y) are valid coordinates of a point on the curve.
+     * In particular this function checks that x <= P and y <= P.
      */
     function isOnCurve(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
             let p := P
             let lhs := mulmod(y, y, p) // y^2
             let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
-            result := eq(lhs, rhs) // Should conform with the Weierstrass equation
+            result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
     }
 
