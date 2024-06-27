@@ -88,6 +88,7 @@ const SIGNATURES = {
     'castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes)',
   ],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
+  ERC5169: ['scriptURI()', 'setScriptURI(string[])'],
 };
 
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
