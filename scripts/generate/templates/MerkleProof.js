@@ -3,6 +3,9 @@ const { OPTS } = require('./MerkleProof.opts');
 
 const DEFAULT_HASH = 'Hashes.commutativeKeccak256';
 
+const formatArgsSingleLine = (...args) => args.filter(Boolean).join(', ');
+const formatArgsMultiline = (...args) => '\n' + format(args.filter(Boolean).join(',\0').split('\0'));
+
 // TEMPLATE
 const header = `\
 pragma solidity ^0.8.20;
@@ -31,9 +34,6 @@ const errors = `\
  */
 error MerkleProofInvalidMultiproof();
 `;
-
-const formatArgsSingleLine = (...args) => args.filter(Boolean).join(', ');
-const formatArgsMultiline = (...args) => '\n' + format(args.filter(Boolean).join(',\0').split('\0'));
 
 /* eslint-disable max-len */
 const templateProof = ({ suffix, location, visibility, hash }) => `\
