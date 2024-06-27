@@ -18,7 +18,7 @@ describe('LowLevelCall', function () {
   });
 
   describe('callRaw', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.call = this.target.interface.encodeFunctionData('mockFunction');
     });
 
@@ -51,7 +51,7 @@ describe('LowLevelCall', function () {
   });
 
   describe('callReturnBytes32', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.returnValue = ethers.id('returnDataBytes32');
       this.call = this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [
         this.returnValue,
@@ -93,7 +93,7 @@ describe('LowLevelCall', function () {
   });
 
   describe('callReturnBytes32Pair', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.returnValue1 = ethers.id('returnDataBytes32Pair1');
       this.returnValue2 = ethers.id('returnDataBytes32Pair2');
       this.call = this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [
@@ -152,7 +152,7 @@ describe('LowLevelCall', function () {
   });
 
   describe('staticcallReturnBytes32', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.returnValue = ethers.id('returnDataBytes32');
     });
 
@@ -173,7 +173,7 @@ describe('LowLevelCall', function () {
   });
 
   describe('staticcallReturnBytes32Pair', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       this.returnValue1 = ethers.id('returnDataBytes32Pair1');
       this.returnValue2 = ethers.id('returnDataBytes32Pair2');
     });

@@ -16,8 +16,8 @@ describe('Memory', function () {
   describe('free pointer', function () {
     it('returns the new memory pointer after it has been altered', async function () {
       const ptr = '0x00000000000000000000000000000000000000000000000000000000000000a0';
-      await this.mock.$setFreePointer(ptr);
-      expect(await this.mock.$getFreePointer()).to.eq(ptr);
+      await this.mock._setFreePointer(ptr);
+      expect(await this.mock._getFreePointer()).to.eq(ptr);
     });
   });
 });

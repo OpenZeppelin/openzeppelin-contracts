@@ -8,8 +8,8 @@ contract MemoryMock {
     bytes32 private _ptr;
 
     modifier _rememberPtr() {
-        assembly {
-            mstore(0x40, sload(_ptr.slot))
+        assembly ("memory-safe") {
+            mstore(0x00, sload(_ptr.slot))
         }
         _;
     }
@@ -18,12 +18,12 @@ contract MemoryMock {
         _ptr = ptr;
     }
 
-    function $setFreePointer(bytes32 ptr) public {
+    function _setFreePointer(bytes32 ptr) public {
         _setPointer(ptr);
-        return Memory.setFreePointer(Memory.Pointer.wrap(ptr));
+        return Memory.setFreePointer(ptr);
     }
 
-    function $getFreePointer() public view _rememberPtr returns (bytes32) {
+    function _getFreePointer() public view _rememberPtr returns (bytes32) {
         return Memory.Pointer.unwrap(Memory.getFreePointer());
     }
 }
