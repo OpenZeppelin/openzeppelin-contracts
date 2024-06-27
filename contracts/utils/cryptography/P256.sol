@@ -151,7 +151,7 @@ library P256 {
 
     /**
      * @dev Checks if (r, s) is a proper signature.
-     * In particular, this checks that `s` is in the "lower-range", making the signature non-maleable.
+     * In particular, this checks that `s` is in the "lower-range", making the signature non-malleable.
      */
     function _isProperSignature(bytes32 r, bytes32 s) private pure returns (bool) {
         return uint256(r) > 0 && uint256(r) < N && uint256(s) > 0 && uint256(s) <= HALF_N;
