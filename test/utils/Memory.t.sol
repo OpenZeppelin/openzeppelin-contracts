@@ -8,8 +8,8 @@ import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 contract MemoryTest is Test {
     using Memory for *;
 
-    function testSymbolicGetSetFreePointer(uint256 ptr) public {
-        Memory.Pointer memoryPtr = Memory.asPointer(bytes32(ptr));
+    function testSymbolicGetSetFreePointer(bytes32 ptr) public {
+        Memory.Pointer memoryPtr = Memory.asPointer(ptr);
         Memory.setFreePointer(memoryPtr);
         assertEq(Memory.getFreePointer().asBytes32(), memoryPtr.asBytes32());
     }
