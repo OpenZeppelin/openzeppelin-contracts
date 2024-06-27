@@ -20,7 +20,7 @@ contract MemoryMock {
 
     function _setFreePointer(bytes32 ptr) public {
         _setPointer(ptr);
-        return Memory.setFreePointer(ptr);
+        return Memory.setFreePointer(Memory.Pointer.wrap(ptr));
     }
 
     function _getFreePointer() public view _rememberPtr returns (bytes32) {
