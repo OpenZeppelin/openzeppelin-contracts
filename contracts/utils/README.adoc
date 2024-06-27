@@ -23,7 +23,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
  * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
- * {Heap}: A library that implement https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
+ * {Heap}: A library that implements a https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.

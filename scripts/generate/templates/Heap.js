@@ -19,20 +19,21 @@ const generate = ({ struct, node, valueType, indexType, blockSize }) => `\
  * - An array of values (payload). At each index we store a ${valueType} \`value\` and \`lookup\`, the index of the node
  *   that points to this value.
  *
- * Some invariant:
+ * Some invariants:
  *   \`\`\`
  *   i == heap.data[heap[data].index].lookup // for all index i
  *   i == heap.data[heap[data].lookup].index // for all index i
  *   \`\`\`
  *
- * The structure is order so that each node is bigger then its parent. An immediate consequence is that the
+ * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
  * smallest value is the one at the root. It can be retrieved in O(1) at \`heap.data[heap.data[0].index].value\`
  *
- * This structure is designed for the following complexities:
- * - peek (get the smallest value in set): O(1)
- * - insert (insert a value in the set): 0(log(n))
- * - pop (remove the smallest value in set): O(log(n))
- * - replace (replace the smallest value in set with a new value): O(log(n))
+ * The structure is designed to perform the following operations with the corresponding complexities:
+ *
+ * * peek (get the smallest value in set): O(1)
+ * * insert (insert a value in the set): 0(log(n))
+ * * pop (remove the smallest value in set): O(log(n))
+ * * replace (replace the smallest value in set with a new value): O(log(n))
  */
 struct ${struct} {
     ${node}[] data;
