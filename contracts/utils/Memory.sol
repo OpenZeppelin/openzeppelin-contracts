@@ -21,4 +21,14 @@ library Memory {
             mstore(0x40, ptr)
         }
     }
+
+    /// @dev Pointer to `bytes32`.
+    function asBytes32(Pointer ptr) internal pure returns (bytes32) {
+        return Pointer.unwrap(ptr);
+    }
+
+    /// @dev `bytes32` to pointer.
+    function asPointer(bytes32 value) internal pure returns (Pointer) {
+        return Pointer.wrap(value);
+    }
 }
