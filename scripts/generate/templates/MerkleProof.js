@@ -51,7 +51,7 @@ function verify${suffix}(${(hash ? formatArgsMultiline : formatArgsSingleLine)(
   'bytes32 leaf',
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bool) {
-    return processProof(proof, leaf, ${hash ?? DEFAULT_HASH}) == root;
+    return processProof(proof, leaf${hash ? `, ${hash}` : ''}) == root;
 }
 
 /**
@@ -91,7 +91,7 @@ function multiProofVerify${suffix}(${formatArgsMultiline(
   `bytes32[] ${location} leaves`,
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bool) {
-    return processMultiProof(proof, proofFlags, leaves, ${hash ?? DEFAULT_HASH}) == root;
+    return processMultiProof(proof, proofFlags, leaves${hash ? `, ${hash}` : ''}) == root;
 }
 
 /**

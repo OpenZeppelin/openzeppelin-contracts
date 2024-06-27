@@ -35,7 +35,7 @@ library MerkleProof {
      * This version handles proofs in memory with the default hashing function.
      */
     function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProof(proof, leaf, Hashes.commutativeKeccak256) == root;
+        return processProof(proof, leaf) == root;
     }
 
     /**
@@ -100,7 +100,7 @@ library MerkleProof {
      * This version handles proofs in calldata with the default hashing function.
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProof(proof, leaf, Hashes.commutativeKeccak256) == root;
+        return processProof(proof, leaf) == root;
     }
 
     /**
@@ -170,7 +170,7 @@ library MerkleProof {
         bytes32 root,
         bytes32[] memory leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves, Hashes.commutativeKeccak256) == root;
+        return processMultiProof(proof, proofFlags, leaves) == root;
     }
 
     /**
@@ -330,7 +330,7 @@ library MerkleProof {
         bytes32 root,
         bytes32[] calldata leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves, Hashes.commutativeKeccak256) == root;
+        return processMultiProof(proof, proofFlags, leaves) == root;
     }
 
     /**
