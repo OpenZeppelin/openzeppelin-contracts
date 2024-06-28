@@ -11,5 +11,5 @@ coverage:
       default:
         threshold: 1%
 ignore:
-  - "test/**/*"
-  - "contracts/mocks/**/*"
+  - "test"
+  - "contracts/mocks"
