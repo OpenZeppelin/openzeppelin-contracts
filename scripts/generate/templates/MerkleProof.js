@@ -117,16 +117,15 @@ function processMultiProof${suffix}(${formatArgsMultiline(
     // \`hashes\` array. At the end of the process, the last hash in the \`hashes\` array should contain the root of
     // the Merkle tree.
     uint256 leavesLen = leaves.length;
-    uint256 totalHashes = proofFlags.length;
 
     // Check proof validity.
-    if (leavesLen + proof.length != totalHashes + 1) {
+    if (leavesLen + proof.length != proofFlags.length + 1) {
         revert MerkleProofInvalidMultiproof();
     }
 
     // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
     // \`xxx[xxxPos++]\`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-    bytes32[] memory hashes = new bytes32[](totalHashes);
+    bytes32[] memory hashes = new bytes32[](proofFlags.length);
     uint256 leafPos = 0;
     uint256 hashPos = 0;
     uint256 proofPos = 0;
@@ -135,7 +134,7 @@ function processMultiProof${suffix}(${formatArgsMultiline(
     //   get the next hash.
     // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
     //   \`proof\` array.
-    for (uint256 i = 0; i < totalHashes; i++) {
+    for (uint256 i = 0; i < proofFlags.length; i++) {
         bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
         bytes32 b = proofFlags[i]
             ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -143,12 +142,12 @@ function processMultiProof${suffix}(${formatArgsMultiline(
         hashes[i] = ${hash ?? DEFAULT_HASH}(a, b);
     }
 
-    if (totalHashes > 0) {
+    if (proofFlags.length > 0) {
         if (proofPos != proof.length) {
             revert MerkleProofInvalidMultiproof();
         }
         unchecked {
-            return hashes[totalHashes - 1];
+            return hashes[proofFlags.length - 1];
         }
     } else if (leavesLen > 0) {
         return leaves[0];
