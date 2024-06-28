@@ -19,6 +19,11 @@ import {Hashes} from "./Hashes.sol";
  * the Merkle tree could be reinterpreted as a leaf value.
  * OpenZeppelin's JavaScript library generates Merkle trees that are safe
  * against this attack out of the box.
+ *
+ * NOTE: This library support verification of proof for merkle tree built using
+ * custom hashing functions. This is limited to commutative hashing functions.
+ * Merkle tree build using non commutative hashing function require additional
+ * logic that this library does not provide.
  */
 library MerkleProof {
     /**
