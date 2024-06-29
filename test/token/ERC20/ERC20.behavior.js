@@ -132,9 +132,18 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
     });
 
     it('reverts when the token owner is the zero address', async function () {
+      // transferFrom does a spendAllowance before moving the assets
+      // - default behavior (ERC20) is to always update the approval using `_approve`. This will fail because the
+      //   approver (owner) is address(0). This happens even if the amount transferred is zero, and the approval update
+      //   is not actually necessary.
+      // - in ERC20TemporaryAllowance, transfer of 0 value will not update allowance (temporary or persistent)
+      //   therefore the spendAllowance does not revert. However, the transfer of asset will revert because the sender
+      //   is address(0)
+      const errorName = this.token.temporaryApprove ? 'ERC20InvalidSender' : 'ERC20InvalidApprover';
+
       const value = 0n;
       await expect(this.token.connect(this.recipient).transferFrom(ethers.ZeroAddress, this.recipient, value))
-        .to.be.revertedWithCustomError(this.token, 'ERC20InvalidApprover')
+        .to.be.revertedWithCustomError(this.token, errorName)
         .withArgs(ethers.ZeroAddress);
     });
   });
