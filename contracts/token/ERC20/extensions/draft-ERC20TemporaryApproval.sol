@@ -81,7 +81,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
 
     /**
      * @dev {_spendAllowance} override that consumes the temporary allowance (if any) before eventually falling back
-     * to consumming the persistent allowance.
+     * to consuming the persistent allowance.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
         // load transient allowance

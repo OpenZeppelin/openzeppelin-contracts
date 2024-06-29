@@ -51,7 +51,7 @@ describe('ERC20TemporaryApproval', function () {
         persistentAllowance: 17n,
       },
       { description: 'support allowance overflow', temporaryAllowance: ethers.MaxUint256, persistentAllowance: 17n },
-      { description: 'consumming temporary allowance alone', temporaryAllowance: 42n, amount: 2n },
+      { description: 'consuming temporary allowance alone', temporaryAllowance: 42n, amount: 2n },
       {
         description: 'fallback to persistent allowance if temporary allowance is not sufficient',
         temporaryAllowance: 42n,
