@@ -22,6 +22,7 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
 import {ERC165Checker} from "../utils/introspection/ERC165Checker.sol";
 import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
+import {Heap} from "../utils/structs/Heap.sol";
 import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
