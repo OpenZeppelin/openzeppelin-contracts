@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority} from "./IAuthority.sol";
+import {Memory} from "../../utils/Memory.sol";
 
 library AuthorityUtils {
     /**
@@ -17,16 +18,21 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
-        );
-        if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
+        Memory.FreePtr ptr = Memory.save();
+
+        bytes memory params = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
+        assembly ("memory-safe") {
+            let success := staticcall(not(0), authority, add(params, 0x20), mload(params), 0, 0x40)
+            if success {
+                if gt(returndatasize(), 0x1F) {
+                    immediate := gt(mload(0x00), 0)
+                }
+                if gt(returndatasize(), 0x3F) {
+                    delay := and(mload(0x20), 0xFFFFFFFF)
+                }
             }
         }
-        return (immediate, delay);
+
+        Memory.load(ptr);
     }
 }
