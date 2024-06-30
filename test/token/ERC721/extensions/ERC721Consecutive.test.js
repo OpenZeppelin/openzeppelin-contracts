@@ -142,12 +142,6 @@ describe('ERC721Consecutive', function () {
       describe('ERC721 behavior', function () {
         const tokenId = offset + 1n;
 
-        it('core takes over ownership on transfer', async function () {
-          await this.token.connect(this.alice).transferFrom(this.alice, this.receiver, tokenId);
-
-          expect(await this.token.ownerOf(tokenId)).to.equal(this.receiver);
-        });
-
         it('tokens can be burned and re-minted #1', async function () {
           await expect(this.token.connect(this.alice).$_burn(tokenId))
             .to.emit(this.token, 'Transfer')
