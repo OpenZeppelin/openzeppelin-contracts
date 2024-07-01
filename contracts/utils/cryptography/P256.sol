@@ -62,6 +62,9 @@ library P256 {
 
     /**
      * @dev Same as {verify}, but it will revert if the required precompile is not available.
+     *
+     * Make sure any logic (code or precompile) deployed at that address is the expected one,
+     * otherwise the returned value may be misinterpreted as a positive boolean.
      */
     function verifyNative(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
         (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
