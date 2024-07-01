@@ -39,7 +39,7 @@ library Clones {
         }
         /// @solidity memory-safe-assembly
         assembly {
-            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
+            // Cleans the upper 12 bytes of the `implementation` word, then packs the first 3 bytes
             // of the `implementation` address with the bytecode before the address.
             mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
             // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
@@ -79,7 +79,7 @@ library Clones {
         }
         /// @solidity memory-safe-assembly
         assembly {
-            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
+            // Cleans the upper 12 bytes of the `implementation` word, then packs the first 3 bytes
             // of the `implementation` address with the bytecode before the address.
             mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
             // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
