@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
+import {LowLevelCall} from "./LowLevelCall.sol";
 
 /**
  * @dev Collection of functions related to the address type
@@ -35,7 +36,7 @@ library Address {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
 
-        (bool success, ) = recipient.call{value: amount}("");
+        bool success = LowLevelCall.callRaw(recipient, "", amount);
         if (!success) {
             revert Errors.FailedCall();
         }

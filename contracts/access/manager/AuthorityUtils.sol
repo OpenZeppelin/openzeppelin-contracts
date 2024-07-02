@@ -4,6 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority} from "./IAuthority.sol";
+import {Memory} from "../../utils/Memory.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 
 library AuthorityUtils {
     /**
@@ -17,16 +19,21 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
+        Memory.Pointer ptr = Memory.getFreePointer();
+        bytes memory params = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
+        (bool success, bytes32 immediateWord, bytes32 delayWord) = LowLevelCall.staticcallReturnBytes32Pair(
+            authority,
+            params
         );
-        if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
-            }
+        Memory.setFreePointer(ptr);
+
+        if (!success) {
+            return (false, 0);
         }
-        return (immediate, delay);
+
+        return (
+            uint256(immediateWord) != 0,
+            uint32(uint256(delayWord)) // Intentional overflow to truncate the higher 224 bits
+        );
     }
 }

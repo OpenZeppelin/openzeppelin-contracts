@@ -24,6 +24,12 @@ contract CallReceiverMock {
         return "0x1234";
     }
 
+    function mockFunctionWithArgsReturn(uint256 a, uint256 b) public payable returns (uint256, uint256) {
+        emit MockFunctionCalledWithArgs(a, b);
+
+        return (a, b);
+    }
+
     function mockFunctionNonPayable() public returns (string memory) {
         emit MockFunctionCalled();
 
@@ -32,6 +38,10 @@ contract CallReceiverMock {
 
     function mockStaticFunction() public pure returns (string memory) {
         return "0x1234";
+    }
+
+    function mockStaticFunctionWithArgsReturn(uint256 a, uint256 b) public pure returns (uint256, uint256) {
+        return (a, b);
     }
 
     function mockFunctionRevertsNoReason() public payable {
