@@ -237,8 +237,8 @@ library Math {
      *
      * If the input value is not inversible, 0 is returned.
      *
-     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Ferma's little theorem and get the
-     * inverse using `Math.modExp(a, n - 2, n)`.
+     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Fermat's little theorem and get the
+     * inverse using `Math.modExp(a, n - 2, n)`. See {invModPrime}.
      */
     function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
         unchecked {
@@ -285,6 +285,21 @@ library Math {
 
             if (gcd != 1) return 0; // No inverse exists.
             return ternary(x < 0, n - uint256(-x), uint256(x)); // Wrap the result if it's negative.
+        }
+    }
+
+    /**
+     * @dev Variant of {invMod}. More efficient, but only works if `p` is known to be a prime greater than `2`.
+     *
+     * From https://en.wikipedia.org/wiki/Fermat%27s_little_theorem[Fermat's little theorem], we know that if p is
+     * prime, then `a**(p-1) ≡ 1 mod p`. As a consequence, we have `a * a**(p-2) ≡ 1 mod p`, which means that
+     * `a**(p-2)` is the modular multiplicative inverse of a in Fp.
+     *
+     * NOTE: this function does NOT check that `p` is a prime greater than `2`.
+     */
+    function invModPrime(uint256 a, uint256 p) internal view returns (uint256) {
+        unchecked {
+            return Math.modExp(a, p - 2, p);
         }
     }
 

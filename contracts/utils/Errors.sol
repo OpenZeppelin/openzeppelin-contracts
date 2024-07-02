@@ -23,4 +23,9 @@ library Errors {
      * @dev The deployment failed.
      */
     error FailedDeployment();
+
+    /**
+     * @dev A necessary precompile is missing.
+     */
+    error MissingPrecompile(address);
 }

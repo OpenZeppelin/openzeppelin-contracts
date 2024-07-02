@@ -8,6 +8,8 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Math}, {SignedMath}: Implementation of various arithmetic functions.
  * {SafeCast}: Checked downcasting functions to avoid silent truncation.
  * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
+ * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
+ * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
  * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
  * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
