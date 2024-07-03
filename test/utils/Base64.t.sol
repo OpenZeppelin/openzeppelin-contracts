@@ -6,11 +6,11 @@ import {Test} from "forge-std/Test.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract Base64Test is Test {
-    function testEncode(bytes memory input) external {
+    function testEncode(bytes memory input) external pure {
         assertEq(Base64.encode(input), vm.toBase64(input));
     }
 
-    function testEncodeURL(bytes memory input) external {
+    function testEncodeURL(bytes memory input) external pure {
         assertEq(Base64.encodeURL(input), _removePadding(vm.toBase64URL(input)));
     }
 

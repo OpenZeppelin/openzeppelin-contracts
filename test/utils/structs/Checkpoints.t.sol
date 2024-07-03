@@ -30,7 +30,7 @@ contract CheckpointsTrace224Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal view {
         (bool _exist, uint32 _key, uint224 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -138,7 +138,7 @@ contract CheckpointsTrace208Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint48 key, uint208 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint48 key, uint208 value) internal view {
         (bool _exist, uint48 _key, uint208 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -246,7 +246,7 @@ contract CheckpointsTrace160Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal view {
         (bool _exist, uint96 _key, uint160 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
