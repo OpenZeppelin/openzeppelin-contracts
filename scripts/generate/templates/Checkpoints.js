@@ -17,10 +17,10 @@ import {Math} from "../math/Math.sol";
 `;
 
 const errors = `\
-    /**
-     * @dev A value was attempted to be inserted on a past checkpoint.
-     */
-    error CheckpointUnorderedInsertion();
+/**
+ * @dev A value was attempted to be inserted on a past checkpoint.
+ */
+error CheckpointUnorderedInsertion();
 `;
 
 const template = opts => `\
@@ -37,15 +37,11 @@ struct ${opts.checkpointTypeName} {
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
- * 
+ *
  * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
  * library.
  */
-function push(
-    ${opts.historyTypeName} storage self,
-    ${opts.keyTypeName} key,
-    ${opts.valueTypeName} value
-) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+function push(${opts.historyTypeName} storage self, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
     return _insert(self.${opts.checkpointFieldName}, key, value);
 }
 
@@ -108,15 +104,7 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
  * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
  * in the most recent checkpoint.
  */
-function latestCheckpoint(${opts.historyTypeName} storage self)
-    internal
-    view
-    returns (
-        bool exists,
-        ${opts.keyTypeName} ${opts.keyFieldName},
-        ${opts.valueTypeName} ${opts.valueFieldName}
-    )
-{
+function latestCheckpoint(${opts.historyTypeName} storage self) internal view returns (bool exists, ${opts.keyTypeName} ${opts.keyFieldName}, ${opts.valueTypeName} ${opts.valueFieldName}) {
     uint256 pos = self.${opts.checkpointFieldName}.length;
     if (pos == 0) {
         return (false, 0, 0);
@@ -144,11 +132,7 @@ function at(${opts.historyTypeName} storage self, uint32 pos) internal view retu
  * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
  * or by updating the last one.
  */
-function _insert(
-    ${opts.checkpointTypeName}[] storage self,
-    ${opts.keyTypeName} key,
-    ${opts.valueTypeName} value
-) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+function _insert(${opts.checkpointTypeName}[] storage self, ${opts.keyTypeName} key, ${opts.valueTypeName} value) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
     uint256 pos = self.length;
 
     if (pos > 0) {
@@ -225,11 +209,10 @@ function _lowerBinaryLookup(
 /**
  * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
  */
-function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
-    private
-    pure
-    returns (${opts.checkpointTypeName} storage result)
-{
+function _unsafeAccess(
+    ${opts.checkpointTypeName}[] storage self,
+    uint256 pos
+) private pure returns (${opts.checkpointTypeName} storage result) {
     assembly {
         mstore(0, self.slot)
         result.slot := add(keccak256(0, 0x20), pos)
@@ -242,7 +225,11 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
-  errors,
-  OPTS.flatMap(opts => template(opts)),
+  format(
+    [].concat(
+      errors,
+      OPTS.map(opts => template(opts)),
+    ),
+  ).trimEnd(),
   '}',
 );

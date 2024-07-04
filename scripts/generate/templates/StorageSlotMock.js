@@ -44,22 +44,27 @@ const transient = ({ type, name }) => `\
 event ${name}Value(bytes32 slot, ${type} value);
 
 function tload${name}(bytes32 slot) public {
-  emit ${name}Value(slot, slot.as${name}().tload());
+    emit ${name}Value(slot, slot.as${name}().tload());
 }
 
 function tstore(bytes32 slot, ${type} value) public {
-  slot.as${name}().tstore(value);
+    slot.as${name}().tstore(value);
 }
 `;
 
 // GENERATE
 module.exports = format(
-  header.trimEnd(),
+  header,
   'contract StorageSlotMock is Multicall {',
-  'using StorageSlot for *;',
-  TYPES.filter(type => type.isValueType).map(type => storageSetValueType(type)),
-  TYPES.filter(type => type.isValueType).map(type => storageGetValueType(type)),
-  TYPES.filter(type => !type.isValueType).map(type => storageSetNonValueType(type)),
-  TYPES.filter(type => type.isValueType).map(type => transient(type)),
+  format(
+    [].concat(
+      'using StorageSlot for *;',
+      '',
+      TYPES.filter(type => type.isValueType).map(type => storageSetValueType(type)),
+      TYPES.filter(type => type.isValueType).map(type => storageGetValueType(type)),
+      TYPES.filter(type => !type.isValueType).map(type => storageSetNonValueType(type)),
+      TYPES.filter(type => type.isValueType).map(type => transient(type)),
+    ),
+  ).trimEnd(),
   '}',
 );

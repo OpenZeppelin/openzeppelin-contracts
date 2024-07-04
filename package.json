@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
-    "coverage": "env COVERAGE=true hardhat coverage",
+    "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare": "git config --local core.hooksPath .githooks",
@@ -78,7 +78,7 @@
     "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^5.0.1",
     "semver": "^7.3.5",
-    "solhint": "^4.0.0",
+    "solhint": "^5.0.0",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
     "solidity-ast": "^0.4.50",
     "solidity-coverage": "^0.8.5",
