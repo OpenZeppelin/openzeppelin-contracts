@@ -8,11 +8,11 @@ Here are some of the more popular ones.
 
 === Checking Signatures On-Chain
 
-At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself owner of a _private key_ used to authorize an piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove they are the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however, other signature algorithms such as P256 and RSA are supported.
 
 ==== Ethereum Signatures (secp256k1)
 
-xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated through https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
@@ -34,7 +34,7 @@ WARNING: Getting signature verification right is not trivial: make sure you full
 
 P256, also known as secp256r1, is one of the most used signature schemes. P256 signatures are standardized by the National Institute of Standards and Technology (NIST) and it's widely available in consumer hardware and software.
 
-These signatures are different to regular Ethereum Signatures (secp256k1) in that they use a different elliptic curve to perform operations but have similar security guarantees.
+These signatures are different to regular Ethereum Signatures (secp256k1) in that they use different elliptic curve to perform operations but have similar security guarantees.
 
 [source,solidity]
 ----
@@ -245,9 +245,9 @@ function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
 
 === Packing
 
-The storage in the EVM is shaped in chunks of 32 bytes, each of this chunks is known as _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allows for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
+The storage in the EVM is shaped in chunks of 32 bytes, each of these chunks is known as _slot_, and can hold multiple values together as long as these values don't exceed their size. These properties of the storage allow for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
 
-Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires to load such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
+Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires loading such a struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
 
 The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for packing values that fit in 32 bytes. The library includes 3 main functionalities:
 
