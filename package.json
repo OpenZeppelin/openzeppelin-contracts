@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
-    "coverage": "env COVERAGE=true hardhat coverage",
+    "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare": "git config --local core.hooksPath .githooks",
