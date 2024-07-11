@@ -38,7 +38,7 @@ class P256Signer {
       ? ethers.solidityPacked(['uint256', 'uint256', 'uint8'], [r, s, recovery])
       : ethers.solidityPacked(['uint256', 'uint256'], [r, s]);
     return this.sigParams.prefixAddress
-      ? ethers.AbiCoder.defaultAbiCoder().encode([ 'address', 'bytes' ], [ this.address, signature ])
+      ? ethers.AbiCoder.defaultAbiCoder().encode(['address', 'bytes'], [this.address, signature])
       : signature;
   }
 }

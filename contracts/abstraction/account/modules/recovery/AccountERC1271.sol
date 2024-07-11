@@ -14,8 +14,6 @@ abstract contract AccountERC1271 is Account {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
         (address signer, bytes memory sig) = abi.decode(signature, (address, bytes));
 
-        return SignatureChecker.isValidERC1271SignatureNow(signer, msgHash, sig)
-            ? signer
-            : address(0);
+        return SignatureChecker.isValidERC1271SignatureNow(signer, msgHash, sig) ? signer : address(0);
     }
 }

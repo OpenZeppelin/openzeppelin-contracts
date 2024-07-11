@@ -17,7 +17,6 @@ abstract contract AccountAllSignatures is AccountECDSA, AccountERC1271 {
         bytes32 userOpHash
     ) internal virtual override(AccountECDSA, AccountERC1271) returns (address) {
         (SignatureType sigType, bytes memory sigData) = abi.decode(signature, (SignatureType, bytes));
-
         if (sigType == SignatureType.ECDSA) {
             return AccountECDSA._recoverSigner(sigData, userOpHash);
         } else if (sigType == SignatureType.ERC1271) {

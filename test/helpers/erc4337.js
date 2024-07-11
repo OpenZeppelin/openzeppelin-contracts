@@ -1,9 +1,12 @@
 const { ethers } = require('hardhat');
 
+const { SignatureType } = require('./identity');
+
 function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
+/// Global ERC-4337 environment helper.
 class ERC4337Helper {
   constructor(account = 'SimpleAccountECDSA') {
     this.entrypointAsPromise = ethers.deployContract('EntryPoint');
@@ -20,19 +23,20 @@ class ERC4337Helper {
     return this;
   }
 
-  async newAccount(user, extraArgs = [], salt = ethers.randomBytes(32)) {
+  async newAccount(signer, extraArgs = [], salt = ethers.randomBytes(32)) {
     await this.wait();
     const initCode = await this.account
-      .getDeployTransaction(this.entrypoint, user, ...extraArgs)
+      .getDeployTransaction(this.entrypoint, signer, ...extraArgs)
       .then(tx => this.factory.interface.encodeFunctionData('$deploy', [0, salt, tx.data]))
       .then(deployCode => ethers.concat([this.factory.target, deployCode]));
     const instance = await this.entrypoint.getSenderAddress
       .staticCall(initCode)
-      .then(address => this.account.attach(address).connect(user));
+      .then(address => this.account.attach(address).connect(signer));
     return new AbstractAccount(instance, initCode, this);
   }
 }
 
+/// Represent one ERC-4337 account contract.
 class AbstractAccount extends ethers.BaseContract {
   constructor(instance, initCode, context) {
     super(instance.target, instance.interface, instance.runner, instance.deployTx);
@@ -69,6 +73,7 @@ class AbstractAccount extends ethers.BaseContract {
   }
 }
 
+/// Represent one user operation
 class UserOperation {
   constructor(params) {
     this.sender = params.sender;
@@ -128,14 +133,27 @@ class UserOperation {
     return this;
   }
 
-  async sign(signer = this.sender.runner) {
-    this.signature = await Promise.all(
-      (Array.isArray(signer) ? signer : [signer])
-        .sort((signer1, signer2) => signer1.address - signer2.address)
-        .map(signer => signer.signMessage(ethers.getBytes(this.hash))),
-    ).then(signatures =>
-      Array.isArray(signer) ? ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]'], [signatures]) : signatures[0],
+  async sign(signer = this.sender.runner, withTypePrefix = false) {
+    const signers = (Array.isArray(signer) ? signer : [signer]).sort(
+      (signer1, signer2) => signer1.address - signer2.address,
     );
+    const signatures = await Promise.all(
+      signers.map(signer =>
+        Promise.resolve(signer.signMessage(ethers.getBytes(this.hash))).then(signature =>
+          withTypePrefix
+            ? ethers.AbiCoder.defaultAbiCoder().encode(
+                ['uint8', 'bytes'],
+                [signer.type ?? SignatureType.ECDSA, signature],
+              )
+            : signature,
+        ),
+      ),
+    );
+
+    this.signature = Array.isArray(signer)
+      ? ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]'], [signatures])
+      : signatures[0];
+
     return this;
   }
 }

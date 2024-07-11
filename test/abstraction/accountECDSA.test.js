@@ -3,16 +3,23 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { ERC4337Helper } = require('../helpers/erc4337');
+const { IdentityHelper } = require('../helpers/identity');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
-  accounts.user = accounts.shift();
+  accounts.relayer = accounts.shift();
   accounts.beneficiary = accounts.shift();
 
-  const target = await ethers.deployContract('CallReceiverMock');
+  // 4337 helper
   const helper = new ERC4337Helper('SimpleAccountECDSA');
-  await helper.wait();
-  const sender = await helper.newAccount(accounts.user);
+  const identity = new IdentityHelper();
+
+  // environment
+  const target = await ethers.deployContract('CallReceiverMock');
+
+  // create 4337 account controlled by ECDSA
+  const signer = await identity.newECDSASigner();
+  const sender = await helper.newAccount(signer);
 
   return {
     accounts,
@@ -31,7 +38,7 @@ describe('AccountECDSA', function () {
 
   describe('execute operation', function () {
     beforeEach('fund account', async function () {
-      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.relayer.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
     });
 
     describe('account not deployed yet', function () {
@@ -57,7 +64,7 @@ describe('AccountECDSA', function () {
 
     describe('account already deployed', function () {
       beforeEach(async function () {
-        await this.sender.deploy();
+        await this.sender.deploy(this.accounts.relayer);
       });
 
       it('success: call', async function () {

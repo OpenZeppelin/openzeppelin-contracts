@@ -3,26 +3,22 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { ERC4337Helper } = require('../helpers/erc4337');
-const { P256Signer } = require('../helpers/p256');
+const { IdentityHelper } = require('../helpers/identity');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
-  accounts.user = accounts.shift();
+  accounts.relayer = accounts.shift();
   accounts.beneficiary = accounts.shift();
 
   // 4337 helper
   const helper = new ERC4337Helper('SimpleAccountERC1271');
-  await helper.wait();
+  const identity = new IdentityHelper();
 
   // environment
   const target = await ethers.deployContract('CallReceiverMock');
-  const identifyFactory = await ethers.deployContract('IdentityP256Factory');
 
-  // create P256 key and identity contract
-  const signer = P256Signer.random();
-  signer.address = await identifyFactory.predict(signer.publicKey); // override address of the signer
-  signer.sigParams.prefixAddress = true;
-  await identifyFactory.create(signer.publicKey);
+  // create 4337 account controlled by P256
+  const signer = await identity.newP256Signer();
   const sender = await helper.newAccount(signer);
 
   return {
@@ -31,6 +27,7 @@ async function fixture() {
     helper,
     entrypoint: helper.entrypoint,
     factory: helper.factory,
+    signer,
     sender,
   };
 }
@@ -42,7 +39,7 @@ describe('AccountERC1271', function () {
 
   describe('execute operation', function () {
     beforeEach('fund account', async function () {
-      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.relayer.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
     });
 
     describe('account not deployed yet', function () {
@@ -68,7 +65,7 @@ describe('AccountERC1271', function () {
 
     describe('account already deployed', function () {
       beforeEach(async function () {
-        await this.sender.deploy(this.accounts.user);
+        await this.sender.deploy(this.accounts.relayer);
       });
 
       it('success: call', async function () {

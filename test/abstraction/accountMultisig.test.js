@@ -3,19 +3,28 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { ERC4337Helper } = require('../helpers/erc4337');
+const { IdentityHelper } = require('../helpers/identity');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
-  accounts.user = accounts.shift();
+  accounts.relayer = accounts.shift();
   accounts.beneficiary = accounts.shift();
-  accounts.signers = Array(3)
-    .fill()
-    .map(() => accounts.shift());
 
+  // 4337 helper
+  const helper = new ERC4337Helper('AdvancedAccount');
+  const identity = new IdentityHelper();
+
+  // environment
   const target = await ethers.deployContract('CallReceiverMock');
-  const helper = new ERC4337Helper('AdvancedAccountECDSA');
-  await helper.wait();
-  const sender = await helper.newAccount(accounts.user, [accounts.signers, 2]); // 2-of-3
+
+  // create 4337 account controlled by multiple signers
+  const signers = await Promise.all([
+    identity.newECDSASigner(), // secp256k1
+    identity.newP256Signer(), // secp256r1
+    identity.newP256Signer(), // secp256r1
+    identity.newECDSASigner(), // secp256k1
+  ]);
+  const sender = await helper.newAccount(accounts.relayer, [signers, 2]); // 2-of-4
 
   return {
     accounts,
@@ -23,6 +32,7 @@ async function fixture() {
     helper,
     entrypoint: helper.entrypoint,
     factory: helper.factory,
+    signers,
     sender,
   };
 }
@@ -34,7 +44,7 @@ describe('AccountMultisig', function () {
 
   describe('execute operation', function () {
     beforeEach('fund account', async function () {
-      await this.accounts.user.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
+      await this.accounts.relayer.sendTransaction({ to: this.sender, value: ethers.parseEther('1') });
     });
 
     describe('account not deployed yet', function () {
@@ -48,7 +58,7 @@ describe('AccountMultisig', function () {
             ]),
           })
           .then(op => op.addInitCode())
-          .then(op => op.sign(this.accounts.signers));
+          .then(op => op.sign(this.signers, true));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.entrypoint, 'AccountDeployed')
@@ -72,7 +82,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign(this.accounts.signers));
+          .then(op => op.sign(this.signers, true));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -88,7 +98,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.accounts.signers[0], this.accounts.signers[2]]));
+          .then(op => op.sign([this.signers[0], this.signers[2]], true));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -104,7 +114,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.accounts.signers[2]]));
+          .then(op => op.sign([this.signers[2]], true));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
@@ -120,7 +130,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.accounts.user, this.accounts.signers[2]]));
+          .then(op => op.sign([this.accounts.relayer, this.signers[2]], true));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
