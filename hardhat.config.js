@@ -1,9 +1,8 @@
 /// ENVVAR
-// - COMPILER:      compiler version (default: 0.8.20)
+// - COMPILER:      compiler version (default: 0.8.24)
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
-// - UNLIMITED:     allow deployment of contracts larger than 24k (default: false)
 // - COVERAGE:      enable coverage report (default: false)
 // - GAS:           enable gas report (default: false)
 // - COINMARKETCAP: coinmarketcap api key for USD value in gas report
@@ -84,7 +83,6 @@ module.exports = {
       optimizer: {
         enabled: true,
         runs: argv.runs,
-        details: { yul: true },
       },
       evmVersion: argv.evm,
       viaIR: argv.ir,
@@ -106,7 +104,9 @@ module.exports = {
   networks: {
     hardhat: {
       hardfork: argv.evm,
-      allowUnlimitedContractSize: argv.gas || argv.coverage || argv.unlimited,
+      // Exposed contracts often exceed the maximum contract size. For normal contract,
+      // we rely on the `code-size` compiler warning, that will cause a compilation error.
+      allowUnlimitedContractSize: true,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },

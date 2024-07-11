@@ -26,7 +26,6 @@ import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
 import {P256} from "../utils/cryptography/P256.sol";
-import {Packing} from "../utils/Packing.sol";
 import {Panic} from "../utils/Panic.sol";
 import {RSA} from "../utils/cryptography/RSA.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";

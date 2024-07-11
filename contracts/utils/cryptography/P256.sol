@@ -1,16 +1,19 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
+import {Errors} from "../Errors.sol";
 
 /**
  * @dev Implementation of secp256r1 verification and recovery functions.
  *
- * Based on
- * - https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol
- * Which is heavily inspired from
- * - https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol
- * - https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol
+ * The secp256r1 curve (also known as P256) is a NIST standard curve with wide support in modern devices
+ * and cryptographic standards. Some notable examples include Apple's Secure Enclave and Android's Keystore
+ * as well as authentication protocols like FIDO2.
+ *
+ * Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol[implementation of itsobvioustech].
+ * Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol[maxrobot] and
+ * https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
  */
 library P256 {
     struct JPoint {
@@ -32,99 +35,129 @@ library P256 {
     /// @dev B parameter of the weierstrass equation
     uint256 internal constant B = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B;
 
-    uint256 private constant P2 = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFD;
-    uint256 private constant N2 = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254F;
+    /// @dev (P + 1) / 4. Useful to compute sqrt
     uint256 private constant P1DIV4 = 0x3fffffffc0000000400000000000000000000000400000000000000000000000;
 
+    /// @dev N/2 for excluding higher order `s` values
+    uint256 private constant HALF_N = 0x7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8;
+
     /**
-     * @dev signature verification
+     * @dev Verifies a secp256r1 signature using the RIP-7212 precompile and falls back to the Solidity implementation
+     * if the precompile is not available. This version should work on all chains, but requires the deployment of more
+     * bytecode.
+     *
      * @param h - hashed message
      * @param r - signature half R
      * @param s - signature half S
      * @param qx - public key coordinate X
      * @param qy - public key coordinate Y
+     *
+     * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
+     * To flip the `s` value, compute `s = N - s`.
      */
-    function verify(uint256 h, uint256 r, uint256 s, uint256 qx, uint256 qy) internal view returns (bool) {
-        if (r == 0 || r >= N || s == 0 || s >= N || !isOnCurve(qx, qy)) return false;
-
-        JPoint[16] memory points = _preComputeJacobianPoints(qx, qy);
-        uint256 w = _invModN(s);
-        uint256 u1 = mulmod(h, w, N);
-        uint256 u2 = mulmod(r, w, N);
-        (uint256 x, ) = _jMultShamir(points, u1, u2);
-        return (x == r);
+    function verify(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
+        return supported ? valid : verifySolidity(h, r, s, qx, qy);
     }
 
     /**
-     * @dev public key recovery
+     * @dev Same as {verify}, but it will revert if the required precompile is not available.
+     *
+     * Make sure any logic (code or precompile) deployed at that address is the expected one,
+     * otherwise the returned value may be misinterpreted as a positive boolean.
+     */
+    function verifyNative(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        (bool valid, bool supported) = _tryVerifyNative(h, r, s, qx, qy);
+        if (supported) {
+            return valid;
+        } else {
+            revert Errors.MissingPrecompile(address(0x100));
+        }
+    }
+
+    /**
+     * @dev Same as {verify}, but it will return false if the required precompile is not available.
+     */
+    function _tryVerifyNative(
+        bytes32 h,
+        bytes32 r,
+        bytes32 s,
+        bytes32 qx,
+        bytes32 qy
+    ) private view returns (bool valid, bool supported) {
+        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
+            return (false, true); // signature is invalid, and its not because the precompile is missing
+        }
+
+        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
+        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
+    }
+
+    /**
+     * @dev Same as {verify}, but only the Solidity implementation is used.
+     */
+    function verifySolidity(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
+        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
+            return false;
+        }
+
+        JPoint[16] memory points = _preComputeJacobianPoints(uint256(qx), uint256(qy));
+        uint256 w = Math.invModPrime(uint256(s), N);
+        uint256 u1 = mulmod(uint256(h), w, N);
+        uint256 u2 = mulmod(uint256(r), w, N);
+        (uint256 x, ) = _jMultShamir(points, u1, u2);
+        return ((x % N) == uint256(r));
+    }
+
+    /**
+     * @dev Public key recovery
+     *
      * @param h - hashed message
      * @param v - signature recovery param
      * @param r - signature half R
      * @param s - signature half S
+     *
+     * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
+     * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
-    function recovery(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (uint256, uint256) {
-        if (r == 0 || r >= N || s == 0 || s >= N || v > 1) return (0, 0);
+    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
+        if (!_isProperSignature(r, s) || v > 1) {
+            return (0, 0);
+        }
 
-        uint256 rx = r;
+        uint256 rx = uint256(r);
         uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
         uint256 ry = Math.modExp(ry2, P1DIV4, P); // This formula for sqrt work because P ≡ 3 (mod 4)
         if (mulmod(ry, ry, P) != ry2) return (0, 0); // Sanity check
         if (ry % 2 != v % 2) ry = P - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
-        uint256 w = _invModN(r);
-        uint256 u1 = mulmod(N - (h % N), w, N);
-        uint256 u2 = mulmod(s, w, N);
+        uint256 w = Math.invModPrime(uint256(r), N);
+        uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
+        uint256 u2 = mulmod(uint256(s), w, N);
         (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (x, y);
+        return (bytes32(x), bytes32(y));
     }
 
     /**
-     * @dev address recovery
-     * @param h - hashed message
-     * @param v - signature recovery param
-     * @param r - signature half R
-     * @param s - signature half S
+     * @dev Checks if (x, y) are valid coordinates of a point on the curve.
+     * In particular this function checks that x <= P and y <= P.
      */
-    function recoveryAddress(uint256 h, uint8 v, uint256 r, uint256 s) internal view returns (address) {
-        (uint256 qx, uint256 qy) = recovery(h, v, r, s);
-        return getAddress(qx, qy);
-    }
-
-    /**
-     * @dev derivate public key
-     * @param privateKey - private key
-     */
-    function getPublicKey(uint256 privateKey) internal view returns (uint256, uint256) {
-        (uint256 x, uint256 y, uint256 z) = _jMult(GX, GY, 1, privateKey);
-        return _affineFromJacobian(x, y, z);
-    }
-
-    /**
-     * @dev Hash public key into an address
-     * @param qx - public key coordinate X
-     * @param qy - public key coordinate Y
-     */
-    function getAddress(uint256 qx, uint256 qy) internal pure returns (address result) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x00, qx)
-            mstore(0x20, qy)
-            result := keccak256(0x00, 0x40)
-        }
-    }
-
-    /**
-     * @dev check if a point is on the curve.
-     */
-    function isOnCurve(uint256 x, uint256 y) internal pure returns (bool result) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
+        assembly ("memory-safe") {
             let p := P
-            let lhs := mulmod(y, y, p)
-            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p)
-            result := eq(lhs, rhs)
+            let lhs := mulmod(y, y, p) // y^2
+            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
+            result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
+    }
+
+    /**
+     * @dev Checks if (r, s) is a proper signature.
+     * In particular, this checks that `s` is in the "lower-range", making the signature non-malleable.
+     */
+    function _isProperSignature(bytes32 r, bytes32 s) private pure returns (bool) {
+        return uint256(r) > 0 && uint256(r) < N && uint256(s) > 0 && uint256(s) <= HALF_N;
     }
 
     /**
@@ -137,7 +170,7 @@ library P256 {
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
-        uint256 zinv = _invModP(jz);
+        uint256 zinv = Math.invModPrime(jz, P);
         uint256 zzinv = mulmod(zinv, zinv, P);
         uint256 zzzinv = mulmod(zzinv, zinv, P);
         ax = mulmod(jx, zzinv, P);
@@ -149,31 +182,34 @@ library P256 {
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      */
     function _jAdd(
-        uint256 x1,
-        uint256 y1,
-        uint256 z1,
+        JPoint memory p1,
         uint256 x2,
         uint256 y2,
         uint256 z2
     ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let p := P
-            let zz1 := mulmod(z1, z1, p) // zz1 = z1²
-            let zz2 := mulmod(z2, z2, p) // zz2 = z2²
-            let u1 := mulmod(x1, zz2, p) // u1 = x1*z2²
-            let u2 := mulmod(x2, zz1, p) // u2 = x2*z1²
-            let s1 := mulmod(y1, mulmod(zz2, z2, p), p) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(zz1, z1, p), p) // s2 = y2*z1³
+            let z1 := mload(add(p1, 0x40))
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
+            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
+            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
+            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
+            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
             let h := addmod(u2, sub(p, u1), p) // h = u2-u1
             let hh := mulmod(h, h, p) // h²
-            let hhh := mulmod(h, hh, p) // h³
-            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
 
             // x' = r²-h³-2*u1*h²
-            rx := addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, mulmod(u1, hh, p), p)), p)
+            rx := addmod(
+                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                p
+            )
             // y' = r*(u1*h²-x')-s1*h³
-            ry := addmod(mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p), sub(p, mulmod(s1, hhh, p)), p)
+            ry := addmod(
+                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                p
+            )
             // z' = h*z1*z2
             rz := mulmod(h, mulmod(z1, z2, p), p)
         }
@@ -184,8 +220,7 @@ library P256 {
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-1998-cmo-2
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let p := P
             let yy := mulmod(y, y, p)
             let zz := mulmod(z, z, p)
@@ -199,32 +234,6 @@ library P256 {
             ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
-        }
-    }
-
-    /**
-     * @dev Point multiplication on the jacobian coordinates
-     */
-    function _jMult(
-        uint256 x,
-        uint256 y,
-        uint256 z,
-        uint256 k
-    ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
-        unchecked {
-            for (uint256 i = 0; i < 256; ++i) {
-                if (rz > 0) {
-                    (rx, ry, rz) = _jDouble(rx, ry, rz);
-                }
-                if (k >> 255 > 0) {
-                    if (rz == 0) {
-                        (rx, ry, rz) = (x, y, z);
-                    } else {
-                        (rx, ry, rz) = _jAdd(rx, ry, rz, x, y, z);
-                    }
-                }
-                k <<= 1;
-            }
         }
     }
 
@@ -253,7 +262,7 @@ library P256 {
                     if (z == 0) {
                         (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
                     } else {
-                        (x, y, z) = _jAdd(x, y, z, points[pos].x, points[pos].y, points[pos].z);
+                        (x, y, z) = _jAdd(points[pos], x, y, z);
                     }
                 }
                 u1 <<= 2;
@@ -277,43 +286,31 @@ library P256 {
      * └────┴─────────────────────┘
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
-        points[0x00] = JPoint(0, 0, 0);
-        points[0x01] = JPoint(px, py, 1);
-        points[0x04] = JPoint(GX, GY, 1);
-        points[0x02] = _jDoublePoint(points[0x01]);
-        points[0x08] = _jDoublePoint(points[0x04]);
-        points[0x03] = _jAddPoint(points[0x01], points[0x02]);
-        points[0x05] = _jAddPoint(points[0x01], points[0x04]);
-        points[0x06] = _jAddPoint(points[0x02], points[0x04]);
-        points[0x07] = _jAddPoint(points[0x03], points[0x04]);
-        points[0x09] = _jAddPoint(points[0x01], points[0x08]);
-        points[0x0a] = _jAddPoint(points[0x02], points[0x08]);
-        points[0x0b] = _jAddPoint(points[0x03], points[0x08]);
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]);
-        points[0x0d] = _jAddPoint(points[0x01], points[0x0c]);
-        points[0x0e] = _jAddPoint(points[0x02], points[0x0c]);
-        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]);
+        points[0x00] = JPoint(0, 0, 0); // 0,0
+        points[0x01] = JPoint(px, py, 1); // 1,0 (p)
+        points[0x04] = JPoint(GX, GY, 1); // 0,1 (g)
+        points[0x02] = _jDoublePoint(points[0x01]); // 2,0 (2p)
+        points[0x08] = _jDoublePoint(points[0x04]); // 0,2 (2g)
+        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (3p)
+        points[0x05] = _jAddPoint(points[0x01], points[0x04]); // 1,1 (p+g)
+        points[0x06] = _jAddPoint(points[0x02], points[0x04]); // 2,1 (2p+g)
+        points[0x07] = _jAddPoint(points[0x03], points[0x04]); // 3,1 (3p+g)
+        points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
+        points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
+        points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
+        points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
+        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {
-        (uint256 x, uint256 y, uint256 z) = _jAdd(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+        (uint256 x, uint256 y, uint256 z) = _jAdd(p1, p2.x, p2.y, p2.z);
         return JPoint(x, y, z);
     }
 
     function _jDoublePoint(JPoint memory p) private pure returns (JPoint memory) {
         (uint256 x, uint256 y, uint256 z) = _jDouble(p.x, p.y, p.z);
         return JPoint(x, y, z);
-    }
-
-    /**
-     *@dev From Fermat's little theorem https://en.wikipedia.org/wiki/Fermat%27s_little_theorem:
-     * `a**(p-1) ≡ 1 mod p`. This means that `a**(p-2)` is an inverse of a in Fp.
-     */
-    function _invModN(uint256 value) private view returns (uint256) {
-        return Math.modExp(value, N2, N);
-    }
-
-    function _invModP(uint256 value) private view returns (uint256) {
-        return Math.modExp(value, P2, P);
     }
 }

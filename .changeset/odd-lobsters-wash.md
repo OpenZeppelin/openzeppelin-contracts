@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`P256`: Add a library for verification/recovery of Secp256r1 (Aka P256) signatures.
+`P256`: Library for verification and public key recovery of P256 (aka secp256r1) signatures.
