@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1271} from "../interfaces/IERC1271.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {RSA} from "../utils/cryptography/RSA.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {RSA} from "../../utils/cryptography/RSA.sol";
 
 contract IdentityRSAImplementation is IERC1271 {
     function publicKey() public view returns (bytes memory e, bytes memory n) {

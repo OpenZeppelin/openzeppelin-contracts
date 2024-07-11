@@ -1,6 +1,8 @@
 const { ethers } = require('hardhat');
 const { secp256r1 } = require('@noble/curves/p256');
 
+const N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
+
 class P256Signer {
   constructor(privateKey) {
     this.privateKey = privateKey;
@@ -11,6 +13,7 @@ class P256Signer {
       ].map(ethers.hexlify),
     );
     this.address = ethers.getAddress(ethers.keccak256(this.publicKey).slice(-40));
+    this.sigParams = { prefixAddress: false, includeRecovery: true };
   }
 
   static random() {
@@ -22,8 +25,21 @@ class P256Signer {
   }
 
   signMessage(message) {
-    const { r, s, recovery } = secp256r1.sign(ethers.hashMessage(message).replace(/0x/, ''), this.privateKey);
-    return ethers.solidityPacked(['uint256', 'uint256', 'uint8'], [r, s, recovery]);
+    let { r, s, recovery } = secp256r1.sign(ethers.hashMessage(message).replace(/0x/, ''), this.privateKey);
+
+    // ensureLowerOrderS
+    if (s > N / 2n) {
+      s = N - s;
+      recovery = 1 - recovery;
+    }
+
+    // pack signature
+    const signature = this.sigParams.includeRecovery
+      ? ethers.solidityPacked(['uint256', 'uint256', 'uint8'], [r, s, recovery])
+      : ethers.solidityPacked(['uint256', 'uint256'], [r, s]);
+    return this.sigParams.prefixAddress
+      ? ethers.AbiCoder.defaultAbiCoder().encode([ 'address', 'bytes' ], [ this.address, signature ])
+      : signature;
   }
 }
 

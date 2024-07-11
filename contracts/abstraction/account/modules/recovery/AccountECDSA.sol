@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../../../interfaces/IERC4337.sol";
-import {MessageHashUtils} from "../../../utils/cryptography/MessageHashUtils.sol";
-import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
-import {Account} from "../Account.sol";
+import {PackedUserOperation} from "../../../../interfaces/IERC4337.sol";
+import {MessageHashUtils} from "../../../../utils/cryptography/MessageHashUtils.sol";
+import {ECDSA} from "../../../../utils/cryptography/ECDSA.sol";
+import {Account} from "../../Account.sol";
 
 abstract contract AccountECDSA is Account {
     function _recoverSigner(

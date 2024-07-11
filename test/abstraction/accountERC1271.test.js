@@ -10,10 +10,20 @@ async function fixture() {
   accounts.user = accounts.shift();
   accounts.beneficiary = accounts.shift();
 
-  const target = await ethers.deployContract('CallReceiverMock');
-  const helper = new ERC4337Helper('SimpleAccountP256');
+  // 4337 helper
+  const helper = new ERC4337Helper('SimpleAccountERC1271');
   await helper.wait();
-  const sender = await helper.newAccount(P256Signer.random());
+
+  // environment
+  const target = await ethers.deployContract('CallReceiverMock');
+  const identifyFactory = await ethers.deployContract('IdentityP256Factory');
+
+  // create P256 key and identity contract
+  const signer = P256Signer.random();
+  signer.address = await identifyFactory.predict(signer.publicKey); // override address of the signer
+  signer.sigParams.prefixAddress = true;
+  await identifyFactory.create(signer.publicKey);
+  const sender = await helper.newAccount(signer);
 
   return {
     accounts,
@@ -25,7 +35,7 @@ async function fixture() {
   };
 }
 
-describe('AccountP256', function () {
+describe('AccountERC1271', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

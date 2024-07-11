@@ -8,8 +8,8 @@ import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {Account} from "../account/Account.sol";
 import {AccountCommon} from "../account/AccountCommon.sol";
 import {AccountMultisig} from "../account/modules/AccountMultisig.sol";
-import {AccountECDSA} from "../account/modules/AccountECDSA.sol";
-import {AccountP256} from "../account/modules/AccountP256.sol";
+import {AccountECDSA} from "../account/modules/recovery/AccountECDSA.sol";
+import {AccountERC1271} from "../account/modules/recovery/AccountERC1271.sol";
 
 contract AdvancedAccountECDSA is AccessControl, AccountCommon, AccountECDSA, AccountMultisig {
     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
@@ -50,7 +50,7 @@ contract AdvancedAccountECDSA is AccessControl, AccountCommon, AccountECDSA, Acc
     }
 }
 
-contract AdvancedAccountP256 is AccessControl, AccountCommon, AccountP256, AccountMultisig {
+contract AdvancedAccountERC1271 is AccessControl, AccountCommon, AccountERC1271, AccountMultisig {
     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
     uint256 private _requiredSignatures;
 
