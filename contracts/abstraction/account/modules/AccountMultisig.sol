@@ -13,7 +13,7 @@ abstract contract AccountMultisig is Account {
     function _processSignature(
         bytes32 userOpHash,
         bytes calldata signatures
-    ) internal virtual override returns (bool, address, uint48, uint48) {
+    ) internal virtual override returns (bool, address, uint48 validAfter, uint48 validUntil) {
         uint256 arrayLength = _getUint256(signatures, _getUint256(signatures, 0));
 
         if (arrayLength < requiredSignatures()) {
@@ -21,26 +21,23 @@ abstract contract AccountMultisig is Account {
         }
 
         address lastSigner = address(0);
-        uint48 globalValidAfter = 0;
-        uint48 globalValidUntil = 0;
 
         for (uint256 i = 0; i < arrayLength; ++i) {
-            bytes calldata signature = _getBytesArrayElement(signatures, i);
-            (bool valid, address signer, uint48 validAfter, uint48 validUntil) = super._processSignature(
+            (bool sigValid, address sigSigner, uint48 sigValidAfter, uint48 sigValidUntil) = super._processSignature(
                 userOpHash,
-                signature
+                _getBytesArrayElement(signatures, i)
             );
-            if (valid && signer > lastSigner) {
-                lastSigner = signer;
-                globalValidAfter = uint48(Math.ternary(validUntil < globalValidUntil, globalValidUntil, validAfter));
-                globalValidUntil = uint48(
-                    Math.ternary(validUntil > globalValidUntil || validUntil == 0, globalValidUntil, validUntil)
+            if (sigValid && sigSigner > lastSigner) {
+                lastSigner = sigSigner;
+                validAfter = uint48(Math.ternary(validAfter > sigValidAfter, validAfter, sigValidAfter));
+                validUntil = uint48(
+                    Math.ternary(validUntil < sigValidUntil || sigValidUntil == 0, validUntil, sigValidUntil)
                 );
             } else {
                 return (false, address(0), 0, 0);
             }
         }
-        return (true, address(this), globalValidAfter, globalValidUntil);
+        return (true, address(this), validAfter, validUntil);
     }
 
     function _getUint256(bytes calldata data, uint256 pos) private pure returns (uint256 result) {
@@ -51,10 +48,10 @@ abstract contract AccountMultisig is Account {
 
     function _getBytesArrayElement(bytes calldata data, uint256 i) private pure returns (bytes calldata result) {
         assembly ("memory-safe") {
-            let begin := add(calldataload(data.offset), 0x20)
-            let offset := add(calldataload(add(add(data.offset, begin), mul(i, 0x20))), begin)
-            result.length := calldataload(add(data.offset, offset))
-            result.offset := add(add(data.offset, offset), 0x20)
+            let begin := add(add(data.offset, calldataload(data.offset)), 0x20) // data.offset + internal offset + skip length
+            let offset := add(begin, calldataload(add(begin, mul(i, 0x20)))) // begin + element offset (stored at begin + i * 20)
+            result.length := calldataload(offset) // length
+            result.offset := add(offset, 0x20) // location
         }
     }
 }
