@@ -42,9 +42,9 @@ contract AdvancedAccount is AccessControl, AccountCommon, AccountAllSignatures, 
     }
 
     function _processSignature(
-        bytes memory signature,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual override(Account, AccountMultisig) returns (bool, address, uint48, uint48) {
-        return super._processSignature(signature, userOpHash);
+        return super._processSignature(userOpHash, signature);
     }
 }

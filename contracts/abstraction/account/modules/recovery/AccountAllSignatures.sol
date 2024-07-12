@@ -13,14 +13,15 @@ abstract contract AccountAllSignatures is AccountECDSA, AccountERC1271 {
     }
 
     function _recoverSigner(
-        bytes memory signature,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual override(AccountECDSA, AccountERC1271) returns (address) {
-        (SignatureType sigType, bytes memory sigData) = abi.decode(signature, (SignatureType, bytes));
+        SignatureType sigType = SignatureType(uint8(bytes1(signature)));
+
         if (sigType == SignatureType.ECDSA) {
-            return AccountECDSA._recoverSigner(sigData, userOpHash);
+            return AccountECDSA._recoverSigner(userOpHash, signature[0x01:]);
         } else if (sigType == SignatureType.ERC1271) {
-            return AccountERC1271._recoverSigner(sigData, userOpHash);
+            return AccountERC1271._recoverSigner(userOpHash, signature[0x01:]);
         } else {
             return address(0);
         }

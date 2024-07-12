@@ -1,9 +1,7 @@
 const { ethers } = require('hardhat');
 
-const { Enum } = require('./enums');
 const { P256Signer } = require('./p256');
-
-const SignatureType = Enum('ECDSA', 'ERC1271');
+const { SignatureType } = require('./enums');
 
 class IdentityHelper {
   constructor() {
@@ -21,13 +19,15 @@ class IdentityHelper {
     return Object.assign(ethers.Wallet.createRandom(), { type: SignatureType.ECDSA });
   }
 
-  async newP256Signer(sigParams = { prefixAddress: true }) {
+  async newP256Signer(params = { withPrefixAddress: true }) {
     await this.wait();
 
-    const signer = P256Signer.random();
-    return Promise.all([this.p256Factory.predict(signer.publicKey), this.p256Factory.create(signer.publicKey)]).then(
-      ([address]) => Object.assign(signer, { address, sigParams, type: SignatureType.ERC1271 }),
+    const signer = P256Signer.random(params);
+    await Promise.all([this.p256Factory.predict(signer.publicKey), this.p256Factory.create(signer.publicKey)]).then(
+      ([address]) => Object.assign(signer, { address }),
     );
+
+    return signer;
   }
 
   async newRSASigner() {

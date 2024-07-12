@@ -1,10 +1,10 @@
 const { ethers } = require('hardhat');
 const { secp256r1 } = require('@noble/curves/p256');
 
-const N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
+const { SignatureType } = require('./enums');
 
 class P256Signer {
-  constructor(privateKey) {
+  constructor(privateKey, params = {}) {
     this.privateKey = privateKey;
     this.publicKey = ethers.concat(
       [
@@ -13,11 +13,15 @@ class P256Signer {
       ].map(ethers.hexlify),
     );
     this.address = ethers.getAddress(ethers.keccak256(this.publicKey).slice(-40));
-    this.sigParams = { prefixAddress: false, includeRecovery: true };
+    this.params = Object.assign({ withPrefixAddress: false, withRecovery: true }, params);
   }
 
-  static random() {
-    return new P256Signer(secp256r1.utils.randomPrivateKey());
+  get type() {
+    return SignatureType.ERC1271;
+  }
+
+  static random(params = {}) {
+    return new P256Signer(secp256r1.utils.randomPrivateKey(), params);
   }
 
   getAddress() {
@@ -28,18 +32,23 @@ class P256Signer {
     let { r, s, recovery } = secp256r1.sign(ethers.hashMessage(message).replace(/0x/, ''), this.privateKey);
 
     // ensureLowerOrderS
-    if (s > N / 2n) {
-      s = N - s;
+    if (s > secp256r1.CURVE.n / 2n) {
+      s = secp256r1.CURVE.n - s;
       recovery = 1 - recovery;
     }
 
     // pack signature
-    const signature = this.sigParams.includeRecovery
-      ? ethers.solidityPacked(['uint256', 'uint256', 'uint8'], [r, s, recovery])
-      : ethers.solidityPacked(['uint256', 'uint256'], [r, s]);
-    return this.sigParams.prefixAddress
-      ? ethers.AbiCoder.defaultAbiCoder().encode(['address', 'bytes'], [this.address, signature])
-      : signature;
+    const elements = [
+      this.params.withPrefixAddress && { type: 'address', value: this.address },
+      { type: 'uint256', value: ethers.toBeHex(r) },
+      { type: 'uint256', value: ethers.toBeHex(s) },
+      this.params.withRecovery && { type: 'uint8', value: recovery },
+    ].filter(Boolean);
+
+    return ethers.solidityPacked(
+      elements.map(({ type }) => type),
+      elements.map(({ value }) => value),
+    );
   }
 }
 

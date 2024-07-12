@@ -10,10 +10,10 @@ import {Account} from "../../Account.sol";
 abstract contract AccountERC1271 is Account {
     error P256InvalidSignatureLength(uint256 length);
 
-    function _recoverSigner(bytes memory signature, bytes32 userOpHash) internal virtual override returns (address) {
+    function _recoverSigner(bytes32 userOpHash, bytes calldata signature) internal virtual override returns (address) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
-        (address signer, bytes memory sig) = abi.decode(signature, (address, bytes));
+        address signer = address(bytes20(signature[0x00:0x14]));
 
-        return SignatureChecker.isValidERC1271SignatureNow(signer, msgHash, sig) ? signer : address(0);
+        return SignatureChecker.isValidERC1271SignatureNow(signer, msgHash, signature[0x14:]) ? signer : address(0);
     }
 }

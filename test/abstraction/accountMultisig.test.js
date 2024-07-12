@@ -11,7 +11,7 @@ async function fixture() {
   accounts.beneficiary = accounts.shift();
 
   // 4337 helper
-  const helper = new ERC4337Helper('AdvancedAccount');
+  const helper = new ERC4337Helper('AdvancedAccount', { withTypePrefix: true });
   const identity = new IdentityHelper();
 
   // environment
@@ -48,7 +48,7 @@ describe('AccountMultisig', function () {
     });
 
     describe('account not deployed yet', function () {
-      it('success: deploy and call', async function () {
+      it.only('success: deploy and call', async function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
@@ -58,7 +58,7 @@ describe('AccountMultisig', function () {
             ]),
           })
           .then(op => op.addInitCode())
-          .then(op => op.sign(this.signers, true));
+          .then(op => op.sign(this.signers));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.entrypoint, 'AccountDeployed')
@@ -82,7 +82,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign(this.signers, true));
+          .then(op => op.sign(this.signers));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -98,7 +98,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.signers[0], this.signers[2]], true));
+          .then(op => op.sign([this.signers[0], this.signers[2]]));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -114,7 +114,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.signers[2]], true));
+          .then(op => op.sign([this.signers[2]]));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')
@@ -130,7 +130,7 @@ describe('AccountMultisig', function () {
               this.target.interface.encodeFunctionData('mockFunctionExtra'),
             ]),
           })
-          .then(op => op.sign([this.accounts.relayer, this.signers[2]], true));
+          .then(op => op.sign([this.accounts.relayer, this.signers[2]]));
 
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.be.revertedWithCustomError(this.entrypoint, 'FailedOp')

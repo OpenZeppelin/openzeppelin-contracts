@@ -11,12 +11,12 @@ abstract contract AccountMultisig is Account {
     function requiredSignatures() public view virtual returns (uint256);
 
     function _processSignature(
-        bytes memory signature,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signatures
     ) internal virtual override returns (bool, address, uint48, uint48) {
-        bytes[] memory signatures = abi.decode(signature, (bytes[]));
+        uint256 arrayLength = _getUint256(signatures, _getUint256(signatures, 0));
 
-        if (signatures.length < requiredSignatures()) {
+        if (arrayLength < requiredSignatures()) {
             return (false, address(0), 0, 0);
         }
 
@@ -24,10 +24,11 @@ abstract contract AccountMultisig is Account {
         uint48 globalValidAfter = 0;
         uint48 globalValidUntil = 0;
 
-        for (uint256 i = 0; i < signatures.length; ++i) {
+        for (uint256 i = 0; i < arrayLength; ++i) {
+            bytes calldata signature = _getBytesArrayElement(signatures, i);
             (bool valid, address signer, uint48 validAfter, uint48 validUntil) = super._processSignature(
-                signatures[i],
-                userOpHash
+                userOpHash,
+                signature
             );
             if (valid && signer > lastSigner) {
                 lastSigner = signer;
@@ -40,5 +41,20 @@ abstract contract AccountMultisig is Account {
             }
         }
         return (true, address(this), globalValidAfter, globalValidUntil);
+    }
+
+    function _getUint256(bytes calldata data, uint256 pos) private pure returns (uint256 result) {
+        assembly ("memory-safe") {
+            result := calldataload(add(data.offset, pos))
+        }
+    }
+
+    function _getBytesArrayElement(bytes calldata data, uint256 i) private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            let begin := add(calldataload(data.offset), 0x20)
+            let offset := add(calldataload(add(add(data.offset, begin), mul(i, 0x20))), begin)
+            result.length := calldataload(add(data.offset, offset))
+            result.offset := add(add(data.offset, offset), 0x20)
+        }
     }
 }

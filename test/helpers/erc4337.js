@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 
-const { SignatureType } = require('./identity');
+const { SignatureType } = require('./enums');
 
 function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
@@ -8,11 +8,12 @@ function pack(left, right) {
 
 /// Global ERC-4337 environment helper.
 class ERC4337Helper {
-  constructor(account = 'SimpleAccountECDSA') {
+  constructor(account = 'SimpleAccountECDSA', params = {}) {
     this.entrypointAsPromise = ethers.deployContract('EntryPoint');
     this.factoryAsPromise = ethers.deployContract('$Create2');
     this.accountAsPromise = ethers.getContractFactory(account);
     this.chainIdAsPromise = ethers.provider.getNetwork().then(({ chainId }) => chainId);
+    this.params = params;
   }
 
   async wait() {
@@ -133,7 +134,9 @@ class UserOperation {
     return this;
   }
 
-  async sign(signer = this.sender.runner, withTypePrefix = false) {
+  async sign(signer = this.sender.runner, args = {}) {
+    const withTypePrefix = args.withTypePrefix ?? this.sender.context.params.withTypePrefix;
+
     const signers = (Array.isArray(signer) ? signer : [signer]).sort(
       (signer1, signer2) => signer1.address - signer2.address,
     );
@@ -141,10 +144,7 @@ class UserOperation {
       signers.map(signer =>
         Promise.resolve(signer.signMessage(ethers.getBytes(this.hash))).then(signature =>
           withTypePrefix
-            ? ethers.AbiCoder.defaultAbiCoder().encode(
-                ['uint8', 'bytes'],
-                [signer.type ?? SignatureType.ECDSA, signature],
-              )
+            ? ethers.solidityPacked(['uint8', 'bytes'], [signer.type ?? SignatureType.ECDSA, signature])
             : signature,
         ),
       ),

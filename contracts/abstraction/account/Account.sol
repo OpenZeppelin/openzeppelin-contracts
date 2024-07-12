@@ -47,7 +47,7 @@ abstract contract Account is IAccount {
      *
      * Subclass must implement this using their own choice of cryptography.
      */
-    function _recoverSigner(bytes memory signature, bytes32 userOpHash) internal virtual returns (address);
+    function _recoverSigner(bytes32 userOpHash, bytes calldata signature) internal virtual returns (address);
 
     /****************************************************************************************************************
      *                                               Public interface                                               *
@@ -73,7 +73,7 @@ abstract contract Account is IAccount {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public virtual override onlyEntryPoint returns (uint256 validationData) {
-        (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOp.signature, userOpHash);
+        (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOpHash, userOp.signature);
         _validateNonce(userOp.nonce);
         _payPrefund(missingAccountFunds);
         return ERC4337Utils.packValidationData(valid, validAfter, validUntil);
@@ -85,18 +85,18 @@ abstract contract Account is IAccount {
 
     /**
      * @dev Process the signature is valid for this message.
-     * @param signature   - The user's signature
      * @param userOpHash  - Hash of the request that must be signed (includes the entrypoint and chain id)
+     * @param signature   - The user's signature
      * @return valid      - Signature is valid
      * @return signer     - Address of the signer that produced the signature
      * @return validAfter - first timestamp this operation is valid
      * @return validUntil - last timestamp this operation is valid. 0 for "indefinite"
      */
     function _processSignature(
-        bytes memory signature,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
-        address recovered = _recoverSigner(signature, userOpHash);
+        address recovered = _recoverSigner(userOpHash, signature);
         return (recovered != address(0) && _isAuthorized(recovered), recovered, 0, 0);
     }
 

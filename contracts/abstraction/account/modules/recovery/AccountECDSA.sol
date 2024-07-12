@@ -9,8 +9,8 @@ import {Account} from "../../Account.sol";
 
 abstract contract AccountECDSA is Account {
     function _recoverSigner(
-        bytes memory signature,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual override returns (address signer) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
@@ -24,9 +24,9 @@ abstract contract AccountECDSA is Account {
             uint8 v;
             /// @solidity memory-safe-assembly
             assembly {
-                r := mload(add(signature, 0x20))
-                s := mload(add(signature, 0x40))
-                v := byte(0, mload(add(signature, 0x60)))
+                r := calldataload(add(signature.offset, 0x00))
+                s := calldataload(add(signature.offset, 0x20))
+                v := byte(0, calldataload(add(signature.offset, 0x40)))
             }
             (signer, , ) = ECDSA.tryRecover(msgHash, v, r, s); // return address(0) on errors
         } else if (signature.length == 64) {
@@ -34,8 +34,8 @@ abstract contract AccountECDSA is Account {
             bytes32 vs;
             /// @solidity memory-safe-assembly
             assembly {
-                r := mload(add(signature, 0x20))
-                vs := mload(add(signature, 0x40))
+                r := calldataload(add(signature.offset, 0x00))
+                vs := calldataload(add(signature.offset, 0x20))
             }
             (signer, , ) = ECDSA.tryRecover(msgHash, r, vs);
         } else {
