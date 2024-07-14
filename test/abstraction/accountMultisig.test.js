@@ -48,7 +48,7 @@ describe('AccountMultisig', function () {
     });
 
     describe('account not deployed yet', function () {
-      it.only('success: deploy and call', async function () {
+      it('success: deploy and call', async function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
