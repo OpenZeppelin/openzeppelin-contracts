@@ -21,9 +21,9 @@ import {Hashes} from "./Hashes.sol";
  * against this attack out of the box.
  *
  * NOTE: This library supports proof verification for merkle trees built using
- * custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). For those
- * trees built using non-commutative hashing functions, proving inclusion of the leaves
- * would require additional logic that is not supported by this library.
+ * custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). Proving
+ * leaf inclusion in trees built using non-commutative hashing functions requires
+ * additional logic that is not supported by this library.
  */
 library MerkleProof {
     /**
