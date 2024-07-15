@@ -11,11 +11,12 @@ import {Panic} from "../Panic.sol";
  * @dev Library for managing https://en.wikipedia.org/wiki/Binary_heap[binary heap] that can be used as
  * https://en.wikipedia.org/wiki/Priority_queue[priority queue].
  *
- * Heaps are represented as an array of Node objects. In this array we store two overlapping structures:
- * - A tree structure, where index 0 is the root, and for each index i, the children are 2*i+1 and 2*i+2.
- *   For each index in this tree we have the `index` pointer that gives the position of the corresponding value.
- * - An array of values (payload). At each index we store a `value` and `lookup`. Type of `value` depends on the
- *   variant you chose. `lookup` is the index of the node (in the tree) that points to this value.
+ * Heaps are represented as an array of Node objects. This array stores two overlapping structures:
+ * * A tree structure where the first element (index 0) is the root, and where the node at index i is the child of the
+ *   node at index (i-1)/2 and the father of nodes at index 2*i+1 and 2*i+2. Each node stores the index (in the array)
+ *   where the corresponding value is stored.
+ * * A list of payloads values where each index contains a value and a lookup index. The type of the value depends on
+ *   the variant being used. The lookup is the index of the node (in the tree) that points to this value.
  *
  * Some invariants:
  *   ```
