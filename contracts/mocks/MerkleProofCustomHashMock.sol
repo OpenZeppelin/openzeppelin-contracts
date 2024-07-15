@@ -4,24 +4,24 @@ pragma solidity ^0.8.20;
 
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 
-contract MerkleProofCustomHashMock {
-    function customHash(bytes32 a, bytes32 b) public pure returns (bytes32) {
+library MerkleProofCustomHashMock {
+    function customHash(bytes32 a, bytes32 b) internal pure returns (bytes32) {
         return a < b ? keccak256(abi.encode(bytes32(0), a, b)) : keccak256(abi.encode(bytes32(0), b, a));
     }
 
-    function verify(bytes32[] calldata proof, bytes32 root, bytes32 leaf) external view returns (bool) {
+    function verify(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
         return MerkleProof.verify(proof, root, leaf, customHash);
     }
 
-    function processProof(bytes32[] calldata proof, bytes32 leaf) external view returns (bytes32) {
+    function processProof(bytes32[] calldata proof, bytes32 leaf) internal view returns (bytes32) {
         return MerkleProof.processProof(proof, leaf, customHash);
     }
 
-    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) external view returns (bool) {
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
         return MerkleProof.verifyCalldata(proof, root, leaf, customHash);
     }
 
-    function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) external view returns (bytes32) {
+    function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal view returns (bytes32) {
         return MerkleProof.processProofCalldata(proof, leaf, customHash);
     }
 
@@ -30,7 +30,7 @@ contract MerkleProofCustomHashMock {
         bool[] calldata proofFlags,
         bytes32 root,
         bytes32[] calldata leaves
-    ) external view returns (bool) {
+    ) internal view returns (bool) {
         return MerkleProof.multiProofVerify(proof, proofFlags, root, leaves, customHash);
     }
 
@@ -38,7 +38,7 @@ contract MerkleProofCustomHashMock {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32[] calldata leaves
-    ) external view returns (bytes32) {
+    ) internal view returns (bytes32) {
         return MerkleProof.processMultiProof(proof, proofFlags, leaves, customHash);
     }
 
@@ -47,7 +47,7 @@ contract MerkleProofCustomHashMock {
         bool[] calldata proofFlags,
         bytes32 root,
         bytes32[] calldata leaves
-    ) external view returns (bool) {
+    ) internal view returns (bool) {
         return MerkleProof.multiProofVerifyCalldata(proof, proofFlags, root, leaves, customHash);
     }
 
@@ -55,7 +55,7 @@ contract MerkleProofCustomHashMock {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32[] calldata leaves
-    ) external view returns (bytes32) {
+    ) internal view returns (bytes32) {
         return MerkleProof.processMultiProofCalldata(proof, proofFlags, leaves, customHash);
     }
 }
