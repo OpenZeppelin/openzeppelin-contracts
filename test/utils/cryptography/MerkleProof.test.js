@@ -6,9 +6,9 @@ const { SimpleMerkleTree } = require('@openzeppelin/merkle-tree');
 // generate bytes32 leaves from a string
 const toLeaves = (str, separator = '') => str.split(separator).map(e => ethers.keccak256(ethers.toUtf8Bytes(e)));
 // internal node hashes
-const hashSorted = (...elements) => ethers.keccak256(Buffer.concat(elements.map(ethers.getBytes).sort(Buffer.compare)));
-const defaultHash = (a, b) => hashSorted(a, b);
-const customHash = (a, b) => hashSorted(ethers.ZeroHash, a, b);
+const concatSorted = (...elements) => Buffer.concat(elements.map(ethers.getBytes).sort(Buffer.compare));
+const defaultHash = (a, b) => ethers.keccak256(concatSorted(a, b));
+const customHash = (a, b) => ethers.sha256(concatSorted(a, b));
 
 describe('MerkleProof', function () {
   for (const { title, contractName, nodeHash } of [
