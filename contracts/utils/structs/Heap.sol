@@ -7,31 +7,40 @@ import {SafeCast} from "../math/SafeCast.sol";
 import {Comparators} from "../Comparators.sol";
 import {Panic} from "../Panic.sol";
 
+/**
+ * @dev Library for managing https://en.wikipedia.org/wiki/Binary_heap[binary heap] that can be used as
+ * https://en.wikipedia.org/wiki/Priority_queue[priority queue].
+ *
+ * Heaps are represented as an array of Node objects. In this array we store two overlapping structures:
+ * - A tree structure, where index 0 is the root, and for each index i, the children are 2*i+1 and 2*i+2.
+ *   For each index in this tree we have the `index` pointer that gives the position of the corresponding value.
+ * - An array of values (payload). At each index we store a `value` and `lookup`. Type of `value` depends on the
+ *   variant you chose. `lookup` is the index of the node (in the tree) that points to this value.
+ *
+ * Some invariants:
+ *   ```
+ *   i == heap.data[heap.data[i].index].lookup // for all indices i
+ *   i == heap.data[heap.data[i].lookup].index // for all indices i
+ *   ```
+ *
+ * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
+ * smallest value is the one at the root. This value can be lookup up in constant time (O(1)) at
+ * `heap.data[heap.data[0].index].value`
+ *
+ * The structure is designed to perform the following operations with the corresponding complexities:
+ *
+ * * peek (get the smallest value in set): O(1)
+ * * insert (insert a value in the set): 0(log(n))
+ * * pop (remove the smallest value in set): O(log(n))
+ * * replace (replace the smallest value in set with a new value): O(log(n))
+ */
 library Heap {
     using SafeCast for *;
 
     /**
-     * A Heap is represented as an array of Node objects. In this array we store two overlapping structures:
-     * - A tree structure, where index 0 is the root, and for each index i, the children are 2*i+1 and 2*i+2.
-     *   For each index in this tree we have the `index` pointer that gives the position of the corresponding value.
-     * - An array of values (payload). At each index we store a uint256 `value` and `lookup`, the index of the node
-     *   that points to this value.
+     * @dev Binary heap that support values of type uint256.
      *
-     * Some invariants:
-     *   ```
-     *   i == heap.data[heap[data].index].lookup // for all index i
-     *   i == heap.data[heap[data].lookup].index // for all index i
-     *   ```
-     *
-     * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
-     * smallest value is the one at the root. It can be retrieved in O(1) at `heap.data[heap.data[0].index].value`
-     *
-     * The structure is designed to perform the following operations with the corresponding complexities:
-     *
-     * * peek (get the smallest value in set): O(1)
-     * * insert (insert a value in the set): 0(log(n))
-     * * pop (remove the smallest value in set): O(log(n))
-     * * replace (replace the smallest value in set with a new value): O(log(n))
+     * Each element of that structures uses 2 storage slots.
      */
     struct Uint256Heap {
         Uint256HeapNode[] data;
@@ -294,27 +303,9 @@ library Heap {
     }
 
     /**
-     * A Heap is represented as an array of Node objects. In this array we store two overlapping structures:
-     * - A tree structure, where index 0 is the root, and for each index i, the children are 2*i+1 and 2*i+2.
-     *   For each index in this tree we have the `index` pointer that gives the position of the corresponding value.
-     * - An array of values (payload). At each index we store a uint208 `value` and `lookup`, the index of the node
-     *   that points to this value.
+     * @dev Binary heap that support values of type uint208.
      *
-     * Some invariants:
-     *   ```
-     *   i == heap.data[heap[data].index].lookup // for all index i
-     *   i == heap.data[heap[data].lookup].index // for all index i
-     *   ```
-     *
-     * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
-     * smallest value is the one at the root. It can be retrieved in O(1) at `heap.data[heap.data[0].index].value`
-     *
-     * The structure is designed to perform the following operations with the corresponding complexities:
-     *
-     * * peek (get the smallest value in set): O(1)
-     * * insert (insert a value in the set): 0(log(n))
-     * * pop (remove the smallest value in set): O(log(n))
-     * * replace (replace the smallest value in set with a new value): O(log(n))
+     * Each element of that structures uses 1 storage slots.
      */
     struct Uint208Heap {
         Uint208HeapNode[] data;
