@@ -20,10 +20,10 @@ import {Hashes} from "./Hashes.sol";
  * OpenZeppelin's JavaScript library generates Merkle trees that are safe
  * against this attack out of the box.
  *
- * NOTE: This library support verification of proof for merkle tree built using
- * custom hashing functions. This is limited to commutative hashing functions.
- * The verification of inclusion proofs for merkle tree build using non commutative
- * hashing function require additional logic that this library does not provide.
+ * NOTE: This library supports proof verification for merkle trees built using
+ * custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). For those
+ * trees built using non-commutative hashing functions, proving inclusion of the leaves
+ * would require additional logic that is not supported by this library.
  */
 library MerkleProof {
     /**

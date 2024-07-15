@@ -19,9 +19,9 @@ import {Panic} from "../Panic.sol";
  * * Zero value: The value that represents an empty leaf. Used to avoid regular zero values to be part of the tree.
  * * Hashing function: A cryptographic hash function used to produce internal nodes. Defaults to {Hashes-commutativeKeccak256}.
  *
- * NOTE: while this library supports building merkle trees using a non-commutative custom hashing function, proof of
- * inclusion for such trees will not be verifiable using the {MerkleProof} library. The {MerkleProof} library only
- * supports commutative hashing functions.
+ * NOTE: Building trees using non-commutative hashing functions (i.e. `H(a, b) != H(b, a)`) is supported. However,
+ * proving the inclusion of a leave is not possible with the {MerkleProof} library since it only supports
+ * _commutative_ hashing functions.
  *
  * _Available since v5.1._
  */
