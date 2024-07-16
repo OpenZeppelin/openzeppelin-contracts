@@ -37,6 +37,8 @@ import {Panic} from "../Panic.sol";
  * * insert (insert a value in the set): 0(log(n))
  * * pop (remove the smallest value in set): O(log(n))
  * * replace (replace the smallest value in set with a new value): O(log(n))
+ * * length (get the number of elements in the set): O(1)
+ * * clear (remove all elements in the set): O(1)
  */
 `;
 
@@ -67,7 +69,7 @@ function peek(${struct} storage self) internal view returns (${valueType}) {
 /**
  * @dev Remove (and return) the root element for the heap using the default comparator.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function pop(${struct} storage self) internal returns (${valueType}) {
@@ -77,7 +79,7 @@ function pop(${struct} storage self) internal returns (${valueType}) {
 /**
  * @dev Remove (and return) the root element for the heap using the provided comparator.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function pop(
@@ -129,7 +131,7 @@ function pop(
 /**
  * @dev Insert a new element in the heap using the default comparator.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function insert(${struct} storage self, ${valueType} value) internal {
@@ -139,7 +141,7 @@ function insert(${struct} storage self, ${valueType} value) internal {
 /**
  * @dev Insert a new element in the heap using the provided comparator.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function insert(
@@ -158,7 +160,7 @@ function insert(
  * @dev Return the root element for the heap, and replace it with a new value, using the default comparator.
  * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function replace(${struct} storage self, ${valueType} newValue) internal returns (${valueType}) {
@@ -169,7 +171,7 @@ function replace(${struct} storage self, ${valueType} newValue) internal returns
  * @dev Return the root element for the heap, and replace it with a new value, using the provided comparator.
  * This is equivalent to using {pop} and {insert}, but requires only one rebalancing operation.
  *
- * Note: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
+ * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
  * during the lifecycle of a heap will result in undefined behavior.
  */
 function replace(
@@ -231,7 +233,7 @@ function _swap(${struct} storage self, ${indexType} i, ${indexType} j) private {
  * @dev Perform heap maintenance on \`self\`, starting at position \`pos\` (with the \`value\`), using \`comp\` as a
  * comparator, and moving toward the leafs of the underlying tree.
  *
- * Note: This is a private function that is called in a trusted context with already cached parameters. \`length\`
+ * NOTE: This is a private function that is called in a trusted context with already cached parameters. \`length\`
  * and \`value\` could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. These
  * parameters are not verified. It is the caller role to make sure the parameters are correct.
  */
@@ -275,7 +277,7 @@ function _siftDown(
  * @dev Perform heap maintenance on \`self\`, starting at position \`pos\` (with the \`value\`), using \`comp\` as a
  * comparator, and moving toward the root of the underlying tree.
  *
- * Note: This is a private function that is called in a trusted context with already cached parameters. \`value\`
+ * NOTE: This is a private function that is called in a trusted context with already cached parameters. \`value\`
  * could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. This parameters is not
  * verified. It is the caller role to make sure the parameters are correct.
  */
@@ -302,7 +304,7 @@ function _unsafeNodeAccess(
 ) private pure returns (${node} storage result) {
     assembly ("memory-safe") {
         mstore(0x00, self.slot)
-        result.slot := add(keccak256(0x00, 0x20), mul(pos, ${blockSize}))
+        result.slot := add(keccak256(0x00, 0x20), ${blockSize == 1 ? 'pos' : `mul(pos, ${blockSize})`})
     }
 }
 `;
