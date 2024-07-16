@@ -12,7 +12,7 @@ At a high level, signatures are a set of cryptographic algorithms that allow for
 
 ==== Ethereum Signatures (secp256k1)
 
-xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated through the https://docs.ethers.org/v6/api/providers/#Signer-signMessage[`signMessage`] function in the ethers library (https://viem.sh/docs/accounts/custom#signmessage[available for viem users] as well), and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated through the https://docs.ethers.org/v6/api/providers/#Signer-signMessage[`signMessage`] function in the ethers library (https://viem.sh/docs/actions/wallet/signMessage#usage[available for viem users] as well), and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
