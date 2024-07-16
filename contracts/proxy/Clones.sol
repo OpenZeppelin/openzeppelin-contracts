@@ -254,9 +254,9 @@ library Clones {
         if (initCodeLength > type(uint16).max) revert ImmutableArgsTooLarge();
         return
             abi.encodePacked(
-                hex"3d61",
+                hex"61",
                 uint16(initCodeLength),
-                hex"80600b3d3981f3363d3d373d3d3d363d73",
+                hex"3d81600a3d39f3363d3d373d3d3d363d73",
                 implementation,
                 hex"5af43d82803e903d91602b57fd5bf3",
                 args
