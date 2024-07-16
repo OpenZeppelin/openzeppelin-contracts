@@ -23,14 +23,10 @@ library AuthorityUtils {
             mstore(0x00, 0x00)
             mstore(0x20, 0x00)
 
-            let success := staticcall(gas(), authority, add(data, 0x20), mload(data), 0x00, 0x40)
-
-            if success {
+            if staticcall(gas(), authority, add(data, 0x20), mload(data), 0x00, 0x40) {
                 immediate := mload(0x00)
                 delay := mload(0x20)
             }
         }
-
-        return (immediate, delay);
     }
 }
