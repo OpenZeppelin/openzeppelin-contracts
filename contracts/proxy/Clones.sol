@@ -243,7 +243,7 @@ library Clones {
      * @dev Helper that prepares the initcode of the proxy with immutable args.
      *
      * An assembly variant of this function requires copying the `args` array, which can be efficiently done using
-     * `mcopy`. Unfortunatelly, that opcode is not available before cancun. A pure solidity implemenation using
+     * `mcopy`. Unfortunately, that opcode is not available before cancun. A pure solidity implementation using
      * abi.encodePacked is more expensive but also more portable and easier to review.
      */
     function _cloneWithImmutableArgsCode(
