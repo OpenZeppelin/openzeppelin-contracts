@@ -202,6 +202,9 @@ library Heap {
         return self.data.length.toUint32();
     }
 
+    /**
+     * @dev Removes all elements in the heap.
+     */
     function clear(Uint256Heap storage self) internal {
         Uint256HeapNode[] storage data = self.data;
         /// @solidity memory-safe-assembly
@@ -467,6 +470,9 @@ library Heap {
         return self.data.length.toUint24();
     }
 
+    /**
+     * @dev Removes all elements in the heap.
+     */
     function clear(Uint208Heap storage self) internal {
         Uint208HeapNode[] storage data = self.data;
         /// @solidity memory-safe-assembly
