@@ -144,7 +144,7 @@ library Math {
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
-            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2²⁵⁶ + prod0.
             uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
