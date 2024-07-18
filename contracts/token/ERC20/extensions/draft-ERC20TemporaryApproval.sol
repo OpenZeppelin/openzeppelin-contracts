@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC20} from "../ERC20.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
 import {IERC7674} from "../../../interfaces/draft-IERC7674.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {SlotDerivation} from "../../../utils/SlotDerivation.sol";
@@ -26,7 +26,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
      * @dev {allowance} override that includes the temporary allowance when looking up the current allowance. If
      * adding up the persistent and the temporary allowances result in an overflow, type(uint256).max is returned.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender) public view virtual override(IERC20, ERC20) returns (uint256) {
         (bool success, uint256 amount) = Math.tryAdd(
             super.allowance(owner, spender),
             _temporaryAllowance(owner, spender)
