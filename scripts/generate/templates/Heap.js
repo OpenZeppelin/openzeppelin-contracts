@@ -205,6 +205,9 @@ function length(${struct} storage self) internal view returns (${indexType}) {
     return self.data.length.to${capitalize(indexType)}();
 }
 
+/**
+ * @dev Removes all elements in the heap.
+ */
 function clear(${struct} storage self) internal {
     ${struct}Node[] storage data = self.data;
     /// @solidity memory-safe-assembly
