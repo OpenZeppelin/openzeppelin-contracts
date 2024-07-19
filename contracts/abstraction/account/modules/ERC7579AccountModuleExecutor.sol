@@ -33,7 +33,7 @@ abstract contract ERC7579AccountModuleExecutor is ERC7579Account {
     /// @inheritdoc ERC7579Account
     function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
-            require(_executors.add(module));
+            if (!_executors.add(module)) revert ModuleAlreadyInstalled(moduleTypeId, module);
             IERC7579Module(module).onInstall(initData);
         } else {
             super._installModule(moduleTypeId, module, initData);
@@ -47,7 +47,7 @@ abstract contract ERC7579AccountModuleExecutor is ERC7579Account {
         bytes calldata deInitData
     ) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
-            require(_executors.remove(module));
+            if (!_executors.remove(module)) revert ModuleNotInstalled(moduleTypeId, module);
             IERC7579Module(module).onUninstall(deInitData);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);

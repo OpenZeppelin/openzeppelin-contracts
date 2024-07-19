@@ -32,7 +32,7 @@ abstract contract ERC7579AccountModuleValidator is ERC7579Account {
     /// @inheritdoc ERC7579Account
     function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
-            require(_validators.add(module));
+            if (!_validators.add(module)) revert ModuleAlreadyInstalled(moduleTypeId, module);
             IERC7579Module(module).onInstall(initData);
         } else {
             super._installModule(moduleTypeId, module, initData);
@@ -46,7 +46,7 @@ abstract contract ERC7579AccountModuleValidator is ERC7579Account {
         bytes calldata deInitData
     ) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
-            require(_validators.remove(module));
+            if (!_validators.remove(module)) revert ModuleNotInstalled(moduleTypeId, module);
             IERC7579Module(module).onUninstall(deInitData);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);

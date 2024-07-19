@@ -10,6 +10,8 @@ import {ERC7579Account} from "../ERC7579Account.sol";
 abstract contract ERC7579AccountModuleFallback is ERC7579Account {
     mapping(bytes4 => address) private _fallbacks;
 
+    error FallbackHandlerAlreadySet(bytes4 selector);
+    error FallbackHandlerNotSet(bytes4 selector);
     error NoFallbackHandler(bytes4 selector);
 
     /// @inheritdoc IERC7579AccountConfig
@@ -34,7 +36,7 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector = bytes4(initData[0:4]);
 
-            require(_fallbacks[selector] == address(0), "Function selector already used");
+            if (_fallbacks[selector] != address(0)) revert FallbackHandlerAlreadySet(selector);
             _fallbacks[selector] = module;
 
             IERC7579Module(module).onInstall(initData[4:]);
@@ -51,10 +53,9 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
     ) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector = bytes4(deInitData[0:4]);
-            address handler = _fallbacks[selector];
 
-            require(handler != address(0), "Function selector not used");
-            require(handler != module, "Function selector not used by this handler");
+            address handler = _fallbacks[selector];
+            if (handler == address(0) || handler != module) revert FallbackHandlerNotSet(selector);
             delete _fallbacks[selector];
 
             IERC7579Module(module).onUninstall(deInitData[4:]);

@@ -40,7 +40,7 @@ abstract contract ERC7579AccountModuleHook is ERC7579Account {
     /// @inheritdoc ERC7579Account
     function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_HOOK) {
-            require(_hook == address(0), "HookAlreadyInstalled");
+            if (_hook != address(0)) revert ModuleNotInstalled(moduleTypeId, _hook);
             _hook = module;
             IERC7579Module(module).onInstall(initData);
         } else {
@@ -55,7 +55,7 @@ abstract contract ERC7579AccountModuleHook is ERC7579Account {
         bytes calldata deInitData
     ) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_HOOK) {
-            require(_hook == module, "HookNotInstalled");
+            if (_hook != module) revert ModuleAlreadyInstalled(moduleTypeId, module);
             delete _hook;
             IERC7579Module(module).onUninstall(deInitData);
         } else {

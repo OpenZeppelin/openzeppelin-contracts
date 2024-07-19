@@ -34,6 +34,8 @@ abstract contract ERC7579Account is
     error MismatchModuleTypeId(uint256 moduleTypeId, address module);
     error UnsupportedModuleType(uint256 moduleTypeId);
     error ModuleRestricted(uint256 moduleTypeId, address caller);
+    error ModuleAlreadyInstalled(uint256 moduleTypeId, address module);
+    error ModuleNotInstalled(uint256 moduleTypeId, address module);
 
     modifier onlyModule(uint256 moduleTypeId) {
         /// TODO: msg.data?
