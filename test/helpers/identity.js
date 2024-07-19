@@ -15,16 +15,17 @@ class IdentityHelper {
     return this;
   }
 
-  async newECDSASigner() {
-    return Object.assign(ethers.Wallet.createRandom(), { type: SignatureType.ECDSA });
+  async newECDSASigner(params = {}) {
+    return Object.assign(ethers.Wallet.createRandom(params.provider), { type: SignatureType.ECDSA });
   }
 
-  async newP256Signer(params = { withPrefixAddress: true }) {
-    await this.wait();
+  async newP256Signer(params = {}) {
+    params.withPrefixAddress ??= true;
 
+    await this.wait();
     const signer = P256Signer.random(params);
     await Promise.all([this.p256Factory.predict(signer.publicKey), this.p256Factory.create(signer.publicKey)]).then(
-      ([address]) => Object.assign(signer, { address }),
+      ([address]) => Object.assign(signer, { address, provider: params.provider }),
     );
 
     return signer;

@@ -4,7 +4,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { IdentityHelper } = require('../helpers/identity');
 const { ERC4337Helper } = require('../helpers/erc4337');
-const { encodeMode, encodeSingle } = require('../helpers/erc7579');
+const { encodeMode, encodeSingle, encodeBatch } = require('../helpers/erc7579');
+const { encodeError } = require('../helpers/error');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
@@ -19,7 +20,7 @@ async function fixture() {
   const target = await ethers.deployContract('CallReceiverMock');
 
   // create 4337 account controlled by ECDSA
-  const signer = await identity.newECDSASigner();
+  const signer = await identity.newECDSASigner({ provider: ethers.provider });
   const sender = await helper.newAccount(signer);
 
   return {
@@ -98,6 +99,69 @@ describe('AccountECDSA', function () {
         await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
           .withArgs(this.sender, 42);
+      });
+
+      describe('batch', function () {
+        it('success: batch call', async function () {
+          const operation = await this.sender
+            .createOp({
+              callData: this.sender.interface.encodeFunctionData('execute', [
+                encodeMode({ callType: '0x01' }),
+                encodeBatch(
+                  [this.target, 17, this.target.interface.encodeFunctionData('mockFunction')],
+                  [this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+                ),
+              ]),
+            })
+            .then(op => op.sign());
+
+          await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
+            .to.emit(this.target, 'MockFunctionCalled')
+            .to.emit(this.target, 'MockFunctionCalledExtra')
+            .withArgs(this.sender, 42);
+        });
+
+        it('revert: batch call with one revert', async function () {
+          const operation = await this.sender
+            .createOp({
+              callData: this.sender.interface.encodeFunctionData('execute', [
+                encodeMode({ callType: '0x01' }),
+                encodeBatch(
+                  [this.target, 17, this.target.interface.encodeFunctionData('mockFunction')],
+                  [this.target, 69, this.target.interface.encodeFunctionData('mockFunctionRevertsReason')],
+                  [this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+                ),
+              ]),
+            })
+            .then(op => op.sign());
+
+          await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary)).to.emit(
+            this.helper.entrypoint,
+            'UserOperationRevertReason',
+          );
+        });
+
+        it('success: try batch call with one revert', async function () {
+          const operation = await this.sender
+            .createOp({
+              callData: this.sender.interface.encodeFunctionData('execute', [
+                encodeMode({ callType: '0x01', execType: '0x01' }),
+                encodeBatch(
+                  [this.target, 17, this.target.interface.encodeFunctionData('mockFunction')],
+                  [this.target, 69, this.target.interface.encodeFunctionData('mockFunctionRevertsReason')],
+                  [this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+                ),
+              ]),
+            })
+            .then(op => op.sign());
+
+          await expect(this.entrypoint.handleOps([operation.packed], this.accounts.beneficiary))
+            .to.emit(this.target, 'MockFunctionCalled')
+            .to.emit(this.sender, 'ERC7579TryExecuteUnsuccessful')
+            .withArgs(1, encodeError('CallReceiverMock: reverting'))
+            .to.emit(this.target, 'MockFunctionCalledExtra')
+            .withArgs(this.sender, 42);
+        });
       });
     });
   });
