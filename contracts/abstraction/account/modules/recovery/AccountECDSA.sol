@@ -11,7 +11,7 @@ abstract contract AccountECDSA is Account {
     function _recoverSigner(
         bytes32 userOpHash,
         bytes calldata signature
-    ) internal virtual override returns (address signer) {
+    ) internal view virtual override returns (address signer) {
         bytes32 msgHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
 
         // This implementation support both "normal" and short signature formats:

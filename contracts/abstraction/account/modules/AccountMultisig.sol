@@ -13,7 +13,7 @@ abstract contract AccountMultisig is Account {
     function _processSignature(
         bytes32 userOpHash,
         bytes calldata signatures
-    ) internal virtual override returns (bool, address, uint48 validAfter, uint48 validUntil) {
+    ) internal view virtual override returns (bool, address, uint48 validAfter, uint48 validUntil) {
         bytes[] calldata signatureArray = _decodeBytesArray(signatures);
 
         if (signatureArray.length < requiredSignatures()) {

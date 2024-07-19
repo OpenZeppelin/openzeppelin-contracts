@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation, IAccount, IEntryPoint} from "../../interfaces/IERC4337.sol";
-import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
+import {PackedUserOperation, IAccount, IAccountExecute, IEntryPoint} from "../../interfaces/IERC4337.sol";
 import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
+import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
+import {Address} from "../../utils/Address.sol";
 
-abstract contract Account is IAccount {
+abstract contract Account is IAccount, IAccountExecute {
     error AccountEntryPointRestricted();
-    error AccountInvalidBatchLength();
 
     /****************************************************************************************************************
      *                                                  Modifiers                                                   *
@@ -39,7 +39,7 @@ abstract contract Account is IAccount {
      *
      * Subclass must implement this using their own access control mechanism.
      */
-    function _isAuthorized(address) internal virtual returns (bool);
+    function _isAuthorized(address) internal view virtual returns (bool);
 
     /**
      * @dev Recover the signer for a given signature and user operation hash. This function does not need to verify
@@ -47,7 +47,7 @@ abstract contract Account is IAccount {
      *
      * Subclass must implement this using their own choice of cryptography.
      */
-    function _recoverSigner(bytes32 userOpHash, bytes calldata signature) internal virtual returns (address);
+    function _recoverSigner(bytes32 userOpHash, bytes calldata signature) internal view virtual returns (address);
 
     /****************************************************************************************************************
      *                                               Public interface                                               *
@@ -72,11 +72,16 @@ abstract contract Account is IAccount {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
-    ) public virtual override onlyEntryPoint returns (uint256 validationData) {
+    ) public virtual onlyEntryPoint returns (uint256 validationData) {
         (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOpHash, userOp.signature);
         _validateNonce(userOp.nonce);
         _payPrefund(missingAccountFunds);
         return ERC4337Utils.packValidationData(valid, validAfter, validUntil);
+    }
+
+    /// @inheritdoc IAccountExecute
+    function executeUserOp(PackedUserOperation calldata userOp, bytes32 /*userOpHash*/) public virtual onlyEntryPoint {
+        Address.functionDelegateCall(address(this), userOp.callData[4:]);
     }
 
     /****************************************************************************************************************
@@ -95,7 +100,7 @@ abstract contract Account is IAccount {
     function _processSignature(
         bytes32 userOpHash,
         bytes calldata signature
-    ) internal virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
+    ) internal view virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
         address recovered = _recoverSigner(userOpHash, signature);
         return (recovered != address(0) && _isAuthorized(recovered), recovered, 0, 0);
     }

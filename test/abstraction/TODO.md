@@ -1,0 +1,5 @@
+- [ ] test ERC1271
+- [ ] test batch exec mode
+- [ ] implement and test delegate exec mode ?
+- [ ] implement module support
+- [ ] implement ECDSA, 1271, multisig as modules ?

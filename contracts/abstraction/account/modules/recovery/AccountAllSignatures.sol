@@ -15,7 +15,7 @@ abstract contract AccountAllSignatures is AccountECDSA, AccountERC1271 {
     function _recoverSigner(
         bytes32 userOpHash,
         bytes calldata signature
-    ) internal virtual override(AccountECDSA, AccountERC1271) returns (address) {
+    ) internal view virtual override(AccountECDSA, AccountERC1271) returns (address) {
         SignatureType sigType = SignatureType(uint8(bytes1(signature)));
 
         if (sigType == SignatureType.ECDSA) {

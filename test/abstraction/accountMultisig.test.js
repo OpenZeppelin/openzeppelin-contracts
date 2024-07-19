@@ -2,8 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { ERC4337Helper } = require('../helpers/erc4337');
 const { IdentityHelper } = require('../helpers/identity');
+const { ERC4337Helper } = require('../helpers/erc4337');
+const { encodeMode, encodeSingle } = require('../helpers/erc7579');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
@@ -52,9 +53,8 @@ describe('AccountMultisig', function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
-              this.target.target,
-              17,
-              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+              encodeMode(),
+              encodeSingle(this.target, 17, this.target.interface.encodeFunctionData('mockFunctionExtra')),
             ]),
           })
           .then(op => op.addInitCode())
@@ -77,9 +77,8 @@ describe('AccountMultisig', function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
-              this.target.target,
-              42,
-              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+              encodeMode(),
+              encodeSingle(this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')),
             ]),
           })
           .then(op => op.sign(this.signers));
@@ -93,9 +92,8 @@ describe('AccountMultisig', function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
-              this.target.target,
-              42,
-              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+              encodeMode(),
+              encodeSingle(this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')),
             ]),
           })
           .then(op => op.sign([this.signers[0], this.signers[2]]));
@@ -109,9 +107,8 @@ describe('AccountMultisig', function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
-              this.target.target,
-              42,
-              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+              encodeMode(),
+              encodeSingle(this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')),
             ]),
           })
           .then(op => op.sign([this.signers[2]]));
@@ -125,9 +122,8 @@ describe('AccountMultisig', function () {
         const operation = await this.sender
           .createOp({
             callData: this.sender.interface.encodeFunctionData('execute', [
-              this.target.target,
-              42,
-              this.target.interface.encodeFunctionData('mockFunctionExtra'),
+              encodeMode(),
+              encodeSingle(this.target, 42, this.target.interface.encodeFunctionData('mockFunctionExtra')),
             ]),
           })
           .then(op => op.sign([this.accounts.relayer, this.signers[2]]));
