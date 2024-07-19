@@ -96,6 +96,7 @@ library ERC7579Utils {
 using {eqCallType as ==} for CallType global;
 using {eqExecType as ==} for ExecType global;
 using {eqModeSelector as ==} for ModeSelector global;
+using {eqModePayload as ==} for ModePayload global;
 
 function eqCallType(CallType a, CallType b) pure returns (bool) {
     return CallType.unwrap(a) == CallType.unwrap(b);
@@ -107,4 +108,8 @@ function eqExecType(ExecType a, ExecType b) pure returns (bool) {
 
 function eqModeSelector(ModeSelector a, ModeSelector b) pure returns (bool) {
     return ModeSelector.unwrap(a) == ModeSelector.unwrap(b);
+}
+
+function eqModePayload(ModePayload a, ModePayload b) pure returns (bool) {
+    return ModePayload.unwrap(a) == ModePayload.unwrap(b);
 }
