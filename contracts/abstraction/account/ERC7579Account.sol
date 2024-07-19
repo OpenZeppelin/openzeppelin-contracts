@@ -38,8 +38,7 @@ abstract contract ERC7579Account is
     error ModuleNotInstalled(uint256 moduleTypeId, address module);
 
     modifier onlyModule(uint256 moduleTypeId) {
-        /// TODO: msg.data?
-        if (!isModuleInstalled(moduleTypeId, msg.sender, msg.data[0:0])) {
+        if (!isModuleInstalled(moduleTypeId, msg.sender, msg.data)) {
             revert ModuleRestricted(moduleTypeId, msg.sender);
         }
         _;
