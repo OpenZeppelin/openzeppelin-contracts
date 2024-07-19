@@ -7,10 +7,11 @@ import {Address} from "../../utils/Address.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {IEntryPoint} from "../../interfaces/IERC4337.sol";
-import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
-import {IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig, Execution} from "../../interfaces/IERC7579Account.sol";
-import {ERC7579Utils, Mode, CallType, ExecType} from "../utils/ERC7579Utils.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig} from "../../interfaces/IERC7579Account.sol";
+import {IERC7579Module} from "../../interfaces/IERC7579Module.sol";
+import {ERC7579Utils, Execution, Mode, CallType, ExecType} from "../utils/ERC7579Utils.sol";
 
 abstract contract ERC7579Account is
     IERC165, // required by erc-7579
@@ -28,13 +29,10 @@ abstract contract ERC7579Account is
     IEntryPoint private immutable _entryPoint;
 
     event ERC7579TryExecuteUnsuccessful(uint256 batchExecutionindex, bytes result);
-    error ERC7579UnsupportedCallType(CallType);
-    error ERC7579UnsupportedExecType(ExecType);
-
-    modifier onlyExecutorModule() {
-        // TODO
-        _;
-    }
+    error ERC7579UnsupportedCallType(CallType callType);
+    error ERC7579UnsupportedExecType(ExecType execType);
+    error MismatchModuleTypeId(uint256 moduleTypeId, address module);
+    error UnsupportedModuleType(uint256 moduleTypeId);
 
     constructor(IEntryPoint entryPoint_) {
         _entryPoint = entryPoint_;
@@ -63,6 +61,10 @@ abstract contract ERC7579Account is
                 : bytes4(0);
     }
 
+    /****************************************************************************************************************
+     *                                              ERC-7579 Execution                                              *
+     ****************************************************************************************************************/
+
     /// @inheritdoc IERC7579Execution
     function execute(bytes32 mode, bytes calldata executionCalldata) public virtual onlyEntryPoint {
         _execute(Mode.wrap(mode), executionCalldata);
@@ -72,7 +74,7 @@ abstract contract ERC7579Account is
     function executeFromExecutor(
         bytes32 mode,
         bytes calldata executionCalldata
-    ) public virtual onlyExecutorModule returns (bytes[] memory) {
+    ) public virtual onlyExecutor returns (bytes[] memory) {
         return _execute(Mode.wrap(mode), executionCalldata);
     }
 
@@ -147,6 +149,10 @@ abstract contract ERC7579Account is
         }
     }
 
+    /****************************************************************************************************************
+     *                                         ERC-7579 Account and Modules                                         *
+     ****************************************************************************************************************/
+
     /// @inheritdoc IERC7579AccountConfig
     function accountId() public view virtual returns (string memory) {
         //vendorname.accountname.semver
@@ -163,38 +169,55 @@ abstract contract ERC7579Account is
     }
 
     /// @inheritdoc IERC7579AccountConfig
-    function supportsModule(uint256 moduleTypeId) public view virtual returns (bool) {
-        // TODO: update when module support is added
-        moduleTypeId;
+    function supportsModule(uint256 /*moduleTypeId*/) public view virtual returns (bool) {
         return false;
     }
 
     /// @inheritdoc IERC7579ModuleConfig
-    function installModule(uint256 moduleTypeId, address module, bytes calldata initData) public pure {
-        moduleTypeId;
-        module;
-        initData;
-        revert("not-implemented-yet");
+    function installModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata initData
+    ) public virtual onlyEntryPointOrSelf {
+        if (!IERC7579Module(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId, module);
+        _installModule(moduleTypeId, module, initData);
+        /// TODO: silent unreachable and re-enable this event
+        // emit ModuleInstalled(moduleTypeId, module);
     }
 
     /// @inheritdoc IERC7579ModuleConfig
-    function uninstallModule(uint256 moduleTypeId, address module, bytes calldata deInitData) public pure {
-        moduleTypeId;
-        module;
-        deInitData;
-        revert("not-implemented-yet");
+    function uninstallModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata deInitData
+    ) public virtual onlyEntryPointOrSelf {
+        _uninstallModule(moduleTypeId, module, deInitData);
+        /// TODO: silent unreachable and re-enable this event
+        // emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /// @inheritdoc IERC7579ModuleConfig
     function isModuleInstalled(
+        uint256 /*moduleTypeId*/,
+        address /*module*/,
+        bytes calldata /*additionalContext*/
+    ) public view virtual returns (bool) {
+        return false;
+    }
+
+    /****************************************************************************************************************
+     *                                                    Hooks                                                     *
+     ****************************************************************************************************************/
+
+    function _installModule(uint256 moduleTypeId, address /*module*/, bytes calldata /*initData*/) internal virtual {
+        revert UnsupportedModuleType(moduleTypeId);
+    }
+
+    function _uninstallModule(
         uint256 moduleTypeId,
-        address module,
-        bytes calldata additionalContext
-    ) public view returns (bool) {
-        moduleTypeId;
-        module;
-        additionalContext;
-        address(this);
-        revert("not-implemented-yet");
+        address /*module*/,
+        bytes calldata /*deInitData*/
+    ) internal virtual {
+        revert UnsupportedModuleType(moduleTypeId);
     }
 }

@@ -16,6 +16,7 @@ library ERC7579Utils {
 
     CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
     CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
+    CallType constant CALLTYPE_STATIC = CallType.wrap(0xFE);
     CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
     ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
     ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
