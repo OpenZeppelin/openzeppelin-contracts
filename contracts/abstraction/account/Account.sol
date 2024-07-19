@@ -9,7 +9,6 @@ import {Address} from "../../utils/Address.sol";
 
 abstract contract Account is IAccount, IAccountExecute {
     error AccountEntryPointRestricted();
-    error AccountExecutorModuleRestricted(address);
 
     /****************************************************************************************************************
      *                                                  Modifiers                                                   *
@@ -25,13 +24,6 @@ abstract contract Account is IAccount, IAccountExecute {
     modifier onlyEntryPoint() {
         if (msg.sender != address(entryPoint())) {
             revert AccountEntryPointRestricted();
-        }
-        _;
-    }
-
-    modifier onlyExecutor() {
-        if (_isExecutor(msg.sender)) {
-            revert AccountExecutorModuleRestricted(msg.sender);
         }
         _;
     }
@@ -55,15 +47,6 @@ abstract contract Account is IAccount, IAccountExecute {
      * Subclass must implement this using their own access control mechanism.
      */
     function _isAuthorized(address) internal view virtual returns (bool);
-
-    /**
-     * @dev Return weither an address (module) is authorized to perform execution from this account.
-     *
-     * By default, no module are supported. Subclass may implement this using their own module management mechanism.
-     */
-    function _isExecutor(address) internal view virtual returns (bool) {
-        return false;
-    }
 
     /**
      * @dev Recover the signer for a given signature and user operation hash. This function does not need to verify

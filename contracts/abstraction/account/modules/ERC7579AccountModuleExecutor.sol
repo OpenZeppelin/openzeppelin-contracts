@@ -54,10 +54,5 @@ abstract contract ERC7579AccountModuleExecutor is ERC7579Account {
         }
     }
 
-    /// @inheritdoc Account
-    function _isExecutor(address module) internal view virtual override returns (bool) {
-        return _executors.contains(module);
-    }
-
     // TODO: enumerability?
 }

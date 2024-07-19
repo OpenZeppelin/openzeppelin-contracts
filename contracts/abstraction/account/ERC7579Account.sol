@@ -10,7 +10,7 @@ import {IEntryPoint} from "../../interfaces/IERC4337.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig} from "../../interfaces/IERC7579Account.sol";
-import {IERC7579Module} from "../../interfaces/IERC7579Module.sol";
+import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
 import {ERC7579Utils, Execution, Mode, CallType, ExecType} from "../utils/ERC7579Utils.sol";
 
 abstract contract ERC7579Account is
@@ -33,6 +33,15 @@ abstract contract ERC7579Account is
     error ERC7579UnsupportedExecType(ExecType execType);
     error MismatchModuleTypeId(uint256 moduleTypeId, address module);
     error UnsupportedModuleType(uint256 moduleTypeId);
+    error ModuleRestricted(uint256 moduleTypeId, address caller);
+
+    modifier onlyModule(uint256 moduleTypeId) {
+        /// TODO: msg.data?
+        if (!isModuleInstalled(moduleTypeId, msg.sender, msg.data[0:0])) {
+            revert ModuleRestricted(moduleTypeId, msg.sender);
+        }
+        _;
+    }
 
     constructor(IEntryPoint entryPoint_) {
         _entryPoint = entryPoint_;
@@ -74,7 +83,7 @@ abstract contract ERC7579Account is
     function executeFromExecutor(
         bytes32 mode,
         bytes calldata executionCalldata
-    ) public virtual onlyExecutor returns (bytes[] memory) {
+    ) public virtual onlyModule(MODULE_TYPE_EXECUTOR) returns (bytes[] memory) {
         return _execute(Mode.wrap(mode), executionCalldata);
     }
 

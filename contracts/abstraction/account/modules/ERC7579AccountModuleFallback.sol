@@ -8,12 +8,7 @@ import {ERC7579Utils, CallType} from "../../utils/ERC7579Utils.sol";
 import {ERC7579Account} from "../ERC7579Account.sol";
 
 abstract contract ERC7579AccountModuleFallback is ERC7579Account {
-    struct FallbackHandler {
-        address handler;
-        CallType calltype;
-    }
-
-    mapping(bytes4 => FallbackHandler) private _fallbacks;
+    mapping(bytes4 => address) private _fallbacks;
 
     error NoFallbackHandler(bytes4 selector);
 
@@ -28,24 +23,21 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
         address module,
         bytes calldata additionalContext
     ) public view virtual override returns (bool) {
-        /// TODO
-        return super.isModuleInstalled(moduleTypeId, module, additionalContext);
+        return
+            moduleTypeId == MODULE_TYPE_FALLBACK
+                ? _fallbacks[bytes4(additionalContext[0:4])] == module
+                : super.isModuleInstalled(moduleTypeId, module, additionalContext);
     }
 
     /// @inheritdoc ERC7579Account
     function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector = bytes4(initData[0:4]);
-            CallType calltype = CallType.wrap(bytes1(initData[4]));
 
-            require(_fallbacks[selector].handler == address(0), "Function selector already used");
-            require(
-                calltype == ERC7579Utils.CALLTYPE_SINGLE || calltype == ERC7579Utils.CALLTYPE_STATIC,
-                "Invalid fallback handler CallType"
-            );
-            _fallbacks[selector] = FallbackHandler(module, calltype);
+            require(_fallbacks[selector] == address(0), "Function selector already used");
+            _fallbacks[selector] = module;
 
-            IERC7579Module(module).onInstall(initData[5:]);
+            IERC7579Module(module).onInstall(initData[4:]);
         } else {
             super._installModule(moduleTypeId, module, initData);
         }
@@ -59,7 +51,7 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
     ) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector = bytes4(deInitData[0:4]);
-            address handler = _fallbacks[selector].handler;
+            address handler = _fallbacks[selector];
 
             require(handler != address(0), "Function selector not used");
             require(handler != module, "Function selector not used by this handler");
@@ -72,39 +64,23 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
     }
 
     fallback() external payable {
-        uint256 value = msg.value;
-        address handler = _fallbacks[msg.sig].handler;
-        CallType calltype = _fallbacks[msg.sig].calltype;
+        address handler = _fallbacks[msg.sig];
+        if (handler == address(0)) revert NoFallbackHandler(msg.sig);
 
-        if (handler != address(0) && calltype == ERC7579Utils.CALLTYPE_SINGLE) {
-            assembly ("memory-safe") {
-                calldatacopy(0, 0, calldatasize())
-                let result := call(gas(), handler, value, 0, calldatasize(), 0, 0)
-                returndatacopy(0, 0, returndatasize())
-                switch result
-                case 0 {
-                    revert(0, returndatasize())
-                }
-                default {
-                    return(0, returndatasize())
-                }
+        // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
+        // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
+        // - MUST use call to invoke the fallback handler
+        (bool success, bytes memory returndata) = handler.call{value: msg.value}(
+            abi.encodePacked(msg.data, msg.sender)
+        );
+        assembly ("memory-safe") {
+            switch success
+            case 0 {
+                revert(add(returndata, 0x20), mload(returndata))
             }
-        } else if (handler != address(0) && calltype == ERC7579Utils.CALLTYPE_STATIC) {
-            require(value == 0, "Static fallback handler should not receive value");
-            assembly ("memory-safe") {
-                calldatacopy(0, 0, calldatasize())
-                let result := staticcall(gas(), handler, 0, calldatasize(), 0, 0)
-                returndatacopy(0, 0, returndatasize())
-                switch result
-                case 0 {
-                    revert(0, returndatasize())
-                }
-                default {
-                    return(0, returndatasize())
-                }
+            default {
+                return(add(returndata, 0x20), mload(returndata))
             }
-        } else {
-            revert NoFallbackHandler(msg.sig);
         }
     }
 
