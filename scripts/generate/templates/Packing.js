@@ -44,6 +44,8 @@ function pack_${left}_${right}(bytes${left} left, bytes${right} right) internal 
   left + right
 } result) {
     assembly ("memory-safe") {
+        left := and(left, shl(${256 - 8 * left}, not(0)))
+        right := and(right, shl(${256 - 8 * right}, not(0)))
         result := or(left, shr(${8 * left}, right))
     }
 }
@@ -62,6 +64,7 @@ const replace = (outer, inner) => `\
 function replace_${outer}_${inner}(bytes${outer} self, bytes${inner} value, uint8 offset) internal pure returns (bytes${outer} result) {
     bytes${inner} oldValue = extract_${outer}_${inner}(self, offset);
     assembly ("memory-safe") {
+        value := and(value, shl(${256 - 8 * inner}, not(0)))
         result := xor(self, shr(mul(8, offset), xor(oldValue, value)))
     }
 }
