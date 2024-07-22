@@ -11,16 +11,18 @@ contract IdentityP256Implementation is IERC1271 {
         return Clones.fetchCloneArgs(address(this));
     }
 
-    function isValidSignature(bytes32 h, bytes memory signature) external view returns (bytes4 magicValue) {
-        // fetch and decode immutable public key for the clone
-        (bytes32 qx, bytes32 qy) = abi.decode(publicKey(), (bytes32, bytes32));
-
+    function isValidSignature(bytes32 h, bytes calldata signature) external view returns (bytes4 magicValue) {
+        // parse signature
+        if (signature.length < 0x40) return bytes4(0);
         bytes32 r;
         bytes32 s;
         assembly ("memory-safe") {
-            r := mload(add(signature, 0x20))
-            s := mload(add(signature, 0x40))
+            r := calldataload(add(signature.offset, 0x00))
+            s := calldataload(add(signature.offset, 0x20))
         }
+
+        // fetch and decode immutable public key for the clone
+        (bytes32 qx, bytes32 qy) = abi.decode(publicKey(), (bytes32, bytes32));
 
         return P256.verify(h, r, s, qx, qy) ? IERC1271.isValidSignature.selector : bytes4(0);
     }

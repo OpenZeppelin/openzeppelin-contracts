@@ -11,7 +11,7 @@ contract IdentityRSAImplementation is IERC1271 {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes, bytes));
     }
 
-    function isValidSignature(bytes32 h, bytes memory signature) external view returns (bytes4 magicValue) {
+    function isValidSignature(bytes32 h, bytes calldata signature) external view returns (bytes4 magicValue) {
         // fetch immutable public key for the clone
         (bytes memory e, bytes memory n) = publicKey();
 
@@ -25,7 +25,7 @@ contract IdentityRSAImplementation is IERC1271 {
 contract IdentityRSAFactory {
     address public immutable implementation = address(new IdentityRSAImplementation());
 
-    function create(bytes memory e, bytes memory n) public returns (address instance) {
+    function create(bytes calldata e, bytes calldata n) public returns (address instance) {
         // predict the address of the instance for that key
         address predicted = predict(e, n);
         // if instance does not exist ...
@@ -36,7 +36,7 @@ contract IdentityRSAFactory {
         return predicted;
     }
 
-    function predict(bytes memory e, bytes memory n) public view returns (address instance) {
+    function predict(bytes calldata e, bytes calldata n) public view returns (address instance) {
         return Clones.predictWithImmutableArgsDeterministicAddress(implementation, abi.encode(e, n), bytes32(0));
     }
 }
