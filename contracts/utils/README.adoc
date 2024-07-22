@@ -24,7 +24,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
- * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
+ * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
@@ -34,8 +34,8 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types. Also include primitives for reading from and writing to transient storage (only value types are currently supported).
- * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
- * {Context}: An utility for abstracting the sender and calldata in the current execution context.
+ * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
+ * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
 
