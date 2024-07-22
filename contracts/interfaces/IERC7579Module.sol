@@ -5,6 +5,7 @@ import {PackedUserOperation} from "./IERC4337.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
+uint256 constant MODULE_TYPE_SIGNER = 0;
 uint256 constant MODULE_TYPE_VALIDATOR = 1;
 uint256 constant MODULE_TYPE_EXECUTOR = 2;
 uint256 constant MODULE_TYPE_FALLBACK = 3;

@@ -5,6 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { IdentityHelper } = require('../helpers/identity');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { encodeMode, encodeSingle } = require('../helpers/erc7579');
+const { SignatureType } = require('../helpers/enums');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
@@ -12,7 +13,7 @@ async function fixture() {
   accounts.beneficiary = accounts.shift();
 
   // 4337 helper
-  const helper = new ERC4337Helper('AdvancedAccount', { withTypePrefix: true });
+  const helper = new ERC4337Helper('ERC7579AccountMock', { withTypePrefix: true });
   const identity = new IdentityHelper();
 
   // environment
@@ -25,7 +26,12 @@ async function fixture() {
     identity.newP256Signer(), // secp256r1
     identity.newECDSASigner(), // secp256k1
   ]);
-  const sender = await helper.newAccount(accounts.relayer, [signers, 2]); // 2-of-4
+
+  const sender = await helper.newAccount(accounts.relayer, [
+    2, // 2-of-4
+    signers.filter(signer => signer.type == SignatureType.ECDSA),
+    signers.filter(signer => signer.type != SignatureType.ECDSA),
+  ]);
 
   return {
     accounts,

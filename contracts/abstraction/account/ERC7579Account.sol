@@ -10,7 +10,7 @@ import {IEntryPoint} from "../../interfaces/IERC4337.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig} from "../../interfaces/IERC7579Account.sol";
-import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
+import {IERC7579Module, MODULE_TYPE_SIGNER, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
 import {ERC7579Utils, Execution, Mode, CallType, ExecType} from "../utils/ERC7579Utils.sol";
 
 abstract contract ERC7579Account is
@@ -25,8 +25,6 @@ abstract contract ERC7579Account is
     ERC1155Holder
 {
     using ERC7579Utils for *;
-
-    IEntryPoint private immutable _entryPoint;
 
     event ERC7579TryExecuteUnsuccessful(uint256 batchExecutionindex, bytes result);
     error ERC7579UnsupportedCallType(CallType callType);
@@ -44,15 +42,7 @@ abstract contract ERC7579Account is
         _;
     }
 
-    constructor(IEntryPoint entryPoint_) {
-        _entryPoint = entryPoint_;
-    }
-
     receive() external payable {}
-
-    function entryPoint() public view virtual override returns (IEntryPoint) {
-        return _entryPoint;
-    }
 
     /// @inheritdoc IERC165
     function supportsInterface(
@@ -63,12 +53,12 @@ abstract contract ERC7579Account is
     }
 
     /// @inheritdoc IERC1271
-    function isValidSignature(bytes32 hash, bytes calldata signature) public view returns (bytes4 magicValue) {
-        (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(hash, signature);
-        return
-            (valid && validAfter < block.timestamp && (validUntil == 0 || validUntil > block.timestamp))
-                ? IERC1271.isValidSignature.selector
-                : bytes4(0);
+    function isValidSignature(bytes32 hash, bytes calldata signature) public pure returns (bytes4 magicValue) {
+        // TODO: view
+        /// TODO
+        hash;
+        signature;
+        return bytes4(0);
     }
 
     /****************************************************************************************************************
@@ -189,7 +179,8 @@ abstract contract ERC7579Account is
         address module,
         bytes calldata initData
     ) public virtual onlyEntryPointOrSelf {
-        if (!IERC7579Module(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId, module);
+        if (moduleTypeId != MODULE_TYPE_SIGNER && !IERC7579Module(module).isModuleType(moduleTypeId))
+            revert MismatchModuleTypeId(moduleTypeId, module);
         _installModule(moduleTypeId, module, initData);
         /// TODO: silent unreachable and re-enable this event
         // emit ModuleInstalled(moduleTypeId, module);

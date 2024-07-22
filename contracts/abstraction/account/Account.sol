@@ -10,6 +10,8 @@ import {Address} from "../../utils/Address.sol";
 abstract contract Account is IAccount, IAccountExecute {
     error AccountEntryPointRestricted();
 
+    IEntryPoint private immutable _entryPoint;
+
     /****************************************************************************************************************
      *                                                  Modifiers                                                   *
      ****************************************************************************************************************/
@@ -32,29 +34,13 @@ abstract contract Account is IAccount, IAccountExecute {
      *                                                    Hooks                                                     *
      ****************************************************************************************************************/
 
-    /**
-     * @dev Return the entryPoint used by this account.
-     *
-     * Subclass should return the current entryPoint used by this account.
-     */
-    function entryPoint() public view virtual returns (IEntryPoint);
+    constructor(IEntryPoint entryPoint_) {
+        _entryPoint = entryPoint_;
+    }
 
-    /**
-     * @dev Return weither an address (identity) is authorized to operate on this account. Depending on how the
-     * account is configured, this can be interpreted as either the owner of the account (if operating using a single
-     * owner -- default) or as an authorized signer if operating using as a multisig account.
-     *
-     * Subclass must implement this using their own access control mechanism.
-     */
-    function _isAuthorized(address) internal view virtual returns (bool);
-
-    /**
-     * @dev Recover the signer for a given signature and user operation hash. This function does not need to verify
-     * that the recovered signer is authorized.
-     *
-     * Subclass must implement this using their own choice of cryptography.
-     */
-    function _recoverSigner(bytes32 userOpHash, bytes calldata signature) internal view virtual returns (address);
+    function entryPoint() public view virtual returns (IEntryPoint) {
+        return _entryPoint;
+    }
 
     /****************************************************************************************************************
      *                                               Public interface                                               *
@@ -79,11 +65,10 @@ abstract contract Account is IAccount, IAccountExecute {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
-    ) public virtual onlyEntryPoint returns (uint256 validationData) {
-        (bool valid, , uint48 validAfter, uint48 validUntil) = _processSignature(userOpHash, userOp.signature);
-        _validateNonce(userOp.nonce);
+    ) public virtual onlyEntryPoint returns (uint256) {
+        (, uint256 validationData) = _validateUserOp(userOp, userOpHash, userOp.signature);
         _payPrefund(missingAccountFunds);
-        return ERC4337Utils.packValidationData(valid, validAfter, validUntil);
+        return validationData;
     }
 
     /// @inheritdoc IAccountExecute
@@ -97,34 +82,16 @@ abstract contract Account is IAccount, IAccountExecute {
 
     /**
      * @dev Process the signature is valid for this message.
-     * @param userOpHash  - Hash of the request that must be signed (includes the entrypoint and chain id)
-     * @param signature   - The user's signature
-     * @return valid      - Signature is valid
-     * @return signer     - Address of the signer that produced the signature
-     * @return validAfter - first timestamp this operation is valid
-     * @return validUntil - last timestamp this operation is valid. 0 for "indefinite"
+     * @param userOp          - The user operation
+     * @param userOpHash      - Hash of the user operation (includes the entrypoint and chain id)
+     * @return signer         - identifier of the signer (if applicable)
+     * @return validationData - validation details as defined in ERC4337
      */
-    function _processSignature(
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash,
-        bytes calldata signature
-    ) internal view virtual returns (bool valid, address signer, uint48 validAfter, uint48 validUntil) {
-        address recovered = _recoverSigner(userOpHash, signature);
-        return (recovered != address(0) && _isAuthorized(recovered), recovered, 0, 0);
-    }
-
-    /**
-     * @dev Validate the nonce of the UserOperation.
-     * This method may validate the nonce requirement of this account.
-     * e.g.
-     * To limit the nonce to use sequenced UserOps only (no "out of order" UserOps):
-     *      `require(nonce < type(uint64).max)`
-     *
-     * The actual nonce uniqueness is managed by the EntryPoint, and thus no other
-     * action is needed by the account itself.
-     *
-     * @param nonce to validate
-     */
-    function _validateNonce(uint256 nonce) internal view virtual {}
+        bytes calldata userOpSignature
+    ) internal virtual returns (address signer, uint256 validationData);
 
     /**
      * @dev Sends to the entrypoint (msg.sender) the missing funds for this transaction.

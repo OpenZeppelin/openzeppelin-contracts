@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {PackedUserOperation} from "../../../interfaces/IERC4337.sol";
+import {IERC7579Validator, MODULE_TYPE_SIGNER, MODULE_TYPE_VALIDATOR} from "../../../interfaces/IERC7579Module.sol";
+import {Math} from "./../../../utils/math/Math.sol";
+import {ERC4337Utils} from "./../../utils/ERC4337Utils.sol";
+import {Account} from "../Account.sol";
+import {ERC7579Account} from "../ERC7579Account.sol";
+import {AccountValidateECDSA} from "./validation/AccountValidateECDSA.sol";
+import {AccountValidateERC7579} from "./validation/AccountValidateERC7579.sol";
+
+abstract contract ERC7579AccountMultisig is ERC7579Account, AccountValidateECDSA, AccountValidateERC7579 {
+    function requiredSignatures() public view virtual returns (uint256);
+
+    enum SignatureType {
+        ECDSA, // secp256k1
+        ERC7579Validator // others through erc7579 validation module (support P256, RSA, ...)
+    }
+
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash,
+        bytes calldata userOpSignature
+    )
+        internal
+        virtual
+        override(Account, AccountValidateECDSA, AccountValidateERC7579)
+        returns (address, uint256 validationData)
+    {
+        bytes[] calldata signatures = _decodeBytesArray(userOpSignature);
+        if (signatures.length < requiredSignatures()) return (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+
+        validationData = ERC4337Utils.SIG_VALIDATION_SUCCESS;
+
+        address lastIdentity = address(0);
+        for (uint256 i = 0; i < signatures.length; ++i) {
+            bytes calldata signature = signatures[i];
+
+            uint256 sigModuleType;
+            address sigIdentity;
+            uint256 sigValidation;
+
+            if (uint8(bytes1(signature)) == uint8(SignatureType.ECDSA)) {
+                sigModuleType = MODULE_TYPE_SIGNER;
+                (sigIdentity, sigValidation) = AccountValidateECDSA._validateUserOp(
+                    userOp,
+                    userOpHash,
+                    signature[0x01:]
+                );
+            } else if (uint8(bytes1(signature)) == uint8(SignatureType.ERC7579Validator)) {
+                sigModuleType = MODULE_TYPE_VALIDATOR;
+                (sigIdentity, sigValidation) = AccountValidateERC7579._validateUserOp(
+                    userOp,
+                    userOpHash,
+                    signature[0x01:]
+                );
+            } else return (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+
+            if (lastIdentity < sigIdentity && isModuleInstalled(sigModuleType, sigIdentity, _zeroBytesCalldata())) {
+                lastIdentity = sigIdentity;
+                validationData = ERC4337Utils.combineValidationData(validationData, sigValidation);
+            } else return (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+        }
+
+        return (address(this), validationData);
+    }
+
+    function _decodeBytesArray(bytes calldata input) private pure returns (bytes[] calldata output) {
+        assembly ("memory-safe") {
+            let ptr := add(input.offset, calldataload(input.offset))
+            output.offset := add(ptr, 32)
+            output.length := calldataload(ptr)
+        }
+    }
+
+    function _zeroBytesCalldata() private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
+    }
+}

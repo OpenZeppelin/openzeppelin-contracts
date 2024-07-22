@@ -17,7 +17,7 @@ class P256Signer {
   }
 
   get type() {
-    return SignatureType.ERC1271;
+    return SignatureType.ERC7579Validator;
   }
 
   static random(params = {}) {
@@ -29,7 +29,7 @@ class P256Signer {
   }
 
   signMessage(message) {
-    let { r, s, recovery } = secp256r1.sign(ethers.hashMessage(message).replace(/0x/, ''), this.privateKey);
+    let { r, s, recovery } = secp256r1.sign(message, this.privateKey);
 
     // ensureLowerOrderS
     if (s > secp256r1.CURVE.n / 2n) {

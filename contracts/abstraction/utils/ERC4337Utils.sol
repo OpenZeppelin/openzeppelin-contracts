@@ -26,9 +26,9 @@ library ERC4337Utils {
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil) {
-        validAfter = uint48(Packing.extract_32_6(bytes32(validationData), 0x00));
-        validUntil = uint48(Packing.extract_32_6(bytes32(validationData), 0x06));
-        aggregator = address(Packing.extract_32_20(bytes32(validationData), 0x0c));
+        validAfter = uint48(bytes32(validationData).extract_32_6(0x00));
+        validUntil = uint48(bytes32(validationData).extract_32_6(0x06));
+        aggregator = address(bytes32(validationData).extract_32_20(0x0c));
         if (validUntil == 0) validUntil = type(uint48).max;
     }
 
@@ -37,18 +37,26 @@ library ERC4337Utils {
         uint48 validAfter,
         uint48 validUntil
     ) internal pure returns (uint256) {
-        return
-            uint256(Packing.pack_12_20(Packing.pack_6_6(bytes6(validAfter), bytes6(validUntil)), bytes20(aggregator)));
+        return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
 
-    function packValidationData(bool sigSuccess, uint48 validUntil, uint48 validAfter) internal pure returns (uint256) {
+    function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
         return
             uint256(
-                Packing.pack_12_20(
-                    Packing.pack_6_6(bytes6(validAfter), bytes6(validUntil)),
+                bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(
                     bytes20(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED)))
                 )
             );
+    }
+
+    function combineValidationData(uint256 validationData1, uint256 validationData2) internal pure returns (uint256) {
+        (address aggregator1, uint48 validAfter1, uint48 validUntil1) = parseValidationData(validationData1);
+        (address aggregator2, uint48 validAfter2, uint48 validUntil2) = parseValidationData(validationData2);
+
+        bool success = aggregator1 == address(0) && aggregator2 == address(0);
+        uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
+        uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
+        return packValidationData(success, validAfter, validUntil);
     }
 
     function getValidationData(uint256 validationData) internal view returns (address aggregator, bool outOfTimeRange) {
@@ -94,19 +102,19 @@ library ERC4337Utils {
     }
 
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(Packing.extract_32_16(self.accountGasLimits, 0x00));
+        return uint128(self.accountGasLimits.extract_32_16(0x00));
     }
 
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(Packing.extract_32_16(self.accountGasLimits, 0x10));
+        return uint128(self.accountGasLimits.extract_32_16(0x10));
     }
 
     function maxPriorityFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(Packing.extract_32_16(self.gasFees, 0x00));
+        return uint128(self.gasFees.extract_32_16(0x00));
     }
 
     function maxFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(Packing.extract_32_16(self.gasFees, 0x10));
+        return uint128(self.gasFees.extract_32_16(0x10));
     }
 
     function gasPrice(PackedUserOperation calldata self) internal view returns (uint256) {
@@ -150,11 +158,11 @@ library ERC4337Utils {
     function load(UserOpInfo memory self, PackedUserOperation calldata source) internal view {
         self.sender = source.sender;
         self.nonce = source.nonce;
-        self.verificationGasLimit = uint128(Packing.extract_32_16(bytes32(source.accountGasLimits), 0x00));
-        self.callGasLimit = uint128(Packing.extract_32_16(bytes32(source.accountGasLimits), 0x10));
+        self.verificationGasLimit = uint128(bytes32(source.accountGasLimits).extract_32_16(0x00));
+        self.callGasLimit = uint128(bytes32(source.accountGasLimits).extract_32_16(0x10));
         self.preVerificationGas = source.preVerificationGas;
-        self.maxPriorityFeePerGas = uint128(Packing.extract_32_16(bytes32(source.gasFees), 0x00));
-        self.maxFeePerGas = uint128(Packing.extract_32_16(bytes32(source.gasFees), 0x10));
+        self.maxPriorityFeePerGas = uint128(bytes32(source.gasFees).extract_32_16(0x00));
+        self.maxFeePerGas = uint128(bytes32(source.gasFees).extract_32_16(0x10));
 
         if (source.paymasterAndData.length > 0) {
             require(source.paymasterAndData.length >= 52, "AA93 invalid paymasterAndData");
