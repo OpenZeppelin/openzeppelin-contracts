@@ -14,12 +14,8 @@ contract IdentityP256Implementation is IERC1271 {
     function isValidSignature(bytes32 h, bytes calldata signature) external view returns (bytes4 magicValue) {
         // parse signature
         if (signature.length < 0x40) return bytes4(0);
-        bytes32 r;
-        bytes32 s;
-        assembly ("memory-safe") {
-            r := calldataload(add(signature.offset, 0x00))
-            s := calldataload(add(signature.offset, 0x20))
-        }
+        bytes32 r = bytes32(signature[0x00:0x20]);
+        bytes32 s = bytes32(signature[0x20:0x40]);
 
         // fetch and decode immutable public key for the clone
         (bytes32 qx, bytes32 qy) = abi.decode(publicKey(), (bytes32, bytes32));
