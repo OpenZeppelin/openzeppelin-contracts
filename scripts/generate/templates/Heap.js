@@ -260,13 +260,9 @@ function _siftDown(
         ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
         ${valueType} rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
         if (comp(lValue, value) || comp(rValue, value)) {
-            if (comp(lValue, rValue)) {
-                _swap(self, pos, lIndex);
-                _siftDown(self, size, lIndex, value, comp);
-            } else {
-                _swap(self, pos, rIndex);
-                _siftDown(self, size, rIndex, value, comp);
-            }
+            index = ternary(comp(lValue, rValue), lIndex, rIndex);
+            _swap(self, pos, index);
+            _siftDown(self, size, index, value, comp);
         }
     } else if (left < size) {
         // the check guarantees that \`left\` is a valid uint32
