@@ -31,7 +31,7 @@ import {Panic} from "../Panic.sol";
  *
  * The structure is designed to perform the following operations with the corresponding complexities:
  *
- * * peek (get the highest priority in set): O(1)
+ * * peek (get the highest priority value in set): O(1)
  * * insert (insert a value in the set): 0(log(n))
  * * pop (remove the highest priority value in set): O(log(n))
  * * replace (replace the highest priority value in set with a new value): O(log(n))
