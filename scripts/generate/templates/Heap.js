@@ -6,6 +6,7 @@ const { capitalize } = require('../../helpers');
 const header = `\
 pragma solidity ^0.8.20;
 
+import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
 import {Comparators} from "../Comparators.sol";
 import {Panic} from "../Panic.sol";
@@ -260,7 +261,7 @@ function _siftDown(
         ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
         ${valueType} rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
         if (comp(lValue, value) || comp(rValue, value)) {
-            index = ternary(comp(lValue, rValue), lIndex, rIndex);
+            ${indexType} index = ${indexType}(comp(lValue, rValue).ternary(lIndex, rIndex));
             _swap(self, pos, index);
             _siftDown(self, size, index, value, comp);
         }
@@ -317,6 +318,7 @@ module.exports = format(
   'library Heap {',
   format(
     [].concat(
+      'using Math for *;',
       'using SafeCast for *;',
       '',
       TYPES.map(type => generate(type)),

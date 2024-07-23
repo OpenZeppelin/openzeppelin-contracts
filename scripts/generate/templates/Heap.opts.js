@@ -9,5 +9,5 @@ const makeType = (valueSize, indexSize) => ({
 });
 
 module.exports = {
-  TYPES: [makeType(256, 32), makeType(208, 24)],
+  TYPES: [makeType(256, 64), makeType(208, 24)],
 };

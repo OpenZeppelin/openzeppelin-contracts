@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
 import {Comparators} from "../Comparators.sol";
 import {Panic} from "../Panic.sol";
@@ -38,6 +39,7 @@ import {Panic} from "../Panic.sol";
  * * clear (remove all elements in the set): O(1)
  */
 library Heap {
+    using Math for *;
     using SafeCast for *;
 
     /**
@@ -49,10 +51,13 @@ library Heap {
         Uint256HeapNode[] data;
     }
 
+    /**
+     * @dev Internal node type for Uint256Heap. Stores a value of type uint256.
+     */
     struct Uint256HeapNode {
         uint256 value;
-        uint32 index; // position -> value
-        uint32 lookup; // value -> position
+        uint64 index; // position -> value
+        uint64 lookup; // value -> position
     }
 
     /**
@@ -84,14 +89,14 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
         unchecked {
-            uint32 size = length(self);
+            uint64 size = length(self);
             if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-            uint32 last = size - 1;
+            uint64 last = size - 1;
 
             // get root location (in the data array) and value
             Uint256HeapNode storage rootNode = _unsafeNodeAccess(self, 0);
-            uint32 rootIdx = rootNode.index;
+            uint64 rootIdx = rootNode.index;
             Uint256HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
             Uint256HeapNode storage lastNode = _unsafeNodeAccess(self, last);
             uint256 rootDataValue = rootData.value;
@@ -99,7 +104,7 @@ library Heap {
             // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
             if (rootIdx != last) {
                 // get details about the value stored in the last element of the array (that will get pop-ed)
-                uint32 lastDataIdx = lastNode.lookup;
+                uint64 lastDataIdx = lastNode.lookup;
                 uint256 lastDataValue = lastNode.value;
                 // copy these values to the location of the root (that is safe, and that we no longer use)
                 rootData.value = lastDataValue;
@@ -109,7 +114,7 @@ library Heap {
             }
 
             // get last leaf location (in the data array) and value
-            uint32 lastIdx = lastNode.index;
+            uint64 lastIdx = lastNode.index;
             uint256 lastValue = _unsafeNodeAccess(self, lastIdx).value;
 
             // move the last leaf to the root, pop last leaf ...
@@ -146,8 +151,8 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) internal {
-        uint32 size = length(self);
-        if (size == type(uint32).max) Panic.panic(Panic.RESOURCE_ERROR);
+        uint64 size = length(self);
+        if (size == type(uint64).max) Panic.panic(Panic.RESOURCE_ERROR);
 
         self.data.push(Uint256HeapNode({index: size, lookup: size, value: value}));
         _siftUp(self, size, value, comp);
@@ -176,11 +181,11 @@ library Heap {
         uint256 newValue,
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
-        uint32 size = length(self);
+        uint64 size = length(self);
         if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
         // position of the node that holds the data for the root
-        uint32 rootIdx = _unsafeNodeAccess(self, 0).index;
+        uint64 rootIdx = _unsafeNodeAccess(self, 0).index;
         // storage pointer to the node that holds the data for the root
         Uint256HeapNode storage rootData = _unsafeNodeAccess(self, rootIdx);
 
@@ -198,8 +203,8 @@ library Heap {
     /**
      * @dev Returns the number of elements in the heap.
      */
-    function length(Uint256Heap storage self) internal view returns (uint32) {
-        return self.data.length.toUint32();
+    function length(Uint256Heap storage self) internal view returns (uint64) {
+        return self.data.length.toUint64();
     }
 
     /**
@@ -216,11 +221,11 @@ library Heap {
     /*
      * @dev Swap node `i` and `j` in the tree.
      */
-    function _swap(Uint256Heap storage self, uint32 i, uint32 j) private {
+    function _swap(Uint256Heap storage self, uint64 i, uint64 j) private {
         Uint256HeapNode storage ni = _unsafeNodeAccess(self, i);
         Uint256HeapNode storage nj = _unsafeNodeAccess(self, j);
-        uint32 ii = ni.index;
-        uint32 jj = nj.index;
+        uint64 ii = ni.index;
+        uint64 jj = nj.index;
         // update pointers to the data (swap the value)
         ni.index = jj;
         nj.index = ii;
@@ -239,32 +244,28 @@ library Heap {
      */
     function _siftDown(
         Uint256Heap storage self,
-        uint32 size,
-        uint32 pos,
+        uint64 size,
+        uint64 pos,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint256 left = 2 * pos + 1; // this could overflow uint32
-        uint256 right = 2 * pos + 2; // this could overflow uint32
+        uint256 left = 2 * pos + 1; // this could overflow uint64
+        uint256 right = 2 * pos + 2; // this could overflow uint64
 
         if (right < size) {
             // the check guarantees that `left` and `right` are both valid uint32
-            uint32 lIndex = uint32(left);
-            uint32 rIndex = uint32(right);
+            uint64 lIndex = uint64(left);
+            uint64 rIndex = uint64(right);
             uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             uint256 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
             if (comp(lValue, value) || comp(rValue, value)) {
-                if (comp(lValue, rValue)) {
-                    _swap(self, pos, lIndex);
-                    _siftDown(self, size, lIndex, value, comp);
-                } else {
-                    _swap(self, pos, rIndex);
-                    _siftDown(self, size, rIndex, value, comp);
-                }
+                uint64 index = uint64(comp(lValue, rValue).ternary(lIndex, rIndex));
+                _swap(self, pos, index);
+                _siftDown(self, size, index, value, comp);
             }
         } else if (left < size) {
             // the check guarantees that `left` is a valid uint32
-            uint32 lIndex = uint32(left);
+            uint64 lIndex = uint64(left);
             uint256 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             if (comp(lValue, value)) {
                 _swap(self, pos, lIndex);
@@ -283,13 +284,13 @@ library Heap {
      */
     function _siftUp(
         Uint256Heap storage self,
-        uint32 pos,
+        uint64 pos,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
         unchecked {
             while (pos > 0) {
-                uint32 parent = (pos - 1) / 2;
+                uint64 parent = (pos - 1) / 2;
                 uint256 parentValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, parent).index).value;
                 if (comp(parentValue, value)) break;
                 _swap(self, pos, parent);
@@ -300,7 +301,7 @@ library Heap {
 
     function _unsafeNodeAccess(
         Uint256Heap storage self,
-        uint32 pos
+        uint64 pos
     ) private pure returns (Uint256HeapNode storage result) {
         assembly ("memory-safe") {
             mstore(0x00, self.slot)
@@ -317,6 +318,9 @@ library Heap {
         Uint208HeapNode[] data;
     }
 
+    /**
+     * @dev Internal node type for Uint208Heap. Stores a value of type uint208.
+     */
     struct Uint208HeapNode {
         uint208 value;
         uint24 index; // position -> value
@@ -522,13 +526,9 @@ library Heap {
             uint208 lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
             uint208 rValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, rIndex).index).value;
             if (comp(lValue, value) || comp(rValue, value)) {
-                if (comp(lValue, rValue)) {
-                    _swap(self, pos, lIndex);
-                    _siftDown(self, size, lIndex, value, comp);
-                } else {
-                    _swap(self, pos, rIndex);
-                    _siftDown(self, size, rIndex, value, comp);
-                }
+                uint24 index = uint24(comp(lValue, rValue).ternary(lIndex, rIndex));
+                _swap(self, pos, index);
+                _siftDown(self, size, index, value, comp);
             }
         } else if (left < size) {
             // the check guarantees that `left` is a valid uint32
