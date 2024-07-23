@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 
-const { SignatureType } = require('./enums');
+const { ModuleType } = require('./enums');
 
 function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
@@ -144,7 +144,7 @@ class UserOperation {
       signers.map(signer =>
         Promise.resolve(signer.signMessage(ethers.getBytes(this.hash))).then(signature =>
           withTypePrefix
-            ? ethers.solidityPacked(['uint8', 'bytes'], [signer.type ?? SignatureType.ECDSA, signature])
+            ? ethers.solidityPacked(['uint8', 'bytes'], [signer.type ?? ModuleType.Signer, signature])
             : signature,
         ),
       ),

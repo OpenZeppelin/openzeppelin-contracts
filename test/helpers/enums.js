@@ -9,5 +9,5 @@ module.exports = {
   Rounding: Enum('Floor', 'Ceil', 'Trunc', 'Expand'),
   OperationState: Enum('Unset', 'Waiting', 'Ready', 'Done'),
   RevertType: Enum('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic'),
-  SignatureType: Enum('ECDSA', 'ERC7579Validator'),
+  ModuleType: Enum('Signer', 'Validator', 'Executor', 'Fallback', 'Hook'),
 };

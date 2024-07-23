@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { IdentityHelper } = require('../helpers/identity');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { encodeMode, encodeSingle } = require('../helpers/erc7579');
-const { SignatureType } = require('../helpers/enums');
+const { ModuleType } = require('../helpers/enums');
 
 async function fixture() {
   const accounts = await ethers.getSigners();
@@ -29,8 +29,8 @@ async function fixture() {
 
   const sender = await helper.newAccount(accounts.relayer, [
     2, // 2-of-4
-    signers.filter(signer => signer.type == SignatureType.ECDSA),
-    signers.filter(signer => signer.type != SignatureType.ECDSA),
+    signers.filter(signer => signer.type == ModuleType.Signer),
+    signers.filter(signer => signer.type == ModuleType.Validator),
   ]);
 
   return {

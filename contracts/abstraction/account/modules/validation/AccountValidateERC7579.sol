@@ -10,6 +10,8 @@ import {PackedUserOperation} from "../../../../interfaces/IERC4337.sol";
 import {IERC7579Validator} from "../../../../interfaces/IERC7579Module.sol";
 
 abstract contract AccountValidateERC7579 is Account {
+    function _isValidator(address) internal view virtual returns (bool);
+
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
@@ -20,7 +22,9 @@ abstract contract AccountValidateERC7579 is Account {
         userOpCopy.signature = userOpSignature[0x14:];
         // do check
         address module = address(bytes20(userOpSignature[0x00:0x14]));
-        uint256 validationData = IERC7579Validator(module).validateUserOp(userOpCopy, userOpHash);
-        return (module, validationData);
+        return
+            _isValidator(module)
+                ? (module, IERC7579Validator(module).validateUserOp(userOpCopy, userOpHash))
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
     }
 }

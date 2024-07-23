@@ -14,9 +14,12 @@ import {AccountValidateERC7579} from "./validation/AccountValidateERC7579.sol";
 abstract contract ERC7579AccountMultisig is ERC7579Account, AccountValidateECDSA, AccountValidateERC7579 {
     function requiredSignatures() public view virtual returns (uint256);
 
-    enum SignatureType {
-        ECDSA, // secp256k1
-        ERC7579Validator // others through erc7579 validation module (support P256, RSA, ...)
+    function _isSigner(address signer) internal view virtual override returns (bool) {
+        return isModuleInstalled(MODULE_TYPE_SIGNER, signer, _zeroBytesCalldata());
+    }
+
+    function _isValidator(address module) internal view virtual override returns (bool) {
+        return isModuleInstalled(MODULE_TYPE_VALIDATOR, module, _zeroBytesCalldata());
     }
 
     function _validateUserOp(
@@ -38,19 +41,15 @@ abstract contract ERC7579AccountMultisig is ERC7579Account, AccountValidateECDSA
         for (uint256 i = 0; i < signatures.length; ++i) {
             bytes calldata signature = signatures[i];
 
-            uint256 sigModuleType;
             address sigIdentity;
             uint256 sigValidation;
-
-            if (uint8(bytes1(signature)) == uint8(SignatureType.ECDSA)) {
-                sigModuleType = MODULE_TYPE_SIGNER;
+            if (uint8(bytes1(signature)) == uint8(MODULE_TYPE_SIGNER)) {
                 (sigIdentity, sigValidation) = AccountValidateECDSA._validateUserOp(
                     userOp,
                     userOpHash,
                     signature[0x01:]
                 );
-            } else if (uint8(bytes1(signature)) == uint8(SignatureType.ERC7579Validator)) {
-                sigModuleType = MODULE_TYPE_VALIDATOR;
+            } else if (uint8(bytes1(signature)) == uint8(MODULE_TYPE_VALIDATOR)) {
                 (sigIdentity, sigValidation) = AccountValidateERC7579._validateUserOp(
                     userOp,
                     userOpHash,
@@ -58,7 +57,7 @@ abstract contract ERC7579AccountMultisig is ERC7579Account, AccountValidateECDSA
                 );
             } else return (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-            if (lastIdentity < sigIdentity && isModuleInstalled(sigModuleType, sigIdentity, _zeroBytesCalldata())) {
+            if (lastIdentity < sigIdentity) {
                 lastIdentity = sigIdentity;
                 validationData = ERC4337Utils.combineValidationData(validationData, sigValidation);
             } else return (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);

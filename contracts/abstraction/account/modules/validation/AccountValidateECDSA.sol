@@ -9,6 +9,8 @@ import {MessageHashUtils} from "../../../../utils/cryptography/MessageHashUtils.
 import {PackedUserOperation} from "../../../../interfaces/IERC4337.sol";
 
 abstract contract AccountValidateECDSA is Account {
+    function _isSigner(address) internal view virtual returns (bool);
+
     function _validateUserOp(
         PackedUserOperation calldata /*userOp*/,
         bytes32 userOpHash,
@@ -32,7 +34,7 @@ abstract contract AccountValidateECDSA is Account {
             }
             (address signer, ECDSA.RecoverError err, ) = ECDSA.tryRecover(msgHash, v, r, s);
             return
-                err == ECDSA.RecoverError.NoError
+                _isSigner(signer) && err == ECDSA.RecoverError.NoError
                     ? (signer, ERC4337Utils.SIG_VALIDATION_SUCCESS)
                     : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
         } else if (userOpSignature.length == 64) {
@@ -45,7 +47,7 @@ abstract contract AccountValidateECDSA is Account {
             }
             (address signer, ECDSA.RecoverError err, ) = ECDSA.tryRecover(msgHash, r, vs);
             return
-                err == ECDSA.RecoverError.NoError
+                _isSigner(signer) && err == ECDSA.RecoverError.NoError
                     ? (signer, ERC4337Utils.SIG_VALIDATION_SUCCESS)
                     : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
         } else {

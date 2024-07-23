@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { secp256r1 } = require('@noble/curves/p256');
 
-const { SignatureType } = require('./enums');
+const { ModuleType } = require('./enums');
 
 class P256Signer {
   constructor(privateKey, params = {}) {
@@ -17,7 +17,7 @@ class P256Signer {
   }
 
   get type() {
-    return SignatureType.ERC7579Validator;
+    return ModuleType.Validator;
   }
 
   static random(params = {}) {

@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 
 const { P256Signer } = require('./p256');
-const { SignatureType } = require('./enums');
+const { ModuleType } = require('./enums');
 
 class IdentityHelper {
   constructor() {
@@ -16,7 +16,7 @@ class IdentityHelper {
   }
 
   async newECDSASigner(params = {}) {
-    return Object.assign(ethers.Wallet.createRandom(params.provider), { type: SignatureType.ECDSA });
+    return Object.assign(ethers.Wallet.createRandom(params.provider), { type: ModuleType.Signer });
   }
 
   async newP256Signer(params = {}) {
@@ -39,6 +39,5 @@ class IdentityHelper {
 }
 
 module.exports = {
-  SignatureType,
   IdentityHelper,
 };
