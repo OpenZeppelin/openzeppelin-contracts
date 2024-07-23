@@ -17,6 +17,7 @@ contract Uint256HeapTest is Test {
         for (uint32 i = 0; i < heap.length(); ++i) {
             // lookups
             assertEq(i, heap.data[heap.data[i].index].lookup);
+            assertEq(i, heap.data[heap.data[i].lookup].index);
 
             // ordering: each node has a value bigger then its parent
             if (i > 0)
@@ -88,6 +89,7 @@ contract Uint208HeapTest is Test {
         for (uint32 i = 0; i < heap.length(); ++i) {
             // lookups
             assertEq(i, heap.data[heap.data[i].index].lookup);
+            assertEq(i, heap.data[heap.data[i].lookup].index);
 
             // ordering: each node has a value bigger then its parent
             if (i > 0)
