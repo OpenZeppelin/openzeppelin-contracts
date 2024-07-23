@@ -43,6 +43,7 @@ abstract contract ERC7579AccountModuleHook is ERC7579Account {
             if (_hook != address(0)) revert ModuleNotInstalled(moduleTypeId, _hook);
             _hook = module;
             IERC7579Module(module).onInstall(initData);
+            emit ModuleInstalled(moduleTypeId, module);
         } else {
             super._installModule(moduleTypeId, module, initData);
         }
@@ -58,6 +59,7 @@ abstract contract ERC7579AccountModuleHook is ERC7579Account {
             if (_hook != module) revert ModuleAlreadyInstalled(moduleTypeId, module);
             delete _hook;
             IERC7579Module(module).onUninstall(deInitData);
+            emit ModuleUninstalled(moduleTypeId, module);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);
         }

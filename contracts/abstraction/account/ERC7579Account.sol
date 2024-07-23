@@ -182,8 +182,6 @@ abstract contract ERC7579Account is
         if (moduleTypeId != MODULE_TYPE_SIGNER && !IERC7579Module(module).isModuleType(moduleTypeId))
             revert MismatchModuleTypeId(moduleTypeId, module);
         _installModule(moduleTypeId, module, initData);
-        /// TODO: silent unreachable and re-enable this event
-        // emit ModuleInstalled(moduleTypeId, module);
     }
 
     /// @inheritdoc IERC7579ModuleConfig
@@ -193,8 +191,6 @@ abstract contract ERC7579Account is
         bytes calldata deInitData
     ) public virtual onlyEntryPointOrSelf {
         _uninstallModule(moduleTypeId, module, deInitData);
-        /// TODO: silent unreachable and re-enable this event
-        // emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /// @inheritdoc IERC7579ModuleConfig

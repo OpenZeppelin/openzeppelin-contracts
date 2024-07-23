@@ -40,6 +40,7 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
             _fallbacks[selector] = module;
 
             IERC7579Module(module).onInstall(initData[4:]);
+            emit ModuleInstalled(moduleTypeId, module);
         } else {
             super._installModule(moduleTypeId, module, initData);
         }
@@ -59,6 +60,7 @@ abstract contract ERC7579AccountModuleFallback is ERC7579Account {
             delete _fallbacks[selector];
 
             IERC7579Module(module).onUninstall(deInitData[4:]);
+            emit ModuleUninstalled(moduleTypeId, module);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);
         }

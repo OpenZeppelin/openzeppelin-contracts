@@ -10,8 +10,17 @@ import {PackedUserOperation} from "../../../../interfaces/IERC4337.sol";
 import {IERC7579Validator} from "../../../../interfaces/IERC7579Module.sol";
 
 abstract contract AccountValidateERC7579 is Account {
-    function _isValidator(address) internal view virtual returns (bool);
+    /**
+     * @dev Hook used to verify the validity of validator used.
+     *
+     * Must be implemented by some access control management system to validate which validator is authorised to sign
+     * user operations for this account.
+     */
+    function _isValidator(address) internal view virtual returns (bool) {
+        return false;
+    }
 
+    /// @inheritdoc Account
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,

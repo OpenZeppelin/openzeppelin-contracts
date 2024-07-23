@@ -35,6 +35,7 @@ abstract contract ERC7579AccountModuleExecutor is ERC7579Account {
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
             if (!_executors.add(module)) revert ModuleAlreadyInstalled(moduleTypeId, module);
             IERC7579Module(module).onInstall(initData);
+            emit ModuleInstalled(moduleTypeId, module);
         } else {
             super._installModule(moduleTypeId, module, initData);
         }
@@ -49,6 +50,7 @@ abstract contract ERC7579AccountModuleExecutor is ERC7579Account {
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
             if (!_executors.remove(module)) revert ModuleNotInstalled(moduleTypeId, module);
             IERC7579Module(module).onUninstall(deInitData);
+            emit ModuleUninstalled(moduleTypeId, module);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);
         }

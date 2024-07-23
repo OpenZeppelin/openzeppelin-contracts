@@ -35,6 +35,7 @@ abstract contract ERC7579AccountModuleSigner is ERC7579Account {
             if (!_signers.add(module)) revert ModuleAlreadyInstalled(moduleTypeId, module);
             // Do not install signers
             // IERC7579Module(module).onInstall(initData);
+            emit ModuleInstalled(moduleTypeId, module);
         } else {
             super._installModule(moduleTypeId, module, initData);
         }
@@ -50,6 +51,7 @@ abstract contract ERC7579AccountModuleSigner is ERC7579Account {
             if (!_signers.remove(module)) revert ModuleNotInstalled(moduleTypeId, module);
             // Do not uninstall signers
             // IERC7579Module(module).onUninstall(deInitData);
+            emit ModuleUninstalled(moduleTypeId, module);
         } else {
             super._uninstallModule(moduleTypeId, module, deInitData);
         }

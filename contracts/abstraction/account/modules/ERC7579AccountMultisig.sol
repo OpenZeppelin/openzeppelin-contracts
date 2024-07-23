@@ -12,16 +12,20 @@ import {AccountValidateECDSA} from "./validation/AccountValidateECDSA.sol";
 import {AccountValidateERC7579} from "./validation/AccountValidateERC7579.sol";
 
 abstract contract ERC7579AccountMultisig is ERC7579Account, AccountValidateECDSA, AccountValidateERC7579 {
+    /// @dev Number of distinct signers/validators required for a userOperation to be valid
     function requiredSignatures() public view virtual returns (uint256);
 
+    /// @inheritdoc AccountValidateECDSA
     function _isSigner(address signer) internal view virtual override returns (bool) {
-        return isModuleInstalled(MODULE_TYPE_SIGNER, signer, _zeroBytesCalldata());
+        return isModuleInstalled(MODULE_TYPE_SIGNER, signer, _zeroBytesCalldata()) || super._isSigner(signer);
     }
 
+    /// @inheritdoc AccountValidateERC7579
     function _isValidator(address module) internal view virtual override returns (bool) {
-        return isModuleInstalled(MODULE_TYPE_VALIDATOR, module, _zeroBytesCalldata());
+        return isModuleInstalled(MODULE_TYPE_VALIDATOR, module, _zeroBytesCalldata()) || super._isValidator(module);
     }
 
+    /// @inheritdoc Account
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,

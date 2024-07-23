@@ -9,8 +9,17 @@ import {MessageHashUtils} from "../../../../utils/cryptography/MessageHashUtils.
 import {PackedUserOperation} from "../../../../interfaces/IERC4337.sol";
 
 abstract contract AccountValidateECDSA is Account {
-    function _isSigner(address) internal view virtual returns (bool);
+    /**
+     * @dev Hook used to verify the validity of recovered signers.
+     *
+     * Must be implemented by some access control management system to validate which EOA is authorised to sign user
+     * operations for this account.
+     */
+    function _isSigner(address) internal view virtual returns (bool) {
+        return false;
+    }
 
+    /// @inheritdoc Account
     function _validateUserOp(
         PackedUserOperation calldata /*userOp*/,
         bytes32 userOpHash,
