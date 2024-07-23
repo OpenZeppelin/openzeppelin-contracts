@@ -52,6 +52,9 @@ struct ${struct} {
     ${node}[] data;
 }
 
+/**
+ * @dev Internal node type for ${struct}. Stores a value of type ${valueType}.
+ */
 struct ${node} {
     ${valueType} value;
     ${indexType} index; // position -> value
