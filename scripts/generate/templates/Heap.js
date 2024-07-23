@@ -36,8 +36,8 @@ import {Panic} from "../Panic.sol";
  *
  * * peek (get the highest priority value in the set): O(1)
  * * insert (insert a value in the set): O(log(n))
- * * pop (remove the highest priority value in set): O(log(n))
- * * replace (replace the highest priority value in set with a new value): O(log(n))
+ * * pop (remove the highest priority value in the set): O(log(n))
+ * * replace (replace the highest priority value in the set with a new value): O(log(n))
  * * length (get the number of elements in the set): O(1)
  * * clear (remove all elements in the set): O(1)
  */
