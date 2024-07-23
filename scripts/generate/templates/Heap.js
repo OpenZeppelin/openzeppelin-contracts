@@ -29,15 +29,15 @@ import {Panic} from "../Panic.sol";
  *   \`\`\`
  *
  * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
- * smallest value is the one at the root. This value can be lookup up in constant time (O(1)) at
+ * highest priority value is the one at the root. This value can be lookup up in constant time (O(1)) at
  * \`heap.data[heap.data[0].index].value\`
  *
  * The structure is designed to perform the following operations with the corresponding complexities:
  *
- * * peek (get the smallest value in set): O(1)
+ * * peek (get the highest priority in set): O(1)
  * * insert (insert a value in the set): 0(log(n))
- * * pop (remove the smallest value in set): O(log(n))
- * * replace (replace the smallest value in set with a new value): O(log(n))
+ * * pop (remove the highest priority value in set): O(log(n))
+ * * replace (replace the highest priority value in set with a new value): O(log(n))
  * * length (get the number of elements in the set): O(1)
  * * clear (remove all elements in the set): O(1)
  */
