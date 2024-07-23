@@ -189,6 +189,7 @@ Some use cases require more powerful data structures than arrays and mappings of
 - xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
 - xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
 - xref:api:utils.adoc#MerkleTree[`MerkleTree`]: An on-chain https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] with helper functions.
+- xref:api:utils.adoc#Heap.sol[`Heap`]: A 
 
 The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
@@ -239,6 +240,32 @@ function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
     // guarantee the same function is always used
 }
 ---- 
+
+=== Using a Heap
+
+A https://en.wikipedia.org/wiki/Binary_heap[binary heap] is a data structure that always store the most important element at its peak and it can be used as a priority queue.
+
+To define what is most important in a heap, these frequently take comparator functions that tell the binary heap whether a value has more relevance than another.
+
+OpenZeppelin Contracts implements a Heap data structure with the properties of a binary heap. The heap uses the xref:api:utils.adoc#Comparators-lt-uint256-uint256-[`lt`] function by default but allows to customize its comparator.
+
+When using a custom comparator, it's recommended to wrap your function to avoid the possibility of mistakenly using a different comparator function:
+
+[source,solidity]
+----
+function pop(Uint256Heap storage self) internal returns (uint256) {
+    return pop(self, Comparators.gt);
+}
+
+function insert(Uint256Heap storage self, uint256 value) internal {
+    insert(self, value, Comparators.gt);
+}
+
+function replace(Uint256Heap storage self, uint256 newValue) internal returns (uint256) {
+    return replace(self, newValue, Comparators.gt);
+}
+----
+
 
 [[misc]]
 == Misc
@@ -292,7 +319,7 @@ function _setImplementation(address newImplementation) internal {
 }
 ----
 
-The xref:api:utils.adoc#StorageSlot[`StorageSlot`] library also supports transient storage through user defined value types (UDVTs[https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types]), which enables the same value types as in Solidity.
+The xref:api:utils.adoc#StorageSlot[`StorageSlot`] library also supports transient storage through user defined value types (https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types[UDVTs]), which enables the same value types as in Solidity.
 
 [source,solidity]
 ----

@@ -25,6 +25,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
  * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
+ * {Heap}: A library that implements a https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
@@ -38,6 +39,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Context}: An utility for abstracting the sender and calldata in the current execution context.
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {Comparators}: A library that contains comparator functions to use with with the {Heap} library.
 
 [NOTE]
 ====
@@ -102,6 +104,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Checkpoints}}
 
+{{Heap}}
+
 {{MerkleTree}}
 
 == Libraries
@@ -129,3 +133,5 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Packing}}
 
 {{Panic}}
+
+{{Comparators}}
