@@ -62,19 +62,25 @@ abstract contract ReentrancyGuard {
     }
 
     function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be NOT_ENTERED
-        if (_status == ENTERED) {
-            revert ReentrancyGuardReentrantCall();
+        assembly {
+            // Load the value of _status
+            let status := sload(_status.slot)
+            // If status is ENTERED, throw an error
+            if eq(status, 2) {
+                mstore(0x00, 0x4e487b71) // keccak256("Error(string)")
+                mstore(0x20, 0x20) // Data length (32 bytes)
+                revert(0x00, 0x24) // Revert with (0x00 to 0x24)
+            }
+            // Set _status to ENTERED
+            sstore(_status.slot, 2)
         }
-
-        // Any calls to nonReentrant after this point will fail
-        _status = ENTERED;
     }
 
     function _nonReentrantAfter() private {
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = NOT_ENTERED;
+        assembly {
+            // Set _status to NOT_ENTERED
+            sstore(_status.slot, 1)
+        }
     }
 
     /**
@@ -82,6 +88,11 @@ abstract contract ReentrancyGuard {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return _status == ENTERED;
+        uint256 status;
+        assembly {
+            // Load the value of _status
+            status := sload(_status.slot)
+        }
+        return status == ENTERED;
     }
 }
