@@ -29,17 +29,17 @@ import {Panic} from "../Panic.sol";
  *   \`\`\`
  *
  * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
- * highest priority value is the one at the root. This value can be lookup up in constant time (O(1)) at
+ * highest priority value is the one at the root. This value can be looked up in constant time (O(1)) at
  * \`heap.data[heap.data[0].index].value\`
  *
  * The structure is designed to perform the following operations with the corresponding complexities:
  *
- * * peek (get the highest priority in set): O(1)
- * * insert (insert a value in the set): 0(log(n))
- * * pop (remove the highest priority value in set): O(log(n))
- * * replace (replace the highest priority value in set with a new value): O(log(n))
- * * length (get the number of elements in the set): O(1)
- * * clear (remove all elements in the set): O(1)
+ * * peek (get the highest priority value): O(1)
+ * * insert (insert a value): O(log(n))
+ * * pop (remove the highest priority value): O(log(n))
+ * * replace (replace the highest priority value with a new value): O(log(n))
+ * * length (get the number of elements): O(1)
+ * * clear (remove all elements): O(1)
  */
 `;
 
@@ -47,7 +47,7 @@ const generate = ({ struct, node, valueType, indexType, blockSize }) => `\
 /**
  * @dev Binary heap that support values of type ${valueType}.
  *
- * Each element of that structures uses ${blockSize} storage slots.
+ * Each element of that structure uses ${blockSize} storage slots.
  */
 struct ${struct} {
     ${node}[] data;
@@ -103,9 +103,9 @@ function pop(
         ${node} storage lastNode = _unsafeNodeAccess(self, last);
         ${valueType} rootDataValue = rootData.value;
 
-        // if root is not the last element of the data array (that will get pop-ed), reorder the data array.
+        // if root is not the last element of the data array (that will get popped), reorder the data array.
         if (rootIdx != last) {
-            // get details about the value stored in the last element of the array (that will get pop-ed)
+            // get details about the value stored in the last element of the array (that will get popped)
             ${indexType} lastDataIdx = lastNode.lookup;
             ${valueType} lastDataValue = lastNode.value;
             // copy these values to the location of the root (that is safe, and that we no longer use)
@@ -255,7 +255,7 @@ function _siftDown(
     uint256 right = 2 * pos + 2; // this could overflow ${indexType}
 
     if (right < size) {
-        // the check guarantees that \`left\` and \`right\` are both valid uint32
+        // the check guarantees that \`left\` and \`right\` are both valid ${indexType}
         ${indexType} lIndex = ${indexType}(left);
         ${indexType} rIndex = ${indexType}(right);
         ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
@@ -266,7 +266,7 @@ function _siftDown(
             _siftDown(self, size, index, value, comp);
         }
     } else if (left < size) {
-        // the check guarantees that \`left\` is a valid uint32
+        // the check guarantees that \`left\` is a valid ${indexType}
         ${indexType} lIndex = ${indexType}(left);
         ${valueType} lValue = _unsafeNodeAccess(self, _unsafeNodeAccess(self, lIndex).index).value;
         if (comp(lValue, value)) {
@@ -281,7 +281,7 @@ function _siftDown(
  * comparator, and moving toward the root of the underlying tree.
  *
  * NOTE: This is a private function that is called in a trusted context with already cached parameters. \`value\`
- * could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. This parameters is not
+ * could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. These parameters are not
  * verified. It is the caller role to make sure the parameters are correct.
  */
 function _siftUp(
