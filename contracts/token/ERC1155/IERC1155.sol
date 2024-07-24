@@ -11,6 +11,11 @@ import {IERC165} from "../../utils/introspection/IERC165.sol";
  */
 interface IERC1155 is IERC165 {
     /**
+     * @dev Emitted when zero amount of token transferred from `from` to `to` by `operator` with safeBatchTransferFrom.
+     */
+    event TransferZero(address indexed operator, address indexed from, address indexed to);
+    
+    /**
      * @dev Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
      */
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
