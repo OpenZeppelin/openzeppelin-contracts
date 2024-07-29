@@ -159,7 +159,7 @@ function _insert(${opts.checkpointTypeName}[] storage self, ${opts.keyTypeName} 
 }
 
 /**
- * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\`
+ * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or \`high\`
  * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
  * \`high\`.
  *
@@ -183,9 +183,9 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
- * \`high\` if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and
- * exclusive \`high\`.
+ * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
