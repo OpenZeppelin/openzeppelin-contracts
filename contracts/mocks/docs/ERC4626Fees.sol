@@ -12,6 +12,8 @@ import {Math} from "../../utils/math/Math.sol";
 /// NOTE: The contract charges fees in terms of assets, not shares. This means that the fees are calculated based on the
 /// amount of assets that are being deposited or withdrawn, and not based on the amount of shares that are being minted or
 /// redeemed. This is an opinionated design decision that should be taken into account when integrating this contract.
+///
+/// WARNING: This contract has not been audited and shouldn't be considered production ready. Consider using it with caution.
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
