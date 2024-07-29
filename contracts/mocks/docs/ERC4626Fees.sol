@@ -8,6 +8,10 @@ import {SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../utils/math/Math.sol";
 
 /// @dev ERC-4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
+///
+/// NOTE: The contract charges fees in terms of assets, not shares. This means that the fees are calculated based on the
+/// amount of assets that are being deposited or withdrawn, and not based on the amount of shares that are being minted or
+/// redeemed. This is an opinionated design decision that should be taken into account when integrating this contract.
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
