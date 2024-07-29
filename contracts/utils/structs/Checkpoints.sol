@@ -178,9 +178,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -373,9 +373,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -568,9 +568,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
