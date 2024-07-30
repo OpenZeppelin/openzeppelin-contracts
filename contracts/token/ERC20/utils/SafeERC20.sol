@@ -76,7 +76,9 @@ library SafeERC20 {
 
         if (!_callOptionalReturnBool(token, approvalCall)) {
             _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
-            _callOptionalReturn(token, approvalCall);
+            if (value > 0) {
+                _callOptionalReturn(token, approvalCall);
+            }
         }
     }
 
