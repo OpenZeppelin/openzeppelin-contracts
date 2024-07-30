@@ -97,7 +97,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @inheritdoc ERC20
+     * @inheritdoc IERC20Metadata
      *
      * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
      * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
