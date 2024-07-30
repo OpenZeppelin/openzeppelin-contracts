@@ -102,6 +102,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
      * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
      * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
+     *
+     * See {IERC20Metadata-decimals}.
      */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
         return _underlyingDecimals + _decimalsOffset();
