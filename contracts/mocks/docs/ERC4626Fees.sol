@@ -12,12 +12,19 @@ import {Math} from "../../utils/math/Math.sol";
 /// NOTE: The contract charges fees in terms of assets, not shares. This means that the fees are calculated based on the
 /// amount of assets that are being deposited or withdrawn, and not based on the amount of shares that are being minted or
 /// redeemed. This is an opinionated design decision that should be taken into account when integrating this contract.
+///
+/// WARNING: This contract has not been audited and shouldn't be considered production ready. Consider using it with caution.
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
     uint256 private constant _BASIS_POINT_SCALE = 1e4;
 
     // === Overrides ===
+
+    /// @dev Maximum amount of the underlying asset that can be withdrawn from the owner's balance.
+    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+        return previewRedeem(maxRedeem(owner));
+    }
 
     /// @dev Preview taking an entry fee on deposit. See {IERC4626-previewDeposit}.
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
