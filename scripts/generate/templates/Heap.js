@@ -220,7 +220,7 @@ function clear(${struct} storage self) internal {
     }
 }
 
-/*
+/**
  * @dev Swap node \`i\` and \`j\` in the tree.
  */
 function _swap(${struct} storage self, ${indexType} i, ${indexType} j) private {
