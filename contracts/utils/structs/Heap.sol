@@ -218,7 +218,7 @@ library Heap {
         }
     }
 
-    /*
+    /**
      * @dev Swap node `i` and `j` in the tree.
      */
     function _swap(Uint256Heap storage self, uint64 i, uint64 j) private {
@@ -485,7 +485,7 @@ library Heap {
         }
     }
 
-    /*
+    /**
      * @dev Swap node `i` and `j` in the tree.
      */
     function _swap(Uint208Heap storage self, uint24 i, uint24 j) private {
