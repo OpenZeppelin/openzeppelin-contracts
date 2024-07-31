@@ -39,3 +39,5 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 == Utilities
 
 {{ERC1155Holder}}
+
+{{ERC1155Utils}}
