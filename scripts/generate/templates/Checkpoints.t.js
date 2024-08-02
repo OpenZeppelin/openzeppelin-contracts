@@ -11,7 +11,6 @@ import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
 `;
 
-/* eslint-disable max-len */
 const template = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
