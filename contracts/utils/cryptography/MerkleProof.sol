@@ -105,7 +105,7 @@ library MerkleProof {
      * This version handles proofs in calldata with the default hashing function.
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProof(proof, leaf) == root;
+        return processProofCalldata(proof, leaf) == root;
     }
 
     /**
@@ -138,7 +138,7 @@ library MerkleProof {
         bytes32 leaf,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
-        return processProof(proof, leaf, hasher) == root;
+        return processProofCalldata(proof, leaf, hasher) == root;
     }
 
     /**
@@ -335,7 +335,7 @@ library MerkleProof {
         bytes32 root,
         bytes32[] calldata leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves) == root;
+        return processMultiProofCalldata(proof, proofFlags, leaves) == root;
     }
 
     /**
@@ -415,7 +415,7 @@ library MerkleProof {
         bytes32[] calldata leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves, hasher) == root;
+        return processMultiProofCalldata(proof, proofFlags, leaves, hasher) == root;
     }
 
     /**
