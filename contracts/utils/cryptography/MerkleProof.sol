@@ -333,7 +333,7 @@ library MerkleProof {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bool) {
         return processMultiProofCalldata(proof, proofFlags, leaves) == root;
     }
@@ -412,7 +412,7 @@ library MerkleProof {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
         return processMultiProofCalldata(proof, proofFlags, leaves, hasher) == root;

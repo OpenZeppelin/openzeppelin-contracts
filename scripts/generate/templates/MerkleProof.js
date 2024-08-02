@@ -93,7 +93,7 @@ function multiProofVerify${suffix}(${formatArgsMultiline(
   `bytes32[] ${location} proof`,
   `bool[] ${location} proofFlags`,
   'bytes32 root',
-  `bytes32[] ${location} leaves`,
+  `bytes32[] memory leaves`,
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bool) {
     return processMultiProof${suffix}(proof, proofFlags, leaves${hash ? `, ${hash}` : ''}) == root;
