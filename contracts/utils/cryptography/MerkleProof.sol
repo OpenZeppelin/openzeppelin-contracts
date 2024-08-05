@@ -168,6 +168,10 @@ library MerkleProof {
      * This version handles multiproofs in memory with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     * 
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
+     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -246,6 +250,10 @@ library MerkleProof {
      * This version handles multiproofs in memory with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     * 
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
+     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -326,6 +334,10 @@ library MerkleProof {
      * This version handles multiproofs in calldata with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     * 
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
+     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
@@ -404,6 +416,10 @@ library MerkleProof {
      * This version handles multiproofs in calldata with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     * 
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
+     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
