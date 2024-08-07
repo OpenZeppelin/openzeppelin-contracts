@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {Create2} from "../utils/Create2.sol";
 import {Errors} from "../utils/Errors.sol";
 
 /**
@@ -17,6 +18,8 @@ import {Errors} from "../utils/Errors.sol";
  * deterministic method.
  */
 library Clones {
+    error ImmutableArgsTooLarge();
+
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
@@ -120,5 +123,143 @@ library Clones {
         bytes32 salt
     ) internal view returns (address predicted) {
         return predictDeterministicAddress(implementation, salt, address(this));
+    }
+
+    /**
+     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`, with `args`
+     * attached to it as immutable arguments (that can be fetched using {fetchCloneArgs}).
+     *
+     * This function uses the create opcode, which should never revert.
+     */
+    function cloneWithImmutableArgs(address implementation, bytes memory args) internal returns (address instance) {
+        return cloneWithImmutableArgs(implementation, args, 0);
+    }
+
+    /**
+     * @dev Same as {xref-Clones-cloneWithImmutableArgs-address-bytes-}[cloneWithImmutableArgs], but with a `value`
+     * parameter to send native currency to the new contract.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+     */
+    function cloneWithImmutableArgs(
+        address implementation,
+        bytes memory args,
+        uint256 value
+    ) internal returns (address instance) {
+        if (address(this).balance < value) {
+            revert Errors.InsufficientBalance(address(this).balance, value);
+        }
+        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        assembly ("memory-safe") {
+            instance := create(value, add(bytecode, 0x20), mload(bytecode))
+        }
+        if (instance == address(0)) {
+            revert Errors.FailedDeployment();
+        }
+    }
+
+    /**
+     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`, with `args`
+     * attached to it as immutable arguments (that can be fetched using {fetchCloneArgs}).
+     *
+     * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the same
+     * `implementation` and `salt` multiple time will revert, since the clones cannot be deployed twice at the same
+     * address.
+     */
+    function cloneWithImmutableArgsDeterministic(
+        address implementation,
+        bytes memory args,
+        bytes32 salt
+    ) internal returns (address instance) {
+        return cloneWithImmutableArgsDeterministic(implementation, args, salt, 0);
+    }
+
+    /**
+     * @dev Same as {xref-Clones-cloneWithImmutableArgsDeterministic-address-bytes-bytes32-}[cloneWithImmutableArgsDeterministic],
+     * but with a `value` parameter to send native currency to the new contract.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+     */
+    function cloneWithImmutableArgsDeterministic(
+        address implementation,
+        bytes memory args,
+        bytes32 salt,
+        uint256 value
+    ) internal returns (address instance) {
+        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        return Create2.deploy(value, salt, bytecode);
+    }
+
+    /**
+     * @dev Computes the address of a clone deployed using {Clones-cloneWithImmutableArgsDeterministic}.
+     */
+    function predictWithImmutableArgsDeterministicAddress(
+        address implementation,
+        bytes memory args,
+        bytes32 salt,
+        address deployer
+    ) internal pure returns (address predicted) {
+        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        return Create2.computeAddress(salt, keccak256(bytecode), deployer);
+    }
+
+    /**
+     * @dev Computes the address of a clone deployed using {Clones-cloneWithImmutableArgsDeterministic}.
+     */
+    function predictWithImmutableArgsDeterministicAddress(
+        address implementation,
+        bytes memory args,
+        bytes32 salt
+    ) internal view returns (address predicted) {
+        return predictWithImmutableArgsDeterministicAddress(implementation, args, salt, address(this));
+    }
+
+    /**
+     * @dev Get the immutable args attached to a clone.
+     *
+     * - If `instance` is a clone that was deployed using `clone` or `cloneDeterministic`, this
+     *   function will return an empty array.
+     * - If `instance` is a clone that was deployed using `cloneWithImmutableArgs` or
+     *   `cloneWithImmutableArgsDeterministic`, this function will return the args array used at
+     *   creation.
+     * - If `instance` is NOT a clone deployed using this library, the behavior is undefined. This
+     *   function should only be used to check addresses that are known to be clones.
+     */
+    function fetchCloneArgs(address instance) internal view returns (bytes memory result) {
+        uint256 argsLength = instance.code.length - 0x2d; // revert if length is too short
+        assembly {
+            // reserve space
+            result := mload(0x40)
+            mstore(0x40, add(result, add(0x20, argsLength)))
+            // load
+            mstore(result, argsLength)
+            extcodecopy(instance, add(result, 0x20), 0x2d, argsLength)
+        }
+    }
+
+    /**
+     * @dev Helper that prepares the initcode of the proxy with immutable args.
+     *
+     * An assembly variant of this function requires copying the `args` array, which can be efficiently done using
+     * `mcopy`. Unfortunately, that opcode is not available before cancun. A pure solidity implementation using
+     * abi.encodePacked is more expensive but also more portable and easier to review.
+     */
+    function _cloneWithImmutableArgsCode(
+        address implementation,
+        bytes memory args
+    ) private pure returns (bytes memory) {
+        uint256 initCodeLength = args.length + 0x2d;
+        if (initCodeLength > type(uint16).max) revert ImmutableArgsTooLarge();
+        return
+            abi.encodePacked(
+                hex"61",
+                uint16(initCodeLength),
+                hex"3d81600a3d39f3363d3d373d3d3d363d73",
+                implementation,
+                hex"5af43d82803e903d91602b57fd5bf3",
+                args
+            );
     }
 }
