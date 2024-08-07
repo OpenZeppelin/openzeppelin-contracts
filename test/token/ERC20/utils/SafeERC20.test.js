@@ -159,6 +159,11 @@ describe('SafeERC20', function () {
         await this.mock.$forceApprove(this.token, this.spender, 200n);
         expect(await this.token.allowance(this.mock, this.spender)).to.equal(200n);
       });
+
+      it('forceApprove works for zero allowance', async function () {
+        await this.mock.$forceApprove(this.token, this.spender, 0);
+        expect(await this.token.allowance(this.mock, this.spender)).to.equal(0);
+      });
     });
   });
 
