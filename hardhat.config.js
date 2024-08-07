@@ -40,6 +40,11 @@ const { argv } = require('yargs/yargs')()
       type: 'string',
       default: 'cancun',
     },
+    unlimited: {
+      alias: 'allowUnlimitedContractSize',
+      type: 'boolean',
+      default: false,
+    },
     // Extra modules
     coverage: {
       type: 'boolean',
