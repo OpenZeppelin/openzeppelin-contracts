@@ -7,6 +7,7 @@ import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in
@@ -75,25 +76,30 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
-        _underlyingDecimals = success ? assetDecimals : 18;
+        _underlyingDecimals = _tryGetAssetDecimalsWithFallback(asset_, 18);
         _asset = asset_;
     }
 
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
-        (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
-            abi.encodeCall(IERC20Metadata.decimals, ())
-        );
-        if (success && encodedDecimals.length >= 32) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-            if (returnedDecimals <= type(uint8).max) {
-                return (true, uint8(returnedDecimals));
-            }
+    function _tryGetAssetDecimalsWithFallback(IERC20 asset_, uint8 defaultValue) private view returns (uint8) {
+        Memory.FreePtr ptr = Memory.save();
+
+        bool success;
+        uint256 length;
+        uint256 value;
+
+        bytes memory params = abi.encodeCall(IERC20Metadata.decimals, ());
+        assembly ("memory-safe") {
+            success := staticcall(not(0), asset_, add(params, 0x20), mload(params), 0, 0x20)
+            length := returndatasize()
+            value := mload(0)
         }
-        return (false, 0);
+
+        Memory.load(ptr);
+
+        return uint8(Math.ternary(success && length >= 0x20 && value <= type(uint8).max, value, defaultValue));
     }
 
     /**
