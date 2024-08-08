@@ -21,6 +21,11 @@ abstract contract ERC4626Fees is ERC4626 {
 
     // === Overrides ===
 
+    /// @dev Maximum amount of the underlying asset that can be withdrawn from the owner's balance.
+    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+        return previewRedeem(maxRedeem(owner));
+    }
+
     /// @dev Preview taking an entry fee on deposit. See {IERC4626-previewDeposit}.
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
         uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
