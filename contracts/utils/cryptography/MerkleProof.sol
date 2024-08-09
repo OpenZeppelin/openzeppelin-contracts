@@ -169,9 +169,8 @@ library MerkleProof {
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      *
-     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
-     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
-     * validating the leaves elsewhere.
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -193,6 +192,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProof(
         bytes32[] memory proof,
@@ -252,9 +255,8 @@ library MerkleProof {
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      *
-     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
-     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
-     * validating the leaves elsewhere.
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -277,6 +279,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProof(
         bytes32[] memory proof,
@@ -337,9 +343,8 @@ library MerkleProof {
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      *
-     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
-     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
-     * validating the leaves elsewhere.
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProofCalldata}.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
@@ -361,6 +366,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
@@ -420,9 +429,8 @@ library MerkleProof {
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
      *
-     * NOTE: The _empty set_ (i.e. the case where `proof.length == 0 && leaves.length == 0`) is considered a noop,
-     * and therefore a valid multiproof (i.e. it returns `true`). Consider disallowing this case if you're not
-     * validating the leaves elsewhere.
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProofCalldata}.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
@@ -445,6 +453,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
