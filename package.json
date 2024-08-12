@@ -13,7 +13,7 @@
     "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
-    "prepare": "git config --local core.hooksPath .githooks",
+    "prepare": "scripts/prepare.sh",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
