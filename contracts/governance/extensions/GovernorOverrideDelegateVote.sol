@@ -85,10 +85,16 @@ abstract contract GovernorOverrideDelegateVote is Governor {
     function _getVotes(
         address account,
         uint256 timepoint,
-        bytes memory /*params*/
+        bytes memory params
     ) internal view virtual override returns (uint256) {
+        // If the params are the selector `0x23b70c8d` (keccak("override")[0:8]) followed by address 0, it is an override vote.
+        if (keccak256(params) == keccak256(bytes(hex"23b70c8d0000000000000000000000000000000000000000"))) {
+            // This is an override vote
+            return _getPastBalanceOf(account, timepoint);
+        }
         uint256 overrideVotes = _overrideVoteWeight[account][timepoint];
         if (overrideVotes != 0) {
+            // This delegate has been overridden for this vote. Return the reduced voting weight.
             return overrideVotes;
         }
         return token().getPastVotes(account, timepoint);
@@ -151,8 +157,12 @@ abstract contract GovernorOverrideDelegateVote is Governor {
         address account,
         uint8 support,
         uint256 totalWeight,
-        bytes memory // params
+        bytes memory params
     ) internal virtual override returns (uint256) {
+        if (keccak256(params) == keccak256(hex"23b70c8d0000000000000000000000000000000000000000")) {
+            return _countVotesOverride(proposalId, account, support, totalWeight, params);
+        }
+
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
         if (proposalVote.voteReceipt[account].hasVoted) {
@@ -173,23 +183,17 @@ abstract contract GovernorOverrideDelegateVote is Governor {
         return totalWeight;
     }
 
-    /// MARK: Exposed override voting functions
-    function castVoteOverride(uint256 proposalId, uint8 support) public {
-        _castVoteOverride(proposalId, msg.sender, support, "", "");
-    }
-
-    function _castVoteOverride(
+    function _countVotesOverride(
         uint256 proposalId,
         address account,
         uint8 support,
-        string memory reason,
+        uint256 totalWeight,
         bytes memory params
     ) private returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
         uint256 proposalSnapshot = proposalSnapshot(proposalId);
 
         address delegate = _getPastDelegate(account, proposalSnapshot);
-        uint256 totalWeight = _getPastBalanceOf(account, proposalSnapshot);
 
         if (proposalVote.overrideVoteReceipt[account].hasVoted) {
             revert GovernorAlreadyCastVoteOverride(account);
@@ -214,6 +218,11 @@ abstract contract GovernorOverrideDelegateVote is Governor {
                 proposalVote.forVotes -= totalWeight;
             } else if (delegateVoteReceipt.support == uint8(VoteType.Abstain)) {
                 proposalVote.abstainVotes -= totalWeight;
+            }
+
+            // Write delegate into the params for event
+            assembly {
+                mstore(add(params, 0x20), or(mload(add(params, 0x20)), shl(64, delegate)))
             }
         } else {
             // Only write override weight if they have not voted yet
