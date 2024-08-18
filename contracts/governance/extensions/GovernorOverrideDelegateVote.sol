@@ -10,8 +10,8 @@ import {Time} from "../../utils/types/Time.sol";
 import {VotesOverridable} from "../utils/VotesOverridable.sol";
 
 /**
- * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes}
- * token along with the ability to get checkpointed delegates.
+ * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
+ * token token that inherits `VotesOverridable`.
  */
 abstract contract GovernorOverrideDelegateVote is Governor {
     /**
@@ -108,7 +108,7 @@ abstract contract GovernorOverrideDelegateVote is Governor {
      */
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
-        return "support=bravo&quorum=for,abstain";
+        return "support=bravo,override&quorum=for,abstain&params=override";
     }
 
     /**

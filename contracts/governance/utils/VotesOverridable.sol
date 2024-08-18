@@ -20,10 +20,21 @@ abstract contract VotesOverridable is Votes {
         _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
     }
 
+    /**
+     * @inheritdoc Votes
+     */
     function delegates(address delegatee) public view virtual override returns (address) {
         return address(uint160(_delegateCheckpoints[delegatee].latest()));
     }
 
+    /**
+     * @dev Returns the delegate of an `account` at a specific moment in the past. If the `clock()` is
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
+     *
+     * Requirements:
+     *
+     * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
+     */
     function getPastDelegate(address account, uint256 timepoint) public view returns (address) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
@@ -32,6 +43,9 @@ abstract contract VotesOverridable is Votes {
         return address(uint160(_delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint))));
     }
 
+    /**
+     * @dev Extend functionality of the function by checkpointing balances.
+     */
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual override {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
