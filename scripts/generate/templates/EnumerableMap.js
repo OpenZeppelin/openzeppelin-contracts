@@ -2,7 +2,6 @@ const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
 const { TYPES } = require('./EnumerableMap.opts');
 
-/* eslint-disable max-len */
 const header = `\
 pragma solidity ^0.8.20;
 
@@ -52,7 +51,6 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * ====
  */
 `;
-/* eslint-enable max-len */
 
 const defaultMap = `\
 // To implement this library for multiple types with as little code repetition as possible, we write it in

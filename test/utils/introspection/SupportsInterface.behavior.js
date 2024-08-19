@@ -103,8 +103,8 @@ function shouldSupportInterfaces(interfaces = []) {
     describe('when the interfaceId is supported', function () {
       it('uses less than 30k gas', async function () {
         for (const k of interfaces) {
-          const interface = INTERFACE_IDS[k] ?? k;
-          expect(await this.contractUnderTest.supportsInterface.estimateGas(interface)).to.lte(30_000n);
+          const interfaceId = INTERFACE_IDS[k] ?? k;
+          expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.lte(30_000n);
         }
       });
 

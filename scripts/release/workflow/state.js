@@ -106,7 +106,7 @@ async function readChangesetState(cwd = process.cwd()) {
   };
 }
 
-async function isPublishedOnNpm(package, version) {
-  const res = await fetch(`https://registry.npmjs.com/${package}/${version}`);
+async function isPublishedOnNpm(packageName, version) {
+  const res = await fetch(`https://registry.npmjs.com/${packageName}/${version}`);
   return res.ok;
 }
