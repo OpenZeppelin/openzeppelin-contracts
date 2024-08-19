@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorCountingSimple.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorCountingSimple.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../Governor.sol";
+import {Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for simple, 3 options, vote counting.
- *
- * _Available since v4.3._
  */
 abstract contract GovernorCountingSimple is Governor {
     /**
@@ -24,10 +22,10 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address => bool) hasVoted;
+        mapping(address voter => bool) hasVoted;
     }
 
-    mapping(uint256 => ProposalVote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
@@ -47,36 +45,29 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev Accessor to the internal vote counts.
      */
-    function proposalVotes(uint256 proposalId)
-        public
-        view
-        virtual
-        returns (
-            uint256 againstVotes,
-            uint256 forVotes,
-            uint256 abstainVotes
-        )
-    {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
-        return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
+    function proposalVotes(
+        uint256 proposalId
+    ) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
+        return (proposalVote.againstVotes, proposalVote.forVotes, proposalVote.abstainVotes);
     }
 
     /**
      * @dev See {Governor-_quorumReached}.
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        return quorum(proposalSnapshot(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
+        return quorum(proposalSnapshot(proposalId)) <= proposalVote.forVotes + proposalVote.abstainVotes;
     }
 
     /**
      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        return proposalvote.forVotes > proposalvote.againstVotes;
+        return proposalVote.forVotes > proposalVote.againstVotes;
     }
 
     /**
@@ -86,21 +77,26 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
-    ) internal virtual override {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        uint256 totalWeight,
+        bytes memory // params
+    ) internal virtual override returns (uint256) {
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already cast");
-        proposalvote.hasVoted[account] = true;
+        if (proposalVote.hasVoted[account]) {
+            revert GovernorAlreadyCastVote(account);
+        }
+        proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
-            proposalvote.againstVotes += weight;
+            proposalVote.againstVotes += totalWeight;
         } else if (support == uint8(VoteType.For)) {
-            proposalvote.forVotes += weight;
+            proposalVote.forVotes += totalWeight;
         } else if (support == uint8(VoteType.Abstain)) {
-            proposalvote.abstainVotes += weight;
+            proposalVote.abstainVotes += totalWeight;
         } else {
-            revert("GovernorVotingSimple: invalid value for enum VoteType");
+            revert GovernorInvalidVoteType();
         }
+
+        return totalWeight;
     }
 }

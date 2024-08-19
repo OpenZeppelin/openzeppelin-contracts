@@ -1,26 +1,27 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const proc = require('child_process');
+const glob = require('glob');
 const startCase = require('lodash.startcase');
 
 const baseDir = process.argv[2];
 
-const files = proc.execFileSync(
-  'find', [baseDir, '-type', 'f'], { encoding: 'utf8' },
-).split('\n').filter(s => s !== '');
+const files = glob.sync(baseDir + '/**/*.adoc').map(f => path.relative(baseDir, f));
 
 console.log('.API');
 
-function getPageTitle (directory) {
-  if (directory === 'metatx') {
-    return 'Meta Transactions';
-  } else {
-    return startCase(directory);
+function getPageTitle(directory) {
+  switch (directory) {
+    case 'metatx':
+      return 'Meta Transactions';
+    case 'common':
+      return 'Common (Tokens)';
+    default:
+      return startCase(directory);
   }
 }
 
-const links = files.map((file) => {
+const links = files.map(file => {
   const doc = file.replace(baseDir, '');
   const title = path.parse(file).name;
 

@@ -1,64 +1,36 @@
-Contributing to OpenZeppelin Contracts
-=======
+# Contributing Guidelines
 
-We really appreciate and value contributions to OpenZeppelin Contracts. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible.
+There are many ways to contribute to OpenZeppelin Contracts.
 
-## Contribution guidelines
+## Troubleshooting
 
-Smart contracts manage value and are highly vulnerable to errors and attacks. We have very strict [guidelines], please make sure to review them!
+You can help other users in the community to solve their smart contract issues in the [OpenZeppelin Forum].
 
-## Creating Pull Requests (PRs)
+[OpenZeppelin Forum]: https://forum.openzeppelin.com/
 
-As a contributor, you are expected to fork this repository, work on your own fork and then submit pull requests. The pull requests will be reviewed and eventually merged into the main repo. See ["Fork-a-Repo"](https://help.github.com/articles/fork-a-repo/) for how this works.
+## Opening an issue
 
-## A typical workflow
+You can [open an issue] to suggest a feature or report a minor bug. For serious bugs please do not open an issue, instead refer to our [security policy] for appropriate steps.
 
-1) Make sure your fork is up to date with the main repository:
+If you believe your issue may be due to user error and not a problem in the library, consider instead posting a question on the [OpenZeppelin Forum].
 
-```
-cd openzeppelin-contracts
-git remote add upstream https://github.com/OpenZeppelin/openzeppelin-contracts.git
-git fetch upstream
-git pull --rebase upstream master
-```
-NOTE: The directory `openzeppelin-contracts` represents your fork's local copy.
+Before opening an issue, be sure to search through the existing open and closed issues, and consider posting a comment in one of those instead.
 
-2) Branch out from `master` into `fix/some-bug-#123`:
-(Postfixing #123 will associate your PR with the issue #123 and make everyone's life easier =D)
-```
-git checkout -b fix/some-bug-#123
-```
+When requesting a new feature, include as many details as you can, especially around the use cases that motivate it. Features are prioritized according to the impact they may have on the ecosystem, so we appreciate information showing that the impact could be high.
 
-3) Make your changes, add your files, commit, and push to your fork.
+[security policy]: https://github.com/OpenZeppelin/openzeppelin-contracts/security
+[open an issue]: https://github.com/OpenZeppelin/openzeppelin-contracts/issues/new/choose
 
-```
-git add SomeFile.js
-git commit "Fix some bug #123"
-git push origin fix/some-bug-#123
-```
+## Submitting a pull request
 
-4) Run tests, linter, etc. This can be done by running local continuous integration and make sure it passes.
+If you would like to contribute code or documentation you may do so by forking the repository and submitting a pull request.
 
-```bash
-npm test
-npm run lint
-```
+Any non-trivial code contribution must be first discussed with the maintainers in an issue (see [Opening an issue](#opening-an-issue)). Only very minor changes are accepted without prior discussion.
 
-5) Go to [github.com/OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) in your web browser and issue a new pull request.
+Make sure to read and follow the [engineering guidelines](./GUIDELINES.md). Run linter and tests to make sure your pull request is good before submitting it.
 
-*IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions
-refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all tests pass, JS linting tests pass, Solidity linting tests pass, etc.
+Changelog entries should be added to each pull request by using [Changesets](https://github.com/changesets/changesets/).
 
-6) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin Contracts.
+When opening the pull request you will be presented with a template and a series of instructions. Read through it carefully and follow all the steps. Expect a review and feedback from the maintainers afterwards.
 
-*IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards OpenZeppelin Contracts attains to.
-
-## All set!
-
-If you have any questions, feel free to post them to github.com/OpenZeppelin/openzeppelin-contracts/issues.
-
-Finally, if you're looking to collaborate and want to find easy tasks to start, look at the issues we marked as ["Good first issue"](https://github.com/OpenZeppelin/openzeppelin-contracts/labels/good%20first%20issue).
-
-Thanks for your time and code!
-
-[guidelines]: GUIDELINES.md
+If you're looking for a good place to start, look for issues labelled ["good first issue"](https://github.com/OpenZeppelin/openzeppelin-contracts/labels/good%20first%20issue)!

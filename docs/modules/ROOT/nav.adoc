@@ -3,17 +3,21 @@
 * xref:extending-contracts.adoc[Extending Contracts]
 * xref:upgradeable.adoc[Using with Upgrades]
 
-* xref:releases-stability.adoc[Releases & Stability]
+* xref:backwards-compatibility.adoc[Backwards Compatibility]
 
 * xref:access-control.adoc[Access Control]
 
 * xref:tokens.adoc[Tokens]
-** xref:erc20.adoc[ERC20]
+** xref:erc20.adoc[ERC-20]
 *** xref:erc20-supply.adoc[Creating Supply]
-** xref:erc721.adoc[ERC721]
-** xref:erc777.adoc[ERC777]
-** xref:erc1155.adoc[ERC1155]
+** xref:erc721.adoc[ERC-721]
+** xref:erc1155.adoc[ERC-1155]
+** xref:erc4626.adoc[ERC-4626]
 
 * xref:governance.adoc[Governance]
 
 * xref:utilities.adoc[Utilities]
+
+* xref:subgraphs::index.adoc[Subgraphs]
+
+* xref:faq.adoc[FAQ]

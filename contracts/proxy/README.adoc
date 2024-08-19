@@ -9,24 +9,24 @@ Most of the proxies below are built on an abstract base contract.
 
 - {Proxy}: Abstract contract implementing the core delegation functionality.
 
-In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[EIP1967] storage slots.
+In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] storage slots.
 
-- {ERC1967Upgrade}: Internal functions to get and set the storage slots defined in EIP1967.
-- {ERC1967Proxy}: A proxy using EIP1967 storage slots. Not upgradeable by default.
+- {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
+- {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
 
-There are two alternative ways to add upgradeability to an ERC1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
+There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
-- {TransparentUpgradeableProxy}: A proxy with a built in admin and upgrade interface.
-- {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation for an ERC1967 proxy.
+- {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
+- {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
 
-CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
 
 A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
-- {BeaconProxy}: A proxy that retreives its implementation from a beacon contract.
-- {UpgradeableBeacon}: A beacon contract that can be upgraded.
+- {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
+- {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
 
-In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC1967 proxy, instead the address is stored in a separate beacon contract. The `upgrade` operations that are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC-1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
 Outside the realm of upgradeability, proxies can also be useful to make cheap contract clones, such as those created by an on-chain factory contract that creates many instances of the same contract. These instances are designed to be both cheap to deploy, and cheap to call.
 
@@ -35,7 +35,7 @@ Outside the realm of upgradeability, proxies can also be useful to make cheap co
 [[transparent-vs-uups]]
 == Transparent vs UUPS Proxies
 
-The original proxies included in OpenZeppelin followed the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[Transparent Proxy Pattern]. While this pattern is still provided, our recommendation is now shifting towards UUPS proxies, which are both lightweight and versatile. The name UUPS comes from https://eips.ethereum.org/EIPS/eip-1822[EIP1822], which first documented the pattern.
+The original proxies included in OpenZeppelin followed the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[Transparent Proxy Pattern]. While this pattern is still provided, our recommendation is now shifting towards UUPS proxies, which are both lightweight and versatile. The name UUPS comes from https://eips.ethereum.org/EIPS/eip-1822[ERC-1822], which first documented the pattern.
 
 While both of these share the same interface for upgrades, in UUPS proxies the upgrade is handled by the implementation, and can eventually be removed. Transparent proxies, on the other hand, include the upgrade and admin logic in the proxy itself. This means {TransparentUpgradeableProxy} is more expensive to deploy than what is possible with UUPS proxies.
 
@@ -48,15 +48,19 @@ By default, the upgrade functionality included in {UUPSUpgradeable} contains a s
 - Adding a flag mechanism in the implementation that will disable the upgrade function when triggered.
 - Upgrading to an implementation that features an upgrade mechanism without the additional security check, and then upgrading again to another implementation without the upgrade mechanism.
 
+The current implementation of this security mechanism uses https://eips.ethereum.org/EIPS/eip-1822[ERC-1822] to detect the storage slot used by the implementation. A previous implementation, now deprecated, relied on a rollback check. It is possible to upgrade from a contract using the old mechanism to a new one. The inverse is however not possible, as old implementations (before version 4.5) did not include the ERC-1822 interface.
+
 == Core
 
 {{Proxy}}
 
-== ERC1967
+== ERC-1967
+
+{{IERC1967}}
 
 {{ERC1967Proxy}}
 
-{{ERC1967Upgrade}}
+{{ERC1967Utils}}
 
 == Transparent Proxy
 

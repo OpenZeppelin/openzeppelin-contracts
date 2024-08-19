@@ -1,20 +1,46 @@
 /// ENVVAR
-// - CI:                output gas report to file instead of stdout
-// - COVERAGE:          enable coverage report
-// - ENABLE_GAS_REPORT: enable gas report
-// - COMPILE_MODE:      production modes enables optimizations (default: development)
-// - COMPILE_VERSION:   compiler version (default: 0.8.3)
-// - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
+// - COMPILER:      compiler version (default: 0.8.24)
+// - SRC:           contracts folder to compile (default: contracts)
+// - RUNS:          number of optimization runs (default: 200)
+// - IR:            enable IR compilation (default: false)
+// - COVERAGE:      enable coverage report (default: false)
+// - GAS:           enable gas report (default: false)
+// - COINMARKETCAP: coinmarketcap api key for USD value in gas report
+// - CI:            output gas report to file instead of stdout
 
 const fs = require('fs');
 const path = require('path');
-const argv = require('yargs/yargs')()
+
+const { argv } = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
+    // Compilation settings
+    compiler: {
+      alias: 'compileVersion',
+      type: 'string',
+      default: '0.8.24',
+    },
+    src: {
+      alias: 'source',
+      type: 'string',
+      default: 'contracts',
+    },
+    runs: {
+      alias: 'optimizationRuns',
+      type: 'number',
+      default: 200,
+    },
+    ir: {
+      alias: 'enableIR',
       type: 'boolean',
       default: false,
     },
+    evm: {
+      alias: 'evmVersion',
+      type: 'string',
+      default: 'cancun',
+    },
+    // Extra modules
     coverage: {
       type: 'boolean',
       default: false,
@@ -24,35 +50,23 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
-    mode: {
-      alias: 'compileMode',
-      type: 'string',
-      choices: [ 'production', 'development' ],
-      default: 'development',
-    },
-    compiler: {
-      alias: 'compileVersion',
-      type: 'string',
-      default: '0.8.3',
-    },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
       type: 'string',
     },
-  })
-  .argv;
+  });
 
-require('@nomiclabs/hardhat-truffle5');
-
-if (argv.enableGasReport) {
-  require('hardhat-gas-reporter');
-}
+require('@nomicfoundation/hardhat-chai-matchers');
+require('@nomicfoundation/hardhat-ethers');
+require('hardhat-exposed');
+require('hardhat-gas-reporter');
+require('hardhat-ignore-warnings');
+require('solidity-coverage');
+require('solidity-docgen');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
-
-const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -62,25 +76,49 @@ module.exports = {
     version: argv.compiler,
     settings: {
       optimizer: {
-        enabled: withOptimizations,
-        runs: 200,
+        enabled: true,
+        runs: argv.runs,
       },
+      evmVersion: argv.evm,
+      viaIR: argv.ir,
+      outputSelection: { '*': { '*': ['storageLayout'] } },
+    },
+  },
+  warnings: {
+    'contracts-exposed/**/*': {
+      'code-size': 'off',
+      'initcode-size': 'off',
+    },
+    '*': {
+      'code-size': true,
+      'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      'transient-storage': false,
+      default: 'error',
     },
   },
   networks: {
     hardhat: {
-      blockGasLimit: 10000000,
-      allowUnlimitedContractSize: !withOptimizations,
+      hardfork: argv.evm,
+      // Exposed contracts often exceed the maximum contract size. For normal contract,
+      // we rely on the `code-size` compiler warning, that will cause a compilation error.
+      allowUnlimitedContractSize: true,
+      initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
+  exposed: {
+    imports: true,
+    initializers: true,
+    exclude: ['vendor/**/*', '**/*WithInit.sol'],
+  },
   gasReporter: {
+    enabled: argv.gas,
+    showMethodSig: true,
+    includeBytecodeInJSON: true,
     currency: 'USD',
-    outputFile: argv.ci ? 'gas-report.txt' : undefined,
     coinmarketcap: argv.coinmarketcap,
   },
+  paths: {
+    sources: argv.src,
+  },
+  docgen: require('./docs/config'),
 };
-
-if (argv.coverage) {
-  require('solidity-coverage');
-  module.exports.networks.hardhat.initialBaseFeePerGas = 0;
-}

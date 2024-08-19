@@ -17,5 +17,5 @@ indent_size = 4
 [*.js]
 indent_size = 2
 
-[*.adoc]
+[*.{adoc,md}]
 max_line_length = 0

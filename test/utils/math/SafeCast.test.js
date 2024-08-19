@@ -1,164 +1,159 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const SafeCastMock = artifacts.require('SafeCastMock');
+const { range } = require('../../helpers/iterate');
 
-contract('SafeCast', async (accounts) => {
+async function fixture() {
+  const mock = await ethers.deployContract('$SafeCast');
+  return { mock };
+}
+
+describe('SafeCast', function () {
   beforeEach(async function () {
-    this.safeCast = await SafeCastMock.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  function testToUint (bits) {
-    describe(`toUint${bits}`, () => {
-      const maxValue = new BN('2').pow(new BN(bits)).subn(1);
+  for (const bits of range(8, 256, 8).map(ethers.toBigInt)) {
+    const maxValue = 2n ** bits - 1n;
 
+    describe(`toUint${bits}`, () => {
       it('downcasts 0', async function () {
-        expect(await this.safeCast[`toUint${bits}`](0)).to.be.bignumber.equal('0');
+        expect(await this.mock[`$toUint${bits}`](0n)).is.equal(0n);
       });
 
       it('downcasts 1', async function () {
-        expect(await this.safeCast[`toUint${bits}`](1)).to.be.bignumber.equal('1');
+        expect(await this.mock[`$toUint${bits}`](1n)).is.equal(1n);
       });
 
       it(`downcasts 2^${bits} - 1 (${maxValue})`, async function () {
-        expect(await this.safeCast[`toUint${bits}`](maxValue)).to.be.bignumber.equal(maxValue);
+        expect(await this.mock[`$toUint${bits}`](maxValue)).is.equal(maxValue);
       });
 
-      it(`reverts when downcasting 2^${bits} (${maxValue.addn(1)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toUint${bits}`](maxValue.addn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting 2^${bits} (${maxValue + 1n})`, async function () {
+        await expect(this.mock[`$toUint${bits}`](maxValue + 1n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+          .withArgs(bits, maxValue + 1n);
       });
 
-      it(`reverts when downcasting 2^${bits} + 1 (${maxValue.addn(2)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toUint${bits}`](maxValue.addn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting 2^${bits} + 1 (${maxValue + 2n})`, async function () {
+        await expect(this.mock[`$toUint${bits}`](maxValue + 2n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+          .withArgs(bits, maxValue + 2n);
       });
     });
   }
 
-  [8, 16, 32, 64, 96, 128, 224].forEach(bits => testToUint(bits));
-
   describe('toUint256', () => {
-    const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
-    const minInt256 = new BN('2').pow(new BN(255)).neg();
-
     it('casts 0', async function () {
-      expect(await this.safeCast.toUint256(0)).to.be.bignumber.equal('0');
+      expect(await this.mock.$toUint256(0n)).is.equal(0n);
     });
 
     it('casts 1', async function () {
-      expect(await this.safeCast.toUint256(1)).to.be.bignumber.equal('1');
+      expect(await this.mock.$toUint256(1n)).is.equal(1n);
     });
 
-    it(`casts INT256_MAX (${maxInt256})`, async function () {
-      expect(await this.safeCast.toUint256(maxInt256)).to.be.bignumber.equal(maxInt256);
+    it(`casts INT256_MAX (${ethers.MaxInt256})`, async function () {
+      expect(await this.mock.$toUint256(ethers.MaxInt256)).is.equal(ethers.MaxInt256);
     });
 
     it('reverts when casting -1', async function () {
-      await expectRevert(
-        this.safeCast.toUint256(-1),
-        'SafeCast: value must be positive',
-      );
+      await expect(this.mock.$toUint256(-1n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntToUint')
+        .withArgs(-1n);
     });
 
-    it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
-      await expectRevert(
-        this.safeCast.toUint256(minInt256),
-        'SafeCast: value must be positive',
-      );
+    it(`reverts when casting INT256_MIN (${ethers.MinInt256})`, async function () {
+      await expect(this.mock.$toUint256(ethers.MinInt256))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntToUint')
+        .withArgs(ethers.MinInt256);
     });
   });
 
-  function testToInt (bits) {
-    describe(`toInt${bits}`, () => {
-      const minValue = new BN('-2').pow(new BN(bits - 1));
-      const maxValue = new BN('2').pow(new BN(bits - 1)).subn(1);
+  for (const bits of range(8, 256, 8).map(ethers.toBigInt)) {
+    const minValue = -(2n ** (bits - 1n));
+    const maxValue = 2n ** (bits - 1n) - 1n;
 
+    describe(`toInt${bits}`, () => {
       it('downcasts 0', async function () {
-        expect(await this.safeCast[`toInt${bits}`](0)).to.be.bignumber.equal('0');
+        expect(await this.mock[`$toInt${bits}`](0n)).is.equal(0n);
       });
 
       it('downcasts 1', async function () {
-        expect(await this.safeCast[`toInt${bits}`](1)).to.be.bignumber.equal('1');
+        expect(await this.mock[`$toInt${bits}`](1n)).is.equal(1n);
       });
 
       it('downcasts -1', async function () {
-        expect(await this.safeCast[`toInt${bits}`](-1)).to.be.bignumber.equal('-1');
+        expect(await this.mock[`$toInt${bits}`](-1n)).is.equal(-1n);
       });
 
-      it(`downcasts -2^${bits - 1} (${minValue})`, async function () {
-        expect(await this.safeCast[`toInt${bits}`](minValue)).to.be.bignumber.equal(minValue);
+      it(`downcasts -2^${bits - 1n} (${minValue})`, async function () {
+        expect(await this.mock[`$toInt${bits}`](minValue)).is.equal(minValue);
       });
 
-      it(`downcasts 2^${bits - 1} - 1 (${maxValue})`, async function () {
-        expect(await this.safeCast[`toInt${bits}`](maxValue)).to.be.bignumber.equal(maxValue);
+      it(`downcasts 2^${bits - 1n} - 1 (${maxValue})`, async function () {
+        expect(await this.mock[`$toInt${bits}`](maxValue)).is.equal(maxValue);
       });
 
-      it(`reverts when downcasting -2^${bits - 1} - 1 (${minValue.subn(1)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toInt${bits}`](minValue.subn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting -2^${bits - 1n} - 1 (${minValue - 1n})`, async function () {
+        await expect(this.mock[`$toInt${bits}`](minValue - 1n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntDowncast')
+          .withArgs(bits, minValue - 1n);
       });
 
-      it(`reverts when downcasting -2^${bits - 1} - 2 (${minValue.subn(2)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toInt${bits}`](minValue.subn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting -2^${bits - 1n} - 2 (${minValue - 2n})`, async function () {
+        await expect(this.mock[`$toInt${bits}`](minValue - 2n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntDowncast')
+          .withArgs(bits, minValue - 2n);
       });
 
-      it(`reverts when downcasting 2^${bits - 1} (${maxValue.addn(1)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toInt${bits}`](maxValue.addn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting 2^${bits - 1n} (${maxValue + 1n})`, async function () {
+        await expect(this.mock[`$toInt${bits}`](maxValue + 1n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntDowncast')
+          .withArgs(bits, maxValue + 1n);
       });
 
-      it(`reverts when downcasting 2^${bits - 1} + 1 (${maxValue.addn(2)})`, async function () {
-        await expectRevert(
-          this.safeCast[`toInt${bits}`](maxValue.addn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
-        );
+      it(`reverts when downcasting 2^${bits - 1n} + 1 (${maxValue + 2n})`, async function () {
+        await expect(this.mock[`$toInt${bits}`](maxValue + 2n))
+          .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedIntDowncast')
+          .withArgs(bits, maxValue + 2n);
       });
     });
   }
 
-  [8, 16, 32, 64, 128].forEach(bits => testToInt(bits));
-
   describe('toInt256', () => {
-    const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
-    const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
-
     it('casts 0', async function () {
-      expect(await this.safeCast.toInt256(0)).to.be.bignumber.equal('0');
+      expect(await this.mock.$toInt256(0)).is.equal(0n);
     });
 
     it('casts 1', async function () {
-      expect(await this.safeCast.toInt256(1)).to.be.bignumber.equal('1');
+      expect(await this.mock.$toInt256(1)).is.equal(1n);
     });
 
-    it(`casts INT256_MAX (${maxInt256})`, async function () {
-      expect(await this.safeCast.toInt256(maxInt256)).to.be.bignumber.equal(maxInt256);
+    it(`casts INT256_MAX (${ethers.MaxInt256})`, async function () {
+      expect(await this.mock.$toInt256(ethers.MaxInt256)).is.equal(ethers.MaxInt256);
     });
 
-    it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
-      await expectRevert(
-        this.safeCast.toInt256(maxInt256.addn(1)),
-        'SafeCast: value doesn\'t fit in an int256',
-      );
+    it(`reverts when casting INT256_MAX + 1 (${ethers.MaxInt256 + 1n})`, async function () {
+      await expect(this.mock.$toInt256(ethers.MaxInt256 + 1n))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintToInt')
+        .withArgs(ethers.MaxInt256 + 1n);
     });
 
-    it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevert(
-        this.safeCast.toInt256(maxUint256),
-        'SafeCast: value doesn\'t fit in an int256',
-      );
+    it(`reverts when casting UINT256_MAX (${ethers.MaxUint256})`, async function () {
+      await expect(this.mock.$toInt256(ethers.MaxUint256))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintToInt')
+        .withArgs(ethers.MaxUint256);
+    });
+  });
+
+  describe('toUint (bool)', function () {
+    it('toUint(false) should be 0', async function () {
+      expect(await this.mock.$toUint(false)).to.equal(0n);
+    });
+
+    it('toUint(true) should be 1', async function () {
+      expect(await this.mock.$toUint(true)).to.equal(1n);
     });
   });
 });

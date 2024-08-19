@@ -1,0 +1,50 @@
+name: Compare gas costs
+description: Compare gas costs between branches
+inputs:
+  token:
+    description: github token
+    required: true
+  report:
+    description: report to read from
+    required: false
+    default: gasReporterOutput.json
+  out_report:
+    description: report to read
+    required: false
+    default: ${{ github.ref_name }}.gasreport.json
+  ref_report:
+    description: report to read from
+    required: false
+    default: ${{ github.base_ref }}.gasreport.json
+
+runs:
+  using: composite
+  steps:
+    - name: Download reference report
+      if: github.event_name == 'pull_request'
+      run: |
+        RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --limit 100 --json 'conclusion,databaseId,event' --jq 'map(select(.conclusion=="success" and .event!="pull_request"))[0].databaseId'`
+        gh run download ${RUN_ID} --repo ${{ github.repository }} -n gasreport
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
+      continue-on-error: true
+      id: reference
+    - name: Compare reports
+      if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
+      run: |
+        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
+      env:
+        STYLE: markdown
+      shell: bash
+    - name: Rename report for upload
+      if: github.event_name != 'pull_request'
+      run: |
+        mv ${{ inputs.report }} ${{ inputs.out_report }}
+      shell: bash
+    - name: Save report
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v3
+      with:
+        name: gasreport
+        path: ${{ inputs.out_report }}

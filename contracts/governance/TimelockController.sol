@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (governance/TimelockController.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../access/AccessControl.sol";
+import {AccessControl} from "../access/AccessControl.sol";
+import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -17,17 +20,51 @@ import "../access/AccessControl.sol";
  * is in charge of proposing (resp executing) operations. A common use case is
  * to position this {TimelockController} as the owner of a smart contract, with
  * a multisig or a DAO as the sole proposer.
- *
- * _Available since v3.3._
  */
-contract TimelockController is AccessControl {
-    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
+contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
-    mapping(bytes32 => uint256) private _timestamps;
+    mapping(bytes32 id => uint256) private _timestamps;
     uint256 private _minDelay;
+
+    enum OperationState {
+        Unset,
+        Waiting,
+        Ready,
+        Done
+    }
+
+    /**
+     * @dev Mismatch between the parameters length for an operation call.
+     */
+    error TimelockInvalidOperationLength(uint256 targets, uint256 payloads, uint256 values);
+
+    /**
+     * @dev The schedule operation doesn't meet the minimum delay.
+     */
+    error TimelockInsufficientDelay(uint256 delay, uint256 minDelay);
+
+    /**
+     * @dev The current state of an operation is not as required.
+     * The `expectedStates` is a bitmap with the bits enabled for each OperationState enum position
+     * counting from right to left.
+     *
+     * See {_encodeStateBitmap}.
+     */
+    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expectedStates);
+
+    /**
+     * @dev The predecessor to an operation not yet done.
+     */
+    error TimelockUnexecutedPredecessor(bytes32 predecessorId);
+
+    /**
+     * @dev The caller account is not authorized.
+     */
+    error TimelockUnauthorizedCaller(address caller);
 
     /**
      * @dev Emitted when a call is scheduled as part of operation `id`.
@@ -48,6 +85,11 @@ contract TimelockController is AccessControl {
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
+     * @dev Emitted when new proposal is scheduled with non-zero salt.
+     */
+    event CallSalt(bytes32 indexed id, bytes32 salt);
+
+    /**
      * @dev Emitted when operation `id` is cancelled.
      */
     event Cancelled(bytes32 indexed id);
@@ -58,29 +100,36 @@ contract TimelockController is AccessControl {
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
-     * @dev Initializes the contract with a given `minDelay`.
+     * @dev Initializes the contract with the following parameters:
+     *
+     * - `minDelay`: initial minimum delay in seconds for operations
+     * - `proposers`: accounts to be granted proposer and canceller roles
+     * - `executors`: accounts to be granted executor role
+     * - `admin`: optional account to be granted admin role; disable with zero address
+     *
+     * IMPORTANT: The optional admin can aid with initial configuration of roles after deployment
+     * without being subject to delay, but this role should be subsequently renounced in favor of
+     * administration through timelocked proposals. Previous versions of this contract would assign
+     * this admin to the deployer automatically and should be renounced as well.
      */
-    constructor(
-        uint256 minDelay,
-        address[] memory proposers,
-        address[] memory executors
-    ) {
-        _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
+        // self administration
+        _grantRole(DEFAULT_ADMIN_ROLE, address(this));
 
-        // deployer + self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
-        _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+        // optional admin
+        if (admin != address(0)) {
+            _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        }
 
-        // register proposers
+        // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
-            _setupRole(PROPOSER_ROLE, proposers[i]);
+            _grantRole(PROPOSER_ROLE, proposers[i]);
+            _grantRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
         for (uint256 i = 0; i < executors.length; ++i) {
-            _setupRole(EXECUTOR_ROLE, executors[i]);
+            _grantRole(EXECUTOR_ROLE, executors[i]);
         }
 
         _minDelay = minDelay;
@@ -106,49 +155,74 @@ contract TimelockController is AccessControl {
     receive() external payable {}
 
     /**
-     * @dev Returns whether an id correspond to a registered operation. This
-     * includes both Pending, Ready and Done operations.
+     * @dev See {IERC165-supportsInterface}.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool pending) {
-        return getTimestamp(id) > 0;
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     /**
-     * @dev Returns whether an operation is pending or not.
+     * @dev Returns whether an id corresponds to a registered operation. This
+     * includes both Waiting, Ready, and Done operations.
      */
-    function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
-        return getTimestamp(id) > _DONE_TIMESTAMP;
+    function isOperation(bytes32 id) public view returns (bool) {
+        return getOperationState(id) != OperationState.Unset;
     }
 
     /**
-     * @dev Returns whether an operation is ready or not.
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
-    function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
-        uint256 timestamp = getTimestamp(id);
-        return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
+    function isOperationPending(bytes32 id) public view returns (bool) {
+        OperationState state = getOperationState(id);
+        return state == OperationState.Waiting || state == OperationState.Ready;
+    }
+
+    /**
+     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
+     */
+    function isOperationReady(bytes32 id) public view returns (bool) {
+        return getOperationState(id) == OperationState.Ready;
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
-    function isOperationDone(bytes32 id) public view virtual returns (bool done) {
-        return getTimestamp(id) == _DONE_TIMESTAMP;
+    function isOperationDone(bytes32 id) public view returns (bool) {
+        return getOperationState(id) == OperationState.Done;
     }
 
     /**
-     * @dev Returns the timestamp at with an operation becomes ready (0 for
+     * @dev Returns the timestamp at which an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
-    function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
+    function getTimestamp(bytes32 id) public view virtual returns (uint256) {
         return _timestamps[id];
     }
 
     /**
-     * @dev Returns the minimum delay for an operation to become valid.
+     * @dev Returns operation state.
+     */
+    function getOperationState(bytes32 id) public view virtual returns (OperationState) {
+        uint256 timestamp = getTimestamp(id);
+        if (timestamp == 0) {
+            return OperationState.Unset;
+        } else if (timestamp == _DONE_TIMESTAMP) {
+            return OperationState.Done;
+        } else if (timestamp > block.timestamp) {
+            return OperationState.Waiting;
+        } else {
+            return OperationState.Ready;
+        }
+    }
+
+    /**
+     * @dev Returns the minimum delay in seconds for an operation to become valid.
      *
      * This value can be changed by executing an operation that calls `updateDelay`.
      */
-    function getMinDelay() public view virtual returns (uint256 duration) {
+    function getMinDelay() public view virtual returns (uint256) {
         return _minDelay;
     }
 
@@ -162,7 +236,7 @@ contract TimelockController is AccessControl {
         bytes calldata data,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(target, value, data, predecessor, salt));
     }
 
@@ -173,17 +247,17 @@ contract TimelockController is AccessControl {
     function hashOperationBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
-        return keccak256(abi.encode(targets, values, datas, predecessor, salt));
+    ) public pure virtual returns (bytes32) {
+        return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits a {CallScheduled} event.
+     * Emits {CallSalt} if salt is nonzero, and {CallScheduled}.
      *
      * Requirements:
      *
@@ -200,12 +274,15 @@ contract TimelockController is AccessControl {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per transaction in the batch.
+     * Emits {CallSalt} if salt is nonzero, and one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -214,27 +291,36 @@ contract TimelockController is AccessControl {
     function scheduleBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        if (targets.length != values.length || targets.length != payloads.length) {
+            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        }
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
-            emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
+            emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
+        }
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
         }
     }
 
     /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(!isOperation(id), "TimelockController: operation already scheduled");
-        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
+        if (isOperation(id)) {
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Unset));
+        }
+        uint256 minDelay = getMinDelay();
+        if (delay < minDelay) {
+            revert TimelockInsufficientDelay(delay, minDelay);
+        }
         _timestamps[id] = block.timestamp + delay;
     }
 
@@ -243,10 +329,15 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must have the 'proposer' role.
+     * - the caller must have the 'canceller' role.
      */
-    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
-        require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
+    function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
+        if (!isOperationPending(id)) {
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Waiting) | _encodeStateBitmap(OperationState.Ready)
+            );
+        }
         delete _timestamps[id];
 
         emit Cancelled(id);
@@ -261,16 +352,21 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
+    // This function can reenter, but it doesn't pose a risk because _afterCall checks that the proposal is pending,
+    // thus any modifications to the operation during reentrancy should be caught.
+    // slither-disable-next-line reentrancy-eth
     function execute(
         address target,
         uint256 value,
-        bytes calldata data,
+        bytes calldata payload,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        bytes32 id = hashOperation(target, value, data, predecessor, salt);
+        bytes32 id = hashOperation(target, value, payload, predecessor, salt);
+
         _beforeCall(id, predecessor);
-        _call(id, 0, target, value, data);
+        _execute(target, value, payload);
+        emit CallExecuted(id, 0, target, value, payload);
         _afterCall(id);
     }
 
@@ -283,56 +379,61 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
+    // This function can reenter, but it doesn't pose a risk because _afterCall checks that the proposal is pending,
+    // thus any modifications to the operation during reentrancy should be caught.
+    // slither-disable-next-line reentrancy-eth
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        if (targets.length != values.length || targets.length != payloads.length) {
+            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        }
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
+
         _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
+            address target = targets[i];
+            uint256 value = values[i];
+            bytes calldata payload = payloads[i];
+            _execute(target, value, payload);
+            emit CallExecuted(id, i, target, value, payload);
         }
         _afterCall(id);
+    }
+
+    /**
+     * @dev Execute an operation's call.
+     */
+    function _execute(address target, uint256 value, bytes calldata data) internal virtual {
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        Address.verifyCallResult(success, returndata);
     }
 
     /**
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
-        require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+        if (!isOperationReady(id)) {
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
+        }
+        if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
+            revert TimelockUnexecutedPredecessor(predecessor);
+        }
     }
 
     /**
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
+        if (!isOperationReady(id)) {
+            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
+        }
         _timestamps[id] = _DONE_TIMESTAMP;
-    }
-
-    /**
-     * @dev Execute an operation's call.
-     *
-     * Emits a {CallExecuted} event.
-     */
-    function _call(
-        bytes32 id,
-        uint256 index,
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) private {
-        (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
-
-        emit CallExecuted(id, index, target, value, data);
     }
 
     /**
@@ -346,8 +447,26 @@ contract TimelockController is AccessControl {
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "TimelockController: caller must be timelock");
+        address sender = _msgSender();
+        if (sender != address(this)) {
+            revert TimelockUnauthorizedCaller(sender);
+        }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
+    }
+
+    /**
+     * @dev Encodes a `OperationState` into a `bytes32` representation where each bit enabled corresponds to
+     * the underlying position in the `OperationState` enum. For example:
+     *
+     * 0x000...1000
+     *   ^^^^^^----- ...
+     *         ^---- Done
+     *          ^--- Ready
+     *           ^-- Waiting
+     *            ^- Unset
+     */
+    function _encodeStateBitmap(OperationState operationState) internal pure returns (bytes32) {
+        return bytes32(1 << uint8(operationState));
     }
 }

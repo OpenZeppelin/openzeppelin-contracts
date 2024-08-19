@@ -1,97 +1,80 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS } = constants;
-
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC721PausableMock = artifacts.require('ERC721PausableMock');
+const name = 'Non Fungible Token';
+const symbol = 'NFT';
+const tokenId = 1n;
+const otherTokenId = 2n;
+const data = ethers.Typed.bytes('0x42');
 
-contract('ERC721Pausable', function (accounts) {
-  const [ owner, receiver, operator ] = accounts;
+async function fixture() {
+  const [owner, receiver, operator] = await ethers.getSigners();
+  const token = await ethers.deployContract('$ERC721Pausable', [name, symbol]);
+  return { owner, receiver, operator, token };
+}
 
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
-
+describe('ERC721Pausable', function () {
   beforeEach(async function () {
-    this.token = await ERC721PausableMock.new(name, symbol);
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  context('when token is paused', function () {
-    const firstTokenId = new BN(1);
-    const secondTokenId = new BN(1337);
-
-    const mockData = '0x42';
-
+  describe('when token is paused', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId, { from: owner });
-      await this.token.pause();
+      await this.token.$_mint(this.owner, tokenId);
+      await this.token.$_pause();
     });
 
     it('reverts when trying to transferFrom', async function () {
-      await expectRevert(
-        this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused',
-      );
+      await expect(
+        this.token.connect(this.owner).transferFrom(this.owner, this.receiver, tokenId),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
-      await expectRevert(
-        this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused',
-      );
+      await expect(
+        this.token.connect(this.owner).safeTransferFrom(this.owner, this.receiver, tokenId),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await expectRevert(
-        this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
-          owner, receiver, firstTokenId, mockData, { from: owner },
-        ), 'ERC721Pausable: token transfer while paused',
-      );
+      await expect(
+        this.token.connect(this.owner).safeTransferFrom(this.owner, this.receiver, tokenId, data),
+      ).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevert(
-        this.token.mint(receiver, secondTokenId),
-        'ERC721Pausable: token transfer while paused',
+      await expect(this.token.$_mint(this.receiver, otherTokenId)).to.be.revertedWithCustomError(
+        this.token,
+        'EnforcedPause',
       );
     });
 
     it('reverts when trying to burn', async function () {
-      await expectRevert(
-        this.token.burn(firstTokenId),
-        'ERC721Pausable: token transfer while paused',
-      );
+      await expect(this.token.$_burn(tokenId)).to.be.revertedWithCustomError(this.token, 'EnforcedPause');
     });
 
     describe('getApproved', function () {
       it('returns approved address', async function () {
-        const approvedAccount = await this.token.getApproved(firstTokenId);
-        expect(approvedAccount).to.equal(ZERO_ADDRESS);
+        expect(await this.token.getApproved(tokenId)).to.equal(ethers.ZeroAddress);
       });
     });
 
     describe('balanceOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
-        const balance = await this.token.balanceOf(owner);
-        expect(balance).to.be.bignumber.equal('1');
+        expect(await this.token.balanceOf(this.owner)).to.equal(1n);
       });
     });
 
     describe('ownerOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
-        const ownerOfToken = await this.token.ownerOf(firstTokenId);
-        expect(ownerOfToken).to.equal(owner);
-      });
-    });
-
-    describe('exists', function () {
-      it('returns token existence', async function () {
-        expect(await this.token.exists(firstTokenId)).to.equal(true);
+        expect(await this.token.ownerOf(tokenId)).to.equal(this.owner);
       });
     });
 
     describe('isApprovedForAll', function () {
       it('returns the approval of the operator', async function () {
-        expect(await this.token.isApprovedForAll(owner, operator)).to.equal(false);
+        expect(await this.token.isApprovedForAll(this.owner, this.operator)).to.be.false;
       });
     });
   });

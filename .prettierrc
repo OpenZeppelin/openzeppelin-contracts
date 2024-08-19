@@ -1,11 +1,15 @@
 {
+  "printWidth": 120,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "arrowParens": "avoid",
   "overrides": [
     {
       "files": "*.sol",
       "options": {
-        "printWidth": 120,
-        "explicitTypes": "always"
+        "singleQuote": false
       }
     }
-  ]
+  ],
+  "plugins": ["prettier-plugin-solidity"]
 }

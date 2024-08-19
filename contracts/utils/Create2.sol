@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/Create2.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/Create2.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
+
+import {Errors} from "./Errors.sol";
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -13,6 +15,11 @@ pragma solidity ^0.8.0;
  * information.
  */
 library Create2 {
+    /**
+     * @dev There's no code to deploy.
+     */
+    error Create2EmptyBytecode();
+
     /**
      * @dev Deploys a contract using `CREATE2`. The address where the contract
      * will be deployed can be known in advance via {computeAddress}.
@@ -27,19 +34,26 @@ library Create2 {
      * - the factory must have a balance of at least `amount`.
      * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
-    function deploy(
-        uint256 amount,
-        bytes32 salt,
-        bytes memory bytecode
-    ) internal returns (address) {
-        address addr;
-        require(address(this).balance >= amount, "Create2: insufficient balance");
-        require(bytecode.length != 0, "Create2: bytecode length is zero");
+    function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address addr) {
+        if (address(this).balance < amount) {
+            revert Errors.InsufficientBalance(address(this).balance, amount);
+        }
+        if (bytecode.length == 0) {
+            revert Create2EmptyBytecode();
+        }
+        /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
+            // if no address was created, and returndata is not empty, bubble revert
+            if and(iszero(addr), not(iszero(returndatasize()))) {
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
+            }
         }
-        require(addr != address(0), "Create2: Failed on deploy");
-        return addr;
+        if (addr == address(0)) {
+            revert Errors.FailedDeployment();
+        }
     }
 
     /**
@@ -54,12 +68,27 @@ library Create2 {
      * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
      */
-    function computeAddress(
-        bytes32 salt,
-        bytes32 bytecodeHash,
-        address deployer
-    ) internal pure returns (address) {
-        bytes32 _data = keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash));
-        return address(uint160(uint256(_data)));
+    function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address addr) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let ptr := mload(0x40) // Get free memory pointer
+
+            // |                   | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |
+            // |-------------------|---------------------------------------------------------------------------|
+            // | bytecodeHash      |                                                        CCCCCCCCCCCCC...CC |
+            // | salt              |                                      BBBBBBBBBBBBB...BB                   |
+            // | deployer          | 000000...0000AAAAAAAAAAAAAAAAAAA...AA                                     |
+            // | 0xFF              |            FF                                                             |
+            // |-------------------|---------------------------------------------------------------------------|
+            // | memory            | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |
+            // | keccak(start, 85) |            ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
+
+            mstore(add(ptr, 0x40), bytecodeHash)
+            mstore(add(ptr, 0x20), salt)
+            mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
+            let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
+            mstore8(start, 0xff)
+            addr := and(keccak256(start, 85), 0xffffffffffffffffffffffffffffffffffffffff)
+        }
     }
 }

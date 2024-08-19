@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (interfaces/IERC2981.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC2981.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IERC165.sol";
+import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
- * @dev Interface for the NFT Royalty Standard
+ * @dev Interface for the NFT Royalty Standard.
+ *
+ * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+ * support for royalty payments across all NFT marketplaces and ecosystem participants.
  */
 interface IERC2981 is IERC165 {
     /**
-     * @dev Called with the sale price to determine how much royalty is owed and to whom.
-     * @param tokenId - the NFT asset queried for royalty information
-     * @param salePrice - the sale price of the NFT asset specified by `tokenId`
-     * @return receiver - address of who should be sent the royalty payment
-     * @return royaltyAmount - the royalty payment amount for `salePrice`
+     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice)
-        external
-        view
-        returns (address receiver, uint256 royaltyAmount);
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
 }

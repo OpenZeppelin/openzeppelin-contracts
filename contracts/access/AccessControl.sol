@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (access/AccessControl.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IAccessControl.sol";
-import "../utils/Context.sol";
-import "../utils/Strings.sol";
-import "../utils/introspection/ERC165.sol";
+import {IAccessControl} from "./IAccessControl.sol";
+import {Context} from "../utils/Context.sol";
+import {ERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -19,14 +18,14 @@ import "../utils/introspection/ERC165.sol";
  * in the external API and be unique. The best way to achieve this is by
  * using `public constant` hash digests:
  *
- * ```
+ * ```solidity
  * bytes32 public constant MY_ROLE = keccak256("MY_ROLE");
  * ```
  *
  * Roles can be used to represent a set of permissions. To restrict access to a
  * function call, use {hasRole}:
  *
- * ```
+ * ```solidity
  * function foo() public {
  *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
@@ -44,30 +43,25 @@ import "../utils/introspection/ERC165.sol";
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
  * grant and revoke this role. Extra precautions should be taken to secure
- * accounts that have been granted it.
+ * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
+ * to enforce additional security measures for this role.
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
-        mapping(address => bool) members;
+        mapping(address account => bool) hasRole;
         bytes32 adminRole;
     }
 
-    mapping(bytes32 => RoleData) private _roles;
+    mapping(bytes32 role => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
-     * with a standardized message including the required role.
-     *
-     * The format of the revert reason is given by the following regular expression:
-     *
-     *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
-     *
-     * _Available since v4.1._
+     * with an {AccessControlUnauthorizedAccount} error including the required role.
      */
     modifier onlyRole(bytes32 role) {
-        _checkRole(role, _msgSender());
+        _checkRole(role);
         _;
     }
 
@@ -81,29 +75,25 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 role, address account) public view override returns (bool) {
-        return _roles[role].members[account];
+    function hasRole(bytes32 role, address account) public view virtual returns (bool) {
+        return _roles[role].hasRole[account];
     }
 
     /**
-     * @dev Revert with a standard message if `account` is missing `role`.
-     *
-     * The format of the revert reason is given by the following regular expression:
-     *
-     *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
      */
-    function _checkRole(bytes32 role, address account) internal view {
+    function _checkRole(bytes32 role) internal view virtual {
+        _checkRole(role, _msgSender());
+    }
+
+    /**
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`
+     * is missing `role`.
+     */
+    function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
-            revert(
-                string(
-                    abi.encodePacked(
-                        "AccessControl: account ",
-                        Strings.toHexString(uint160(account), 20),
-                        " is missing role ",
-                        Strings.toHexString(uint256(role), 32)
-                    )
-                )
-            );
+            revert AccessControlUnauthorizedAccount(account, role);
         }
     }
 
@@ -113,7 +103,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) public view override returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -126,8 +116,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must have ``role``'s admin role.
+     *
+     * May emit a {RoleGranted} event.
      */
-    function grantRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
+    function grantRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {
         _grantRole(role, account);
     }
 
@@ -139,8 +131,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must have ``role``'s admin role.
+     *
+     * May emit a {RoleRevoked} event.
      */
-    function revokeRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
+    function revokeRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {
         _revokeRole(role, account);
     }
 
@@ -156,34 +150,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
+     *
+     * May emit a {RoleRevoked} event.
      */
-    function renounceRole(bytes32 role, address account) public virtual override {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+    function renounceRole(bytes32 role, address callerConfirmation) public virtual {
+        if (callerConfirmation != _msgSender()) {
+            revert AccessControlBadConfirmation();
+        }
 
-        _revokeRole(role, account);
-    }
-
-    /**
-     * @dev Grants `role` to `account`.
-     *
-     * If `account` had not been already granted `role`, emits a {RoleGranted}
-     * event. Note that unlike {grantRole}, this function doesn't perform any
-     * checks on the calling account.
-     *
-     * [WARNING]
-     * ====
-     * This function should only be called from the constructor when setting
-     * up the initial roles for the system.
-     *
-     * Using this function in any other way is effectively circumventing the admin
-     * system imposed by {AccessControl}.
-     * ====
-     *
-     * NOTE: This function is deprecated in favor of {_grantRole}.
-     */
-    function _setupRole(bytes32 role, address account) internal virtual {
-        _grantRole(role, account);
+        _revokeRole(role, callerConfirmation);
     }
 
     /**
@@ -198,26 +174,36 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Grants `role` to `account`.
+     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.
      *
      * Internal function without access restriction.
+     *
+     * May emit a {RoleGranted} event.
      */
-    function _grantRole(bytes32 role, address account) internal virtual {
+    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {
         if (!hasRole(role, account)) {
-            _roles[role].members[account] = true;
+            _roles[role].hasRole[account] = true;
             emit RoleGranted(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 
     /**
-     * @dev Revokes `role` from `account`.
+     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
      *
      * Internal function without access restriction.
+     *
+     * May emit a {RoleRevoked} event.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual {
+    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {
         if (hasRole(role, account)) {
-            _roles[role].members[account] = false;
+            _roles[role].hasRole[account] = false;
             emit RoleRevoked(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 }

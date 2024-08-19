@@ -1,127 +1,112 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-function shouldBehaveLikeSet (valueA, valueB, valueC) {
-  async function expectMembersMatch (set, values) {
-    const contains = await Promise.all(values.map(value => set.contains(value)));
-    expect(contains.every(Boolean)).to.be.equal(true);
+function shouldBehaveLikeSet() {
+  async function expectMembersMatch(methods, values) {
+    expect(await methods.length()).to.equal(values.length);
+    for (const value of values) expect(await methods.contains(value)).to.be.true;
 
-    const length = await set.length();
-    expect(length).to.bignumber.equal(values.length.toString());
-
-    // To compare values we convert to strings to workaround Chai
-    // limitations when dealing with nested arrays (required for BNs)
-    const indexedValues = await Promise.all(Array(values.length).fill().map((_, index) => set.at(index)));
-    expect(
-      indexedValues.map(v => v.toString()),
-    ).to.have.same.members(
-      values.map(v => v.toString()),
-    );
-
-    const returnedValues = await set.values();
-    expect(
-      returnedValues.map(v => v.toString()),
-    ).to.have.same.members(
-      values.map(v => v.toString()),
-    );
+    expect(await Promise.all(values.map((_, index) => methods.at(index)))).to.have.deep.members(values);
+    expect([...(await methods.values())]).to.have.deep.members(values);
   }
 
   it('starts empty', async function () {
-    expect(await this.set.contains(valueA)).to.equal(false);
+    expect(await this.methods.contains(this.valueA)).to.be.false;
 
-    await expectMembersMatch(this.set, []);
+    await expectMembersMatch(this.methods, []);
   });
 
   describe('add', function () {
     it('adds a value', async function () {
-      const receipt = await this.set.add(valueA);
-      expectEvent(receipt, 'OperationResult', { result: true });
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, this.events.addReturn).withArgs(true);
 
-      await expectMembersMatch(this.set, [valueA]);
+      await expectMembersMatch(this.methods, [this.valueA]);
     });
 
     it('adds several values', async function () {
-      await this.set.add(valueA);
-      await this.set.add(valueB);
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
 
-      await expectMembersMatch(this.set, [valueA, valueB]);
-      expect(await this.set.contains(valueC)).to.equal(false);
+      await expectMembersMatch(this.methods, [this.valueA, this.valueB]);
+      expect(await this.methods.contains(this.valueC)).to.be.false;
     });
 
     it('returns false when adding values already in the set', async function () {
-      await this.set.add(valueA);
+      await this.methods.add(this.valueA);
 
-      const receipt = (await this.set.add(valueA));
-      expectEvent(receipt, 'OperationResult', { result: false });
+      await expect(this.methods.add(this.valueA)).to.emit(this.mock, this.events.addReturn).withArgs(false);
 
-      await expectMembersMatch(this.set, [valueA]);
+      await expectMembersMatch(this.methods, [this.valueA]);
     });
   });
 
   describe('at', function () {
     it('reverts when retrieving non-existent elements', async function () {
-      await expectRevert.unspecified(this.set.at(0));
+      await expect(this.methods.at(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('retrieves existing element', async function () {
+      await this.methods.add(this.valueA);
+      expect(await this.methods.at(0)).to.equal(this.valueA);
     });
   });
 
   describe('remove', function () {
     it('removes added values', async function () {
-      await this.set.add(valueA);
+      await this.methods.add(this.valueA);
 
-      const receipt = await this.set.remove(valueA);
-      expectEvent(receipt, 'OperationResult', { result: true });
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
 
-      expect(await this.set.contains(valueA)).to.equal(false);
-      await expectMembersMatch(this.set, []);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
+      await expectMembersMatch(this.methods, []);
     });
 
     it('returns false when removing values not in the set', async function () {
-      const receipt = await this.set.remove(valueA);
-      expectEvent(receipt, 'OperationResult', { result: false });
+      await expect(this.methods.remove(this.valueA)).to.emit(this.mock, this.events.removeReturn).withArgs(false);
 
-      expect(await this.set.contains(valueA)).to.equal(false);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
     });
 
     it('adds and removes multiple values', async function () {
       // []
 
-      await this.set.add(valueA);
-      await this.set.add(valueC);
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueC);
 
       // [A, C]
 
-      await this.set.remove(valueA);
-      await this.set.remove(valueB);
+      await this.methods.remove(this.valueA);
+      await this.methods.remove(this.valueB);
 
       // [C]
 
-      await this.set.add(valueB);
+      await this.methods.add(this.valueB);
 
       // [C, B]
 
-      await this.set.add(valueA);
-      await this.set.remove(valueC);
+      await this.methods.add(this.valueA);
+      await this.methods.remove(this.valueC);
 
       // [A, B]
 
-      await this.set.add(valueA);
-      await this.set.add(valueB);
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
 
       // [A, B]
 
-      await this.set.add(valueC);
-      await this.set.remove(valueA);
+      await this.methods.add(this.valueC);
+      await this.methods.remove(this.valueA);
 
       // [B, C]
 
-      await this.set.add(valueA);
-      await this.set.remove(valueB);
+      await this.methods.add(this.valueA);
+      await this.methods.remove(this.valueB);
 
       // [A, C]
 
-      await expectMembersMatch(this.set, [valueA, valueC]);
+      await expectMembersMatch(this.methods, [this.valueA, this.valueC]);
 
-      expect(await this.set.contains(valueB)).to.equal(false);
+      expect(await this.methods.contains(this.valueB)).to.be.false;
     });
   });
 }

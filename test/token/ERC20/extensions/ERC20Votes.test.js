@@ -1,538 +1,546 @@
-/* eslint-disable */
-
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { fromRpcSig } = require('ethereumjs-util');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
+const { getDomain, Delegation } = require('../../../helpers/eip712');
+const { batchInBlock } = require('../../../helpers/txpool');
+const time = require('../../../helpers/time');
 
-const { promisify } = require('util');
-const queue = promisify(setImmediate);
+const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
-const ERC20VotesMock = artifacts.require('ERC20VotesMock');
-
-const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
-
-const Delegation = [
-  { name: 'delegatee', type: 'address' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'expiry', type: 'uint256' },
+const TOKENS = [
+  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
-async function countPendingTransactions() {
-  return parseInt(
-    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending'])
-  );
-}
+const name = 'My Token';
+const symbol = 'MTKN';
+const version = '1';
+const supply = ethers.parseEther('10000000');
 
-async function batchInBlock (txs) {
-  try {
-    // disable auto-mining
-    await network.provider.send('evm_setAutomine', [false]);
-    // send all transactions
-    const promises = txs.map(fn => fn());
-    // wait for node to have all pending transactions
-    while (txs.length > await countPendingTransactions()) {
-      await queue();
-    }
-    // mine one block
-    await network.provider.send('evm_mine');
-    // fetch receipts
-    const receipts = await Promise.all(promises);
-    // Sanity check, all tx should be in the same block
-    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
-    expect(minedBlocks.size).to.equal(1);
+describe('ERC20Votes', function () {
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      // accounts is required by shouldBehaveLikeVotes
+      const accounts = await ethers.getSigners();
+      const [holder, recipient, delegatee, other1, other2] = accounts;
 
-    return receipts;
-  } finally {
-    // enable auto-mining
-    await network.provider.send('evm_setAutomine', [true]);
-  }
-}
+      const token = await ethers.deployContract(Token, [name, symbol, name, version]);
+      const domain = await getDomain(token);
 
-contract('ERC20Votes', function (accounts) {
-  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
+      return { accounts, holder, recipient, delegatee, other1, other2, token, domain };
+    };
 
-  const name = 'My Token';
-  const symbol = 'MTKN';
-  const version = '1';
-  const supply = new BN('10000000000000000000000000');
-
-  beforeEach(async function () {
-    this.token = await ERC20VotesMock.new(name, symbol);
-
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.token.getChainId();
-  });
-
-  it('initial nonce is 0', async function () {
-    expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');
-  });
-
-  it('domain separator', async function () {
-    expect(
-      await this.token.DOMAIN_SEPARATOR(),
-    ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.token.address),
-    );
-  });
-
-  it('minting restriction', async function () {
-    const amount = new BN('2').pow(new BN('224'));
-    await expectRevert(
-      this.token.mint(holder, amount),
-      'ERC20Votes: total supply risks overflowing votes',
-    );
-  });
-
-  describe('set delegation', function () {
-    describe('call', function () {
-      it('delegation with balance', async function () {
-        await this.token.mint(holder, supply);
-        expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
-
-        const { receipt } = await this.token.delegate(holder, { from: holder });
-        expectEvent(receipt, 'DelegateChanged', {
-          delegator: holder,
-          fromDelegate: ZERO_ADDRESS,
-          toDelegate: holder,
-        });
-        expectEvent(receipt, 'DelegateVotesChanged', {
-          delegate: holder,
-          previousBalance: '0',
-          newBalance: supply,
-        });
-
-        expect(await this.token.delegates(holder)).to.be.equal(holder);
-
-        expect(await this.token.getVotes(holder)).to.be.bignumber.equal(supply);
-        expect(await this.token.getPastVotes(holder, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        await time.advanceBlock();
-        expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal(supply);
-      });
-
-      it('delegation without balance', async function () {
-        expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
-
-        const { receipt } = await this.token.delegate(holder, { from: holder });
-        expectEvent(receipt, 'DelegateChanged', {
-          delegator: holder,
-          fromDelegate: ZERO_ADDRESS,
-          toDelegate: holder,
-        });
-        expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
-
-        expect(await this.token.delegates(holder)).to.be.equal(holder);
-      });
-    });
-
-    describe('with signature', function () {
-      const delegator = Wallet.generate();
-      const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
-      const nonce = 0;
-
-      const buildData = (chainId, verifyingContract, message) => ({ data: {
-        primaryType: 'Delegation',
-        types: { EIP712Domain, Delegation },
-        domain: { name, version, chainId, verifyingContract },
-        message,
-      }});
-
+    describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        await this.token.mint(delegatorAddress, supply);
+        Object.assign(this, await loadFixture(fixture));
+        this.votes = this.token;
       });
 
-      it('accept signed delegation', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+      // includes ERC6372 behavior check
+      shouldBehaveLikeVotes([1, 17, 42], { mode, fungible: true });
 
-        expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
+      it('initial nonce is 0', async function () {
+        expect(await this.token.nonces(this.holder)).to.equal(0n);
+      });
 
-        const { receipt } = await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
-        expectEvent(receipt, 'DelegateChanged', {
-          delegator: delegatorAddress,
-          fromDelegate: ZERO_ADDRESS,
-          toDelegate: delegatorAddress,
+      it('minting restriction', async function () {
+        const value = 2n ** 208n;
+        await expect(this.token.$_mint(this.holder, value))
+          .to.be.revertedWithCustomError(this.token, 'ERC20ExceededSafeSupply')
+          .withArgs(value, value - 1n);
+      });
+
+      it('recent checkpoints', async function () {
+        await this.token.connect(this.holder).delegate(this.holder);
+        for (let i = 0; i < 6; i++) {
+          await this.token.$_mint(this.holder, 1n);
+        }
+        const timepoint = await time.clock[mode]();
+        expect(await this.token.numCheckpoints(this.holder)).to.equal(6n);
+        // recent
+        expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(5n);
+        // non-recent
+        expect(await this.token.getPastVotes(this.holder, timepoint - 6n)).to.equal(0n);
+      });
+
+      describe('set delegation', function () {
+        describe('call', function () {
+          it('delegation with balance', async function () {
+            await this.token.$_mint(this.holder, supply);
+            expect(await this.token.delegates(this.holder)).to.equal(ethers.ZeroAddress);
+
+            const tx = await this.token.connect(this.holder).delegate(this.holder);
+            const timepoint = await time.clockFromReceipt[mode](tx);
+
+            await expect(tx)
+              .to.emit(this.token, 'DelegateChanged')
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
+              .to.emit(this.token, 'DelegateVotesChanged')
+              .withArgs(this.holder, 0n, supply);
+
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
+            expect(await this.token.getVotes(this.holder)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(0n);
+            await mine();
+            expect(await this.token.getPastVotes(this.holder, timepoint)).to.equal(supply);
+          });
+
+          it('delegation without balance', async function () {
+            expect(await this.token.delegates(this.holder)).to.equal(ethers.ZeroAddress);
+
+            await expect(this.token.connect(this.holder).delegate(this.holder))
+              .to.emit(this.token, 'DelegateChanged')
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
+              .to.not.emit(this.token, 'DelegateVotesChanged');
+
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
+          });
         });
-        expectEvent(receipt, 'DelegateVotesChanged', {
-          delegate: delegatorAddress,
-          previousBalance: '0',
-          newBalance: supply,
+
+        describe('with signature', function () {
+          const nonce = 0n;
+
+          beforeEach(async function () {
+            await this.token.$_mint(this.holder, supply);
+          });
+
+          it('accept signed delegation', async function () {
+            const { r, s, v } = await this.holder
+              .signTypedData(
+                this.domain,
+                { Delegation },
+                {
+                  delegatee: this.holder.address,
+                  nonce,
+                  expiry: ethers.MaxUint256,
+                },
+              )
+              .then(ethers.Signature.from);
+
+            expect(await this.token.delegates(this.holder)).to.equal(ethers.ZeroAddress);
+
+            const tx = await this.token.delegateBySig(this.holder, nonce, ethers.MaxUint256, v, r, s);
+            const timepoint = await time.clockFromReceipt[mode](tx);
+
+            await expect(tx)
+              .to.emit(this.token, 'DelegateChanged')
+              .withArgs(this.holder, ethers.ZeroAddress, this.holder)
+              .to.emit(this.token, 'DelegateVotesChanged')
+              .withArgs(this.holder, 0n, supply);
+
+            expect(await this.token.delegates(this.holder)).to.equal(this.holder);
+
+            expect(await this.token.getVotes(this.holder)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(0n);
+            await mine();
+            expect(await this.token.getPastVotes(this.holder, timepoint)).to.equal(supply);
+          });
+
+          it('rejects reused signature', async function () {
+            const { r, s, v } = await this.holder
+              .signTypedData(
+                this.domain,
+                { Delegation },
+                {
+                  delegatee: this.holder.address,
+                  nonce,
+                  expiry: ethers.MaxUint256,
+                },
+              )
+              .then(ethers.Signature.from);
+
+            await this.token.delegateBySig(this.holder, nonce, ethers.MaxUint256, v, r, s);
+
+            await expect(this.token.delegateBySig(this.holder, nonce, ethers.MaxUint256, v, r, s))
+              .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+              .withArgs(this.holder, nonce + 1n);
+          });
+
+          it('rejects bad delegatee', async function () {
+            const { r, s, v } = await this.holder
+              .signTypedData(
+                this.domain,
+                { Delegation },
+                {
+                  delegatee: this.holder.address,
+                  nonce,
+                  expiry: ethers.MaxUint256,
+                },
+              )
+              .then(ethers.Signature.from);
+
+            const tx = await this.token.delegateBySig(this.delegatee, nonce, ethers.MaxUint256, v, r, s);
+
+            const { args } = await tx
+              .wait()
+              .then(receipt => receipt.logs.find(event => event.fragment.name == 'DelegateChanged'));
+            expect(args[0]).to.not.equal(this.holder);
+            expect(args[1]).to.equal(ethers.ZeroAddress);
+            expect(args[2]).to.equal(this.delegatee);
+          });
+
+          it('rejects bad nonce', async function () {
+            const { r, s, v, serialized } = await this.holder
+              .signTypedData(
+                this.domain,
+                { Delegation },
+                {
+                  delegatee: this.holder.address,
+                  nonce,
+                  expiry: ethers.MaxUint256,
+                },
+              )
+              .then(ethers.Signature.from);
+
+            const recovered = ethers.verifyTypedData(
+              this.domain,
+              { Delegation },
+              {
+                delegatee: this.holder.address,
+                nonce: nonce + 1n,
+                expiry: ethers.MaxUint256,
+              },
+              serialized,
+            );
+
+            await expect(this.token.delegateBySig(this.holder, nonce + 1n, ethers.MaxUint256, v, r, s))
+              .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+              .withArgs(recovered, nonce);
+          });
+
+          it('rejects expired permit', async function () {
+            const expiry = (await time.clock.timestamp()) - time.duration.weeks(1);
+
+            const { r, s, v } = await this.holder
+              .signTypedData(
+                this.domain,
+                { Delegation },
+                {
+                  delegatee: this.holder.address,
+                  nonce,
+                  expiry,
+                },
+              )
+              .then(ethers.Signature.from);
+
+            await expect(this.token.delegateBySig(this.holder, nonce, expiry, v, r, s))
+              .to.be.revertedWithCustomError(this.token, 'VotesExpiredSignature')
+              .withArgs(expiry);
+          });
+        });
+      });
+
+      describe('change delegation', function () {
+        beforeEach(async function () {
+          await this.token.$_mint(this.holder, supply);
+          await this.token.connect(this.holder).delegate(this.holder);
         });
 
-        expect(await this.token.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
+        it('call', async function () {
+          expect(await this.token.delegates(this.holder)).to.equal(this.holder);
 
-        expect(await this.token.getVotes(delegatorAddress)).to.be.bignumber.equal(supply);
-        expect(await this.token.getPastVotes(delegatorAddress, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        await time.advanceBlock();
-        expect(await this.token.getPastVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal(supply);
+          const tx = await this.token.connect(this.holder).delegate(this.delegatee);
+          const timepoint = await time.clockFromReceipt[mode](tx);
+
+          await expect(tx)
+            .to.emit(this.token, 'DelegateChanged')
+            .withArgs(this.holder, this.holder, this.delegatee)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.holder, supply, 0n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.delegatee, 0n, supply);
+
+          expect(await this.token.delegates(this.holder)).to.equal(this.delegatee);
+
+          expect(await this.token.getVotes(this.holder)).to.equal(0n);
+          expect(await this.token.getVotes(this.delegatee)).to.equal(supply);
+          expect(await this.token.getPastVotes(this.holder, timepoint - 1n)).to.equal(supply);
+          expect(await this.token.getPastVotes(this.delegatee, timepoint - 1n)).to.equal(0n);
+          await mine();
+          expect(await this.token.getPastVotes(this.holder, timepoint)).to.equal(0n);
+          expect(await this.token.getPastVotes(this.delegatee, timepoint)).to.equal(supply);
+        });
       });
 
-      it('rejects reused signature', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+      describe('transfers', function () {
+        beforeEach(async function () {
+          await this.token.$_mint(this.holder, supply);
+        });
 
-        await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        it('no delegation', async function () {
+          await expect(this.token.connect(this.holder).transfer(this.recipient, 1n))
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.recipient, 1n)
+            .to.not.emit(this.token, 'DelegateVotesChanged');
 
-        await expectRevert(
-          this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'ERC20Votes: invalid nonce',
-        );
+          this.holderVotes = 0n;
+          this.recipientVotes = 0n;
+        });
+
+        it('sender delegation', async function () {
+          await this.token.connect(this.holder).delegate(this.holder);
+
+          const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.recipient, 1n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.holder, supply, supply - 1n);
+
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
+
+          this.holderVotes = supply - 1n;
+          this.recipientVotes = 0n;
+        });
+
+        it('receiver delegation', async function () {
+          await this.token.connect(this.recipient).delegate(this.recipient);
+
+          const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.recipient, 1n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.recipient, 0n, 1n);
+
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
+
+          this.holderVotes = 0n;
+          this.recipientVotes = 1n;
+        });
+
+        it('full delegation', async function () {
+          await this.token.connect(this.holder).delegate(this.holder);
+          await this.token.connect(this.recipient).delegate(this.recipient);
+
+          const tx = await this.token.connect(this.holder).transfer(this.recipient, 1n);
+          await expect(tx)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder, this.recipient, 1n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.holder, supply, supply - 1n)
+            .to.emit(this.token, 'DelegateVotesChanged')
+            .withArgs(this.recipient, 0n, 1n);
+
+          const { logs } = await tx.wait();
+          const { index } = logs.find(event => event.fragment.name == 'DelegateVotesChanged');
+          for (const event of logs.filter(event => event.fragment.name == 'Transfer')) {
+            expect(event.index).to.lt(index);
+          }
+
+          this.holderVotes = supply - 1n;
+          this.recipientVotes = 1n;
+        });
+
+        afterEach(async function () {
+          expect(await this.token.getVotes(this.holder)).to.equal(this.holderVotes);
+          expect(await this.token.getVotes(this.recipient)).to.equal(this.recipientVotes);
+
+          // need to advance 2 blocks to see the effect of a transfer on "getPastVotes"
+          const timepoint = await time.clock[mode]();
+          await mine();
+          expect(await this.token.getPastVotes(this.holder, timepoint)).to.equal(this.holderVotes);
+          expect(await this.token.getPastVotes(this.recipient, timepoint)).to.equal(this.recipientVotes);
+        });
       });
 
-      it('rejects bad delegatee', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+      // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
+      describe('Compound test suite', function () {
+        beforeEach(async function () {
+          await this.token.$_mint(this.holder, supply);
+        });
 
-        const { logs } = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
-        const { args } = logs.find(({ event }) => event == 'DelegateChanged');
-        expect(args.delegator).to.not.be.equal(delegatorAddress);
-        expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
-        expect(args.toDelegate).to.be.equal(holderDelegatee);
+        describe('balanceOf', function () {
+          it('grants to initial account', async function () {
+            expect(await this.token.balanceOf(this.holder)).to.equal(supply);
+          });
+        });
+
+        describe('numCheckpoints', function () {
+          it('returns the number of checkpoints for a delegate', async function () {
+            await this.token.connect(this.holder).transfer(this.recipient, 100n); //give an account a few tokens for readability
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(0n);
+
+            const t1 = await this.token.connect(this.recipient).delegate(this.other1);
+            t1.timepoint = await time.clockFromReceipt[mode](t1);
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(1n);
+
+            const t2 = await this.token.connect(this.recipient).transfer(this.other2, 10);
+            t2.timepoint = await time.clockFromReceipt[mode](t2);
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(2n);
+
+            const t3 = await this.token.connect(this.recipient).transfer(this.other2, 10);
+            t3.timepoint = await time.clockFromReceipt[mode](t3);
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(3n);
+
+            const t4 = await this.token.connect(this.holder).transfer(this.recipient, 20);
+            t4.timepoint = await time.clockFromReceipt[mode](t4);
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(4n);
+
+            expect(await this.token.checkpoints(this.other1, 0n)).to.deep.equal([t1.timepoint, 100n]);
+            expect(await this.token.checkpoints(this.other1, 1n)).to.deep.equal([t2.timepoint, 90n]);
+            expect(await this.token.checkpoints(this.other1, 2n)).to.deep.equal([t3.timepoint, 80n]);
+            expect(await this.token.checkpoints(this.other1, 3n)).to.deep.equal([t4.timepoint, 100n]);
+            await mine();
+            expect(await this.token.getPastVotes(this.other1, t1.timepoint)).to.equal(100n);
+            expect(await this.token.getPastVotes(this.other1, t2.timepoint)).to.equal(90n);
+            expect(await this.token.getPastVotes(this.other1, t3.timepoint)).to.equal(80n);
+            expect(await this.token.getPastVotes(this.other1, t4.timepoint)).to.equal(100n);
+          });
+
+          it('does not add more than one checkpoint in a block', async function () {
+            await this.token.connect(this.holder).transfer(this.recipient, 100n);
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(0n);
+
+            const [t1, t2, t3] = await batchInBlock([
+              () => this.token.connect(this.recipient).delegate(this.other1, { gasLimit: 200000 }),
+              () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
+              () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
+            ]);
+            t1.timepoint = await time.clockFromReceipt[mode](t1);
+            t2.timepoint = await time.clockFromReceipt[mode](t2);
+            t3.timepoint = await time.clockFromReceipt[mode](t3);
+
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(1);
+            expect(await this.token.checkpoints(this.other1, 0n)).to.be.deep.equal([t1.timepoint, 80n]);
+
+            const t4 = await this.token.connect(this.holder).transfer(this.recipient, 20n);
+            t4.timepoint = await time.clockFromReceipt[mode](t4);
+
+            expect(await this.token.numCheckpoints(this.other1)).to.equal(2n);
+            expect(await this.token.checkpoints(this.other1, 1n)).to.be.deep.equal([t4.timepoint, 100n]);
+          });
+        });
+
+        describe('getPastVotes', function () {
+          it('reverts if block number >= current block', async function () {
+            const clock = await this.token.clock();
+            await expect(this.token.getPastVotes(this.other1, 50_000_000_000n))
+              .to.be.revertedWithCustomError(this.token, 'ERC5805FutureLookup')
+              .withArgs(50_000_000_000n, clock);
+          });
+
+          it('returns 0 if there are no checkpoints', async function () {
+            expect(await this.token.getPastVotes(this.other1, 0n)).to.equal(0n);
+          });
+
+          it('returns the latest block if >= last checkpoint block', async function () {
+            const tx = await this.token.connect(this.holder).delegate(this.other1);
+            const timepoint = await time.clockFromReceipt[mode](tx);
+            await mine(2);
+
+            expect(await this.token.getPastVotes(this.other1, timepoint)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.other1, timepoint + 1n)).to.equal(supply);
+          });
+
+          it('returns zero if < first checkpoint block', async function () {
+            await mine();
+            const tx = await this.token.connect(this.holder).delegate(this.other1);
+            const timepoint = await time.clockFromReceipt[mode](tx);
+            await mine(2);
+
+            expect(await this.token.getPastVotes(this.other1, timepoint - 1n)).to.equal(0n);
+            expect(await this.token.getPastVotes(this.other1, timepoint + 1n)).to.equal(supply);
+          });
+
+          it('generally returns the voting balance at the appropriate checkpoint', async function () {
+            const t1 = await this.token.connect(this.holder).delegate(this.other1);
+            await mine(2);
+            const t2 = await this.token.connect(this.holder).transfer(this.other2, 10);
+            await mine(2);
+            const t3 = await this.token.connect(this.holder).transfer(this.other2, 10);
+            await mine(2);
+            const t4 = await this.token.connect(this.other2).transfer(this.holder, 20);
+            await mine(2);
+
+            t1.timepoint = await time.clockFromReceipt[mode](t1);
+            t2.timepoint = await time.clockFromReceipt[mode](t2);
+            t3.timepoint = await time.clockFromReceipt[mode](t3);
+            t4.timepoint = await time.clockFromReceipt[mode](t4);
+
+            expect(await this.token.getPastVotes(this.other1, t1.timepoint - 1n)).to.equal(0n);
+            expect(await this.token.getPastVotes(this.other1, t1.timepoint)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.other1, t1.timepoint + 1n)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.other1, t2.timepoint)).to.equal(supply - 10n);
+            expect(await this.token.getPastVotes(this.other1, t2.timepoint + 1n)).to.equal(supply - 10n);
+            expect(await this.token.getPastVotes(this.other1, t3.timepoint)).to.equal(supply - 20n);
+            expect(await this.token.getPastVotes(this.other1, t3.timepoint + 1n)).to.equal(supply - 20n);
+            expect(await this.token.getPastVotes(this.other1, t4.timepoint)).to.equal(supply);
+            expect(await this.token.getPastVotes(this.other1, t4.timepoint + 1n)).to.equal(supply);
+          });
+        });
       });
 
-      it('rejects bad nonce', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
-        await expectRevert(
-          this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'ERC20Votes: invalid nonce',
-        );
-      });
+      describe('getPastTotalSupply', function () {
+        beforeEach(async function () {
+          await this.token.connect(this.holder).delegate(this.holder);
+        });
 
-      it('rejects expired permit', async function () {
-        const expiry = (await time.latest()) - time.duration.weeks(1);
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry,
-          }),
-        ));
+        it('reverts if block number >= current block', async function () {
+          const clock = await this.token.clock();
+          await expect(this.token.getPastTotalSupply(50_000_000_000n))
+            .to.be.revertedWithCustomError(this.token, 'ERC5805FutureLookup')
+            .withArgs(50_000_000_000n, clock);
+        });
 
-        await expectRevert(
-          this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
-          'ERC20Votes: signature expired',
-        );
-      });
-    });
-  });
+        it('returns 0 if there are no checkpoints', async function () {
+          expect(await this.token.getPastTotalSupply(0n)).to.equal(0n);
+        });
 
-  describe('change delegation', function () {
-    beforeEach(async function () {
-      await this.token.mint(holder, supply);
-      await this.token.delegate(holder, { from: holder });
-    });
+        it('returns the latest block if >= last checkpoint block', async function () {
+          const tx = await this.token.$_mint(this.holder, supply);
+          const timepoint = await time.clockFromReceipt[mode](tx);
+          await mine(2);
 
-    it('call', async function () {
-      expect(await this.token.delegates(holder)).to.be.equal(holder);
+          expect(await this.token.getPastTotalSupply(timepoint)).to.equal(supply);
+          expect(await this.token.getPastTotalSupply(timepoint + 1n)).to.equal(supply);
+        });
 
-      const { receipt } = await this.token.delegate(holderDelegatee, { from: holder });
-      expectEvent(receipt, 'DelegateChanged', {
-        delegator: holder,
-        fromDelegate: holder,
-        toDelegate: holderDelegatee,
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: holder,
-        previousBalance: supply,
-        newBalance: '0',
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: holderDelegatee,
-        previousBalance: '0',
-        newBalance: supply,
-      });
+        it('returns zero if < first checkpoint block', async function () {
+          await mine();
+          const tx = await this.token.$_mint(this.holder, supply);
+          const timepoint = await time.clockFromReceipt[mode](tx);
+          await mine(2);
 
-      expect(await this.token.delegates(holder)).to.be.equal(holderDelegatee);
+          expect(await this.token.getPastTotalSupply(timepoint - 1n)).to.equal(0n);
+          expect(await this.token.getPastTotalSupply(timepoint + 1n)).to.equal(supply);
+        });
 
-      expect(await this.token.getVotes(holder)).to.be.bignumber.equal('0');
-      expect(await this.token.getVotes(holderDelegatee)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPastVotes(holder, receipt.blockNumber - 1)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPastVotes(holderDelegatee, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      await time.advanceBlock();
-      expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotes(holderDelegatee, receipt.blockNumber)).to.be.bignumber.equal(supply);
-    });
-  });
+        it('generally returns the voting balance at the appropriate checkpoint', async function () {
+          const t1 = await this.token.$_mint(this.holder, supply);
+          await mine(2);
+          const t2 = await this.token.$_burn(this.holder, 10n);
+          await mine(2);
+          const t3 = await this.token.$_burn(this.holder, 10n);
+          await mine(2);
+          const t4 = await this.token.$_mint(this.holder, 20n);
+          await mine(2);
 
-  describe('transfers', function () {
-    beforeEach(async function () {
-      await this.token.mint(holder, supply);
-    });
+          t1.timepoint = await time.clockFromReceipt[mode](t1);
+          t2.timepoint = await time.clockFromReceipt[mode](t2);
+          t3.timepoint = await time.clockFromReceipt[mode](t3);
+          t4.timepoint = await time.clockFromReceipt[mode](t4);
 
-    it('no delegation', async function () {
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
-
-      this.holderVotes = '0';
-      this.recipientVotes = '0';
-    });
-
-    it('sender delegation', async function () {
-      await this.token.delegate(holder, { from: holder });
-
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
-
-      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
-
-      this.holderVotes = supply.subn(1);
-      this.recipientVotes = '0';
-    });
-
-    it('receiver delegation', async function () {
-      await this.token.delegate(recipient, { from: recipient });
-
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
-
-      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
-
-      this.holderVotes = '0';
-      this.recipientVotes = '1';
-    });
-
-    it('full delegation', async function () {
-      await this.token.delegate(holder, { from: holder });
-      await this.token.delegate(recipient, { from: recipient });
-
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
-
-      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
-
-      this.holderVotes = supply.subn(1);
-      this.recipientVotes = '1';
-    });
-
-    afterEach(async function () {
-      expect(await this.token.getVotes(holder)).to.be.bignumber.equal(this.holderVotes);
-      expect(await this.token.getVotes(recipient)).to.be.bignumber.equal(this.recipientVotes);
-
-      // need to advance 2 blocks to see the effect of a transfer on "getPastVotes"
-      const blockNumber = await time.latestBlock();
-      await time.advanceBlock();
-      expect(await this.token.getPastVotes(holder, blockNumber)).to.be.bignumber.equal(this.holderVotes);
-      expect(await this.token.getPastVotes(recipient, blockNumber)).to.be.bignumber.equal(this.recipientVotes);
-    });
-  });
-
-  // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
-  describe('Compound test suite', function () {
-    beforeEach(async function () {
-      await this.token.mint(holder, supply);
-    });
-
-    describe('balanceOf', function () {
-      it('grants to initial account', async function () {
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('10000000000000000000000000');
+          expect(await this.token.getPastTotalSupply(t1.timepoint - 1n)).to.equal(0n);
+          expect(await this.token.getPastTotalSupply(t1.timepoint)).to.equal(supply);
+          expect(await this.token.getPastTotalSupply(t1.timepoint + 1n)).to.equal(supply);
+          expect(await this.token.getPastTotalSupply(t2.timepoint)).to.equal(supply - 10n);
+          expect(await this.token.getPastTotalSupply(t2.timepoint + 1n)).to.equal(supply - 10n);
+          expect(await this.token.getPastTotalSupply(t3.timepoint)).to.equal(supply - 20n);
+          expect(await this.token.getPastTotalSupply(t3.timepoint + 1n)).to.equal(supply - 20n);
+          expect(await this.token.getPastTotalSupply(t4.timepoint)).to.equal(supply);
+          expect(await this.token.getPastTotalSupply(t4.timepoint + 1n)).to.equal(supply);
+        });
       });
     });
-
-    describe('numCheckpoints', function () {
-      it('returns the number of checkpoints for a delegate', async function () {
-        await this.token.transfer(recipient, '100', { from: holder }); //give an account a few tokens for readability
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
-
-        const t1 = await this.token.delegate(other1, { from: recipient });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-
-        const t2 = await this.token.transfer(other2, 10, { from: recipient });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
-
-        const t3 = await this.token.transfer(other2, 10, { from: recipient });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
-
-        const t4 = await this.token.transfer(recipient, 20, { from: holder });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
-
-        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '100' ]);
-        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '90' ]);
-        expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '80' ]);
-        expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
-
-        await time.advanceBlock();
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('100');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('90');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('80');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('100');
-      });
-
-      it('does not add more than one checkpoint in a block', async function () {
-        await this.token.transfer(recipient, '100', { from: holder });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
-
-        const [ t1, t2, t3 ] = await batchInBlock([
-          () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
-        ]);
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
-        // expectReve(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
-        // expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
-
-        const t4 = await this.token.transfer(recipient, 20, { from: holder });
-        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
-        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
-      });
-    });
-
-    describe('getPastVotes', function () {
-      it('reverts if block number >= current block', async function () {
-        await expectRevert(
-          this.token.getPastVotes(other1, 5e10),
-          'ERC20Votes: block not yet mined',
-        );
-      });
-
-      it('returns 0 if there are no checkpoints', async function () {
-        expect(await this.token.getPastVotes(other1, 0)).to.be.bignumber.equal('0');
-      });
-
-      it('returns the latest block if >= last checkpoint block', async function () {
-        const t1 = await this.token.delegate(other1, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-      });
-
-      it('returns zero if < first checkpoint block', async function () {
-        await time.advanceBlock();
-        const t1 = await this.token.delegate(other1, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-      });
-
-      it('generally returns the voting balance at the appropriate checkpoint', async function () {
-        const t1 = await this.token.delegate(other1, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t2 = await this.token.transfer(other2, 10, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t3 = await this.token.transfer(other2, 10, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t4 = await this.token.transfer(holder, 20, { from: other2 });
-        await time.advanceBlock();
-        await time.advanceBlock();
-
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999990');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999990');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999980');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999980');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-      });
-    });
-  });
-
-  describe('getPastTotalSupply', function () {
-    beforeEach(async function () {
-      await this.token.delegate(holder, { from: holder });
-    });
-
-    it('reverts if block number >= current block', async function () {
-      await expectRevert(
-        this.token.getPastTotalSupply(5e10),
-        'ERC20Votes: block not yet mined',
-      );
-    });
-
-    it('returns 0 if there are no checkpoints', async function () {
-      expect(await this.token.getPastTotalSupply(0)).to.be.bignumber.equal('0');
-    });
-
-    it('returns the latest block if >= last checkpoint block', async function () {
-      t1 = await this.token.mint(holder, supply);
-
-      await time.advanceBlock();
-      await time.advanceBlock();
-
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
-    });
-
-    it('returns zero if < first checkpoint block', async function () {
-      await time.advanceBlock();
-      const t1 = await this.token.mint(holder, supply);
-      await time.advanceBlock();
-      await time.advanceBlock();
-
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-    });
-
-    it('generally returns the voting balance at the appropriate checkpoint', async function () {
-      const t1 = await this.token.mint(holder, supply);
-      await time.advanceBlock();
-      await time.advanceBlock();
-      const t2 = await this.token.burn(holder, 10);
-      await time.advanceBlock();
-      await time.advanceBlock();
-      const t3 = await this.token.burn(holder, 10);
-      await time.advanceBlock();
-      await time.advanceBlock();
-      const t4 = await this.token.mint(holder, 20);
-      await time.advanceBlock();
-      await time.advanceBlock();
-
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-      expect(await this.token.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999990');
-      expect(await this.token.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999990');
-      expect(await this.token.getPastTotalSupply(t3.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999980');
-      expect(await this.token.getPastTotalSupply(t3.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999980');
-      expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-      expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-    });
-  });
+  }
 });

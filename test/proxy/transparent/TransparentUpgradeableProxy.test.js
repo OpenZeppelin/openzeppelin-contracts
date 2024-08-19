@@ -1,15 +1,28 @@
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const shouldBehaveLikeProxy = require('../Proxy.behaviour');
 const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
 
-const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
+async function fixture() {
+  const [owner, other, ...accounts] = await ethers.getSigners();
 
-contract('TransparentUpgradeableProxy', function (accounts) {
-  const [proxyAdminAddress, proxyAdminOwner] = accounts;
+  const implementation = await ethers.deployContract('DummyImplementation');
 
-  const createProxy = async function (logic, admin, initData, opts) {
-    return TransparentUpgradeableProxy.new(logic, admin, initData, opts);
+  const createProxy = function (logic, initData, opts = undefined) {
+    return ethers.deployContract('TransparentUpgradeableProxy', [logic, owner, initData], opts);
   };
 
-  shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyAdminOwner);
-  shouldBehaveLikeTransparentUpgradeableProxy(createProxy, accounts);
+  return { nonContractAddress: owner, owner, other, accounts, implementation, createProxy };
+}
+
+describe('TransparentUpgradeableProxy', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
+  shouldBehaveLikeProxy();
+
+  // createProxy, owner, otherAccounts
+  shouldBehaveLikeTransparentUpgradeableProxy();
 });
