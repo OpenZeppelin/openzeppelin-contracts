@@ -56,7 +56,7 @@ function verify${suffix}(${(hash ? formatArgsMultiline : formatArgsSingleLine)(
   'bytes32 leaf',
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bool) {
-    return processProof(proof, leaf${hash ? `, ${hash}` : ''}) == root;
+    return processProof${suffix}(proof, leaf${hash ? `, ${hash}` : ''}) == root;
 }
 
 /**
@@ -88,15 +88,18 @@ const templateMultiProof = ({ suffix, location, visibility, hash }) => `\
  * This version handles multiproofs in ${location} with ${hash ? 'a custom' : 'the default'} hashing function.
  *
  * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+ *
+ * NOTE: Consider the case where \`root == proof[0] && leaves.length == 0\` as it will return \`true\`.
+ * The \`leaves\` must be validated independently. See {processMultiProof${suffix}}.
  */
 function multiProofVerify${suffix}(${formatArgsMultiline(
   `bytes32[] ${location} proof`,
   `bool[] ${location} proofFlags`,
   'bytes32 root',
-  `bytes32[] ${location} leaves`,
+  `bytes32[] memory leaves`,
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bool) {
-    return processMultiProof(proof, proofFlags, leaves${hash ? `, ${hash}` : ''}) == root;
+    return processMultiProof${suffix}(proof, proofFlags, leaves${hash ? `, ${hash}` : ''}) == root;
 }
 
 /**
@@ -110,11 +113,15 @@ function multiProofVerify${suffix}(${formatArgsMultiline(
  * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
  * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
  * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+ *
+ * NOTE: The _empty set_ (i.e. the case where \`proof.length == 1 && leaves.length == 0\`) is considered a no-op,
+ * and therefore a valid multiproof (i.e. it returns \`proof[0]\`). Consider disallowing this case if you're not
+ * validating the leaves elsewhere.
  */
 function processMultiProof${suffix}(${formatArgsMultiline(
   `bytes32[] ${location} proof`,
   `bool[] ${location} proofFlags`,
-  `bytes32[] ${location} leaves`,
+  `bytes32[] memory leaves`,
   hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`,
 )}) internal ${visibility} returns (bytes32 merkleRoot) {
     // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
@@ -122,15 +129,16 @@ function processMultiProof${suffix}(${formatArgsMultiline(
     // \`hashes\` array. At the end of the process, the last hash in the \`hashes\` array should contain the root of
     // the Merkle tree.
     uint256 leavesLen = leaves.length;
+    uint256 proofFlagsLen = proofFlags.length;
 
     // Check proof validity.
-    if (leavesLen + proof.length != proofFlags.length + 1) {
+    if (leavesLen + proof.length != proofFlagsLen + 1) {
         revert MerkleProofInvalidMultiproof();
     }
 
     // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
     // \`xxx[xxxPos++]\`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-    bytes32[] memory hashes = new bytes32[](proofFlags.length);
+    bytes32[] memory hashes = new bytes32[](proofFlagsLen);
     uint256 leafPos = 0;
     uint256 hashPos = 0;
     uint256 proofPos = 0;
@@ -139,7 +147,7 @@ function processMultiProof${suffix}(${formatArgsMultiline(
     //   get the next hash.
     // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
     //   \`proof\` array.
-    for (uint256 i = 0; i < proofFlags.length; i++) {
+    for (uint256 i = 0; i < proofFlagsLen; i++) {
         bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
         bytes32 b = proofFlags[i]
             ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -147,12 +155,12 @@ function processMultiProof${suffix}(${formatArgsMultiline(
         hashes[i] = ${hash ?? DEFAULT_HASH}(a, b);
     }
 
-    if (proofFlags.length > 0) {
+    if (proofFlagsLen > 0) {
         if (proofPos != proof.length) {
             revert MerkleProofInvalidMultiproof();
         }
         unchecked {
-            return hashes[proofFlags.length - 1];
+            return hashes[proofFlagsLen - 1];
         }
     } else if (leavesLen > 0) {
         return leaves[0];

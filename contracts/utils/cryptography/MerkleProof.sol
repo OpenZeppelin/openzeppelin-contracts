@@ -105,7 +105,7 @@ library MerkleProof {
      * This version handles proofs in calldata with the default hashing function.
      */
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
-        return processProof(proof, leaf) == root;
+        return processProofCalldata(proof, leaf) == root;
     }
 
     /**
@@ -138,7 +138,7 @@ library MerkleProof {
         bytes32 leaf,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
-        return processProof(proof, leaf, hasher) == root;
+        return processProofCalldata(proof, leaf, hasher) == root;
     }
 
     /**
@@ -168,6 +168,9 @@ library MerkleProof {
      * This version handles multiproofs in memory with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -189,6 +192,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProof(
         bytes32[] memory proof,
@@ -200,15 +207,16 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the Merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofFlagsLen = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length != proofFlags.length + 1) {
+        if (leavesLen + proof.length != proofFlagsLen + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-        bytes32[] memory hashes = new bytes32[](proofFlags.length);
+        bytes32[] memory hashes = new bytes32[](proofFlagsLen);
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
@@ -217,7 +225,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < proofFlags.length; i++) {
+        for (uint256 i = 0; i < proofFlagsLen; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -225,12 +233,12 @@ library MerkleProof {
             hashes[i] = Hashes.commutativeKeccak256(a, b);
         }
 
-        if (proofFlags.length > 0) {
+        if (proofFlagsLen > 0) {
             if (proofPos != proof.length) {
                 revert MerkleProofInvalidMultiproof();
             }
             unchecked {
-                return hashes[proofFlags.length - 1];
+                return hashes[proofFlagsLen - 1];
             }
         } else if (leavesLen > 0) {
             return leaves[0];
@@ -246,6 +254,9 @@ library MerkleProof {
      * This version handles multiproofs in memory with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
         bytes32[] memory proof,
@@ -268,6 +279,10 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProof(
         bytes32[] memory proof,
@@ -280,15 +295,16 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the Merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofFlagsLen = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length != proofFlags.length + 1) {
+        if (leavesLen + proof.length != proofFlagsLen + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-        bytes32[] memory hashes = new bytes32[](proofFlags.length);
+        bytes32[] memory hashes = new bytes32[](proofFlagsLen);
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
@@ -297,7 +313,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < proofFlags.length; i++) {
+        for (uint256 i = 0; i < proofFlagsLen; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -305,12 +321,12 @@ library MerkleProof {
             hashes[i] = hasher(a, b);
         }
 
-        if (proofFlags.length > 0) {
+        if (proofFlagsLen > 0) {
             if (proofPos != proof.length) {
                 revert MerkleProofInvalidMultiproof();
             }
             unchecked {
-                return hashes[proofFlags.length - 1];
+                return hashes[proofFlagsLen - 1];
             }
         } else if (leavesLen > 0) {
             return leaves[0];
@@ -326,14 +342,17 @@ library MerkleProof {
      * This version handles multiproofs in calldata with the default hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProofCalldata}.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves) == root;
+        return processMultiProofCalldata(proof, proofFlags, leaves) == root;
     }
 
     /**
@@ -347,26 +366,31 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the Merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofFlagsLen = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length != proofFlags.length + 1) {
+        if (leavesLen + proof.length != proofFlagsLen + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-        bytes32[] memory hashes = new bytes32[](proofFlags.length);
+        bytes32[] memory hashes = new bytes32[](proofFlagsLen);
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
@@ -375,7 +399,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < proofFlags.length; i++) {
+        for (uint256 i = 0; i < proofFlagsLen; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -383,12 +407,12 @@ library MerkleProof {
             hashes[i] = Hashes.commutativeKeccak256(a, b);
         }
 
-        if (proofFlags.length > 0) {
+        if (proofFlagsLen > 0) {
             if (proofPos != proof.length) {
                 revert MerkleProofInvalidMultiproof();
             }
             unchecked {
-                return hashes[proofFlags.length - 1];
+                return hashes[proofFlagsLen - 1];
             }
         } else if (leavesLen > 0) {
             return leaves[0];
@@ -404,15 +428,18 @@ library MerkleProof {
      * This version handles multiproofs in calldata with a custom hashing function.
      *
      * CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
+     * NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+     * The `leaves` must be validated independently. See {processMultiProofCalldata}.
      */
     function multiProofVerifyCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves, hasher) == root;
+        return processMultiProofCalldata(proof, proofFlags, leaves, hasher) == root;
     }
 
     /**
@@ -426,11 +453,15 @@ library MerkleProof {
      * CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
      * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
      * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+     *
+     * NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+     * and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+     * validating the leaves elsewhere.
      */
     function processMultiProofCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
@@ -438,15 +469,16 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the Merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofFlagsLen = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length != proofFlags.length + 1) {
+        if (leavesLen + proof.length != proofFlagsLen + 1) {
             revert MerkleProofInvalidMultiproof();
         }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
-        bytes32[] memory hashes = new bytes32[](proofFlags.length);
+        bytes32[] memory hashes = new bytes32[](proofFlagsLen);
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
@@ -455,7 +487,7 @@ library MerkleProof {
         //   get the next hash.
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
-        for (uint256 i = 0; i < proofFlags.length; i++) {
+        for (uint256 i = 0; i < proofFlagsLen; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
@@ -463,12 +495,12 @@ library MerkleProof {
             hashes[i] = hasher(a, b);
         }
 
-        if (proofFlags.length > 0) {
+        if (proofFlagsLen > 0) {
             if (proofPos != proof.length) {
                 revert MerkleProofInvalidMultiproof();
             }
             unchecked {
-                return hashes[proofFlags.length - 1];
+                return hashes[proofFlagsLen - 1];
             }
         } else if (leavesLen > 0) {
             return leaves[0];
