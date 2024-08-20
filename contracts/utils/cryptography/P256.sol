@@ -189,33 +189,31 @@ library P256 {
     ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         bool needsDouble = false;
         assembly ("memory-safe") {
-            let p := P
             let z1 := mload(add(p1, 0x40))
-            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
-            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
-            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
-            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
-            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, P), z2, P), P) // s1 = y1*z2³
+            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, P), z1, P), P) // s2 = y2*z1³
+            let r := addmod(s2, sub(P, s1), P) // r = s2-s1
+            let u1 := mulmod(mload(p1), mulmod(z2, z2, P), P) // u1 = x1*z2²
+            let h := addmod(mulmod(x2, mulmod(z1, z1, P), P), sub(P, u1), P) // h = (u2 = x2*z1²)-u1
 
             switch and(iszero(h), iszero(r))
             case 0 {
-                let hh := mulmod(h, h, p) // h²
+                let hh := mulmod(h, h, P) // h²
 
                 // x' = r²-h³-2*u1*h²
                 rx := addmod(
-                    addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
-                    sub(p, mulmod(2, mulmod(u1, hh, p), p)),
-                    p
+                    addmod(mulmod(r, r, P), sub(P, mulmod(h, hh, P)), P),
+                    sub(P, mulmod(2, mulmod(u1, hh, P), P)),
+                    P
                 )
                 // y' = r*(u1*h²-x')-s1*h³
                 ry := addmod(
-                    mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
-                    sub(p, mulmod(s1, mulmod(h, hh, p), p)),
-                    p
+                    mulmod(r, addmod(mulmod(u1, hh, P), sub(P, rx), P), P),
+                    sub(P, mulmod(s1, mulmod(h, hh, P), P)),
+                    P
                 )
                 // z' = h*z1*z2
-                rz := mulmod(h, mulmod(z1, z2, p), p)
+                rz := mulmod(h, mulmod(z1, z2, P), P)
             }
             case 1 {
                 needsDouble := true
