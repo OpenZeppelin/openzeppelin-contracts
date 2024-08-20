@@ -89,15 +89,20 @@ abstract contract GovernorOverrideDelegateVote is Governor {
         return token().getPastVotes(account, timepoint);
     }
 
+    /**
+     * @dev Fetch the past delegate for an `account` at a given `timepoint` from the token.
+     */
     function _getPastDelegate(address account, uint256 timepoint) internal view virtual returns (address) {
         return token().getPastDelegate(account, timepoint);
     }
 
+    /**
+     * @dev Fetch the past `balanceOf` for an `account` at a given `timepoint` from the token.
+     */
     function _getPastBalanceOf(address account, uint256 timepoint) internal view virtual returns (uint256) {
         return token().getPastBalanceOf(account, timepoint);
     }
 
-    /// MARK: Counting
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
      */
@@ -111,6 +116,13 @@ abstract contract GovernorOverrideDelegateVote is Governor {
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].voteReceipt[account].hasVoted;
+    }
+
+    /**
+     * @dev Check if an `account` has overridden their delegate for a proposal.
+     */
+    function hasVotedOverride(uint256 proposalId, address account) public view virtual returns (bool) {
+        return _proposalVotes[proposalId].overrideVoteReceipt[account].hasVoted;
     }
 
     /**

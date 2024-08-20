@@ -5,8 +5,14 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 import {Votes} from "./Votes.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
+/**
+ * @dev Extension of {Votes} that adds support for checkpointed delegations and balances. This is required
+ * to use the `GovernorOverrideDelegateVote` extension.
+ */
 abstract contract VotesOverridable is Votes {
     using Checkpoints for Checkpoints.Trace208;
+
+    error VotesOverridableFutureLookup(uint256 timepoint, uint256 currentTimepoint);
 
     mapping(address delegatee => Checkpoints.Trace208) private _delegateCheckpoints;
     mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
@@ -38,7 +44,7 @@ abstract contract VotesOverridable is Votes {
     function getPastDelegate(address account, uint256 timepoint) public view returns (address) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
+            revert VotesOverridableFutureLookup(timepoint, currentTimepoint);
         }
         return address(uint160(_delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint))));
     }
@@ -61,15 +67,18 @@ abstract contract VotesOverridable is Votes {
     }
 
     /**
-     * @notice Returns the balance of an account at a specific timepoint.
-     * @param account The address of the account to check.
-     * @param timepoint The timepoint to check the balance at (by default block number).
+     * @dev Returns the `balanceOf` of an `account` at a specific moment in the past. If the `clock()` is
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
+     *
+     * Requirements:
+     *
+     * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastBalanceOf(address account, uint256 timepoint) public view returns (uint256) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
             // Note this ERC is not relevant to the specific error. Should probably be a different error.
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
+            revert VotesOverridableFutureLookup(timepoint, currentTimepoint);
         }
         return _balanceOfCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint));
     }
