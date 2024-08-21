@@ -1,21 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ERC20Votes, ERC20} from "../../token/ERC20/extensions/ERC20Votes.sol";
+import {ERC20Votes} from "../../token/ERC20/extensions/ERC20Votes.sol";
 import {VotesOverridable, Votes} from "../../governance/utils/VotesOverridable.sol";
-import {EIP712} from "../../utils/cryptography/EIP712.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 
-contract ERC20VotesOverridableMock is ERC20Votes, VotesOverridable {
-    constructor() ERC20("ERC20VotesOverridableMock", "E20M") EIP712("ERC20VotesOverridableMock", "1.0.0") {}
-
-    function mint(address account, uint256 amount) external {
-        _mint(account, amount);
-    }
-
-    function burn(address account, uint256 amount) external {
-        _burn(account, amount);
-    }
-
+abstract contract ERC20VotesOverridableMock is ERC20Votes, VotesOverridable {
     function _delegate(address account, address delegatee) internal virtual override(Votes, VotesOverridable) {
         return super._delegate(account, delegatee);
     }
@@ -30,5 +20,16 @@ contract ERC20VotesOverridableMock is ERC20Votes, VotesOverridable {
 
     function delegates(address delegatee) public view virtual override(Votes, VotesOverridable) returns (address) {
         return super.delegates(delegatee);
+    }
+}
+
+abstract contract ERC20VotesOverridableTimestampMock is ERC20VotesOverridableMock {
+    function clock() public view virtual override returns (uint48) {
+        return SafeCast.toUint48(block.timestamp);
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        return "mode=timestamp";
     }
 }

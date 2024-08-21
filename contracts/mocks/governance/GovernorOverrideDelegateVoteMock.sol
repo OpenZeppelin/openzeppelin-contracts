@@ -7,23 +7,12 @@ import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorOverrideDelegateVote, VotesOverridable} from "../../governance/extensions/GovernorOverrideDelegateVote.sol";
 
-contract GovernorOverrideMock is GovernorSettings, GovernorOverrideDelegateVote {
-    constructor(
-        VotesOverridable token,
-        uint48 initialVotingDelay,
-        uint32 initialVotingPeriod,
-        uint256 initialProposalThreshold
-    )
-        Governor("Mock Override Governor")
-        GovernorOverrideDelegateVote(token)
-        GovernorSettings(initialVotingDelay, initialVotingPeriod, initialProposalThreshold)
-    {}
-
+abstract contract GovernorOverrideDelegateVoteMock is GovernorSettings, GovernorOverrideDelegateVote {
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
     }
 
     function quorum(uint256) public pure override returns (uint256) {
-        return 1000e18;
+        return 10e18;
     }
 }
