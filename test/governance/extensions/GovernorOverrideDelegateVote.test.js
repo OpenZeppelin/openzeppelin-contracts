@@ -19,7 +19,7 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-describe.only('GovernorOverrideDelegateVote', function () {
+describe('GovernorOverrideDelegateVote', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
@@ -31,6 +31,7 @@ describe.only('GovernorOverrideDelegateVote', function () {
         votingDelay, // initialVotingDelay
         votingPeriod, // initialVotingPeriod
         0n, // initialProposalThreshold
+        10n, // quorumNumeratorValue
         token, // tokenAddress
       ]);
 

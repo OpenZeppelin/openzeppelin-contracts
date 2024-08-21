@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Governor} from "../Governor.sol";
+import {GovernorVotes} from "./GovernorVotes.sol";
 import {IVotes} from "../utils/IVotes.sol";
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
@@ -13,7 +13,7 @@ import {VotesOverridable} from "../utils/VotesOverridable.sol";
  * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
  * token token that inherits `VotesOverridable`.
  */
-abstract contract GovernorOverrideDelegateVote is Governor {
+abstract contract GovernorOverrideDelegateVote is GovernorVotes {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
@@ -41,66 +41,20 @@ abstract contract GovernorOverrideDelegateVote is Governor {
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
     mapping(address account => mapping(uint256 proposalId => uint256 votes)) private _overrideVoteWeight;
 
-    VotesOverridable private immutable _token;
-
-    constructor(VotesOverridable tokenAddress) {
-        _token = tokenAddress;
-    }
-
-    /**
-     * @dev The token that voting power is sourced from.
-     */
-    function token() public view virtual returns (VotesOverridable) {
-        return _token;
-    }
-
-    /**
-     * @dev Clock (as specified in ERC-6372) is set to match the token's clock. Fallback to block numbers if the token
-     * does not implement ERC-6372.
-     */
-    function clock() public view virtual override returns (uint48) {
-        try token().clock() returns (uint48 timepoint) {
-            return timepoint;
-        } catch {
-            return Time.blockNumber();
-        }
-    }
-
-    /**
-     * @dev Machine-readable description of the clock as specified in ERC-6372.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual override returns (string memory) {
-        try token().CLOCK_MODE() returns (string memory clockmode) {
-            return clockmode;
-        } catch {
-            return "mode=blocknumber&from=default";
-        }
-    }
-
-    /**
-     * Read the voting weight from the token's built in snapshot mechanism (see {Governor-_getVotes}).
-     */
-    function _getVotes(
-        address account,
-        uint256 timepoint,
-        bytes memory /*params*/
-    ) internal view virtual override returns (uint256) {
-        return token().getPastVotes(account, timepoint);
-    }
+    constructor(VotesOverridable tokenAddress) GovernorVotes(tokenAddress) {}
 
     /**
      * @dev Fetch the past delegate for an `account` at a given `timepoint` from the token.
      */
     function _getPastDelegate(address account, uint256 timepoint) internal view virtual returns (address) {
-        return token().getPastDelegate(account, timepoint);
+        return VotesOverridable(address(token())).getPastDelegate(account, timepoint);
     }
 
     /**
      * @dev Fetch the past `balanceOf` for an `account` at a given `timepoint` from the token.
      */
     function _getPastBalanceOf(address account, uint256 timepoint) internal view virtual returns (uint256) {
-        return token().getPastBalanceOf(account, timepoint);
+        return VotesOverridable(address(token())).getPastBalanceOf(account, timepoint);
     }
 
     /**

@@ -6,13 +6,14 @@ import {Governor} from "../../governance/Governor.sol";
 import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorOverrideDelegateVote, VotesOverridable} from "../../governance/extensions/GovernorOverrideDelegateVote.sol";
+import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-abstract contract GovernorOverrideDelegateVoteMock is GovernorSettings, GovernorOverrideDelegateVote {
+abstract contract GovernorOverrideDelegateVoteMock is
+    GovernorSettings,
+    GovernorVotesQuorumFraction,
+    GovernorOverrideDelegateVote
+{
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
-    }
-
-    function quorum(uint256) public pure override returns (uint256) {
-        return 10e18;
     }
 }
