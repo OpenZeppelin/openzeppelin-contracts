@@ -41,7 +41,7 @@ image::erc4626-mint.png[Minting shares]
 
 Symmetrically, if we focus on limiting our losses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.
 
-We can clearly see that that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
+We can clearly see that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
 
 The idea of an inflation attack is that an attacker can donate assets to the vault to move the rate curve to the right, and make the vault unsafe.
 
