@@ -145,10 +145,9 @@ library P256 {
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
-            let p := P
-            let lhs := mulmod(y, y, p) // y^2
-            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
-            result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
+            let lhs := mulmod(y, y, P) // y^2
+            let rhs := addmod(mulmod(addmod(mulmod(x, x, P), A, P), x, P), B, P) // ((x^2 + a) * x) + b = x^3 + ax + b
+            result := and(and(lt(x, P), lt(y, P)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
     }
 
@@ -228,19 +227,18 @@ library P256 {
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
-            let p := P
-            let yy := mulmod(y, y, p)
-            let zz := mulmod(z, z, p)
-            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
-            let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
-            let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
+            let yy := mulmod(y, y, P)
+            let zz := mulmod(z, z, P)
+            let s := mulmod(4, mulmod(x, yy, P), P) // s = 4*x*y²
+            let m := addmod(mulmod(3, mulmod(x, x, P), P), mulmod(A, mulmod(zz, zz, P), P), P) // m = 3*x²+a*z⁴
+            let t := addmod(mulmod(m, m, P), sub(P, mulmod(2, s, P)), P) // t = m²-2*s
 
             // x' = t
             rx := t
             // y' = m*(s-t)-8*y⁴
-            ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
+            ry := addmod(mulmod(m, addmod(s, sub(P, t), P), P), sub(P, mulmod(8, mulmod(yy, yy, P), P)), P)
             // z' = 2*y*z
-            rz := mulmod(2, mulmod(y, z, p), p)
+            rz := mulmod(2, mulmod(y, z, P), P)
         }
     }
 
