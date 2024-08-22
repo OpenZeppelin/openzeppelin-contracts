@@ -17,10 +17,6 @@ abstract contract ERC20VotesOverridableMock is ERC20Votes, VotesOverridable {
     ) internal virtual override(Votes, VotesOverridable) {
         return super._transferVotingUnits(from, to, amount);
     }
-
-    function delegates(address delegatee) public view virtual override(Votes, VotesOverridable) returns (address) {
-        return super.delegates(delegatee);
-    }
 }
 
 abstract contract ERC20VotesOverridableTimestampMock is ERC20VotesOverridableMock {

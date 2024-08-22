@@ -24,8 +24,9 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
     }
 
     struct VoteReceipt {
-        bool hasVoted;
         uint8 support;
+        bool hasOverriden;
+        uint208 overrideWeight;
     }
 
     struct ProposalVote {
@@ -33,29 +34,13 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
         uint256 forVotes;
         uint256 abstainVotes;
         mapping(address voter => VoteReceipt) voteReceipt;
-        mapping(address voter => VoteReceipt) overrideVoteReceipt;
     }
 
     error GovernorAlreadyCastVoteOverride(address account);
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
-    mapping(address account => mapping(uint256 proposalId => uint256 votes)) private _overrideVoteWeight;
 
     constructor(VotesOverridable tokenAddress) GovernorVotes(tokenAddress) {}
-
-    /**
-     * @dev Fetch the past delegate for an `account` at a given `timepoint` from the token.
-     */
-    function _getPastDelegate(address account, uint256 timepoint) internal view virtual returns (address) {
-        return VotesOverridable(address(token())).getPastDelegate(account, timepoint);
-    }
-
-    /**
-     * @dev Fetch the past `balanceOf` for an `account` at a given `timepoint` from the token.
-     */
-    function _getPastBalanceOf(address account, uint256 timepoint) internal view virtual returns (uint256) {
-        return VotesOverridable(address(token())).getPastBalanceOf(account, timepoint);
-    }
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
@@ -69,14 +54,14 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
      * @dev See {IGovernor-hasVoted}.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
-        return _proposalVotes[proposalId].voteReceipt[account].hasVoted;
+        return _proposalVotes[proposalId].voteReceipt[account].support != 0;
     }
 
     /**
      * @dev Check if an `account` has overridden their delegate for a proposal.
      */
     function hasVotedOverride(uint256 proposalId, address account) public view virtual returns (bool) {
-        return _proposalVotes[proposalId].overrideVoteReceipt[account].hasVoted;
+        return _proposalVotes[proposalId].voteReceipt[account].hasOverriden;
     }
 
     /**
@@ -118,24 +103,17 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
             return _countVotesOverride(proposalId, account, support, params);
         }
 
-        totalWeight -= _overrideVoteWeight[account][proposalId];
-
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        if (proposalVote.voteReceipt[account].hasVoted) {
+        totalWeight -= proposalVote.voteReceipt[account].overrideWeight;
+
+        if (proposalVote.voteReceipt[account].support != 0) {
             revert GovernorAlreadyCastVote(account);
         }
-        proposalVote.voteReceipt[account] = VoteReceipt({hasVoted: true, support: support});
+        // Support tracks support and if a user voted. Store support + 1.
+        proposalVote.voteReceipt[account].support = support + 1;
 
-        if (support == uint8(VoteType.Against)) {
-            proposalVote.againstVotes += totalWeight;
-        } else if (support == uint8(VoteType.For)) {
-            proposalVote.forVotes += totalWeight;
-        } else if (support == uint8(VoteType.Abstain)) {
-            proposalVote.abstainVotes += totalWeight;
-        } else {
-            revert GovernorInvalidVoteType();
-        }
+        _tallyVote(proposalVote, support, _add, totalWeight);
 
         return totalWeight;
     }
@@ -148,38 +126,22 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
     ) private returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
         uint256 proposalSnapshot = proposalSnapshot(proposalId);
-        address delegate = _getPastDelegate(account, proposalSnapshot);
+        address delegate = VotesOverridable(address(token())).getPastDelegate(account, proposalSnapshot);
 
-        if (proposalVote.overrideVoteReceipt[account].hasVoted) {
+        if (proposalVote.voteReceipt[account].hasOverriden) {
             revert GovernorAlreadyCastVoteOverride(account);
         }
+        proposalVote.voteReceipt[account].hasOverriden = true;
 
-        uint256 overrideWeight = _getPastBalanceOf(account, proposalSnapshot);
-
-        proposalVote.overrideVoteReceipt[account] = VoteReceipt({hasVoted: true, support: support});
-        if (support == uint8(VoteType.Against)) {
-            proposalVote.againstVotes += overrideWeight;
-        } else if (support == uint8(VoteType.For)) {
-            proposalVote.forVotes += overrideWeight;
-        } else if (support == uint8(VoteType.Abstain)) {
-            proposalVote.abstainVotes += overrideWeight;
-        } else {
-            revert GovernorInvalidVoteType();
-        }
+        uint256 overrideWeight = VotesOverridable(address(token())).getPastBalanceOf(account, proposalSnapshot);
+        _tallyVote(proposalVote, support, _add, overrideWeight);
 
         // Account for the delegate's vote
         VoteReceipt memory delegateVoteReceipt = proposalVote.voteReceipt[delegate];
-        if (delegateVoteReceipt.hasVoted) {
+        if (delegateVoteReceipt.support != 0) {
+            uint8 correctedSupport = delegateVoteReceipt.support - 1;
             // If delegate has voted, remove the delegatee's vote weight from their support
-            if (delegateVoteReceipt.support == uint8(VoteType.Against)) {
-                proposalVote.againstVotes -= overrideWeight;
-            } else if (delegateVoteReceipt.support == uint8(VoteType.For)) {
-                proposalVote.forVotes -= overrideWeight;
-            } else if (delegateVoteReceipt.support == uint8(VoteType.Abstain)) {
-                proposalVote.abstainVotes -= overrideWeight;
-            } else {
-                revert GovernorInvalidVoteType();
-            }
+            _tallyVote(proposalVote, correctedSupport, _subtract, overrideWeight);
 
             // Write delegate into the params for event
             assembly {
@@ -187,8 +149,33 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
             }
         } else {
             // Only write override weight if they have not voted yet
-            _overrideVoteWeight[delegate][proposalId] += overrideWeight;
+            proposalVote.voteReceipt[delegate].overrideWeight += uint208(overrideWeight);
         }
         return overrideWeight;
+    }
+
+    function _tallyVote(
+        ProposalVote storage proposalVote,
+        uint8 support,
+        function(uint256, uint256) view returns (uint256) op,
+        uint256 delta
+    ) private {
+        if (support == uint8(VoteType.Against)) {
+            proposalVote.againstVotes = op(proposalVote.againstVotes, delta);
+        } else if (support == uint8(VoteType.For)) {
+            proposalVote.forVotes = op(proposalVote.forVotes, delta);
+        } else if (support == uint8(VoteType.Abstain)) {
+            proposalVote.abstainVotes = op(proposalVote.abstainVotes, delta);
+        } else {
+            revert GovernorInvalidVoteType();
+        }
+    }
+
+    function _add(uint256 a, uint256 b) private pure returns (uint256) {
+        return a + b;
+    }
+
+    function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
+        return a - b;
     }
 }

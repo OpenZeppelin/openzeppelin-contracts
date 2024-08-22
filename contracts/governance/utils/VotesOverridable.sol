@@ -18,19 +18,9 @@ abstract contract VotesOverridable is Votes {
     mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
 
     function _delegate(address account, address delegatee) internal virtual override {
-        address oldDelegate = delegates(account);
+        super._delegate(account, delegatee);
 
         _delegateCheckpoints[account].push(clock(), uint160(delegatee));
-
-        emit DelegateChanged(account, oldDelegate, delegatee);
-        _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
-    }
-
-    /**
-     * @inheritdoc Votes
-     */
-    function delegates(address delegatee) public view virtual override returns (address) {
-        return address(uint160(_delegateCheckpoints[delegatee].latest()));
     }
 
     /**
@@ -57,11 +47,11 @@ abstract contract VotesOverridable is Votes {
         if (from != to) {
             if (from != address(0)) {
                 Checkpoints.Trace208 storage store = _balanceOfCheckpoints[from];
-                store.push(clock(), uint208(store.latest() - amount));
+                store.push(clock(), uint208(_getVotingUnits(from)));
             }
             if (to != address(0)) {
                 Checkpoints.Trace208 storage store = _balanceOfCheckpoints[to];
-                store.push(clock(), uint208(store.latest() + amount));
+                store.push(clock(), uint208(_getVotingUnits(to)));
             }
         }
     }
