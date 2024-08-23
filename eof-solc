@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker run --rm -i -v "$(pwd):/app/root" ghcr.io/paradigmxyz/forge-eof:latest "$@"
