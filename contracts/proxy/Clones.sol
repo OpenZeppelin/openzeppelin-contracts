@@ -249,7 +249,8 @@ library Clones {
         bytes memory args
     ) private pure returns (bytes memory) {
         uint256 initCodeLength = args.length + 0x2d;
-        if (initCodeLength > type(uint16).max) revert ImmutableArgsTooLarge();
+        // initcode is limited to 49152 bytes as per https://eips.ethereum.org/EIPS/eip-3860[EIP-3860]
+        if (initCodeLength > 0xc000) revert ImmutableArgsTooLarge();
         return
             abi.encodePacked(
                 hex"61",
