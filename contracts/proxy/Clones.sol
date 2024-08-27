@@ -229,12 +229,12 @@ library Clones {
      * - If `instance` is NOT a clone deployed using this library, the behavior is undefined. This
      *   function should only be used to check addresses that are known to be clones.
      */
-    function fetchCloneArgs(address instance) internal view returns (bytes memory result) {
-        uint256 argsLength = instance.code.length - 0x2d; // revert if length is too short
-        result = new bytes(argsLength);
+    function fetchCloneArgs(address instance) internal view returns (bytes memory) {
+        bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 0x20), 0x2d, argsLength)
+            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
         }
+        return result;
     }
 
     /**
@@ -243,18 +243,19 @@ library Clones {
      * An assembly variant of this function requires copying the `args` array, which can be efficiently done using
      * `mcopy`. Unfortunately, that opcode is not available before cancun. A pure solidity implementation using
      * abi.encodePacked is more expensive but also more portable and easier to review.
+     *
+     * NOTE: https://eips.ethereum.org/EIPS/eip-3860[EIP-3860] limits the length of the `initcode` to 49152 bytes.
+     * With the proxy code taking 45 bytes, that limits the length of the immutable args to 49107 bytes.
      */
     function _cloneWithImmutableArgsCode(
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        uint256 initCodeLength = args.length + 0x2d;
-        // initcode is limited to 49152 bytes as per https://eips.ethereum.org/EIPS/eip-3860[EIP-3860]
-        if (initCodeLength > 0xc000) revert ImmutableArgsTooLarge();
+        if (args.length > 49107) revert ImmutableArgsTooLarge();
         return
             abi.encodePacked(
                 hex"61",
-                uint16(initCodeLength),
+                uint16(args.length + 0x2d),
                 hex"3d81600a3d39f3363d3d373d3d3d363d73",
                 implementation,
                 hex"5af43d82803e903d91602b57fd5bf3",
