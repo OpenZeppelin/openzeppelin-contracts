@@ -126,8 +126,9 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`, with `args`
-     * attached to it as immutable arguments (that can be fetched using {fetchCloneArgs}).
+     * @dev Deploys and returns the address of a clone that mimics the behavior of `implementation` with custom
+     * immutable arguments. These are provided through `args` and cannot be changed after deployment. To
+     * access the arguments within the implementation, use {fetchCloneArgs}.
      *
      * This function uses the create opcode, which should never revert.
      */
@@ -160,8 +161,9 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`, with `args`
-     * attached to it as immutable arguments (that can be fetched using {fetchCloneArgs}).
+     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation` with custom
+     * immutable arguments. These are provided through `args` and cannot be changed after deployment. To
+     * access the arguments within the implementation, use {fetchCloneArgs}.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the same
      * `implementation` and `salt` multiple time will revert, since the clones cannot be deployed twice at the same
@@ -229,12 +231,8 @@ library Clones {
      */
     function fetchCloneArgs(address instance) internal view returns (bytes memory result) {
         uint256 argsLength = instance.code.length - 0x2d; // revert if length is too short
-        assembly {
-            // reserve space
-            result := mload(0x40)
-            mstore(0x40, add(result, add(0x20, argsLength)))
-            // load
-            mstore(result, argsLength)
+        result = new bytes(argsLength);
+        assembly ("memory-safe") {
             extcodecopy(instance, add(result, 0x20), 0x2d, argsLength)
         }
     }
