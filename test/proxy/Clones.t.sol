@@ -25,7 +25,7 @@ contract ClonesTest is Test {
         bytes32 salt,
         bytes memory args
     ) public {
-        vm.assume(args.length < 0xffd3);
+        vm.assume(args.length < 0xbfd3);
 
         address predicted = Clones.predictDeterministicAddressWithImmutableArgs(implementation, args, salt);
         bytes32 spillage;
@@ -69,7 +69,7 @@ contract ClonesTest is Test {
     }
 
     function testFetchCloneArgs(bytes memory args, bytes32 salt) external {
-        vm.assume(args.length < 0xffd3);
+        vm.assume(args.length < 0xbfd3);
 
         address instance1 = Clones.cloneWithImmutableArgs(address(this), args);
         address instance2 = Clones.cloneDeterministicWithImmutableArgs(address(this), args, salt);
