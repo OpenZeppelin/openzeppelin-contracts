@@ -19,7 +19,7 @@ library Strings {
     error StringsInsufficientHexLength(uint256 value, uint256 length);
 
     /**
-     * @dev The string being parsed contains characteres that are not in scope of the given base.
+     * @dev The string being parsed contains characters that are not in scope of the given base.
      */
     error StringsInvalidChar(bytes1 chr, uint8 base);
 
@@ -189,7 +189,7 @@ library Strings {
         // - Case 1: [0-9]
         // - Case 2: [a-z]
         // - Case 2: [A-Z]
-        // - otherwize not supported
+        // - otherwise not supported
         unchecked {
             if (uint8(chr) > 47 && uint8(chr) < 58) result = uint8(chr) - 48;
             else if (uint8(chr) > 96 && uint8(chr) < 123) result = uint8(chr) - 87;
