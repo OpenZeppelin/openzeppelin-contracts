@@ -19,6 +19,11 @@ library Strings {
     error StringsInsufficientHexLength(uint256 value, uint256 length);
 
     /**
+     * @dev The string being parsed contains characteres that are not in scope of the given base.
+     */
+    error StringsInvalidChar(bytes1 chr, uint8 base);
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
      */
     function toString(uint256 value) internal pure returns (string memory) {
@@ -114,5 +119,86 @@ library Strings {
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
         return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+    }
+
+    /**
+     * @dev Parse an decimal string and returns the value as a `uint256`.
+     *
+     * This function will revert if:
+     * - the string contains any character that is not in [0-9].
+     * - the result does not fit in a uint256.
+     */
+    function toUint(string memory input) internal pure returns (uint256) {
+        bytes memory buffer = bytes(input);
+
+        uint256 result = 0;
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            result *= 10; // will revert if overflow
+            result += _parseChr(buffer[i], 10);
+        }
+        return result;
+    }
+
+    /**
+     * @dev Parse an decimal string and returns the value as a `int256`.
+     *
+     * This function will revert if:
+     * - the string contains any character (outside the prefix) that is not in [0-9].
+     * - the result does not fit in a int256.
+     */
+    function toInt(string memory input) internal pure returns (int256) {
+        bytes memory buffer = bytes(input);
+
+        // check presence of a negative sign.
+        uint256 offset = bytes1(buffer) == 0x2d ? 1 : 0;
+        int8 factor = bytes1(buffer) == 0x2d ? int8(-1) : int8(1);
+
+        int256 result = 0;
+        for (uint256 i = offset; i < buffer.length; ++i) {
+            result *= 10; // will revert if overflow
+            result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 35, it fits into an int8
+        }
+        return result;
+    }
+
+    /**
+     * @dev Parse an hexadecimal string (with or without "0x" prefix), and returns the value as a `uint256`.
+     *
+     * This function will revert if:
+     * - the string contains any character (outside the prefix) that is not in [0-9a-fA-F].
+     * - the result does not fit in a uint256.
+     */
+    function hexToUint(string memory input) internal pure returns (uint256) {
+        bytes memory buffer = bytes(input);
+
+        // skip 0x prefix if present. Length check doesn't appear to be critical
+        uint256 offset = bytes2(buffer) == 0x3078 ? 2 : 0;
+
+        uint256 result = 0;
+        for (uint256 i = offset; i < buffer.length; ++i) {
+            result *= 16; // will revert if overflow
+            result += _parseChr(buffer[i], 16);
+        }
+        return result;
+    }
+
+    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8) {
+        uint8 result;
+
+        // Try to parse `chr`:
+        // - Case 1: [0-9]
+        // - Case 2: [a-z]
+        // - Case 2: [A-Z]
+        // - otherwize not supported
+        unchecked {
+            if (uint8(chr) > 47 && uint8(chr) < 58) result = uint8(chr) - 48;
+            else if (uint8(chr) > 96 && uint8(chr) < 123) result = uint8(chr) - 87;
+            else if (uint8(chr) > 64 && uint8(chr) < 91) result = uint8(chr) - 55;
+            else revert StringsInvalidChar(chr, base);
+        }
+
+        // check base
+        if (result >= base) revert StringsInvalidChar(chr, base);
+        return result;
     }
 }
