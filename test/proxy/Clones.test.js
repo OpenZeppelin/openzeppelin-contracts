@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { generators } = require('../helpers/random');
+
 const shouldBehaveLikeClone = require('./Clones.behaviour');
 
 const cloneInitCode = (instance, args = undefined) =>
@@ -154,4 +156,20 @@ describe('Clones', function () {
       });
     });
   }
+
+  it('EIP-170 limit on immutable args', async function () {
+    // EIP-170 limits the contract code size to 0x60000
+    // This limits the length of immutable args to 0x5fd3
+    const args = generators.hexBytes(0x5fd4);
+    const salt = ethers.randomBytes(32);
+
+    await expect(
+      this.factory.$predictDeterministicAddressWithImmutableArgs(this.implementation, args, salt),
+    ).to.be.revertedWithCustomError(this.factory, 'ImmutableArgsTooLarge');
+
+    await expect(this.factory.$cloneWithImmutableArgs(this.implementation, args)).to.be.revertedWithCustomError(
+      this.factory,
+      'ImmutableArgsTooLarge',
+    );
+  });
 });

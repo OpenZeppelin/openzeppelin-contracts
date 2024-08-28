@@ -244,14 +244,14 @@ library Clones {
      * `mcopy`. Unfortunately, that opcode is not available before cancun. A pure solidity implementation using
      * abi.encodePacked is more expensive but also more portable and easier to review.
      *
-     * NOTE: https://eips.ethereum.org/EIPS/eip-3860[EIP-3860] limits the length of the `initcode` to 49152 bytes.
-     * With the proxy code taking 45 bytes, that limits the length of the immutable args to 49107 bytes.
+     * NOTE: https://eips.ethereum.org/EIPS/eip-170[EIP-170] limits the length of the contract code to 24576 bytes.
+     * With the proxy code taking 45 bytes, that limits the length of the immutable args to 24531 bytes.
      */
     function _cloneCodeWithImmutableArgs(
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 49107) revert ImmutableArgsTooLarge();
+        if (args.length > 0x5fd3) revert ImmutableArgsTooLarge();
         return
             abi.encodePacked(
                 hex"61",
