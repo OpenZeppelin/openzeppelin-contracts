@@ -20,14 +20,14 @@ contract ClonesTest is Test {
         assertEq(spillage, bytes32(0));
     }
 
-    function testSymbolicPredictWithImmutableArgsDeterministicAddressSpillage(
+    function testSymbolicPredictDeterministicAddressWithImmutableArgsSpillage(
         address implementation,
         bytes32 salt,
         bytes memory args
     ) public {
         vm.assume(args.length < 0xffd3);
 
-        address predicted = Clones.predictWithImmutableArgsDeterministicAddress(implementation, args, salt);
+        address predicted = Clones.predictDeterministicAddressWithImmutableArgs(implementation, args, salt);
         bytes32 spillage;
         /// @solidity memory-safe-assembly
         assembly {
@@ -72,7 +72,7 @@ contract ClonesTest is Test {
         vm.assume(args.length < 0xffd3);
 
         address instance1 = Clones.cloneWithImmutableArgs(address(this), args);
-        address instance2 = Clones.cloneWithImmutableArgsDeterministic(address(this), args, salt);
+        address instance2 = Clones.cloneDeterministicWithImmutableArgs(address(this), args, salt);
 
         // both clones have the same code
         assertEq(instance1.code, instance2.code);

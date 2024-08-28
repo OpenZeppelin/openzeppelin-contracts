@@ -51,18 +51,18 @@ async function fixture() {
     async (opts = {}) => {
       const salt = opts.salt ?? ethers.randomBytes(32);
       const clone = await (args
-        ? factory.$cloneWithImmutableArgsDeterministic.staticCall(implementation, args, salt)
+        ? factory.$cloneDeterministicWithImmutableArgs.staticCall(implementation, args, salt)
         : factory.$cloneDeterministic.staticCall(implementation, salt)
       ).then(address => implementation.attach(address));
       const tx = await (args
         ? opts.deployValue
-          ? factory.$cloneWithImmutableArgsDeterministic(
+          ? factory.$cloneDeterministicWithImmutableArgs(
               implementation,
               args,
               salt,
               ethers.Typed.uint256(opts.deployValue),
             )
-          : factory.$cloneWithImmutableArgsDeterministic(implementation, args, salt)
+          : factory.$cloneDeterministicWithImmutableArgs(implementation, args, salt)
         : opts.deployValue
         ? factory.$cloneDeterministic(implementation, salt, ethers.Typed.uint256(opts.deployValue))
         : factory.$cloneDeterministic(implementation, salt));
@@ -112,7 +112,7 @@ describe('Clones', function () {
 
           const deployClone = () =>
             args
-              ? this.factory.$cloneWithImmutableArgsDeterministic(this.implementation, args, salt)
+              ? this.factory.$cloneDeterministicWithImmutableArgs(this.implementation, args, salt)
               : this.factory.$cloneDeterministic(this.implementation, salt);
 
           // deploy once
@@ -132,15 +132,15 @@ describe('Clones', function () {
           );
 
           if (args) {
-            const predicted = await this.factory.$predictWithImmutableArgsDeterministicAddress(
+            const predicted = await this.factory.$predictDeterministicAddressWithImmutableArgs(
               this.implementation,
               args,
               salt,
             );
             expect(predicted).to.equal(expected);
 
-            await expect(this.factory.$cloneWithImmutableArgsDeterministic(this.implementation, args, salt))
-              .to.emit(this.factory, 'return$cloneWithImmutableArgsDeterministic_address_bytes_bytes32')
+            await expect(this.factory.$cloneDeterministicWithImmutableArgs(this.implementation, args, salt))
+              .to.emit(this.factory, 'return$cloneDeterministicWithImmutableArgs_address_bytes_bytes32')
               .withArgs(predicted);
           } else {
             const predicted = await this.factory.$predictDeterministicAddress(this.implementation, salt);

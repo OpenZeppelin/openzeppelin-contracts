@@ -151,7 +151,7 @@ library Clones {
         if (address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
-        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        bytes memory bytecode = _cloneCodeWithImmutableArgs(implementation, args);
         assembly ("memory-safe") {
             instance := create(value, add(bytecode, 0x20), mload(bytecode))
         }
@@ -169,53 +169,53 @@ library Clones {
      * `implementation` and `salt` multiple time will revert, since the clones cannot be deployed twice at the same
      * address.
      */
-    function cloneWithImmutableArgsDeterministic(
+    function cloneDeterministicWithImmutableArgs(
         address implementation,
         bytes memory args,
         bytes32 salt
     ) internal returns (address instance) {
-        return cloneWithImmutableArgsDeterministic(implementation, args, salt, 0);
+        return cloneDeterministicWithImmutableArgs(implementation, args, salt, 0);
     }
 
     /**
-     * @dev Same as {xref-Clones-cloneWithImmutableArgsDeterministic-address-bytes-bytes32-}[cloneWithImmutableArgsDeterministic],
+     * @dev Same as {xref-Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-}[cloneDeterministicWithImmutableArgs],
      * but with a `value` parameter to send native currency to the new contract.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
      * to always have enough balance for new deployments. Consider exposing this function under a payable method.
      */
-    function cloneWithImmutableArgsDeterministic(
+    function cloneDeterministicWithImmutableArgs(
         address implementation,
         bytes memory args,
         bytes32 salt,
         uint256 value
     ) internal returns (address instance) {
-        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        bytes memory bytecode = _cloneCodeWithImmutableArgs(implementation, args);
         return Create2.deploy(value, salt, bytecode);
     }
 
     /**
-     * @dev Computes the address of a clone deployed using {Clones-cloneWithImmutableArgsDeterministic}.
+     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministicWithImmutableArgs}.
      */
-    function predictWithImmutableArgsDeterministicAddress(
+    function predictDeterministicAddressWithImmutableArgs(
         address implementation,
         bytes memory args,
         bytes32 salt,
         address deployer
     ) internal pure returns (address predicted) {
-        bytes memory bytecode = _cloneWithImmutableArgsCode(implementation, args);
+        bytes memory bytecode = _cloneCodeWithImmutableArgs(implementation, args);
         return Create2.computeAddress(salt, keccak256(bytecode), deployer);
     }
 
     /**
-     * @dev Computes the address of a clone deployed using {Clones-cloneWithImmutableArgsDeterministic}.
+     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministicWithImmutableArgs}.
      */
-    function predictWithImmutableArgsDeterministicAddress(
+    function predictDeterministicAddressWithImmutableArgs(
         address implementation,
         bytes memory args,
         bytes32 salt
     ) internal view returns (address predicted) {
-        return predictWithImmutableArgsDeterministicAddress(implementation, args, salt, address(this));
+        return predictDeterministicAddressWithImmutableArgs(implementation, args, salt, address(this));
     }
 
     /**
@@ -224,7 +224,7 @@ library Clones {
      * - If `instance` is a clone that was deployed using `clone` or `cloneDeterministic`, this
      *   function will return an empty array.
      * - If `instance` is a clone that was deployed using `cloneWithImmutableArgs` or
-     *   `cloneWithImmutableArgsDeterministic`, this function will return the args array used at
+     *   `cloneDeterministicWithImmutableArgs`, this function will return the args array used at
      *   creation.
      * - If `instance` is NOT a clone deployed using this library, the behavior is undefined. This
      *   function should only be used to check addresses that are known to be clones.
@@ -247,7 +247,7 @@ library Clones {
      * NOTE: https://eips.ethereum.org/EIPS/eip-3860[EIP-3860] limits the length of the `initcode` to 49152 bytes.
      * With the proxy code taking 45 bytes, that limits the length of the immutable args to 49107 bytes.
      */
-    function _cloneWithImmutableArgsCode(
+    function _cloneCodeWithImmutableArgs(
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
