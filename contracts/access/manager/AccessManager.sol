@@ -97,7 +97,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 nonce;
     }
 
+    /**
+     * @dev The identifier of the admin role. Required to perform most configuration operations including
+     * other roles' management and target restrictions.
+     */
     uint64 public constant ADMIN_ROLE = type(uint64).min; // 0
+
+    /**
+     * @dev The identifier of the public role. Automatically granted to all addresses with no delay.
+     */
     uint64 public constant PUBLIC_ROLE = type(uint64).max; // 2**64-1
 
     mapping(address target => TargetConfig mode) private _targets;
