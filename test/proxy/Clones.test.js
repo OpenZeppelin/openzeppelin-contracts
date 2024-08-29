@@ -158,7 +158,7 @@ describe('Clones', function () {
   }
 
   it('EIP-170 limit on immutable args', async function () {
-    // EIP-170 limits the contract code size to 0x60000
+    // EIP-170 limits the contract code size to 0x6000
     // This limits the length of immutable args to 0x5fd3
     const args = generators.hexBytes(0x5fd4);
     const salt = ethers.randomBytes(32);
