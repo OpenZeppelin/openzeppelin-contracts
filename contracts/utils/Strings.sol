@@ -156,7 +156,7 @@ library Strings {
         int256 result = 0;
         for (uint256 i = offset; i < buffer.length; ++i) {
             result *= 10; // will revert if overflow
-            result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 35, it fits into an int8
+            result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 9, it fits into an int8
         }
         return result;
     }
