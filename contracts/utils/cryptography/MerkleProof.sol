@@ -22,7 +22,7 @@ import {Hashes} from "./Hashes.sol";
  *
  * IMPORTANT: Consider memory side-effects when using custom hashing functions
  * that access memory in an unsafe way.
- * 
+ *
  * NOTE: This library supports proof verification for merkle trees built using
  * custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). Proving
  * leaf inclusion in trees built using non-commutative hashing functions requires
