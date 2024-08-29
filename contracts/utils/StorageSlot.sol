@@ -82,8 +82,7 @@ library StorageSlot {
      * @dev Returns an `AddressSlot` with member `value` located at `slot`.
      */
     function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -92,8 +91,7 @@ library StorageSlot {
      * @dev Returns a `BooleanSlot` with member `value` located at `slot`.
      */
     function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -102,8 +100,7 @@ library StorageSlot {
      * @dev Returns a `Bytes32Slot` with member `value` located at `slot`.
      */
     function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -112,8 +109,7 @@ library StorageSlot {
      * @dev Returns a `Uint256Slot` with member `value` located at `slot`.
      */
     function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -122,8 +118,7 @@ library StorageSlot {
      * @dev Returns a `Int256Slot` with member `value` located at `slot`.
      */
     function getInt256Slot(bytes32 slot) internal pure returns (Int256Slot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -132,8 +127,7 @@ library StorageSlot {
      * @dev Returns a `StringSlot` with member `value` located at `slot`.
      */
     function getStringSlot(bytes32 slot) internal pure returns (StringSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -142,8 +136,7 @@ library StorageSlot {
      * @dev Returns an `StringSlot` representation of the string storage pointer `store`.
      */
     function getStringSlot(string storage store) internal pure returns (StringSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := store.slot
         }
     }
@@ -152,8 +145,7 @@ library StorageSlot {
      * @dev Returns a `BytesSlot` with member `value` located at `slot`.
      */
     function getBytesSlot(bytes32 slot) internal pure returns (BytesSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := slot
         }
     }
@@ -162,8 +154,7 @@ library StorageSlot {
      * @dev Returns an `BytesSlot` representation of the bytes storage pointer `store`.
      */
     function getBytesSlot(bytes storage store) internal pure returns (BytesSlot storage r) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             r.slot := store.slot
         }
     }
@@ -232,8 +223,7 @@ library StorageSlot {
      * @dev Load the value held at location `slot` in transient storage.
      */
     function tload(AddressSlotType slot) internal view returns (address value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             value := tload(slot)
         }
     }
@@ -242,8 +232,7 @@ library StorageSlot {
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(AddressSlotType slot, address value) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             tstore(slot, value)
         }
     }
@@ -252,8 +241,7 @@ library StorageSlot {
      * @dev Load the value held at location `slot` in transient storage.
      */
     function tload(BooleanSlotType slot) internal view returns (bool value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             value := tload(slot)
         }
     }
@@ -262,8 +250,7 @@ library StorageSlot {
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(BooleanSlotType slot, bool value) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             tstore(slot, value)
         }
     }
@@ -272,8 +259,7 @@ library StorageSlot {
      * @dev Load the value held at location `slot` in transient storage.
      */
     function tload(Bytes32SlotType slot) internal view returns (bytes32 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             value := tload(slot)
         }
     }
@@ -282,8 +268,7 @@ library StorageSlot {
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(Bytes32SlotType slot, bytes32 value) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             tstore(slot, value)
         }
     }
@@ -292,8 +277,7 @@ library StorageSlot {
      * @dev Load the value held at location `slot` in transient storage.
      */
     function tload(Uint256SlotType slot) internal view returns (uint256 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             value := tload(slot)
         }
     }
@@ -302,8 +286,7 @@ library StorageSlot {
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(Uint256SlotType slot, uint256 value) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             tstore(slot, value)
         }
     }
@@ -312,8 +295,7 @@ library StorageSlot {
      * @dev Load the value held at location `slot` in transient storage.
      */
     function tload(Int256SlotType slot) internal view returns (int256 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             value := tload(slot)
         }
     }
@@ -322,8 +304,7 @@ library StorageSlot {
      * @dev Store `value` at location `slot` in transient storage.
      */
     function tstore(Int256SlotType slot, int256 value) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             tstore(slot, value)
         }
     }

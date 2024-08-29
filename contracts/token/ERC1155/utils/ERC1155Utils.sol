@@ -38,8 +38,7 @@ library ERC1155Utils {
                     // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
+                    assembly ("memory-safe") {
                         revert(add(32, reason), mload(reason))
                     }
                 }
@@ -76,8 +75,7 @@ library ERC1155Utils {
                     // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
+                    assembly ("memory-safe") {
                         revert(add(32, reason), mload(reason))
                     }
                 }

@@ -64,8 +64,7 @@ const get = ({ name }) => `\
  } \`${name}Slot\` with member \`value\` located at \`slot\`.
  */
 function get${name}Slot(bytes32 slot) internal pure returns (${name}Slot storage r) {
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         r.slot := slot
     }
 }
@@ -76,8 +75,7 @@ const getStorage = ({ type, name }) => `\
  * @dev Returns an \`${name}Slot\` representation of the ${type} storage pointer \`store\`.
  */
 function get${name}Slot(${type} storage store) internal pure returns (${name}Slot storage r) {
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         r.slot := store.slot
     }
 }
@@ -102,8 +100,7 @@ const transient = ({ type, name }) => `\
  * @dev Load the value held at location \`slot\` in transient storage.
  */
 function tload(${name}SlotType slot) internal view returns (${type} value) {
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         value := tload(slot)
     }
 }
@@ -112,8 +109,7 @@ function tload(${name}SlotType slot) internal view returns (${type} value) {
  * @dev Store \`value\` at location \`slot\` in transient storage.
  */
 function tstore(${name}SlotType slot, ${type} value) internal {
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         tstore(slot, value)
     }
 }
