@@ -59,7 +59,9 @@ struct ${name}Slot {
 
 const get = ({ name }) => `\
 /**
- * @dev Returns an \`${name}Slot\` with member \`value\` located at \`slot\`.
+ * @dev Returns ${
+   name.toLowerCase().startsWith('a') ? 'an' : 'a'
+ } \`${name}Slot\` with member \`value\` located at \`slot\`.
  */
 function get${name}Slot(bytes32 slot) internal pure returns (${name}Slot storage r) {
     /// @solidity memory-safe-assembly

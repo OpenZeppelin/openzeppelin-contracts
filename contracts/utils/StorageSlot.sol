@@ -89,7 +89,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `BooleanSlot` with member `value` located at `slot`.
+     * @dev Returns a `BooleanSlot` with member `value` located at `slot`.
      */
     function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) {
         /// @solidity memory-safe-assembly
@@ -99,7 +99,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `Bytes32Slot` with member `value` located at `slot`.
+     * @dev Returns a `Bytes32Slot` with member `value` located at `slot`.
      */
     function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) {
         /// @solidity memory-safe-assembly
@@ -109,7 +109,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `Uint256Slot` with member `value` located at `slot`.
+     * @dev Returns a `Uint256Slot` with member `value` located at `slot`.
      */
     function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {
         /// @solidity memory-safe-assembly
@@ -119,7 +119,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `Int256Slot` with member `value` located at `slot`.
+     * @dev Returns a `Int256Slot` with member `value` located at `slot`.
      */
     function getInt256Slot(bytes32 slot) internal pure returns (Int256Slot storage r) {
         /// @solidity memory-safe-assembly
@@ -129,7 +129,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `StringSlot` with member `value` located at `slot`.
+     * @dev Returns a `StringSlot` with member `value` located at `slot`.
      */
     function getStringSlot(bytes32 slot) internal pure returns (StringSlot storage r) {
         /// @solidity memory-safe-assembly
@@ -149,7 +149,7 @@ library StorageSlot {
     }
 
     /**
-     * @dev Returns an `BytesSlot` with member `value` located at `slot`.
+     * @dev Returns a `BytesSlot` with member `value` located at `slot`.
      */
     function getBytesSlot(bytes32 slot) internal pure returns (BytesSlot storage r) {
         /// @solidity memory-safe-assembly
