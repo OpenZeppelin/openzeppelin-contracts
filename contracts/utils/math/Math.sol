@@ -232,7 +232,7 @@ library Math {
     /**
      * @dev Calculate the modular multiplicative inverse of a number in Z/nZ.
      *
-     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, except 0.
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
      * If the input value is not inversible, 0 is returned.
