@@ -142,7 +142,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint224({_key: key, _value: value}));
             }
@@ -337,7 +337,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint208({_key: key, _value: value}));
             }
@@ -532,7 +532,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint160({_key: key, _value: value}));
             }
