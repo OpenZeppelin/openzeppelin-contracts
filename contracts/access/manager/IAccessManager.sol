@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessManaged} from "./IAccessManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 interface IAccessManager {
