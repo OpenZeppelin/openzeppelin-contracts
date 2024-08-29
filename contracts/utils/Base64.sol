@@ -22,7 +22,7 @@ library Base64 {
     }
 
     /**
-     * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * @dev Converts a `bytes` to its Bytes64Url `string` representation. Skips `=` padding.
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE_URL, false);
