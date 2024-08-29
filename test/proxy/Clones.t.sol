@@ -13,8 +13,7 @@ contract ClonesTest is Test {
     function testSymbolicPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public {
         address predicted = Clones.predictDeterministicAddress(implementation, salt);
         bytes32 spillage;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             spillage := and(predicted, 0xffffffffffffffffffffffff0000000000000000000000000000000000000000)
         }
         assertEq(spillage, bytes32(0));

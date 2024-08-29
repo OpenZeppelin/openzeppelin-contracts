@@ -212,8 +212,7 @@ library Heap {
      */
     function clear(Uint256Heap storage self) internal {
         Uint256HeapNode[] storage data = self.data;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             sstore(data.slot, 0)
         }
     }
@@ -479,8 +478,7 @@ library Heap {
      */
     function clear(Uint208Heap storage self) internal {
         Uint208HeapNode[] storage data = self.data;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             sstore(data.slot, 0)
         }
     }

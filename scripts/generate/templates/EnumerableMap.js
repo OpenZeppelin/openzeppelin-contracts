@@ -250,8 +250,7 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
     bytes32[] memory store = keys(map._inner);
     ${keyType}[] memory result;
 
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         result := store
     }
 

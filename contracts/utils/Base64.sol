@@ -55,8 +55,7 @@ library Base64 {
 
         string memory result = new string(resultLength);
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Prepare the lookup table (skip the first "length" byte)
             let tablePtr := add(table, 1)
 

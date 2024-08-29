@@ -245,8 +245,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -339,8 +338,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -433,8 +431,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -527,8 +524,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -621,8 +617,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -715,8 +710,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -809,8 +803,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         bytes32[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -903,8 +896,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         bytes32[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
