@@ -214,8 +214,7 @@ function length(${struct} storage self) internal view returns (${indexType}) {
  */
 function clear(${struct} storage self) internal {
     ${struct}Node[] storage data = self.data;
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         sstore(data.slot, 0)
     }
 }
