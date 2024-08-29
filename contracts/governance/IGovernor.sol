@@ -8,6 +8,10 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
+ *
+ * NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+ * Changes to the events indexing change the how events are indexed, breaking compatibility
+ * with existing tools.
  */
 interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {
