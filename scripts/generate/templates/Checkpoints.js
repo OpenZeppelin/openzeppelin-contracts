@@ -147,7 +147,7 @@ function _insert(${opts.checkpointTypeName}[] storage self, ${opts.keyTypeName} 
 
         // Update or push new checkpoint
         if (lastKey == key) {
-            _unsafeAccess(self, pos - 1).${opts.valueFieldName} = value;
+            last.${opts.valueFieldName} = value;
         } else {
             self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         }
