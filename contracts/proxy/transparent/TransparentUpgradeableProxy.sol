@@ -19,7 +19,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
      * @dev Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call
      * encoded in `data`.
      *
-     * See {{UUPSUpgradeable-upgradeToAndCall}}
+     * See {UUPSUpgradeable-upgradeToAndCall}
      */
     function upgradeToAndCall(address newImplementation, bytes calldata data) external payable;
 }
