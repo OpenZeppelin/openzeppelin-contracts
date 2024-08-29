@@ -309,8 +309,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         bool success;
         uint256 returnSize;
         uint256 returnValue;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Perform the staticcall and save the result in the scratch space.
             // | Location  | Content  | Content (Hex)                                                      |
             // |-----------|----------|--------------------------------------------------------------------|
@@ -362,8 +361,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.20
             // https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require
-            /// @solidity memory-safe-assembly
-            assembly {
+            assembly ("memory-safe") {
                 invalid()
             }
         }
