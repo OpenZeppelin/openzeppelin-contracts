@@ -116,7 +116,7 @@ library EnumerableMap {
      */
     function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
         bytes32 atKey = map._keys.at(index);
-        return (atKey, map._values[key]);
+        return (atKey, map._values[atKey]);
     }
 
     /**
