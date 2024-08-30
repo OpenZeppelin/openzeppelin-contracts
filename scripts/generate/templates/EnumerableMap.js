@@ -117,9 +117,9 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 at, bytes32 value) {
-    bytes32 key = map._keys.at(index);
-    return (key, map._values[key]);
+function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+    bytes32 atKey = map._keys.at(index);
+    return (atKey, map._values[key]);
 }
 
 /**
@@ -127,11 +127,11 @@ function at(Bytes32ToBytes32Map storage map, uint256 index) internal view return
  * Does not revert if \`key\` is not in the map.
  */
 function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
-    bytes32 value = map._values[key];
-    if (value == bytes32(0)) {
+    bytes32 val = map._values[key];
+    if (val == bytes32(0)) {
         return (contains(map, key), bytes32(0));
     } else {
-        return (true, value);
+        return (true, val);
     }
 }
 
