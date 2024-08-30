@@ -26,6 +26,8 @@ const sort = type => `\
  * array. Using it in view functions that are executed through \`eth_call\` is safe, but one should be very careful
  * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
  * consume more gas than is available in a block, leading to potential DoS.
+ *
+ * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
  */
 function sort(
     ${type}[] memory array,
