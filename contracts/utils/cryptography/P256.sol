@@ -145,9 +145,10 @@ library P256 {
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
-            let lhs := mulmod(y, y, P) // y^2
-            let rhs := addmod(mulmod(addmod(mulmod(x, x, P), A, P), x, P), B, P) // ((x^2 + a) * x) + b = x^3 + ax + b
-            result := and(and(lt(x, P), lt(y, P)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
+            let p := P
+            let lhs := mulmod(y, y, p) // y^2
+            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
+            result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
     }
 
@@ -187,29 +188,30 @@ library P256 {
         uint256 z2
     ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
+            let p := P
             let z1 := mload(add(p1, 0x40))
-            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, P), z2, P), P) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, P), z1, P), P) // s2 = y2*z1³
-            let r := addmod(s2, sub(P, s1), P) // r = s2-s1
-            let u1 := mulmod(mload(p1), mulmod(z2, z2, P), P) // u1 = x1*z2²
-            let u2 := mulmod(x2, mulmod(z1, z1, P), P) // u2 = x2*z1²
-            let h := addmod(u2, sub(P, u1), P) // h = u2-u1
-            let hh := mulmod(h, h, P) // h²
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
+            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
+            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
+            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
+            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
+            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
+            let hh := mulmod(h, h, p) // h²
 
             // x' = r²-h³-2*u1*h²
             rx := addmod(
-                addmod(mulmod(r, r, P), sub(P, mulmod(h, hh, P)), P),
-                sub(P, mulmod(2, mulmod(u1, hh, P), P)),
-                P
+                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                p
             )
             // y' = r*(u1*h²-x')-s1*h³
             ry := addmod(
-                mulmod(r, addmod(mulmod(u1, hh, P), sub(P, rx), P), P),
-                sub(P, mulmod(s1, mulmod(h, hh, P), P)),
-                P
+                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                p
             )
             // z' = h*z1*z2
-            rz := mulmod(h, mulmod(z1, z2, P), P)
+            rz := mulmod(h, mulmod(z1, z2, p), p)
         }
     }
 
@@ -219,18 +221,19 @@ library P256 {
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
-            let yy := mulmod(y, y, P)
-            let zz := mulmod(z, z, P)
-            let s := mulmod(4, mulmod(x, yy, P), P) // s = 4*x*y²
-            let m := addmod(mulmod(3, mulmod(x, x, P), P), mulmod(A, mulmod(zz, zz, P), P), P) // m = 3*x²+a*z⁴
-            let t := addmod(mulmod(m, m, P), sub(P, mulmod(2, s, P)), P) // t = m²-2*s
+            let p := P
+            let yy := mulmod(y, y, p)
+            let zz := mulmod(z, z, p)
+            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
+            let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
+            let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
 
             // x' = t
             rx := t
             // y' = m*(s-t)-8*y⁴
-            ry := addmod(mulmod(m, addmod(s, sub(P, t), P), P), sub(P, mulmod(8, mulmod(yy, yy, P), P)), P)
+            ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
-            rz := mulmod(2, mulmod(y, z, P), P)
+            rz := mulmod(2, mulmod(y, z, p), p)
         }
     }
 
