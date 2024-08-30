@@ -135,8 +135,8 @@ library P256 {
         uint256 w = Math.invModPrime(uint256(r), N);
         uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
         uint256 u2 = mulmod(uint256(s), w, N);
-        (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (bytes32(x), bytes32(y));
+        (uint256 xU, uint256 yU) = _jMultShamir(points, u1, u2);
+        return (bytes32(xU), bytes32(yU));
     }
 
     /**
