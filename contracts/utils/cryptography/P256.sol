@@ -250,7 +250,7 @@ library P256 {
         JPoint[16] memory points,
         uint256 u1,
         uint256 u2
-    ) private view returns (uint256 ax, uint256 ay) {
+    ) private view returns (uint256 rx, uint256 ry) {
         uint256 x = 0;
         uint256 y = 0;
         uint256 z = 0;
