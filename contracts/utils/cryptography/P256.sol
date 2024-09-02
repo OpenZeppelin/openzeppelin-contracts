@@ -171,10 +171,11 @@ library P256 {
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
         uint256 zinv = Math.invModPrime(jz, P);
-        uint256 zzinv = mulmod(zinv, zinv, P);
-        uint256 zzzinv = mulmod(zzinv, zinv, P);
-        ax = mulmod(jx, zzinv, P);
-        ay = mulmod(jy, zzzinv, P);
+        assembly ("memory-safe") {
+            let zzinv := mulmod(zinv, zinv, P)
+            ax := mulmod(jx, zzinv, P)
+            ay := mulmod(jy, mulmod(zzinv, zinv, P), P)
+        }
     }
 
     /**
@@ -190,26 +191,20 @@ library P256 {
         assembly ("memory-safe") {
             let p := P
             let z1 := mload(add(p1, 0x40))
-            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
-            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
-            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
-            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
-            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
+            let zz1 := mulmod(z1, z1, p) // zz1 = z1²
+            let zz2 := mulmod(z2, z2, p) // zz2 = z2²
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(zz2, z2, p), p) // s1 = y1*z2³
+            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1
+            let u1 := mulmod(mload(p1), zz2, p) // u1 = x1*z2²
+            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1
             let hh := mulmod(h, h, p) // h²
+            let hhh := mulmod(h, hh, p) // h³
+            let v := mulmod(u1, hh, p) // v = u1*h²
 
             // x' = r²-h³-2*u1*h²
-            rx := addmod(
-                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
-                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
-                p
-            )
+            rx := addmod(addmod(mulmod(r, r, p), sub(p, hhh), p), sub(p, mulmod(2, v, p)), p)
             // y' = r*(u1*h²-x')-s1*h³
-            ry := addmod(
-                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
-                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
-                p
-            )
+            ry := addmod(mulmod(r, addmod(v, sub(p, rx), p), p), sub(p, mulmod(s1, hhh, p)), p)
             // z' = h*z1*z2
             rz := mulmod(h, mulmod(z1, z2, p), p)
         }
@@ -226,12 +221,11 @@ library P256 {
             let zz := mulmod(z, z, p)
             let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
             let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
-            let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
 
             // x' = t
-            rx := t
+            rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
             // y' = m*(s-t)-8*y⁴
-            ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
+            ry := addmod(mulmod(m, addmod(s, sub(p, rx), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
         }
@@ -298,7 +292,7 @@ library P256 {
         points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
         points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
         points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,2 (g+2g)
         points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
         points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
         points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
