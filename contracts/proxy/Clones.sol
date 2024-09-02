@@ -18,7 +18,7 @@ import {Errors} from "../utils/Errors.sol";
  * deterministic method.
  */
 library Clones {
-    error EIP170ContractCodeSizeLimit();
+    error ContractSizeLimitExcedeed();
 
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
@@ -251,7 +251,7 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 0x5fd3) revert EIP170ContractCodeSizeLimit();
+        if (args.length > 0x5fd3) revert ContractSizeLimitExcedeed();
         return
             abi.encodePacked(
                 hex"61",
