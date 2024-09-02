@@ -142,7 +142,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint224({_key: key, _value: value}));
             }
@@ -154,7 +154,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
      * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
      * `high`.
      *
@@ -178,9 +178,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -337,7 +337,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint208({_key: key, _value: value}));
             }
@@ -349,7 +349,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
      * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
      * `high`.
      *
@@ -373,9 +373,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -532,7 +532,7 @@ library Checkpoints {
 
             // Update or push new checkpoint
             if (lastKey == key) {
-                _unsafeAccess(self, pos - 1)._value = value;
+                last._value = value;
             } else {
                 self.push(Checkpoint160({_key: key, _value: value}));
             }
@@ -544,7 +544,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or `high`
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
      * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
      * `high`.
      *
@@ -568,9 +568,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
-     * `high` if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and
-     * exclusive `high`.
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */

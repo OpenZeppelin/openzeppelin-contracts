@@ -26,14 +26,12 @@ library Strings {
             uint256 length = Math.log10(value) + 1;
             string memory buffer = new string(length);
             uint256 ptr;
-            /// @solidity memory-safe-assembly
-            assembly {
+            assembly ("memory-safe") {
                 ptr := add(buffer, add(32, length))
             }
             while (true) {
                 ptr--;
-                /// @solidity memory-safe-assembly
-                assembly {
+                assembly ("memory-safe") {
                     mstore8(ptr, byte(mod(value, 10), HEX_DIGITS))
                 }
                 value /= 10;
