@@ -229,9 +229,9 @@ library P256 {
             let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
             let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
 
-            // x' = t
-            rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
-            // y' = m*(s-t)-8*y⁴
+            // x' = t = m²-2*s
+            rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
+            // y' = m*(s-t)-8*y⁴ = m*(s-x')-8*y⁴
             ry := addmod(mulmod(m, addmod(s, sub(p, rx), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
