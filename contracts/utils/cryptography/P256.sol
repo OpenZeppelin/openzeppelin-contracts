@@ -170,11 +170,12 @@ library P256 {
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
-        uint256 zinv = Math.invModPrime(jz, P);
+        uint256 p = P; // cache P on the stack
+        uint256 zinv = Math.invModPrime(jz, p);
         assembly ("memory-safe") {
-            let zzinv := mulmod(zinv, zinv, P)
-            ax := mulmod(jx, zzinv, P)
-            ay := mulmod(jy, mulmod(zzinv, zinv, P), P)
+            let zzinv := mulmod(zinv, zinv, p)
+            ax := mulmod(jx, zzinv, p)
+            ay := mulmod(jy, mulmod(zzinv, zinv, p), p)
         }
     }
 
