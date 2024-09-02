@@ -195,9 +195,9 @@ library P256 {
             let z1 := mload(add(p1, 0x40))
             let zz1 := mulmod(z1, z1, p) // zz1 = z1²
             let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
-            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1
+            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1 = y2*z1³-s1
             let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
-            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1
+            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1
             let hh := mulmod(h, h, p) // h²
 
             // x' = r²-h³-2*u1*h²
@@ -299,7 +299,7 @@ library P256 {
         points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
         points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
         points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,2 (g+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
         points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
         points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
         points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
