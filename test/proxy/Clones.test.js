@@ -165,11 +165,11 @@ describe('Clones', function () {
 
     await expect(
       this.factory.$predictDeterministicAddressWithImmutableArgs(this.implementation, args, salt),
-    ).to.be.revertedWithCustomError(this.factory, 'ContractSizeLimitExcedeed');
+    ).to.be.revertedWithCustomError(this.factory, 'EIP170ContractCodeSizeLimit');
 
     await expect(this.factory.$cloneWithImmutableArgs(this.implementation, args)).to.be.revertedWithCustomError(
       this.factory,
-      'ContractSizeLimitExcedeed',
+      'EIP170ContractCodeSizeLimit',
     );
   });
 });
