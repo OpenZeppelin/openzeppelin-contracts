@@ -125,11 +125,12 @@ library P256 {
             return (0, 0);
         }
 
+        uint256 p = P; // cache P on the stack
         uint256 rx = uint256(r);
-        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
-        uint256 ry = Math.modExp(ry2, P1DIV4, P); // This formula for sqrt work because P ≡ 3 (mod 4)
-        if (mulmod(ry, ry, P) != ry2) return (0, 0); // Sanity check
-        if (ry % 2 != v % 2) ry = P - ry;
+        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, p), A, p), rx, p), B, p); // weierstrass equation y² = x³ + a.x + b
+        uint256 ry = Math.modExp(ry2, P1DIV4, p); // This formula for sqrt work because P ≡ 3 (mod 4)
+        if (mulmod(ry, ry, p) != ry2) return (0, 0); // Sanity check
+        if (ry % 2 != v % 2) ry = p - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
         uint256 w = Math.invModPrime(uint256(r), N);
