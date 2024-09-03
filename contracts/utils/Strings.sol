@@ -162,11 +162,11 @@ library Strings {
     }
 
     /**
-     * @dev Parse an hexadecimal string (with or without "0x" prefix), and returns the value as a `uint256`.
+     * @dev Parse a hexadecimal string (with or without "0x" prefix), and returns the value as a `uint256`.
      *
      * This function will revert if:
      * - the string contains any character (outside the prefix) that is not in [0-9a-fA-F].
-     * - the result does not fit in a uint256.
+     * - the result does not fit in a `uint256`.
      */
     function hexToUint(string memory input) internal pure returns (uint256) {
         bytes memory buffer = bytes(input);
