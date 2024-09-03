@@ -128,15 +128,14 @@ library Strings {
      * - the string contains any character that is not in [0-9].
      * - the result does not fit in a `uint256`.
      */
-    function toUint(string memory input) internal pure returns (uint256) {
+    function toUint(string memory input) internal pure returns (uint256 result) {
         bytes memory buffer = bytes(input);
 
-        uint256 result = 0;
-        for (uint256 i = 0; i < buffer.length; ++i) {
+        uint256 bufferLength = buffer.length;
+        for (uint256 i = 0; i < bufferLength; ++i) {
             result *= 10; // will revert if overflow
             result += _parseChr(buffer[i], 10);
         }
-        return result;
     }
 
     /**
@@ -146,19 +145,18 @@ library Strings {
      * - the string contains any character (outside the prefix) that is not in [0-9].
      * - the result does not fit in a `int256`.
      */
-    function toInt(string memory input) internal pure returns (int256) {
+    function toInt(string memory input) internal pure returns (int256 result) {
         bytes memory buffer = bytes(input);
 
         // check presence of a negative sign.
-        uint256 offset = bytes1(buffer) == 0x2d ? 1 : 0;
-        int8 factor = bytes1(buffer) == 0x2d ? int8(-1) : int8(1);
+        bool isNegative = bytes1(buffer) == 0x2d;
+        int8 factor = isNegative ? int8(-1) : int8(1);
 
-        int256 result = 0;
-        for (uint256 i = offset; i < buffer.length; ++i) {
+        uint256 bufferLength = buffer.length;
+        for (uint256 i = isNegative ? 1 : 0; i < bufferLength; ++i) {
             result *= 10; // will revert if overflow
             result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 9, it fits into an int8
         }
-        return result;
     }
 
     /**
