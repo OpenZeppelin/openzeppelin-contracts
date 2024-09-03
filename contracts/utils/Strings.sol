@@ -181,7 +181,7 @@ library Strings {
     }
 
     function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8) {
-        uint8 result;
+        uint8 value = uint8(chr);
 
         // Try to parse `chr`:
         // - Case 1: [0-9]
@@ -189,9 +189,9 @@ library Strings {
         // - Case 2: [A-Z]
         // - otherwise not supported
         unchecked {
-            if (uint8(chr) > 47 && uint8(chr) < 58) result = uint8(chr) - 48;
-            else if (uint8(chr) > 96 && uint8(chr) < 123) result = uint8(chr) - 87;
-            else if (uint8(chr) > 64 && uint8(chr) < 91) result = uint8(chr) - 55;
+            if (value > 47 && value < 58) value -= 48;
+            else if (value > 96 && value < 123) value -= 87;
+            else if (value > 64 && value < 91) value -= 55;
             else revert StringsInvalidChar(chr, base);
         }
 
