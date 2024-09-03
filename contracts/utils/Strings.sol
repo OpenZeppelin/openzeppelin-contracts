@@ -126,7 +126,7 @@ library Strings {
      *
      * This function will revert if:
      * - the string contains any character that is not in [0-9].
-     * - the result does not fit in a uint256.
+     * - the result does not fit in a `uint256`.
      */
     function toUint(string memory input) internal pure returns (uint256) {
         bytes memory buffer = bytes(input);
@@ -144,7 +144,7 @@ library Strings {
      *
      * This function will revert if:
      * - the string contains any character (outside the prefix) that is not in [0-9].
-     * - the result does not fit in a int256.
+     * - the result does not fit in a `int256`.
      */
     function toInt(string memory input) internal pure returns (int256) {
         bytes memory buffer = bytes(input);
