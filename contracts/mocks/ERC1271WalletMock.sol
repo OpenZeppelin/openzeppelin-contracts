@@ -10,7 +10,7 @@ contract ERC1271WalletMock is Ownable, IERC1271 {
     constructor(address originalOwner) Ownable(originalOwner) {}
 
     function isValidSignature(bytes32 hash, bytes memory signature) public view returns (bytes4 magicValue) {
-        return ECDSA.recover(hash, signature) == owner() ? IERC1271.isValidSignature.selector : bytes4(0);
+        return ECDSA.recover(hash, signature) == owner() ? this.isValidSignature.selector : bytes4(0);
     }
 }
 
