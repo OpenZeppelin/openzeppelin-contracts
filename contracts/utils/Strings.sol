@@ -180,8 +180,8 @@ library Strings {
         return result;
     }
 
-    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8) {
-        uint8 value = uint8(chr);
+    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8 value) {
+        value = uint8(chr);
 
         // Try to parse `chr`:
         // - Case 1: [0-9]
@@ -196,7 +196,6 @@ library Strings {
         }
 
         // check base
-        if (result >= base) revert StringsInvalidChar(chr, base);
-        return result;
+        if (value >= base) revert StringsInvalidChar(chr, base);
     }
 }
