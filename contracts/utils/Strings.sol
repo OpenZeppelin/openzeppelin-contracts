@@ -122,7 +122,7 @@ library Strings {
     }
 
     /**
-     * @dev Parse an decimal string and returns the value as a `uint256`.
+     * @dev Parse a decimal string and returns the value as a `uint256`.
      *
      * This function will revert if:
      * - the string contains any character that is not in [0-9].
@@ -139,7 +139,7 @@ library Strings {
     }
 
     /**
-     * @dev Parse an decimal string and returns the value as a `int256`.
+     * @dev Parse a decimal string and returns the value as a `int256`.
      *
      * This function will revert if:
      * - the string contains any character (outside the prefix) that is not in [0-9].
