@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Math} from "./math/Math.sol";
+import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
 
 /**
@@ -156,7 +157,7 @@ library Strings {
 
         int256 result = 0;
         uint256 bufferLength = buffer.length;
-        for (uint256 i = isNegative ? 1 : 0; i < bufferLength; ++i) {
+        for (uint256 i = SafeCast.toUint(isNegative); i < bufferLength; ++i) {
             result *= 10; // will revert if overflow
             result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 9, it fits into an int8
         }
