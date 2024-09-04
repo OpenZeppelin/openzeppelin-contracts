@@ -178,22 +178,22 @@ library Heap {
     }
 
     /**
-     * @dev Perform heap maintenance on `self`, starting at position `pos` (with the `value`), using `comp` as a
+     * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
      * comparator, and moving toward the leafs of the underlying tree.
      *
      * NOTE: This is a private function that is called in a trusted context with already cached parameters. `length`
-     * and `value` could be extracted from `self` and `pos`, but that would require redundant storage read. These
+     * and `value` could be extracted from `self` and `index`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
     function _siftDown(
         Uint256Heap storage self,
         uint64 size,
-        uint64 pos,
+        uint64 index,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint256 left = 2 * pos + 1; // this could overflow uint64
-        uint256 right = 2 * pos + 2; // this could overflow uint64
+        uint256 left = 2 * index + 1; // this could overflow uint64
+        uint256 right = 2 * index + 2; // this could overflow uint64
 
         if (right < size) {
             // the check guarantees that `left` and `right` are both valid uint64
@@ -202,27 +202,27 @@ library Heap {
             uint256 lValue = self.tree.unsafeAccess(lIndex).value;
             uint256 rValue = self.tree.unsafeAccess(rIndex).value;
             if (comp(lValue, value) || comp(rValue, value)) {
-                uint64 index = uint64(comp(lValue, rValue).ternary(lIndex, rIndex));
-                _swap(self, pos, index);
-                _siftDown(self, size, index, value, comp);
+                uint64 sIndex = uint64(comp(lValue, rValue).ternary(lIndex, rIndex));
+                _swap(self, index, sIndex);
+                _siftDown(self, size, sIndex, value, comp);
             }
         } else if (left < size) {
             // the check guarantees that `left` is a valid uint64
             uint64 lIndex = uint64(left);
             uint256 lValue = self.tree.unsafeAccess(lIndex).value;
             if (comp(lValue, value)) {
-                _swap(self, pos, lIndex);
+                _swap(self, index, lIndex);
                 _siftDown(self, size, lIndex, value, comp);
             }
         }
     }
 
     /**
-     * @dev Perform heap maintenance on `self`, starting at position `pos` (with the `value`), using `comp` as a
+     * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
      * comparator, and moving toward the root of the underlying tree.
      *
      * NOTE: This is a private function that is called in a trusted context with already cached parameters. `value`
-     * could be extracted from `self` and `pos`, but that would require redundant storage read. These parameters are not
+     * could be extracted from `self` and `index`, but that would require redundant storage read. These parameters are not
      * verified. It is the caller role to make sure the parameters are correct.
      */
     function _siftUp(
