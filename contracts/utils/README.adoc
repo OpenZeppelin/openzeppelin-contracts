@@ -40,6 +40,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
  * {Comparators}: A library that contains comparator functions to use with with the {Heap} library.
+ * {Memory}: A utility library to manipulate memory.
 
 [NOTE]
 ====
