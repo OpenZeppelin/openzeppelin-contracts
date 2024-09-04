@@ -15,6 +15,9 @@ interface IERC2981 is IERC165 {
     /**
      * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
      * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+     *
+     * NOTE: ERC-2981 allows setting the royalty to 100% of the price. In that case all the price would be sent to the
+     * royalty receiver and 0 tokens to the seller. Contracts dealing with royalty should consider empty transfers.
      */
     function royaltyInfo(
         uint256 tokenId,

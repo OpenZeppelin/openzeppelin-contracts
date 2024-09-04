@@ -22,6 +22,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+* {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
 * {ERC4626}: tokenized vault that manages shares (represented as ERC-20) that are backed by assets (another ERC-20).
 
@@ -61,6 +62,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC20FlashMint}}
 
+{{ERC20TemporaryApproval}}
+
 {{ERC1363}}
 
 {{ERC4626}}
@@ -68,3 +71,5 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 == Utilities
 
 {{SafeERC20}}
+
+{{ERC1363Utils}}
