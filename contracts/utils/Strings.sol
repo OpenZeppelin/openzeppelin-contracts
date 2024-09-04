@@ -128,14 +128,16 @@ library Strings {
      * - the string contains any character that is not in [0-9].
      * - the result does not fit in a `uint256`.
      */
-    function toUint(string memory input) internal pure returns (uint256 result) {
+    function toUint(string memory input) internal pure returns (uint256) {
         bytes memory buffer = bytes(input);
 
+        uint256 result = 0;
         uint256 bufferLength = buffer.length;
         for (uint256 i = 0; i < bufferLength; ++i) {
             result *= 10; // will revert if overflow
             result += _parseChr(buffer[i], 10);
         }
+        return result;
     }
 
     /**
@@ -145,18 +147,20 @@ library Strings {
      * - the string contains any character (outside the prefix) that is not in [0-9].
      * - the result does not fit in a `int256`.
      */
-    function toInt(string memory input) internal pure returns (int256 result) {
+    function toInt(string memory input) internal pure returns (int256) {
         bytes memory buffer = bytes(input);
 
         // check presence of a negative sign.
         bool isNegative = bytes1(buffer) == 0x2d;
         int8 factor = isNegative ? int8(-1) : int8(1);
 
+        int256 result = 0;
         uint256 bufferLength = buffer.length;
         for (uint256 i = isNegative ? 1 : 0; i < bufferLength; ++i) {
             result *= 10; // will revert if overflow
             result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 9, it fits into an int8
         }
+        return result;
     }
 
     /**
@@ -173,15 +177,16 @@ library Strings {
         uint256 offset = bytes2(buffer) == 0x3078 ? 2 : 0;
 
         uint256 result = 0;
-        for (uint256 i = offset; i < buffer.length; ++i) {
+        uint256 bufferLength = buffer.length;
+        for (uint256 i = offset; i < bufferLength; ++i) {
             result *= 16; // will revert if overflow
             result += _parseChr(buffer[i], 16);
         }
         return result;
     }
 
-    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8 value) {
-        value = uint8(chr);
+    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8) {
+        uint8 value = uint8(chr);
 
         // Try to parse `chr`:
         // - Case 1: [0-9]
@@ -197,5 +202,7 @@ library Strings {
 
         // check base
         if (value >= base) revert StringsInvalidChar(chr, base);
+
+        return value;
     }
 }
