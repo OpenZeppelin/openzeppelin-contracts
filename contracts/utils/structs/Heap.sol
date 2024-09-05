@@ -73,7 +73,7 @@ library Heap {
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
         unchecked {
-            uint64 size = length(self);
+            uint256 size = length(self);
             if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
             // cache
@@ -110,8 +110,7 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) internal {
-        uint64 size = length(self);
-        if (size == type(uint64).max) Panic.panic(Panic.RESOURCE_ERROR);
+        uint256 size = length(self);
 
         // push new item and re-heapify
         self.tree.push(value);
@@ -141,7 +140,7 @@ library Heap {
         uint256 newValue,
         function(uint256, uint256) view returns (bool) comp
     ) internal returns (uint256) {
-        uint64 size = length(self);
+        uint256 size = length(self);
         if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
         // cache
@@ -157,8 +156,8 @@ library Heap {
     /**
      * @dev Returns the number of elements in the heap.
      */
-    function length(Uint256Heap storage self) internal view returns (uint64) {
-        return self.tree.length.toUint64();
+    function length(Uint256Heap storage self) internal view returns (uint256) {
+        return self.tree.length;
     }
 
     /**
@@ -171,7 +170,7 @@ library Heap {
     /**
      * @dev Swap node `i` and `j` in the tree.
      */
-    function _swap(Uint256Heap storage self, uint64 i, uint64 j) private {
+    function _swap(Uint256Heap storage self, uint256 i, uint256 j) private {
         StorageSlot.Uint256Slot storage ni = self.tree.unsafeAccess(i);
         StorageSlot.Uint256Slot storage nj = self.tree.unsafeAccess(j);
         (ni.value, nj.value) = (nj.value, ni.value);
@@ -187,31 +186,26 @@ library Heap {
      */
     function _siftDown(
         Uint256Heap storage self,
-        uint64 size,
-        uint64 pos,
+        uint256 size,
+        uint256 index,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint256 left = 2 * pos + 1; // this could overflow uint64
-        uint256 right = 2 * pos + 2; // this could overflow uint64
+        uint256 lIndex = 2 * index + 1; // this could overflow uint256
+        uint256 rIndex = 2 * index + 2; // this could overflow uint256
 
-        if (right < size) {
-            // the check guarantees that `left` and `right` are both valid uint64
-            uint64 lIndex = uint64(left);
-            uint64 rIndex = uint64(right);
+        if (rIndex < size) {
             uint256 lValue = self.tree.unsafeAccess(lIndex).value;
             uint256 rValue = self.tree.unsafeAccess(rIndex).value;
             if (comp(lValue, value) || comp(rValue, value)) {
-                uint64 index = uint64(comp(lValue, rValue).ternary(lIndex, rIndex));
-                _swap(self, pos, index);
-                _siftDown(self, size, index, value, comp);
+                uint256 cIndex = comp(lValue, rValue).ternary(lIndex, rIndex);
+                _swap(self, index, cIndex);
+                _siftDown(self, size, cIndex, value, comp);
             }
-        } else if (left < size) {
-            // the check guarantees that `left` is a valid uint64
-            uint64 lIndex = uint64(left);
+        } else if (lIndex < size) {
             uint256 lValue = self.tree.unsafeAccess(lIndex).value;
             if (comp(lValue, value)) {
-                _swap(self, pos, lIndex);
+                _swap(self, index, lIndex);
                 _siftDown(self, size, lIndex, value, comp);
             }
         }
@@ -227,13 +221,13 @@ library Heap {
      */
     function _siftUp(
         Uint256Heap storage self,
-        uint64 index,
+        uint256 index,
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
         unchecked {
             while (index > 0) {
-                uint64 parentIndex = (index - 1) / 2;
+                uint256 parentIndex = (index - 1) / 2;
                 uint256 parentValue = self.tree.unsafeAccess(parentIndex).value;
                 if (comp(parentValue, value)) break;
                 _swap(self, index, parentIndex);
