@@ -174,7 +174,7 @@ library Strings {
     function hexToUint(string memory input) internal pure returns (uint256) {
         bytes memory buffer = bytes(input);
 
-        // skip 0x prefix if present. Length check doesn't appear to be critical
+        // skip 0x prefix if present
         uint256 offset = Math.ternary(bytes2(buffer) == 0x3078, 2, 0);
 
         uint256 result = 0;
