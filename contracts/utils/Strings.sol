@@ -175,7 +175,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present. Length check doesn't appear to be critical
-        uint256 offset = bytes2(buffer) == 0x3078 ? 2 : 0;
+        uint256 offset = Math.ternary(bytes2(buffer) == 0x3078, 2, 0);
 
         uint256 result = 0;
         uint256 bufferLength = buffer.length;
