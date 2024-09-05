@@ -7,6 +7,7 @@ import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in
@@ -84,6 +85,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
+        Memory.Pointer ptr = Memory.getFreePointer();
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
@@ -93,6 +95,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
                 return (true, uint8(returnedDecimals));
             }
         }
+        Memory.setFreePointer(ptr);
         return (false, 0);
     }
 
