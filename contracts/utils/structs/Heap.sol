@@ -177,11 +177,11 @@ library Heap {
     }
 
     /**
-     * @dev Perform heap maintenance on `self`, starting at position `pos` (with the `value`), using `comp` as a
+     * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
      * comparator, and moving toward the leafs of the underlying tree.
      *
      * NOTE: This is a private function that is called in a trusted context with already cached parameters. `length`
-     * and `value` could be extracted from `self` and `pos`, but that would require redundant storage read. These
+     * and `value` could be extracted from `self` and `index`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
     function _siftDown(
@@ -212,11 +212,11 @@ library Heap {
     }
 
     /**
-     * @dev Perform heap maintenance on `self`, starting at position `pos` (with the `value`), using `comp` as a
+     * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
      * comparator, and moving toward the root of the underlying tree.
      *
      * NOTE: This is a private function that is called in a trusted context with already cached parameters. `value`
-     * could be extracted from `self` and `pos`, but that would require redundant storage read. These parameters are not
+     * could be extracted from `self` and `index`, but that would require redundant storage read. These parameters are not
      * verified. It is the caller role to make sure the parameters are correct.
      */
     function _siftUp(
