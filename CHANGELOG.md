@@ -1,9 +1,30 @@
 # Changelog
 
+## 5.1.0-rc.0 (2024-07-24)
 
-## 5.1.0-rc.0 (2024-10-02)
+### Breaking changes
+
+- `ERC1967Utils`: Removed duplicate declaration of the `Upgraded`, `AdminChanged` and `BeaconUpgraded` events. These events are still available through the `IERC1967` interface located under the `contracts/interfaces/` directory. Minimum pragma version is now 0.8.21.
+- `Governor`, `GovernorCountingSimple`: The `_countVotes` virtual function now returns an `uint256` with the total votes casted. This change allows for more flexibility for partial and fractional voting. Upgrading users may get a compilation error that can be fixed by adding a return statement to the `_countVotes` function.
+
+#### Custom error changes
+
+This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
+
+- Replace `Address.FailedInnerCall` with `Errors.FailedCall`
+- Replace `Address.AddressInsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
+- Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
+- Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
+- `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation` if there is no code at the token's address.
+- `SafeERC20`: Replace generic `Error(string)` with `SafeERC20FailedOperation` if the returned data can't be decoded as `bool`.
+- `SafeERC20`: Replace generic `SafeERC20FailedOperation` with the revert message from the contract call if it fails.
 
 ### Changes by category
+
+#### General
+
+- `AccessManager`, `VestingWallet`, `TimelockController` and `ERC2771Forwarder`: Added a public `initializer` function in their corresponding upgradeable variants. ([#5008](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5008))
 
 #### Access
 
@@ -32,30 +53,7 @@
 - `SafeERC20`: Add "relaxed" function for interacting with ERC-1363 functions in a way that is compatible with EOAs. ([#4631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4631))
 - `ERC721Utils` and `ERC1155Utils`: Add reusable libraries with functions to perform acceptance checks on `IERC721Receiver` and `IERC1155Receiver` implementers. ([#4845](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4845))
 
-### Cryptography utilities
-
-- `SignatureChecker`: refactor `isValidSignatureNow` to avoid validating ECDSA signatures if there is code deployed at the signer's address. ([#4951](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4951))
-- `MerkleProof`: Add variations of `verify`, `processProof`, `multiProofVerify` and `processMultiProof` (and equivalent calldata version) with support for custom hashing functions. ([#4887](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4887))
-- `P256`: Library for verification and public key recovery of P256 (aka secp256r1) signatures. ([#4881](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4881))
-- `RSA`: Library to verify signatures according to RFC 8017 Signature Verification Operation ([#4952](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4952))
-
-#### Math utilities
-
-- `Math`: add an `invMod` function to get the modular multiplicative inverse of a number in Z/nZ. ([#4839](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4839))
-- `Math`: Add `modExp` function that exposes the `EIP-198` precompile. Includes `uint256` and `bytes memory` versions. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
-- `Math`: Custom errors replaced with native panic codes. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
-- `Math`, `SignedMath`: Add a branchless `ternary` function that computes`cond ? a : b` in constant gas cost. ([#4976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4976))
-- `SafeCast`: Add `toUint(bool)` for operating on `bool` values as `uint256`. ([#4878](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4878))
-
-#### Structures utilities
-
-- `CircularBuffer`: Add a data structure that stores the last `N` values pushed to it. ([#4913](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4913))
-- `DoubleEndedQueue`: Custom errors replaced with native panic codes. ([#4872](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4872))
-- `EnumerableMap`: add `UintToBytes32Map`, `AddressToAddressMap`, `AddressToBytes32Map` and `Bytes32ToAddressMap`. ([#4843](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4843))
-- `Heap`: A data structure that implements a heap-based priority queue. ([#5084](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5084))
-- `MerkleTree`: A data structure that allows inserting elements into a merkle tree and updating its root hash. ([#3617](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3617))
-
-#### Other utilities
+#### Utils
 
 - `Arrays`: add a `sort` functions for `address[]`, `bytes32[]` and `uint256[]` memory arrays. ([#4846](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4846))
 - `Arrays`: add new functions `lowerBound`, `upperBound`, `lowerBoundMemory` and `upperBoundMemory` for lookups in sorted arrays with potential duplicates. ([#4842](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4842))
@@ -73,27 +71,28 @@
 - `SlotDerivation`: Add a library of methods for derivating common storage slots. ([#4975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4975))
 - `StorageSlot`: Add primitives for operating on the transient storage space using a typed-slot representation. ([#4980](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4980))
 
-#### Upgradeability
+##### Cryptography
 
-- `AccessManager`, `VestingWallet`, `TimelockController` and `ERC2771Forwarder`: Added a public `initializer` function in their corresponding upgradeable variants. ([#5008](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5008))
+- `SignatureChecker`: refactor `isValidSignatureNow` to avoid validating ECDSA signatures if there is code deployed at the signer's address. ([#4951](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4951))
+- `MerkleProof`: Add variations of `verify`, `processProof`, `multiProofVerify` and `processMultiProof` (and equivalent calldata version) with support for custom hashing functions. ([#4887](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4887))
+- `P256`: Library for verification and public key recovery of P256 (aka secp256r1) signatures. ([#4881](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4881))
+- `RSA`: Library to verify signatures according to RFC 8017 Signature Verification Operation ([#4952](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4952))
 
-### Breaking changes
+#### Math
 
-- `ERC1967Utils`: Removed duplicate declaration of the `Upgraded`, `AdminChanged` and `BeaconUpgraded` events. These events are still available through the `IERC1967` interface located under the `contracts/interfaces/` directory. Minimum pragma version is now 0.8.21.
-- `Governor`, `GovernorCountingSimple`: The `_countVotes` virtual function now returns an `uint256` with the total votes casted. This change allows for more flexibility for partial and fractional voting. Upgrading users may get a compilation error that can be fixed by adding a return statement to the `_countVotes` function.
+- `Math`: add an `invMod` function to get the modular multiplicative inverse of a number in Z/nZ. ([#4839](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4839))
+- `Math`: Add `modExp` function that exposes the `EIP-198` precompile. Includes `uint256` and `bytes memory` versions. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
+- `Math`: Custom errors replaced with native panic codes. ([#3298](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3298))
+- `Math`, `SignedMath`: Add a branchless `ternary` function that computes`cond ? a : b` in constant gas cost. ([#4976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4976))
+- `SafeCast`: Add `toUint(bool)` for operating on `bool` values as `uint256`. ([#4878](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4878))
 
-### Custom error changes
+#### Structures
 
-This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
-
-- Replace `Address.FailedInnerCall` with `Errors.FailedCall`
-- Replace `Address.AddressInsufficientBalance` with `Errors.InsufficientBalance`
-- Replace `Clones.Create2InsufficientBalance` with `Errors.InsufficientBalance`
-- Replace `Clones.ERC1167FailedCreateClone` with `Errors.FailedDeployment`
-- Replace `Clones.Create2FailedDeployment` with `Errors.FailedDeployment`
-- `SafeERC20`: Replace `Address.AddressEmptyCode` with `SafeERC20FailedOperation` if there is no code at the token's address.
-- `SafeERC20`: Replace generic `Error(string)` with `SafeERC20FailedOperation` if the returned data can't be decoded as `bool`.
-- `SafeERC20`: Replace generic `SafeERC20FailedOperation` with the revert message from the contract call if it fails.
+- `CircularBuffer`: Add a data structure that stores the last `N` values pushed to it. ([#4913](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4913))
+- `DoubleEndedQueue`: Custom errors replaced with native panic codes. ([#4872](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4872))
+- `EnumerableMap`: add `UintToBytes32Map`, `AddressToAddressMap`, `AddressToBytes32Map` and `Bytes32ToAddressMap`. ([#4843](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4843))
+- `Heap`: A data structure that implements a heap-based priority queue. ([#5084](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5084))
+- `MerkleTree`: A data structure that allows inserting elements into a merkle tree and updating its root hash. ([#3617](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3617))
 
 ## 5.0.2 (2024-02-29)
 
