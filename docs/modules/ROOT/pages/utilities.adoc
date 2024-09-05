@@ -189,7 +189,7 @@ Some use cases require more powerful data structures than arrays and mappings of
 - xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
 - xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
 - xref:api:utils.adoc#MerkleTree[`MerkleTree`]: An on-chain https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] with helper functions.
-- xref:api:utils.adoc#Heap.sol[`Heap`]: A 
+- xref:api:utils.adoc#Heap.sol[`Heap`]: A https://en.wikipedia.org/wiki/Binary_heap[binary heap] to store elements with priority defined by a compartor function.
 
 The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
@@ -386,3 +386,37 @@ await instance.multicall([
     instance.interface.encodeFunctionData("bar")
 ]);
 ----
+
+=== Memory
+
+The `Memory` library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when iterating over a section of the code that allocates new memory. Consider the following example:
+
+[source,solidity]
+----
+function callFoo(address target) internal {
+  bytes memory callData = abi.encodeWithSelector(
+    bytes4(keccak256("foo()"))
+  )
+  (bool success, /* bytes memory returndata */) = target.call(callData);
+  require(success);
+}
+----
+
+Note the function allocates memory for both the `callData` argument and for the returndata even if it's ignored. As such, it may be desirable to reset the free memory pointer after the end of the function.
+
+[source,solidity]
+----
+function callFoo(address target) internal {
+  Memory.Pointer ptr = Memory.getFreePointer(); // Cache pointer
+  bytes memory callData = abi.encodeWithSelector(
+    bytes4(keccak256("foo()"))
+  )
+  (bool success, /* bytes memory returndata */) = target.call(callData);
+  require(success);
+  Memory.setFreePointer(ptr); // Reset pointer
+}
+----
+
+In this way, new memory will be allocated in the space where the `returndata` and `callData` used to be, potentially reducing memory expansion costs by shrinking the its size at the end of the transaction and resulting in gas savings.
+
+IMPORTANT: By default, Solidity handles memory safely. Using this library without understanding how memory works may be dangerous. Consider thoroughly reading the Solidity documentation about the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and how the language defines https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety].

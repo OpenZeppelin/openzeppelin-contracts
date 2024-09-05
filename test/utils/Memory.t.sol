@@ -9,8 +9,7 @@ contract MemoryTest is Test {
     using Memory for *;
 
     function testSymbolicGetSetFreePointer(bytes32 ptr) public {
-        Memory.Pointer memoryPtr = ptr.asPointer();
-        Memory.setFreePointer(memoryPtr);
-        assertEq(Memory.getFreePointer().asBytes32(), memoryPtr.asBytes32());
+        Memory.setFreePointer(ptr.asPointer());
+        assertEq(Memory.getFreePointer().asBytes32(), ptr);
     }
 }
