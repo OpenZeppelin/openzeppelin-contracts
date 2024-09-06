@@ -191,9 +191,18 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        uint256 lIndex = 2 * index + 1; // this could overflow uint256
-        uint256 rIndex = 2 * index + 2; // this could overflow uint256
+        // Check if there is a risk of overflow when commputing the indices of the child nodes. If that is the case,
+        // there cannot be child nodes in the tree, so sifting is done.
+        if (index >= type(uint256).max / 2) return;
 
+        // Compute the indices of the potential child nodes
+        uint256 lIndex = 2 * index + 1;
+        uint256 rIndex = 2 * index + 2;
+
+        // Three cases:
+        // 1. Both childs exist: sifting may continue on one of the branch (selection required)
+        // 2. Only left child exist: sifting may contineu on the left branch (no selection required)
+        // 3. Neither child exist: sifting is done
         if (rIndex < size) {
             uint256 lValue = self.tree.unsafeAccess(lIndex).value;
             uint256 rValue = self.tree.unsafeAccess(rIndex).value;
