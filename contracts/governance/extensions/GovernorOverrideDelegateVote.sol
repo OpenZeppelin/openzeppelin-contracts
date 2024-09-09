@@ -12,8 +12,8 @@ import {GovernorVotes} from "./GovernorVotes.sol";
  * token token that inherits `VotesOverridable`.
  */
 abstract contract GovernorOverrideDelegateVote is GovernorVotes {
-    bytes32 public constant OVERRIDE_TYPEHASH =
-        keccak256("Override(uint256 proposalId,uint8 support,address voter,uint256 nonce)");
+    bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
+        keccak256("OverrideBallot(uint256 proposalId,uint8 support,address voter,uint256 nonce,string reason)");
 
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
@@ -34,6 +34,8 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
         uint256[3] votes;
         mapping(address voter => VoteReceipt) voteReceipt;
     }
+
+    event VoteReduced(address indexed voter, uint256 proposalId, uint8 support, uint256 weight);
 
     error GovernorAlreadyCastVoteOverride(address account);
 
@@ -106,7 +108,7 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
             revert GovernorInvalidVoteType();
         }
 
-        if (proposalVote.voteReceipt[account].casted == 0) {
+        if (proposalVote.voteReceipt[account].casted != 0) {
             revert GovernorAlreadyCastVote(account);
         }
 
@@ -117,12 +119,13 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
         return totalWeight;
     }
 
-    function _overrideVote(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
+    /// @dev Variant of {Governor-_countVote} that deals with vote overrides.
+    function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
+
         if (support > uint8(VoteType.Abstain)) {
             revert GovernorInvalidVoteType();
         }
-
-        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
         if (proposalVote.voteReceipt[account].hasOverriden) {
             revert GovernorAlreadyCastVoteOverride(account);
@@ -137,42 +140,70 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
         proposalVote.votes[support] += overridenWeight;
         if (delegateCasted == 0) {
             proposalVote.voteReceipt[delegate].overridenWeight += SafeCast.toUint208(overridenWeight);
-            // TODO: emit event VoteCast ?
         } else {
-            proposalVote.votes[delegateCasted - 1] -= overridenWeight;
-            // TODO: emit event VoteCastOverride ?
+            uint8 delegateSupport = delegateCasted - 1;
+            proposalVote.votes[delegateSupport] -= overridenWeight;
+            emit VoteReduced(delegate, proposalId, delegateSupport, overridenWeight);
         }
 
         return overridenWeight;
     }
 
-    function overrideVote(uint256 proposalId, uint8 support) public virtual returns (uint256) {
+    /// @dev variant of {Governor-_castVote} that deals with vote overrides.
+    function _castOverride(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        string calldata reason
+    ) internal virtual returns (uint256) {
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Active));
 
-        address voter = _msgSender();
-        return _overrideVote(proposalId, voter, support);
+        uint256 overridenWeight = _countOverride(proposalId, account, support);
+
+        emit VoteCast(account, proposalId, support, overridenWeight, reason);
+
+        return overridenWeight;
     }
 
-    function overrideVoteBySig(
+    /// @dev Public function for casting an override vote
+    function castOverrideVote(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason
+    ) public virtual returns (uint256) {
+        address voter = _msgSender();
+        return _castOverride(proposalId, voter, support, reason);
+    }
+
+    /// @dev Public function for casting an override vote using a voter's signature
+    function castOverrideVoteBySig(
         uint256 proposalId,
         uint8 support,
         address voter,
-        bytes memory signature
+        string calldata reason,
+        bytes calldata signature
     ) public virtual returns (uint256) {
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Active));
+        bool valid = SignatureChecker.isValidSignatureNow(
+            voter,
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        OVERRIDE_BALLOT_TYPEHASH,
+                        proposalId,
+                        support,
+                        voter,
+                        _useNonce(voter),
+                        keccak256(bytes(reason))
+                    )
+                )
+            ),
+            signature
+        );
 
-        if (
-            !SignatureChecker.isValidSignatureNow(
-                voter,
-                _hashTypedDataV4(
-                    keccak256(abi.encode(OVERRIDE_TYPEHASH, proposalId, support, voter, _useNonce(voter)))
-                ),
-                signature
-            )
-        ) {
+        if (!valid) {
             revert GovernorInvalidSignature(voter);
         }
 
-        return _overrideVote(proposalId, voter, support);
+        return _castOverride(proposalId, voter, support, reason);
     }
 }

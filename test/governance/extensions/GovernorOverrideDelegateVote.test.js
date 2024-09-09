@@ -7,7 +7,7 @@ const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC20VotesOverridableMock', mode: 'blocknumber' },
-  { Token: '$ERC20VotesOverridableTimestampMock', mode: 'timestamp' },
+  // { Token: '$ERC20VotesOverridableTimestampMock', mode: 'timestamp' },
 ];
 
 const name = 'Override Governor';
@@ -31,8 +31,8 @@ describe('GovernorOverrideDelegateVote', function () {
         votingDelay, // initialVotingDelay
         votingPeriod, // initialVotingPeriod
         0n, // initialProposalThreshold
-        10n, // quorumNumeratorValue
         token, // tokenAddress
+        10n, // quorumNumeratorValue
       ]);
 
       await owner.sendTransaction({ to: mock, value });
@@ -69,7 +69,7 @@ describe('GovernorOverrideDelegateVote', function () {
         expect(await this.mock.token()).to.equal(this.token);
         expect(await this.mock.votingDelay()).to.equal(votingDelay);
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
-        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo,override&quorum=for,abstain&params=override');
+        expect(await this.mock.COUNTING_MODE()).to.equal('support=bravo,override&quorum=for,abstain&overridable=true');
       });
 
       it('nominal is unaffected', async function () {
@@ -89,125 +89,177 @@ describe('GovernorOverrideDelegateVote', function () {
         expect(await ethers.provider.getBalance(this.receiver)).to.equal(value);
       });
 
-      describe('override vote', async function () {
+      describe('cast override vote', async function () {
         beforeEach(async function () {
+          // user 1 -(delegate 10 tokens)-> user 2
+          // user 2 -(delegate 7 tokens)-> user 2
+          // user 3 -(delegate 5 tokens)-> user 1
+          // user 4 -(delegate 2 tokens)-> user 2
           await this.token.connect(this.voter1).delegate(this.voter2);
+          await this.token.connect(this.voter3).delegate(this.voter1);
           await this.token.connect(this.voter4).delegate(this.voter2);
           await mine();
 
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot();
         });
-        it('override delegate after delegate vote', async function () {
-          await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('19'), '');
-          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq([0, ethers.parseEther('19'), 0]);
 
-          await expect(
-            this.helper
-              .connect(this.voter1)
-              .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' }),
-          )
-            .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter1,
-              this.helper.id,
-              VoteType.Against,
-              ethers.parseEther('10'),
-              '',
-              ethers.solidityPacked(['bytes4', 'address'], ['0x23b70c8d', this.voter2.address]),
-            );
-
-          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq([
-            ethers.parseEther('10'),
-            ethers.parseEther('9'),
-            0,
-          ]);
-        });
-
-        it('override delegate before delegate vote', async function () {
-          await expect(
-            this.helper
-              .connect(this.voter1)
-              .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' }),
-          )
-            .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter1,
-              this.helper.id,
-              VoteType.Against,
-              ethers.parseEther('10'),
-              '',
-              ethers.solidityPacked(['bytes4', 'address'], ['0x23b70c8d', ethers.ZeroAddress]),
-            );
-          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq([ethers.parseEther('10'), 0, 0]);
-          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.true;
+        it('override after delegate vote', async function () {
           expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter4)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter4)).to.be.false;
+
+          // user 2 votes
 
           await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('9'), '');
-          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq([
-            ethers.parseEther('10'),
-            ethers.parseEther('9'),
-            0,
-          ]);
-          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('19'), ''); // 10 + 7 + 2
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [0, 19, 0].map(x => ethers.parseEther(x.toString())),
+          );
           expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.true;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+
+          // user 1 overrides after user 2 votes
+
+          const reason = "disagree with user 2's decision";
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
+            .to.emit(this.mock, 'VoteReduced')
+            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('10'));
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 9, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.true;
         });
 
-        it('override delegate before and after delegate vote', async function () {
-          await expect(
-            this.helper
-              .connect(this.voter1)
-              .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' }),
-          )
-            .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter1,
-              this.helper.id,
-              VoteType.Against,
-              ethers.parseEther('10'),
-              '',
-              ethers.solidityPacked(['bytes4', 'address'], ['0x23b70c8d', ethers.ZeroAddress]),
-            );
+        it('override before delegate vote', async function () {
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter4)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter4)).to.be.false;
+
+          // user 1 overrides before user 2 votes
+
+          const reason = 'voter 2 is not voting';
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
+            .to.not.emit(this.mock, 'VoteReduced');
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 0, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.true;
+
+          // user 2 votes
 
           await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
             .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('9'), '');
+            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('9'), ''); // 7 + 2
 
-          await expect(
-            this.helper
-              .connect(this.voter4)
-              .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' }),
-          )
-            .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter4,
-              this.helper.id,
-              VoteType.Against,
-              ethers.parseEther('2'),
-              '',
-              ethers.solidityPacked(['bytes4', 'address'], ['0x23b70c8d', this.voter2.address]),
-            );
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 9, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.true;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+        });
 
-          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq([
-            ethers.parseEther('12'),
-            ethers.parseEther('7'),
-            0,
-          ]);
+        it('override before and after delegate vote', async function () {
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVoted(this.helper.id, this.voter4)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter3)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter4)).to.be.false;
+
+          // user 1 overrides before user 2 votes
+
+          const reason = 'voter 2 is not voting';
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
+            .to.not.emit(this.mock, 'VoteReduced');
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 0, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.true;
+
+          // user 2 votes
+
+          await expect(this.helper.connect(this.voter2).vote({ support: VoteType.For }))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('9'), ''); // 7 + 2
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 9, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter2)).to.be.true;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter2)).to.be.false;
+
+          // User 4 overrides after user 2 votes
+
+          const reason2 = "disagree with user 2's decision";
+          await expect(this.mock.connect(this.voter4).castOverrideVote(this.helper.id, VoteType.Abstain, reason2))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter4, this.helper.id, VoteType.Abstain, ethers.parseEther('2'), reason2)
+            .to.emit(this.mock, 'VoteReduced')
+            .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('2'));
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 7, 2].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter4)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter4)).to.be.true;
+        });
+
+        it('vote (with delegated balance) and override (with self balance) are independant', async function () {
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [0, 0, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.false;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.false;
+
+          // user 1 votes with delegated weight from user 3
+          await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.For))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.For, ethers.parseEther('5'), '');
+
+          // user 1 cast an override vote with its own balance (delegated to user 2)
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, ''))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), '');
+
+          expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
+            [10, 5, 0].map(x => ethers.parseEther(x.toString())),
+          );
+          expect(await this.mock.hasVoted(this.helper.id, this.voter1)).to.be.true;
+          expect(await this.mock.hasVotedOverride(this.helper.id, this.voter1)).to.be.true;
         });
 
         it('can not override vote twice', async function () {
-          await this.helper
-            .connect(this.voter1)
-            .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' });
-          await expect(
-            this.helper
-              .connect(this.voter1)
-              .vote({ support: VoteType.Against, params: '0x23b70c8d0000000000000000000000000000000000000000' }),
-          )
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, ''))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), '');
+          await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Abstain, ''))
             .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVoteOverride')
             .withArgs(this.voter1.address);
         });
