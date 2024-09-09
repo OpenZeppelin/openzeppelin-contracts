@@ -286,7 +286,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
             uint256 gasLeft;
 
-            assembly {
+            assembly ("memory-safe") {
                 success := call(reqGas, to, value, add(data, 0x20), mload(data), 0, 0)
                 gasLeft := gas()
             }
