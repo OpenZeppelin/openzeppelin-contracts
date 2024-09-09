@@ -10,18 +10,12 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * to use the `GovernorOverrideDelegateVote` extension.
  */
 abstract contract VotesOverridable is Votes {
+    using SafeCast for uint256;
+    using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
-    error VotesOverridableFutureLookup(uint256 timepoint, uint256 currentTimepoint);
-
-    mapping(address delegatee => Checkpoints.Trace208) private _delegateCheckpoints;
+    mapping(address delegatee => Checkpoints.Trace160) private _delegateCheckpoints;
     mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
-
-    function _delegate(address account, address delegatee) internal virtual override {
-        super._delegate(account, delegatee);
-
-        _delegateCheckpoints[account].push(clock(), uint160(delegatee));
-    }
 
     /**
      * @dev Returns the delegate of an `account` at a specific moment in the past. If the `clock()` is
@@ -31,29 +25,12 @@ abstract contract VotesOverridable is Votes {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastDelegate(address account, uint256 timepoint) public view returns (address) {
+    function getPastDelegate(address account, uint256 timepoint) public view virtual returns (address) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
-            revert VotesOverridableFutureLookup(timepoint, currentTimepoint);
+            revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return address(uint160(_delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint))));
-    }
-
-    /**
-     * @dev Extend functionality of the function by checkpointing balances.
-     */
-    function _transferVotingUnits(address from, address to, uint256 amount) internal virtual override {
-        super._transferVotingUnits(from, to, amount);
-        if (from != to) {
-            if (from != address(0)) {
-                Checkpoints.Trace208 storage store = _balanceOfCheckpoints[from];
-                store.push(clock(), uint208(_getVotingUnits(from)));
-            }
-            if (to != address(0)) {
-                Checkpoints.Trace208 storage store = _balanceOfCheckpoints[to];
-                store.push(clock(), uint208(_getVotingUnits(to)));
-            }
-        }
+        return address(_delegateCheckpoints[account].upperLookupRecent(timepoint.toUint48()));
     }
 
     /**
@@ -64,12 +41,32 @@ abstract contract VotesOverridable is Votes {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastBalanceOf(address account, uint256 timepoint) public view returns (uint256) {
+    function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
             // Note this ERC is not relevant to the specific error. Should probably be a different error.
-            revert VotesOverridableFutureLookup(timepoint, currentTimepoint);
+            revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _balanceOfCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint));
+        return _balanceOfCheckpoints[account].upperLookupRecent(timepoint.toUint48());
+    }
+
+    /// @inheritdoc Votes
+    function _delegate(address account, address delegatee) internal virtual override {
+        super._delegate(account, delegatee);
+
+        _delegateCheckpoints[account].push(clock(), uint160(delegatee));
+    }
+
+    /// @inheritdoc Votes
+    function _transferVotingUnits(address from, address to, uint256 amount) internal virtual override {
+        super._transferVotingUnits(from, to, amount);
+        if (from != to) {
+            if (from != address(0)) {
+                _balanceOfCheckpoints[from].push(clock(), _getVotingUnits(from).toUint208());
+            }
+            if (to != address(0)) {
+                _balanceOfCheckpoints[to].push(clock(), _getVotingUnits(to).toUint208());
+            }
+        }
     }
 }
