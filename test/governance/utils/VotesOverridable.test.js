@@ -119,7 +119,7 @@ describe('VotesOverridable', function () {
         const timepoint = await time.clockFromReceipt[mode](tx);
 
         await expect(this.votes.getPastDelegate(this.accounts[0], timepoint + 1n))
-          .to.be.revertedWithCustomError(this.votes, 'VotesOverridableFutureLookup')
+          .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
           .withArgs(timepoint + 1n, timepoint);
       });
     });
@@ -144,7 +144,7 @@ describe('VotesOverridable', function () {
         const timepoint = await time.clockFromReceipt[mode](tx);
 
         await expect(this.votes.getPastBalanceOf(this.accounts[0], timepoint + 1n))
-          .to.be.revertedWithCustomError(this.votes, 'VotesOverridableFutureLookup')
+          .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
           .withArgs(timepoint + 1n, timepoint);
       });
     });
