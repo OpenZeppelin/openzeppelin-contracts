@@ -44,7 +44,6 @@ abstract contract VotesOverridable is Votes {
     function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
-            // Note this ERC is not relevant to the specific error. Should probably be a different error.
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
         return _balanceOfCheckpoints[account].upperLookupRecent(timepoint.toUint48());
