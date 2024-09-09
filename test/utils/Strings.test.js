@@ -40,12 +40,14 @@ describe('Strings', function () {
         const value = ethers.MaxUint256;
         expect(await this.mock.$toString(value)).to.equal(value.toString(10));
         expect(await this.mock.$toUint(value.toString(10))).to.equal(value);
+        expect(await this.mock.$tryToUint(value.toString(10))).to.deep.equal([true, value]);
       });
 
       for (const value of values) {
         it(`converts ${value}`, async function () {
           expect(await this.mock.$toString(value)).to.equal(value.toString(10));
           expect(await this.mock.$toUint(value.toString(10))).to.equal(value);
+          expect(await this.mock.$tryToUint(value.toString(10))).to.deep.equal([true, value]);
         });
       }
     });
@@ -55,24 +57,28 @@ describe('Strings', function () {
         const value = ethers.MaxInt256;
         expect(await this.mock.$toStringSigned(value)).to.equal(value.toString(10));
         expect(await this.mock.$toInt(value.toString(10))).to.equal(value);
+        expect(await this.mock.$tryToInt(value.toString(10))).to.deep.equal([true, value]);
       });
 
       it('converts MIN_INT256', async function () {
         const value = ethers.MinInt256;
         expect(await this.mock.$toStringSigned(value)).to.equal(value.toString(10));
         expect(await this.mock.$toInt(value.toString(10))).to.equal(value);
+        expect(await this.mock.$tryToInt(value.toString(10))).to.deep.equal([true, value]);
       });
 
       for (const value of values) {
         it(`convert ${value}`, async function () {
           expect(await this.mock.$toStringSigned(value)).to.equal(value.toString(10));
           expect(await this.mock.$toInt(value.toString(10))).to.equal(value);
+          expect(await this.mock.$tryToInt(value.toString(10))).to.deep.equal([true, value]);
         });
 
         it(`convert negative ${value}`, async function () {
           const negated = -value;
           expect(await this.mock.$toStringSigned(negated)).to.equal(negated.toString(10));
           expect(await this.mock.$toInt(negated.toString(10))).to.equal(negated);
+          expect(await this.mock.$tryToInt(negated.toString(10))).to.deep.equal([true, negated]);
         });
       }
     });
@@ -85,6 +91,7 @@ describe('Strings', function () {
 
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.getFunction('$hexToUint(string)')(string)).to.equal(value);
+      expect(await this.mock.getFunction('$tryHexToUint(string)')(string)).to.deep.equal([true, value]);
     });
 
     it('converts a positive number', async function () {
@@ -93,6 +100,7 @@ describe('Strings', function () {
 
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.getFunction('$hexToUint(string)')(string)).to.equal(value);
+      expect(await this.mock.getFunction('$tryHexToUint(string)')(string)).to.deep.equal([true, value]);
     });
 
     it('converts MAX_UINT256', async function () {
@@ -102,6 +110,11 @@ describe('Strings', function () {
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.getFunction('$hexToUint(string)')(string)).to.equal(value);
       expect(await this.mock.getFunction('$hexToUint(string)')(string.replace(/0x/, ''))).to.equal(value);
+      expect(await this.mock.getFunction('$tryHexToUint(string)')(string)).to.deep.equal([true, value]);
+      expect(await this.mock.getFunction('$tryHexToUint(string)')(string.replace(/0x/, ''))).to.deep.equal([
+        true,
+        value,
+      ]);
     });
   });
 
@@ -197,30 +210,26 @@ describe('Strings', function () {
   });
 
   describe('Edge cases: invalid parsing', function () {
-    const ord = x => `0x${x.charCodeAt(0).toString(16)}`;
-
     it('toUint overflow', async function () {
       await expect(this.mock.$toUint((ethers.MaxUint256 + 1n).toString(10))).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_OVERFLOW,
+      );
+      await expect(this.mock.$tryToUint((ethers.MaxUint256 + 1n).toString(10))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
     });
 
     it('toUint invalid character', async function () {
-      await expect(this.mock.$toUint('0x1'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('x'), 10);
-      await expect(this.mock.$toUint('1f'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('f'), 10);
-      await expect(this.mock.$toUint('-10'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('-'), 10);
-      await expect(this.mock.$toUint('1.0'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('.'), 10);
-      await expect(this.mock.$toUint('1 000'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord(' '), 10);
+      await expect(this.mock.$toUint('0x1')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toUint('1f')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toUint('-10')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toUint('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toUint('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryToUint('0x1')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToUint('1f')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToUint('-10')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToUint('1.0')).deep.equal([false, 0n]);
+      expect(await this.mock.$tryToUint('1 000')).deep.equal([false, 0n]);
     });
 
     it('toInt overflow', async function () {
@@ -230,48 +239,50 @@ describe('Strings', function () {
       await expect(this.mock.$toInt((ethers.MinInt256 - 1n).toString(10))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
+      await expect(this.mock.$tryToInt((ethers.MaxInt256 + 1n).toString(10))).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_OVERFLOW,
+      );
+      await expect(this.mock.$tryToInt((ethers.MinInt256 - 1n).toString(10))).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_OVERFLOW,
+      );
     });
 
     it('toInt invalid character', async function () {
-      await expect(this.mock.$toInt('0x1'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('x'), 10);
-      await expect(this.mock.$toInt('1f'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('f'), 10);
-      await expect(this.mock.$toInt('1.0'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('.'), 10);
-      await expect(this.mock.$toInt('1 000'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord(' '), 10);
+      await expect(this.mock.$toInt('0x1')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toInt('1f')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toInt('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$toInt('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryToInt('0x1')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToInt('1f')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToInt('1.0')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryToInt('1 000')).to.deep.equal([false, 0n]);
     });
 
     it('hexToUint overflow', async function () {
       await expect(this.mock.$hexToUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
+      await expect(this.mock.$tryHexToUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
+        PANIC_CODES.ARITHMETIC_OVERFLOW,
+      );
     });
 
     it('hexToUint invalid character', async function () {
-      await expect(this.mock.$hexToUint('0123456789abcdefg'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('g'), 16);
-      await expect(this.mock.$hexToUint('-1'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('-'), 16);
-      await expect(this.mock.$hexToUint('-f'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('-'), 16);
-      await expect(this.mock.$hexToUint('-0xf'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('-'), 16);
-      await expect(this.mock.$hexToUint('1.0'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord('.'), 16);
-      await expect(this.mock.$hexToUint('1 000'))
-        .to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar')
-        .withArgs(ord(' '), 16);
+      await expect(this.mock.$hexToUint('0123456789abcdefg')).to.be.revertedWithCustomError(
+        this.mock,
+        'StringsInvalidChar',
+      );
+      await expect(this.mock.$hexToUint('-1')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$hexToUint('-f')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$hexToUint('-0xf')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$hexToUint('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$hexToUint('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryHexToUint('0123456789abcdefg')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryHexToUint('-1')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryHexToUint('-f')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryHexToUint('-0xf')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryHexToUint('1.0')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryHexToUint('1 000')).to.deep.equal([false, 0n]);
     });
   });
 });

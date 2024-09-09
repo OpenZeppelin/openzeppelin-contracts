@@ -22,7 +22,7 @@ library Strings {
     /**
      * @dev The string being parsed contains characters that are not in scope of the given base.
      */
-    error StringsInvalidChar(bytes1 chr, uint8 base);
+    error StringsInvalidChar();
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -130,15 +130,49 @@ library Strings {
      * - the result does not fit in a `uint256`.
      */
     function toUint(string memory input) internal pure returns (uint256) {
+        return toUint(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {toUint} that parses a substring of `input` located between position `begin` (included) and
+     * `end` (excluded).
+     */
+    function toUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
+        (bool success, uint256 value) = tryToUint(input, begin, end);
+        if (!success) revert StringsInvalidChar();
+        return value;
+    }
+
+    /**
+     * @dev Variant of {toUint-string} that returns false if the parsing fails because of an invalid character.
+     *
+     * This function will still revert if the result does not fit in a `uint256`
+     */
+    function tryToUint(string memory input) internal pure returns (bool success, uint256 value) {
+        return tryToUint(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {toUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+     * character.
+     *
+     * This function will still revert if the result does not fit in a `uint256`
+     */
+    function tryToUint(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) internal pure returns (bool success, uint256 value) {
         bytes memory buffer = bytes(input);
 
         uint256 result = 0;
-        uint256 bufferLength = buffer.length;
-        for (uint256 i = 0; i < bufferLength; ++i) {
-            result *= 10; // will revert if overflow
-            result += _parseChr(buffer[i], 10);
+        for (uint256 i = begin; i < end; ++i) {
+            uint8 chr = _tryParseChr(buffer[i]);
+            if (chr > 9) return (false, 0);
+            result *= 10;
+            result += chr;
         }
-        return result;
+        return (true, result);
     }
 
     /**
@@ -149,19 +183,54 @@ library Strings {
      * - the result does not fit in a `int256`.
      */
     function toInt(string memory input) internal pure returns (int256) {
+        return toInt(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {toInt-string} that parses a substring of `input` located between position `begin` (included) and
+     * `end` (excluded).
+     */
+    function toInt(string memory input, uint256 begin, uint256 end) internal pure returns (int256) {
+        (bool success, int256 value) = tryToInt(input, begin, end);
+        if (!success) revert StringsInvalidChar();
+        return value;
+    }
+
+    /**
+     * @dev Variant of {toInt-string} that returns false if the parsing fails because of an invalid character.
+     *
+     * This function will still revert if the result does not fit in a `int256`
+     */
+    function tryToInt(string memory input) internal pure returns (bool success, int256 value) {
+        return tryToInt(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {toInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+     * character.
+     *
+     * This function will still revert if the result does not fit in a `int256`
+     */
+    function tryToInt(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) internal pure returns (bool success, int256 value) {
         bytes memory buffer = bytes(input);
 
         // check presence of a negative sign.
-        bool isNegative = bytes1(buffer) == 0x2d;
+        bool isNegative = bytes1(unsafeReadBytesOffset(buffer, begin)) == 0x2d;
         int8 factor = isNegative ? int8(-1) : int8(1);
+        uint256 offset = SafeCast.toUint(isNegative);
 
         int256 result = 0;
-        uint256 bufferLength = buffer.length;
-        for (uint256 i = SafeCast.toUint(isNegative); i < bufferLength; ++i) {
-            result *= 10; // will revert if overflow
-            result += factor * int8(_parseChr(buffer[i], 10)); // parseChr is at most 9, it fits into an int8
+        for (uint256 i = begin + offset; i < end; ++i) {
+            uint8 chr = _tryParseChr(buffer[i]);
+            if (chr > 9) return (false, 0);
+            result *= 10;
+            result += factor * int8(chr);
         }
-        return result;
+        return (true, result);
     }
 
     /**
@@ -172,37 +241,76 @@ library Strings {
      * - the result does not fit in a `uint256`.
      */
     function hexToUint(string memory input) internal pure returns (uint256) {
+        return hexToUint(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {hexToUint} that parses a substring of `input` located between position `begin` (included) and
+     * `end` (excluded).
+     */
+    function hexToUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
+        (bool success, uint256 value) = tryHexToUint(input, begin, end);
+        if (!success) revert StringsInvalidChar();
+        return value;
+    }
+
+    /**
+     * @dev Variant of {hexToUint-string} that returns false if the parsing fails because of an invalid character.
+     *
+     * This function will still revert if the result does not fit in a `uint256`
+     */
+    function tryHexToUint(string memory input) internal pure returns (bool success, uint256 value) {
+        return tryHexToUint(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {hexToUint-string-uint256-uint256} that returns false if the parsing fails because of an
+     * invalid character.
+     *
+     * This function will still revert if the result does not fit in a `uint256`
+     */
+    function tryHexToUint(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) internal pure returns (bool success, uint256 value) {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        uint256 offset = Math.ternary(bytes2(buffer) == 0x3078, 2, 0);
+        bool hasPrefix = bytes2(unsafeReadBytesOffset(buffer, begin)) == 0x3078;
+        uint256 offset = SafeCast.toUint(hasPrefix) * 2;
 
         uint256 result = 0;
-        uint256 bufferLength = buffer.length;
-        for (uint256 i = offset; i < bufferLength; ++i) {
-            result *= 16; // will revert if overflow
-            result += _parseChr(buffer[i], 16);
+        for (uint256 i = begin + offset; i < end; ++i) {
+            uint8 chr = _tryParseChr(buffer[i]);
+            if (chr > 15) return (false, 0);
+            result *= 16;
+            result += chr;
         }
-        return result;
+        return (true, result);
     }
 
-    function _parseChr(bytes1 chr, uint8 base) private pure returns (uint8) {
+    // TODO: documentation.
+    function unsafeReadBytesOffset(bytes memory buffer, uint256 offset) internal pure returns (bytes32 value) {
+        assembly ("memory-safe") {
+            value := mload(add(buffer, add(0x20, offset)))
+        }
+    }
+
+    function _tryParseChr(bytes1 chr) private pure returns (uint8) {
         uint8 value = uint8(chr);
 
         // Try to parse `chr`:
         // - Case 1: [0-9]
-        // - Case 2: [a-z]
-        // - Case 2: [A-Z]
+        // - Case 2: [a-f]
+        // - Case 2: [A-F]
         // - otherwise not supported
         unchecked {
             if (value > 47 && value < 58) value -= 48;
-            else if (value > 96 && value < 123) value -= 87;
-            else if (value > 64 && value < 91) value -= 55;
-            else revert StringsInvalidChar(chr, base);
+            else if (value > 96 && value < 103) value -= 87;
+            else if (value > 64 && value < 71) value -= 55;
+            else return type(uint8).max;
         }
-
-        // check base
-        if (value >= base) revert StringsInvalidChar(chr, base);
 
         return value;
     }
