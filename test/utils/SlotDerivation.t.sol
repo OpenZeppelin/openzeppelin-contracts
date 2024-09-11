@@ -10,6 +10,13 @@ import {SlotDerivation} from "@openzeppelin/contracts/utils/SlotDerivation.sol";
 contract SlotDerivationTest is Test, SymTest {
     using SlotDerivation for bytes32;
 
+    function testDirtyAddress() public {
+        bytes32 result1 = SlotDerivation.deriveMapping(0, address(uint160(type(uint256).max)));
+        bytes32 result2 = SlotDerivation.deriveMapping(0, 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF);
+
+        assertEq(result1, result2);
+    }
+
     bytes[] private _array;
 
     function symbolicDeriveArray(uint256 length, uint256 offset) public {

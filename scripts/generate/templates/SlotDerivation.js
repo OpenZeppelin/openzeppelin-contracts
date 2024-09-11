@@ -77,7 +77,7 @@ const mapping = ({ type }) => `\
  */
 function deriveMapping(bytes32 slot, ${type} key) internal pure returns (bytes32 result) {
     assembly ("memory-safe") {
-        mstore(0x00, key)
+        ${type == 'address' ? 'mstore(0x00, shr(96, shl(96, key)))' : 'mstore(0x00, key)'}
         mstore(0x20, slot)
         result := keccak256(0x00, 0x40)
     }
