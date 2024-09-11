@@ -45,7 +45,7 @@ import {Panic} from "../Panic.sol";
 
 const generate = ({ struct, node, valueType, indexType, blockSize }) => `\
 /**
- * @dev Binary heap that support values of type ${valueType}.
+ * @dev Binary heap that supports values of type ${valueType}.
  *
  * Each element of that structure uses ${blockSize} storage slots.
  */
@@ -237,7 +237,7 @@ function _swap(${struct} storage self, ${indexType} i, ${indexType} j) private {
 
 /**
  * @dev Perform heap maintenance on \`self\`, starting at position \`pos\` (with the \`value\`), using \`comp\` as a
- * comparator, and moving toward the leafs of the underlying tree.
+ * comparator, and moving toward the leaves of the underlying tree.
  *
  * NOTE: This is a private function that is called in a trusted context with already cached parameters. \`length\`
  * and \`value\` could be extracted from \`self\` and \`pos\`, but that would require redundant storage read. These
