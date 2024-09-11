@@ -10,18 +10,18 @@ contract StringsTest is Test {
     using Strings for *;
 
     function testParse(uint256 value) external {
-        assertEq(value, value.toString().toUint());
+        assertEq(value, value.toString().parseUint());
     }
 
     function testParseSigned(int256 value) external {
-        assertEq(value, value.toStringSigned().toInt());
+        assertEq(value, value.toStringSigned().parseInt());
     }
 
     function testParseHex(uint256 value) external {
-        assertEq(value, value.toHexString().hexToUint());
+        assertEq(value, value.toHexString().parseHex());
     }
 
     function testParseChecksumHex(address value) external {
-        assertEq(value, address(uint160(value.toChecksumHexString().hexToUint())));
+        assertEq(value, value.toChecksumHexString().parseAddress());
     }
 }

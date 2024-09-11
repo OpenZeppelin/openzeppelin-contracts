@@ -768,21 +768,17 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             return true;
         }
 
-        // Extract what would be the `#proposer=0x` marker beginning the suffix
-        bytes12 marker = bytes12(Strings.unsafeReadBytesOffset(bytes(description), length - 52));
+        // Extract what would be the `#proposer=` marker beginning the suffix
+        bytes10 marker = bytes10(Strings.unsafeReadBytesOffset(bytes(description), length - 52));
 
         // If the marker is not found, there is no proposer suffix to check
-        if (marker != bytes12("#proposer=0x")) {
+        if (marker != bytes10("#proposer=")) {
             return true;
         }
 
-        // Parse the 40 characters following the marker as address
-        (bool success, uint256 value) = Strings.tryHexToUint(description, length - 40, length);
-        if (!success) {
-            return true;
-        }
-
-        return address(uint160(value)) == proposer;
+        // Check that the last 42 characters (after the marker) is a properly formated address.
+        (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
+        return !success || recovered == proposer;
     }
 
     /**

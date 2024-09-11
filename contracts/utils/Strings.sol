@@ -11,6 +11,8 @@ import {SignedMath} from "./math/SignedMath.sol";
  * @dev String operations.
  */
 library Strings {
+    using SafeCast for *;
+
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
 
@@ -23,6 +25,11 @@ library Strings {
      * @dev The string being parsed contains characters that are not in scope of the given base.
      */
     error StringsInvalidChar();
+
+    /**
+     * @dev The string being parsed is not a properly formated address.
+     */
+    error StringsInvalidAddressFormat();
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -129,36 +136,36 @@ library Strings {
      * - the string contains any character that is not in [0-9].
      * - the result does not fit in a `uint256`.
      */
-    function toUint(string memory input) internal pure returns (uint256) {
-        return toUint(input, 0, bytes(input).length);
+    function parseUint(string memory input) internal pure returns (uint256) {
+        return parseUint(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {toUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseUint} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      */
-    function toUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
-        (bool success, uint256 value) = tryToUint(input, begin, end);
+    function parseUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
+        (bool success, uint256 value) = tryParseUint(input, begin, end);
         if (!success) revert StringsInvalidChar();
         return value;
     }
 
     /**
-     * @dev Variant of {toUint-string} that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseUint-string} that returns false if the parsing fails because of an invalid character.
      *
      * This function will still revert if the result does not fit in a `uint256`
      */
-    function tryToUint(string memory input) internal pure returns (bool success, uint256 value) {
-        return tryToUint(input, 0, bytes(input).length);
+    function tryParseUint(string memory input) internal pure returns (bool success, uint256 value) {
+        return tryParseUint(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {toUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+     * @dev Variant of {parseUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character.
      *
      * This function will still revert if the result does not fit in a `uint256`
      */
-    function tryToUint(
+    function tryParseUint(
         string memory input,
         uint256 begin,
         uint256 end
@@ -182,36 +189,36 @@ library Strings {
      * - the string contains any character (outside the prefix) that is not in [0-9].
      * - the result does not fit in a `int256`.
      */
-    function toInt(string memory input) internal pure returns (int256) {
-        return toInt(input, 0, bytes(input).length);
+    function parseInt(string memory input) internal pure returns (int256) {
+        return parseInt(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {toInt-string} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseInt-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      */
-    function toInt(string memory input, uint256 begin, uint256 end) internal pure returns (int256) {
-        (bool success, int256 value) = tryToInt(input, begin, end);
+    function parseInt(string memory input, uint256 begin, uint256 end) internal pure returns (int256) {
+        (bool success, int256 value) = tryParseInt(input, begin, end);
         if (!success) revert StringsInvalidChar();
         return value;
     }
 
     /**
-     * @dev Variant of {toInt-string} that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character.
      *
      * This function will still revert if the result does not fit in a `int256`
      */
-    function tryToInt(string memory input) internal pure returns (bool success, int256 value) {
-        return tryToInt(input, 0, bytes(input).length);
+    function tryParseInt(string memory input) internal pure returns (bool success, int256 value) {
+        return tryParseInt(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {toInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+     * @dev Variant of {parseInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character.
      *
      * This function will still revert if the result does not fit in a `int256`
      */
-    function tryToInt(
+    function tryParseInt(
         string memory input,
         uint256 begin,
         uint256 end
@@ -221,7 +228,7 @@ library Strings {
         // check presence of a negative sign.
         bool isNegative = bytes1(unsafeReadBytesOffset(buffer, begin)) == 0x2d;
         int8 factor = isNegative ? int8(-1) : int8(1);
-        uint256 offset = SafeCast.toUint(isNegative);
+        uint256 offset = isNegative.toUint();
 
         int256 result = 0;
         for (uint256 i = begin + offset; i < end; ++i) {
@@ -240,36 +247,36 @@ library Strings {
      * - the string contains any character (outside the prefix) that is not in [0-9a-fA-F].
      * - the result does not fit in a `uint256`.
      */
-    function hexToUint(string memory input) internal pure returns (uint256) {
-        return hexToUint(input, 0, bytes(input).length);
+    function parseHex(string memory input) internal pure returns (uint256) {
+        return parseHex(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {hexToUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHex} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      */
-    function hexToUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
-        (bool success, uint256 value) = tryHexToUint(input, begin, end);
+    function parseHex(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
+        (bool success, uint256 value) = tryParseHex(input, begin, end);
         if (!success) revert StringsInvalidChar();
         return value;
     }
 
     /**
-     * @dev Variant of {hexToUint-string} that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseHex-string} that returns false if the parsing fails because of an invalid character.
      *
      * This function will still revert if the result does not fit in a `uint256`
      */
-    function tryHexToUint(string memory input) internal pure returns (bool success, uint256 value) {
-        return tryHexToUint(input, 0, bytes(input).length);
+    function tryParseHex(string memory input) internal pure returns (bool success, uint256 value) {
+        return tryParseHex(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {hexToUint-string-uint256-uint256} that returns false if the parsing fails because of an
+     * @dev Variant of {parseHex-string-uint256-uint256} that returns false if the parsing fails because of an
      * invalid character.
      *
      * This function will still revert if the result does not fit in a `uint256`
      */
-    function tryHexToUint(
+    function tryParseHex(
         string memory input,
         uint256 begin,
         uint256 end
@@ -278,7 +285,7 @@ library Strings {
 
         // skip 0x prefix if present
         bool hasPrefix = bytes2(unsafeReadBytesOffset(buffer, begin)) == 0x3078;
-        uint256 offset = SafeCast.toUint(hasPrefix) * 2;
+        uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
         for (uint256 i = begin + offset; i < end; ++i) {
@@ -288,6 +295,56 @@ library Strings {
             result += chr;
         }
         return (true, result);
+    }
+
+    /**
+     * @dev Parse a hexadecimal string (with or without "0x" prefix), and returns the value as an `address`.
+     *
+     * This function will revert if:
+     * - the string is not formated as `(0x)?[0-9a-fA-F]{40}`
+     */
+    function parseAddress(string memory input) internal pure returns (address) {
+        return parseAddress(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {parseAddress} that parses a substring of `input` located between position `begin` (included) and
+     * `end` (excluded).
+     */
+    function parseAddress(string memory input, uint256 begin, uint256 end) internal pure returns (address) {
+        (bool success, address value) = tryParseAddress(input, begin, end);
+        if (!success) revert StringsInvalidAddressFormat();
+        return value;
+    }
+
+    /**
+     * @dev Variant of {parseAddress-string} that returns false if the parsing fails because input is not a properly
+     * formated address.
+     */
+    function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
+        return tryParseAddress(input, 0, bytes(input).length);
+    }
+
+    /**
+     * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
+     * formated address.
+     */
+    function tryParseAddress(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) internal pure returns (bool success, address value) {
+        // check that input is the correct length
+        bool hasPrefix = bytes2(unsafeReadBytesOffset(bytes(input), begin)) == 0x3078;
+        uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
+
+        if (end - begin == expectedLength) {
+            // length garantees that this does not overflow, and value2 is at most type(uint160).max
+            (bool s, uint256 v) = tryParseHex(input, begin, end);
+            return (s, address(uint160(v)));
+        } else {
+            return (false, address(0));
+        }
     }
 
     // TODO: documentation.
