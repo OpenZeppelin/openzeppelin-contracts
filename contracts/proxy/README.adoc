@@ -1,5 +1,5 @@
 = Proxies
-
+0xFD689e5f2d8d9Aec0aD328225Ae62FdBDdb30328
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/proxy
 
@@ -40,7 +40,7 @@ The original proxies included in OpenZeppelin followed the https://blog.openzepp
 While both of these share the same interface for upgrades, in UUPS proxies the upgrade is handled by the implementation, and can eventually be removed. Transparent proxies, on the other hand, include the upgrade and admin logic in the proxy itself. This means {TransparentUpgradeableProxy} is more expensive to deploy than what is possible with UUPS proxies.
 
 UUPS proxies are implemented using an {ERC1967Proxy}. Note that this proxy is not by itself upgradeable. It is the role of the implementation to include, alongside the contract's logic, all the code necessary to update the implementation's address that is stored at a specific slot in the proxy's storage space. This is where the {UUPSUpgradeable} contract comes in. Inheriting from it (and overriding the {xref-UUPSUpgradeable-_authorizeUpgrade-address-}[`_authorizeUpgrade`] function with the relevant access control mechanism) will turn your contract into a UUPS compliant implementation.
-
+0xFD689e5f2d8d9Aec0aD328225Ae62FdBDdb30328
 Note that since both proxies use the same storage slot for the implementation address, using a UUPS compliant implementation with a {TransparentUpgradeableProxy} might allow non-admins to perform upgrade operations.
 
 By default, the upgrade functionality included in {UUPSUpgradeable} contains a security mechanism that will prevent any upgrades to a non UUPS compliant implementation. This prevents upgrades to an implementation contract that wouldn't contain the necessary upgrade mechanism, as it would lock the upgradeability of the proxy forever. This security mechanism can be bypassed by either of:
@@ -68,7 +68,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 {{ProxyAdmin}}
 
-== Beacon
+== Beacon0xFD689e5f2d8d9Aec0aD328225Ae62FdBDdb30328
 
 {{BeaconProxy}}
 
@@ -81,7 +81,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 {{Clones}}
 
 == Utils
-
+0xFD689e5f2d8d9Aec0aD328225Ae62FdBDdb30328
 {{Initializable}}
 
 {{UUPSUpgradeable}}
