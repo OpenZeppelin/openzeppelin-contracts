@@ -61,14 +61,6 @@ library Heap {
     }
 
     /**
-     * @dev Lookup the root element of the heap.
-     */
-    function peek(Uint256Heap storage self) internal view returns (uint256) {
-        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
-        return _unsafeNodeAccess(self, self.data[0].index).value;
-    }
-
-    /**
      * @dev Remove (and return) the root element for the heap using the default comparator.
      *
      * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
@@ -201,13 +193,6 @@ library Heap {
     }
 
     /**
-     * @dev Returns the number of elements in the heap.
-     */
-    function length(Uint256Heap storage self) internal view returns (uint64) {
-        return self.data.length.toUint64();
-    }
-
-    /**
      * @dev Removes all elements in the heap.
      */
     function clear(Uint256Heap storage self) internal {
@@ -215,6 +200,21 @@ library Heap {
         assembly ("memory-safe") {
             sstore(data.slot, 0)
         }
+    }
+
+    /**
+     * @dev Lookup the root element of the heap.
+     */
+    function peek(Uint256Heap storage self) internal view returns (uint256) {
+        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
+        return _unsafeNodeAccess(self, self.data[0].index).value;
+    }
+
+    /**
+     * @dev Returns the number of elements in the heap.
+     */
+    function length(Uint256Heap storage self) internal view returns (uint64) {
+        return self.data.length.toUint64();
     }
 
     /**
@@ -324,14 +324,6 @@ library Heap {
         uint208 value;
         uint24 index; // position -> value
         uint24 lookup; // value -> position
-    }
-
-    /**
-     * @dev Lookup the root element of the heap.
-     */
-    function peek(Uint208Heap storage self) internal view returns (uint208) {
-        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
-        return _unsafeNodeAccess(self, self.data[0].index).value;
     }
 
     /**
@@ -467,13 +459,6 @@ library Heap {
     }
 
     /**
-     * @dev Returns the number of elements in the heap.
-     */
-    function length(Uint208Heap storage self) internal view returns (uint24) {
-        return self.data.length.toUint24();
-    }
-
-    /**
      * @dev Removes all elements in the heap.
      */
     function clear(Uint208Heap storage self) internal {
@@ -481,6 +466,21 @@ library Heap {
         assembly ("memory-safe") {
             sstore(data.slot, 0)
         }
+    }
+
+    /**
+     * @dev Lookup the root element of the heap.
+     */
+    function peek(Uint208Heap storage self) internal view returns (uint208) {
+        // self.data[0] will `ARRAY_ACCESS_OUT_OF_BOUNDS` panic if heap is empty.
+        return _unsafeNodeAccess(self, self.data[0].index).value;
+    }
+
+    /**
+     * @dev Returns the number of elements in the heap.
+     */
+    function length(Uint208Heap storage self) internal view returns (uint24) {
+        return self.data.length.toUint24();
     }
 
     /**

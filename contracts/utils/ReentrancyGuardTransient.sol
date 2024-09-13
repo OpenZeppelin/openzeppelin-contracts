@@ -34,6 +34,14 @@ abstract contract ReentrancyGuardTransient {
         _nonReentrantAfter();
     }
 
+    /**
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * `nonReentrant` function in the call stack.
+     */
+    function _reentrancyGuardEntered() internal view returns (bool) {
+        return REENTRANCY_GUARD_STORAGE.asBoolean().tload();
+    }
+
     function _nonReentrantBefore() private {
         // On the first call to nonReentrant, _status will be NOT_ENTERED
         if (_reentrancyGuardEntered()) {
@@ -46,13 +54,5 @@ abstract contract ReentrancyGuardTransient {
 
     function _nonReentrantAfter() private {
         REENTRANCY_GUARD_STORAGE.asBoolean().tstore(false);
-    }
-
-    /**
-     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
-     * `nonReentrant` function in the call stack.
-     */
-    function _reentrancyGuardEntered() internal view returns (bool) {
-        return REENTRANCY_GUARD_STORAGE.asBoolean().tload();
     }
 }

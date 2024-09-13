@@ -23,25 +23,6 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         0xea2d0e77a01400d0111492b1321103eed560d8fe44b9a7c2410407714583c400;
 
     /**
-     * @dev {allowance} override that includes the temporary allowance when looking up the current allowance. If
-     * adding up the persistent and the temporary allowances result in an overflow, type(uint256).max is returned.
-     */
-    function allowance(address owner, address spender) public view virtual override(IERC20, ERC20) returns (uint256) {
-        (bool success, uint256 amount) = Math.tryAdd(
-            super.allowance(owner, spender),
-            _temporaryAllowance(owner, spender)
-        );
-        return success ? amount : type(uint256).max;
-    }
-
-    /**
-     * @dev Internal getter for the current temporary allowance that `spender` has over `owner` tokens.
-     */
-    function _temporaryAllowance(address owner, address spender) internal view virtual returns (uint256) {
-        return _temporaryAllowanceSlot(owner, spender).tload();
-    }
-
-    /**
      * @dev Alternative to {approve} that sets a `value` amount of tokens as the temporary allowance of `spender` over
      * the caller's tokens.
      *
@@ -55,6 +36,18 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     function temporaryApprove(address spender, uint256 value) public virtual returns (bool) {
         _temporaryApprove(_msgSender(), spender, value);
         return true;
+    }
+
+    /**
+     * @dev {allowance} override that includes the temporary allowance when looking up the current allowance. If
+     * adding up the persistent and the temporary allowances result in an overflow, type(uint256).max is returned.
+     */
+    function allowance(address owner, address spender) public view virtual override(IERC20, ERC20) returns (uint256) {
+        (bool success, uint256 amount) = Math.tryAdd(
+            super.allowance(owner, spender),
+            _temporaryAllowance(owner, spender)
+        );
+        return success ? amount : type(uint256).max;
     }
 
     /**
@@ -108,6 +101,13 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         if (value > 0) {
             super._spendAllowance(owner, spender, value);
         }
+    }
+
+    /**
+     * @dev Internal getter for the current temporary allowance that `spender` has over `owner` tokens.
+     */
+    function _temporaryAllowance(address owner, address spender) internal view virtual returns (uint256) {
+        return _temporaryAllowanceSlot(owner, spender).tload();
     }
 
     function _temporaryAllowanceSlot(

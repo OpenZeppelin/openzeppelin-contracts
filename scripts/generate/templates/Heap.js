@@ -63,14 +63,6 @@ struct ${node} {
 }
 
 /**
- * @dev Lookup the root element of the heap.
- */
-function peek(${struct} storage self) internal view returns (${valueType}) {
-    // self.data[0] will \`ARRAY_ACCESS_OUT_OF_BOUNDS\` panic if heap is empty.
-    return _unsafeNodeAccess(self, self.data[0].index).value;
-}
-
-/**
  * @dev Remove (and return) the root element for the heap using the default comparator.
  *
  * NOTE: All inserting and removal from a heap should always be done using the same comparator. Mixing comparator
@@ -203,13 +195,6 @@ function replace(
 }
 
 /**
- * @dev Returns the number of elements in the heap.
- */
-function length(${struct} storage self) internal view returns (${indexType}) {
-    return self.data.length.to${capitalize(indexType)}();
-}
-
-/**
  * @dev Removes all elements in the heap.
  */
 function clear(${struct} storage self) internal {
@@ -217,6 +202,21 @@ function clear(${struct} storage self) internal {
     assembly ("memory-safe") {
         sstore(data.slot, 0)
     }
+}
+
+/**
+ * @dev Lookup the root element of the heap.
+ */
+function peek(${struct} storage self) internal view returns (${valueType}) {
+    // self.data[0] will \`ARRAY_ACCESS_OUT_OF_BOUNDS\` panic if heap is empty.
+    return _unsafeNodeAccess(self, self.data[0].index).value;
+}
+
+/**
+ * @dev Returns the number of elements in the heap.
+ */
+function length(${struct} storage self) internal view returns (${indexType}) {
+    return self.data.length.to${capitalize(indexType)}();
 }
 
 /**

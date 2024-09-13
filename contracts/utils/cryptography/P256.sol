@@ -76,24 +76,6 @@ library P256 {
     }
 
     /**
-     * @dev Same as {verify}, but it will return false if the required precompile is not available.
-     */
-    function _tryVerifyNative(
-        bytes32 h,
-        bytes32 r,
-        bytes32 s,
-        bytes32 qx,
-        bytes32 qy
-    ) private view returns (bool valid, bool supported) {
-        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
-            return (false, true); // signature is invalid, and its not because the precompile is missing
-        }
-
-        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
-        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
-    }
-
-    /**
      * @dev Same as {verify}, but only the Solidity implementation is used.
      */
     function verifySolidity(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) internal view returns (bool) {
@@ -154,11 +136,21 @@ library P256 {
     }
 
     /**
-     * @dev Checks if (r, s) is a proper signature.
-     * In particular, this checks that `s` is in the "lower-range", making the signature non-malleable.
+     * @dev Same as {verify}, but it will return false if the required precompile is not available.
      */
-    function _isProperSignature(bytes32 r, bytes32 s) private pure returns (bool) {
-        return uint256(r) > 0 && uint256(r) < N && uint256(s) > 0 && uint256(s) <= HALF_N;
+    function _tryVerifyNative(
+        bytes32 h,
+        bytes32 r,
+        bytes32 s,
+        bytes32 qx,
+        bytes32 qy
+    ) private view returns (bool valid, bool supported) {
+        if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
+            return (false, true); // signature is invalid, and its not because the precompile is missing
+        }
+
+        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
+        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
     }
 
     /**
@@ -178,6 +170,49 @@ library P256 {
             ax := mulmod(jx, zzinv, p)
             ay := mulmod(jy, mulmod(zzinv, zinv, p), p)
         }
+    }
+
+    /**
+     * @dev Compute P·u1 + Q·u2 using the precomputed points for P and Q (see {_preComputeJacobianPoints}).
+     *
+     * Uses Strauss Shamir trick for EC multiplication
+     * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
+     * we optimise on this a bit to do with 2 bits at a time rather than a single bit
+     * the individual points for a single pass are precomputed
+     * overall this reduces the number of additions while keeping the same number of doublings
+     */
+    function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
+        uint256 x = 0;
+        uint256 y = 0;
+        uint256 z = 0;
+        unchecked {
+            for (uint256 i = 0; i < 128; ++i) {
+                if (z > 0) {
+                    (x, y, z) = _jDouble(x, y, z);
+                    (x, y, z) = _jDouble(x, y, z);
+                }
+                // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
+                uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
+                if (pos > 0) {
+                    if (z == 0) {
+                        (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
+                    } else {
+                        (x, y, z) = _jAdd(points[pos], x, y, z);
+                    }
+                }
+                u1 <<= 2;
+                u2 <<= 2;
+            }
+        }
+        return _affineFromJacobian(x, y, z);
+    }
+
+    /**
+     * @dev Checks if (r, s) is a proper signature.
+     * In particular, this checks that `s` is in the "lower-range", making the signature non-malleable.
+     */
+    function _isProperSignature(bytes32 r, bytes32 s) private pure returns (bool) {
+        return uint256(r) > 0 && uint256(r) < N && uint256(s) > 0 && uint256(s) <= HALF_N;
     }
 
     /**
@@ -236,41 +271,6 @@ library P256 {
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
         }
-    }
-
-    /**
-     * @dev Compute P·u1 + Q·u2 using the precomputed points for P and Q (see {_preComputeJacobianPoints}).
-     *
-     * Uses Strauss Shamir trick for EC multiplication
-     * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
-     * we optimise on this a bit to do with 2 bits at a time rather than a single bit
-     * the individual points for a single pass are precomputed
-     * overall this reduces the number of additions while keeping the same number of doublings
-     */
-    function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
-        uint256 x = 0;
-        uint256 y = 0;
-        uint256 z = 0;
-        unchecked {
-            for (uint256 i = 0; i < 128; ++i) {
-                if (z > 0) {
-                    (x, y, z) = _jDouble(x, y, z);
-                    (x, y, z) = _jDouble(x, y, z);
-                }
-                // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
-                uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
-                if (pos > 0) {
-                    if (z == 0) {
-                        (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
-                    } else {
-                        (x, y, z) = _jAdd(points[pos], x, y, z);
-                    }
-                }
-                u1 <<= 2;
-                u2 <<= 2;
-            }
-        }
-        return _affineFromJacobian(x, y, z);
     }
 
     /**
