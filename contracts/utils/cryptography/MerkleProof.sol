@@ -50,7 +50,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in memory with the default hashing function.
      */
@@ -83,7 +83,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in memory with a custom hashing function.
      */
@@ -115,7 +115,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in calldata with the default hashing function.
      */
@@ -148,7 +148,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in calldata with a custom hashing function.
      */
