@@ -91,7 +91,7 @@ library CircularBuffer {
     }
 
     /**
-     * @dev Length of the buffer. This is the maximum number of elements kepts in the buffer.
+     * @dev Length of the buffer. This is the maximum number of elements kept in the buffer.
      */
     function length(Bytes32CircularBuffer storage self) internal view returns (uint256) {
         return self._data.length;
