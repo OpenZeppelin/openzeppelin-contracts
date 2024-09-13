@@ -130,7 +130,7 @@ library P256 {
         uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, p), A, p), rx, p), B, p); // weierstrass equation y² = x³ + a.x + b
         uint256 ry = Math.modExp(ry2, P1DIV4, p); // This formula for sqrt work because P ≡ 3 (mod 4)
         if (mulmod(ry, ry, p) != ry2) return (0, 0); // Sanity check
-        if (ry % 2 != v % 2) ry = p - ry;
+        if (ry % 2 != v) ry = p - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
         uint256 w = Math.invModPrime(uint256(r), N);
