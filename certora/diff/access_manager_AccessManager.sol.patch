@@ -64,8 +64,8 @@
       */
      function _getAdminRestrictions(
          bytes calldata data
--    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
-+    ) internal view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) { // private → internal for FV
+-    ) private view returns (bool adminRestricted, uint64 roleAdminId, uint32 executionDelay) {
++    ) internal view returns (bool adminRestricted, uint64 roleAdminId, uint32 executionDelay) { // private → internal for FV
          if (data.length < 4) {
              return (false, 0, 0);
          }

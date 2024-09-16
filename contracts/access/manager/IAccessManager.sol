@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessManaged} from "./IAccessManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 interface IAccessManager {
@@ -82,7 +81,6 @@ interface IAccessManager {
     error AccessManagerNotScheduled(bytes32 operationId);
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
-    error AccessManagerLockedAccount(address account);
     error AccessManagerLockedRole(uint64 roleId);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 roleId);
@@ -108,7 +106,7 @@ interface IAccessManager {
      * is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
      * to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
      *
-     * NOTE: This function does not report the permissions of this manager itself. These are defined by the
+     * NOTE: This function does not report the permissions of the admin functions in the manager itself. These are defined by the
      * {AccessManager} documentation.
      */
     function canCall(
@@ -134,6 +132,8 @@ interface IAccessManager {
 
     /**
      * @dev Get whether the contract is closed disabling any access. Otherwise role permissions are applied.
+     *
+     * NOTE: When the manager itself is closed, admin functions are still accessible to avoid locking the contract.
      */
     function isTargetClosed(address target) external view returns (bool);
 
@@ -307,6 +307,8 @@ interface IAccessManager {
 
     /**
      * @dev Set the closed flag for a contract.
+     *
+     * Closing the manager itself won't disable access to admin methods to avoid locking the contract.
      *
      * Requirements:
      *
