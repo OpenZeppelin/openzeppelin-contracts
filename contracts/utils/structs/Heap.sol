@@ -36,7 +36,7 @@ library Heap {
     using SafeCast for *;
 
     /**
-     * @dev Binary heap that support values of type uint256.
+     * @dev Binary heap that supports values of type uint256.
      *
      * Each element of that structure uses 2 storage slots.
      */
@@ -178,7 +178,7 @@ library Heap {
 
     /**
      * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
-     * comparator, and moving toward the leafs of the underlying tree.
+     * comparator, and moving toward the leaves of the underlying tree.
      *
      * NOTE: This is a private function that is called in a trusted context with already cached parameters. `length`
      * and `value` could be extracted from `self` and `index`, but that would require redundant storage read. These
