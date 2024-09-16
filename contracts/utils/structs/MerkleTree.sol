@@ -22,8 +22,6 @@ import {Panic} from "../Panic.sol";
  * NOTE: Building trees using non-commutative hashing functions (i.e. `H(a, b) != H(b, a)`) is supported. However,
  * proving the inclusion of a leaf in such trees is not possible with the {MerkleProof} library since it only supports
  * _commutative_ hashing functions.
- *
- * _Available since v5.1._
  */
 library MerkleTree {
     /**
