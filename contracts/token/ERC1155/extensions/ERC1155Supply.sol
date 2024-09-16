@@ -22,7 +22,7 @@ import {Arrays} from "../../../utils/Arrays.sol";
 abstract contract ERC1155Supply is ERC1155 {
     using Arrays for uint256[];
 
-    mapping(uint256 id => uint256) private _totalSupply;
+    mapping(uint256 id => uint256 supply) private _totalSupply;
     uint256 private _totalSupplyAll;
 
     /**

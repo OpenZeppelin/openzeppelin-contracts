@@ -15,11 +15,11 @@ import {IERC165} from "../../../utils/introspection/ERC165.sol";
  * interfere with enumerability and should not be used together with {ERC721Enumerable}.
  */
 abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
-    mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
-    mapping(uint256 tokenId => uint256) private _ownedTokensIndex;
+    mapping(address owner => mapping(uint256 index => uint256 amount)) private _ownedTokens;
+    mapping(uint256 tokenId => uint256 index) private _ownedTokensIndex;
 
     uint256[] private _allTokens;
-    mapping(uint256 tokenId => uint256) private _allTokensIndex;
+    mapping(uint256 tokenId => uint256 index) private _allTokensIndex;
 
     /**
      * @dev An `owner`'s token query was out of bounds for `index`.
@@ -122,7 +122,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         uint256 lastTokenIndex = balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
-        mapping(uint256 index => uint256) storage _ownedTokensByOwner = _ownedTokens[from];
+        mapping(uint256 index => uint256 amount) storage _ownedTokensByOwner = _ownedTokens[from];
 
         // When the token to delete is the last token, the swap operation is unnecessary
         if (tokenIndex != lastTokenIndex) {

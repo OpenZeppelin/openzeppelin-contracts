@@ -37,13 +37,13 @@ abstract contract GovernorCountingFractional is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address voter => uint256) usedVotes;
+        mapping(address voter => uint256 amount) usedVotes;
     }
 
     /**
      * @dev Mapping from proposal ID to vote tallies for that proposal.
      */
-    mapping(uint256 => ProposalVote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote votes) private _proposalVotes;
 
     /**
      * @dev A fractional vote params uses more votes than are available for that user.

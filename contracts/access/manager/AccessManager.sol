@@ -109,8 +109,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
     uint64 public constant PUBLIC_ROLE = type(uint64).max; // 2**64-1
 
     mapping(address target => TargetConfig mode) private _targets;
-    mapping(uint64 roleId => Role) private _roles;
-    mapping(bytes32 operationId => Schedule) private _schedules;
+    mapping(uint64 roleId => Role role) private _roles;
+    mapping(bytes32 operationId => Schedule schedule) private _schedules;
 
     // Used to identify operations that are currently being executed via {execute}.
     // This should be transient storage when supported by the EVM.

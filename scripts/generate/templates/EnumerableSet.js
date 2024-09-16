@@ -58,7 +58,7 @@ struct Set {
     bytes32[] _values;
     // Position is the index of the value in the \`values\` array plus 1.
     // Position 0 is used to mean a value is not in the set.
-    mapping(bytes32 value => uint256) _positions;
+    mapping(bytes32 value => uint256 position) _positions;
 }
 
 /**
