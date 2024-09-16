@@ -30,7 +30,7 @@ library RSA {
      * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017].
      *
      * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
-     * Consider using at least 2048 bits.
+     * Consider using at least 2048 bits. Aditionally, this function only supports SHA256 as the hash function.
      *
      * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
      * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
