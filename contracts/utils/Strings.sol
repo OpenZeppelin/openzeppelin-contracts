@@ -284,7 +284,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        bool hasPrefix = bytes2(unsafeReadBytesOffset(buffer, begin)) == 0x3078;
+        bool hasPrefix = bytes2(unsafeReadBytesOffset(buffer, begin)) == bytes2("0x");
         uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
