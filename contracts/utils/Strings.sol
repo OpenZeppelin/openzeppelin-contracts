@@ -27,7 +27,7 @@ library Strings {
     error StringsInvalidChar();
 
     /**
-     * @dev The string being parsed is not a properly formated address.
+     * @dev The string being parsed is not a properly formatted address.
      */
     error StringsInvalidAddressFormat();
 
@@ -132,9 +132,9 @@ library Strings {
     /**
      * @dev Parse a decimal string and returns the value as a `uint256`.
      *
-     * This function will revert if:
-     * - the string contains any character that is not in [0-9].
-     * - the result does not fit in a `uint256`.
+     * Requirements:
+     * - The provided string must include only ASCII characters in the range of [0-9]
+     * - The result must fit into an `uint256` type
      */
     function parseUint(string memory input) internal pure returns (uint256) {
         return parseUint(input, 0, bytes(input).length);
@@ -153,7 +153,8 @@ library Strings {
     /**
      * @dev Variant of {parseUint-string} that returns false if the parsing fails because of an invalid character.
      *
-     * This function will still revert if the result does not fit in a `uint256`
+     * Requirements:
+     * - The result must fit into an `uint256` type.
      */
     function tryParseUint(string memory input) internal pure returns (bool success, uint256 value) {
         return tryParseUint(input, 0, bytes(input).length);
@@ -163,7 +164,8 @@ library Strings {
      * @dev Variant of {parseUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character.
      *
-     * This function will still revert if the result does not fit in a `uint256`
+     * Requirements:
+     * - The result must fit into an `uint256` type.
      */
     function tryParseUint(
         string memory input,
@@ -185,9 +187,11 @@ library Strings {
     /**
      * @dev Parse a decimal string and returns the value as a `int256`.
      *
-     * This function will revert if:
-     * - the string contains any character (outside the prefix) that is not in [0-9].
-     * - the result does not fit in a `int256`.
+     * Requirements:
+     * - The provided string must contain only ASCII characters in the range of [0-9] (excluding the negative sign prefix).
+     * - The result must fit in an `int256` type.
+     *
+     * NOTE: This function does not accept strings with a plus sign prefix (i.e. `+`)
      */
     function parseInt(string memory input) internal pure returns (int256) {
         return parseInt(input, 0, bytes(input).length);
@@ -206,7 +210,8 @@ library Strings {
     /**
      * @dev Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character.
      *
-     * This function will still revert if the result does not fit in a `int256`
+     * Requirements:
+     * - The result must fit into an `int256` type.
      */
     function tryParseInt(string memory input) internal pure returns (bool success, int256 value) {
         return tryParseInt(input, 0, bytes(input).length);
@@ -243,9 +248,9 @@ library Strings {
     /**
      * @dev Parse a hexadecimal string (with or without "0x" prefix), and returns the value as a `uint256`.
      *
-     * This function will revert if:
-     * - the string contains any character (outside the prefix) that is not in [0-9a-fA-F].
-     * - the result does not fit in a `uint256`.
+     * Requirements:
+     * - The provided string must contain only ASCII characters in [0-9a-fA-F] (excluding the negative sign prefix).
+     * - The result must fit in an `uint256` type.
      */
     function parseHex(string memory input) internal pure returns (uint256) {
         return parseHex(input, 0, bytes(input).length);
@@ -264,7 +269,8 @@ library Strings {
     /**
      * @dev Variant of {parseHex-string} that returns false if the parsing fails because of an invalid character.
      *
-     * This function will still revert if the result does not fit in a `uint256`
+     * Requirements:
+     * - The result must fit into an `uint256` type.
      */
     function tryParseHex(string memory input) internal pure returns (bool success, uint256 value) {
         return tryParseHex(input, 0, bytes(input).length);
@@ -274,7 +280,8 @@ library Strings {
      * @dev Variant of {parseHex-string-uint256-uint256} that returns false if the parsing fails because of an
      * invalid character.
      *
-     * This function will still revert if the result does not fit in a `uint256`
+     * Requirements:
+     * - The result must fit into an `uint256` type.
      */
     function tryParseHex(
         string memory input,
@@ -300,8 +307,8 @@ library Strings {
     /**
      * @dev Parse a hexadecimal string (with or without "0x" prefix), and returns the value as an `address`.
      *
-     * This function will revert if:
-     * - the string is not formated as `(0x)?[0-9a-fA-F]{40}`
+     * Requirements:
+     * - The string must be formatted as `(0x)?[0-9a-fA-F]{40}`
      */
     function parseAddress(string memory input) internal pure returns (address) {
         return parseAddress(input, 0, bytes(input).length);
@@ -318,8 +325,8 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseAddress-string} that returns false if the parsing fails because input is not a properly
-     * formated address.
+     * @dev Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
+     * formatted address. See {parseAddress} requirements.
      */
     function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
         return tryParseAddress(input, 0, bytes(input).length);
@@ -327,7 +334,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
-     * formated address.
+     * formatted address. See {parseAddress} requirements.
      */
     function tryParseAddress(
         string memory input,
@@ -360,7 +367,7 @@ library Strings {
         // Try to parse `chr`:
         // - Case 1: [0-9]
         // - Case 2: [a-f]
-        // - Case 2: [A-F]
+        // - Case 3: [A-F]
         // - otherwise not supported
         unchecked {
             if (value > 47 && value < 58) value -= 48;
