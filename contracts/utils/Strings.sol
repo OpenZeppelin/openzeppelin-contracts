@@ -370,7 +370,7 @@ library Strings {
 
     // TODO: documentation.
     function unsafeReadBytesOffset(bytes memory buffer, uint256 offset) internal pure returns (bytes32 value) {
-        assembly ("memory-safe") {
+        assembly {
             value := mload(add(buffer, add(0x20, offset)))
         }
     }
