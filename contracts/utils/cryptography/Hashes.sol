@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Library of standard hash functions.
@@ -19,8 +19,7 @@ library Hashes {
      * @dev Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand memory.
      */
     function _efficientKeccak256(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(0x00, a)
             mstore(0x20, b)
             value := keccak256(0x00, 0x40)

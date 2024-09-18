@@ -45,8 +45,7 @@ library Panic {
     /// @dev Reverts with a panic code. Recommended to use with
     /// the internal constants with predefined codes.
     function panic(uint256 code) internal pure {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(0x00, 0x4e487b71)
             mstore(0x20, code)
             revert(0x1c, 0x24)

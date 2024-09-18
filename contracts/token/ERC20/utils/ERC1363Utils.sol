@@ -51,8 +51,7 @@ library ERC1363Utils {
             if (reason.length == 0) {
                 revert ERC1363InvalidReceiver(to);
             } else {
-                /// @solidity memory-safe-assembly
-                assembly {
+                assembly ("memory-safe") {
                     revert(add(32, reason), mload(reason))
                 }
             }
@@ -86,8 +85,7 @@ library ERC1363Utils {
             if (reason.length == 0) {
                 revert ERC1363InvalidSpender(spender);
             } else {
-                /// @solidity memory-safe-assembly
-                assembly {
+                assembly ("memory-safe") {
                     revert(add(32, reason), mload(reason))
                 }
             }

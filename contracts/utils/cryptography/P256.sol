@@ -125,11 +125,12 @@ library P256 {
             return (0, 0);
         }
 
+        uint256 p = P; // cache P on the stack
         uint256 rx = uint256(r);
-        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
-        uint256 ry = Math.modExp(ry2, P1DIV4, P); // This formula for sqrt work because P ≡ 3 (mod 4)
-        if (mulmod(ry, ry, P) != ry2) return (0, 0); // Sanity check
-        if (ry % 2 != v % 2) ry = P - ry;
+        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, p), A, p), rx, p), B, p); // weierstrass equation y² = x³ + a.x + b
+        uint256 ry = Math.modExp(ry2, P1DIV4, p); // This formula for sqrt work because P ≡ 3 (mod 4)
+        if (mulmod(ry, ry, p) != ry2) return (0, 0); // Sanity check
+        if (ry % 2 != v) ry = p - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
         uint256 w = Math.invModPrime(uint256(r), N);
@@ -145,9 +146,10 @@ library P256 {
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
-            let lhs := mulmod(y, y, P) // y^2
-            let rhs := addmod(mulmod(addmod(mulmod(x, x, P), A, P), x, P), B, P) // ((x^2 + a) * x) + b = x^3 + ax + b
-            result := and(and(lt(x, P), lt(y, P)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
+            let p := P
+            let lhs := mulmod(y, y, p) // y^2
+            let rhs := addmod(mulmod(addmod(mulmod(x, x, p), A, p), x, p), B, p) // ((x^2 + a) * x) + b = x^3 + ax + b
+            result := and(and(lt(x, p), lt(y, p)), eq(lhs, rhs)) // Should conform with the Weierstrass equation
         }
     }
 
@@ -169,11 +171,13 @@ library P256 {
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
-        uint256 zinv = Math.invModPrime(jz, P);
-        uint256 zzinv = mulmod(zinv, zinv, P);
-        uint256 zzzinv = mulmod(zzinv, zinv, P);
-        ax = mulmod(jx, zzinv, P);
-        ay = mulmod(jy, zzzinv, P);
+        uint256 p = P; // cache P on the stack
+        uint256 zinv = Math.invModPrime(jz, p);
+        assembly ("memory-safe") {
+            let zzinv := mulmod(zinv, zinv, p)
+            ax := mulmod(jx, zzinv, p)
+            ay := mulmod(jy, mulmod(zzinv, zinv, p), p)
+        }
     }
 
     /**
@@ -187,29 +191,29 @@ library P256 {
         uint256 z2
     ) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
+            let p := P
             let z1 := mload(add(p1, 0x40))
-            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, P), z2, P), P) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, P), z1, P), P) // s2 = y2*z1³
-            let r := addmod(s2, sub(P, s1), P) // r = s2-s1
-            let u1 := mulmod(mload(p1), mulmod(z2, z2, P), P) // u1 = x1*z2²
-            let u2 := mulmod(x2, mulmod(z1, z1, P), P) // u2 = x2*z1²
-            let h := addmod(u2, sub(P, u1), P) // h = u2-u1
-            let hh := mulmod(h, h, P) // h²
+            let zz1 := mulmod(z1, z1, p) // zz1 = z1²
+            let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
+            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1 = y2*z1³-s1
+            let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
+            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1
+            let hh := mulmod(h, h, p) // h²
 
             // x' = r²-h³-2*u1*h²
             rx := addmod(
-                addmod(mulmod(r, r, P), sub(P, mulmod(h, hh, P)), P),
-                sub(P, mulmod(2, mulmod(u1, hh, P), P)),
-                P
+                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                p
             )
             // y' = r*(u1*h²-x')-s1*h³
             ry := addmod(
-                mulmod(r, addmod(mulmod(u1, hh, P), sub(P, rx), P), P),
-                sub(P, mulmod(s1, mulmod(h, hh, P), P)),
-                P
+                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                p
             )
             // z' = h*z1*z2
-            rz := mulmod(h, mulmod(z1, z2, P), P)
+            rz := mulmod(h, mulmod(z1, z2, p), p)
         }
     }
 
@@ -219,18 +223,18 @@ library P256 {
      */
     function _jDouble(uint256 x, uint256 y, uint256 z) private pure returns (uint256 rx, uint256 ry, uint256 rz) {
         assembly ("memory-safe") {
-            let yy := mulmod(y, y, P)
-            let zz := mulmod(z, z, P)
-            let s := mulmod(4, mulmod(x, yy, P), P) // s = 4*x*y²
-            let m := addmod(mulmod(3, mulmod(x, x, P), P), mulmod(A, mulmod(zz, zz, P), P), P) // m = 3*x²+a*z⁴
-            let t := addmod(mulmod(m, m, P), sub(P, mulmod(2, s, P)), P) // t = m²-2*s
+            let p := P
+            let yy := mulmod(y, y, p)
+            let zz := mulmod(z, z, p)
+            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
+            let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
 
-            // x' = t
-            rx := t
-            // y' = m*(s-t)-8*y⁴
-            ry := addmod(mulmod(m, addmod(s, sub(P, t), P), P), sub(P, mulmod(8, mulmod(yy, yy, P), P)), P)
+            // x' = t = m²-2*s
+            rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
+            // y' = m*(s-t)-8*y⁴ = m*(s-x')-8*y⁴
+            ry := addmod(mulmod(m, addmod(s, sub(p, rx), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
-            rz := mulmod(2, mulmod(y, z, P), P)
+            rz := mulmod(2, mulmod(y, z, p), p)
         }
     }
 

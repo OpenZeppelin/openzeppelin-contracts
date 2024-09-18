@@ -37,8 +37,7 @@ library ERC721Utils {
                     // non-IERC721Receiver implementer
                     revert IERC721Errors.ERC721InvalidReceiver(to);
                 } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
+                    assembly ("memory-safe") {
                         revert(add(32, reason), mload(reason))
                     }
                 }
