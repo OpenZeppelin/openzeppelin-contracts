@@ -14,7 +14,7 @@ import {Math} from "../math/Math.sol";
  */
 library RSA {
     /**
-     * @dev Same as {pkcs1} but using SHA256 to calculate the digest of `data`.
+     * @dev Same as {pkcs1Sha256} but using SHA256 to calculate the digest of `data`.
      */
     function pkcs1Sha256(
         bytes memory data,
@@ -22,15 +22,16 @@ library RSA {
         bytes memory e,
         bytes memory n
     ) internal view returns (bool) {
-        return pkcs1(sha256(data), s, e, n);
+        return pkcs1Sha256(sha256(data), s, e, n);
     }
 
     /**
      * @dev Verifies a PKCSv1.5 signature given a digest according to the verification
-     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017].
+     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with support
+     * for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
      *
      * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
-     * Consider using at least 2048 bits. Additionally, this function only supports SHA256 as the hash function.
+     * Consider using at least 2048 bits.
      *
      * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
      * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
@@ -40,12 +41,12 @@ library RSA {
      * @param e is the exponent of the public key
      * @param n is the modulus of the public key
      */
-    function pkcs1(bytes32 digest, bytes memory s, bytes memory e, bytes memory n) internal view returns (bool) {
+    function pkcs1Sha256(bytes32 digest, bytes memory s, bytes memory e, bytes memory n) internal view returns (bool) {
         unchecked {
             // cache and check length
             uint256 length = n.length;
             if (
-                length < 0x40 || // PKCS#1 padding is slightly less than 0x40 bytes at the bare minimum
+                length < 0x40 || // EMSA-PKCS1-v1_5 encoding is at least 0x32 bytes long, the minimum key length that can be used is 0x40
                 length != s.length // signature must have the same length as the finite field
             ) {
                 return false;
@@ -137,7 +138,7 @@ library RSA {
     /// @dev Reads a bytes32 from a bytes array without bounds checking.
     function _unsafeReadBytes32(bytes memory array, uint256 offset) private pure returns (bytes32 result) {
         // Memory safeness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
-        // and `offset` is within bounds. This is the case for all calls to this private function from {pkcs1}.
+        // and `offset` is within bounds. This is the case for all calls to this private function from {pkcs1Sha256}.
         assembly ("memory-safe") {
             result := mload(add(add(array, 0x20), offset))
         }
