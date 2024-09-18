@@ -37,7 +37,7 @@ abstract contract GovernorCountingFractional is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address voter => uint256 amount) usedVotes;
+        mapping(address voter => uint256) usedVotes;
     }
 
     /**

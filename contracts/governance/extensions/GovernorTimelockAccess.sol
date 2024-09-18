@@ -50,15 +50,15 @@ abstract contract GovernorTimelockAccess is Governor {
         // We pack 8 operations' data in each bucket. Each uint32 value is set to 1 upon proposal creation if it has
         // to be scheduled and executed through the manager. Upon queuing, the value is set to nonce + 2, where the
         // nonce is received from the manager when scheduling the operation.
-        mapping(uint256 operationBucket => uint32[8] data) managerData;
+        mapping(uint256 operationBucket => uint32[8]) managerData;
     }
 
     // The meaning of the "toggle" set to true depends on the target contract.
     // If target == address(this), the manager is ignored by default, and a true toggle means it won't be ignored.
     // For all other target contracts, the manager is used by default, and a true toggle means it will be ignored.
-    mapping(address target => mapping(bytes4 selector => bool status)) private _ignoreToggle;
+    mapping(address target => mapping(bytes4 selector => bool)) private _ignoreToggle;
 
-    mapping(uint256 proposalId => ExecutionPlan execution) private _executionPlan;
+    mapping(uint256 proposalId => ExecutionPlan) private _executionPlan;
 
     uint32 private _baseDelay;
 
