@@ -70,7 +70,7 @@ library SlotDerivation {
      */
     function deriveMapping(bytes32 slot, address key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
-            mstore(0x00, key)
+            mstore(0x00, and(key, shr(96, not(0))))
             mstore(0x20, slot)
             result := keccak256(0x00, 0x40)
         }
@@ -81,7 +81,7 @@ library SlotDerivation {
      */
     function deriveMapping(bytes32 slot, bool key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
-            mstore(0x00, key)
+            mstore(0x00, iszero(iszero(key)))
             mstore(0x20, slot)
             result := keccak256(0x00, 0x40)
         }
