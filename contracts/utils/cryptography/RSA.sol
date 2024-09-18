@@ -46,7 +46,7 @@ library RSA {
             // cache and check length
             uint256 length = n.length;
             if (
-                length < 0x40 || // EMSA-PKCS1-v1_5 encoding is at least 0x32 bytes long, the minimum key length that can be used is 0x40
+                length < 0x100 || // Enforce 2048 bits minimum
                 length != s.length // signature must have the same length as the finite field
             ) {
                 return false;
@@ -112,7 +112,7 @@ library RSA {
                 return false;
             }
 
-            // Length is at least 0x40 and offset is at most 0x34, so this is safe. There is always some padding.
+            // Length is at least 0x100 and offset is at most 0x34, so this is safe. There is always some padding.
             uint256 paddingEnd = length - offset;
 
             // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.

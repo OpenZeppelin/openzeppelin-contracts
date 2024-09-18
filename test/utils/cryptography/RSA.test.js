@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const parse = require('./RSA.helper');
+const { Typed } = require('ethers');
 
 async function fixture() {
   return { mock: await ethers.deployContract('$RSA') };
@@ -33,8 +34,8 @@ describe('RSA', function () {
           const exp = '0x' + test.e;
           const mod = '0x' + test.n;
 
-          expect(await this.mock.$pkcs1(ethers.sha256(data), sig, exp, mod)).to.equal(result);
-          expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.equal(result);
+          expect(await this.mock.$pkcs1Sha256(Typed.bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(result);
+          expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.equal(result);
         });
       }
     }
@@ -44,12 +45,12 @@ describe('RSA', function () {
     it('openssl', async function () {
       const data = ethers.toUtf8Bytes('hello world');
       const sig =
-        '0x079bed733b48d69bdb03076cb17d9809072a5a765460bc72072d687dba492afe951d75b814f561f253ee5cc0f3d703b6eab5b5df635b03a5437c0a5c179309812f5b5c97650361c645bc99f806054de21eb187bc0a704ed38d3d4c2871a117c19b6da7e9a3d808481c46b22652d15b899ad3792da5419e50ee38759560002388';
+        '0x46c0466f29f79eae3eb6070af256062aa8b002b389fe7f1f748ed688052936f0bf635c442d0d9cb1bb1c73852f7f2a0887525848c231687a88fa2fc9821375527e7411a990e2b00de31709c1952c7137a1fc71e6b3efc272b71f1345a1339736d9498b2d5a59f951aa25360f23e40afb014afdba5598be3ecd3b810f738dfc681dac79cdd46a1e3919aae042685fb41207f272e43db96fc09948c5c4b92d4ec4a7f86418dec0933a69cdafe06b97b2a3c66a73e0bf3e6f604d6015dab18b42eb7253714130499bf770315d3628128c9b3091f6da3e91a4393cc0f481caa15abca64587152b5c3a9d228fb40fcc42283d29291eb3e874b91edcfd1aab470ff59a';
       const exp =
         '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001';
       const mod =
-        '0xdf3edde009b96bc5b03b48bd73fe70a3ad20eaf624d0dc1ba121a45cc739893741b7cf82acf1c91573ec8266538997c6699760148de57e54983191eca0176f518e547b85fe0bb7d9e150df19eee734cf5338219c7f8f7b13b39f5384179f62c135e544cb70be7505751f34568e06981095aeec4f3a887639718a3e11d48c240d';
-      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.true;
+        '0x9d107f072b168812dad11e17258c109ecad9c336d01c7968d030d7f7d1410fa04d5e346d26067de03e55926863b2e80b71d9b0077ff000e9caaccb0c4f5affb6f0b87b532879c986779b2846718b003d1dc8142a625ec858a06675ca8be8c25e4dbba675b8597306742ac68139a79265f943b2fcc0337003b7c7932155d6c757e9c55ce832b33dbfdc3f1c3bf86f4364833248d1d4c7e560a8244d47155d2ca7c2443b3dc381ff3a22d8fe6c461afc0cd7fac8df7c57048ef296f5c12575258f489a68d560a8554524d07549aa2b7328be6a21b609a21bfaedcf3e6647ed5be1489aebf03b07643c7d6fc63ae20ee4da4f1b6b04a376828e0a83c66d11dd8bf3';
+      expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.be.true;
     });
 
     // According to RFC4055, pg.5 and RFC8017, pg. 64, for SHA-1, and the SHA-2 family,
@@ -62,7 +63,7 @@ describe('RSA', function () {
       const exp = '0x03';
       const mod =
         '0xe932ac92252f585b3a80a4dd76a897c8b7652952fe788f6ec8dd640587a1ee5647670a8ad4c2be0f9fa6e49c605adf77b5174230af7bd50e5d6d6d6d28ccf0a886a514cc72e51d209cc772a52ef419f6a953f3135929588ebe9b351fca61ced78f346fe00dbb6306e5c2a4c6dfc3779af85ab417371cf34d8387b9b30ae46d7a5ff5a655b8d8455f1b94ae736989d60a6f2fd5cadbffbd504c5a756a2e6bb5cecc13bca7503f6df8b52ace5c410997e98809db4dc30d943de4e812a47553dce54844a78e36401d13f77dc650619fed88d8b3926e3d8e319c80c744779ac5d6abe252896950917476ece5e8fc27d5f053d6018d91b502c4787558a002b9283da7';
-      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.true;
+      expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.be.true;
     });
 
     it('returns false for a very short n', async function () {
@@ -70,7 +71,7 @@ describe('RSA', function () {
       const sig = '0x0102';
       const exp = '0x03';
       const mod = '0x0405';
-      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
+      expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.be.false;
     });
 
     it('returns false for a signature with different length to n', async function () {
@@ -79,7 +80,7 @@ describe('RSA', function () {
       const exp = '0x03';
       const mod =
         '0xe932ac92252f585b3a80a4dd76a897c8b7652952fe788f6ec8dd640587a1ee5647670a8ad4c2be0f9fa6e49c605adf77b5174230af7bd50e5d6d6d6d28ccf0a886a514cc72e51d209cc772a52ef419f6a953f3135929588ebe9b351fca61ced78f346fe00dbb6306e5c2a4c6dfc3779af85ab417371cf34d8387b9b30ae46d7a5ff5a655b8d8455f1b94ae736989d60a6f2fd5cadbffbd504c5a756a2e6bb5cecc13bca7503f6df8b52ace5c410997e98809db4dc30d943de4e812a47553dce54844a78e36401d13f77dc650619fed88d8b3926e3d8e319c80c744779ac5d6abe252896950917476ece5e8fc27d5f053d6018d91b502c4787558a002b9283da7';
-      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
+      expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.be.false;
     });
 
     it('returns false if s >= n', async function () {
@@ -91,7 +92,7 @@ describe('RSA', function () {
         '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001';
       const mod =
         '0xdf3edde009b96bc5b03b48bd73fe70a3ad20eaf624d0dc1ba121a45cc739893741b7cf82acf1c91573ec8266538997c6699760148de57e54983191eca0176f518e547b85fe0bb7d9e150df19eee734cf5338219c7f8f7b13b39f5384179f62c135e544cb70be7505751f34568e06981095aeec4f3a887639718a3e11d48c240d';
-      expect(await this.mock.$pkcs1Sha256(data, sig, exp, mod)).to.be.false;
+      expect(await this.mock.$pkcs1Sha256(Typed.bytes(data), sig, exp, mod)).to.be.false;
     });
   });
 });
