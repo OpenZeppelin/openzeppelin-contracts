@@ -239,7 +239,7 @@ library P256 {
     }
 
     /**
-     * @dev Compute G·u1 + Q·u2 using the precomputed points for G and Q (see {_preComputeJacobianPoints}).
+     * @dev Compute G·u1 + P·u2 using the precomputed points for G and P (see {_preComputeJacobianPoints}).
      *
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
