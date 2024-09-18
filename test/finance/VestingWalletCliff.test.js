@@ -24,7 +24,7 @@ async function fixture() {
   const env = await envSetup(mock, beneficiary, token);
 
   const schedule = Array.from({ length: 64 }, (_, i) => (BigInt(i) * duration) / 60n + start);
-  const vestingFn = timestamp => min(amount, timestamp < cliff ? 0n : (amount * (timestamp - start)) / duration);
+  const vestingFn = timestamp => min(amount, timestamp <= cliff ? 0n : (amount * (timestamp - start)) / duration);
 
   return { mock, duration, start, beneficiary, cliff, schedule, vestingFn, env };
 }
