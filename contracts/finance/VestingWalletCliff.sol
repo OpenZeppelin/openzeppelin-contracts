@@ -46,6 +46,6 @@ abstract contract VestingWalletCliff is VestingWallet {
         uint256 totalAllocation,
         uint64 timestamp
     ) internal view virtual override returns (uint256) {
-        return timestamp < cliff() ? 0 : super._vestingSchedule(totalAllocation, timestamp);
+        return timestamp <= cliff() ? 0 : super._vestingSchedule(totalAllocation, timestamp);
     }
 }
