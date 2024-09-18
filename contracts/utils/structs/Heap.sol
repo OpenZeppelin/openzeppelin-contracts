@@ -29,6 +29,10 @@ import {StorageSlot} from "../StorageSlot.sol";
  * * replace (replace the highest priority value with a new value): O(log(n))
  * * length (get the number of elements): O(1)
  * * clear (remove all elements): O(1)
+ *
+ * IMPORTANT: This library allows for the use of custom comparator functions. Given that manipulating
+ * memory can lead to unexpected behavior. Consider verifying that the comparator does not manipulate
+ * the Heap's state directly and that it follows the Solidity memory safety rules.
  */
 library Heap {
     using Arrays for *;
