@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint} from "../interfaces/IERC4337.sol";
-import {Account} from "./Account.sol";
-import {ECDSA} from "../utils/cryptography/ECDSA.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {IEntryPoint} from "../../interfaces/IERC4337.sol";
+import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
+import {Account} from "./../Account.sol";
 
 abstract contract AccountECDSA is Account {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -22,13 +22,7 @@ abstract contract AccountECDSA is Account {
     }
 }
 
-contract AccountECDSAClonable is AccountECDSA {
-    constructor(
-        IEntryPoint entryPoint_,
-        string memory name,
-        string memory version
-    ) Account(entryPoint_) EIP712(name, version) {}
-
+abstract contract AccountECDSAClonable is AccountECDSA {
     function signer() public view override returns (address) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (address));
     }

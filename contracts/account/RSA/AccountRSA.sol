@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint} from "../interfaces/IERC4337.sol";
-import {Account} from "./Account.sol";
-import {RSA} from "../utils/cryptography/RSA.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {IEntryPoint} from "../../interfaces/IERC4337.sol";
+import {RSA} from "../../utils/cryptography/RSA.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
+import {Account} from "./../Account.sol";
 
 abstract contract AccountRSA is Account {
     // NOTE: There is no way to store immutable byte arrays in a contract, so we use private instead
@@ -26,13 +26,7 @@ abstract contract AccountRSA is Account {
     }
 }
 
-contract AccountRSAClonable is AccountRSA {
-    constructor(
-        IEntryPoint entryPoint_,
-        string memory name,
-        string memory version
-    ) Account(entryPoint_) EIP712(name, version) {}
-
+abstract contract AccountRSAClonable is AccountRSA {
     function signer() public view override returns (bytes memory e, bytes memory m) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes, bytes));
     }
