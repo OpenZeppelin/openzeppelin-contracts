@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
-// import {Memory} from "../../utils/Memory.sol";
 import {Packing} from "../../utils/Packing.sol";
 
 library ERC4337Utils {
@@ -77,7 +76,6 @@ library ERC4337Utils {
         address entrypoint,
         uint256 chainid
     ) internal pure returns (bytes32) {
-        // Memory.FreePtr ptr = Memory.save();
         bytes32 result = keccak256(
             abi.encode(
                 keccak256(
@@ -96,7 +94,6 @@ library ERC4337Utils {
                 chainid
             )
         );
-        // Memory.load(ptr);
         return result;
     }
 
