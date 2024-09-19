@@ -6,6 +6,7 @@
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
 
 * xref:access-control.adoc[Access Control]
+* xref:account-abstraction.adoc[Account Abstraction]
 
 * xref:tokens.adoc[Tokens]
 ** xref:erc20.adoc[ERC-20]

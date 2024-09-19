@@ -1,0 +1,19 @@
+= Account Abstraction
+
+Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA]. To leverage this property of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
+
+The design of ERC-4337 enables more flexible and user-friendly interactions with applications. This standard includes the following key features:
+
+- **User Operations and Alternative Mempool**: Instead of sending transactions directly, users submit "User Operations" to a special mempool, which can then be processed by bundlers. This allows for batching operations and optimizing gas fees.
+
+- **Custom Validation**: Smart accounts can define their own logic for validating operations, enabling features like custom signatures, multi-signature schemes, social recovery, and custom nonce management.
+
+- **Gasless Transactions**: Users can authorize user operations without needing to hold Ether, as third parties (like app developers) can pay for the gas fees on their behalf with the help of paymasters.
+
+- **Enhanced Security and Modularity**: By enabling advanced account management features, users can set up more secure recovery mechanisms and protect against loss or theft.
+
+NOTE: Find detailed contract documentation at xref:api:governance.adoc[Governance API].
+
+== Signature Schemes
+
+xref:utilities.adoc#checking_signatures_on_chain
