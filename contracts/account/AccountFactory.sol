@@ -2,9 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint} from "../interfaces/IERC4337.sol";
 import {Clones} from "../proxy/Clones.sol";
-import {AccountRSAClonable} from "./AccountRSA.sol";
 
 abstract contract AccountFactory {
     using Clones for address;

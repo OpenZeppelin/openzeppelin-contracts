@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import {IERC1271} from "../interfaces/IERC1271.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
-import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
 import {ERC7739Utils} from "./utils/ERC7739Utils.sol";
 

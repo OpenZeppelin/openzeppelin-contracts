@@ -2,11 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint} from "../../interfaces/IERC4337.sol";
-import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
-import {Clones} from "../../proxy/Clones.sol";
-import {EIP712} from "../../utils/cryptography/EIP712.sol";
-import {Account} from "./../Account.sol";
+import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {Clones} from "../proxy/Clones.sol";
+import {Account} from "./Account.sol";
 
 abstract contract AccountECDSA is Account {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
