@@ -28,7 +28,7 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
 
         bytes32 typedDataHash = MessageHashUtils.toTypedDataHash(
             appSeparator,
-            _signStructHash(ERC7739Utils._TYPED_DATA_TYPEHASH(contentsType), contents)
+            _signStructHash(ERC7739Utils.TYPED_DATA_TYPEHASH(contentsType), contents)
         );
 
         if (typedDataHash != hash) revert MismatchedTypedData();

@@ -28,7 +28,8 @@ library ERC7739Utils {
         contentsType = signature[contentsEnd:contentsTypeEnd];
     }
 
-    function _TYPED_DATA_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
+    // solhint-disable-next-line func-name-mixedcase
+    function TYPED_DATA_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert ERC7739InvalidContentsType();
 
