@@ -37,6 +37,11 @@ import {Panic} from "../Panic.sol";
  */
 library CircularBuffer {
     /**
+     * @dev Error emitted when trying to setup a buffer with a size of 0.
+     */
+    error InvalidBufferSize();
+
+    /**
      * @dev Counts the number of items that have been pushed to the buffer. The residuo modulo _data.length indicates
      * where the next value should be stored.
      *
@@ -61,6 +66,7 @@ library CircularBuffer {
      * Consider a large buffer size may render the function unusable.
      */
     function setup(Bytes32CircularBuffer storage self, uint256 size) internal {
+        if (size == 0) revert InvalidBufferSize();
         clear(self);
         Arrays.unsafeSetLength(self._data, size);
     }
