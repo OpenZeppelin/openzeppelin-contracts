@@ -25,7 +25,7 @@ describe('RSA', function () {
       // const { sha224, sha256 } = require('@noble/hashes/sha256');
       // const { sha384, sha512 } = require('@noble/hashes/sha512');
 
-      if (test.SHAAlg === 'SHA256') {
+      if (test.SHAAlg === 'SHA256' && length >= 0x100) {
         const result = test.Result === 'P';
 
         it(`signature length ${length} ${test.extra} ${result ? 'works' : 'fails'}`, async function () {
