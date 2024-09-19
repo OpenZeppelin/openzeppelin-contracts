@@ -10,7 +10,7 @@ import {Math} from "../math/Math.sol";
  * The padding follows the EMSA-PKCS1-v1_5-ENCODE encoding definition as per section 9.2 of the RFC. This padding makes
  * RSA semantically secure for signing messages.
  *
- * Inspired by https://github.com/adria0/SolRsaVerify[Adrià Massanet's work]
+ * Inspired by https://github.com/adria0/SolRsaVerify/blob/79c6182cabb9102ea69d4a2e996816091d5f1cd1[Adrià Massanet's work] (GNU General Public License v3.0).
  */
 library RSA {
     /**
