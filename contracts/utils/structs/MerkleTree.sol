@@ -49,7 +49,7 @@ library MerkleTree {
 
     /**
      * @dev Initialize a {Bytes32PushTree} using {Hashes-commutativeKeccak256} to hash internal nodes.
-     * The capacity of the tree (i.e. number of leaves) is set to `2**depth`.
+     * The capacity of the tree (i.e. number of leaves) is set to `2**treeDepth`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
      *
