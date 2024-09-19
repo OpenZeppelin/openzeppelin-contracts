@@ -8,7 +8,7 @@ import {Math} from "../math/Math.sol";
  *
  * This library supports PKCS#1 v1.5 padding to avoid malleability via chosen plaintext attacks in practical implementations.
  * The padding follows the EMSA-PKCS1-v1_5-ENCODE encoding definition as per section 9.2 of the RFC. This padding makes
- * RSA semanticaly secure for signing messages.
+ * RSA semantically secure for signing messages.
  *
  * Inspired by https://github.com/adria0/SolRsaVerify[Adrià Massanet's work]
  */
@@ -26,7 +26,7 @@ library RSA {
     }
 
     /**
-     * @dev Verifies a PKCSv1.5 signature given a digest according the verification
+     * @dev Verifies a PKCSv1.5 signature given a digest according to the verification
      * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017].
      *
      * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
@@ -136,7 +136,7 @@ library RSA {
 
     /// @dev Reads a bytes32 from a bytes array without bounds checking.
     function _unsafeReadBytes32(bytes memory array, uint256 offset) private pure returns (bytes32 result) {
-        // Memory safetiness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
+        // Memory safeness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
         // and `offset` is within bounds. This is the case for all calls to this private function from {pkcs1}.
         assembly ("memory-safe") {
             result := mload(add(add(array, 0x20), offset))

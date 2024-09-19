@@ -64,8 +64,7 @@ library ShortStrings {
         uint256 len = byteLength(sstr);
         // using `new string(len)` would work locally but is not memory safe.
         string memory str = new string(32);
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(str, len)
             mstore(add(str, 0x20), sstr)
         }

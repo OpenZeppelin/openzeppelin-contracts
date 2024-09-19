@@ -26,6 +26,8 @@ library Arrays {
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
+     *
+     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
      */
     function sort(
         uint256[] memory array,
@@ -53,6 +55,8 @@ library Arrays {
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
+     *
+     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
      */
     function sort(
         address[] memory array,
@@ -80,6 +84,8 @@ library Arrays {
      * array. Using it in view functions that are executed through `eth_call` is safe, but one should be very careful
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
+     *
+     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
      */
     function sort(
         bytes32[] memory array,
@@ -134,8 +140,7 @@ library Arrays {
      * @dev Pointer to the memory location of the first element of `array`.
      */
     function _begin(uint256[] memory array) private pure returns (uint256 ptr) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             ptr := add(array, 0x20)
         }
     }
@@ -377,8 +382,7 @@ library Arrays {
      */
     function unsafeAccess(address[] storage arr, uint256 pos) internal pure returns (StorageSlot.AddressSlot storage) {
         bytes32 slot;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             slot := arr.slot
         }
         return slot.deriveArray().offset(pos).getAddressSlot();
@@ -391,8 +395,7 @@ library Arrays {
      */
     function unsafeAccess(bytes32[] storage arr, uint256 pos) internal pure returns (StorageSlot.Bytes32Slot storage) {
         bytes32 slot;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             slot := arr.slot
         }
         return slot.deriveArray().offset(pos).getBytes32Slot();
@@ -405,8 +408,7 @@ library Arrays {
      */
     function unsafeAccess(uint256[] storage arr, uint256 pos) internal pure returns (StorageSlot.Uint256Slot storage) {
         bytes32 slot;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             slot := arr.slot
         }
         return slot.deriveArray().offset(pos).getUint256Slot();
@@ -451,8 +453,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(address[] storage array, uint256 len) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             sstore(array.slot, len)
         }
     }
@@ -463,8 +464,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(bytes32[] storage array, uint256 len) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             sstore(array.slot, len)
         }
     }
@@ -475,8 +475,7 @@ library Arrays {
      * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
      */
     function unsafeSetLength(uint256[] storage array, uint256 len) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             sstore(array.slot, len)
         }
     }
