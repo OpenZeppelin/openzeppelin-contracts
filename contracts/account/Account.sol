@@ -15,6 +15,13 @@ abstract contract Account is IAccount, IAccountExecute, ReadableSigner, ERC1155H
 
     IEntryPoint private immutable _entryPoint;
 
+    modifier onlyEntryPointOrSelf() {
+        if (msg.sender != address(this) && msg.sender != address(entryPoint())) {
+            revert AccountEntryPointRestricted();
+        }
+        _;
+    }
+
     modifier onlyEntryPoint() {
         if (msg.sender != address(entryPoint())) {
             revert AccountEntryPointRestricted();

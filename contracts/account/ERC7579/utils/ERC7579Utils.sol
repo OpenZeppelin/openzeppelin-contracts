@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {Execution} from "../../interfaces/IERC7579Account.sol";
-import {Packing} from "../../utils/Packing.sol";
+import {Execution} from "../../../interfaces/IERC7579Account.sol";
+import {Packing} from "../../../utils/Packing.sol";
 
 type Mode is bytes32;
 type CallType is bytes1;
@@ -17,6 +17,7 @@ library ERC7579Utils {
     CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
     CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
     CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+
     ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
     ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
@@ -93,23 +94,23 @@ library ERC7579Utils {
 }
 
 // Operators
-using {eqCallType as ==} for CallType global;
-using {eqExecType as ==} for ExecType global;
-using {eqModeSelector as ==} for ModeSelector global;
-using {eqModePayload as ==} for ModePayload global;
+using {_eqCallTypeGlobal as ==} for CallType global;
+using {_eqExecTypeGlobal as ==} for ExecType global;
+using {_eqModeSelectorGlobal as ==} for ModeSelector global;
+using {_eqModePayloadGlobal as ==} for ModePayload global;
 
-function eqCallType(CallType a, CallType b) pure returns (bool) {
+function _eqCallTypeGlobal(CallType a, CallType b) pure returns (bool) {
     return CallType.unwrap(a) == CallType.unwrap(b);
 }
 
-function eqExecType(ExecType a, ExecType b) pure returns (bool) {
+function _eqExecTypeGlobal(ExecType a, ExecType b) pure returns (bool) {
     return ExecType.unwrap(a) == ExecType.unwrap(b);
 }
 
-function eqModeSelector(ModeSelector a, ModeSelector b) pure returns (bool) {
+function _eqModeSelectorGlobal(ModeSelector a, ModeSelector b) pure returns (bool) {
     return ModeSelector.unwrap(a) == ModeSelector.unwrap(b);
 }
 
-function eqModePayload(ModePayload a, ModePayload b) pure returns (bool) {
+function _eqModePayloadGlobal(ModePayload a, ModePayload b) pure returns (bool) {
     return ModePayload.unwrap(a) == ModePayload.unwrap(b);
 }

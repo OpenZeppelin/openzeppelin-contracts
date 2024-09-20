@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
 
-// import { CallType, ExecType, ModeCode } from "../lib/ModeLib.sol";
-import {IERC165} from "./IERC165.sol";
-import {IERC1271} from "./IERC1271.sol";
+pragma solidity ^0.8.20;
 
 struct Execution {
     address target;
