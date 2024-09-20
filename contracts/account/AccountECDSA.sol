@@ -14,7 +14,7 @@ abstract contract AccountECDSA is Account {
         return _signer;
     }
 
-    function _isValidSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
         (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
         return signer() == recovered && err == ECDSA.RecoverError.NoError;
     }

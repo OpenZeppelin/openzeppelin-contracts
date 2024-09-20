@@ -18,7 +18,7 @@ abstract contract AccountRSA is Account {
         return (_e, _n);
     }
 
-    function _isValidSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
         (bytes memory e, bytes memory n) = signer();
         return RSA.pkcs1(hash, signature, e, n);
     }

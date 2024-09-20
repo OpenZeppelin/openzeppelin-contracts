@@ -5,15 +5,17 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory includes contracts to build accounts for ERC-4337.
 
-== Accounts
+== Core
 
 {{AccountFactory}}
 
 {{Account}}
 
+== Accounts
+
 {{AccountECDSA}}
 
-{{AccountClonable}}
+{{AccountECDSAClonable}}
 
 {{AccountEIP7702}}
 
@@ -27,10 +29,18 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{ReadableSigner}}
 
+== ERC7579
+
+{{ERC7579Account}}
+
+{{ERC7579Execution}}
+
+{{ERC7579ModuleConfig}}
+
 == Utilities
 
 {{ERC4337Utils}}
 
-{{ERC7579Utils}}
-
 {{ERC7739Utils}}
+
+{{ERC7579Utils}}

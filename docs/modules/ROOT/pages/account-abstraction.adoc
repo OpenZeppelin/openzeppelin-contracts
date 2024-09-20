@@ -1,19 +1,95 @@
 = Account Abstraction
 
-Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA]. To leverage this property of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
+Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
 
-NOTE: Find detailed contract documentation at xref:api:account.adoc[Account API].
+OpenZeppelin Contracts provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, recovery mechanisms and modularity with standards such as https://eips.ethereum.org/EIPS/eip-7579[ERC-7579].
 
-The design of ERC-4337 enables more flexible and user-friendly interactions with applications. This standard includes the following key features:
+== ERC-4337 Overview
 
-- **User Operations and Alternative Mempool**: Instead of sending transactions directly, users submit "User Operations" to a special mempool, which can then be processed by bundlers. This allows for batching operations and optimizing gas fees.
+The ERC-4337 is a detailed specification of how to implement the necessary logic to handle operations without making changes to the protocol level (i.e. the rules of the blockchain itself). This specification defines the following components:
 
-- **Custom Validation**: Smart accounts can define their own logic for validating operations, enabling features like custom signatures, multi-signature schemes, social recovery, and custom nonce management.
+=== UserOperation
 
-- **Gasless Transactions**: Users can authorize user operations without needing to hold Ether, as third parties (like app developers) can pay for the gas fees on their behalf with the help of paymasters.
+An `UserOperation` is a higher-layer pseudo-transaction object that represents the intent of the account. This shares some similarities with regular EVM transactions like the concept of `gasFees` or `callData` but includes fields that enable new capabilities.
 
-- **Enhanced Security and Modularity**: By enabling advanced account management features, users can set up more secure recovery mechanisms and protect against loss or theft.
+```solidity
+struct PackedUserOperation {
+    address sender;
+    uint256 nonce;
+    bytes initCode; // concatenation of factory address and factoryData (or empty)
+    bytes callData;
+    bytes32 accountGasLimits; // concatenation of verificationGas (16 bytes) and callGas (16 bytes)
+    uint256 preVerificationGas;
+    bytes32 gasFees; // concatenation of maxPriorityFee (16 bytes) and maxFeePerGas (16 bytes)
+    bytes paymasterAndData; // concatenation of paymaster fields (or empty)
+    bytes signature;
+}
+```
 
-== Signature Schemes
+=== Entrypoint
 
-xref:utilities.adoc#checking_signatures_on_chain
+Each `UserOperation` is executed through a contract known as the https://etherscan.io/address/0x0000000071727de22e5e9d8baf0edac6f37da032#code[`EntryPoint`]. This contract is a singleton deployed across multiple networks at the same address although other custom implementations may be used.
+
+The Entrypoint contracts is considered a trusted entity by the account.
+
+=== Bundlers
+
+The bundler is a piece of _offchain_ infrastructure that is in charge of processing an alternative mempool of user operations. Bundlers themselves call the Entrypoint contract's `handleOps` function with an array of UserOperations that are executed and included in a block.
+
+During the process, the bundler pays for the gas of executing the transaction and gets refunded during the execution phase of the Entrypoint contract.
+
+=== Account Contract
+
+The Account Contract is the implementation logic (i.e. Solidity code) that validates user operations and is defined by the Account developer. 
+
+NOTE: To build your own account, see xref:account-abstraction.adoc#smart_contract_wallets_swc[Smart Contract Wallet].
+
+=== Factory Contract
+
+The smart contract accounts are created by a Factory contract defined by the Account developer. This factory receives arbitrary bytes as `initData` and returns an `address` where the logic of the account is deployed.
+
+NOTE: To build your own factory, see xref:account-abstraction.adoc#account_factory[Account Factory]
+
+=== Paymaster Contract
+
+A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away of the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
+
+NOTE: To build your own factory, see xref:account-abstraction.adoc#paymaster[Paymaster].
+
+== Smart Contract Wallets (SWC)
+
+A Smart Contract Wallet (or simply xref:api:account.adoc[`Account`]) is a type of smart contract implements the logic required to validate an `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
+
+```solidity
+interface IAccount {
+    function validateUserOp(PackedUserOperation calldata, bytes32, uint256) external returns (uint256 validationData);
+}
+```
+
+Similarly, an Account should have a way to execute these operations by either handling arbitrary calldata on its `fallback` or implementing the `IAccountExecute` interface:
+
+```solidity
+interface IAccountExecute {
+    function executeUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external;
+}
+```
+
+OpenZeppelin provides an implementation of an xref:api:account.adoc#Account[`Account`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
+
+=== Signature Schemes
+
+The main difference between a smart contract wallet and an EOA relies in the authorization mechanism. In the case of smart contract accounts, they can specify custom logic to validate operations like alternative https://en.wikipedia.org/wiki/Digital_signature[digital signatures] or more complex cryptographic proofs.
+
+Generally speaking, blockchains use the properties of digital signatures to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations.
+
+=== Immutable Arguments for Interoperability
+
+== Account Factory
+
+Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint.
+
+=== Clonable Accounts
+
+=== Setting up a factory
+
+== Paymaster

@@ -16,7 +16,7 @@ abstract contract AccountP256 is Account {
         return (_qx, _qy);
     }
 
-    function _isValidSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
         if (signature.length < 0x40) return false;
 
         // parse signature

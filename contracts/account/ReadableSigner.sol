@@ -32,7 +32,7 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
 
         if (typedDataHash != hash) revert MismatchedTypedData();
 
-        return _isValidSignature(hash, originalSignature);
+        return _validateSignature(hash, originalSignature);
     }
 
     function _signStructHash(bytes32 typedDataSignHash, bytes32 contents) private view returns (bytes32) {
@@ -58,10 +58,10 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
             abi.encode(ERC7739Utils._PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(hash))
         );
         bytes32 hashTypedData = _hashTypedDataV4(signPersonalStructHash);
-        return _isValidSignature(hashTypedData, signature);
+        return _validateSignature(hashTypedData, signature);
     }
 
     /// Virtual
 
-    function _isValidSignature(bytes32 hash, bytes calldata signature) internal view virtual returns (bool);
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual returns (bool);
 }
