@@ -183,7 +183,7 @@ library P256 {
     /**
      * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
-     * 
+     *
      * Note that if both input points are identical, this function will return `(0, 0, 0)` instead of doubling the point.
      * The probability of this happening naturally is negligible (approximately 2048 / (2^256 - 1), or about 10^-74).
      */
@@ -288,7 +288,7 @@ library P256 {
      * │  8 │ 2g 2g+p 2g+2p 2g+3p │
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
-     * 
+     *
      * Note that in the negligible scenario where `P` is `-G`, the addition of `points[0x05]` (`G` + `P`) will result
      * in a point at infinity. This edge case could potentially cause a valid signature to fail verification.
      */
