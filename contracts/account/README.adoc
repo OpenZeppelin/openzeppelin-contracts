@@ -7,13 +7,21 @@ This directory includes contracts to build accounts for ERC-4337.
 
 == Accounts
 
+{{AccountFactory}}
+
 {{Account}}
 
 {{AccountECDSA}}
 
+{{AccountClonable}}
+
 {{AccountP256}}
 
+{{AccountP256Clonable}}
+
 {{AccountRSA}}
+
+{{AccountRSAClonable}}
 
 {{ReadableSigner}}
 
