@@ -15,6 +15,9 @@ const MODES = {
 
 const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
 
+// New test settings for mass delegation
+const MASS_DELEGATION_ACCOUNTS_COUNT = 100;
+
 describe('Votes', function () {
   for (const [mode, artifact] of Object.entries(MODES)) {
     const fixture = async () => {
@@ -95,6 +98,43 @@ describe('Votes', function () {
         it('returns total amount of votes', async function () {
           const totalSupply = sum(...Object.values(this.amounts));
           expect(await this.votes.getTotalSupply()).to.equal(totalSupply);
+        });
+
+        // New test: mass delegation with 100 accounts
+        describe('mass delegation operations', function () {
+          beforeEach(async function () {
+            this.massAccounts = this.accounts.slice(0, MASS_DELEGATION_ACCOUNTS_COUNT);
+            this.massDelegationAmounts = Object.fromEntries(
+              this.massAccounts.map(({ address }, index) => [address, BigInt(index + 1) * 1000n])
+            );
+            this.txs = [];
+
+            for (const [account, amount] of Object.entries(this.massDelegationAmounts)) {
+              this.txs.push(await this.votes.$_mint(account, amount));
+            }
+          });
+
+          it('delegates for mass accounts', async function () {
+            for (let i = 0; i < this.massAccounts.length; i++) {
+              const delegateAccount = this.massAccounts[i];
+              await this.votes.delegate(delegateAccount.address, ethers.Typed.address(delegateAccount.address));
+              const votes = await this.votes.getVotes(delegateAccount.address);
+              expect(votes).to.equal(this.massDelegationAmounts[delegateAccount.address]);
+            }
+          });
+
+          it('calculates gas cost for mass delegations', async function () {
+            const gasCosts = [];
+            for (let i = 0; i < this.massAccounts.length; i++) {
+              const delegateAccount = this.massAccounts[i];
+              const tx = await this.votes.delegate(delegateAccount.address, ethers.Typed.address(delegateAccount.address));
+              const receipt = await tx.wait();
+              gasCosts.push(receipt.gasUsed);
+            }
+
+            const totalGas = gasCosts.reduce((a, b) => a.add(b), ethers.BigNumber.from(0));
+            console.log('Total gas used for mass delegation:', totalGas.toString());
+          });
         });
       });
     });
