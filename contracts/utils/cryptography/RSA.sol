@@ -30,8 +30,8 @@ library RSA {
      * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with support
      * for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
      *
-     * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
-     * Consider using at least 2048 bits.
+     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least 2048 bits.
+     * If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
      * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
      * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
