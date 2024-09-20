@@ -54,15 +54,11 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
     /// Personal
 
     function _isValidPersonalSignature(bytes32 hash, bytes calldata signature) internal view returns (bool) {
-        return
-            _isValidSignature(
-                _hashTypedDataV4(
-                    keccak256(
-                        abi.encode(ERC7739Utils._PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(hash))
-                    )
-                ),
-                signature
-            );
+        bytes32 signPersonalStructHash = keccak256(
+            abi.encode(ERC7739Utils._PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(hash))
+        );
+        bytes32 hashTypedData = _hashTypedDataV4(signPersonalStructHash);
+        return _isValidSignature(hashTypedData, signature);
     }
 
     /// Virtual
