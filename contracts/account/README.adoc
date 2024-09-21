@@ -11,7 +11,7 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountFactory}}
 
-== Account Signers
+== Signers
 
 {{SignerReadable}}
 

@@ -74,22 +74,97 @@ interface IAccountExecute {
 }
 ```
 
-OpenZeppelin provides an implementation of an xref:api:account.adoc#Account[`Account`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
+OpenZeppelin provides an implementation of an xref:api:account.adoc#AccountBase[`AccountBase`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
 
-=== Signature Schemes
+=== Signers
 
-The main difference between a smart contract wallet and an EOA relies in the authorization mechanism. In the case of smart contract accounts, they can specify custom logic to validate operations like alternative https://en.wikipedia.org/wiki/Digital_signature[digital signatures] or more complex cryptographic proofs.
+Generally speaking, blockchains use the properties of https://en.wikipedia.org/wiki/Digital_signature[digital signatures] to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations for a given off-chain signer (i.e. a private key).
 
-Generally speaking, blockchains use the properties of digital signatures to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations.
+In this context, a Signer is a contract that stores the public key corresponding to an off-chain private key that works with a custom digital signature verification algorithm. Each signer stores the public key in immutable arguments for better signature interoperability.
 
-=== Immutable Arguments for Interoperability
+A Signer account can be extended as follows:
+
+```solidity
+// contracts/MyAccountECDSA.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccountSignerECDSA} from "@openzeppelin/contracts/account/signers/AccountSignerECDSA.sol";
+
+contract MyAccountECDSA is AccountSignerECDSA {
+    constructor(
+        address signerAddr,
+        string memory name,
+        string memory version
+    ) AccountSignerECDSA(signerAddr, name, version) {}
+
+    /// ...
+}
+```
+
+IMPORTANT: Accounts must be deployed via an xref:api:account.adoc#AccountFactory[`AccountFactory`] instead of deployed directly.
+
+=== ERC-7562 Validation Rules
+
+A naive approach to implement an Account contract with a signer would be to store its public key in the account's storage for future validation and, ideally, would expose the xref:api:interfaces::IERC1271[`IERC1271`] interface (smart contract signatures) to act as a validator in more complex setups (e.g. a multisignature). 
+
+However, the validation phase of ERC-4337 forbids access to external storage according to the https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] validation rules. Unfortunately, this rules limit the interoperability of signers unless the public key is stored somewhere other than storage.
+
+For this reason, the Signer contracts store the public key for its corresponding validation algorithm in immutable arguments so that the contract is tied to the signer and can validate messages on-chain without accessing storage.
+
+=== Readable Typed Signatures
+
+A common security practice to prevent user operation https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU[replayability across smart contract accounts controlled by the same private key] (i.e. multiple accounts for the same signer) is to link the signature to the `address` and `chainId`. This can be done by asking the user to sign the hash of the user operation along with this values.
+
+The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
+
+To prevent this, each smart contract signer inherits from xref:api:account#SignerReadable[`SignerReadable`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
 
 == Account Factory
 
 Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint.
 
+The factory works by creating xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] which write the arguments in the bytecode of each deployed proxy. In most cases, the immutable arguments would be the public key of the associated signer and will need adjustments to fetch it.
+
 === Clonable Accounts
 
+When used with an xref:api:account.adoc#AccountFactory[`AccountFactory`], the Account Signer contracts expose a variant suffixed with `*Clonable` that may be used to generate clones of an account with arbitrary immutable arguments.
+
+```solidity
+// contracts/MyAccountClonable.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {
+  AccountSignerECDSA, // Original
+  AccountSignerECDSAClonable // Adapted for minimal clones with immutable arguments
+} from "@openzeppelin/contracts/account/signers/AccountSignerECDSA.sol";
+
+contract MyAccountClonableImplementation is AccountSignerECDSAClonable {
+    // Arguments don't matter on the implementation.
+    constructor() AccountSignerECDSAClonable(address(0), "", "") {}
+}
+```
+
 === Setting up a factory
+
+To setup a factory, all you need is a xref:account-abstraction.adoc#clonable_accounts[Clonable Account] and implement the `clone` function of the xref:api:account.adoc#AccountFactory[`AccountFactory`] contract
+
+```solidity
+// contracts/MyAccountFactory.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccountFactory} from "@openzeppelin/contracts/account/AccountFactory.sol";
+import {MyAccountClonableImplementation} from "./MyAccountClonableImplementation.sol";
+
+contract MyAccountFactory is AccountFactory {
+    constructor() AccountFactory(address(new MyAccountClonableImplementation())) {}
+
+    function clone(bytes memory encodedSigner, bytes32 salt) external override returns (address) {
+        return _clone(encodedSigner, salt);
+    }
+}
+```
 
 == Paymaster

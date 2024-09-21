@@ -10,8 +10,6 @@ import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 abstract contract AccountBase is IAccount, IAccountExecute, ERC1155Holder, ERC721Holder {
     error AccountEntryPointRestricted();
 
-    IEntryPoint private immutable _entryPoint;
-
     modifier onlyEntryPointOrSelf() {
         _checkEntryPointOrSelf();
         _;
@@ -22,12 +20,8 @@ abstract contract AccountBase is IAccount, IAccountExecute, ERC1155Holder, ERC72
         _;
     }
 
-    constructor(IEntryPoint entryPoint_) {
-        _entryPoint = entryPoint_;
-    }
-
     function entryPoint() public view virtual returns (IEntryPoint) {
-        return _entryPoint;
+        return IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
     }
 
     /// @dev Return the account nonce for the canonical sequence.

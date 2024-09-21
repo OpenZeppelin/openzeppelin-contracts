@@ -9,15 +9,19 @@ abstract contract AccountFactory {
 
     address internal immutable _accountImplementation;
 
-    function predictAddress(bytes memory encodedSigner, bytes32 salt) public view returns (address) {
-        return _accountImplementation.predictDeterministicAddressWithImmutableArgs(encodedSigner, salt);
+    constructor(address accountImplementation) {
+        _accountImplementation = accountImplementation;
     }
 
-    function _clone(bytes memory encodedSigner, bytes32 salt) internal returns (address) {
-        address predicted = predictAddress(encodedSigner, salt);
-        if (predicted.code.length == 0) {
-            _accountImplementation.cloneDeterministicWithImmutableArgs(encodedSigner, salt);
-        }
+    function clone(bytes memory args, bytes32 salt) external virtual returns (address);
+
+    function predictAddress(bytes memory args, bytes32 salt) public view returns (address) {
+        return _accountImplementation.predictDeterministicAddressWithImmutableArgs(args, salt);
+    }
+
+    function _clone(bytes memory args, bytes32 salt) internal returns (address) {
+        address predicted = predictAddress(args, salt);
+        if (predicted.code.length == 0) _accountImplementation.cloneDeterministicWithImmutableArgs(args, salt);
         return predicted;
     }
 }

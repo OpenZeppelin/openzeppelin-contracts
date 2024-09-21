@@ -7,16 +7,10 @@ import {Clones} from "../../proxy/Clones.sol";
 import {AccountSigner} from "./AccountSigner.sol";
 
 abstract contract AccountSignerRSA is AccountSigner {
-    // NOTE: There is no way to store immutable byte arrays in a contract, so we use private instead
-    // This violates the ERC4337 storage access rules if this contract is used as a signer to another
-    // account contract. However, when used as a clone with immutable arguments, the public key can be
-    // stored as immutable.
-    bytes private _e;
-    bytes private _n;
-
-    function signer() public view virtual returns (bytes memory e, bytes memory n) {
-        return (_e, _n);
-    }
+    // NOTE: There is no way to store immutable byte arrays in a contract, so we use a function to return
+    // hardcoded values. This can be avoided using the AccountSignerRSAClonable contract that leverages
+    // immutable arguments.
+    function signer() public view virtual returns (bytes memory e, bytes memory n);
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
         (bytes memory e, bytes memory n) = signer();
