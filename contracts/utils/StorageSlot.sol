@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/StorageSlot.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/StorageSlot.sol)
 // This file was procedurally generated from scripts/generate/templates/StorageSlot.js.
 
 pragma solidity ^0.8.24;
@@ -29,7 +29,7 @@ pragma solidity ^0.8.24;
  * }
  * ```
  *
- * Since version 5.1, this library also support writing and reading value types to and from transient storage.
+ * _Available since version 5.1, this library also support writing and reading value types to and from transient storage.
  *
  *  * Example using transient storage:
  * ```solidity
@@ -219,8 +219,12 @@ library StorageSlot {
         return Int256SlotType.wrap(slot);
     }
 
+    // The following functions support transient storage
+
     /**
      * @dev Load the value held at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tload(AddressSlotType slot) internal view returns (address value) {
         assembly ("memory-safe") {
@@ -230,6 +234,8 @@ library StorageSlot {
 
     /**
      * @dev Store `value` at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tstore(AddressSlotType slot, address value) internal {
         assembly ("memory-safe") {
@@ -239,6 +245,8 @@ library StorageSlot {
 
     /**
      * @dev Load the value held at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tload(BooleanSlotType slot) internal view returns (bool value) {
         assembly ("memory-safe") {
@@ -248,6 +256,8 @@ library StorageSlot {
 
     /**
      * @dev Store `value` at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tstore(BooleanSlotType slot, bool value) internal {
         assembly ("memory-safe") {
@@ -257,6 +267,8 @@ library StorageSlot {
 
     /**
      * @dev Load the value held at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tload(Bytes32SlotType slot) internal view returns (bytes32 value) {
         assembly ("memory-safe") {
@@ -266,6 +278,8 @@ library StorageSlot {
 
     /**
      * @dev Store `value` at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tstore(Bytes32SlotType slot, bytes32 value) internal {
         assembly ("memory-safe") {
@@ -275,6 +289,8 @@ library StorageSlot {
 
     /**
      * @dev Load the value held at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tload(Uint256SlotType slot) internal view returns (uint256 value) {
         assembly ("memory-safe") {
@@ -284,6 +300,8 @@ library StorageSlot {
 
     /**
      * @dev Store `value` at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tstore(Uint256SlotType slot, uint256 value) internal {
         assembly ("memory-safe") {
@@ -293,6 +311,8 @@ library StorageSlot {
 
     /**
      * @dev Load the value held at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tload(Int256SlotType slot) internal view returns (int256 value) {
         assembly ("memory-safe") {
@@ -302,6 +322,8 @@ library StorageSlot {
 
     /**
      * @dev Store `value` at location `slot` in transient storage.
+     *
+     * _Available since v5.1._
      */
     function tstore(Int256SlotType slot, int256 value) internal {
         assembly ("memory-safe") {
