@@ -3,7 +3,6 @@
 pragma solidity ^0.8.20;
 
 import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {ERC165} from "../../utils/introspection/ERC165.sol";
 import {AccountBase} from "../AccountBase.sol";
 import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Address} from "../../utils/Address.sol";
