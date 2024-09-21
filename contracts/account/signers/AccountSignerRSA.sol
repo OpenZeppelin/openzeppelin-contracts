@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {RSA} from "../utils/cryptography/RSA.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {Account} from "./Account.sol";
+import {RSA} from "../../utils/cryptography/RSA.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {AccountSigner} from "./AccountSigner.sol";
 
-abstract contract AccountRSA is Account {
+abstract contract AccountSignerRSA is AccountSigner {
     // NOTE: There is no way to store immutable byte arrays in a contract, so we use private instead
     // This violates the ERC4337 storage access rules if this contract is used as a signer to another
     // account contract. However, when used as a clone with immutable arguments, the public key can be
@@ -24,7 +24,7 @@ abstract contract AccountRSA is Account {
     }
 }
 
-abstract contract AccountRSAClonable is AccountRSA {
+abstract contract AccountSignerRSAClonable is AccountSignerRSA {
     function signer() public view override returns (bytes memory e, bytes memory m) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes, bytes));
     }

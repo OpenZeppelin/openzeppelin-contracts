@@ -7,27 +7,29 @@ This directory includes contracts to build accounts for ERC-4337.
 
 == Core
 
+{{AccountBase}}
+
 {{AccountFactory}}
 
-{{Account}}
+== Account Signers
 
-== Accounts
+{{SignerReadable}}
 
-{{AccountECDSA}}
+{{AccountSigner}}
 
-{{AccountECDSAClonable}}
+{{AccountSignerECDSA}}
 
-{{AccountEIP7702}}
+{{AccountSignerECDSAClonable}}
 
-{{AccountP256}}
+{{AccountSignerEOA}}
 
-{{AccountP256Clonable}}
+{{AccountSignerP256}}
 
-{{AccountRSA}}
+{{AccountSignerP256Clonable}}
 
-{{AccountRSAClonable}}
+{{AccountSignerRSA}}
 
-{{ReadableSigner}}
+{{AccountSignerRSAClonable}}
 
 == ERC7579
 
@@ -40,7 +42,5 @@ This directory includes contracts to build accounts for ERC-4337.
 == Utilities
 
 {{ERC4337Utils}}
-
-{{ERC7739Utils}}
 
 {{ERC7579Utils}}

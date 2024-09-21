@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../interfaces/IERC4337.sol";
-import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
-import {ReadableSigner} from "./ReadableSigner.sol";
-import {AccountBase} from "./AccountBase.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
+import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
+import {SignerReadable} from "./SignerReadable.sol";
+import {AccountBase} from "../AccountBase.sol";
 
-abstract contract Account is AccountBase, ReadableSigner {
+abstract contract AccountSigner is AccountBase, SignerReadable {
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash

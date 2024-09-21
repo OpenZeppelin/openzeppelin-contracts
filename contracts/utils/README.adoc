@@ -60,6 +60,8 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{EIP712}}
 
+{{EIP712NestedUtils}}
+
 {{MessageHashUtils}}
 
 {{SignatureChecker}}

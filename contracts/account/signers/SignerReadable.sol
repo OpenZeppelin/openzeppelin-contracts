@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1271} from "../interfaces/IERC1271.sol";
-import {EIP712} from "../utils/cryptography/EIP712.sol";
-import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
-import {ERC7739Utils} from "./utils/ERC7739Utils.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
+import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
+import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
 
-abstract contract ReadableSigner is EIP712, IERC1271 {
+abstract contract SignerReadable is EIP712, IERC1271 {
     error MismatchedTypedData();
 
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
@@ -26,11 +26,11 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
             bytes32 appSeparator,
             bytes32 contents,
             bytes calldata contentsType
-        ) = ERC7739Utils.parseNestedSignature(signature);
+        ) = EIP712NestedUtils.parseNestedSignature(signature);
 
         bytes32 typedDataHash = MessageHashUtils.toTypedDataHash(
             appSeparator,
-            _signStructHash(ERC7739Utils.TYPED_DATA_TYPEHASH(contentsType), contents)
+            _signStructHash(EIP712NestedUtils.TYPED_DATA_TYPEHASH(contentsType), contents)
         );
 
         if (typedDataHash != hash) revert MismatchedTypedData();
@@ -58,7 +58,7 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
 
     function _isValidPersonalSignature(bytes32 hash, bytes calldata signature) internal view returns (bool) {
         bytes32 signPersonalStructHash = keccak256(
-            abi.encode(ERC7739Utils._PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(hash))
+            abi.encode(EIP712NestedUtils._PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(hash))
         );
         bytes32 hashTypedData = _hashTypedDataV4(signPersonalStructHash);
         return _validateSignature(hashTypedData, signature);

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-library ERC7739Utils {
+library EIP712NestedUtils {
     bytes32 internal constant _PERSONAL_SIGN_TYPEHASH = keccak256("PersonalSign(bytes prefixed)");
 
     error ERC7739InvalidContentsType();

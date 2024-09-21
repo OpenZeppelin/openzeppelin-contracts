@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Account} from "../Account.sol";
 import {Address} from "../../utils/Address.sol";
 import {IERC7579Execution} from "../../interfaces/IERC7579Account.sol";
 import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";

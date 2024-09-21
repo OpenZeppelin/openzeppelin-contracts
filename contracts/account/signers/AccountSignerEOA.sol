@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.20;
 
-import {AccountECDSA} from "./AccountECDSA.sol";
+import {AccountSignerECDSA} from "./AccountSignerECDSA.sol";
 
-abstract contract AccountEIP7702 is AccountECDSA {
-    /// @inheritdoc AccountECDSA
+abstract contract AccountSignerEOA is AccountSignerECDSA {
+    /// @inheritdoc AccountSignerECDSA
     function signer() public view override returns (address) {
         return address(this);
     }

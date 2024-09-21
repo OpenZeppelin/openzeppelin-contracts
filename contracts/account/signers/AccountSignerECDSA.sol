@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {ECDSA} from "../utils/cryptography/ECDSA.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {Account} from "./Account.sol";
+import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {AccountSigner} from "./AccountSigner.sol";
 
-abstract contract AccountECDSA is Account {
+abstract contract AccountSignerECDSA is AccountSigner {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable _signer;
 
@@ -20,7 +20,7 @@ abstract contract AccountECDSA is Account {
     }
 }
 
-abstract contract AccountECDSAClonable is AccountECDSA {
+abstract contract AccountSignerECDSAClonable is AccountSignerECDSA {
     function signer() public view override returns (address) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (address));
     }

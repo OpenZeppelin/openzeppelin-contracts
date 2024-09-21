@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {P256} from "../utils/cryptography/P256.sol";
-import {Clones} from "../proxy/Clones.sol";
-import {Account} from "./Account.sol";
+import {P256} from "../../utils/cryptography/P256.sol";
+import {Clones} from "../../proxy/Clones.sol";
+import {AccountSigner} from "./AccountSigner.sol";
 
-abstract contract AccountP256 is Account {
+abstract contract AccountSignerP256 is AccountSigner {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     bytes32 private immutable _qx;
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -29,7 +29,7 @@ abstract contract AccountP256 is Account {
     }
 }
 
-abstract contract AccountP256Clonable is AccountP256 {
+abstract contract AccountSignerP256Clonable is AccountSignerP256 {
     function signer() public view override returns (bytes32 qx, bytes32 qy) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes32, bytes32));
     }
