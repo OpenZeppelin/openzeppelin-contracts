@@ -19,18 +19,15 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
     mapping(bytes4 => address) private _fallbacks;
 
     modifier onlyModule(uint256 moduleTypeId) {
-        if (!isModuleInstalled(moduleTypeId, msg.sender, msg.data)) {
-            revert ERC7579UninstalledModule(moduleTypeId, msg.sender);
-        }
+        _checkModule(moduleTypeId);
         _;
     }
 
-    /// @inheritdoc IERC7579ModuleConfig
-    function installModule(
-        uint256 moduleTypeId,
-        address module,
-        bytes calldata initData
-    ) public virtual /* onlyEntryPointOrSelf */ {
+    function _fallbackHandler(bytes4 selector) internal view virtual returns (address) {
+        return _fallbacks[selector];
+    }
+
+    function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual {
         if (!IERC7579Module(module).isModuleType(moduleTypeId))
             revert ERC7579MismatchedModuleTypeId(moduleTypeId, module);
         if (
@@ -45,12 +42,7 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
         emit ModuleInstalled(moduleTypeId, module);
     }
 
-    /// @inheritdoc IERC7579ModuleConfig
-    function uninstallModule(
-        uint256 moduleTypeId,
-        address module,
-        bytes calldata deInitData
-    ) public virtual /* onlyEntryPointOrSelf */ {
+    function _uninstallModule(uint256 moduleTypeId, address module, bytes calldata deInitData) internal virtual {
         if (
             (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.remove(module)) ||
             (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.remove(module)) ||
@@ -69,6 +61,14 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
         address module,
         bytes calldata additionalContext
     ) public view virtual returns (bool) {
+        return _isModuleInstalled(moduleTypeId, module, additionalContext);
+    }
+
+    function _isModuleInstalled(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata additionalContext
+    ) internal view virtual returns (bool) {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
         if (moduleTypeId == MODULE_TYPE_FALLBACK) return _fallbacks[bytes4(additionalContext[0:4])] != module;
@@ -86,5 +86,11 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
         if (handler == address(0) || handler != module) return false;
         delete _fallbacks[selector];
         return true;
+    }
+
+    function _checkModule(uint256 moduleTypeId) internal view {
+        if (!_isModuleInstalled(moduleTypeId, msg.sender, msg.data)) {
+            revert ERC7579UninstalledModule(moduleTypeId, msg.sender);
+        }
     }
 }

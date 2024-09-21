@@ -11,8 +11,11 @@ abstract contract ReadableSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
 
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
-        bool success = _isValidNestedSignature(hash, signature) || _isValidPersonalSignature(hash, signature);
-        return success ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
+        return _isValidSignature(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
+    }
+
+    function _isValidSignature(bytes32 hash, bytes calldata signature) internal view virtual returns (bool) {
+        return _isValidNestedSignature(hash, signature) || _isValidPersonalSignature(hash, signature);
     }
 
     /// EIP 712

@@ -15,16 +15,14 @@ abstract contract ERC7579Execution is IERC7579Execution {
     error ERC7579UnsupportedExecType(ExecType execType);
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
 
-    /// @inheritdoc IERC7579Execution
-    function execute(bytes32 mode, bytes calldata executionCalldata) public virtual /* onlyEntryPointOrSelf */ {
+    function _execute(bytes32 mode, bytes calldata executionCalldata) internal virtual {
         _call(Mode.wrap(mode), executionCalldata);
     }
 
-    /// @inheritdoc IERC7579Execution
-    function executeFromExecutor(
+    function _executeFromExecutor(
         bytes32 mode,
-        bytes calldata executionCalldata /* onlyModule(MODULE_TYPE_EXECUTOR) */
-    ) public virtual returns (bytes[] memory) {
+        bytes calldata executionCalldata
+    ) internal virtual returns (bytes[] memory) {
         return _call(Mode.wrap(mode), executionCalldata);
     }
 
@@ -41,7 +39,7 @@ abstract contract ERC7579Execution is IERC7579Execution {
     function _callSingle(
         ExecType execType,
         bytes calldata executionCalldata
-    ) internal virtual returns (bytes[] memory returnData) {
+    ) private returns (bytes[] memory returnData) {
         (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
         returnData = new bytes[](1);
         returnData[0] = _call(0, execType, target, value, callData);
@@ -50,7 +48,7 @@ abstract contract ERC7579Execution is IERC7579Execution {
     function _callBatch(
         ExecType execType,
         bytes calldata executionCalldata
-    ) internal virtual returns (bytes[] memory returnData) {
+    ) private returns (bytes[] memory returnData) {
         Execution[] calldata executionBatch = executionCalldata.decodeBatch();
         returnData = new bytes[](executionBatch.length);
         for (uint256 i = 0; i < executionBatch.length; ++i) {
@@ -67,7 +65,7 @@ abstract contract ERC7579Execution is IERC7579Execution {
     function _delegateCall(
         ExecType execType,
         bytes calldata executionCalldata
-    ) internal virtual returns (bytes[] memory returnData) {
+    ) private returns (bytes[] memory returnData) {
         (address target, bytes calldata callData) = executionCalldata.decodeDelegate();
         returnData = new bytes[](1);
         (bool success, bytes memory returndata) = target.delegatecall(callData);
@@ -91,7 +89,7 @@ abstract contract ERC7579Execution is IERC7579Execution {
         ExecType execType,
         bool success,
         bytes memory returndata
-    ) internal virtual returns (bytes memory) {
+    ) private returns (bytes memory) {
         if (execType == ERC7579Utils.EXECTYPE_DEFAULT) return Address.verifyCallResult(success, returndata);
         if (execType == ERC7579Utils.EXECTYPE_TRY) {
             if (!success) emit ERC7579TryExecuteFail(index, returndata);
