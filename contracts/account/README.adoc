@@ -13,7 +13,7 @@ This directory includes contracts to build accounts for ERC-4337.
 
 == Signers
 
-{{SignerReadable}}
+{{EIP712Signer}}
 
 {{AccountSigner}}
 

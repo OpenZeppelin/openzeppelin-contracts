@@ -4,21 +4,11 @@ pragma solidity ^0.8.20;
 
 import {P256} from "../../utils/cryptography/P256.sol";
 import {Clones} from "../../proxy/Clones.sol";
-import {AccountSigner} from "./AccountSigner.sol";
+import {EIP712Signer} from "./EIP712Signer.sol";
 
-abstract contract AccountSignerP256 is AccountSigner {
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    bytes32 private immutable _qx;
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    bytes32 private immutable _qy;
-
-    constructor(bytes32 qx, bytes32 qy) {
-        _qx = qx;
-        _qy = qy;
-    }
-
+abstract contract SignerP256 is EIP712Signer {
     function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
-        return (_qx, _qy);
+        return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes32, bytes32));
     }
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
@@ -31,11 +21,5 @@ abstract contract AccountSignerP256 is AccountSigner {
         // fetch and decode immutable public key for the clone
         (bytes32 qx, bytes32 qy) = signer();
         return P256.verify(hash, r, s, qx, qy);
-    }
-}
-
-abstract contract AccountSignerP256Clonable is AccountSignerP256 {
-    function signer() public view override returns (bytes32 qx, bytes32 qy) {
-        return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes32, bytes32));
     }
 }

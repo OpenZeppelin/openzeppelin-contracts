@@ -6,9 +6,16 @@ import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
 import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
+import {ShortStrings} from "../../utils/ShortStrings.sol";
 
-abstract contract SignerReadable is EIP712, IERC1271 {
+abstract contract EIP712Signer is EIP712, IERC1271 {
     error MismatchedTypedData();
+
+    constructor(string memory name, string memory version) EIP712(name, version) {
+        // Both revert if the string is too long. This avoids the need of reading from storage on every signature validation.
+        ShortStrings.toShortString(name);
+        ShortStrings.toShortString(version);
+    }
 
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
         return _isValidSignature(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);

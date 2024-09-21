@@ -107,4 +107,3 @@ abstract contract ERC7579Account is
         }
     }
 }
-

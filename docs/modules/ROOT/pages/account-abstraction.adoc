@@ -2,7 +2,7 @@
 
 Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
 
-OpenZeppelin Contracts provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, recovery mechanisms and modularity with standards such as https://eips.ethereum.org/EIPS/eip-7579[ERC-7579].
+OpenZeppelin Contracts provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, recovery mechanisms and modularity with standards such as xref:erc7579.adoc#ERC7579[ERC-7579].
 
 == ERC-4337 Overview
 
@@ -42,7 +42,7 @@ During the process, the bundler pays for the gas of executing the transaction an
 
 The Account Contract is the implementation logic (i.e. Solidity code) that validates user operations and is defined by the Account developer. 
 
-NOTE: To build your own account, see xref:account-abstraction.adoc#smart_contract_wallets_swc[Smart Contract Wallet].
+NOTE: To build your own account, see xref:account-abstraction.adoc#smart_accounts[Smart Accounts].
 
 === Factory Contract
 
@@ -56,9 +56,9 @@ A Paymaster is an optional entity that can sponsor gas fees for Accounts, or all
 
 NOTE: To build your own factory, see xref:account-abstraction.adoc#paymaster[Paymaster].
 
-== Smart Contract Wallets (SWC)
+== Smart Accounts
 
-A Smart Contract Wallet (or simply xref:api:account.adoc[`Account`]) is a type of smart contract implements the logic required to validate an `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
+A Smart Account (or simply xref:api:account.adoc[`Account`]) is a type of smart contract implements the logic required to validate an `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
 
 ```solidity
 interface IAccount {
@@ -90,13 +90,14 @@ A Signer account can be extended as follows:
 pragma solidity ^0.8.20;
 
 import {AccountSignerECDSA} from "@openzeppelin/contracts/account/signers/AccountSignerECDSA.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
 
 contract MyAccountECDSA is AccountSignerECDSA {
     constructor(
         address signerAddr,
         string memory name,
         string memory version
-    ) AccountSignerECDSA(signerAddr, name, version) {}
+    ) AccountSignerECDSA(signerAddr) EIP712(name, version) {}
 
     /// ...
 }
@@ -104,7 +105,7 @@ contract MyAccountECDSA is AccountSignerECDSA {
 
 IMPORTANT: Accounts must be deployed via an xref:api:account.adoc#AccountFactory[`AccountFactory`] instead of deployed directly.
 
-=== ERC-7562 Validation Rules
+==== ERC-7562 Validation Rules
 
 A naive approach to implement an Account contract with a signer would be to store its public key in the account's storage for future validation and, ideally, would expose the xref:api:interfaces::IERC1271[`IERC1271`] interface (smart contract signatures) to act as a validator in more complex setups (e.g. a multisignature). 
 
@@ -112,13 +113,19 @@ However, the validation phase of ERC-4337 forbids access to external storage acc
 
 For this reason, the Signer contracts store the public key for its corresponding validation algorithm in immutable arguments so that the contract is tied to the signer and can validate messages on-chain without accessing storage.
 
-=== Readable Typed Signatures
+==== Readable Typed Signatures
 
 A common security practice to prevent user operation https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU[replayability across smart contract accounts controlled by the same private key] (i.e. multiple accounts for the same signer) is to link the signature to the `address` and `chainId`. This can be done by asking the user to sign the hash of the user operation along with this values.
 
 The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
 
-To prevent this, each smart contract signer inherits from xref:api:account#SignerReadable[`SignerReadable`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+To prevent this, each smart contract signer inherits from xref:api:account#EIP712Signer[`EIP712Signer`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+
+=== Modules
+
+Modules are a way to extend functionality of an smart account. Given the variety of smart account implementations, a common approach has been to enable a system of modules to which accounts can delegate logic. As a result, the community has proposed xref:erc7579.adoc#ERC7579[ERC-7579] as a minimal generalized approach to smart account modules.
+
+OpenZeppelin's xref:api:account.adoc#ERC7579Account[`ERC7579Account`] is an ERC-7579 compliant implementation that works without a signer, and instead, requires a validator module to be enabled on the account. This validator module might be any
 
 == Account Factory
 
