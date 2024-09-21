@@ -14,18 +14,18 @@ abstract contract ERC7579Execution is IERC7579Execution {
     error ERC7579UnsupportedExecType(ExecType execType);
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
 
-    function _execute(bytes32 mode, bytes calldata executionCalldata) internal virtual {
-        _call(Mode.wrap(mode), executionCalldata);
+    function _supportsExecutionMode(bytes32 encodedMode) internal view virtual returns (bool) {
+        (CallType callType, , , ) = Mode.wrap(encodedMode).decodeMode();
+        return
+            callType == ERC7579Utils.CALLTYPE_SINGLE ||
+            callType == ERC7579Utils.CALLTYPE_BATCH ||
+            callType == ERC7579Utils.CALLTYPE_DELEGATECALL;
     }
 
-    function _executeFromExecutor(
-        bytes32 mode,
+    function _execute(
+        Mode mode,
         bytes calldata executionCalldata
-    ) internal virtual returns (bytes[] memory) {
-        return _call(Mode.wrap(mode), executionCalldata);
-    }
-
-    function _call(Mode mode, bytes calldata executionCalldata) internal virtual returns (bytes[] memory returnData) {
+    ) internal virtual returns (bytes[] memory returnData) {
         // TODO: ModeSelector? ModePayload?
         (CallType callType, ExecType execType, , ) = mode.decodeMode();
 

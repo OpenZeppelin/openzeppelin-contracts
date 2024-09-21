@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 import {P256} from "../../utils/cryptography/P256.sol";
 import {Clones} from "../../proxy/Clones.sol";
 import {AccountSigner} from "./AccountSigner.sol";
-import {EIP712} from "../../utils/cryptography/EIP712.sol";
 
 abstract contract AccountSignerP256 is AccountSigner {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -13,7 +12,7 @@ abstract contract AccountSignerP256 is AccountSigner {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     bytes32 private immutable _qy;
 
-    constructor(bytes32 qx, bytes32 qy, string memory name, string memory version) EIP712(name, version) {
+    constructor(bytes32 qx, bytes32 qy) {
         _qx = qx;
         _qy = qy;
     }

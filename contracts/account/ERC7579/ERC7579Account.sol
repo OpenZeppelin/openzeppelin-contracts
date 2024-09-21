@@ -20,8 +20,6 @@ abstract contract ERC7579Account is
     IERC7579AccountConfig,
     IERC1271
 {
-    using ERC7579Utils for *;
-
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
         address module = address(bytes20(signature[0:20]));
@@ -31,7 +29,7 @@ abstract contract ERC7579Account is
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal override returns (address signer, uint256 validationData) {
+    ) internal virtual override returns (address signer, uint256 validationData) {
         PackedUserOperation memory userOpCopy = userOp;
         address module = address(bytes20(userOp.signature[0:20]));
         userOpCopy.signature = userOp.signature[20:];
@@ -49,24 +47,17 @@ abstract contract ERC7579Account is
 
     /// @inheritdoc IERC7579AccountConfig
     function supportsExecutionMode(bytes32 encodedMode) public view virtual returns (bool) {
-        (CallType callType, , , ) = Mode.wrap(encodedMode).decodeMode();
-        return
-            callType == ERC7579Utils.CALLTYPE_SINGLE ||
-            callType == ERC7579Utils.CALLTYPE_BATCH ||
-            callType == ERC7579Utils.CALLTYPE_DELEGATECALL;
+        return _supportsExecutionMode(encodedMode);
     }
 
     /// @inheritdoc IERC7579AccountConfig
     function supportsModule(uint256 moduleTypeId) public view virtual returns (bool) {
-        return
-            moduleTypeId == MODULE_TYPE_VALIDATOR ||
-            moduleTypeId == MODULE_TYPE_EXECUTOR ||
-            moduleTypeId == MODULE_TYPE_FALLBACK;
+        return _supportsModule(moduleTypeId);
     }
 
     /// @inheritdoc IERC7579Execution
     function execute(bytes32 mode, bytes calldata executionCalldata) public virtual onlyEntryPointOrSelf {
-        _execute(mode, executionCalldata);
+        _execute(Mode.wrap(mode), executionCalldata);
     }
 
     /// @inheritdoc IERC7579Execution
@@ -74,7 +65,7 @@ abstract contract ERC7579Account is
         bytes32 mode,
         bytes calldata executionCalldata
     ) public virtual onlyModule(MODULE_TYPE_EXECUTOR) returns (bytes[] memory) {
-        return _executeFromExecutor(mode, executionCalldata);
+        return _execute(Mode.wrap(mode), executionCalldata);
     }
 
     /// @inheritdoc IERC7579ModuleConfig
@@ -116,3 +107,4 @@ abstract contract ERC7579Account is
         }
     }
 }
+

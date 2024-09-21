@@ -13,6 +13,7 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
     error ERC7579MismatchedModuleTypeId(uint256 moduleTypeId, address module);
     error ERC7579UninstalledModule(uint256 moduleTypeId, address module);
     error ERC7579AlreadyInstalledModule(uint256 moduleTypeId, address module);
+    error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
     EnumerableSet.AddressSet private _validators;
     EnumerableSet.AddressSet private _executors;
@@ -23,11 +24,19 @@ abstract contract ERC7579ModuleConfig is IERC7579ModuleConfig {
         _;
     }
 
+    function _supportsModule(uint256 moduleTypeId) internal view virtual returns (bool) {
+        return
+            moduleTypeId == MODULE_TYPE_VALIDATOR ||
+            moduleTypeId == MODULE_TYPE_EXECUTOR ||
+            moduleTypeId == MODULE_TYPE_FALLBACK;
+    }
+
     function _fallbackHandler(bytes4 selector) internal view virtual returns (address) {
         return _fallbacks[selector];
     }
 
     function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual {
+        if (!_supportsModule(moduleTypeId)) revert ERC7579UnsupportedModuleType(moduleTypeId);
         if (!IERC7579Module(module).isModuleType(moduleTypeId))
             revert ERC7579MismatchedModuleTypeId(moduleTypeId, module);
         if (

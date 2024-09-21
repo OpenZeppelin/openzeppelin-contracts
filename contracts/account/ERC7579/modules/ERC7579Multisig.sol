@@ -9,19 +9,20 @@ import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
 import {ERC4337Utils} from "../../utils/ERC4337Utils.sol";
 
-contract ERC7579MultiSigner is IERC7579Validator, IERC1271 {
+contract ERC7579Multisig is IERC7579Validator, IERC1271 {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SignatureChecker for address;
 
-    event SignerAdded(address indexed account);
-    event SignerRemoved(address indexed account);
+    event SignersAdded(address[] indexed accounts);
+    event SignersRemoved(address[] indexed accounts);
     event ThresholdChanged(uint256 threshold);
 
-    error SignerAlreadyExists(address account);
-    error SignerDoesNotExist(address account);
-    error UnreachableThreshold();
-    error RemainingSigners();
-    error MismatchedSignerSignatures();
+    error MultisigSignerAlreadyExists(address account);
+    error MultisigSignerDoesNotExist(address account);
+    error MultisigUnreachableThreshold(uint256 signers, uint256 threshold);
+    error MultisigRemainingSigners(uint256 remaining);
+    error MultisigMismatchedSignaturesLength(uint256 signersLength, uint256 signaturesLength);
+    error MultisigUnorderedSigners(address prev, address current);
 
     uint256 private _threshold;
     EnumerableSet.AddressSet private _signers;
@@ -34,24 +35,28 @@ contract ERC7579MultiSigner is IERC7579Validator, IERC1271 {
         return _signers.contains(account);
     }
 
-    function addSigner(address account) external virtual {
-        _addSigner(account);
+    function addSigners(address[] memory accounts) external virtual {
+        _addSigners(accounts);
         _validateThreshold();
     }
 
-    function _addSigner(address account) internal {
-        if (!_signers.add(account)) revert SignerAlreadyExists(account);
-        emit SignerAdded(account);
+    function _addSigners(address[] memory accounts) internal virtual {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (!_signers.add(accounts[i])) revert MultisigSignerAlreadyExists(accounts[i]);
+        }
+        emit SignersAdded(accounts);
     }
 
-    function removeSigner(address account) external virtual {
-        _removeSigner(account);
+    function removeSigners(address[] memory accounts) external virtual {
+        _removeSigners(accounts);
         _validateThreshold();
     }
 
-    function _removeSigner(address account) internal {
-        if (!_signers.remove(account)) revert SignerDoesNotExist(account);
-        emit SignerRemoved(account);
+    function _removeSigners(address[] memory accounts) internal virtual {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (!_signers.remove(accounts[i])) revert MultisigSignerDoesNotExist(accounts[i]);
+        }
+        emit SignersRemoved(accounts);
     }
 
     function setThreshold(uint256 threshold_) external virtual {
@@ -59,33 +64,31 @@ contract ERC7579MultiSigner is IERC7579Validator, IERC1271 {
         _validateThreshold();
     }
 
-    function _setThreshold(uint256 threshold_) internal {
+    function _setThreshold(uint256 threshold_) internal virtual {
         _threshold = threshold_;
         emit ThresholdChanged(threshold_);
     }
 
-    function _validateThreshold() internal view {
-        if (_signers.length() < _threshold) revert UnreachableThreshold();
+    function _validateThreshold() internal view virtual {
+        uint256 signers = _signers.length();
+        if (signers < _threshold) revert MultisigUnreachableThreshold(signers, _threshold);
     }
 
     /// @inheritdoc IERC7579Module
     function onInstall(bytes calldata data) external {
         (address[] memory signers, uint256 threshold_) = abi.decode(data, (address[], uint256));
         _threshold = threshold_;
-        for (uint256 i = 0; i < signers.length; i++) {
-            _addSigner(signers[i]);
-        }
+        _addSigners(signers);
         _validateThreshold();
     }
 
     /// @inheritdoc IERC7579Module
     function onUninstall(bytes calldata data) external {
         address[] memory signers = abi.decode(data, (address[]));
-        for (uint256 i = 0; i < signers.length; i++) {
-            _removeSigner(signers[i]);
-        }
         _threshold = 0;
-        if (_signers.length() != 0) revert RemainingSigners();
+        _removeSigners(signers);
+        uint256 remaining = _signers.length();
+        if (remaining != 0) revert MultisigRemainingSigners(remaining);
     }
 
     /// @inheritdoc IERC7579Module
@@ -108,17 +111,21 @@ contract ERC7579MultiSigner is IERC7579Validator, IERC1271 {
 
     function _isValidSignature(bytes32 hash, bytes calldata signature) internal view returns (bool) {
         (address[] memory signers, bytes[] memory signatures) = abi.decode(signature, (address[], bytes[]));
-        if (signers.length != signatures.length) revert MismatchedSignerSignatures();
-        // TODO: Check signers uniqueness
+        if (signers.length != signatures.length)
+            revert MultisigMismatchedSignaturesLength(signers.length, signatures.length);
+
         uint256 count = 0;
+        address currentSigner = address(0);
 
         for (uint256 i = 0; i < signers.length; i++) {
+            // Signers must be in order to ensure no duplicates
             address signer = signers[i];
+            if (currentSigner >= signer) revert MultisigUnorderedSigners(currentSigner, signer);
+            currentSigner = signer;
+
             bool canSign = isSigner(signer);
             bool isValid = signer.isValidSignatureNow(hash, signatures[i]);
-            if (canSign && isValid) {
-                count++;
-            }
+            if (canSign && isValid) count++;
         }
 
         return count >= threshold();
