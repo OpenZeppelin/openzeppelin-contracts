@@ -13,7 +13,7 @@ import {ERC7579ModuleConfig} from "./ERC7579ModuleConfig.sol";
 import {ERC7579Execution} from "./ERC7579Execution.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
-abstract contract ERC7579Account is
+abstract contract AccountERC7579 is
     AccountBase,
     ERC7579Execution,
     ERC7579ModuleConfig,
