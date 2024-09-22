@@ -1,0 +1,226 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {IERC1271} from "../interfaces/IERC1271.sol";
+import {AccountBase} from "./AccountBase.sol";
+import {PackedUserOperation} from "../interfaces/IERC4337.sol";
+import {Address} from "../utils/Address.sol";
+import {IERC7579AccountConfig, IERC7579Execution, IERC7579ModuleConfig} from "../interfaces/IERC7579Account.sol";
+import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK, MODULE_TYPE_HOOK} from "../interfaces/IERC7579Module.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "./utils/ERC7579Utils.sol";
+import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
+import {EnumerableSet} from "../utils/structs/EnumerableSet.sol";
+
+abstract contract AccountERC7579 is
+    AccountBase,
+    IERC7579ModuleConfig,
+    IERC7579Execution,
+    IERC7579AccountConfig,
+    IERC1271
+{
+    using ERC7579Utils for *;
+    using EnumerableSet for *;
+
+    error ERC7579MismatchedModuleTypeId(uint256 moduleTypeId, address module);
+    error ERC7579UninstalledModule(uint256 moduleTypeId, address module);
+    error ERC7579AlreadyInstalledModule(uint256 moduleTypeId, address module);
+    error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
+
+    EnumerableSet.AddressSet private _validators;
+    EnumerableSet.AddressSet private _executors;
+    mapping(bytes4 => address) private _fallbacks;
+
+    modifier onlyModule(uint256 moduleTypeId) {
+        _checkModule(moduleTypeId);
+        _;
+    }
+
+    /// @inheritdoc IERC1271
+    function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
+        address module = address(bytes20(signature[0:20]));
+        return IERC7579Validator(module).isValidSignatureWithSender(msg.sender, hash, signature);
+    }
+
+    /// @inheritdoc IERC7579AccountConfig
+    function accountId() public view virtual returns (string memory) {
+        //vendorname.accountname.semver
+        return "@openzeppelin/contracts.erc7579account.v0-beta";
+    }
+
+    /// @inheritdoc IERC7579AccountConfig
+    function supportsExecutionMode(bytes32 encodedMode) public view virtual returns (bool) {
+        return _supportsExecutionMode(encodedMode);
+    }
+
+    /// @inheritdoc IERC7579AccountConfig
+    function supportsModule(uint256 moduleTypeId) public view virtual returns (bool) {
+        return _supportsModule(moduleTypeId);
+    }
+
+    /// @inheritdoc IERC7579Execution
+    function execute(bytes32 mode, bytes calldata executionCalldata) public virtual onlyEntryPointOrSelf {
+        _execute(Mode.wrap(mode), executionCalldata);
+    }
+
+    /// @inheritdoc IERC7579Execution
+    function executeFromExecutor(
+        bytes32 mode,
+        bytes calldata executionCalldata
+    ) public virtual onlyModule(MODULE_TYPE_EXECUTOR) returns (bytes[] memory) {
+        return _execute(Mode.wrap(mode), executionCalldata);
+    }
+
+    /// @inheritdoc IERC7579ModuleConfig
+    function isModuleInstalled(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata additionalContext
+    ) public view virtual returns (bool) {
+        return _isModuleInstalled(moduleTypeId, module, additionalContext);
+    }
+
+    /// @inheritdoc IERC7579ModuleConfig
+    function installModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata initData
+    ) public virtual onlyEntryPointOrSelf {
+        _installModule(moduleTypeId, module, initData);
+    }
+
+    /// @inheritdoc IERC7579ModuleConfig
+    function uninstallModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata deInitData
+    ) public virtual onlyEntryPointOrSelf {
+        _uninstallModule(moduleTypeId, module, deInitData);
+    }
+
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal virtual override returns (address signer, uint256 validationData) {
+        PackedUserOperation memory userOpCopy = userOp;
+        address module = address(bytes20(userOp.signature[0:20]));
+        userOpCopy.signature = userOp.signature[20:];
+        return
+            isModuleInstalled(MODULE_TYPE_EXECUTOR, module, userOp.signature[0:0])
+                ? (module, IERC7579Validator(module).validateUserOp(userOpCopy, userOpHash))
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+    }
+
+    function _supportsExecutionMode(bytes32 encodedMode) internal pure virtual returns (bool) {
+        (CallType callType, , , ) = Mode.wrap(encodedMode).decodeMode();
+        return
+            callType == ERC7579Utils.CALLTYPE_SINGLE ||
+            callType == ERC7579Utils.CALLTYPE_BATCH ||
+            callType == ERC7579Utils.CALLTYPE_DELEGATECALL;
+    }
+
+    function _execute(
+        Mode mode,
+        bytes calldata executionCalldata
+    ) internal virtual returns (bytes[] memory returnData) {
+        // TODO: ModeSelector? ModePayload?
+        (CallType callType, ExecType execType, , ) = mode.decodeMode();
+
+        if (callType == ERC7579Utils.CALLTYPE_SINGLE) return ERC7579Utils.execSingle(execType, executionCalldata);
+        if (callType == ERC7579Utils.CALLTYPE_BATCH) return ERC7579Utils.execBatch(execType, executionCalldata);
+        if (callType == ERC7579Utils.CALLTYPE_DELEGATECALL)
+            return ERC7579Utils.execDelegateCall(execType, executionCalldata);
+        revert ERC7579Utils.ERC7579UnsupportedCallType(callType);
+    }
+
+    function _isModuleInstalled(
+        uint256 moduleTypeId,
+        address module,
+        bytes calldata additionalContext
+    ) internal view virtual returns (bool) {
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
+        if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) return _fallbacks[bytes4(additionalContext[0:4])] != module;
+        return false;
+    }
+
+    function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual {
+        if (!_supportsModule(moduleTypeId)) revert ERC7579UnsupportedModuleType(moduleTypeId);
+        if (!IERC7579Module(module).isModuleType(moduleTypeId))
+            revert ERC7579MismatchedModuleTypeId(moduleTypeId, module);
+        if (
+            (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.add(module)) ||
+            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.add(module)) ||
+            (moduleTypeId == MODULE_TYPE_FALLBACK && !_installFallback(module, bytes4(initData[0:4])))
+        ) revert ERC7579AlreadyInstalledModule(moduleTypeId, module);
+
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) initData = initData[4:];
+
+        IERC7579Module(module).onInstall(initData);
+        emit ModuleInstalled(moduleTypeId, module);
+    }
+
+    function _uninstallModule(uint256 moduleTypeId, address module, bytes calldata deInitData) internal virtual {
+        if (
+            (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.remove(module)) ||
+            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.remove(module)) ||
+            (moduleTypeId == MODULE_TYPE_FALLBACK && !_uninstallFallback(module, bytes4(deInitData[0:4])))
+        ) revert ERC7579UninstalledModule(moduleTypeId, module);
+
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) deInitData = deInitData[4:];
+
+        IERC7579Module(module).onUninstall(deInitData);
+        emit ModuleUninstalled(moduleTypeId, module);
+    }
+
+    function _installFallback(address module, bytes4 selector) internal virtual returns (bool) {
+        if (_fallbacks[selector] != address(0)) return false;
+        _fallbacks[selector] = module;
+        return true;
+    }
+
+    function _uninstallFallback(address module, bytes4 selector) internal virtual returns (bool) {
+        address handler = _fallbacks[selector];
+        if (handler == address(0) || handler != module) return false;
+        delete _fallbacks[selector];
+        return true;
+    }
+
+    function _checkModule(uint256 moduleTypeId) internal view virtual {
+        if (!_isModuleInstalled(moduleTypeId, msg.sender, msg.data)) {
+            revert ERC7579UninstalledModule(moduleTypeId, msg.sender);
+        }
+    }
+
+    function _supportsModule(uint256 moduleTypeId) internal view virtual returns (bool) {
+        return
+            moduleTypeId == MODULE_TYPE_VALIDATOR ||
+            moduleTypeId == MODULE_TYPE_EXECUTOR ||
+            moduleTypeId == MODULE_TYPE_FALLBACK;
+    }
+
+    function _fallbackHandler(bytes4 selector) internal view virtual returns (address) {
+        return _fallbacks[selector];
+    }
+
+    fallback() external payable virtual {
+        address handler = _fallbackHandler(msg.sig);
+        if (handler == address(0)) revert ERC7579UninstalledModule(MODULE_TYPE_FALLBACK, address(0));
+
+        // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
+        // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
+        // - MUST use call to invoke the fallback handler
+        (bool success, bytes memory returndata) = handler.call{value: msg.value}(
+            abi.encodePacked(msg.data, msg.sender)
+        );
+        assembly ("memory-safe") {
+            switch success
+            case 0 {
+                revert(add(returndata, 0x20), mload(returndata))
+            }
+            default {
+                return(add(returndata, 0x20), mload(returndata))
+            }
+        }
+    }
+}

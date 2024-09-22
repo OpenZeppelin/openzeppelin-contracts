@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC1271} from "../../../interfaces/IERC1271.sol";
-import {PackedUserOperation} from "../../../interfaces/IERC4337.sol";
-import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR} from "../../../interfaces/IERC7579Module.sol";
-import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
-import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
-import {ERC4337Utils} from "../../utils/ERC4337Utils.sol";
+import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
+import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC7579Module.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
+import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
+import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
 contract ERC7579MultisigValidator is IERC7579Validator, IERC1271 {
     using EnumerableSet for EnumerableSet.AddressSet;
