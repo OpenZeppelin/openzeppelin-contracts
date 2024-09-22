@@ -74,84 +74,78 @@ interface IAccountExecute {
 }
 ```
 
-OpenZeppelin provides an implementation of an xref:api:account.adoc#AccountBase[`AccountBase`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
+OpenZeppelin provides an abstract implementation of an xref:api:account.adoc#AccountBase[`AccountBase`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
+
+Since developers should implement xref:api:account.adoc#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`_validateUserOp`] to use the account, the library provides 2 mechanisms to validate user operations. The user should select one of these to build an account.
+
+- **Signers**: An non-upgradeable account that is controlled by a private key and stores its corresponding public key in immutable arguments.
+- **Modules**: An account that is controlled by validator and executor modules.
 
 === Signers
 
+An xref:account.adoc#AccountSigner[`AccountSigner`] is useful to create accounts that are controlled by a https://en.wikipedia.org/wiki/Digital_signature[digital signature] verification algorithm.
+
 Generally speaking, blockchains use the properties of https://en.wikipedia.org/wiki/Digital_signature[digital signatures] to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations for a given off-chain signer (i.e. a private key).
 
-In this context, a Signer is a contract that stores the public key corresponding to an off-chain private key that works with a custom digital signature verification algorithm. Each signer stores the public key in immutable arguments for better signature interoperability.
-
-A Signer account can be extended as follows:
+To setup an account signer, start by inheriting from `AccountSigner` and an xref:api:account.adoc#EIP712ReadableSigner[`EIP712ReadableSigner`]:
 
 ```solidity
 // contracts/MyAccountECDSA.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {AccountSignerECDSA} from "@openzeppelin/contracts/account/signers/AccountSignerECDSA.sol";
-import {EIP712} from "../../utils/cryptography/EIP712.sol";
+import {AccountSigner} from "./AccountSigner.sol";
+import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
+import {SignerECDSA} from "./SignerECDSA.sol";
 
-contract MyAccountECDSA is AccountSignerECDSA {
-    constructor(
-        address signerAddr,
-        string memory name,
-        string memory version
-    ) AccountSignerECDSA(signerAddr) EIP712(name, version) {}
+contract MyAccountECDSA is AccountSigner, SignerECDSA {
+    constructor(address signerAddr, string memory name, string memory version) EIP712ReadableSigner(name, version) {}
 
     /// ...
 }
 ```
 
-IMPORTANT: Accounts must be deployed via an xref:api:account.adoc#AccountFactory[`AccountFactory`] instead of deployed directly.
+IMPORTANT: Accounts must be deployed via an xref:api:account.adoc#AccountFactory[`AccountFactory`] instead of deployed directly. Deploying the account directly will leave it unusable.
 
 ==== ERC-7562 Validation Rules
 
-A naive approach to implement an Account contract with a signer would be to store its public key in the account's storage for future validation and, ideally, would expose the xref:api:interfaces::IERC1271[`IERC1271`] interface (smart contract signatures) to act as a validator in more complex setups (e.g. a multisignature). 
+A naive approach to implement an AccountSigner would be to store its public key in the account's storage for future validation and, ideally, expose the xref:api:interfaces::IERC1271[`IERC1271`] interface (smart contract signatures) to act as a validator in more complex setups (e.g. a multisignature). 
 
-However, the validation phase of ERC-4337 forbids access to external storage according to the https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] validation rules. Unfortunately, this rules limit the interoperability of signers unless the public key is stored somewhere other than storage.
+However, the validation phase of ERC-4337 forbids access to external storage according to the https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] validation rules. Unfortunately, this rules limit the interoperability of signer contracts unless the public key is stored somewhere other than storage.
 
-For this reason, the Signer contracts store the public key for its corresponding validation algorithm in immutable arguments so that the contract is tied to the signer and can validate messages on-chain without accessing storage.
+For this reason, each AccountSigner contract store the public key for its corresponding validation algorithm in immutable arguments so that the contract is tied to the signer and can validate messages on-chain without accessing storage. Unfortunately, AccountSigners are not upgradeable
 
 ==== Readable Typed Signatures
 
-A common security practice to prevent user operation https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU[replayability across smart contract accounts controlled by the same private key] (i.e. multiple accounts for the same signer) is to link the signature to the `address` and `chainId`. This can be done by asking the user to sign the hash of the user operation along with this values.
+A common security practice to prevent user operation https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU[replayability across smart contract accounts controlled by the same private key] (i.e. multiple accounts for the same signer) is to link the signature to the `address` and `chainId`. This can be done by asking the user to sign the hash of the user operation along with these values.
 
 The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
 
-To prevent this, each smart contract signer inherits from xref:api:account#EIP712Signer[`EIP712Signer`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+To prevent this, each smart contract signer inherits from xref:api:account#EIP712ReadableSigner[`EIP712ReadableSigner`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
 
 === Modules
 
 Modules are a way to extend functionality of an smart account. Given the variety of smart account implementations, a common approach has been to enable a system of modules to which accounts can delegate logic. As a result, the community has proposed xref:erc7579.adoc#ERC7579[ERC-7579] as a minimal generalized approach to smart account modules.
 
-OpenZeppelin's xref:api:account.adoc#ERC7579Account[`ERC7579Account`] is an ERC-7579 compliant implementation that works without a signer, and instead, requires a validator module to be enabled on the account. This validator module might be any
+OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-7579 compliant implementation that works without a signer, and instead, requires a validator module to be enabled on the account. This validator module might be any of the https://erc7579.com/modules[validators developed by the community].
 
-== Account Factory
-
-Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint.
-
-The factory works by creating xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] which write the arguments in the bytecode of each deployed proxy. In most cases, the immutable arguments would be the public key of the associated signer and will need adjustments to fetch it.
-
-=== Clonable Accounts
-
-When used with an xref:api:account.adoc#AccountFactory[`AccountFactory`], the Account Signer contracts expose a variant suffixed with `*Clonable` that may be used to generate clones of an account with arbitrary immutable arguments.
+To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`]:
 
 ```solidity
-// contracts/MyAccountClonable.sol
+// contracts/MyModularAccount.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {
-  AccountSignerECDSA, // Original
-  AccountSignerECDSAClonable // Adapted for minimal clones with immutable arguments
-} from "@openzeppelin/contracts/account/signers/AccountSignerECDSA.sol";
+import {AccountERC7579} from "./AccountERC7579.sol";
 
-contract MyAccountClonableImplementation is AccountSignerECDSAClonable {
-    // Arguments don't matter on the implementation.
-    constructor() AccountSignerECDSAClonable(address(0), "", "") {}
+contract MyModularAccount is AccountERC7579 {
+    /// ...
 }
 ```
+
+== Account Factory
+
+Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint. These accounts are xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] that are cheap to deploy.
 
 === Setting up a factory
 

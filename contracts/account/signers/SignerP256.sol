@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 
 import {P256} from "../../utils/cryptography/P256.sol";
 import {Clones} from "../../proxy/Clones.sol";
-import {EIP712Signer} from "./EIP712Signer.sol";
+import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
 
-abstract contract SignerP256 is EIP712Signer {
+abstract contract SignerP256 is EIP712ReadableSigner {
     function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes32, bytes32));
     }

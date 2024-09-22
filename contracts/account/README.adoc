@@ -15,7 +15,7 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountSigner}}
 
-{{EIP712Signer}}
+{{EIP712ReadableSigner}}
 
 {{SignerECDSA}}
 
@@ -28,8 +28,6 @@ This directory includes contracts to build accounts for ERC-4337.
 == ERC7579
 
 {{AccountERC7579}}
-
-{{ERC7579Execution}}
 
 {{ERC7579ModuleConfig}}
 

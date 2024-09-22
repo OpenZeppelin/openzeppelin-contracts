@@ -33,6 +33,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
   -x 'contracts/proxy/**/*' \
+  -x 'contracts/account/signers/*' \
   -x '!contracts/proxy/Clones.sol' \
   -x '!contracts/proxy/ERC1967/ERC1967Storage.sol' \
   -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \

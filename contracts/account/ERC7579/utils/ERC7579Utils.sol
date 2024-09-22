@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {Execution} from "../../../interfaces/IERC7579Account.sol";
 import {Packing} from "../../../utils/Packing.sol";
+import {Address} from "../../../utils/Address.sol";
 
 type Mode is bytes32;
 type CallType is bytes1;
@@ -20,6 +21,73 @@ library ERC7579Utils {
 
     ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
     ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
+
+    event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
+
+    error ERC7579UnsupportedCallType(CallType callType);
+    error ERC7579UnsupportedExecType(ExecType execType);
+
+    function execSingle(
+        ExecType execType,
+        bytes calldata executionCalldata
+    ) internal returns (bytes[] memory returnData) {
+        (address target, uint256 value, bytes calldata callData) = decodeSingle(executionCalldata);
+        returnData = new bytes[](1);
+        returnData[0] = _call(0, execType, target, value, callData);
+    }
+
+    function execBatch(
+        ExecType execType,
+        bytes calldata executionCalldata
+    ) internal returns (bytes[] memory returnData) {
+        Execution[] calldata executionBatch = decodeBatch(executionCalldata);
+        returnData = new bytes[](executionBatch.length);
+        for (uint256 i = 0; i < executionBatch.length; ++i) {
+            returnData[i] = _call(
+                i,
+                execType,
+                executionBatch[i].target,
+                executionBatch[i].value,
+                executionBatch[i].callData
+            );
+        }
+    }
+
+    function execDelegateCall(
+        ExecType execType,
+        bytes calldata executionCalldata
+    ) internal returns (bytes[] memory returnData) {
+        (address target, bytes calldata callData) = decodeDelegate(executionCalldata);
+        returnData = new bytes[](1);
+        (bool success, bytes memory returndata) = target.delegatecall(callData);
+        returnData[0] = returndata;
+        _validateExecutionMode(0, execType, success, returndata);
+    }
+
+    function _call(
+        uint256 index,
+        ExecType execType,
+        address target,
+        uint256 value,
+        bytes memory data
+    ) private returns (bytes memory) {
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        return _validateExecutionMode(index, execType, success, returndata);
+    }
+
+    function _validateExecutionMode(
+        uint256 index,
+        ExecType execType,
+        bool success,
+        bytes memory returndata
+    ) private returns (bytes memory) {
+        if (execType == ERC7579Utils.EXECTYPE_DEFAULT) return Address.verifyCallResult(success, returndata);
+        if (execType == ERC7579Utils.EXECTYPE_TRY) {
+            if (!success) emit ERC7579TryExecuteFail(index, returndata);
+            return returndata;
+        }
+        revert ERC7579UnsupportedExecType(execType);
+    }
 
     function encodeMode(
         CallType callType,

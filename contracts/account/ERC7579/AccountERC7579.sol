@@ -8,18 +8,19 @@ import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Address} from "../../utils/Address.sol";
 import {IERC7579AccountConfig, IERC7579Execution, IERC7579ModuleConfig} from "../../interfaces/IERC7579Account.sol";
 import {IERC7579Validator, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK, MODULE_TYPE_HOOK} from "../../interfaces/IERC7579Module.sol";
-import {ERC7579Utils, Mode, CallType} from "./utils/ERC7579Utils.sol";
+import {ERC7579Utils, Mode, CallType, ExecType} from "./utils/ERC7579Utils.sol";
 import {ERC7579ModuleConfig} from "./ERC7579ModuleConfig.sol";
-import {ERC7579Execution} from "./ERC7579Execution.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
 abstract contract AccountERC7579 is
     AccountBase,
-    ERC7579Execution,
     ERC7579ModuleConfig,
+    IERC7579Execution,
     IERC7579AccountConfig,
     IERC1271
 {
+    using ERC7579Utils for *;
+
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
         address module = address(bytes20(signature[0:20]));
@@ -66,6 +67,25 @@ abstract contract AccountERC7579 is
         bytes calldata executionCalldata
     ) public virtual onlyModule(MODULE_TYPE_EXECUTOR) returns (bytes[] memory) {
         return _execute(Mode.wrap(mode), executionCalldata);
+    }
+
+    function _supportsExecutionMode(bytes32 encodedMode) internal pure returns (bool) {
+        (CallType callType, , , ) = Mode.wrap(encodedMode).decodeMode();
+        return
+            callType == ERC7579Utils.CALLTYPE_SINGLE ||
+            callType == ERC7579Utils.CALLTYPE_BATCH ||
+            callType == ERC7579Utils.CALLTYPE_DELEGATECALL;
+    }
+
+    function _execute(Mode mode, bytes calldata executionCalldata) internal returns (bytes[] memory returnData) {
+        // TODO: ModeSelector? ModePayload?
+        (CallType callType, ExecType execType, , ) = mode.decodeMode();
+
+        if (callType == ERC7579Utils.CALLTYPE_SINGLE) return ERC7579Utils.execSingle(execType, executionCalldata);
+        if (callType == ERC7579Utils.CALLTYPE_BATCH) return ERC7579Utils.execBatch(execType, executionCalldata);
+        if (callType == ERC7579Utils.CALLTYPE_DELEGATECALL)
+            return ERC7579Utils.execDelegateCall(execType, executionCalldata);
+        revert ERC7579Utils.ERC7579UnsupportedCallType(callType);
     }
 
     /// @inheritdoc IERC7579ModuleConfig

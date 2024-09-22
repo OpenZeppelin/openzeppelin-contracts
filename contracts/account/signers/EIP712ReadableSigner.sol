@@ -8,7 +8,7 @@ import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
 import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
 import {ShortStrings} from "../../utils/ShortStrings.sol";
 
-abstract contract EIP712Signer is EIP712, IERC1271 {
+abstract contract EIP712ReadableSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
 
     constructor(string memory name, string memory version) EIP712(name, version) {

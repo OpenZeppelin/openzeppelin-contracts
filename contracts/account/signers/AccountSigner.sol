@@ -4,10 +4,10 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {ERC4337Utils} from "./../utils/ERC4337Utils.sol";
-import {EIP712Signer} from "./EIP712Signer.sol";
+import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
 import {AccountBase} from "../AccountBase.sol";
 
-abstract contract AccountSigner is AccountBase, EIP712Signer {
+abstract contract AccountSigner is AccountBase, EIP712ReadableSigner {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable __impl = address(this);
 

@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 import {Clones} from "../../proxy/Clones.sol";
-import {EIP712Signer} from "./EIP712Signer.sol";
+import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
 
-abstract contract SignerECDSA is EIP712Signer {
+abstract contract SignerECDSA is EIP712ReadableSigner {
     function signer() public view virtual returns (address) {
         return abi.decode(Clones.fetchCloneArgs(address(this)), (address));
     }
