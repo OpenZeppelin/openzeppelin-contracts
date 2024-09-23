@@ -219,8 +219,6 @@ library StorageSlot {
         return Int256SlotType.wrap(slot);
     }
 
-    // The following functions support transient storage
-
     /**
      * @dev Load the value held at location `slot` in transient storage.
      *
