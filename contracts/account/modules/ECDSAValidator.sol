@@ -15,6 +15,10 @@ abstract contract ECDSAValidator is IERC7579Validator, EIP712ReadableSigner {
     event ECDSASignerAssociated(address indexed account, address indexed signer);
     event ECDSASignerDisassociated(address indexed account);
 
+    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
+    }
+
     /// @inheritdoc IERC7579Validator
     function validateUserOp(
         PackedUserOperation calldata userOp,
@@ -39,24 +43,28 @@ abstract contract ECDSAValidator is IERC7579Validator, EIP712ReadableSigner {
         return _associatedSigner[account];
     }
 
-    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
-        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
-        return signer(msg.sender) == recovered && err == ECDSA.RecoverError.NoError;
+    function onInstall(bytes calldata data) public virtual {
+        (address account, address signerAddr) = abi.decode(data, (address, address));
+        _onInstall(account, signerAddr);
     }
 
-    function onInstall(bytes calldata data) external {
-        (address account, address signerAddr) = abi.decode(data, (address, address));
+    function onUninstall(bytes calldata data) public virtual {
+        address account = abi.decode(data, (address));
+        _onUninstall(account);
+    }
+
+    function _onInstall(address account, address signerAddr) internal virtual {
         _associatedSigner[account] = signerAddr;
         emit ECDSASignerAssociated(account, signerAddr);
     }
 
-    function onUninstall(bytes calldata data) external {
-        address account = abi.decode(data, (address));
+    function _onUninstall(address account) internal virtual {
         delete _associatedSigner[account];
         emit ECDSASignerDisassociated(account);
     }
 
-    function isModuleType(uint256 moduleTypeId) external pure returns (bool) {
-        return moduleTypeId == MODULE_TYPE_VALIDATOR;
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+        return signer(msg.sender) == recovered && err == ECDSA.RecoverError.NoError;
     }
 }

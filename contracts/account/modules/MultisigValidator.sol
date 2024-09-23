@@ -5,11 +5,9 @@ pragma solidity ^0.8.24;
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC7579Module.sol";
-import {IERC7579Execution} from "../../interfaces/IERC7579Account.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
-import {ERC7579Utils, CallType, ExecType, Execution, Mode, ModeSelector, ModePayload} from "../utils/ERC7579Utils.sol";
 
 abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -136,9 +134,9 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     function _isValidSignature(
         address account,
         bytes32 hash,
-        bytes memory signature
+        bytes calldata signature
     ) internal view virtual returns (bool) {
-        (address[] memory signers, bytes[] memory signatures) = abi.decode(signature, (address[], bytes[]));
+        (address[] calldata signers, bytes[] calldata signatures) = _decodePackedSignatures(signature);
         if (signers.length != signatures.length)
             revert MultisigMismatchedSignaturesLength(account, signers.length, signatures.length);
 
@@ -157,5 +155,21 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
         }
 
         return count >= _associatedThreshold[account];
+    }
+
+    function _decodePackedSignatures(
+        bytes calldata signature
+    ) internal pure returns (address[] calldata signers, bytes[] calldata signatures) {
+        assembly ("memory-safe") {
+            let ptr := add(signature.offset, calldataload(signature.offset))
+
+            let signersPtr := add(ptr, 0x20)
+            signers.offset := add(signersPtr, 0x20)
+            signers.length := calldataload(signersPtr)
+
+            let signaturesPtr := add(signersPtr, signers.length)
+            signatures.offset := add(signaturesPtr, 0x20)
+            signatures.length := calldataload(signaturesPtr)
+        }
     }
 }

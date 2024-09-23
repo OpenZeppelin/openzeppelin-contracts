@@ -69,7 +69,7 @@ library ERC7579Utils {
         ExecType execType,
         address target,
         uint256 value,
-        bytes memory data
+        bytes calldata data
     ) private returns (bytes memory) {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         return _validateExecutionMode(index, execType, success, returndata);
@@ -120,7 +120,7 @@ library ERC7579Utils {
     function encodeSingle(
         address target,
         uint256 value,
-        bytes memory callData
+        bytes calldata callData
     ) internal pure returns (bytes memory executionCalldata) {
         return abi.encodePacked(target, value, callData);
     }
@@ -135,7 +135,7 @@ library ERC7579Utils {
 
     function encodeDelegate(
         address target,
-        bytes memory callData
+        bytes calldata callData
     ) internal pure returns (bytes memory executionCalldata) {
         return abi.encodePacked(target, callData);
     }

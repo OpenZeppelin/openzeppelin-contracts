@@ -13,6 +13,13 @@ abstract contract P256Validator is IERC7579Validator, EIP712ReadableSigner {
     mapping(address => bytes32) private _associatedQx;
     mapping(address => bytes32) private _associatedQy;
 
+    event P256SignerAssociated(address indexed account, bytes32 qx, bytes32 qy);
+    event P256SignerDisassociated(address indexed account);
+
+    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
+    }
+
     /// @inheritdoc IERC7579Validator
     function validateUserOp(
         PackedUserOperation calldata userOp,
@@ -37,7 +44,29 @@ abstract contract P256Validator is IERC7579Validator, EIP712ReadableSigner {
         return (_associatedQx[account], _associatedQy[account]);
     }
 
-    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+    function onInstall(bytes calldata data) public virtual {
+        (address account, bytes32 qx, bytes32 qy) = abi.decode(data, (address, bytes32, bytes32));
+        _onInstall(account, qx, qy);
+    }
+
+    function onUninstall(bytes calldata data) public virtual {
+        address account = abi.decode(data, (address));
+        _onUninstall(account);
+    }
+
+    function _onInstall(address account, bytes32 qx, bytes32 qy) internal virtual {
+        _associatedQx[account] = qx;
+        _associatedQy[account] = qy;
+        emit P256SignerAssociated(account, qx, qy);
+    }
+
+    function _onUninstall(address account) internal virtual {
+        delete _associatedQx[account];
+        delete _associatedQy[account];
+        emit P256SignerDisassociated(account);
+    }
+
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
         if (signature.length < 0x40) return false;
 
         // parse signature
@@ -47,21 +76,5 @@ abstract contract P256Validator is IERC7579Validator, EIP712ReadableSigner {
         // fetch and decode immutable public key for the clone
         (bytes32 qx, bytes32 qy) = signer(msg.sender);
         return P256.verify(hash, r, s, qx, qy);
-    }
-
-    function onInstall(bytes calldata data) external {
-        (address account, bytes32 qx, bytes32 qy) = abi.decode(data, (address, bytes32, bytes32));
-        _associatedQx[account] = qx;
-        _associatedQy[account] = qy;
-    }
-
-    function onUninstall(bytes calldata data) external {
-        address account = abi.decode(data, (address));
-        delete _associatedQx[account];
-        delete _associatedQy[account];
-    }
-
-    function isModuleType(uint256 moduleTypeId) external pure returns (bool) {
-        return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 }
