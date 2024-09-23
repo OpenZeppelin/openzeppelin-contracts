@@ -185,7 +185,6 @@ library P256 {
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      *
      * Note that if both input points are identical, this function will return `(0, 0, 0)` instead of doubling the point.
-     * The probability of two random points being identical is negligible (approximately 2048 / (2^256 - 1), or about 10^-74).
      */
     function _jAdd(
         JPoint memory p1,
@@ -249,6 +248,11 @@ library P256 {
      * we optimise on this a bit to do with 2 bits at a time rather than a single bit
      * the individual points for a single pass are precomputed
      * overall this reduces the number of additions while keeping the same number of doublings
+     *
+     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when
+     * adding a point with itself), this function could produce invalid values. This would result in the inability to
+     * verify or recover valid signatures. It is estimated to have a probability of about 1e-77 to happen. This edge
+     * case could potentially cause a valid signature to fail verification.
      */
     function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
         uint256 x = 0;
@@ -289,10 +293,10 @@ library P256 {
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
      *
-     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when 
-     * adding a point with itself), this function could produce invalid values. This would result in the inability to 
-     * verify or recover valid signatures. It is estimated to have a probability of about 1e-74 to happen.
-     * in a point at infinity. This edge case could potentially cause a valid signature to fail verification.
+     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when
+     * adding a point with itself), this function could produce invalid values. This would result in the inability to
+     * verify or recover valid signatures. It is estimated to have a probability of about 1e-74 to happen. This edge
+     * case could potentially cause a valid signature to fail verification.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
