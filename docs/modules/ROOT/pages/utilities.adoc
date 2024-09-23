@@ -91,7 +91,7 @@ function _verify(
     bytes memory e,
     bytes memory n
 ) internal pure returns (bool) {
-    return data.pkcs1(signature, e, n);
+    return data.pkcs1Sha256(signature, e, n);
 }
 ----
 
