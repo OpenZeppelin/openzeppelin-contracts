@@ -6,10 +6,10 @@ import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {P256} from "../../utils/cryptography/P256.sol";
 import {IERC7579Validator, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC7579Module.sol";
-import {EIP712ReadableSigner} from "../EIP712ReadableSigner.sol";
+import {ERC1271TypedSigner} from "../ERC1271TypedSigner.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
-abstract contract P256Validator is IERC7579Validator, EIP712ReadableSigner {
+abstract contract P256Validator is IERC7579Validator, ERC1271TypedSigner {
     mapping(address => bytes32) private _associatedQx;
     mapping(address => bytes32) private _associatedQy;
 

@@ -8,7 +8,7 @@ import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
 import {EIP712NestedUtils} from "../utils/cryptography/EIP712NestedUtils.sol";
 import {ShortStrings} from "../utils/ShortStrings.sol";
 
-abstract contract EIP712ReadableSigner is EIP712, IERC1271 {
+abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
 
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {

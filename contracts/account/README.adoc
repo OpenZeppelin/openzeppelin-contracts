@@ -9,31 +9,25 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountBase}}
 
-{{AccountFactory}}
-
-== Signers
-
-{{AccountSigner}}
-
-{{EIP712ReadableSigner}}
-
-{{SignerECDSA}}
-
-{{SignerEOA}}
-
-{{SignerP256}}
-
-{{SignerRSA}}
-
-== ERC7579
-
 {{AccountERC7579}}
 
-{{ERC7579ModuleConfig}}
+{{ERC1271TypedSigner}}
 
-=== Modules
+== Modules
 
-{{ERC7579MultisigValidator}}
+=== Validators
+
+{{ECDSAValidator}}
+
+{{P256Validator}}
+
+{{RSAValidator}}
+
+{{MultisigValidator}}
+
+=== Executors
+
+{{TypedExecutor}}
 
 == Utilities
 

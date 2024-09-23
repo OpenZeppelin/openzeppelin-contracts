@@ -87,7 +87,7 @@ An xref:account.adoc#AccountSigner[`AccountSigner`] is useful to create accounts
 
 Generally speaking, blockchains use the properties of https://en.wikipedia.org/wiki/Digital_signature[digital signatures] to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations for a given off-chain signer (i.e. a private key).
 
-To setup an account signer, start by inheriting from `AccountSigner` and an xref:api:account.adoc#EIP712ReadableSigner[`EIP712ReadableSigner`]:
+To setup an account signer, start by inheriting from `AccountSigner` and an xref:api:account.adoc#ERC1271TypedSigner[`ERC1271TypedSigner`]:
 
 ```solidity
 // contracts/MyAccountECDSA.sol
@@ -95,11 +95,11 @@ To setup an account signer, start by inheriting from `AccountSigner` and an xref
 pragma solidity ^0.8.20;
 
 import {AccountSigner} from "./AccountSigner.sol";
-import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
+import {ERC1271TypedSigner} from "./ERC1271TypedSigner.sol";
 import {SignerECDSA} from "./SignerECDSA.sol";
 
 contract MyAccountECDSA is AccountSigner, SignerECDSA {
-    constructor(address signerAddr, string memory name, string memory version) EIP712ReadableSigner(name, version) {}
+    constructor(address signerAddr, string memory name, string memory version) ERC1271TypedSigner(name, version) {}
 
     /// ...
 }
@@ -121,7 +121,7 @@ A common security practice to prevent user operation https://mirror.xyz/curiousa
 
 The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
 
-To prevent this, each smart contract signer inherits from xref:api:account#EIP712ReadableSigner[`EIP712ReadableSigner`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+To prevent this, each smart contract signer inherits from xref:api:account#ERC1271TypedSigner[`ERC1271TypedSigner`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
 
 === Modules
 
