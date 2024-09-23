@@ -49,8 +49,9 @@ library CircularBuffer {
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
      * lead to unexpected behavior.
      *
-     * The last item is at data[(index - 1) % data.length] and the last item is at data[index % data.length]. This
-     * range can wrap around.
+     * In a full buffer:
+     * - The most recently pushed item (last) is at data[(index - 1) % data.length]
+     * - The oldest item (first) is at data[index % data.length]
      */
     struct Bytes32CircularBuffer {
         uint256 _count;
