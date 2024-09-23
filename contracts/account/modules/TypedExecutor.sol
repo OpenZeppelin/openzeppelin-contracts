@@ -8,9 +8,8 @@ import {ERC7579Utils, CallType, ExecType, Execution, Mode, ModeSelector, ModePay
 import {EIP712} from "../../utils//cryptography/EIP712.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
-import {ERC7579Executor} from "./ERC7579Executor.sol";
 
-abstract contract ERC7579TypedExecutor is ERC7579Executor, EIP712 {
+abstract contract TypedExecutor is IERC7579Module, EIP712 {
     bytes internal constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
         bytes("ExecuteSingle(address account,address target,uint256 value,bytes data)");
     bytes internal constant _EXECUTE_REQUEST_BATCH_TYPENAME =
@@ -51,7 +50,10 @@ abstract contract ERC7579TypedExecutor is ERC7579Executor, EIP712 {
         bytes32 requestHash = _hashTypedDataV4(_singleStructHash(account, target, value, data));
         if (!_isValidExecuteRequest(account, requestHash, signature, _EXECUTE_REQUEST_SINGLE_TYPENAME))
             revert UnauthorizedTypedExecution(ERC7579Utils.CALLTYPE_SINGLE, account, msg.sender);
-        return _executeSingle(mode, account, target, value, data);
+        IERC7579Execution(account).executeFromExecutor(
+            Mode.unwrap(mode),
+            ERC7579Utils.encodeSingle(target, value, data)
+        );
     }
 
     function _batch(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
@@ -62,7 +64,11 @@ abstract contract ERC7579TypedExecutor is ERC7579Executor, EIP712 {
         bytes32 requestHash = _hashTypedDataV4(_batchStructHash(account, targets, values, datas));
         if (!_isValidExecuteRequest(account, requestHash, signature, _EXECUTE_REQUEST_BATCH_TYPENAME))
             revert UnauthorizedTypedExecution(ERC7579Utils.CALLTYPE_BATCH, account, msg.sender);
-        return _executeBatch(mode, account, targets, values, datas);
+        Execution[] memory executions = new Execution[](targets.length);
+        for (uint256 i = 0; i < targets.length; i++) {
+            executions[i] = Execution(targets[i], values[i], datas[i]);
+        }
+        IERC7579Execution(account).executeFromExecutor(Mode.unwrap(mode), ERC7579Utils.encodeBatch(executions));
     }
 
     function _delegate(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
@@ -70,7 +76,7 @@ abstract contract ERC7579TypedExecutor is ERC7579Executor, EIP712 {
         bytes32 requestHash = _hashTypedDataV4(_delegateStructHash(account, target, data));
         if (!_isValidExecuteRequest(account, requestHash, signature, _EXECUTE_REQUEST_DELEGATECALL_TYPENAME))
             revert UnauthorizedTypedExecution(ERC7579Utils.CALLTYPE_DELEGATECALL, account, msg.sender);
-        return _executeDelegate(mode, account, target, data);
+        IERC7579Execution(account).executeFromExecutor(Mode.unwrap(mode), ERC7579Utils.encodeDelegate(target, data));
     }
 
     function _isValidExecuteRequest(

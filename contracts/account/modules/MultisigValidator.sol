@@ -10,15 +10,13 @@ import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 import {ERC7579Utils, CallType, ExecType, Execution, Mode, ModeSelector, ModePayload} from "../utils/ERC7579Utils.sol";
-import {EIP712} from "../../utils//cryptography/EIP712.sol";
-import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
 
-abstract contract ERC7579MultisigValidator is IERC7579Validator, EIP712, IERC1271 {
+abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SignatureChecker for address;
 
-    event SignersAdded(address indexed account, address[] indexed signers);
-    event SignersRemoved(address indexed account, address[] indexed signers);
+    event ValidatorsAdded(address indexed account, address[] indexed signers);
+    event ValidatorsRemoved(address indexed account, address[] indexed signers);
     event ThresholdChanged(address indexed account, uint256 threshold);
 
     error MultisigSignerAlreadyExists(address account, address signer);
@@ -43,7 +41,7 @@ abstract contract ERC7579MultisigValidator is IERC7579Validator, EIP712, IERC127
 
     function addSigners(address[] memory signers) public virtual {
         address account = msg.sender;
-        _addSigners(account, signers);
+        _addValidators(account, signers);
         _validateThreshold(account);
     }
 
@@ -64,7 +62,7 @@ abstract contract ERC7579MultisigValidator is IERC7579Validator, EIP712, IERC127
         address account = msg.sender;
         (address[] memory signers, uint256 threshold_) = abi.decode(data, (address[], uint256));
         _associatedThreshold[account] = threshold_;
-        _addSigners(account, signers);
+        _addValidators(account, signers);
         _validateThreshold(account);
     }
 
@@ -110,18 +108,18 @@ abstract contract ERC7579MultisigValidator is IERC7579Validator, EIP712, IERC127
         return _isValidSignature(msg.sender, hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
 
-    function _addSigners(address account, address[] memory signers) internal virtual {
+    function _addValidators(address account, address[] memory signers) internal virtual {
         for (uint256 i = 0; i < signers.length; i++) {
             if (!_associatedSigners[account].add(signers[i])) revert MultisigSignerAlreadyExists(account, signers[i]);
         }
-        emit SignersAdded(account, signers);
+        emit ValidatorsAdded(account, signers);
     }
 
     function _removeSigners(address account, address[] memory signers) internal virtual {
         for (uint256 i = 0; i < signers.length; i++) {
             if (!_associatedSigners[account].remove(signers[i])) revert MultisigSignerDoesNotExist(account, signers[i]);
         }
-        emit SignersRemoved(account, signers);
+        emit ValidatorsRemoved(account, signers);
     }
 
     function _setThreshold(address account, uint256 threshold_) internal virtual {

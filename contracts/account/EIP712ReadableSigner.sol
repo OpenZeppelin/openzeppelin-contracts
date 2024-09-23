@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {EIP712} from "../../utils/cryptography/EIP712.sol";
-import {MessageHashUtils} from "../../utils/cryptography/MessageHashUtils.sol";
-import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
-import {ShortStrings} from "../../utils/ShortStrings.sol";
+import {IERC1271} from "../interfaces/IERC1271.sol";
+import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
+import {EIP712NestedUtils} from "../utils/cryptography/EIP712NestedUtils.sol";
+import {ShortStrings} from "../utils/ShortStrings.sol";
 
 abstract contract EIP712ReadableSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
