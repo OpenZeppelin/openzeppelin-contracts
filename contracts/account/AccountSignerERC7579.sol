@@ -27,8 +27,8 @@ abstract contract AccountSignerERC7579 is AccountERC7579, AccountSigner, SignerE
         bytes32 userOpHash
     ) internal virtual override(AccountERC7579, AccountSigner) returns (address signer, uint256 validationData) {
         (address accountSigner, uint256 accountValidationData) = AccountSigner._validateUserOp(userOp, userOpHash);
-        if (accountValidationData == ERC4337Utils.SIG_VALIDATION_SUCCESS) return (accountSigner, accountValidationData);
         (address moduleSigner, uint256 moduleValidationData) = AccountERC7579._validateUserOp(userOp, userOpHash);
+        if (accountValidationData == ERC4337Utils.SIG_VALIDATION_SUCCESS) return (accountSigner, accountValidationData);
         return (moduleSigner, moduleValidationData);
     }
 }
