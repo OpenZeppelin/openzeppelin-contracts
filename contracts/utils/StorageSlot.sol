@@ -29,7 +29,7 @@ pragma solidity ^0.8.24;
  * }
  * ```
  *
- * _Available since version 5.1, this library also support writing and reading value types to and from transient storage.
+ * Since version 5.1, this library also support writing and reading value types to and from transient storage.
  *
  *  * Example using transient storage:
  * ```solidity
