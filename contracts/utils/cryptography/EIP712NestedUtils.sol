@@ -28,6 +28,15 @@ library EIP712NestedUtils {
         contentsType = signature[contentsEnd:contentsTypeEnd];
     }
 
+    function nestSignature(
+        bytes memory originalSignature,
+        bytes32 appSeparator,
+        bytes32 contents,
+        bytes memory contentsType
+    ) internal pure returns (bytes memory) {
+        return abi.encodePacked(originalSignature, appSeparator, contents, contentsType, uint16(contentsType.length));
+    }
+
     // solhint-disable-next-line func-name-mixedcase
     function TYPED_DATA_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);

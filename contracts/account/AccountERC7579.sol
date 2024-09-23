@@ -32,13 +32,14 @@ abstract contract AccountERC7579 is
     mapping(bytes4 => address) private _fallbacks;
 
     modifier onlyModule(uint256 moduleTypeId) {
-        _checkModule(moduleTypeId);
+        _checkModule(moduleTypeId, msg.sender);
         _;
     }
 
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
         address module = address(bytes20(signature[0:20]));
+        _checkModule(MODULE_TYPE_VALIDATOR, module);
         return IERC7579Validator(module).isValidSignatureWithSender(msg.sender, hash, signature);
     }
 
@@ -186,9 +187,9 @@ abstract contract AccountERC7579 is
         return true;
     }
 
-    function _checkModule(uint256 moduleTypeId) internal view virtual {
-        if (!_isModuleInstalled(moduleTypeId, msg.sender, msg.data)) {
-            revert ERC7579UninstalledModule(moduleTypeId, msg.sender);
+    function _checkModule(uint256 moduleTypeId, address module) internal view virtual {
+        if (!_isModuleInstalled(moduleTypeId, module, msg.data)) {
+            revert ERC7579UninstalledModule(moduleTypeId, module);
         }
     }
 

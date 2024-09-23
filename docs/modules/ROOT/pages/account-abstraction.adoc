@@ -143,6 +143,8 @@ contract MyModularAccount is AccountERC7579 {
 }
 ```
 
+WARNING: The AccountERC7579 
+
 == Account Factory
 
 Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint. These accounts are xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] that are cheap to deploy.

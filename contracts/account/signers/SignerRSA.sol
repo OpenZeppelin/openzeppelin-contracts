@@ -3,12 +3,14 @@
 pragma solidity ^0.8.20;
 
 import {RSA} from "../../utils/cryptography/RSA.sol";
-import {Clones} from "../../proxy/Clones.sol";
 import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
 
 abstract contract SignerRSA is EIP712ReadableSigner {
+    bytes private _e;
+    bytes private _n;
+
     function signer() public view virtual returns (bytes memory e, bytes memory n) {
-        return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes, bytes));
+        return (_e, _n);
     }
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {

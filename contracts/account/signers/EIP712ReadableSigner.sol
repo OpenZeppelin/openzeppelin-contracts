@@ -11,12 +11,6 @@ import {ShortStrings} from "../../utils/ShortStrings.sol";
 abstract contract EIP712ReadableSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
 
-    constructor(string memory name, string memory version) EIP712(name, version) {
-        // Both revert if the string is too long. This avoids the need of reading from storage on every signature validation.
-        ShortStrings.toShortString(name);
-        ShortStrings.toShortString(version);
-    }
-
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
         return _isValidSignature(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }

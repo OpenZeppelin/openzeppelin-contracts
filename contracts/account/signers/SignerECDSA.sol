@@ -3,12 +3,18 @@
 pragma solidity ^0.8.20;
 
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
-import {Clones} from "../../proxy/Clones.sol";
-import {EIP712ReadableSigner} from "./EIP712ReadableSigner.sol";
+import {EIP712ReadableSigner, EIP712} from "./EIP712ReadableSigner.sol";
 
 abstract contract SignerECDSA is EIP712ReadableSigner {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
+    address internal immutable _signer;
+
+    constructor(address signerAddr) {
+        _signer = signerAddr;
+    }
+
     function signer() public view virtual returns (address) {
-        return abi.decode(Clones.fetchCloneArgs(address(this)), (address));
+        return _signer;
     }
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
