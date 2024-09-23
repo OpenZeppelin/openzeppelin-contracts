@@ -185,7 +185,7 @@ library P256 {
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      *
      * Note that if both input points are identical, this function will return `(0, 0, 0)` instead of doubling the point.
-     * The probability of identical input points happening naturally is negligible (approximately 2048 / (2^256 - 1), or about 10^-74).
+     * The probability of two random points being identical is negligible (approximately 2048 / (2^256 - 1), or about 10^-74).
      */
     function _jAdd(
         JPoint memory p1,
@@ -289,7 +289,9 @@ library P256 {
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
      *
-     * Note that in the negligible scenario where `P` is `-G`, the addition of `points[0x05]` (`G` + `P`) will result
+     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when 
+     * adding a point with itself), this function could produce invalid values. This would result in the inability to 
+     * verify or recover valid signatures. It is estimated to have a probability of about 1e-74 to happen.
      * in a point at infinity. This edge case could potentially cause a valid signature to fail verification.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
