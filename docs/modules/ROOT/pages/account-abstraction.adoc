@@ -40,25 +40,7 @@ During the process, the bundler pays for the gas of executing the transaction an
 
 === Account Contract
 
-The Account Contract is the implementation logic (i.e. Solidity code) that validates user operations and is defined by the Account developer. 
-
-NOTE: To build your own account, see xref:account-abstraction.adoc#smart_accounts[Smart Accounts].
-
-=== Factory Contract
-
-The smart contract accounts are created by a Factory contract defined by the Account developer. This factory receives arbitrary bytes as `initData` and returns an `address` where the logic of the account is deployed.
-
-NOTE: To build your own factory, see xref:account-abstraction.adoc#account_factory[Account Factory]
-
-=== Paymaster Contract
-
-A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away of the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
-
-NOTE: To build your own factory, see xref:account-abstraction.adoc#paymaster[Paymaster].
-
-== Smart Accounts
-
-A Smart Account (or simply xref:api:account.adoc[`Account`]) is a type of smart contract implements the logic required to validate an `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
+The Account Contract is a type of smart contract implements the logic required to validate an `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
 
 ```solidity
 interface IAccount {
@@ -74,46 +56,130 @@ interface IAccountExecute {
 }
 ```
 
-OpenZeppelin provides an abstract implementation of an xref:api:account.adoc#AccountBase[`AccountBase`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as executing any arbitrary `UserOperation`.
+To build your own account, see xref:account-abstraction.adoc#smart_accounts[Smart Accounts].
+
+=== Factory Contract
+
+The smart contract accounts are created by a Factory contract defined by the Account developer. This factory receives arbitrary bytes as `initData` and returns an `address` where the logic of the account is deployed.
+
+To build your own factory, see xref:account-abstraction.adoc#account_factory[Account Factory]
+
+=== Paymaster Contract
+
+A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away of the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
+
+To build your own paymaster, see xref:account-abstraction.adoc#paymaster[Paymaster].
+
+== Smart Accounts
+
+OpenZeppelin provides an abstract implementation of an xref:api:account.adoc#AccountBase[`AccountBase`] that implements both interfaces and accepts native currency and common tokens (i.e. xref:erc20.adoc[ERC-20], xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155]), as well as validating any arbitrary `UserOperation`.
 
 Since developers should implement xref:api:account.adoc#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`_validateUserOp`] to use the account, the library provides 2 mechanisms to validate user operations. The user should select one of these to build an account.
 
-- **Signers**: An non-upgradeable account that is controlled by a private key and stores its corresponding public key in immutable arguments.
 - **Modules**: An account that is controlled by validator and executor modules.
+- **Signers**: An account that is controlled by a private key.
+
+NOTE: Examples provided are simple version of accounts. When using with ERC-4337 infrastructure, a few adjustments are required to make the contract initializable and deployable by a factory. See the xref:account-abstraction.adoc#account_factory[account factory section] for more.
+
+An smart account can be created by deriving from the xref:api:account.adoc#AccountBase[`AccountBase`]:
+
+```solidity
+// contracts/MyAccountECDSASigner.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccountBase, PackedUserOperation} from "@openzeppelin/contracts/account/AccountBase.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/account/ERC1271TypedSigner.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+
+contract MyAccountECDSASigner is AccountBase {
+    address private immutable _signer;
+
+    constructor(address signer_) {
+        _signer = signer_;
+    }
+
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal view override returns (address, uint256) {
+        bytes32 messageHash = MessageHashUtils.toEthSignedMessageHash(
+            abi.encodePacked(block.chainid, address(this), userOpHash)
+        );
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(messageHash, userOp.signature);
+        return
+            _signer == recovered && err == ECDSA.RecoverError.NoError
+                ? (_signer, ERC4337Utils.SIG_VALIDATION_SUCCESS)
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+    }
+}
+```
+
+NOTE: Using xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`MessageHashUtils.toEthSignedMessageHash`] wraps the message with an `\x19Ethereum Signed Message:\n` prefix as most wallets do. However, this is not the most recommended approach since it requires the private key owner to sign an opaque message without contextual information. See xref:account-abstraction.adoc#readable_typed_signatures[readable typed signatures].
+
+==== ERC-7562 Validation Rules
+
+To process a bundle of `UserOperations`, bundlers call xref:api:account.adoc#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`] on each operation sender to check whether the operation can be executed. However, the bundler has no guarantee that the state of the blockchain will remain the same after the validation phase. To overcome this problematic, https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] proposes a set of limitations to EVM code so that bundlers (or node operators) are protected from unexpected state changes.
+
+These rules outline the requirements for operations to be processed by the canonical mempool.
+
+TIP: Although any Account that breaks such rules may still be processed by a private bundler, developers should keep in mind the centralization tradeoffs of relying on private infrastructure instead of _permissionless_ execution.
+
+===== A note on upgradeability
+
+xref:upgradeable.adoc[Upgradeable Contracts] might easily violate ERC-7562 storage access rules during the validation phase. For example, when upgradeability is present in a module (i.e. an external validator), the account will need to call the proxy and access the implementation address in storage.
+
+The general recommendation for upgradeable accounts is to use a xref:account-abstraction.adoc#Signer[`Signer`] so that the account accesses its own storage during the validation phase, which is allowed by the ERC-7562 rules and preserves the ability of the account of executing operations permissionlessly.
 
 === Signers
 
-An xref:account.adoc#AccountSigner[`AccountSigner`] is useful to create accounts that are controlled by a https://en.wikipedia.org/wiki/Digital_signature[digital signature] verification algorithm.
+An Account controlled by a signer is a type of account that depends on a https://en.wikipedia.org/wiki/Digital_signature[digital signature] verification algorithm and is similar to Externally Owned Accounts (EOAs) in that they require a private key signature to authenticate it. These accounts can be used with ERC-4337 infrastructure normally and do not violate xref:account-abstraction.adoc#erc_7562_validation_rules[ERC-7562 Validation Rules] in their upgradeable version.
 
 Generally speaking, blockchains use the properties of https://en.wikipedia.org/wiki/Digital_signature[digital signatures] to authenticate the sender of each transaction. With this in mind, developers can xref:utilities.adoc#checking_signatures_on_chain[verify signatures on-chain] as a way to authenticate user operations for a given off-chain signer (i.e. a private key).
 
 To setup an account signer, start by inheriting from `AccountSigner` and an xref:api:account.adoc#ERC1271TypedSigner[`ERC1271TypedSigner`]:
 
 ```solidity
-// contracts/MyAccountECDSA.sol
+// contracts/MyAccountECDSATypedSigner.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {AccountSigner} from "./AccountSigner.sol";
-import {ERC1271TypedSigner} from "./ERC1271TypedSigner.sol";
-import {SignerECDSA} from "./SignerECDSA.sol";
+import {AccountBase, PackedUserOperation} from "@openzeppelin/contracts/account/AccountBase.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/account/ERC1271TypedSigner.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
 
-contract MyAccountECDSA is AccountSigner, SignerECDSA {
-    constructor(address signerAddr, string memory name, string memory version) ERC1271TypedSigner(name, version) {}
+contract MyAccountECDSATypedSigner is AccountBase, ERC1271TypedSigner {
+    address private immutable _signer;
 
-    /// ...
+    constructor(address signer_, string memory name, string memory version) ERC1271TypedSigner(name, version) {
+        _signer = signer_;
+    }
+
+    /// @inheritdoc AccountBase
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal view override returns (address, uint256) {
+        return
+            _isValidSignature(userOpHash, userOp.signature) // Depend on an EIP-712 nested signature for readability
+                ? (_signer, ERC4337Utils.SIG_VALIDATION_SUCCESS)
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+    }
+
+    /// @inheritdoc ERC1271TypedSigner
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+        return _signer == recovered && err == ECDSA.RecoverError.NoError;
+    }
 }
 ```
 
-IMPORTANT: Accounts must be deployed via an xref:api:account.adoc#AccountFactory[`AccountFactory`] instead of deployed directly. Deploying the account directly will leave it unusable.
+As you would note, the Account requires to implement both `_validateUserOp` and `_validateSignature`. These are 2 different functions because xref:api:account.adoc#ERC1271TypedSigner[`ERC1271TypedSigner`] adds a wrapper to the `userOpHash` and any other hash received through the `isValidSignature` function the account exposes. The wrapper makes sure that the signature isn't replayable across different account implementations and that the user saw the types associated to the signed message.
 
-==== ERC-7562 Validation Rules
-
-A naive approach to implement an AccountSigner would be to store its public key in the account's storage for future validation and, ideally, expose the xref:api:interfaces::IERC1271[`IERC1271`] interface (smart contract signatures) to act as a validator in more complex setups (e.g. a multisignature). 
-
-However, the validation phase of ERC-4337 forbids access to external storage according to the https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] validation rules. Unfortunately, this rules limit the interoperability of signer contracts unless the public key is stored somewhere other than storage.
-
-For this reason, each AccountSigner contract store the public key for its corresponding validation algorithm in immutable arguments so that the contract is tied to the signer and can validate messages on-chain without accessing storage. Unfortunately, AccountSigners are not upgradeable
+IMPORTANT: Accounts must be deployed via an xref:account-abstraction.adoc#account_factory[account factory].
 
 ==== Readable Typed Signatures
 
@@ -123,13 +189,55 @@ The problem with this approach is that the user might be prompted by the wallet 
 
 To prevent this, each smart contract signer inherits from xref:api:account#ERC1271TypedSigner[`ERC1271TypedSigner`], a utility that implements a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
 
+==== Alternative signature schemes
+
+Users may add different signature validation schemes such as xref:api:utils.adoc#P256[`P256`] or xref:api:utils.adoc#RSA[`RSA`] to their accounts in a similar fashion to ECDSA:
+
+```solidity
+// contracts/MyAccountP256Signer.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccountBase, PackedUserOperation} from "@openzeppelin/contracts/account/AccountBase.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/account/ERC1271TypedSigner.sol";
+import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
+import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+
+contract MyAccountP256Signer is AccountBase {
+    bytes32 private immutable qx;
+    bytes32 private immutable qy;
+
+    constructor(bytes32 qx_, bytes32 qy_) {
+        qx = qx_;
+        qy = qy_;
+    }
+
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal view override returns (address, uint256) {
+        bytes32 messageHash = MessageHashUtils.toEthSignedMessageHash(
+            abi.encodePacked(block.chainid, address(this), userOpHash)
+        );
+        // parse signature
+        bytes32 r = bytes32(userOp.signature[0x00:0x20]);
+        bytes32 s = bytes32(userOp.signature[0x20:0x40]);
+        return
+            P256.verify(messageHash, r, s, qx, qy)
+                ? (address(this), ERC4337Utils.SIG_VALIDATION_SUCCESS)
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+    }
+}
+```
+
 === Modules
 
 Modules are a way to extend functionality of an smart account. Given the variety of smart account implementations, a common approach has been to enable a system of modules to which accounts can delegate logic. As a result, the community has proposed xref:erc7579.adoc#ERC7579[ERC-7579] as a minimal generalized approach to smart account modules.
 
-OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-7579 compliant implementation that works without a signer, and instead, requires a validator module to be enabled on the account. This validator module might be any of the https://erc7579.com/modules[validators developed by the community].
+OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-7579 compliant implementation that works without a signer, and instead, uses a validator module installed on the account. This validator module might be any of the https://erc7579.com/modules[validators developed by the community] or one of the xref:api:account.adoc#validators[validator modules we provide].
 
-To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`]:
+To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`] and make sure to install a module on its initialization.
 
 ```solidity
 // contracts/MyModularAccount.sol
@@ -139,33 +247,181 @@ pragma solidity ^0.8.20;
 import {AccountERC7579} from "./AccountERC7579.sol";
 
 contract MyModularAccount is AccountERC7579 {
-    /// ...
+    constructor(address module, bytes memory moduleInitData) {
+        _installModule(MODULE_TYPE_VALIDATOR, module, moduleInitData);
+    }
 }
 ```
 
-WARNING: The AccountERC7579 
+WARNING: An account that doesn't setup a module on deployment will be unusable if there's no other execution method enabled on the account.
+
+==== Using with a signer
+
+A modular account can use a signer too. It just needs to override `_validateUserOp` logic to use the signer as part of the validation phase:
+
+```solidity
+// contracts/MyModularAccountECDSATypedSigner.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccountERC7579} from "@openzeppelin/contracts/account/AccountERC7579.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/account/ERC1271TypedSigner.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC4337Utils, PackedUserOperation} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
+
+contract MyModularAccountECDSATypedSigner is AccountERC7579, ERC1271TypedSigner {
+    address private immutable _signer;
+
+    constructor(address signer_, string memory name, string memory version) ERC1271TypedSigner(name, version) {
+        _signer = signer_;
+    }
+
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata signature
+    ) public view override(AccountERC7579, ERC1271TypedSigner) returns (bytes4) {
+        // Prefer signer and fallback to ERC7579 validator
+        return
+            ERC1271TypedSigner.isValidSignature(hash, signature) == IERC1271.isValidSignature.selector
+                ? IERC1271.isValidSignature.selector
+                : AccountERC7579.isValidSignature(hash, signature);
+    }
+
+    /// @inheritdoc AccountERC7579
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal virtual override returns (address, uint256) {
+        if (_validateSignature(userOpHash, userOp.signature)) return (_signer, ERC4337Utils.SIG_VALIDATION_SUCCESS);
+        return super._validateUserOp(userOp, userOpHash);
+    }
+
+    /// @inheritdoc ERC1271TypedSigner
+    function _validateSignature(bytes32 hash, bytes calldata signature) internal view override returns (bool) {
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+        return _signer == recovered && err == ECDSA.RecoverError.NoError;
+    }
+}
+```
 
 == Account Factory
 
-Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint. These accounts are xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] that are cheap to deploy.
+Accounts are deployed using an xref:api:account.adoc#AccountFactory[`AccountFactory`] contract, a special contract that creates new accounts during the validation phase of the EntryPoint. 
 
-=== Setting up a factory
+=== Clones
+
+So far this section has shown how to setup an account as an individual contract. However, given that a single factory will deploy the same account multiple times with different arguments, it's recommended to use the xref:api:utils.adoc#Clones[`Clones`] library to produce minimal cloned versions that are cheap to deploy.
+
+The following example demonstrates this concept with an xref:api:account.adoc#AccountERC7579[`AccountERC7579`]
+
+```solidity
+// contracts/MyClonableAccount.sol
+pragma solidity ^0.8.20;
+
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {AccountERC7579} from "@openzeppelin/contracts/account/AccountERC7579.sol";
+
+// Make the account initializable
+contract MyClonableAccount is AccountERC7579, Initializable {
+    function setUp(address module, bytes memory moduleInitData) public initializer {
+        _installModule(MODULE_TYPE_VALIDATOR, module, moduleInitData);
+    }
+}
+
+contract MyClonableAccountFactory {
+    using Clones for address;
+
+    // Store the implementation of the account
+    address private immutable _accountImplementation = address(new MyClonableAccount());
+
+    function predictAddress(bytes32 salt) public view returns (address) {
+        return _accountImplementation.predictDeterministicAddress(salt, address(this));
+    }
+
+    // Create accounts on demand
+    function cloneAndCall(bytes memory data, address module, bytes32 salt) public returns (address) {
+        return _clone(data, module, salt);
+    }
+
+    function _clone(bytes memory data, address module, bytes32 salt) internal returns (address) {
+        address predicted = predictAddress(salt);
+        if (predicted.code.length == 0) {
+            _accountImplementation.cloneDeterministic(salt);
+            MyClonableAccount(payable(_accountImplementation)).setUp(module, data);
+        }
+        return predicted;
+    }
+}
+```
+
+TIP: xref:upgradeable.adoc[OpenZeppelin Contracts upgradeable] are initializable out of the box.
+
+NOTE: For upgradeable accounts, you might want to check out the xref:api:proxy.adoc#BeaconProxy[`BeaconProxy`] pattern to have a single implementation contract from which upgradeable clones can be created.
+
+These accounts are xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[minimal clones with immutable arguments] that are cheap to deploy.
+
+=== Immutable arguments
+
+Considering that Accounts controlled by a signer might store the verification public key in immutable arguments. Then it's not possible to create clones for these kind of accounts since Clones do not support immutable arguments given these are written within the implementation bytecode.
+
+For these cases, developers can leverage xref:api:proxy.adoc#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[clones with immutable arguments] to store the public key in a way that's cheap to access in runtime while maintaining the upgradeability capabilities on the account.
 
 To setup a factory, all you need is a xref:account-abstraction.adoc#clonable_accounts[Clonable Account] and implement the `clone` function of the xref:api:account.adoc#AccountFactory[`AccountFactory`] contract
 
 ```solidity
-// contracts/MyAccountFactory.sol
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {AccountFactory} from "@openzeppelin/contracts/account/AccountFactory.sol";
-import {MyAccountClonableImplementation} from "./MyAccountClonableImplementation.sol";
+import {AccountBase, PackedUserOperation} from "@openzeppelin/contracts/account/AccountBase.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/account/ERC1271TypedSigner.sol";
+import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
+import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-contract MyAccountFactory is AccountFactory {
-    constructor() AccountFactory(address(new MyAccountClonableImplementation())) {}
+contract MyAccountP256SignerClonable is AccountBase {
+    function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
+        return abi.decode(Clones.fetchCloneArgs(address(this)), (bytes32, bytes32));
+    }
 
-    function clone(bytes memory encodedSigner, bytes32 salt) external override returns (address) {
-        return _clone(encodedSigner, salt);
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal view override returns (address, uint256) {
+        bytes32 messageHash = MessageHashUtils.toEthSignedMessageHash(
+            abi.encodePacked(block.chainid, address(this), userOpHash)
+        );
+        // parse signature
+        bytes32 r = bytes32(userOp.signature[0x00:0x20]);
+        bytes32 s = bytes32(userOp.signature[0x20:0x40]);
+        return
+            P256.verify(messageHash, r, s, qx, qy)
+                ? (address(this), ERC4337Utils.SIG_VALIDATION_SUCCESS)
+                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+    }
+}
+
+contract MyAccountP256SignerFactory {
+    using Clones for address;
+
+    // Store the implementation of the account
+    address private immutable _accountImplementation = address(new MyAccountP256SignerClonable());
+
+    function predictAddress(bytes32 salt) public view returns (address) {
+        return _accountImplementation.predictDeterministicAddress(salt, address(this));
+    }
+
+    // Create accounts on demand
+    function cloneAndCall(bytes memory encodedPubKey, address module, bytes32 salt) public returns (address) {
+        return _clone(encodedPubKey, module, salt);
+    }
+
+    function _clone(bytes memory encodedPubKey, address module, bytes32 salt) internal returns (address) {
+        address predicted = predictAddress(salt);
+        if (predicted.code.length == 0) {
+            _accountImplementation.cloneDeterministicWithImmutableArgs(encodedPubKey, salt);
+        }
+        return predicted;
     }
 }
 ```

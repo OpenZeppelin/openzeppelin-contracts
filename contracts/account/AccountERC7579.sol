@@ -38,7 +38,7 @@ abstract contract AccountERC7579 is
 
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
-        address module = address(bytes20(signature[0:20]));
+        address module = abi.decode(signature[0:20], (address));
         _checkModule(MODULE_TYPE_VALIDATOR, module);
         return IERC7579Validator(module).isValidSignatureWithSender(msg.sender, hash, signature);
     }
@@ -85,7 +85,7 @@ abstract contract AccountERC7579 is
     function installModule(
         uint256 moduleTypeId,
         address module,
-        bytes calldata initData
+        bytes memory initData
     ) public virtual onlyEntryPointOrSelf {
         _installModule(moduleTypeId, module, initData);
     }
@@ -94,7 +94,7 @@ abstract contract AccountERC7579 is
     function uninstallModule(
         uint256 moduleTypeId,
         address module,
-        bytes calldata deInitData
+        bytes memory deInitData
     ) public virtual onlyEntryPointOrSelf {
         _uninstallModule(moduleTypeId, module, deInitData);
     }
@@ -104,7 +104,7 @@ abstract contract AccountERC7579 is
         bytes32 userOpHash
     ) internal virtual override returns (address signer, uint256 validationData) {
         PackedUserOperation memory userOpCopy = userOp;
-        address module = address(bytes20(userOp.signature[0:20]));
+        address module = abi.decode(userOp.signature[0:20], (address));
         userOpCopy.signature = userOp.signature[20:];
         return
             isModuleInstalled(MODULE_TYPE_EXECUTOR, module, userOp.signature[0:0])
@@ -145,30 +145,36 @@ abstract contract AccountERC7579 is
         return false;
     }
 
-    function _installModule(uint256 moduleTypeId, address module, bytes calldata initData) internal virtual {
+    function _installModule(uint256 moduleTypeId, address module, bytes memory initData) internal virtual {
         if (!_supportsModule(moduleTypeId)) revert ERC7579UnsupportedModuleType(moduleTypeId);
         if (!IERC7579Module(module).isModuleType(moduleTypeId))
             revert ERC7579MismatchedModuleTypeId(moduleTypeId, module);
         if (
             (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.add(module)) ||
-            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.add(module)) ||
-            (moduleTypeId == MODULE_TYPE_FALLBACK && !_installFallback(module, bytes4(initData[0:4])))
+            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.add(module))
         ) revert ERC7579AlreadyInstalledModule(moduleTypeId, module);
 
-        if (moduleTypeId == MODULE_TYPE_FALLBACK) initData = initData[4:];
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            bytes4 selector;
+            (selector, initData) = abi.decode(initData, (bytes4, bytes));
+            if (!_installFallback(module, selector)) revert ERC7579AlreadyInstalledModule(moduleTypeId, module);
+        }
 
         IERC7579Module(module).onInstall(initData);
         emit ModuleInstalled(moduleTypeId, module);
     }
 
-    function _uninstallModule(uint256 moduleTypeId, address module, bytes calldata deInitData) internal virtual {
+    function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual {
         if (
             (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.remove(module)) ||
-            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.remove(module)) ||
-            (moduleTypeId == MODULE_TYPE_FALLBACK && !_uninstallFallback(module, bytes4(deInitData[0:4])))
+            (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.remove(module))
         ) revert ERC7579UninstalledModule(moduleTypeId, module);
 
-        if (moduleTypeId == MODULE_TYPE_FALLBACK) deInitData = deInitData[4:];
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            bytes4 selector;
+            (selector, deInitData) = abi.decode(deInitData, (bytes4, bytes));
+            if (!_uninstallFallback(module, selector)) revert ERC7579UninstalledModule(moduleTypeId, module);
+        }
 
         IERC7579Module(module).onUninstall(deInitData);
         emit ModuleUninstalled(moduleTypeId, module);

@@ -92,7 +92,7 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
 
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4) {
-        address account = address(bytes20(signature[0:20]));
+        address account = abi.decode(signature[0:20], (address));
         bytes calldata sig = signature[20:];
         return _isValidSignature(account, hash, sig) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
@@ -137,24 +137,30 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
         bytes calldata signature
     ) internal view virtual returns (bool) {
         (address[] calldata signers, bytes[] calldata signatures) = _decodePackedSignatures(signature);
-        if (signers.length != signatures.length)
-            revert MultisigMismatchedSignaturesLength(account, signers.length, signatures.length);
+        if (signers.length != signatures.length) return false;
+        return _validateNSignatures(account, hash, signers, signatures);
+    }
 
-        uint256 count = 0;
+    function _validateNSignatures(
+        address account,
+        bytes32 hash,
+        address[] calldata signers,
+        bytes[] calldata signatures
+    ) private view returns (bool) {
         address currentSigner = address(0);
 
-        for (uint256 i = 0; i < signers.length; i++) {
+        uint256 signersLength = signers.length;
+        for (uint256 i = 0; i < signersLength; i++) {
             // Signers must be in order to ensure no duplicates
             address signer = signers[i];
-            if (currentSigner >= signer) revert MultisigUnorderedSigners(account, currentSigner, signer);
+            if (currentSigner >= signer) return false;
             currentSigner = signer;
 
-            bool canSign = _associatedSigners[account].contains(signer);
-            bool isValid = signer.isValidSignatureNow(hash, signatures[i]);
-            if (canSign && isValid) count++;
+            if (!_associatedSigners[account].contains(signer) || !signer.isValidSignatureNow(hash, signatures[i]))
+                return false;
         }
 
-        return count >= _associatedThreshold[account];
+        return signersLength >= _associatedThreshold[account];
     }
 
     function _decodePackedSignatures(

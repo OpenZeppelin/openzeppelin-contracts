@@ -128,8 +128,8 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:20]));
-        value = uint256(bytes32(executionCalldata[20:52]));
+        target = abi.decode(executionCalldata[0:20], (address));
+        value = abi.decode(executionCalldata[20:52], (uint256));
         callData = executionCalldata[52:];
     }
 
@@ -143,7 +143,7 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:20]));
+        target = abi.decode(executionCalldata[0:20], (address));
         callData = executionCalldata[20:];
     }
 

@@ -46,8 +46,12 @@ abstract contract AccountBase is IAccount, IAccountExecute, ERC1155Holder, ERC72
     }
 
     /// @inheritdoc IAccountExecute
-    function executeUserOp(PackedUserOperation calldata userOp, bytes32 /*userOpHash*/) public virtual onlyEntryPoint {
-        Address.functionDelegateCall(address(this), userOp.callData[4:]);
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 /*userOpHash*/
+    ) public virtual onlyEntryPointOrSelf {
+        (address target, uint256 value, bytes memory data) = abi.decode(userOp.callData[4:], (address, uint256, bytes));
+        Address.functionCallWithValue(target, data, value);
     }
 
     function _validateUserOp(

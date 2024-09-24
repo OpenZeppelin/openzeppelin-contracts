@@ -11,6 +11,8 @@ import {ShortStrings} from "../utils/ShortStrings.sol";
 abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
     error MismatchedTypedData();
 
+    constructor(string memory name, string memory version) EIP712(name, version) {}
+
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
         return _isValidSignature(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
