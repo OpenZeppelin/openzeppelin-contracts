@@ -142,7 +142,7 @@ library P256 {
 
     /**
      * @dev Checks if (x, y) are valid coordinates of a point on the curve.
-     * In particular this function checks that x <= P and y <= P.
+     * In particular this function checks that x < P and y < P.
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
@@ -239,7 +239,7 @@ library P256 {
     }
 
     /**
-     * @dev Compute P·u1 + Q·u2 using the precomputed points for P and Q (see {_preComputeJacobianPoints}).
+     * @dev Compute G·u1 + P·u2 using the precomputed points for G and P (see {_preComputeJacobianPoints}).
      *
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
@@ -292,17 +292,17 @@ library P256 {
         points[0x04] = JPoint(GX, GY, 1); // 0,1 (g)
         points[0x02] = _jDoublePoint(points[0x01]); // 2,0 (2p)
         points[0x08] = _jDoublePoint(points[0x04]); // 0,2 (2g)
-        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (3p)
+        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (p+2p = 3p)
         points[0x05] = _jAddPoint(points[0x01], points[0x04]); // 1,1 (p+g)
         points[0x06] = _jAddPoint(points[0x02], points[0x04]); // 2,1 (2p+g)
         points[0x07] = _jAddPoint(points[0x03], points[0x04]); // 3,1 (3p+g)
         points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
         points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
         points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g = 3g)
         points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
         points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
-        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
+        points[0x0f] = _jAddPoint(points[0x03], points[0x0c]); // 3,3 (3p+3g)
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {
