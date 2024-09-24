@@ -407,8 +407,8 @@ contract MyAccountP256SignerFactory {
     // Store the implementation of the account
     address private immutable _accountImplementation = address(new MyAccountP256SignerClonable());
 
-    function predictAddress(bytes32 salt) public view returns (address) {
-        return _accountImplementation.predictDeterministicAddress(salt, address(this));
+    function predictAddress(bytes memory encodedPubKey, bytes32 salt) public view returns (address) {
+        return _accountImplementation.predictDeterministicAddressWithImmutableArgs(encodedPubKey, salt, address(this));
     }
 
     // Create accounts on demand
