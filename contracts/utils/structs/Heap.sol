@@ -13,13 +13,13 @@ import {StorageSlot} from "../StorageSlot.sol";
  * @dev Library for managing https://en.wikipedia.org/wiki/Binary_heap[binary heap] that can be used as
  * https://en.wikipedia.org/wiki/Priority_queue[priority queue].
  *
- * Heaps are represented as an tree of values where the first element (index 0) is the root, and where the node at
- * index i is the child of the node at index (i-1)/2 and the father of nodes at index 2*i+1 and 2*i+2. Each node
+ * Heaps are represented as a tree of values where the first element (index 0) is the root, and where the node at
+ * index i is the child of the node at index (i-1)/2 and the parent of nodes at index 2*i+1 and 2*i+2. Each node
  * stores an element of the heap.
  *
  * The structure is ordered so that each node is bigger than its parent. An immediate consequence is that the
  * highest priority value is the one at the root. This value can be looked up in constant time (O(1)) at
- * `heap.tree[0].value`
+ * `heap.tree[0]`
  *
  * The structure is designed to perform the following operations with the corresponding complexities:
  *
@@ -42,7 +42,7 @@ library Heap {
     /**
      * @dev Binary heap that supports values of type uint256.
      *
-     * Each element of that structure uses 2 storage slots.
+     * Each element of that structure uses one storage slot.
      */
     struct Uint256Heap {
         uint256[] tree;
@@ -184,7 +184,7 @@ library Heap {
      * @dev Perform heap maintenance on `self`, starting at `index` (with the `value`), using `comp` as a
      * comparator, and moving toward the leaves of the underlying tree.
      *
-     * NOTE: This is a private function that is called in a trusted context with already cached parameters. `length`
+     * NOTE: This is a private function that is called in a trusted context with already cached parameters. `size`
      * and `value` could be extracted from `self` and `index`, but that would require redundant storage read. These
      * parameters are not verified. It is the caller role to make sure the parameters are correct.
      */
@@ -195,31 +195,33 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        // Check if there is a risk of overflow when computing the indices of the child nodes. If that is the case,
-        // there cannot be child nodes in the tree, so sifting is done.
-        if (index >= type(uint256).max / 2) return;
+        unchecked {
+            // Check if there is a risk of overflow when computing the indices of the child nodes. If that is the case,
+            // there cannot be child nodes in the tree, so sifting is done.
+            if (index >= type(uint256).max / 2) return;
 
-        // Compute the indices of the potential child nodes
-        uint256 lIndex = 2 * index + 1;
-        uint256 rIndex = 2 * index + 2;
+            // Compute the indices of the potential child nodes
+            uint256 lIndex = 2 * index + 1;
+            uint256 rIndex = 2 * index + 2;
 
-        // Three cases:
-        // 1. Both children exist: sifting may continue on one of the branch (selection required)
-        // 2. Only left child exist: sifting may contineu on the left branch (no selection required)
-        // 3. Neither child exist: sifting is done
-        if (rIndex < size) {
-            uint256 lValue = self.tree.unsafeAccess(lIndex).value;
-            uint256 rValue = self.tree.unsafeAccess(rIndex).value;
-            if (comp(lValue, value) || comp(rValue, value)) {
-                uint256 cIndex = comp(lValue, rValue).ternary(lIndex, rIndex);
-                _swap(self, index, cIndex);
-                _siftDown(self, size, cIndex, value, comp);
-            }
-        } else if (lIndex < size) {
-            uint256 lValue = self.tree.unsafeAccess(lIndex).value;
-            if (comp(lValue, value)) {
-                _swap(self, index, lIndex);
-                _siftDown(self, size, lIndex, value, comp);
+            // Three cases:
+            // 1. Both children exist: sifting may continue on one of the branch (selection required)
+            // 2. Only left child exist: sifting may continue on the left branch (no selection required)
+            // 3. Neither child exist: sifting is done
+            if (rIndex < size) {
+                uint256 lValue = self.tree.unsafeAccess(lIndex).value;
+                uint256 rValue = self.tree.unsafeAccess(rIndex).value;
+                if (comp(lValue, value) || comp(rValue, value)) {
+                    uint256 cIndex = comp(lValue, rValue).ternary(lIndex, rIndex);
+                    _swap(self, index, cIndex);
+                    _siftDown(self, size, cIndex, value, comp);
+                }
+            } else if (lIndex < size) {
+                uint256 lValue = self.tree.unsafeAccess(lIndex).value;
+                if (comp(lValue, value)) {
+                    _swap(self, index, lIndex);
+                    _siftDown(self, size, lIndex, value, comp);
+                }
             }
         }
     }
