@@ -17,6 +17,10 @@ pragma solidity ^0.8.20;
  * * `APP_DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the smart contract (app) that requested the signature
  * * `contents` is the hash of the requested EIP-712 typed data (see {EIP712-_hashTypedDataV4})
  * * `contentsType` is the EIP-712 type (e.g. `Transfer(address to,uint256 amount)`)
+ *
+ * NOTE: A provider for a smart contract wallet would need to return this signature as the result of a call to `personal_sign` or
+ * `eth_signTypedData`, and this may be unsupported by API clients that expect a return value of 129 bytes, or specifically
+ * the `r,s,v` parameters of an {ECDSA} signature, as is for example specified for {EIP712}.
  */
 library EIP712NestedUtils {
     /// @dev An EIP-712 typed to represent "personal" signatures (i.e. mimic of `eth_personalSign` for smart contracts).
@@ -67,6 +71,7 @@ library EIP712NestedUtils {
      * Requirements:
      *  * `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
      */
+    // solhint-disable-next-line func-name-mixedcase
     function TYPED_DATA_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert ERC7739InvalidContentsType();
