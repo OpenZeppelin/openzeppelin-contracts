@@ -58,6 +58,10 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{ECDSA}}
 
+{{P256}}
+
+{{RSA}}
+
 {{EIP712}}
 
 {{MessageHashUtils}}
