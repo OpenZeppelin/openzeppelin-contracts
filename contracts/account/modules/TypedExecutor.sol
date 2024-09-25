@@ -3,7 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {IERC7579Execution} from "../../interfaces/IERC7579Account.sol";
-import {IERC7579Module} from "../../interfaces/IERC7579Module.sol";
+import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
 import {ERC7579Utils, CallType, Execution, Mode} from "../utils/ERC7579Utils.sol";
 import {EIP712} from "../../utils//cryptography/EIP712.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
@@ -26,6 +26,11 @@ abstract contract TypedExecutor is IERC7579Module, EIP712 {
 
     event ERC7579TypedExecutorInstalled(address indexed account);
     event ERC7579TypedExecutorUninstalled(address indexed account);
+
+    /// @inheritdoc IERC7579Module
+    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
+        return moduleTypeId == MODULE_TYPE_EXECUTOR;
+    }
 
     /// @inheritdoc IERC7579Module
     function onInstall(bytes memory) public virtual {

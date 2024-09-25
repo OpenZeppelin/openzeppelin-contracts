@@ -9,8 +9,6 @@ import {EIP712NestedUtils} from "../utils/cryptography/EIP712NestedUtils.sol";
 import {ShortStrings} from "../utils/ShortStrings.sol";
 
 abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
-    error MismatchedTypedData();
-
     constructor(string memory name, string memory version) EIP712(name, version) {}
 
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
@@ -36,7 +34,7 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
             _signStructHash(EIP712NestedUtils.TYPED_DATA_TYPEHASH(contentsType), contents)
         );
 
-        if (typedDataHash != hash) revert MismatchedTypedData();
+        if (typedDataHash != hash) return false;
 
         return _validateSignature(hash, originalSignature);
     }

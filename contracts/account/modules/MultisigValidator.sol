@@ -29,6 +29,11 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     mapping(address => EnumerableSet.AddressSet) private _associatedSigners;
     mapping(address => uint256) private _associatedThreshold;
 
+    /// @inheritdoc IERC7579Module
+    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
+    }
+
     function threshold(address account) public view virtual returns (uint256) {
         return _associatedThreshold[account];
     }
@@ -72,11 +77,6 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
         _removeSigners(account, signers);
         uint256 remaining = _associatedSigners[account].length();
         if (remaining != 0) revert MultisigRemainingSigners(account, remaining);
-    }
-
-    /// @inheritdoc IERC7579Module
-    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
-        return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 
     /// @inheritdoc IERC7579Validator

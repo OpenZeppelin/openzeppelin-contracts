@@ -26,6 +26,10 @@ library ERC7579Utils {
 
     error ERC7579UnsupportedCallType(CallType callType);
     error ERC7579UnsupportedExecType(ExecType execType);
+    error ERC7579MismatchedModuleTypeId(uint256 moduleTypeId, address module);
+    error ERC7579UninstalledModule(uint256 moduleTypeId, address module);
+    error ERC7579AlreadyInstalledModule(uint256 moduleTypeId, address module);
+    error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
     function execSingle(
         ExecType execType,

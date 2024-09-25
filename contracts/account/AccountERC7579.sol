@@ -7,7 +7,7 @@ import {AccountBase} from "./AccountBase.sol";
 import {PackedUserOperation} from "../interfaces/IERC4337.sol";
 import {Address} from "../utils/Address.sol";
 import {IERC7579AccountConfig, IERC7579Execution, IERC7579ModuleConfig} from "../interfaces/IERC7579Account.sol";
-import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK, MODULE_TYPE_HOOK} from "../interfaces/IERC7579Module.sol";
+import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK} from "../interfaces/IERC7579Module.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "./utils/ERC7579Utils.sol";
 import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 import {EnumerableSet} from "../utils/structs/EnumerableSet.sol";
@@ -22,11 +22,6 @@ abstract contract AccountERC7579 is
     using ERC7579Utils for *;
     using EnumerableSet for *;
 
-    error ERC7579MismatchedModuleTypeId(uint256 moduleTypeId, address module);
-    error ERC7579UninstalledModule(uint256 moduleTypeId, address module);
-    error ERC7579AlreadyInstalledModule(uint256 moduleTypeId, address module);
-    error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
-
     EnumerableSet.AddressSet private _validators;
     EnumerableSet.AddressSet private _executors;
     mapping(bytes4 => address) private _fallbacks;
@@ -39,7 +34,7 @@ abstract contract AccountERC7579 is
     /// @inheritdoc IERC1271
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual override returns (bytes4) {
         address module = abi.decode(signature[0:20], (address));
-        _checkModule(MODULE_TYPE_VALIDATOR, module);
+        if (!_isModuleInstalled(MODULE_TYPE_VALIDATOR, module, msg.data)) return bytes4(0xffffffff);
         return IERC7579Validator(module).isValidSignatureWithSender(msg.sender, hash, signature);
     }
 
@@ -99,6 +94,13 @@ abstract contract AccountERC7579 is
         _uninstallModule(moduleTypeId, module, deInitData);
     }
 
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 /*userOpHash*/
+    ) public virtual override onlyEntryPointOrSelf {
+        Address.functionDelegateCall(address(this), userOp.callData[4:]);
+    }
+
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
@@ -146,18 +148,19 @@ abstract contract AccountERC7579 is
     }
 
     function _installModule(uint256 moduleTypeId, address module, bytes memory initData) internal virtual {
-        if (!_supportsModule(moduleTypeId)) revert ERC7579UnsupportedModuleType(moduleTypeId);
+        if (!_supportsModule(moduleTypeId)) revert ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId);
         if (!IERC7579Module(module).isModuleType(moduleTypeId))
-            revert ERC7579MismatchedModuleTypeId(moduleTypeId, module);
+            revert ERC7579Utils.ERC7579MismatchedModuleTypeId(moduleTypeId, module);
         if (
             (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.add(module)) ||
             (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.add(module))
-        ) revert ERC7579AlreadyInstalledModule(moduleTypeId, module);
+        ) revert ERC7579Utils.ERC7579AlreadyInstalledModule(moduleTypeId, module);
 
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector;
             (selector, initData) = abi.decode(initData, (bytes4, bytes));
-            if (!_installFallback(module, selector)) revert ERC7579AlreadyInstalledModule(moduleTypeId, module);
+            if (!_installFallback(module, selector))
+                revert ERC7579Utils.ERC7579AlreadyInstalledModule(moduleTypeId, module);
         }
 
         IERC7579Module(module).onInstall(initData);
@@ -168,12 +171,13 @@ abstract contract AccountERC7579 is
         if (
             (moduleTypeId == MODULE_TYPE_VALIDATOR && !_validators.remove(module)) ||
             (moduleTypeId == MODULE_TYPE_EXECUTOR && !_executors.remove(module))
-        ) revert ERC7579UninstalledModule(moduleTypeId, module);
+        ) revert ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module);
 
         if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector;
             (selector, deInitData) = abi.decode(deInitData, (bytes4, bytes));
-            if (!_uninstallFallback(module, selector)) revert ERC7579UninstalledModule(moduleTypeId, module);
+            if (!_uninstallFallback(module, selector))
+                revert ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module);
         }
 
         IERC7579Module(module).onUninstall(deInitData);
@@ -195,7 +199,7 @@ abstract contract AccountERC7579 is
 
     function _checkModule(uint256 moduleTypeId, address module) internal view virtual {
         if (!_isModuleInstalled(moduleTypeId, module, msg.data)) {
-            revert ERC7579UninstalledModule(moduleTypeId, module);
+            revert ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module);
         }
     }
 
@@ -210,9 +214,9 @@ abstract contract AccountERC7579 is
         return _fallbacks[selector];
     }
 
-    fallback() external payable virtual {
+    function _fallback() internal virtual {
         address handler = _fallbackHandler(msg.sig);
-        if (handler == address(0)) revert ERC7579UninstalledModule(MODULE_TYPE_FALLBACK, address(0));
+        if (handler == address(0)) return;
 
         // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
         // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
@@ -229,5 +233,9 @@ abstract contract AccountERC7579 is
                 return(add(returndata, 0x20), mload(returndata))
             }
         }
+    }
+
+    fallback() external payable virtual {
+        _fallback();
     }
 }
