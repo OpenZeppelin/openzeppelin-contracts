@@ -27,7 +27,7 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{RSAValidator}}
 
-{{MultisigValidator}}
+{{MultiERC1271Validator}}
 
 === Executors
 

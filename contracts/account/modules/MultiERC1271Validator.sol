@@ -9,7 +9,7 @@ import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
-abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
+abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SignatureChecker for address;
 
@@ -17,14 +17,14 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     event ValidatorsRemoved(address indexed account, address[] indexed signers);
     event ThresholdChanged(address indexed account, uint256 threshold);
 
-    error MultisigSignerAlreadyExists(address account, address signer);
-    error MultisigSignerDoesNotExist(address account, address signer);
-    error MultisigUnreachableThreshold(address account, uint256 signers, uint256 threshold);
-    error MultisigRemainingSigners(address account, uint256 remaining);
-    error MultisigMismatchedSignaturesLength(address account, uint256 signersLength, uint256 signaturesLength);
-    error MultisigUnorderedSigners(address account, address prev, address current);
+    error MultiERC1271SignerAlreadyExists(address account, address signer);
+    error MultiERC1271SignerDoesNotExist(address account, address signer);
+    error MultiERC1271UnreachableThreshold(address account, uint256 signers, uint256 threshold);
+    error MultiERC1271RemainingSigners(address account, uint256 remaining);
+    error MultiERC1271MismatchedSignaturesLength(address account, uint256 signersLength, uint256 signaturesLength);
+    error MultiERC1271UnorderedSigners(address account, address prev, address current);
 
-    error MultisigUnauthorizedExecution(address account, address sender);
+    error MultiERC1271UnauthorizedExecution(address account, address sender);
 
     mapping(address => EnumerableSet.AddressSet) private _associatedSigners;
     mapping(address => uint256) private _associatedThreshold;
@@ -76,7 +76,7 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
         _associatedThreshold[account] = 0;
         _removeSigners(account, signers);
         uint256 remaining = _associatedSigners[account].length();
-        if (remaining != 0) revert MultisigRemainingSigners(account, remaining);
+        if (remaining != 0) revert MultiERC1271RemainingSigners(account, remaining);
     }
 
     /// @inheritdoc IERC7579Validator
@@ -108,14 +108,16 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
 
     function _addValidators(address account, address[] memory signers) internal virtual {
         for (uint256 i = 0; i < signers.length; i++) {
-            if (!_associatedSigners[account].add(signers[i])) revert MultisigSignerAlreadyExists(account, signers[i]);
+            if (!_associatedSigners[account].add(signers[i]))
+                revert MultiERC1271SignerAlreadyExists(account, signers[i]);
         }
         emit ValidatorsAdded(account, signers);
     }
 
     function _removeSigners(address account, address[] memory signers) internal virtual {
         for (uint256 i = 0; i < signers.length; i++) {
-            if (!_associatedSigners[account].remove(signers[i])) revert MultisigSignerDoesNotExist(account, signers[i]);
+            if (!_associatedSigners[account].remove(signers[i]))
+                revert MultiERC1271SignerDoesNotExist(account, signers[i]);
         }
         emit ValidatorsRemoved(account, signers);
     }
@@ -128,7 +130,7 @@ abstract contract MultisigValidator is IERC7579Validator, IERC1271 {
     function _validateThreshold(address account) internal view virtual {
         uint256 signers = _associatedSigners[account].length();
         uint256 _threshold = _associatedThreshold[account];
-        if (signers < _threshold) revert MultisigUnreachableThreshold(account, signers, _threshold);
+        if (signers < _threshold) revert MultiERC1271UnreachableThreshold(account, signers, _threshold);
     }
 
     function _isValidSignature(
