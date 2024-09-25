@@ -9,7 +9,7 @@ import {EIP712} from "../../utils//cryptography/EIP712.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
 
-abstract contract TypedExecutor is IERC7579Module, EIP712 {
+abstract contract TypedExecutor is EIP712, IERC7579Module {
     bytes internal constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
         bytes("ExecuteSingle(address account,address target,uint256 value,bytes data)");
     bytes internal constant _EXECUTE_REQUEST_BATCH_TYPENAME =

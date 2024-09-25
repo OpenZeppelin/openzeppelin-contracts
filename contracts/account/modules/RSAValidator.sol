@@ -9,7 +9,7 @@ import {IERC7579Validator, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC757
 import {ERC1271TypedSigner} from "../ERC1271TypedSigner.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
-abstract contract RSAValidator is IERC7579Validator, ERC1271TypedSigner {
+abstract contract RSAValidator is ERC1271TypedSigner, IERC7579Validator {
     mapping(address => bytes) private _associatedE;
     mapping(address => bytes) private _associatedN;
 

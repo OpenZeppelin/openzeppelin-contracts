@@ -9,7 +9,7 @@ import {IERC7579Validator, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC757
 import {ERC1271TypedSigner} from "../ERC1271TypedSigner.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
 
-abstract contract P256Validator is IERC7579Validator, ERC1271TypedSigner {
+abstract contract P256Validator is ERC1271TypedSigner, IERC7579Validator {
     mapping(address => bytes32) private _associatedQx;
     mapping(address => bytes32) private _associatedQy;
 

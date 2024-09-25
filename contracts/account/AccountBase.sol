@@ -7,7 +7,7 @@ import {Address} from "../utils/Address.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 
-abstract contract AccountBase is IAccount, IAccountExecute, ERC1155Holder, ERC721Holder {
+abstract contract AccountBase is ERC721Holder, ERC1155Holder, IAccount, IAccountExecute {
     error AccountEntryPointRestricted();
 
     modifier onlyEntryPointOrSelf() {
