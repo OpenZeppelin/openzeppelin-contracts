@@ -802,7 +802,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @dev Try to parse a character from a string as a hex value. Returns `(true, value)` if the char is in
      * `[0-9a-fA-F]` and `(false, 0)` otherwise. Value is guaranteed to be in the range `0 <= value < 16`
      */
-    function _tryHexToUint(bytes1 char) private pure returns (bool, uint8) {
+    function _tryHexToUint(bytes1 char) private pure returns (bool isHex, uint8 value) {
         uint8 c = uint8(char);
         unchecked {
             // Case 0-9
