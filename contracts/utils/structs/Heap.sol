@@ -195,31 +195,33 @@ library Heap {
         uint256 value,
         function(uint256, uint256) view returns (bool) comp
     ) private {
-        // Check if there is a risk of overflow when computing the indices of the child nodes. If that is the case,
-        // there cannot be child nodes in the tree, so sifting is done.
-        if (index >= type(uint256).max / 2) return;
+        unchecked {
+            // Check if there is a risk of overflow when computing the indices of the child nodes. If that is the case,
+            // there cannot be child nodes in the tree, so sifting is done.
+            if (index >= type(uint256).max / 2) return;
 
-        // Compute the indices of the potential child nodes
-        uint256 lIndex = 2 * index + 1;
-        uint256 rIndex = 2 * index + 2;
+            // Compute the indices of the potential child nodes
+            uint256 lIndex = 2 * index + 1;
+            uint256 rIndex = 2 * index + 2;
 
-        // Three cases:
-        // 1. Both children exist: sifting may continue on one of the branch (selection required)
-        // 2. Only left child exist: sifting may continue on the left branch (no selection required)
-        // 3. Neither child exist: sifting is done
-        if (rIndex < size) {
-            uint256 lValue = self.tree.unsafeAccess(lIndex).value;
-            uint256 rValue = self.tree.unsafeAccess(rIndex).value;
-            if (comp(lValue, value) || comp(rValue, value)) {
-                uint256 cIndex = comp(lValue, rValue).ternary(lIndex, rIndex);
-                _swap(self, index, cIndex);
-                _siftDown(self, size, cIndex, value, comp);
-            }
-        } else if (lIndex < size) {
-            uint256 lValue = self.tree.unsafeAccess(lIndex).value;
-            if (comp(lValue, value)) {
-                _swap(self, index, lIndex);
-                _siftDown(self, size, lIndex, value, comp);
+            // Three cases:
+            // 1. Both children exist: sifting may continue on one of the branch (selection required)
+            // 2. Only left child exist: sifting may continue on the left branch (no selection required)
+            // 3. Neither child exist: sifting is done
+            if (rIndex < size) {
+                uint256 lValue = self.tree.unsafeAccess(lIndex).value;
+                uint256 rValue = self.tree.unsafeAccess(rIndex).value;
+                if (comp(lValue, value) || comp(rValue, value)) {
+                    uint256 cIndex = comp(lValue, rValue).ternary(lIndex, rIndex);
+                    _swap(self, index, cIndex);
+                    _siftDown(self, size, cIndex, value, comp);
+                }
+            } else if (lIndex < size) {
+                uint256 lValue = self.tree.unsafeAccess(lIndex).value;
+                if (comp(lValue, value)) {
+                    _swap(self, index, lIndex);
+                    _siftDown(self, size, lIndex, value, comp);
+                }
             }
         }
     }
