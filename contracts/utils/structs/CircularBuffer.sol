@@ -34,6 +34,8 @@ import {Panic} from "../Panic.sol";
  *     CircularBuffer.Bytes32CircularBuffer private myBuffer;
  * }
  * ```
+ *
+ * _Available since v5.1._
  */
 library CircularBuffer {
     /**

@@ -8,6 +8,8 @@ import {StorageSlot} from "./StorageSlot.sol";
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
  *
  * NOTE: This variant only works on networks where EIP-1153 is available.
+ *
+ * _Available since v5.1._
  */
 abstract contract ReentrancyGuardTransient {
     using StorageSlot for *;

@@ -36,6 +36,8 @@ pragma solidity ^0.8.20;
  *
  * NOTE: This library provides a way to manipulate storage locations in a non-standard way. Tooling for checking
  * upgrade safety will ignore the slots accessed through this library.
+ *
+ * _Available since v5.1._
  */
 `;
 
