@@ -10,33 +10,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512
     function testVerify(bytes32 digest, uint256 seed) public {
-        // In theory, all private keys between 1 and P256.N-1 should be supported. However, the `_jAdd` limitation,
-        // that indirectly affects `_preComputeJacobianPoints` causes issues for some private/public key pairs
-        //
-        // In particular, the following key pairs are not supported:
-        // * private = 1 (P = G)
-        // * private = 2 (P = 2G)
-        // * private = 3 (P = 3G)
-        // * private = N - 3 (P = -3G)
-        // * private = N - 2 (P = -2G)
-        // * private = N - 1 (P = -G)
-        uint256 privateKey = bound(seed, 4, P256.N - 4);
-
-        (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
-        (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
-        s = _ensureLowerS(s);
-        assertTrue(P256.verify(digest, r, s, x, y));
-        assertTrue(P256.verifySolidity(digest, r, s, x, y));
-    }
-
-    /// forge-config: default.fuzz.runs = 10
-    function testVerifyEdgeCase(bytes32 digest) public {
-        // failing cases include
-        // * P256.N - 1
-        // * P256.N - 2
-        // * P256.N - 3
-        // uint256 privateKey = P256.N - 3;
-        uint256 privateKey = 4;
+        uint256 privateKey = _asPrivateKey(seed);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -47,7 +21,7 @@ contract P256Test is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+        uint256 privateKey = _asPrivateKey(seed);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -55,6 +29,22 @@ contract P256Test is Test {
         (bytes32 qx0, bytes32 qy0) = P256.recovery(digest, 0, r, s);
         (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
+    }
+
+    function _asPrivateKey(uint256 seed) private pure returns (uint256) {
+        // In theory, all private keys between 1 and P256.N-1 should be supported. However, the `_jAdd` limitation,
+        // that indirectly affects `_preComputeJacobianPoints` causes issues for some private/public key pairs
+        //
+        // In particular, the following key pairs are not supported:
+        // * private = 1 (P = G)
+        // * private = 2 (P = 2G)
+        // * private = 3 (P = 3G)
+        // * private = N - 3 (P = -3G)
+        // * private = N - 2 (P = -2G)
+        // * private = N - 1 (P = -G)
+        //
+        // Ideally we could just do `return bound(seed, 1, P256.N - 1);`. Somehow, the hash procudes "good" values.
+        return bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
     }
 
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
