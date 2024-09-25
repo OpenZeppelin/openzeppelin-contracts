@@ -36,7 +36,11 @@ library Checkpoints {
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint32).max` key set will disable the
      * library.
      */
-    function push(Trace224 storage self, uint32 key, uint224 value) internal returns (uint224, uint224) {
+    function push(
+        Trace224 storage self,
+        uint32 key,
+        uint224 value
+    ) internal returns (uint224 oldValue, uint224 newValue) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -127,7 +131,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint224[] storage self, uint32 key, uint224 value) private returns (uint224, uint224) {
+    function _insert(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint224 value
+    ) private returns (uint224 oldValue, uint224 newValue) {
         uint256 pos = self.length;
 
         if (pos > 0) {
@@ -231,7 +239,11 @@ library Checkpoints {
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint48).max` key set will disable the
      * library.
      */
-    function push(Trace208 storage self, uint48 key, uint208 value) internal returns (uint208, uint208) {
+    function push(
+        Trace208 storage self,
+        uint48 key,
+        uint208 value
+    ) internal returns (uint208 oldValue, uint208 newValue) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -322,7 +334,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint208[] storage self, uint48 key, uint208 value) private returns (uint208, uint208) {
+    function _insert(
+        Checkpoint208[] storage self,
+        uint48 key,
+        uint208 value
+    ) private returns (uint208 oldValue, uint208 newValue) {
         uint256 pos = self.length;
 
         if (pos > 0) {
@@ -426,7 +442,11 @@ library Checkpoints {
      * IMPORTANT: Never accept `key` as a user input, since an arbitrary `type(uint96).max` key set will disable the
      * library.
      */
-    function push(Trace160 storage self, uint96 key, uint160 value) internal returns (uint160, uint160) {
+    function push(
+        Trace160 storage self,
+        uint96 key,
+        uint160 value
+    ) internal returns (uint160 oldValue, uint160 newValue) {
         return _insert(self._checkpoints, key, value);
     }
 
@@ -517,7 +537,11 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
-    function _insert(Checkpoint160[] storage self, uint96 key, uint160 value) private returns (uint160, uint160) {
+    function _insert(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint160 value
+    ) private returns (uint160 oldValue, uint160 newValue) {
         uint256 pos = self.length;
 
         if (pos > 0) {

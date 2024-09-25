@@ -218,7 +218,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _recoverForwardRequestSigner(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool, address) {
+    ) internal view virtual returns (bool isValid, address signer) {
         (address recovered, ECDSA.RecoverError err, ) = _hashTypedDataV4(
             keccak256(
                 abi.encode(

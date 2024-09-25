@@ -120,7 +120,7 @@ library P256 {
      * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
      * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
-    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
+    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32 x, bytes32 y) {
         if (!_isProperSignature(r, s) || v > 1) {
             return (0, 0);
         }
@@ -136,8 +136,8 @@ library P256 {
         uint256 w = Math.invModPrime(uint256(r), N);
         uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
         uint256 u2 = mulmod(uint256(s), w, N);
-        (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (bytes32(x), bytes32(y));
+        (uint256 xU, uint256 yU) = _jMultShamir(points, u1, u2);
+        return (bytes32(xU), bytes32(yU));
     }
 
     /**
@@ -247,7 +247,11 @@ library P256 {
      * The individual points for a single pass are precomputed.
      * Overall this reduces the number of additions while keeping the same number of doublings.
      */
-    function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
+    function _jMultShamir(
+        JPoint[16] memory points,
+        uint256 u1,
+        uint256 u2
+    ) private view returns (uint256 rx, uint256 ry) {
         uint256 x = 0;
         uint256 y = 0;
         uint256 z = 0;
