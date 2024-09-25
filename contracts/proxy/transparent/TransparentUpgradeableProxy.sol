@@ -15,12 +15,7 @@ import {ProxyAdmin} from "./ProxyAdmin.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    /**
-     * @dev Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call
-     * encoded in `data`.
-     *
-     * See {UUPSUpgradeable-upgradeToAndCall}
-     */
+    /// @dev See {UUPSUpgradeable-upgradeToAndCall}
     function upgradeToAndCall(address newImplementation, bytes calldata data) external payable;
 }
 

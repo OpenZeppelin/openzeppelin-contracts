@@ -70,7 +70,10 @@ library MerkleTree {
      * should be pushed to it using the custom push function, which should be the same one as used during the setup.
      *
      * IMPORTANT: Providing a custom hashing function is a security-sensitive operation since it may
-     * compromise the soundness of the tree. Consider using functions from {Hashes}.
+     * compromise the soundness of the tree.
+     *
+     * NOTE: Consider verifying that the hashing function does not manipulate the memory state directly and that it
+     * follows the Solidity memory safety rules. Otherwise, it may lead to unexpected behavior.
      */
     function setup(
         Bytes32PushTree storage self,
