@@ -117,7 +117,7 @@ library EIP712NestedUtils {
         uint256 argsStart = _indexOf(contentsType, bytes1("("));
         if (argsStart == contentsTypeLength) return (false, contentsType[0:0]);
 
-        // Forbidded characters
+        // Forbidden characters
         for (uint256 i = 0; i < contentsTypeLength; i++) {
             // Look for any of the following bytes: , )\x00
             bytes1 current = contentsType[i];
