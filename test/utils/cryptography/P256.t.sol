@@ -20,7 +20,7 @@ contract P256Test is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testRecover(uint256 seed, bytes32 digest) public {
+    function testRecover(bytes32 digest, uint256 seed) public {
         uint256 privateKey = _asPrivateKey(seed);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
