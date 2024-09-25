@@ -132,7 +132,7 @@ describe('P256', function () {
     // * private = N - 2 (P = -2G)
     // * private = N - 1 (P = -G)
     for (const privateKey of [1n, 2n, 3n, -3n, -2n, -1n]) {
-      it(`unsuported case: P = ${privateKey} * G`, async function () {
+      it(`unsupported case: P = ${privateKey} * G`, async function () {
         const { messageHash, signature, publicKey } = prepareSignature(
           privateKey < 0 ? privateKey + secp256r1.CURVE.n : privateKey,
         );
