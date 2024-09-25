@@ -1,6 +1,6 @@
 = ERC-7579
 
-The https://eips.ethereum.org/EIPS/eip-7579[ERC-7579] is a proposal for standardizing smart accounts and modules to ensure interoperability across implementations. The standard defines a set of interfaces for smart acconts that enable developers to delegate logic to third-party smart contracts (or modules). Modules are categorized in the following 4 types:
+The https://eips.ethereum.org/EIPS/eip-7579[ERC-7579] is a proposal for standardizing smart accounts and modules to ensure interoperability across implementations. The standard defines a set of interfaces for smart accounts that enable developers to delegate logic to third-party smart contracts (or modules). Modules are categorized in the following 4 types:
 
 - **Validators**: Modules to which the smart account delegates the validation of an `UserOperation`.
 - **Executors**: Contracts that are allowed to execute calls on behalf of the smart account.

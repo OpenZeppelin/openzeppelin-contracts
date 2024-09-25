@@ -13,7 +13,7 @@ abstract contract TypedExecutor is IERC7579Module, EIP712 {
     bytes internal constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
         bytes("ExecuteSingle(address account,address target,uint256 value,bytes data)");
     bytes internal constant _EXECUTE_REQUEST_BATCH_TYPENAME =
-        bytes("ExecuteBatch(address account,address[] targets,uint256[] values,bytes[] datas)");
+        bytes("ExecuteBatch(address account,address[] targets,uint256[] values,bytes[] calldatas)");
     bytes internal constant _EXECUTE_REQUEST_DELEGATECALL_TYPENAME =
         bytes("ExecuteDelegate(address account,address target,bytes data)");
 
@@ -62,11 +62,11 @@ abstract contract TypedExecutor is IERC7579Module, EIP712 {
     }
 
     function _batch(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
-        (address[] memory targets, uint256[] memory values, bytes[] memory datas) = abi.decode(
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = abi.decode(
             request,
             (address[], uint256[], bytes[])
         );
-        bytes32 requestHash = _hashTypedDataV4(_batchStructHash(account, targets, values, datas));
+        bytes32 requestHash = _hashTypedDataV4(_batchStructHash(account, targets, values, calldatas));
         if (!_isValidExecuteRequest(account, requestHash, signature, _EXECUTE_REQUEST_BATCH_TYPENAME))
             revert UnauthorizedTypedExecution(ERC7579Utils.CALLTYPE_BATCH, account, msg.sender);
         Execution[] calldata executions = ERC7579Utils.decodeBatch(request);
@@ -109,11 +109,11 @@ abstract contract TypedExecutor is IERC7579Module, EIP712 {
         address account,
         address[] memory targets,
         uint256[] memory values,
-        bytes[] memory datas
+        bytes[] memory calldatas
     ) internal view virtual returns (bytes32) {
-        bytes32[] memory dataHashes = new bytes32[](datas.length);
-        for (uint256 i = 0; i < datas.length; i++) {
-            dataHashes[i] = keccak256(datas[i]);
+        bytes32[] memory dataHashes = new bytes32[](calldatas.length);
+        for (uint256 i = 0; i < calldatas.length; i++) {
+            dataHashes[i] = keccak256(calldatas[i]);
         }
         bytes memory content = abi.encode(
             _EXECUTE_REQUEST_BATCH_TYPEHASH,
