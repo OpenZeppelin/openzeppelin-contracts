@@ -242,10 +242,10 @@ library P256 {
      * @dev Compute G·u1 + P·u2 using the precomputed points for G and P (see {_preComputeJacobianPoints}).
      *
      * Uses Strauss Shamir trick for EC multiplication
-     * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
-     * we optimise on this a bit to do with 2 bits at a time rather than a single bit
-     * the individual points for a single pass are precomputed
-     * overall this reduces the number of additions while keeping the same number of doublings
+     * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method.
+     * We optimise on this a bit to do with 2 bits at a time rather than a single bit.
+     * The individual points for a single pass are precomputed.
+     * Overall this reduces the number of additions while keeping the same number of doublings.
      */
     function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
         uint256 x = 0;
