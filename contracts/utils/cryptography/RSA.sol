@@ -80,7 +80,7 @@ library RSA {
             // - PS is padding filled with 0xFF
             // - DigestInfo ::= SEQUENCE {
             //    digestAlgorithm AlgorithmIdentifier,
-            //      [optional algorithm parameters]
+            //      [optional algorithm parameters] -- not currently supported
             //    digest OCTET STRING
             // }
 
