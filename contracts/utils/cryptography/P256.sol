@@ -202,7 +202,7 @@ library P256 {
             let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1 = x2*z1²-x1*z2²
 
             // detect edge cases where inputs are identical
-            switch and(iszero(h), iszero(h))
+            switch and(iszero(r), iszero(h))
             // case 1: points are different
             case 0 {
                 let hh := mulmod(h, h, p) // h²
