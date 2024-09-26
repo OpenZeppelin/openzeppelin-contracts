@@ -34,7 +34,7 @@ library RSA {
      * 2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
      * WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
-     * digest, public key and (valid signature), it will return true everytime. Consider including an onchain nonce or
+     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce or
      * unique identifier in the message to prevent replay attacks.
      *
      * @param digest the digest to verify
