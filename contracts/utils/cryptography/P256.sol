@@ -184,8 +184,8 @@ library P256 {
      * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
      *
-     * Note that `addition-add-1998-cmo-2` doesn't support identical inputs being. This version is modified to use the
-     * `h` and `r` values computed by `addition-add-1998-cmo-2` to detect identical inputs, and fallback
+     * Note that `addition-add-1998-cmo-2` doesn't support identical inputs points. This version is modified to use
+     * the `h` and `r` values computed by `addition-add-1998-cmo-2` to detect identical inputs, and fallback
      * `doubling-dbl-1998-cmo-2` if needed.
      */
     function _jAdd(
