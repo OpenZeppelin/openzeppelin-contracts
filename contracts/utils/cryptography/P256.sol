@@ -183,6 +183,10 @@ library P256 {
     /**
      * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
+     *
+     * Note that `addition-add-1998-cmo-2` doesn't support identical inputs being. This version is modified to use the
+     * `h` and `r` values computed by `addition-add-1998-cmo-2` to detect identical inputs, and fallback
+     * `doubling-dbl-1998-cmo-2` if needed.
      */
     function _jAdd(
         JPoint memory p1,
@@ -272,14 +276,14 @@ library P256 {
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
      *
-     * We optimise on this a bit to do with 2 bits at a time rather than a single bit. The individual points for a 
-     * single pass are precomputed. Overall this reduces the number of additions while keeping the same number of 
+     * We optimise on this a bit to do with 2 bits at a time rather than a single bit. The individual points for a
+     * single pass are precomputed. Overall this reduces the number of additions while keeping the same number of
      * doublings
      *
-     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when
-     * adding a point with itself), this function could produce invalid values. This would result in the inability to
-     * verify or recover valid signatures. It is estimated to have a probability of about 1e-77 to happen. This edge
-     * case could potentially cause a valid signature to fail verification.
+     * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
+     * This would result in the inability to verify or recover valid signatures. This edge case could potentially
+     * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, is
+     * it extremelly unlikelly to happen with randomly generated keys.
      */
     function _jMultShamir(
         JPoint[16] memory points,
@@ -324,10 +328,10 @@ library P256 {
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
      *
-     * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when
-     * adding a point with itself), this function could produce invalid values. This would result in the inability to
-     * verify or recover valid signatures. It is estimated to have a probability of about 1e-74 to happen. This edge
-     * case could potentially cause a valid signature to fail verification.
+     * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
+     * This would result in the inability to verify or recover valid signatures. This edge case could potentially
+     * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, is
+     * it extremelly unlikelly to happen with randomly generated keys.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
