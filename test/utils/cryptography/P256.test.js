@@ -122,24 +122,17 @@ describe('P256', function () {
   });
 
   describe('test special cases', function () {
-    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the computation fast method
-    // introduced artefacts that can cause invalid computation for some particular keys
     const { n: N } = secp256r1.CURVE;
-    const unsupported = [
-      N / 3n,
-      N / 2n - 1n,
-      N / 2n,
-      N * 2n / 3n,
-      N - 3n,
-      N - 2n,
-      N - 1n,
-    ];
+
+    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the fast computation method
+    // introduces artefacts that can cause invalid computation for some particular keys
+    const unsupported = [N / 3n, N / 2n - 1n, N / 2n, (N * 2n) / 3n, N - 3n, N - 2n, N - 1n];
 
     for (const privateKey of [].concat(
       range(1n, 6n),
       range(N / 3n - 5n, N / 3n + 6n),
       range(N / 2n - 5n, N / 2n + 6n),
-      range(N * 2n / 3n - 5n, N * 2n / 3n + 6n),
+      range((N * 2n) / 3n - 5n, (N * 2n) / 3n + 6n),
       range(N - 5n, N),
     )) {
       const result = !unsupported.includes(privateKey);

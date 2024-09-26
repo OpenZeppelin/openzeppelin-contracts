@@ -42,7 +42,9 @@ module.exports = {
         stop = start;
         start = 0n;
       }
-      return start < stop ? Array.from({ length: Number((stop - start + step - 1n) / step) }, (_, i) => start + BigInt(i) * step) : [];
+      return start < stop
+        ? Array.from({ length: Number((stop - start + step - 1n) / step) }, (_, i) => start + BigInt(i) * step)
+        : [];
     },
   },
 };
