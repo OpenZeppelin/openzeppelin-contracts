@@ -197,25 +197,53 @@ library P256 {
             let z1 := mload(add(p1, 0x40))
             let zz1 := mulmod(z1, z1, p) // zz1 = z1²
             let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
-            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1 = y2*z1³-s1
+            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1 = y2*z1³-s1 = y2*z1³-y1*z2³
             let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
-            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1
-            let hh := mulmod(h, h, p) // h²
+            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1 = x2*z1²-x1*z2²
 
-            // x' = r²-h³-2*u1*h²
-            rx := addmod(
-                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
-                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
-                p
-            )
-            // y' = r*(u1*h²-x')-s1*h³
-            ry := addmod(
-                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
-                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
-                p
-            )
-            // z' = h*z1*z2
-            rz := mulmod(h, mulmod(z1, z2, p), p)
+            // detect edge cases where inputs are identical
+            switch and(iszero(h), iszero(h))
+            // case 1: points are different
+            case 0 {
+                let hh := mulmod(h, h, p) // h²
+
+                // x' = r²-h³-2*u1*h²
+                rx := addmod(
+                    addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                    sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                    p
+                )
+                // y' = r*(u1*h²-x')-s1*h³
+                ry := addmod(
+                    mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                    sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                    p
+                )
+                // z' = h*z1*z2
+                rz := mulmod(h, mulmod(z1, z2, p), p)
+            }
+            // case 1: points are equal
+            case 1 {
+                let x := x2
+                let y := y2
+                let z := z2
+                let zz := mulmod(z, z, p)
+                let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
+                let yy := mulmod(y, y, p)
+                let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
+
+                // x' = t = m²-2*s
+                rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
+
+                // y' = m*(s-t)-8*y⁴ = m*(s-x')-8*y⁴
+                // cut the computation to avoid stack too deep
+                let rytmp1 := sub(p, mulmod(8, mulmod(yy, yy, p), p)) // -8*y⁴
+                let rytmp2 := addmod(s, sub(p, rx), p) // s-x'
+                ry := addmod(mulmod(m, rytmp2, p), rytmp1, p) // m*(s-x')-8*y⁴
+
+                // z' = 2*y*z
+                rz := mulmod(2, mulmod(y, z, p), p)
+            }
         }
     }
 

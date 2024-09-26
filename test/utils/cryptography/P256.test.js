@@ -121,22 +121,21 @@ describe('P256', function () {
   });
 
   describe('edge cases', function () {
-    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the `_jAdd` limitation,
-    // that indirectly affects `_preComputeJacobianPoints` causes issues for some private/public key pairs
-    //
-    // In particular, the following key pairs are not supported:
-    // * private = 1 (P = G)
-    // * private = 2 (P = 2G)
-    // * private = 3 (P = 3G)
-    // * private = N - 3 (P = -3G)
-    // * private = N - 2 (P = -2G)
-    // * private = N - 1 (P = -G)
-    for (const privateKey of [1n, 2n, 3n, -3n, -2n, -1n]) {
+    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the computation fast method
+    // introduced artefacts that can cause invalid computation for some particular keys
+    for (const [privateKey, result] of [
+      [1n, true], // fixed
+      [2n, true], // fixed
+      [3n, true], // fixed
+      [-3n, false],
+      [-2n, false],
+      [-1n, false],
+    ]) {
       it(`unsupported case: P = ${privateKey} * G`, async function () {
         const { messageHash, signature, publicKey } = prepareSignature(
           privateKey < 0 ? privateKey + secp256r1.CURVE.n : privateKey,
         );
-        expect(await this.mock.$verifySolidity(messageHash, ...signature, ...publicKey)).to.be.false;
+        expect(await this.mock.$verifySolidity(messageHash, ...signature, ...publicKey)).to.equal(result);
       });
     }
   });
