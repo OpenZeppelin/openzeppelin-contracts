@@ -120,7 +120,7 @@ library P256 {
      * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
      * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
-    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
+    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32 x, bytes32 y) {
         if (!_isProperSignature(r, s) || v > 1) {
             return (0, 0);
         }
@@ -136,13 +136,13 @@ library P256 {
         uint256 w = Math.invModPrime(uint256(r), N);
         uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
         uint256 u2 = mulmod(uint256(s), w, N);
-        (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (bytes32(x), bytes32(y));
+        (uint256 xU, uint256 yU) = _jMultShamir(points, u1, u2);
+        return (bytes32(xU), bytes32(yU));
     }
 
     /**
      * @dev Checks if (x, y) are valid coordinates of a point on the curve.
-     * In particular this function checks that x <= P and y <= P.
+     * In particular this function checks that x < P and y < P.
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
@@ -269,20 +269,25 @@ library P256 {
     }
 
     /**
-     * @dev Compute P·u1 + Q·u2 using the precomputed points for P and Q (see {_preComputeJacobianPoints}).
+     * @dev Compute G·u1 + P·u2 using the precomputed points for G and P (see {_preComputeJacobianPoints}).
      *
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
-     * we optimise on this a bit to do with 2 bits at a time rather than a single bit
-     * the individual points for a single pass are precomputed
-     * overall this reduces the number of additions while keeping the same number of doublings
+     *
+     * We optimise on this a bit to do with 2 bits at a time rather than a single bit. The individual points for a 
+     * single pass are precomputed. Overall this reduces the number of additions while keeping the same number of 
+     * doublings
      *
      * Note that because of (documented) limitations of the `_jAdd` function (which returns invalid results when
      * adding a point with itself), this function could produce invalid values. This would result in the inability to
      * verify or recover valid signatures. It is estimated to have a probability of about 1e-77 to happen. This edge
      * case could potentially cause a valid signature to fail verification.
      */
-    function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
+    function _jMultShamir(
+        JPoint[16] memory points,
+        uint256 u1,
+        uint256 u2
+    ) private view returns (uint256 rx, uint256 ry) {
         uint256 x = 0;
         uint256 y = 0;
         uint256 z = 0;
@@ -332,17 +337,17 @@ library P256 {
         points[0x04] = JPoint(GX, GY, 1); // 0,1 (g)
         points[0x02] = _jDoublePoint(points[0x01]); // 2,0 (2p)
         points[0x08] = _jDoublePoint(points[0x04]); // 0,2 (2g)
-        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (3p)
+        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (p+2p = 3p)
         points[0x05] = _jAddPoint(points[0x01], points[0x04]); // 1,1 (p+g)
         points[0x06] = _jAddPoint(points[0x02], points[0x04]); // 2,1 (2p+g)
         points[0x07] = _jAddPoint(points[0x03], points[0x04]); // 3,1 (3p+g)
         points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
         points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
         points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g = 3g)
         points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
         points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
-        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
+        points[0x0f] = _jAddPoint(points[0x03], points[0x0c]); // 3,3 (3p+3g)
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {
