@@ -121,8 +121,8 @@ describe('P256', function () {
   });
 
   describe('edge cases', function () {
-    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the computation fast method
-    // introduced artefacts that can cause invalid computation for some particular keys
+    // In theory, all private keys between 1 and P256.N-1 should be supported. However, the fast computation method
+    // introduces artefacts that can cause invalid computation for some particular keys
     for (const [privateKey, result] of [
       [1n, true], // fixed
       [2n, true], // fixed
