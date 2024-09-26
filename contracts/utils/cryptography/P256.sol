@@ -183,8 +183,6 @@ library P256 {
     /**
      * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
-     *
-     * Note that if both input points are identical, this function will return `(0, 0, 0)` instead of doubling the point.
      */
     function _jAdd(
         JPoint memory p1,
