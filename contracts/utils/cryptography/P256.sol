@@ -276,7 +276,7 @@ library P256 {
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
      *
-     * We optimize this for 2 bits at a time rather than a single bit. The individual points for a single pass are 
+     * We optimize this for 2 bits at a time rather than a single bit. The individual points for a single pass are
      * precomputed. Overall this reduces the number of additions while keeping the same number of
      * doublings
      *
