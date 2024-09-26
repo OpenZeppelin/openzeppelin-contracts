@@ -44,7 +44,8 @@ contract P256Test is Test {
         // * private = N - 1 (P = -G)
         //
         // Ideally we could just do `return bound(seed, 1, P256.N - 1);`. Somehow, the hash produces "good" values.
-        return bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+        // return bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+        return bound(seed, 1, P256.N - 4);
     }
 
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {

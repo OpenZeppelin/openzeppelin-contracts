@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { secp256r1 } = require('@noble/curves/p256');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { range } = require('../../helpers/iterate').bigint;
 
 const N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
 
@@ -120,21 +121,30 @@ describe('P256', function () {
     });
   });
 
-  describe('edge cases', function () {
+  describe('test special cases', function () {
     // In theory, all private keys between 1 and P256.N-1 should be supported. However, the computation fast method
     // introduced artefacts that can cause invalid computation for some particular keys
-    for (const [privateKey, result] of [
-      [1n, true], // fixed
-      [2n, true], // fixed
-      [3n, true], // fixed
-      [-3n, false],
-      [-2n, false],
-      [-1n, false],
-    ]) {
-      it(`unsupported case: P = ${privateKey} * G`, async function () {
-        const { messageHash, signature, publicKey } = prepareSignature(
-          privateKey < 0 ? privateKey + secp256r1.CURVE.n : privateKey,
-        );
+    const { n: N } = secp256r1.CURVE;
+    const unsupported = [
+      N / 3n,
+      N / 2n - 1n,
+      N / 2n,
+      N * 2n / 3n,
+      N - 3n,
+      N - 2n,
+      N - 1n,
+    ];
+
+    for (const privateKey of [].concat(
+      range(1n, 6n),
+      range(N / 3n - 5n, N / 3n + 6n),
+      range(N / 2n - 5n, N / 2n + 6n),
+      range(N * 2n / 3n - 5n, N * 2n / 3n + 6n),
+      range(N - 5n, N),
+    )) {
+      const result = !unsupported.includes(privateKey);
+      it(`case P = ${privateKey} * G: ${result ? 'success' : 'failure'}`, async function () {
+        const { messageHash, signature, publicKey } = prepareSignature(privateKey);
         expect(await this.mock.$verifySolidity(messageHash, ...signature, ...publicKey)).to.equal(result);
       });
     }
