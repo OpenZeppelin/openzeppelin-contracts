@@ -80,7 +80,7 @@ module.exports = {
         runs: argv.runs,
       },
       evmVersion: argv.evm,
-      viaIR: argv.ir || argv.coverage,
+      viaIR: argv.ir,
       outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
