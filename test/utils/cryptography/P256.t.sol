@@ -32,20 +32,16 @@ contract P256Test is Test {
     }
 
     function _asPrivateKey(uint256 seed) private pure returns (uint256) {
-        // In theory, all private keys between 1 and P256.N-1 should be supported. However, the `_jAdd` limitation,
-        // that indirectly affects `_preComputeJacobianPoints` causes issues for some private/public key pairs
-        //
-        // In particular, the following key pairs are not supported:
-        // * private = 1 (P = G)
-        // * private = 2 (P = 2G)
-        // * private = 3 (P = 3G)
-        // * private = N - 3 (P = -3G)
-        // * private = N - 2 (P = -2G)
-        // * private = N - 1 (P = -G)
-        //
-        // Ideally we could just do `return bound(seed, 1, P256.N - 1);`. Somehow, the hash produces "good" values.
-        // return bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
-        return bound(seed, 1, P256.N - 4);
+        // In theory, all private keys between 1 and P256.N-1 should be supported. However, computation artefacts
+        // caused by the `_preComputeJacobianPoints` precomputation prevent a limited number of private keys from
+        // being used. While these private keys can be constructed on purpose, secure keys that are randomly
+        // generated should not suffer from these limitations
+        uint256 privateKey = bound(seed, 1, P256.N - 4);
+        vm.assume(privateKey != P256.N / 3);
+        vm.assume(privateKey != P256.N / 2 - 1);
+        vm.assume(privateKey != P256.N / 2);
+        vm.assume(privateKey != (P256.N / 3) * 2);
+        return privateKey;
     }
 
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
