@@ -283,7 +283,7 @@ library P256 {
      * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
      * This would result in the inability to verify or recover valid signatures. This edge case could potentially
      * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, is
-     * it extremelly unlikelly to happen with randomly generated keys.
+     * it extremely unlikelly to happen with randomly generated keys.
      */
     function _jMultShamir(
         JPoint[16] memory points,
@@ -331,7 +331,7 @@ library P256 {
      * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
      * This would result in the inability to verify or recover valid signatures. This edge case could potentially
      * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, is
-     * it extremelly unlikelly to happen with randomly generated keys.
+     * it extremely unlikelly to happen with randomly generated keys.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
