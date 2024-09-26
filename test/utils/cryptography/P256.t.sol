@@ -32,8 +32,8 @@ contract P256Test is Test {
     }
 
     function _asPrivateKey(uint256 seed) private pure returns (uint256) {
-        // In theory, all private keys between 1 and P256.N-1 should be supported. However, computation artefacts
-        // caused by the `_preComputeJacobianPoints` precomputation prevent a limited number of private keys from
+        // In theory, all private keys between 1 and P256.N-1 should be supported. However, computation artifacts
+        // caused by the `_preComputeJacobianPoints` precomputation prevents a limited number of private keys from
         // being used. While these private keys can be constructed on purpose, secure keys that are randomly
         // generated should not suffer from these limitations
         uint256 privateKey = bound(seed, 1, P256.N - 4);
