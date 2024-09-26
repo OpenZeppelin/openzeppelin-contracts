@@ -15,7 +15,7 @@ library ERC1155Utils {
      * @dev Performs an acceptance check for the provided `operator` by calling {IERC1155-onERC1155Received}
      * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
      *
-     * The acceptance call is not executed and treated as a no-op if the target address is doesn't contain code (i.e. an EOA).
+     * The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
      * Otherwise, the recipient must implement {IERC1155Receiver-onERC1155Received} and return the acceptance magic value to accept
      * the transfer.
      */
@@ -38,8 +38,7 @@ library ERC1155Utils {
                     // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
+                    assembly ("memory-safe") {
                         revert(add(32, reason), mload(reason))
                     }
                 }
@@ -51,7 +50,7 @@ library ERC1155Utils {
      * @dev Performs a batch acceptance check for the provided `operator` by calling {IERC1155-onERC1155BatchReceived}
      * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
      *
-     * The acceptance call is not executed and treated as a no-op if the target address is doesn't contain code (i.e. an EOA).
+     * The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
      * Otherwise, the recipient must implement {IERC1155Receiver-onERC1155Received} and return the acceptance magic value to accept
      * the transfer.
      */
@@ -76,8 +75,7 @@ library ERC1155Utils {
                     // non-IERC1155Receiver implementer
                     revert IERC1155Errors.ERC1155InvalidReceiver(to);
                 } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
+                    assembly ("memory-safe") {
                         revert(add(32, reason), mload(reason))
                     }
                 }

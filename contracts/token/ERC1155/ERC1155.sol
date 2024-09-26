@@ -381,8 +381,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256 element1,
         uint256 element2
     ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Load the free memory pointer
             array1 := mload(0x40)
             // Set array length to 1

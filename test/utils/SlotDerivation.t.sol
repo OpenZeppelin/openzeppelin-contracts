@@ -225,4 +225,24 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
+
+    function testSymbolicDeriveMappingBooleanDirty(bytes32 dirtyKey) public {
+        bool key;
+        assembly {
+            key := dirtyKey
+        }
+
+        // run the "normal" test using a potentially dirty value
+        testSymbolicDeriveMappingBoolean(key);
+    }
+
+    function testSymbolicDeriveMappingAddressDirty(bytes32 dirtyKey) public {
+        address key;
+        assembly {
+            key := dirtyKey
+        }
+
+        // run the "normal" test using a potentially dirty value
+        testSymbolicDeriveMappingAddress(key);
+    }
 }
