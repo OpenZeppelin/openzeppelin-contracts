@@ -187,6 +187,8 @@ library P256 {
      * Note that `addition-add-1998-cmo-2` doesn't support identical inputs points. This version is modified to use
      * the `h` and `r` values computed by `addition-add-1998-cmo-2` to detect identical inputs, and fallback
      * `doubling-dbl-1998-cmo-2` if needed.
+     *
+     * Note if one of the point is at infinity (z=0), result is undefined.
      */
     function _jAdd(
         JPoint memory p1,
@@ -205,7 +207,7 @@ library P256 {
 
             // detect edge cases where inputs are identical
             switch and(iszero(r), iszero(h))
-            // case 1: points are different
+            // case 0: points are different
             case 0 {
                 let hh := mulmod(h, h, p) // h²
 
@@ -279,11 +281,6 @@ library P256 {
      * We optimize this for 2 bits at a time rather than a single bit. The individual points for a single pass are
      * precomputed. Overall this reduces the number of additions while keeping the same number of
      * doublings
-     *
-     * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
-     * This would result in the inability to verify or recover valid signatures. This edge case could potentially
-     * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, it
-     * is almost impossible to happen with randomly generated keys.
      */
     function _jMultShamir(
         JPoint[16] memory points,
@@ -301,7 +298,7 @@ library P256 {
                 }
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
-                if (pos > 0) {
+                if (points[pos].z != 0) {
                     if (z == 0) {
                         (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
                     } else {
@@ -327,11 +324,6 @@ library P256 {
      * │  8 │ 2g 2g+p 2g+2p 2g+3p │
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
-     *
-     * Note that some particular values, such as P = -G (private key = N-1) will result in invalid point computation.
-     * This would result in the inability to verify or recover valid signatures. This edge case could potentially
-     * cause a valid signature to fail verification. While specific private keys are known to trigger that issue, is
-     * it extremely unlikelly to happen with randomly generated keys.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
