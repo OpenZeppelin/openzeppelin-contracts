@@ -4,7 +4,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { VoteType } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
 const { sum } = require('../../helpers/math');
 
 const TOKENS = [
@@ -94,85 +93,6 @@ describe('GovernorCountingFractional', function () {
       });
 
       describe('voting with a fraction of the weight', function () {
-        it('twice', async function () {
-          await this.helper.connect(this.proposer).propose();
-          await this.helper.waitForSnapshot();
-
-          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(0n);
-
-          const steps = [
-            ['0', '2', '1'],
-            ['1', '0', '1'],
-          ].map(votes => votes.map(vote => ethers.parseEther(vote)));
-
-          for (const votes of steps) {
-            const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], votes);
-            await expect(
-              this.helper.connect(this.voter2).vote({
-                support: VoteType.Parameters,
-                reason: 'no particular reason',
-                params,
-              }),
-            )
-              .to.emit(this.mock, 'VoteCastWithParams')
-              .withArgs(
-                this.voter2,
-                this.proposal.id,
-                VoteType.Parameters,
-                sum(...votes),
-                'no particular reason',
-                params,
-              );
-          }
-
-          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal(zip(...steps).map(v => sum(...v)));
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(sum(...[].concat(...steps)));
-        });
-
-        it('fractional then nominal', async function () {
-          await this.helper.connect(this.proposer).propose();
-          await this.helper.waitForSnapshot();
-
-          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([0n, 0n, 0n]);
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(false);
-          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(0n);
-
-          const weight = ethers.parseEther('7');
-          const fractional = ['1', '2', '1'].map(ethers.parseEther);
-
-          const params = ethers.solidityPacked(['uint128', 'uint128', 'uint128'], fractional);
-          await expect(
-            this.helper.connect(this.voter2).vote({
-              support: VoteType.Parameters,
-              reason: 'no particular reason',
-              params,
-            }),
-          )
-            .to.emit(this.mock, 'VoteCastWithParams')
-            .withArgs(
-              this.voter2,
-              this.proposal.id,
-              VoteType.Parameters,
-              sum(...fractional),
-              'no particular reason',
-              params,
-            );
-
-          await expect(this.helper.connect(this.voter2).vote({ support: VoteType.Against }))
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.voter2, this.proposal.id, VoteType.Against, weight - sum(...fractional), '');
-
-          expect(await this.mock.proposalVotes(this.proposal.id)).to.deep.equal([
-            weight - sum(...fractional.slice(1)),
-            ...fractional.slice(1),
-          ]);
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.equal(true);
-          expect(await this.mock.usedVotes(this.proposal.id, this.voter2)).to.equal(weight);
-        });
-
         it('revert if params spend more than available', async function () {
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot();

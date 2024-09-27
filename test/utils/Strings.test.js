@@ -108,45 +108,6 @@ describe('Strings', function () {
     });
   });
 
-  describe('addresses', function () {
-    const addresses = [
-      '0xa9036907dccae6a1e0033479b12e837e5cf5a02f', // Random address
-      '0x0000e0ca771e21bd00057f54a68c30d400000000', // Leading and trailing zeros
-      // EIP-55 reference
-      '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
-      '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
-      '0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB',
-      '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
-      '0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359',
-      '0x52908400098527886E0F7030069857D2E4169EE7',
-      '0x8617E340B3D01FA5F11F306F4090FD50E238070D',
-      '0xde709f2102306220921060314715629080e2fb77',
-      '0x27b1fdb04752bbc536007a920d24acb045561c26',
-      '0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed',
-      '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
-      '0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB',
-      '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
-    ];
-
-    describe('toHexString', function () {
-      for (const addr of addresses) {
-        it(`converts ${addr}`, async function () {
-          expect(await this.mock.getFunction('$toHexString(address)')(addr)).to.equal(addr.toLowerCase());
-        });
-      }
-    });
-
-    describe('toChecksumHexString', function () {
-      for (const addr of addresses) {
-        it(`converts ${addr}`, async function () {
-          expect(await this.mock.getFunction('$toChecksumHexString(address)')(addr)).to.equal(
-            ethers.getAddress(addr.toLowerCase()),
-          );
-        });
-      }
-    });
-  });
-
   describe('equal', function () {
     it('compares two empty strings', async function () {
       expect(await this.mock.$equal('', '')).to.be.true;

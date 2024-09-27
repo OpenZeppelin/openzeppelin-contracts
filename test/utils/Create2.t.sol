@@ -14,4 +14,10 @@ contract Create2Test is Test {
         }
         assertEq(spillage, bytes32(0));
     }
+
+    function testCreate2(bytes32 salt, bytes32 bytecodeHash, address deployer) public {
+        address actual = Create2.computeAddress(salt, bytecodeHash, deployer);
+        address expected = vm.computeCreate2Address(salt, bytecodeHash, deployer);
+        assertEq(actual, expected);
+    }
 }
