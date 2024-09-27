@@ -328,7 +328,7 @@ library P256 {
      *
      * Note that `_jAdd`, and thus `_jAddPoint`, does handle the case where one of the input is a point at infinity
      * (z = 0). However, we know that since `N ≡ 1 mod 3` and `N ≡ 1 mod 3`, we know that there is no point P such
-     * that 2P = 0 or 3P = 0. This garantees that all inputs of the addition done during this function are well
+     * that 2P = 0 or 3P = 0. This guarantees that all inputs of the addition done during this function are well
      * defined points.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
