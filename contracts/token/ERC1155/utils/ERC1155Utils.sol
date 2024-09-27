@@ -9,6 +9,8 @@ import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
  * @dev Library that provide common ERC-1155 utility functions.
  *
  * See https://eips.ethereum.org/EIPS/eip-1155[ERC-1155].
+ *
+ * _Available since v5.1._
  */
 library ERC1155Utils {
     /**

@@ -7,6 +7,8 @@ import {VestingWallet} from "./VestingWallet.sol";
 
 /**
  * @dev Extension of {VestingWallet} that adds a cliff to the vesting schedule.
+ *
+ * _Available since v5.1._
  */
 abstract contract VestingWalletCliff is VestingWallet {
     using SafeCast for *;
