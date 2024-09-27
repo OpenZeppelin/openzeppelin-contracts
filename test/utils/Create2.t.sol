@@ -6,7 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract Create2Test is Test {
-    function testSymbolicComputeAddressSpillage(bytes32 salt, bytes32 bytecodeHash, address deployer) public {
+    function testSymbolicComputeAddressSpillage(bytes32 salt, bytes32 bytecodeHash, address deployer) public pure {
         address predicted = Create2.computeAddress(salt, bytecodeHash, deployer);
         bytes32 spillage;
         assembly ("memory-safe") {
