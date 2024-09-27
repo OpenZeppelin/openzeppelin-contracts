@@ -37,8 +37,8 @@ contract VestingWallet is Context, Ownable {
     uint64 private immutable _duration;
 
     /**
-     * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
-     * vesting duration of the vesting wallet.
+     * @dev Sets the beneficiary (owner), the start timestamp and the vesting duration (in seconds) of the vesting
+     * wallet.
      */
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;
