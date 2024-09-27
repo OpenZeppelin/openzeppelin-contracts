@@ -14,6 +14,8 @@ import {Errors} from "../Errors.sol";
  * Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/d3d423f28a4d8dfcb203c7fa0c47f42592a7378e/src/Secp256r1.sol[implementation of itsobvioustech] (GNU General Public License v3.0).
  * Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/c4bb1b6e8ae89534d8db3a6b3a6b52219100520f/contracts/Secp256r1.sol[maxrobot] and
  * https://github.com/tdrerup/elliptic-curve-solidity/blob/59a9c25957d4d190eff53b6610731d81a077a15e/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
+ *
+ * _Available since v5.1._
  */
 library P256 {
     struct JPoint {

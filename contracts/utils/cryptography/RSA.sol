@@ -11,6 +11,8 @@ import {Math} from "../math/Math.sol";
  * RSA semantically secure for signing messages.
  *
  * Inspired by https://github.com/adria0/SolRsaVerify/blob/79c6182cabb9102ea69d4a2e996816091d5f1cd1[Adrià Massanet's work] (GNU General Public License v3.0).
+ *
+ * _Available since v5.1._
  */
 library RSA {
     /**
