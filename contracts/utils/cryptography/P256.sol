@@ -232,9 +232,9 @@ library P256 {
                 let x := x2
                 let y := y2
                 let z := z2
+                let yy := mulmod(y, y, p)
                 let zz := mulmod(z, z, p)
                 let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
-                let yy := mulmod(y, y, p)
                 let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
 
                 // x' = t = m²-2*s
@@ -261,8 +261,8 @@ library P256 {
             let p := P
             let yy := mulmod(y, y, p)
             let zz := mulmod(z, z, p)
-            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
             let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
+            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
 
             // x' = t = m²-2*s
             rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
