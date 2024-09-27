@@ -299,6 +299,11 @@ library P256 {
                 }
                 // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
+                // Points that have z = 0 are points at infinity. They are the additive 0 of the group
+                // - if the lookup point is a 0, we can skip it
+                // - otherwize
+                //   - if the current point (x, y, z) is 0, we use the lookup point as our new value (0+P=P)
+                //   - if the current point (x, y, z) is not 0, both points are valid and we can use `_jAdd`
                 if (points[pos].z != 0) {
                     if (z == 0) {
                         (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
@@ -326,10 +331,10 @@ library P256 {
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
      *
-     * Note that `_jAdd` (and thus `_jAddPoint`) does handle the case where one of the inputs is a point at infinity
-     * (z = 0). However, we know that since `N ≡ 1 mod 2` and `N ≡ 1 mod 3`, there is no point P such that 2P = 0 or
-     * 3P = 0. This garantees that g, 2g, 3g, p, 2p, 3p are all non-zero, and that all `_jAddPoint` calls have valid
-     * inputs.
+     * Note that `_jAdd` (and thus `_jAddPoint`) does not handle the case where one of the inputs is a point at
+     * infinity (z = 0). However, we know that since `N ≡ 1 mod 2` and `N ≡ 1 mod 3`, there is no point P such that
+     * 2P = 0 or 3P = 0. This guarantees that g, 2g, 3g, p, 2p, 3p are all non-zero, and that all `_jAddPoint` calls
+     * have valid inputs.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
