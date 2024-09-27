@@ -27,14 +27,15 @@ library RSA {
 
     /**
      * @dev Verifies a PKCSv1.5 signature given a digest according to the verification
-     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with support
-     * for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
+     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with
+     * support for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
      *
-     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least 2048 bits.
-     * If you use a smaller key, consider replacing it with a larger, more secure, one.
+     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least
+     * 2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
-     * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
-     * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
+     * WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
+     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce or
+     * unique identifier in the message to prevent replay attacks.
      *
      * @param digest the digest to verify
      * @param s is a buffer containing the signature
@@ -79,7 +80,7 @@ library RSA {
             // - PS is padding filled with 0xFF
             // - DigestInfo ::= SEQUENCE {
             //    digestAlgorithm AlgorithmIdentifier,
-            //      [optional algorithm parameters]
+            //      [optional algorithm parameters] -- not currently supported
             //    digest OCTET STRING
             // }
 
