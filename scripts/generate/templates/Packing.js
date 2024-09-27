@@ -32,6 +32,8 @@ pragma solidity ^0.8.20;
  *     }
  * }
  * \`\`\`
+ *
+ * _Available since v5.1._
  */
 // solhint-disable func-name-mixedcase
 `;

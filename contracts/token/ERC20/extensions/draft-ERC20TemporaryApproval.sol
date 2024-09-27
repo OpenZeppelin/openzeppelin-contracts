@@ -12,6 +12,8 @@ import {StorageSlot} from "../../../utils/StorageSlot.sol";
  * @dev Extension of {ERC20} that adds support for temporary allowances following ERC-7674.
  *
  * WARNING: This is a draft contract. The corresponding ERC is still subject to changes.
+ *
+ * _Available since v5.1._
  */
 abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     using SlotDerivation for bytes32;
