@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {AccountBase, PackedUserOperation} from "../../../account/AccountBase.sol";
-import {ERC1271TypedSigner} from "../../../account/ERC1271TypedSigner.sol";
+import {ERC1271TypedSigner} from "../../../utils/cryptography/ERC1271TypedSigner.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
 import {MessageHashUtils} from "../../../utils/cryptography/MessageHashUtils.sol";

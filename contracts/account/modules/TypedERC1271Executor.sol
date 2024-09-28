@@ -5,11 +5,11 @@ pragma solidity ^0.8.24;
 import {IERC7579Execution} from "../../interfaces/IERC7579Account.sol";
 import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
 import {ERC7579Utils, CallType, Execution, Mode} from "../utils/ERC7579Utils.sol";
-import {EIP712} from "../../utils//cryptography/EIP712.sol";
+import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
-import {EIP712NestedUtils} from "../../utils/cryptography/EIP712NestedUtils.sol";
+import {MessageEnvelopeUtils} from "../../utils/cryptography/MessageEnvelopeUtils.sol";
 
-abstract contract TypedExecutor is EIP712, IERC7579Module {
+abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
     bytes internal constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
         bytes("ExecuteSingle(address account,address target,uint256 value,bytes data)");
     bytes internal constant _EXECUTE_REQUEST_BATCH_TYPENAME =
@@ -87,7 +87,7 @@ abstract contract TypedExecutor is EIP712, IERC7579Module {
         bytes calldata signature,
         bytes memory contentsType
     ) internal view virtual returns (bool) {
-        bytes memory _signature = EIP712NestedUtils.nestSignature(
+        bytes memory _signature = MessageEnvelopeUtils.wrapTypedDataEnvelope(
             signature,
             _domainSeparatorV4(),
             requestHash,

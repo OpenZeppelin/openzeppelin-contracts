@@ -40,7 +40,7 @@ abstract contract AccountBase is ERC721Holder, ERC1155Holder, IAccount, IAccount
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public virtual onlyEntryPoint returns (uint256) {
-        (, uint256 validationData) = _validateUserOp(userOp, userOpHash);
+        uint256 validationData = _validateUserOp(userOp, userOpHash);
         _payPrefund(missingAccountFunds);
         return validationData;
     }
@@ -57,7 +57,7 @@ abstract contract AccountBase is ERC721Holder, ERC1155Holder, IAccount, IAccount
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal virtual returns (address signer, uint256 validationData);
+    ) internal virtual returns (uint256);
 
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {

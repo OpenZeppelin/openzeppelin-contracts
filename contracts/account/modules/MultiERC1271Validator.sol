@@ -2,37 +2,28 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR} from "../../interfaces/IERC7579Module.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {ERC4337Utils} from "../utils/ERC4337Utils.sol";
+import {SignatureValidator} from "./SignatureValidator.sol";
 
-abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
+abstract contract MultiERC1271Validator is SignatureValidator {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SignatureChecker for address;
 
-    event ValidatorsAdded(address indexed account, address[] indexed signers);
-    event ValidatorsRemoved(address indexed account, address[] indexed signers);
+    event ERC1271SignersAdded(address indexed account, address[] indexed signers);
+    event ERC1271SignersRemoved(address indexed account, address[] indexed signers);
     event ThresholdChanged(address indexed account, uint256 threshold);
 
     error MultiERC1271SignerAlreadyExists(address account, address signer);
     error MultiERC1271SignerDoesNotExist(address account, address signer);
     error MultiERC1271UnreachableThreshold(address account, uint256 signers, uint256 threshold);
     error MultiERC1271RemainingSigners(address account, uint256 remaining);
-    error MultiERC1271MismatchedSignaturesLength(address account, uint256 signersLength, uint256 signaturesLength);
-    error MultiERC1271UnorderedSigners(address account, address prev, address current);
-
-    error MultiERC1271UnauthorizedExecution(address account, address sender);
 
     mapping(address => EnumerableSet.AddressSet) private _associatedSigners;
     mapping(address => uint256) private _associatedThreshold;
-
-    /// @inheritdoc IERC7579Module
-    function isModuleType(uint256 moduleTypeId) public pure virtual returns (bool) {
-        return moduleTypeId == MODULE_TYPE_VALIDATOR;
-    }
 
     function threshold(address account) public view virtual returns (uint256) {
         return _associatedThreshold[account];
@@ -44,7 +35,7 @@ abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
 
     function addSigners(address[] memory signers) public virtual {
         address account = msg.sender;
-        _addValidators(account, signers);
+        _addERC1271Signers(account, signers);
         _validateThreshold(account);
     }
 
@@ -65,7 +56,7 @@ abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
         address account = msg.sender;
         (address[] memory signers, uint256 threshold_) = abi.decode(data, (address[], uint256));
         _associatedThreshold[account] = threshold_;
-        _addValidators(account, signers);
+        _addERC1271Signers(account, signers);
         _validateThreshold(account);
     }
 
@@ -79,39 +70,12 @@ abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
         if (remaining != 0) revert MultiERC1271RemainingSigners(account, remaining);
     }
 
-    /// @inheritdoc IERC7579Validator
-    function validateUserOp(
-        PackedUserOperation calldata userOp,
-        bytes32 userOpHash
-    ) public view virtual returns (uint256) {
-        return
-            _isValidSignature(msg.sender, userOpHash, userOp.signature)
-                ? ERC4337Utils.SIG_VALIDATION_SUCCESS
-                : ERC4337Utils.SIG_VALIDATION_FAILED;
-    }
-
-    /// @inheritdoc IERC1271
-    function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4) {
-        address account = abi.decode(signature[0:20], (address));
-        bytes calldata sig = signature[20:];
-        return _isValidSignature(account, hash, sig) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
-    }
-
-    /// @inheritdoc IERC7579Validator
-    function isValidSignatureWithSender(
-        address,
-        bytes32 hash,
-        bytes calldata signature
-    ) public view virtual returns (bytes4) {
-        return _isValidSignature(msg.sender, hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
-    }
-
-    function _addValidators(address account, address[] memory signers) internal virtual {
+    function _addERC1271Signers(address account, address[] memory signers) internal virtual {
         for (uint256 i = 0; i < signers.length; i++) {
             if (!_associatedSigners[account].add(signers[i]))
                 revert MultiERC1271SignerAlreadyExists(account, signers[i]);
         }
-        emit ValidatorsAdded(account, signers);
+        emit ERC1271SignersAdded(account, signers);
     }
 
     function _removeSigners(address account, address[] memory signers) internal virtual {
@@ -119,7 +83,7 @@ abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
             if (!_associatedSigners[account].remove(signers[i]))
                 revert MultiERC1271SignerDoesNotExist(account, signers[i]);
         }
-        emit ValidatorsRemoved(account, signers);
+        emit ERC1271SignersRemoved(account, signers);
     }
 
     function _setThreshold(address account, uint256 threshold_) internal virtual {
@@ -133,14 +97,14 @@ abstract contract MultiERC1271Validator is IERC7579Validator, IERC1271 {
         if (signers < _threshold) revert MultiERC1271UnreachableThreshold(account, signers, _threshold);
     }
 
-    function _isValidSignature(
-        address account,
-        bytes32 hash,
+    function _isValidSignatureWithSender(
+        address sender,
+        bytes32 envelopeHash,
         bytes calldata signature
-    ) internal view virtual returns (bool) {
+    ) internal view virtual override returns (bool) {
         (address[] calldata signers, bytes[] calldata signatures) = _decodePackedSignatures(signature);
         if (signers.length != signatures.length) return false;
-        return _validateNSignatures(account, hash, signers, signatures);
+        return _validateNSignatures(sender, envelopeHash, signers, signatures);
     }
 
     function _validateNSignatures(

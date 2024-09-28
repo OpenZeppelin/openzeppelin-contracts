@@ -11,7 +11,13 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountERC7579}}
 
-{{ERC1271TypedSigner}}
+{{AccountECDSA}}
+
+{{AccountEIP7702}}
+
+{{AccountP256}}
+
+{{AccountRSA}}
 
 == Extensions
 
@@ -29,9 +35,11 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{MultiERC1271Validator}}
 
+{{SignatureValidator}}
+
 === Executors
 
-{{TypedExecutor}}
+{{TypedERC1271Executor}}
 
 == Utilities
 
