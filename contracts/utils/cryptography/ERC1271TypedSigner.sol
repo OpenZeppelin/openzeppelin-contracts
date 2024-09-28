@@ -35,6 +35,7 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
         return _isValidSignature(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
+
     /**
      * @dev Internal version of {isValidSignature} that returns a boolean.
      */
