@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.20;
 
 import {IERC7579Execution} from "../../interfaces/IERC7579Account.sol";
 import {IERC7579Module, MODULE_TYPE_EXECUTOR} from "../../interfaces/IERC7579Module.sol";
@@ -111,8 +111,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         uint256[] memory values,
         bytes[] memory calldatas
     ) internal view virtual returns (bytes32) {
-        bytes32[] memory dataHashes = new bytes32[](calldatas.length);
-        for (uint256 i = 0; i < calldatas.length; i++) {
+        uint256 length = calldatas.length;
+        bytes32[] memory dataHashes = new bytes32[](length);
+        for (uint256 i = 0; i < length; i++) {
             dataHashes[i] = keccak256(calldatas[i]);
         }
         bytes memory content = abi.encode(

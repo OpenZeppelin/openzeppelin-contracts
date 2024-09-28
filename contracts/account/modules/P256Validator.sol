@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.20;
 
 import {P256} from "../../utils/cryptography/P256.sol";
 import {SignatureValidator} from "./SignatureValidator.sol";

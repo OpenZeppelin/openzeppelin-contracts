@@ -92,14 +92,16 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
 
         result = MessageEnvelopeUtils.toTypedDataEnvelopeHash(
             appSeparator,
-            contents,
-            contentsType,
-            name,
-            version,
-            chainId,
-            verifyingContract,
-            salt,
-            extensions
+            MessageEnvelopeUtils.typedDataEnvelopeStructHash(
+                contentsType,
+                contents,
+                name,
+                version,
+                chainId,
+                verifyingContract,
+                salt,
+                extensions
+            )
         );
     }
 

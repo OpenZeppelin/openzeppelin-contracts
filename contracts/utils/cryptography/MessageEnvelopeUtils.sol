@@ -146,28 +146,9 @@ library MessageEnvelopeUtils {
      */
     function toTypedDataEnvelopeHash(
         bytes32 separator,
-        bytes32 contents,
-        bytes calldata contentsType,
-        string memory name,
-        string memory version,
-        uint256 chainId,
-        address verifyingContract,
-        bytes32 salt,
-        uint256[] memory extensions
+        bytes32 hashedTypedDataEnvelopeStruct
     ) internal pure returns (bytes32 result) {
-        result = MessageHashUtils.toTypedDataHash(
-            separator,
-            _typedDataEnvelopeStructHash(
-                contentsType,
-                contents,
-                name,
-                version,
-                chainId,
-                verifyingContract,
-                salt,
-                extensions
-            )
-        );
+        result = MessageHashUtils.toTypedDataHash(separator, hashedTypedDataEnvelopeStruct);
     }
 
     /**
@@ -221,8 +202,7 @@ library MessageEnvelopeUtils {
 
         // Does not start with a-z or (
         bytes1 high = contentsType[0];
-        bool isValidHigh = (high >= 0x61 && high <= 0x7a) || high != 0x28; // a-z or (
-        if (!isValidHigh) return (false, contentsType[0:0]);
+        if ((high < 0x61 || high > 0x7a) && high != 0x28) return (false, contentsType[0:0]); // a-z or (
 
         // Find the start of the arguments
         uint256 argsStart = _indexOf(contentsType, bytes1("("));
@@ -241,7 +221,7 @@ library MessageEnvelopeUtils {
     /**
      * @dev Computes the hash of the envelope struct for the given contents.
      */
-    function _typedDataEnvelopeStructHash(
+    function typedDataEnvelopeStructHash(
         bytes calldata contentsType,
         bytes32 contents,
         string memory name,
@@ -250,20 +230,19 @@ library MessageEnvelopeUtils {
         address verifyingContract,
         bytes32 salt,
         uint256[] memory extensions
-    ) private pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    TYPED_DATA_ENVELOPE_TYPEHASH(contentsType),
-                    contents,
-                    keccak256(bytes(name)),
-                    keccak256(bytes(version)),
-                    chainId,
-                    verifyingContract,
-                    salt,
-                    keccak256(abi.encodePacked(extensions))
-                )
-            );
+    ) internal pure returns (bytes32 result) {
+        result = keccak256(
+            abi.encode(
+                TYPED_DATA_ENVELOPE_TYPEHASH(contentsType),
+                contents,
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                chainId,
+                verifyingContract,
+                salt,
+                keccak256(abi.encodePacked(extensions))
+            )
+        );
     }
 
     function _indexOf(bytes calldata buffer, bytes1 lookup) private pure returns (uint256) {
