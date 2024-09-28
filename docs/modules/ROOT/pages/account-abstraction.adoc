@@ -84,7 +84,6 @@ NOTE: Examples provided are simple version of accounts. When using with ERC-4337
 An smart account can be created by deriving from the xref:api:account.adoc#AccountBase[`AccountBase`]:
 
 ```solidity
-include::api:example$account/MyAccountECDSAPlainSigner.sol[]
 ```
 
 NOTE: Using xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`MessageHashUtils.toEthSignedMessageHash`] wraps the message with an `\x19Ethereum Signed Message:\n` prefix as most wallets do. However, this is not the most recommended approach since it requires the private key owner to sign an opaque message without contextual information. See xref:account-abstraction.adoc#readable_typed_signatures[readable typed signatures].
@@ -112,7 +111,6 @@ Generally speaking, blockchains use the properties of https://en.wikipedia.org/w
 To setup an account signer, start by inheriting from `AccountSigner` and xref:api:account.adoc#ERC1271TypedSigner[`ERC1271TypedSigner`]:
 
 ```solidity
-include::api:example$account/MyAccountECDSATypedSigner.sol[]
 ```
 
 As you would note, the Account requires to implement both `_validateUserOp` and `_validateSignature`. These are 2 different functions because xref:api:account.adoc#ERC1271TypedSigner[`ERC1271TypedSigner`] adds a wrapper to the `userOpHash` and any other hash received through the `isValidSignature` function the account exposes. The wrapper makes sure that the signature isn't replayable across different account implementations and that the user saw the types associated to the signed message.
@@ -132,7 +130,6 @@ To prevent this, each smart contract signer inherits from xref:api:account#ERC12
 Users may add different signature validation schemes such as xref:api:utils.adoc#P256[`P256`] or xref:api:utils.adoc#RSA[`RSA`] to their accounts in a similar fashion to ECDSA:
 
 ```solidity
-include::api:example$account/MyAccountP256PlainSigner.sol[]
 ```
 
 === Modules
@@ -144,7 +141,7 @@ OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-
 To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`] and make sure to install a module on its initialization.
 
 ```solidity
-include::api:example$account/MyModularAccount.sol[]
+
 ```
 
 WARNING: An account that doesn't setup a module on deployment will be unusable if there's no other execution method enabled on the account.
@@ -154,7 +151,6 @@ WARNING: An account that doesn't setup a module on deployment will be unusable i
 A modular account can use a signer too. It just needs to override `_validateUserOp` logic to use the signer as part of the validation phase:
 
 ```solidity
-include::api:example$account/MyModularAccountECDSATypedSigner.sol[]
 ```
 
 == Account Factory
@@ -168,7 +164,6 @@ So far this section has shown how to setup an account as an individual contract.
 The following example demonstrates this concept with an xref:api:account.adoc#AccountERC7579[`AccountERC7579`]
 
 ```solidity
-include::api:example$account/MyModularAccountClonable.sol[]
 ```
 
 TIP: xref:upgradeable.adoc[OpenZeppelin Contracts upgradeable] are initializable out of the box.
@@ -186,7 +181,6 @@ For these cases, developers can leverage xref:api:proxy.adoc#Clones-cloneDetermi
 To setup a factory, all you need is a xref:account-abstraction.adoc#clonable_accounts[Clonable Account] and implement the `clone` function of the xref:api:account.adoc#AccountFactory[`AccountFactory`] contract
 
 ```solidity
-include::api:example$account/MyAccountP256PlainSignerClonableImmutable.sol[]
 ```
 
 == Paymaster

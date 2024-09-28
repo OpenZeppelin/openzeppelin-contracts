@@ -80,27 +80,23 @@ abstract contract SignatureValidator is IERC7579Validator {
             uint256[] memory extensions
         ) = IERC5267(sender).eip712Domain();
 
-        bytes32 senderDomainSeparator = keccak256(
+        appSeparator = keccak256(
             abi.encode(EIP712_TYPE_HASH, keccak256(bytes(name)), keccak256(bytes(version)), block.chainid, sender)
         );
 
-        (bytes calldata sig, bytes32 appDomainSeparator, bytes32 contents, bytes calldata contentsType) = signature
-            .unwrapTypedDataEnvelope();
+        bytes32 contents;
+        bytes calldata contentsType;
+        (originalSig, senderSeparator, contents, contentsType) = signature.unwrapTypedDataEnvelope();
 
-        return (
-            appDomainSeparator,
-            senderDomainSeparator,
-            senderSeparator.toTypedDataEnvelopeHash(
-                contents,
-                contentsType,
-                name,
-                version,
-                chainId,
-                verifyingContract,
-                salt,
-                extensions
-            ),
-            sig
+        envelopeHash = senderSeparator.toTypedDataEnvelopeHash(
+            contents,
+            contentsType,
+            name,
+            version,
+            chainId,
+            verifyingContract,
+            salt,
+            extensions
         );
     }
 

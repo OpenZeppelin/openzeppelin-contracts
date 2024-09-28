@@ -74,9 +74,11 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
      */
     function _typedDataEnvelopeHash(
         bytes calldata signature
-    ) internal view virtual returns (bytes calldata originalSignature, bytes32) {
-        (bytes calldata sig, bytes32 appSeparator, bytes32 contents, bytes calldata contentsType) = signature
-            .unwrapTypedDataEnvelope();
+    ) internal view virtual returns (bytes calldata originalSignature, bytes32 result) {
+        bytes32 appSeparator;
+        bytes32 contents;
+        bytes calldata contentsType;
+        (originalSignature, appSeparator, contents, contentsType) = signature.unwrapTypedDataEnvelope();
 
         (
             ,
@@ -88,19 +90,16 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
             uint256[] memory extensions
         ) = eip712Domain();
 
-        return (
-            sig,
-            MessageEnvelopeUtils.toTypedDataEnvelopeHash(
-                appSeparator,
-                contents,
-                contentsType,
-                name,
-                version,
-                chainId,
-                verifyingContract,
-                salt,
-                extensions
-            )
+        result = MessageEnvelopeUtils.toTypedDataEnvelopeHash(
+            appSeparator,
+            contents,
+            contentsType,
+            name,
+            version,
+            chainId,
+            verifyingContract,
+            salt,
+            extensions
         );
     }
 

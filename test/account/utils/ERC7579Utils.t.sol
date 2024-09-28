@@ -25,7 +25,7 @@ contract ERC7579UtilsTest is Test {
         assertTrue(modePayload == modePayload2);
     }
 
-    function testEncodeDecodeSingle(address target, uint256 value, bytes memory callData) public {
+    function testEncodeDecodeSingle(address target, uint256 value, bytes calldata callData) public {
         (address target2, uint256 value2, bytes memory callData2) = this._decodeSingle(
             ERC7579Utils.encodeSingle(target, value, callData)
         );
@@ -35,7 +35,7 @@ contract ERC7579UtilsTest is Test {
         assertEq(callData, callData2);
     }
 
-    function testEncodeDecodeDelegate(address target, bytes memory callData) public {
+    function testEncodeDecodeDelegate(address target, bytes calldata callData) public {
         (address target2, bytes memory callData2) = this._decodeDelegate(ERC7579Utils.encodeDelegate(target, callData));
 
         assertEq(target, target2);

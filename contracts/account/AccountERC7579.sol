@@ -104,14 +104,14 @@ abstract contract AccountERC7579 is
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal virtual override returns (address signer, uint256 validationData) {
+    ) internal virtual override returns (uint256 validationData) {
         PackedUserOperation memory userOpCopy = userOp;
         address module = abi.decode(userOp.signature[0:20], (address));
         userOpCopy.signature = userOp.signature[20:];
         return
             isModuleInstalled(MODULE_TYPE_EXECUTOR, module, userOp.signature[0:0])
-                ? (module, IERC7579Validator(module).validateUserOp(userOpCopy, userOpHash))
-                : (address(0), ERC4337Utils.SIG_VALIDATION_FAILED);
+                ? IERC7579Validator(module).validateUserOp(userOpCopy, userOpHash)
+                : ERC4337Utils.SIG_VALIDATION_FAILED;
     }
 
     function _supportsExecutionMode(bytes32 encodedMode) internal pure virtual returns (bool) {

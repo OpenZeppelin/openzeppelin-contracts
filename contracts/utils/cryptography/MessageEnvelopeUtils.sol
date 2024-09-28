@@ -154,21 +154,20 @@ library MessageEnvelopeUtils {
         address verifyingContract,
         bytes32 salt,
         uint256[] memory extensions
-    ) internal pure returns (bytes32) {
-        return
-            MessageHashUtils.toTypedDataHash(
-                separator,
-                _typedDataEnvelopeStructHash(
-                    contentsType,
-                    contents,
-                    name,
-                    version,
-                    chainId,
-                    verifyingContract,
-                    salt,
-                    extensions
-                )
-            );
+    ) internal pure returns (bytes32 result) {
+        result = MessageHashUtils.toTypedDataHash(
+            separator,
+            _typedDataEnvelopeStructHash(
+                contentsType,
+                contents,
+                name,
+                version,
+                chainId,
+                verifyingContract,
+                salt,
+                extensions
+            )
+        );
     }
 
     /**
@@ -185,26 +184,25 @@ library MessageEnvelopeUtils {
      *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
      */
     // solhint-disable-next-line func-name-mixedcase
-    function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
+    function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32 result) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
 
-        return
-            keccak256(
-                abi.encodePacked(
-                    "TypedDataSign(",
-                    contentsTypeName,
-                    "bytes1 fields,",
-                    "string name,",
-                    "string version,",
-                    "uint256 chainId,",
-                    "address verifyingContract,",
-                    "bytes32 salt,",
-                    "uint256[] extensions",
-                    ")",
-                    contentsType
-                )
-            );
+        result = keccak256(
+            abi.encodePacked(
+                "TypedDataSign(",
+                contentsTypeName,
+                "bytes1 fields,",
+                "string name,",
+                "string version,",
+                "uint256 chainId,",
+                "address verifyingContract,",
+                "bytes32 salt,",
+                "uint256[] extensions",
+                ")",
+                contentsType
+            )
+        );
     }
 
     /**
