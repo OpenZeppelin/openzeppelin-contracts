@@ -9,12 +9,20 @@ import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 
 abstract contract AccountECDSA is ERC1271TypedSigner, AccountBase {
-    function signer() public view virtual returns (address);
+    address private immutable _signer;
+
+    constructor(address signerAddr) {
+        _signer = signerAddr;
+    }
+
+    function signer() public view virtual returns (address) {
+        return _signer;
+    }
 
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal view virtual override returns (uint256) {
+    ) internal virtual override returns (uint256) {
         return
             _isValidSignature(userOpHash, userOp.signature)
                 ? ERC4337Utils.SIG_VALIDATION_SUCCESS

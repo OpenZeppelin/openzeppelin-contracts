@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/account-abstraction">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>Account Abstraction - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="Account Abstraction - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li nav-li-active">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>Account Abstraction</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum&#8217;s native <a href="api/utils.html#ECDSA" class="xref page">ECDSA</a> and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted <a href="https://eips.ethereum.org/EIPS/eip-4337">ERC-4337</a>, a standard to process user operations through an alternative mempool.</p>
+</div>
+<div class="paragraph">
+<p>OpenZeppelin Contracts provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, recovery mechanisms and modularity with standards such as <a href="erc7579.html#ERC7579" class="xref page">ERC-7579</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="smart_accounts"><a class="anchor" href="#smart_accounts"></a>Smart Accounts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenZeppelin provides an abstract implementation of an <a href="api/account.html#AccountBase" class="xref page"><code>AccountBase</code></a> that implements both interfaces and accepts native currency and common tokens (i.e. <a href="erc20.html" class="xref page">ERC-20</a>, <a href="erc721.html" class="xref page">ERC-721</a> and <a href="erc1155.html" class="xref page">ERC-1155</a>), as well as validating any arbitrary <code>UserOperation</code>.</p>
+</div>
+<div class="paragraph">
+<p>Aside from the <a href="api/account.html#AccountBase" class="xref page"><code>AccountBase</code></a>, the library includes various specialized accounts that implement <a href="api/account.html#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-" class="xref page"><code>_validateUserOp</code></a> with a digital signature verification algorithm such as <a href="api/utils.html#ECDSA" class="xref page"><code>ECDSA</code></a>, <a href="api/utils.html#P256" class="xref page"><code>P256</code></a> or <a href="api/utils.html#RSA" class="xref page"><code>RSA</code></a></p>
+</div>
+<div class="sect2">
+<h3 id="setting_up_an_account"><a class="anchor" href="#setting_up_an_account"></a>Setting up an account</h3>
+<div class="paragraph">
+<p>To setup an account, you can either bring your own validation logic and start with <a href="api/account.html#AccountBase" class="xref page"><code>AccountBase</code></a>, or import any of the predefined accounts that OpenZeppelin provides and are controlled by a signer. For example, to setup a contract controlled by a regular EVM private key, you can levarege <a href="api/account.html#AccountECDSA" class="xref page"><code>AccountECDSA</code></a></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {AccountECDSA} from "@openzeppelin/contracts/account/AccountECDSA.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+
+contract MyAccountECDSA is AccountECDSA {
+    constructor(address owner) AccountECDSA(owner) EIP712("MyAccountECDSA", "1") {}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Along with the regular ECDSA verification, the library also provides the <a href="api/account.html#AccountP256" class="xref page"><code>AccountP256</code></a>, which is a widely used <em>elliptic curve</em> verification algorithm that&#8217;s present in mobile device security enclaves, FIDO keys, and corporate environments (i.e. public key infrastructure).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {AccountP256} from "@openzeppelin/contracts/account/AccountP256.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+
+contract MyAccountP256 is AccountP256 {
+    constructor(bytes32 qx, bytes32 qy) AccountP256(qx, qy) EIP712("MyAccountP256", "1") {}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly, some government and corporate public key infrastructures use RSA for signature verification. For those cases, the <a href="api/account.html#AccountRSA" class="xref page"><code>AccountRSA</code></a> would be a good fit.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {AccountRSA} from "@openzeppelin/contracts/account/AccountRSA.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+
+contract MyAccountRSA is AccountRSA {
+    constructor(bytes memory e, bytes memory n) AccountRSA(e, n) EIP712("MyAccountRSA", "1") {}
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="eip712_typed_signatures"><a class="anchor" href="#eip712_typed_signatures"></a>EIP712 Typed Signatures</h4>
+<div class="paragraph">
+<p>A common security practice to prevent user operation <a href="https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU">replayability across smart contract accounts controlled by the same private key</a> (i.e. multiple accounts for the same signer) is to link the signature to the <code>address</code> and <code>chainId</code>. This can be done by asking the user to sign the hash of the user operation along with these values.</p>
+</div>
+<div class="paragraph">
+<p>The problem with this approach is that the user might be prompted by the wallet provider to sign an <a href="https://x.com/howydev/status/1780353754333634738">obfuscated message</a>, which is a phishing vector that may lead to a user losing its assets.</p>
+</div>
+<div class="paragraph">
+<p>To prevent this, each account using a signature verification algorithm inherits from <a href="api/account.html#ERC1271TypedSigner" class="xref page"><code>ERC1271TypedSigner</code></a>, a utility that implements <a href="api/interfaces.html#IERC1271" class="xref page"><code>IERC1271</code></a> for smart contract signatures with a defensive rehashing mechanism based on a <a href="https://github.com/frangio/eip712-wrapper-for-eip1271">nested EIP-712 approach</a> to wrap the signature request in a context where there&#8217;s clearer information for the end user.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="erc_7562_validation_rules"><a class="anchor" href="#erc_7562_validation_rules"></a>ERC-7562 Validation Rules</h4>
+<div class="paragraph">
+<p>To process a bundle of <code>UserOperations</code>, bundlers call <a href="api/account.html#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-" class="xref page"><code>validateUserOp</code></a> on each operation sender to check whether the operation can be executed. However, the bundler has no guarantee that the state of the blockchain will remain the same after the validation phase. To overcome this problem, <a href="https://eips.ethereum.org/EIPS/eip-7562">ERC-7562</a> proposes a set of limitations to EVM code so that bundlers (or node operators) are protected from unexpected state changes.</p>
+</div>
+<div class="paragraph">
+<p>These rules outline the requirements for operations to be processed by the canonical mempool.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Although any Account that breaks such rules may still be processed by a private bundler, developers should keep in mind the centralization tradeoffs of relying on private infrastructure instead of <em>permissionless</em> execution.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect4">
+<h5 id="a_note_on_upgradeability"><a class="anchor" href="#a_note_on_upgradeability"></a>A note on upgradeability</h5>
+<div class="paragraph">
+<p><a href="upgradeable.html" class="xref page">Upgradeable Contracts</a> might easily violate ERC-7562 storage access rules during the validation phase. For example, when upgradeability is present in a module (i.e. an external validator), the account will need to call the proxy and access the implementation address in storage.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="modules"><a class="anchor" href="#modules"></a>Modules</h3>
+<div class="paragraph">
+<p>Modules are a way to extend functionality of an smart account. Given the variety of smart account implementations, a common approach has been to enable a system of modules to which accounts can delegate logic. As a result, the community has proposed <a href="erc7579.html#ERC7579" class="xref page">ERC-7579</a> as a minimal generalized approach to smart account modules.</p>
+</div>
+<div class="paragraph">
+<p>OpenZeppelin&#8217;s <a href="api/account.html#AccountERC7579" class="xref page"><code>AccountERC7579</code></a> is an ERC-7579 compliant implementation that works without a signer, and instead, uses a validator module installed on the account. This validator module might be any of the <a href="https://erc7579.com/modules">validators developed by the community</a> or one of the <a href="api/account.html#validators" class="xref page">validator modules we provide</a>.</p>
+</div>
+<div class="paragraph">
+<p>To setup a modular Account, start by importing <a href="api/account.html#AccountERC7579" class="xref page"><code>AccountERC7579</code></a> and make sure to install a module on its initialization.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {MODULE_TYPE_VALIDATOR} from "@openzeppelin/contracts/interfaces/IERC7579Module.sol";
+import {AccountERC7579} from "@openzeppelin/contracts/account/draft-AccountERC7579.sol";
+
+contract MyModularAccount is AccountERC7579 {
+    constructor(address module, bytes memory moduleInitData) {
+        _installModule(MODULE_TYPE_VALIDATOR, module, moduleInitData);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+An account that doesn&#8217;t setup a module on deployment will be unusable if there&#8217;s no other execution method enabled on the account.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="using_with_a_signer"><a class="anchor" href="#using_with_a_signer"></a>Using with a signer</h4>
+<div class="paragraph">
+<p>A modular account can use a signer too. It just needs to override <code>_validateUserOp</code> logic to use the signer as part of the validation phase:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import {AccountERC7579} from "@openzeppelin/contracts/account/draft-AccountERC7579.sol";
+import {ERC1271TypedSigner} from "@openzeppelin/contracts/utils/cryptography/ERC1271TypedSigner.sol";
+import {ERC4337Utils, PackedUserOperation} from "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
+import {AccountECDSA} from "@openzeppelin/contracts/account/AccountECDSA.sol";
+import {AccountBase} from "@openzeppelin/contracts/account/AccountBase.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+
+contract MyModularAccountECDSATypedSigner is AccountECDSA, AccountERC7579 {
+    constructor(
+        address signer_,
+        string memory name,
+        string memory version
+    ) AccountECDSA(signer_) EIP712(name, version) {}
+
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata signature
+    ) public view override(AccountERC7579, ERC1271TypedSigner) returns (bytes4) {
+        // Prefer signer and fallback to ERC7579 validator
+        return
+            ERC1271TypedSigner.isValidSignature(hash, signature) == IERC1271.isValidSignature.selector
+                ? IERC1271.isValidSignature.selector
+                : AccountERC7579.isValidSignature(hash, signature);
+    }
+
+    /// @inheritdoc AccountERC7579
+    function _validateUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal virtual override(AccountERC7579, AccountECDSA) returns (uint256) {
+        // Prefer signer and fallback to ERC7579 validator
+        if (_validateSignature(userOpHash, userOp.signature)) return ERC4337Utils.SIG_VALIDATION_SUCCESS;
+        return super._validateUserOp(userOp, userOpHash);
+    }
+
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) public override(AccountBase, AccountERC7579) {
+        // Prefer modular execution
+        AccountERC7579.executeUserOp(userOp, userOpHash);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="account_factory"><a class="anchor" href="#account_factory"></a>Account Factory</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="paymaster"><a class="anchor" href="#paymaster"></a>Paymaster</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="erc_4337_overview"><a class="anchor" href="#erc_4337_overview"></a>ERC-4337 Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The ERC-4337 is a detailed specification of how to implement the necessary logic to handle operations without making changes to the protocol level (i.e. the rules of the blockchain itself). This specification defines the following components:</p>
+</div>
+<div class="sect2">
+<h3 id="useroperation"><a class="anchor" href="#useroperation"></a>UserOperation</h3>
+<div class="paragraph">
+<p>An <code>UserOperation</code> is a higher-layer pseudo-transaction object that represents the intent of the account. This shares some similarities with regular EVM transactions like the concept of <code>gasFees</code> or <code>callData</code> but includes fields that enable new capabilities.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">struct PackedUserOperation {
+    address sender;
+    uint256 nonce;
+    bytes initCode; // concatenation of factory address and factoryData (or empty)
+    bytes callData;
+    bytes32 accountGasLimits; // concatenation of verificationGas (16 bytes) and callGas (16 bytes)
+    uint256 preVerificationGas;
+    bytes32 gasFees; // concatenation of maxPriorityFee (16 bytes) and maxFeePerGas (16 bytes)
+    bytes paymasterAndData; // concatenation of paymaster fields (or empty)
+    bytes signature;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="entrypoint"><a class="anchor" href="#entrypoint"></a>Entrypoint</h3>
+<div class="paragraph">
+<p>Each <code>UserOperation</code> is executed through a contract known as the <a href="https://etherscan.io/address/0x0000000071727de22e5e9d8baf0edac6f37da032#code"><code>EntryPoint</code></a>. This contract is a singleton deployed across multiple networks at the same address although other custom implementations may be used.</p>
+</div>
+<div class="paragraph">
+<p>The Entrypoint contracts is considered a trusted entity by the account.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bundlers"><a class="anchor" href="#bundlers"></a>Bundlers</h3>
+<div class="paragraph">
+<p>The bundler is a piece of <em>offchain</em> infrastructure that is in charge of processing an alternative mempool of user operations. Bundlers themselves call the Entrypoint contract&#8217;s <code>handleOps</code> function with an array of UserOperations that are executed and included in a block.</p>
+</div>
+<div class="paragraph">
+<p>During the process, the bundler pays for the gas of executing the transaction and gets refunded during the execution phase of the Entrypoint contract.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="account_contract"><a class="anchor" href="#account_contract"></a>Account Contract</h3>
+<div class="paragraph">
+<p>The Account Contract is a type of smart contract implements the logic required to validate an <code>UserOperation</code> in the context of ERC-4337. Any smart contract account should conform with the <code>IAccount</code> interface to validate operations.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">interface IAccount {
+    function validateUserOp(PackedUserOperation calldata, bytes32, uint256) external returns (uint256 validationData);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly, an Account should have a way to execute these operations by either handling arbitrary calldata on its <code>fallback</code> or implementing the <code>IAccountExecute</code> interface:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">interface IAccountExecute {
+    function executeUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To build your own account, see <a href="#smart_accounts">Smart Accounts</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="factory_contract"><a class="anchor" href="#factory_contract"></a>Factory Contract</h3>
+<div class="paragraph">
+<p>The smart contract accounts are created by a Factory contract defined by the Account developer. This factory receives arbitrary bytes as <code>initData</code> and returns an <code>address</code> where the logic of the account is deployed.</p>
+</div>
+<div class="paragraph">
+<p>To build your own factory, see <a href="#account_factory">Account Factory</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="paymaster_contract"><a class="anchor" href="#paymaster_contract"></a>Paymaster Contract</h3>
+<div class="paragraph">
+<p>A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away of the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.</p>
+</div>
+<div class="paragraph">
+<p>To build your own paymaster, see <a href="#paymaster">Paymaster</a>.</p>
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/access-control.html">&larr; Access Control</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/erc7579.html">ERC-7579 &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+	</main>
+</div>
+    <script src="../../_/js/vendor/lunr.js"></script>
+<script src="../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../.." data-snippet-length="100" data-stylesheet="../../_/css/search.css"></script>
+<script async src="../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>

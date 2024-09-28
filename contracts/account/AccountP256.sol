@@ -9,12 +9,22 @@ import {P256} from "../utils/cryptography/P256.sol";
 import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 
 abstract contract AccountP256 is ERC1271TypedSigner, AccountBase {
-    function signer() public view virtual returns (bytes32 qx, bytes32 qy);
+    bytes32 private immutable _qx;
+    bytes32 private immutable _qy;
+
+    constructor(bytes32 qx, bytes32 qy) {
+        _qx = qx;
+        _qy = qy;
+    }
+
+    function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
+        return (_qx, _qy);
+    }
 
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal view virtual override returns (uint256) {
+    ) internal virtual override returns (uint256) {
         return
             _isValidSignature(userOpHash, userOp.signature)
                 ? ERC4337Utils.SIG_VALIDATION_SUCCESS

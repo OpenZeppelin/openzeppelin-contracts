@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/erc4626">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>ERC-4626 - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="ERC-4626 - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li nav-li-active">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>ERC-4626</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://eips.ethereum.org/EIPS/eip-4626">ERC-4626</a> is an extension of <a href="erc20.html" class="xref page">ERC-20</a> that proposes a standard interface for token vaults. This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.</p>
+</div>
+<div class="paragraph">
+<p>We provide a base implementation of ERC-4626 that includes a simple vault. This contract is designed in a way that allows developers to easily re-configure the vault&#8217;s behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC-4626. We will also discuss common customizations of the vault.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="inflation-attack"><a class="anchor" href="#inflation-attack"></a>Security concern: Inflation attack</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="visualizing_the_vault"><a class="anchor" href="#visualizing_the_vault"></a>Visualizing the vault</h3>
+<div class="paragraph">
+<p>In exchange for the assets deposited into an ERC-4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If a vault has 100 tokens to back 200 shares, then each share is worth 0.5 assets.</p>
+</li>
+<li>
+<p>If a vault has 200 tokens to back 100 shares, then each share is worth 2.0 assets.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In other words, the exchange rate can be defined as the slope of the line that passes through the origin and the current number of assets and shares in the vault. Deposits and withdrawals move the vault in this line.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-rate-linear.png" alt="Exchange rates in linear scale">
+</div>
+</div>
+<div class="paragraph">
+<p>When plotted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitely far away). Rates are represented by "diagonal" lines with different offsets.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-rate-loglog.png" alt="Exchange rates in logarithmic scale">
+</div>
+</div>
+<div class="paragraph">
+<p>In such a representation, widely different rates can be clearly visible in the same graph. This wouldn&#8217;t be the case in linear scale.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-rate-loglogext.png" alt="More exchange rates in logarithmic scale">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="the_attack"><a class="anchor" href="#the_attack"></a>The attack</h3>
+<div class="paragraph">
+<p>When depositing tokens, the number of shares a user gets is rounded towards zero. This rounding takes away value from the user in favor or the vault (i.e. in favor of all the current share holders). This rounding is often negligible because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worse, if you deposit &lt;1 share worth of tokens, then you get 0 shares, and you basically made a donation.</p>
+</div>
+<div class="paragraph">
+<p>For a given amount of assets, the more shares you receive the safer you are. If you want to limit your losses to at most 1%, you need to receive at least 100 shares.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-deposit.png" alt="Depositing assets">
+</div>
+</div>
+<div class="paragraph">
+<p>In the figure we can see that for a given deposit of 500 assets, the number of shares we get and the corresponding rounding losses depend on the exchange rate. If the exchange rate is that of the orange curve, we are getting less than a share, so we lose 100% of our deposit. However, if the exchange rate is that of the green curve, we get 5000 shares, which limits our rounding losses to at most 0.02%.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-mint.png" alt="Minting shares">
+</div>
+</div>
+<div class="paragraph">
+<p>Symmetrically, if we focus on limiting our losses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.</p>
+</div>
+<div class="paragraph">
+<p>We can clearly see that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.</p>
+</div>
+<div class="paragraph">
+<p>The idea of an inflation attack is that an attacker can donate assets to the vault to move the rate curve to the right, and make the vault unsafe.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-attack.png" alt="Inflation attack without protection">
+</div>
+</div>
+<div class="paragraph">
+<p>Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only share holder (from their donation), the attacker would steal all the tokens deposited.</p>
+</div>
+<div class="paragraph">
+<p>An attacker would typically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.</p>
+</div>
+<div class="paragraph">
+<p>In math that gives:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>\(a_0\) the attacker deposit</p>
+</li>
+<li>
+<p>\(a_1\) the attacker donation</p>
+</li>
+<li>
+<p>\(u\) the user deposit</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">Assets</th>
+<th class="tableblock halign-left valign-top">Shares</th>
+<th class="tableblock halign-left valign-top">Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">initial</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">after attacker&#8217;s deposit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(a_0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(a_0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(1\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">after attacker&#8217;s donation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(a_0+a_1\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(a_0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\frac{a_0}{a_0+a_1}\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>This means a deposit of \(u\) will give \(\frac{u \times a_0}{a_0 + a_1}\) shares.</p>
+</div>
+<div class="paragraph">
+<p>For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{u \times a_0}{a_0+a_1} &lt; 1 \iff u &lt; 1 + \frac{a_1}{a_0}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Using \(a_0 = 1\) and \(a_1 = u\) is enough. So the attacker only needs \(u+1\) assets to perform a successful attack.</p>
+</div>
+<div class="paragraph">
+<p>It is easy to generalize the above results to scenarios where the attacker is going after a smaller fraction of the user&#8217;s deposit. In order to target \(\frac{u}{n}\), the user needs to suffer rounding of a similar fraction, which means the user must receive at most \(n\) shares. This results in:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{u \times a_0}{a_0+a_1} &lt; n \iff \frac{u}{n} &lt; 1 + \frac{a_1}{a_0}\]
+</div>
+</div>
+<div class="paragraph">
+<p>In this scenario, the attack is \(n\) times less powerful (in how much it is stealing) and costs \(n\) times less to execute. In both cases, the amount of funds the attacker needs to commit is equivalent to its potential earnings.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="defending_with_a_virtual_offset"><a class="anchor" href="#defending_with_a_virtual_offset"></a>Defending with a virtual offset</h3>
+<div class="paragraph">
+<p>The defense we propose is based on the approach used in <a href="https://github.com/boringcrypto/YieldBox">YieldBox</a>. It consists of two parts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimal places to represent the shares than the underlying token does to represent the assets.</p>
+</li>
+<li>
+<p>Include virtual shares and virtual assets in the exchange rate computation. These virtual assets enforce the conversion rate when the vault is empty.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These two parts work together in enforcing the security of the vault. First, the increased precision corresponds to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.</p>
+</div>
+<div class="paragraph">
+<p>Following the previous math definitions, we have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>\(\delta\) the vault offset</p>
+</li>
+<li>
+<p>\(a_0\) the attacker deposit</p>
+</li>
+<li>
+<p>\(a_1\) the attacker donation</p>
+</li>
+<li>
+<p>\(u\) the user deposit</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">Assets</th>
+<th class="tableblock halign-left valign-top">Shares</th>
+<th class="tableblock halign-left valign-top">Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">initial</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(1\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">after attacker&#8217;s deposit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(1+a_0\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta \times (1+a_0)\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">after attacker&#8217;s donation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(1+a_0+a_1\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta \times (1+a_0)\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(10^\delta \times \frac{1+a_0}{1+a_0+a_1}\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>One important thing to note is that the attacker only owns a fraction \(\frac{a_0}{1 + a_0}\) of the shares, so when doing the donation, he will only be able to recover that fraction \(\frac{a_1 \times a_0}{1 + a_0}\) of the donation. The remaining \(\frac{a_1}{1+a_0}\) are captured by the vault.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mathit{loss} = \frac{a_1}{1+a_0}\]
+</div>
+</div>
+<div class="paragraph">
+<p>When the user deposits \(u\), he receives</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1} &lt; 1\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\iff 10^\delta \times u &lt; \frac{1+a_0+a_1}{1+a_0}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\iff 10^\delta \times u &lt; 1 + \frac{a_1}{1+a_0}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\iff 10^\delta \times u \le \mathit{loss}\]
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the offset is 0, the attacker loss is at least equal to the user&#8217;s deposit.</p>
+</li>
+<li>
+<p>If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.</p>
+</div>
+<div class="paragraph">
+<p>The following figure shows how the offset impacts the initial rate and limits the ability of an attacker with limited funds to inflate it effectively.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-attack-3a.png" alt="Inflation attack without offset=3">
+</div>
+</div>
+<div class="paragraph">
+<p>\(\delta = 3\), \(a_0 = 1\), \(a_1 = 10^5\)</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-attack-3b.png" alt="Inflation attack without offset=3 and an attacker deposit that limits its losses">
+</div>
+</div>
+<div class="paragraph">
+<p>\(\delta = 3\), \(a_0 = 100\), \(a_1 = 10^5\)</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/erc4626-attack-6.png" alt="Inflation attack without offset=6">
+</div>
+</div>
+<div class="paragraph">
+<p>\(\delta = 6\), \(a_0 = 1\), \(a_1 = 10^5\)</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="fees"><a class="anchor" href="#fees"></a>Custom behavior: Adding fees to the vault</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In an ERC-4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps. In both cases it is essential to remain compliant with the ERC-4626 requirements with regard to the preview functions.</p>
+</div>
+<div class="paragraph">
+<p>For example, if calling <code>deposit(100, receiver)</code>, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by <code>previewDeposit(100)</code>. Similarly, <code>previewMint</code> should account for the fees that the user will have to pay on top of share&#8217;s cost.</p>
+</div>
+<div class="paragraph">
+<p>As for the <code>Deposit</code> event, while this is less clear in the EIP spec itself, there seems to be consensus that it should include the number of assets paid for by the user, including the fees.</p>
+</div>
+<div class="paragraph">
+<p>On the other hand, when withdrawing assets, the number given by the user should correspond to what he receives. Any fees should be added to the quote (in shares) performed by <code>previewWithdraw</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>Withdraw</code> event should include the number of shares the user burns (including fees) and the number of assets the user actually receives (after fees are deducted).</p>
+</div>
+<div class="paragraph">
+<p>The consequence of this design is that both the <code>Deposit</code> and <code>Withdraw</code> events will describe two exchange rates. The spread between the "Buy-in" and the "Exit" prices correspond to the fees taken by the vault.</p>
+</div>
+<div class="paragraph">
+<p>The following example describes how fees proportional to the deposited/withdrawn amount can be implemented:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+
+/// @dev ERC-4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
+///
+/// NOTE: The contract charges fees in terms of assets, not shares. This means that the fees are calculated based on the
+/// amount of assets that are being deposited or withdrawn, and not based on the amount of shares that are being minted or
+/// redeemed. This is an opinionated design decision that should be taken into account when integrating this contract.
+///
+/// WARNING: This contract has not been audited and shouldn't be considered production ready. Consider using it with caution.
+abstract contract ERC4626Fees is ERC4626 {
+    using Math for uint256;
+
+    uint256 private constant _BASIS_POINT_SCALE = 1e4;
+
+    // === Overrides ===
+
+    /// @dev Preview taking an entry fee on deposit. See {IERC4626-previewDeposit}.
+    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
+        return super.previewDeposit(assets - fee);
+    }
+
+    /// @dev Preview adding an entry fee on mint. See {IERC4626-previewMint}.
+    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+        uint256 assets = super.previewMint(shares);
+        return assets + _feeOnRaw(assets, _entryFeeBasisPoints());
+    }
+
+    /// @dev Preview adding an exit fee on withdraw. See {IERC4626-previewWithdraw}.
+    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasisPoints());
+        return super.previewWithdraw(assets + fee);
+    }
+
+    /// @dev Preview taking an exit fee on redeem. See {IERC4626-previewRedeem}.
+    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+        uint256 assets = super.previewRedeem(shares);
+        return assets - _feeOnTotal(assets, _exitFeeBasisPoints());
+    }
+
+    /// @dev Send entry fee to {_entryFeeRecipient}. See {IERC4626-_deposit}.
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
+        address recipient = _entryFeeRecipient();
+
+        super._deposit(caller, receiver, assets, shares);
+
+        if (fee &gt; 0 &amp;&amp; recipient != address(this)) {
+            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        }
+    }
+
+    /// @dev Send exit fee to {_exitFeeRecipient}. See {IERC4626-_deposit}.
+    function _withdraw(
+        address caller,
+        address receiver,
+        address owner,
+        uint256 assets,
+        uint256 shares
+    ) internal virtual override {
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasisPoints());
+        address recipient = _exitFeeRecipient();
+
+        super._withdraw(caller, receiver, owner, assets, shares);
+
+        if (fee &gt; 0 &amp;&amp; recipient != address(this)) {
+            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        }
+    }
+
+    // === Fee configuration ===
+
+    function _entryFeeBasisPoints() internal view virtual returns (uint256) {
+        return 0; // replace with e.g. 100 for 1%
+    }
+
+    function _exitFeeBasisPoints() internal view virtual returns (uint256) {
+        return 0; // replace with e.g. 100 for 1%
+    }
+
+    function _entryFeeRecipient() internal view virtual returns (address) {
+        return address(0); // replace with e.g. a treasury address
+    }
+
+    function _exitFeeRecipient() internal view virtual returns (address) {
+        return address(0); // replace with e.g. a treasury address
+    }
+
+    // === Fee operations ===
+
+    /// @dev Calculates the fees that should be added to an amount `assets` that does not already include fees.
+    /// Used in {IERC4626-mint} and {IERC4626-withdraw} operations.
+    function _feeOnRaw(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
+        return assets.mulDiv(feeBasisPoints, _BASIS_POINT_SCALE, Math.Rounding.Ceil);
+    }
+
+    /// @dev Calculates the fee part of an amount `assets` that already includes fees.
+    /// Used in {IERC4626-deposit} and {IERC4626-redeem} operations.
+    function _feeOnTotal(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
+        return assets.mulDiv(feeBasisPoints, feeBasisPoints + _BASIS_POINT_SCALE, Math.Rounding.Ceil);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/erc1155.html">&larr; ERC-1155</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/governance.html">Governance &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+<script type="text/x-mathjax-config">
+window.MathJax = {
+  tex: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    tags: "none",
+  },
+  asciimath: {
+    delimiters: [["\\$", "\\$"]],
+  },
+  options: {
+    ignoreHtmlClass: "nostem|noasciimath",
+  },
+};
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js" integrity="sha512-T8xxpazDtODy3WOP/c6hvQI2O9UPdARlDWE0CvH1Cfqc0TXZF6GZcEKL7tIR8VbfS/7s/J6C+VOqrD6hIo++vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	</main>
+</div>
+    <script src="../../_/js/vendor/lunr.js"></script>
+<script src="../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../.." data-snippet-length="100" data-stylesheet="../../_/css/search.css"></script>
+<script async src="../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>

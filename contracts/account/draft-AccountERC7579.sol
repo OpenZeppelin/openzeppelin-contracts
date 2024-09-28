@@ -13,11 +13,11 @@ import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 import {EnumerableSet} from "../utils/structs/EnumerableSet.sol";
 
 abstract contract AccountERC7579 is
-    AccountBase,
     IERC7579ModuleConfig,
     IERC7579Execution,
     IERC7579AccountConfig,
-    IERC1271
+    IERC1271,
+    AccountBase
 {
     using ERC7579Utils for *;
     using EnumerableSet for *;

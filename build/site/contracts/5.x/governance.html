@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/governance">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>How to set up on-chain governance - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="How to set up on-chain governance - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li nav-li-active">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>How to set up on-chain governance</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this guide we will learn how OpenZeppelin’s Governor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Find detailed contract documentation at <a href="api/governance.html" class="xref page">Governance API</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Decentralized protocols are in constant evolution from the moment they are publicly released. Often, the initial team retains control of this evolution in the first stages, but eventually delegates it to a community of stakeholders. The process by which this community makes decisions is called on-chain governance, and it has become a central component of decentralized protocols, fueling varied decisions such as parameter tweaking, smart contract upgrades, integrations with other protocols, treasury management, grants, etc.</p>
+</div>
+<div class="paragraph">
+<p>This governance protocol is generally implemented in a special-purpose contract called “Governor”. The GovernorAlpha and GovernorBravo contracts designed by Compound have been very successful and popular so far, with the downside that projects with different requirements have had to fork the code to customize it for their needs, which can pose a high risk of introducing security issues. For OpenZeppelin Contracts, we set out to build a modular system of Governor contracts so that forking is not needed, and different requirements can be accommodated by writing small modules using Solidity inheritance. You will find the most common requirements out of the box in OpenZeppelin Contracts, but writing additional ones is simple, and we will be adding new features as requested by the community in future releases. Additionally, the design of OpenZeppelin Governor requires minimal use of storage and results in more gas efficient operation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="compatibility"><a class="anchor" href="#compatibility"></a>Compatibility</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenZeppelin’s Governor system was designed with a concern for compatibility with existing systems that were based on Compound’s GovernorAlpha and GovernorBravo. Because of this, you will find that many modules are presented in two variants, one of which is built for compatibility with those systems.</p>
+</div>
+<div class="sect2">
+<h3 id="erc20votes_erc20votescomp"><a class="anchor" href="#erc20votes_erc20votescomp"></a>ERC20Votes &amp; ERC20VotesComp</h3>
+<div class="paragraph">
+<p>The ERC-20 extension to keep track of votes and vote delegation is one such case. The shorter one is the more generic version because it can support token supplies greater than 2^96, while the “Comp” variant is limited in that regard, but exactly fits the interface of the COMP token that is used by GovernorAlpha and Bravo. Both contract variants share the same events, so they are fully compatible when looking at events only.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="governor_governorstorage"><a class="anchor" href="#governor_governorstorage"></a>Governor &amp; GovernorStorage</h3>
+<div class="paragraph">
+<p>An OpenZeppelin Governor contract is not interface-compatible with Compound&#8217;s GovernorAlpha or Bravo. Even though events are fully compatible, proposal lifecycle functions (creation, execution, etc.) have different signatures that are meant to optimize storage use. Other functions from GovernorAlpha and Bravo are likewise not available. It’s possible to opt in some Bravo-like behavior by inheriting from the GovernorStorage module. This module provides proposal enumerability and alternate versions of the <code>queue</code>, <code>execute</code> and <code>cancel</code> function that only take the proposal id. This module reduces the calldata needed by some operations in exchange for an increased the storage footprint. This might be a good trade-off for some L2 chains. It also provides primitives for indexer-free frontends.</p>
+</div>
+<div class="paragraph">
+<p>Note that even with the use of this module, one important difference with Compound&#8217;s GovernorBravo is the way that `proposalId`s are calculated. Governor uses the hash of the proposal parameters with the purpose of keeping its data off-chain by event indexing, while the original Bravo implementation uses sequential `proposalId`s.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="governortimelockcontrol_governortimelockcompound"><a class="anchor" href="#governortimelockcontrol_governortimelockcompound"></a>GovernorTimelockControl &amp; GovernorTimelockCompound</h3>
+<div class="paragraph">
+<p>When using a timelock with your Governor contract, you can use either OpenZeppelin’s TimelockController or Compound’s Timelock. Based on the choice of timelock, you should choose the corresponding Governor module: GovernorTimelockControl or GovernorTimelockCompound respectively. This allows you to migrate an existing GovernorAlpha instance to an OpenZeppelin-based Governor without changing the timelock in use.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tally"><a class="anchor" href="#tally"></a>Tally</h3>
+<div class="paragraph">
+<p><a href="https://www.tally.xyz">Tally</a> is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.</p>
+</div>
+<div class="paragraph">
+<p>For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following <a href="api/interfaces.html#IERC6372" class="xref page">IERC6372</a>, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use <a href="https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference">Defender Transaction Proposals</a> as an alternative interface.</p>
+</div>
+<div class="paragraph">
+<p>In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>Setup</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="token"><a class="anchor" href="#token"></a>Token</h3>
+<div class="paragraph">
+<p>The voting power of each account in our governance setup will be determined by an ERC-20 token. The token has to implement the ERC20Votes extension. This extension will keep track of historical balances so that voting power is retrieved from past snapshots rather than current balance, which is an important protection that prevents double voting.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
+
+contract MyToken is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
+
+    // The functions below are overrides required by Solidity.
+
+    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
+    }
+
+    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If your project already has a live token that does not include ERC20Votes and is not upgradeable, you can wrap it in a governance token by using ERC20Wrapper. This will allow token holders to participate in governance by wrapping their tokens 1-to-1.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {ERC20Wrapper} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
+
+contract MyTokenWrapped is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
+    constructor(
+        IERC20 wrappedToken
+    ) ERC20("MyTokenWrapped", "MTK") ERC20Permit("MyTokenWrapped") ERC20Wrapper(wrappedToken) {}
+
+    // The functions below are overrides required by Solidity.
+
+    function decimals() public view override(ERC20, ERC20Wrapper) returns (uint8) {
+        return super.decimals();
+    }
+
+    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
+    }
+
+    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The only other source of voting power available in OpenZeppelin Contracts currently is <a href="api/token/ERC721.html#ERC721Votes" class="xref page"><code>ERC721Votes</code></a>. ERC-721 tokens that don&#8217;t provide this functionality can be wrapped into a voting tokens using a combination of <a href="api/token/ERC721.html#ERC721Votes" class="xref page"><code>ERC721Votes</code></a> and <a href="#api:token/ERC721Wrapper.adoc#ERC721Wrapper" class="xref unresolved"><code>ERC721Wrapper</code></a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The internal clock used by the token to store voting balances will dictate the operating mode of the Governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the <a href="api/interfaces.html#IERC6372" class="xref page">IERC6372</a> clock to use timestamps instead of block numbers.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="governor"><a class="anchor" href="#governor"></a>Governor</h3>
+<div class="paragraph">
+<p>Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.</p>
+</div>
+<div class="paragraph">
+<p>For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token. This module also discovers the clock mode (ERC-6372) used by the token and applies it to the Governor.</p>
+</div>
+<div class="paragraph">
+<p>For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).</p>
+</div>
+<div class="paragraph">
+<p>For 3) we will use GovernorCountingSimple, a module that offers 3 options to voters: For, Against, and Abstain, and where only For and Abstain votes are counted towards quorum.</p>
+</div>
+<div class="paragraph">
+<p>Besides these modules, Governor itself has some parameters we must set.</p>
+</div>
+<div class="paragraph">
+<p>votingDelay: How long after a proposal is created should voting power be fixed. A large voting delay gives users time to unstake tokens if necessary.</p>
+</div>
+<div class="paragraph">
+<p>votingPeriod: How long does a proposal remain open to votes.</p>
+</div>
+<div class="paragraph">
+<p>These parameters are specified in the unit defined in the token&#8217;s clock. Assuming the token uses block numbers, and assuming block time of around 12 seconds, we will have set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.</p>
+</div>
+<div class="paragraph">
+<p>We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {IGovernor, Governor} from "@openzeppelin/contracts/governance/Governor.sol";
+import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
+
+contract MyGovernor is
+    Governor,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction,
+    GovernorTimelockControl
+{
+    constructor(
+        IVotes _token,
+        TimelockController _timelock
+    ) Governor("MyGovernor") GovernorVotes(_token) GovernorVotesQuorumFraction(4) GovernorTimelockControl(_timelock) {}
+
+    function votingDelay() public pure override returns (uint256) {
+        return 7200; // 1 day
+    }
+
+    function votingPeriod() public pure override returns (uint256) {
+        return 50400; // 1 week
+    }
+
+    function proposalThreshold() public pure override returns (uint256) {
+        return 0;
+    }
+
+    // The functions below are overrides required by Solidity.
+
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
+        return super.state(proposalId);
+    }
+
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view virtual override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.proposalNeedsQueuing(proposalId);
+    }
+
+    function _queueOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _executeOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) {
+        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+        return super._cancel(targets, values, calldatas, descriptionHash);
+    }
+
+    function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
+        return super._executor();
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="timelock"><a class="anchor" href="#timelock"></a>Timelock</h3>
+<div class="paragraph">
+<p>It is good practice to add a timelock to governance decisions. This allows users to exit the system if they disagree with a decision before it is executed. We will use OpenZeppelin’s TimelockController in combination with the GovernorTimelockControl module.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Before version 4.5 there was no way to recover funds in the Governor contract when using a timelock! Before version 4.3, when using the Compound Timelock, ETH in the timelock was not easily accessible.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>TimelockController uses an AccessControl setup that we need to understand in order to set up roles.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system.</p>
+</li>
+<li>
+<p>The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).</p>
+</li>
+<li>
+<p>Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to the timelock itself, and optionally to a second account, which can be used for ease of setup but should promptly renounce the role.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="proposal_lifecycle"><a class="anchor" href="#proposal_lifecycle"></a>Proposal Lifecycle</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let’s walk through how to create and execute a proposal on our newly deployed Governor.</p>
+</div>
+<div class="paragraph">
+<p>A proposal is a sequence of actions that the Governor contract will perform if it passes. Each action consists of a target address, calldata encoding a function call, and an amount of ETH to include. Additionally, a proposal includes a human-readable description.</p>
+</div>
+<div class="sect2">
+<h3 id="create_a_proposal"><a class="anchor" href="#create_a_proposal"></a>Create a Proposal</h3>
+<div class="paragraph">
+<p>Let’s say we want to create a proposal to give a team a grant, in the form of ERC-20 tokens from the governance treasury. This proposal will consist of a single action where the target is the ERC-20 token, calldata is the encoded function call <code>transfer(&lt;team wallet&gt;, &lt;grant amount&gt;)</code>, and with 0 ETH attached.</p>
+</div>
+<div class="paragraph">
+<p>Generally a proposal will be created with the help of an interface such as Tally or <a href="https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference">Defender Proposals</a>. Here we will show how to create the proposal using Ethers.js.</p>
+</div>
+<div class="paragraph">
+<p>First we get all the parameters necessary for the proposal action.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const tokenAddress = ...;
+const token = await ethers.getContractAt(‘ERC20’, tokenAddress);
+
+const teamAddress = ...;
+const grantAmount = ...;
+const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we are ready to call the propose function of the Governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">await governor.propose(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  “Proposal #1: Give grant to team”,
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will create a new proposal, with a proposal id that is obtained by hashing together the proposal data, and which will also be found in an event in the logs of the transaction.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cast_a_vote"><a class="anchor" href="#cast_a_vote"></a>Cast a Vote</h3>
+<div class="paragraph">
+<p>Once a proposal is active, delegates can cast their vote. Note that it is delegates who carry voting power: if a token holder wants to participate, they can set a trusted representative as their delegate, or they can become a delegate themselves by self-delegating their voting power.</p>
+</div>
+<div class="paragraph">
+<p>Votes are cast by interacting with the Governor contract through the <code>castVote</code> family of functions. Voters would generally invoke this from a governance UI such as Tally.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tally-vote.png" alt="Voting in Tally">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="execute_the_proposal"><a class="anchor" href="#execute_the_proposal"></a>Execute the Proposal</h3>
+<div class="paragraph">
+<p>Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. Once a proposal passes, it can be queued and executed from the same place you voted.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tally-exec.png" alt="Administration Panel in Tally">
+</div>
+</div>
+<div class="paragraph">
+<p>We will see now how to do this manually using Ethers.js.</p>
+</div>
+<div class="paragraph">
+<p>If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in the entire proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.</p>
+</div>
+<div class="paragraph">
+<p>To queue, we call the queue function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const descriptionHash = ethers.utils.id(“Proposal #1: Give grant to team”);
+
+await governor.queue(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  descriptionHash,
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will cause the Governor to interact with the timelock contract and queue the actions for execution after the required delay.</p>
+</div>
+<div class="paragraph">
+<p>After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be ran immediately after the proposal succeeds.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">await governor.execute(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  descriptionHash,
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Executing the proposal will transfer the ERC-20 tokens to the chosen recipient. To wrap up: we set up a system where a treasury is controlled by the collective decision of the token holders of a project, and all actions are executed via proposals enforced by on-chain votes.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="timestamp_based_governance"><a class="anchor" href="#timestamp_based_governance"></a>Timestamp based governance</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="motivation"><a class="anchor" href="#motivation"></a>Motivation</h3>
+<div class="paragraph">
+<p>It is sometimes difficult to deal with durations expressed in number of blocks because of inconsistent or unpredictable time between blocks. This is particularly true of some L2 networks where blocks are produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades that modify the expected time between blocks.</p>
+</div>
+<div class="paragraph">
+<p>The difficulty of replacing block numbers with timestamps is that the Governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a Governor to reliably do timestamp based lookups.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, designing a timestamp based voting system starts with the token.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="token_2"><a class="anchor" href="#token_2"></a>Token</h3>
+<div class="paragraph">
+<p>Since v4.9, all voting contracts (including <a href="api/token/ERC20.html#ERC20Votes" class="xref page"><code>ERC20Votes</code></a> and <a href="api/token/ERC721.html#ERC721Votes" class="xref page"><code>ERC721Votes</code></a>) rely on <a href="api/interfaces.html#IERC6372" class="xref page">IERC6372</a> for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the <code>clock()</code> and <code>CLOCK_MODE()</code> functions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
+
+contract MyTokenTimestampBased is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyTokenTimestampBased", "MTK") ERC20Permit("MyTokenTimestampBased") {}
+
+    // Overrides IERC6372 functions to make the token &amp; governor timestamp-based
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public pure override returns (string memory) {
+        return "mode=timestamp";
+    }
+
+    // The functions below are overrides required by Solidity.
+
+    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
+    }
+
+    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="governor_2"><a class="anchor" href="#governor_2"></a>Governor</h3>
+<div class="paragraph">
+<p>The Governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the Governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the <code>votingDelay()</code> and <code>votingPeriod()</code> accordingly.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
+import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/compatibility/GovernorCountingSimple.sol";
+import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+
+contract MyGovernor is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyGovernor")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure virtual override returns (uint256) {
+        return 1 days;
+    }
+
+    function votingPeriod() public pure virtual override returns (uint256) {
+        return 1 weeks;
+    }
+
+    function proposalThreshold() public pure virtual override returns (uint256) {
+        return 0;
+    }
+
+    // ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="disclaimer"><a class="anchor" href="#disclaimer"></a>Disclaimer</h3>
+<div class="paragraph">
+<p>Timestamp based voting is a recent feature that was formalized in ERC-6372 and ERC-5805, and introduced in v4.9. At the time this feature is released, some governance tooling may not support it yet. Users can expect invalid reporting of deadlines &amp; durations if the tool is not able to interpret the ERC6372 clock. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.</p>
+</div>
+<div class="paragraph">
+<p>Governors with timestamp support (v4.9 and above) are compatible with old tokens (before v4.9) and will operate in "block number" mode (which is the mode all old tokens operate on). On the other hand, old Governor instances (before v4.9) are not compatible with new tokens operating using timestamps. If you update your token code to use timestamps, make sure to also update your Governor code.</p>
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/erc4626.html">&larr; ERC-4626</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/utilities.html">Utilities &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+	</main>
+</div>
+    <script src="../../_/js/vendor/lunr.js"></script>
+<script src="../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../.." data-snippet-length="100" data-stylesheet="../../_/css/search.css"></script>
+<script async src="../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>

@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/api/interfaces">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>Interfaces - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="Interfaces - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li nav-li-active">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>Interfaces</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note readme-notice">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This document is better viewed at <a href="https://docs.openzeppelin.com/contracts/api/interfaces" class="bare">https://docs.openzeppelin.com/contracts/api/interfaces</a>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="list_of_standardized_interfaces"><a class="anchor" href="#list_of_standardized_interfaces"></a>List of standardized interfaces</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These interfaces are available as <code>.sol</code> files, and also as compiler <code>.json</code> ABI files (through the npm package). These
+are useful to interact with third party contracts that implement them.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20" class="xref page"><code>IERC20</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors"><code>IERC20Errors</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20Metadata" class="xref page"><code>IERC20Metadata</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#IERC165" class="xref page"><code>IERC165</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC721.html#IERC721" class="xref page"><code>IERC721</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC721.html#IERC721Receiver" class="xref page"><code>IERC721Receiver</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC721.html#IERC721Enumerable" class="xref page"><code>IERC721Enumerable</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC721.html#IERC721Metadata" class="xref page"><code>IERC721Metadata</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors"><code>IERC721Errors</code></a></p>
+</li>
+<li>
+<p><a href="#IERC777"><code>IERC777</code></a></p>
+</li>
+<li>
+<p><a href="#IERC777Recipient"><code>IERC777Recipient</code></a></p>
+</li>
+<li>
+<p><a href="#IERC777Sender"><code>IERC777Sender</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#IERC1155" class="xref page"><code>IERC1155</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#IERC1155Receiver" class="xref page"><code>IERC1155Receiver</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#IERC1155MetadataURI" class="xref page"><code>IERC1155MetadataURI</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors"><code>IERC1155Errors</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1271"><code>IERC1271</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363"><code>IERC1363</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363Receiver"><code>IERC1363Receiver</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363Spender"><code>IERC1363Spender</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Implementer"><code>IERC1820Implementer</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry"><code>IERC1820Registry</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1822Proxiable"><code>IERC1822Proxiable</code></a></p>
+</li>
+<li>
+<p><a href="#IERC2612"><code>IERC2612</code></a></p>
+</li>
+<li>
+<p><a href="#IERC2981"><code>IERC2981</code></a></p>
+</li>
+<li>
+<p><a href="#IERC3156FlashLender"><code>IERC3156FlashLender</code></a></p>
+</li>
+<li>
+<p><a href="#IERC3156FlashBorrower"><code>IERC3156FlashBorrower</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626"><code>IERC4626</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4906"><code>IERC4906</code></a></p>
+</li>
+<li>
+<p><a href="#IERC5267"><code>IERC5267</code></a></p>
+</li>
+<li>
+<p><a href="#IERC5313"><code>IERC5313</code></a></p>
+</li>
+<li>
+<p><a href="#IERC5805"><code>IERC5805</code></a></p>
+</li>
+<li>
+<p><a href="#IERC6372"><code>IERC6372</code></a></p>
+</li>
+<li>
+<p><a href="#IERC7674"><code>IERC7674</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="detailed_abi"><a class="anchor" href="#detailed_abi"></a>Detailed ABI</h2>
+<div class="sectionbody">
+<div class="sect2 contract">
+<h3 id="IERC20Errors"><a class="anchor" href="#IERC20Errors"></a><code>IERC20Errors</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/draft-IERC6093.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Standard ERC-20 Errors
+Interface of the <a href="https://eips.ethereum.org/EIPS/eip-6093">ERC-6093</a> custom errors for ERC-20 tokens.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-"><code>ERC20InsufficientBalance(sender, balance, needed)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors-ERC20InvalidSender-address-"><code>ERC20InvalidSender(sender)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors-ERC20InvalidReceiver-address-"><code>ERC20InvalidReceiver(receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-"><code>ERC20InsufficientAllowance(spender, allowance, needed)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors-ERC20InvalidApprover-address-"><code>ERC20InvalidApprover(approver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC20Errors-ERC20InvalidSpender-address-"><code>ERC20InvalidSpender(spender)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-"><a class="anchor" href="#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-"></a><code><span class="contract-item-name">ERC20InsufficientBalance</span>(address sender, uint256 balance, uint256 needed)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates an error related to the current <code>balance</code> of a <code>sender</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InvalidSender-address-"><a class="anchor" href="#IERC20Errors-ERC20InvalidSender-address-"></a><code><span class="contract-item-name">ERC20InvalidSender</span>(address sender)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>sender</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InvalidReceiver-address-"><a class="anchor" href="#IERC20Errors-ERC20InvalidReceiver-address-"></a><code><span class="contract-item-name">ERC20InvalidReceiver</span>(address receiver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>receiver</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-"><a class="anchor" href="#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-"></a><code><span class="contract-item-name">ERC20InsufficientAllowance</span>(address spender, uint256 allowance, uint256 needed)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>spender</code>’s <code>allowance</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InvalidApprover-address-"><a class="anchor" href="#IERC20Errors-ERC20InvalidApprover-address-"></a><code><span class="contract-item-name">ERC20InvalidApprover</span>(address approver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>approver</code> of a token to be approved. Used in approvals.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC20Errors-ERC20InvalidSpender-address-"><a class="anchor" href="#IERC20Errors-ERC20InvalidSpender-address-"></a><code><span class="contract-item-name">ERC20InvalidSpender</span>(address spender)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>spender</code> to be approved. Used in approvals.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC721Errors"><a class="anchor" href="#IERC721Errors"></a><code>IERC721Errors</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/draft-IERC6093.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Standard ERC-721 Errors
+Interface of the <a href="https://eips.ethereum.org/EIPS/eip-6093">ERC-6093</a> custom errors for ERC-721 tokens.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC721Errors-ERC721InvalidOwner-address-"><code>ERC721InvalidOwner(owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721NonexistentToken-uint256-"><code>ERC721NonexistentToken(tokenId)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-"><code>ERC721IncorrectOwner(sender, tokenId, owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721InvalidSender-address-"><code>ERC721InvalidSender(sender)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721InvalidReceiver-address-"><code>ERC721InvalidReceiver(receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721InsufficientApproval-address-uint256-"><code>ERC721InsufficientApproval(operator, tokenId)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721InvalidApprover-address-"><code>ERC721InvalidApprover(approver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC721Errors-ERC721InvalidOperator-address-"><code>ERC721InvalidOperator(operator)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InvalidOwner-address-"><a class="anchor" href="#IERC721Errors-ERC721InvalidOwner-address-"></a><code><span class="contract-item-name">ERC721InvalidOwner</span>(address owner)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates that an address can&#8217;t be an owner. For example, <code>address(0)</code> is a forbidden owner in ERC-20.
+Used in balance queries.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721NonexistentToken-uint256-"><a class="anchor" href="#IERC721Errors-ERC721NonexistentToken-uint256-"></a><code><span class="contract-item-name">ERC721NonexistentToken</span>(uint256 tokenId)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a <code>tokenId</code> whose <code>owner</code> is the zero address.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721IncorrectOwner-address-uint256-address-"><a class="anchor" href="#IERC721Errors-ERC721IncorrectOwner-address-uint256-address-"></a><code><span class="contract-item-name">ERC721IncorrectOwner</span>(address sender, uint256 tokenId, address owner)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates an error related to the ownership over a particular token. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InvalidSender-address-"><a class="anchor" href="#IERC721Errors-ERC721InvalidSender-address-"></a><code><span class="contract-item-name">ERC721InvalidSender</span>(address sender)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>sender</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InvalidReceiver-address-"><a class="anchor" href="#IERC721Errors-ERC721InvalidReceiver-address-"></a><code><span class="contract-item-name">ERC721InvalidReceiver</span>(address receiver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>receiver</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InsufficientApproval-address-uint256-"><a class="anchor" href="#IERC721Errors-ERC721InsufficientApproval-address-uint256-"></a><code><span class="contract-item-name">ERC721InsufficientApproval</span>(address operator, uint256 tokenId)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>operator</code>’s approval. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InvalidApprover-address-"><a class="anchor" href="#IERC721Errors-ERC721InvalidApprover-address-"></a><code><span class="contract-item-name">ERC721InvalidApprover</span>(address approver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>approver</code> of a token to be approved. Used in approvals.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC721Errors-ERC721InvalidOperator-address-"><a class="anchor" href="#IERC721Errors-ERC721InvalidOperator-address-"></a><code><span class="contract-item-name">ERC721InvalidOperator</span>(address operator)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>operator</code> to be approved. Used in approvals.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1155Errors"><a class="anchor" href="#IERC1155Errors"></a><code>IERC1155Errors</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/draft-IERC6093.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Standard ERC-1155 Errors
+Interface of the <a href="https://eips.ethereum.org/EIPS/eip-6093">ERC-6093</a> custom errors for ERC-1155 tokens.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-"><code>ERC1155InsufficientBalance(sender, balance, needed, tokenId)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InvalidSender-address-"><code>ERC1155InvalidSender(sender)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InvalidReceiver-address-"><code>ERC1155InvalidReceiver(receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155MissingApprovalForAll-address-address-"><code>ERC1155MissingApprovalForAll(operator, owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InvalidApprover-address-"><code>ERC1155InvalidApprover(approver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InvalidOperator-address-"><code>ERC1155InvalidOperator(operator)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-"><code>ERC1155InvalidArrayLength(idsLength, valuesLength)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-"><a class="anchor" href="#IERC1155Errors-ERC1155InsufficientBalance-address-uint256-uint256-uint256-"></a><code><span class="contract-item-name">ERC1155InsufficientBalance</span>(address sender, uint256 balance, uint256 needed, uint256 tokenId)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates an error related to the current <code>balance</code> of a <code>sender</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InvalidSender-address-"><a class="anchor" href="#IERC1155Errors-ERC1155InvalidSender-address-"></a><code><span class="contract-item-name">ERC1155InvalidSender</span>(address sender)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>sender</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InvalidReceiver-address-"><a class="anchor" href="#IERC1155Errors-ERC1155InvalidReceiver-address-"></a><code><span class="contract-item-name">ERC1155InvalidReceiver</span>(address receiver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the token <code>receiver</code>. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155MissingApprovalForAll-address-address-"><a class="anchor" href="#IERC1155Errors-ERC1155MissingApprovalForAll-address-address-"></a><code><span class="contract-item-name">ERC1155MissingApprovalForAll</span>(address operator, address owner)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>operator</code>’s approval. Used in transfers.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InvalidApprover-address-"><a class="anchor" href="#IERC1155Errors-ERC1155InvalidApprover-address-"></a><code><span class="contract-item-name">ERC1155InvalidApprover</span>(address approver)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>approver</code> of a token to be approved. Used in approvals.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InvalidOperator-address-"><a class="anchor" href="#IERC1155Errors-ERC1155InvalidOperator-address-"></a><code><span class="contract-item-name">ERC1155InvalidOperator</span>(address operator)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates a failure with the <code>operator</code> to be approved. Used in approvals.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-"><a class="anchor" href="#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-"></a><code><span class="contract-item-name">ERC1155InvalidArrayLength</span>(uint256 idsLength, uint256 valuesLength)</code> <span class="item-kind">error</span></h4>
+<div class="paragraph">
+<p>Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
+Used in batch transfers.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1271"><a class="anchor" href="#IERC1271"></a><code>IERC1271</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1271.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1271.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the ERC-1271 standard signature validation method for
+contracts as defined in <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271</a>.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1271-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1271-isValidSignature-bytes32-bytes-"><a class="anchor" href="#IERC1271-isValidSignature-bytes32-bytes-"></a><code><span class="contract-item-name">isValidSignature</span>(bytes32 hash, bytes signature) → bytes4 magicValue</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Should return whether the signature provided is valid for the provided data</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1363"><a class="anchor" href="#IERC1363"></a><code>IERC1363</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1363.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1363.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the ERC-1363 standard as defined in the <a href="https://eips.ethereum.org/EIPS/eip-1363">ERC-1363</a>.</p>
+</div>
+<div class="paragraph">
+<p>Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract
+after <code>transfer</code> or <code>transferFrom</code>, or code on a spender contract after <code>approve</code>, in a single transaction.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1363-transferAndCall-address-uint256-"><code>transferAndCall(to, value)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363-transferAndCall-address-uint256-bytes-"><code>transferAndCall(to, value, data)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363-transferFromAndCall-address-address-uint256-"><code>transferFromAndCall(from, to, value)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363-transferFromAndCall-address-address-uint256-bytes-"><code>transferFromAndCall(from, to, value, data)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363-approveAndCall-address-uint256-"><code>approveAndCall(spender, value)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1363-approveAndCall-address-uint256-bytes-"><code>approveAndCall(spender, value, data)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC165</div>
+<ul>
+<li>
+<p><a href="utils.html#IERC165-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-totalSupply--" class="xref page"><code>totalSupply()</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-balanceOf-address-" class="xref page"><code>balanceOf(account)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transfer-address-uint256-" class="xref page"><code>transfer(to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-allowance-address-address-" class="xref page"><code>allowance(owner, spender)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-approve-address-uint256-" class="xref page"><code>approve(spender, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transferFrom-address-address-uint256-" class="xref page"><code>transferFrom(from, to, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-Transfer-address-address-uint256-" class="xref page"><code>Transfer(from, to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-Approval-address-address-uint256-" class="xref page"><code>Approval(owner, spender, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-transferAndCall-address-uint256-"><a class="anchor" href="#IERC1363-transferAndCall-address-uint256-"></a><code><span class="contract-item-name">transferAndCall</span>(address to, uint256 value) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Moves a <code>value</code> amount of tokens from the caller&#8217;s account to <code>to</code>
+and then calls <a href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><code>IERC1363Receiver.onTransferReceived</code></a> on <code>to</code>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-transferAndCall-address-uint256-bytes-"><a class="anchor" href="#IERC1363-transferAndCall-address-uint256-bytes-"></a><code><span class="contract-item-name">transferAndCall</span>(address to, uint256 value, bytes data) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Moves a <code>value</code> amount of tokens from the caller&#8217;s account to <code>to</code>
+and then calls <a href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><code>IERC1363Receiver.onTransferReceived</code></a> on <code>to</code>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-transferFromAndCall-address-address-uint256-"><a class="anchor" href="#IERC1363-transferFromAndCall-address-address-uint256-"></a><code><span class="contract-item-name">transferFromAndCall</span>(address from, address to, uint256 value) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Moves a <code>value</code> amount of tokens from <code>from</code> to <code>to</code> using the allowance mechanism
+and then calls <a href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><code>IERC1363Receiver.onTransferReceived</code></a> on <code>to</code>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-transferFromAndCall-address-address-uint256-bytes-"><a class="anchor" href="#IERC1363-transferFromAndCall-address-address-uint256-bytes-"></a><code><span class="contract-item-name">transferFromAndCall</span>(address from, address to, uint256 value, bytes data) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Moves a <code>value</code> amount of tokens from <code>from</code> to <code>to</code> using the allowance mechanism
+and then calls <a href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><code>IERC1363Receiver.onTransferReceived</code></a> on <code>to</code>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-approveAndCall-address-uint256-"><a class="anchor" href="#IERC1363-approveAndCall-address-uint256-"></a><code><span class="contract-item-name">approveAndCall</span>(address spender, uint256 value) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Sets a <code>value</code> amount of tokens as the allowance of <code>spender</code> over the
+caller&#8217;s tokens and then calls <a href="#IERC1363Spender-onApprovalReceived-address-uint256-bytes-"><code>IERC1363Spender.onApprovalReceived</code></a> on <code>spender</code>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363-approveAndCall-address-uint256-bytes-"><a class="anchor" href="#IERC1363-approveAndCall-address-uint256-bytes-"></a><code><span class="contract-item-name">approveAndCall</span>(address spender, uint256 value, bytes data) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Sets a <code>value</code> amount of tokens as the allowance of <code>spender</code> over the
+caller&#8217;s tokens and then calls <a href="#IERC1363Spender-onApprovalReceived-address-uint256-bytes-"><code>IERC1363Spender.onApprovalReceived</code></a> on <code>spender</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1363Receiver"><a class="anchor" href="#IERC1363Receiver"></a><code>IERC1363Receiver</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1363Receiver.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1363Receiver.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface for any contract that wants to support <code>transferAndCall</code> or <code>transferFromAndCall</code>
+from ERC-1363 token contracts.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><code>onTransferReceived(operator, from, value, data)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"><a class="anchor" href="#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-"></a><code><span class="contract-item-name">onTransferReceived</span>(address operator, address from, uint256 value, bytes data) → bytes4</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Whenever ERC-1363 tokens are transferred to this contract via <code>transferAndCall</code> or <code>transferFromAndCall</code>
+by <code>operator</code> from <code>from</code>, this function is called.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+To accept the transfer, this must return
+<code>bytes4(keccak256("onTransferReceived(address,address,uint256,bytes)"))</code>
+(i.e. 0x88a7ca5c, or its own function selector).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1363Spender"><a class="anchor" href="#IERC1363Spender"></a><code>IERC1363Spender</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1363Spender.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1363Spender.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface for any contract that wants to support <code>approveAndCall</code>
+from ERC-1363 token contracts.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1363Spender-onApprovalReceived-address-uint256-bytes-"><code>onApprovalReceived(owner, value, data)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1363Spender-onApprovalReceived-address-uint256-bytes-"><a class="anchor" href="#IERC1363Spender-onApprovalReceived-address-uint256-bytes-"></a><code><span class="contract-item-name">onApprovalReceived</span>(address owner, uint256 value, bytes data) → bytes4</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Whenever an ERC-1363 token <code>owner</code> approves this contract via <code>approveAndCall</code>
+to spend their tokens, this function is called.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+To accept the approval, this must return
+<code>bytes4(keccak256("onApprovalReceived(address,uint256,bytes)"))</code>
+(i.e. 0x7b04a2d0, or its own function selector).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1820Implementer"><a class="anchor" href="#IERC1820Implementer"></a><code>IERC1820Implementer</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1820Implementer.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1820Implementer.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface for an ERC-1820 implementer, as defined in the
+<a href="https://eips.ethereum.org/EIPS/eip-1820#interface-implementation-erc1820implementerinterface">ERC</a>.
+Used by contracts that will be registered as implementers in the
+<a href="#IERC1820Registry"><code>IERC1820Registry</code></a>.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-"><code>canImplementInterfaceForAddress(interfaceHash, account)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-"><a class="anchor" href="#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-"></a><code><span class="contract-item-name">canImplementInterfaceForAddress</span>(bytes32 interfaceHash, address account) → bytes32</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns a special value (<code>ERC1820_ACCEPT_MAGIC</code>) if this contract
+implements <code>interfaceHash</code> for <code>account</code>.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-"><code>IERC1820Registry.setInterfaceImplementer</code></a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1820Registry"><a class="anchor" href="#IERC1820Registry"></a><code>IERC1820Registry</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC1820Registry.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC1820Registry.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the global ERC-1820 Registry, as defined in the
+<a href="https://eips.ethereum.org/EIPS/eip-1820">ERC</a>. Accounts may register
+implementers for interfaces in this registry, as well as query support.</p>
+</div>
+<div class="paragraph">
+<p>Implementers may be shared by multiple accounts, and can also implement more
+than a single interface for each account. Contracts can implement interfaces
+for themselves, but externally-owned accounts (EOA) must delegate this to a
+contract.</p>
+</div>
+<div class="paragraph">
+<p><a href="utils.html#IERC165" class="xref page"><code>IERC165</code></a> interfaces can also be queried via the registry.</p>
+</div>
+<div class="paragraph">
+<p>For an in-depth explanation and source code analysis, see the ERC text.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1820Registry-setManager-address-address-"><code>setManager(account, newManager)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-getManager-address-"><code>getManager(account)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-"><code>setInterfaceImplementer(account, _interfaceHash, implementer)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-getInterfaceImplementer-address-bytes32-"><code>getInterfaceImplementer(account, _interfaceHash)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-interfaceHash-string-"><code>interfaceHash(interfaceName)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-updateERC165Cache-address-bytes4-"><code>updateERC165Cache(account, interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-implementsERC165Interface-address-bytes4-"><code>implementsERC165Interface(account, interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-"><code>implementsERC165InterfaceNoCache(account, interfaceId)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-"><code>InterfaceImplementerSet(account, interfaceHash, implementer)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC1820Registry-ManagerChanged-address-address-"><code>ManagerChanged(account, newManager)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-setManager-address-address-"><a class="anchor" href="#IERC1820Registry-setManager-address-address-"></a><code><span class="contract-item-name">setManager</span>(address account, address newManager)</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Sets <code>newManager</code> as the manager for <code>account</code>. A manager of an
+account is able to set interface implementers for it.</p>
+</div>
+<div class="paragraph">
+<p>By default, each account is its own manager. Passing a value of <code>0x0</code> in
+<code>newManager</code> will reset the manager to this initial state.</p>
+</div>
+<div class="paragraph">
+<p>Emits a <a href="#IERC1820Registry-ManagerChanged-address-address-"><code>ManagerChanged</code></a> event.</p>
+</div>
+<div class="paragraph">
+<p>Requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the caller must be the current manager for <code>account</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-getManager-address-"><a class="anchor" href="#IERC1820Registry-getManager-address-"></a><code><span class="contract-item-name">getManager</span>(address account) → address</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the manager for <code>account</code>.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#IERC1820Registry-setManager-address-address-"><code>setManager</code></a>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-setInterfaceImplementer-address-bytes32-address-"><a class="anchor" href="#IERC1820Registry-setInterfaceImplementer-address-bytes32-address-"></a><code><span class="contract-item-name">setInterfaceImplementer</span>(address account, bytes32 _interfaceHash, address implementer)</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Sets the <code>implementer</code> contract as <code>account</code>'s implementer for
+<code>interfaceHash</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>account</code> being the zero address is an alias for the caller&#8217;s address.
+The zero address can also be used in <code>implementer</code> to remove an old one.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#IERC1820Registry-interfaceHash-string-"><code>interfaceHash</code></a> to learn how these are created.</p>
+</div>
+<div class="paragraph">
+<p>Emits an <a href="#IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-"><code>InterfaceImplementerSet</code></a> event.</p>
+</div>
+<div class="paragraph">
+<p>Requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the caller must be the current manager for <code>account</code>.</p>
+</li>
+<li>
+<p><code>interfaceHash</code> must not be an <a href="utils.html#IERC165" class="xref page"><code>IERC165</code></a> interface id (i.e. it must not
+end in 28 zeroes).</p>
+</li>
+<li>
+<p><code>implementer</code> must implement <a href="#IERC1820Implementer"><code>IERC1820Implementer</code></a> and return true when
+queried for support, unless <code>implementer</code> is the caller. See
+<a href="#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-"><code>IERC1820Implementer.canImplementInterfaceForAddress</code></a>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-getInterfaceImplementer-address-bytes32-"><a class="anchor" href="#IERC1820Registry-getInterfaceImplementer-address-bytes32-"></a><code><span class="contract-item-name">getInterfaceImplementer</span>(address account, bytes32 _interfaceHash) → address</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the implementer of <code>interfaceHash</code> for <code>account</code>. If no such
+implementer is registered, returns the zero address.</p>
+</div>
+<div class="paragraph">
+<p>If <code>interfaceHash</code> is an <a href="utils.html#IERC165" class="xref page"><code>IERC165</code></a> interface id (i.e. it ends with 28
+zeroes), <code>account</code> will be queried for support of it.</p>
+</div>
+<div class="paragraph">
+<p><code>account</code> being the zero address is an alias for the caller&#8217;s address.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-interfaceHash-string-"><a class="anchor" href="#IERC1820Registry-interfaceHash-string-"></a><code><span class="contract-item-name">interfaceHash</span>(string interfaceName) → bytes32</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the interface hash for an <code>interfaceName</code>, as defined in the
+corresponding
+<a href="https://eips.ethereum.org/EIPS/eip-1820#interface-name">section of the ERC</a>.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-updateERC165Cache-address-bytes4-"><a class="anchor" href="#IERC1820Registry-updateERC165Cache-address-bytes4-"></a><code><span class="contract-item-name">updateERC165Cache</span>(address account, bytes4 interfaceId)</code> <span class="item-kind">external</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-implementsERC165Interface-address-bytes4-"><a class="anchor" href="#IERC1820Registry-implementsERC165Interface-address-bytes4-"></a><code><span class="contract-item-name">implementsERC165Interface</span>(address account, bytes4 interfaceId) → bool</code> <span class="item-kind">external</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-"><a class="anchor" href="#IERC1820Registry-implementsERC165InterfaceNoCache-address-bytes4-"></a><code><span class="contract-item-name">implementsERC165InterfaceNoCache</span>(address account, bytes4 interfaceId) → bool</code> <span class="item-kind">external</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-"><a class="anchor" href="#IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-"></a><code><span class="contract-item-name">InterfaceImplementerSet</span>(address indexed account, bytes32 indexed interfaceHash, address indexed implementer)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1820Registry-ManagerChanged-address-address-"><a class="anchor" href="#IERC1820Registry-ManagerChanged-address-address-"></a><code><span class="contract-item-name">ManagerChanged</span>(address indexed account, address indexed newManager)</code> <span class="item-kind">event</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC1822Proxiable"><a class="anchor" href="#IERC1822Proxiable"></a><code>IERC1822Proxiable</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/draft-IERC1822.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ERC-1822: Universal Upgradeable Proxy Standard (UUPS) documents a method for upgradeability through a simplified
+proxy whose upgrades are fully controlled by the current implementation.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC1822Proxiable-proxiableUUID--"><code>proxiableUUID()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC1822Proxiable-proxiableUUID--"><a class="anchor" href="#IERC1822Proxiable-proxiableUUID--"></a><code><span class="contract-item-name">proxiableUUID</span>() → bytes32</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the storage slot that the proxiable contract assumes is being used to store the implementation
+address.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
+bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
+function revert if invoked through a proxy.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC2612"><a class="anchor" href="#IERC2612"></a><code>IERC2612</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC2612.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC2612.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20Permit</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-" class="xref page"><code>permit(owner, spender, value, deadline, v, r, s)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20Permit-nonces-address-" class="xref page"><code>nonces(owner)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20Permit-DOMAIN_SEPARATOR--" class="xref page"><code>DOMAIN_SEPARATOR()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC2981"><a class="anchor" href="#IERC2981"></a><code>IERC2981</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC2981.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC2981.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface for the NFT Royalty Standard.</p>
+</div>
+<div class="paragraph">
+<p>A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+support for royalty payments across all NFT marketplaces and ecosystem participants.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC2981-royaltyInfo-uint256-uint256-"><code>royaltyInfo(tokenId, salePrice)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC165</div>
+<ul>
+<li>
+<p><a href="utils.html#IERC165-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC2981-royaltyInfo-uint256-uint256-"><a class="anchor" href="#IERC2981-royaltyInfo-uint256-uint256-"></a><code><span class="contract-item-name">royaltyInfo</span>(uint256 tokenId, uint256 salePrice) → address receiver, uint256 royaltyAmount</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+exchange. The royalty amount is denominated and should be paid in that same unit of exchange.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+ERC-2981 allows setting the royalty to 100% of the price. In that case all the price would be sent to the
+royalty receiver and 0 tokens to the seller. Contracts dealing with royalty should consider empty transfers.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC3156FlashLender"><a class="anchor" href="#IERC3156FlashLender"></a><code>IERC3156FlashLender</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC3156FlashLender.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the ERC-3156 FlashLender, as defined in
+<a href="https://eips.ethereum.org/EIPS/eip-3156">ERC-3156</a>.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC3156FlashLender-maxFlashLoan-address-"><code>maxFlashLoan(token)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC3156FlashLender-flashFee-address-uint256-"><code>flashFee(token, amount)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-"><code>flashLoan(receiver, token, amount, data)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC3156FlashLender-maxFlashLoan-address-"><a class="anchor" href="#IERC3156FlashLender-maxFlashLoan-address-"></a><code><span class="contract-item-name">maxFlashLoan</span>(address token) → uint256</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>The amount of currency available to be lended.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC3156FlashLender-flashFee-address-uint256-"><a class="anchor" href="#IERC3156FlashLender-flashFee-address-uint256-"></a><code><span class="contract-item-name">flashFee</span>(address token, uint256 amount) → uint256</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>The fee to be charged for a given loan.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-"><a class="anchor" href="#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-"></a><code><span class="contract-item-name">flashLoan</span>(contract IERC3156FlashBorrower receiver, address token, uint256 amount, bytes data) → bool</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Initiate a flash loan.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC3156FlashBorrower"><a class="anchor" href="#IERC3156FlashBorrower"></a><code>IERC3156FlashBorrower</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC3156FlashBorrower.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the ERC-3156 FlashBorrower, as defined in
+<a href="https://eips.ethereum.org/EIPS/eip-3156">ERC-3156</a>.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-"><code>onFlashLoan(initiator, token, amount, fee, data)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-"><a class="anchor" href="#IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-"></a><code><span class="contract-item-name">onFlashLoan</span>(address initiator, address token, uint256 amount, uint256 fee, bytes data) → bytes32</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Receive a flash loan.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC4626"><a class="anchor" href="#IERC4626"></a><code>IERC4626</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC4626.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC4626.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface of the ERC-4626 "Tokenized Vault Standard", as defined in
+<a href="https://eips.ethereum.org/EIPS/eip-4626">ERC-4626</a>.</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC4626-asset--"><code>asset()</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-totalAssets--"><code>totalAssets()</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-convertToShares-uint256-"><code>convertToShares(assets)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-convertToAssets-uint256-"><code>convertToAssets(shares)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-maxDeposit-address-"><code>maxDeposit(receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-previewDeposit-uint256-"><code>previewDeposit(assets)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-deposit-uint256-address-"><code>deposit(assets, receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-maxMint-address-"><code>maxMint(receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-previewMint-uint256-"><code>previewMint(shares)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-mint-uint256-address-"><code>mint(shares, receiver)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-maxWithdraw-address-"><code>maxWithdraw(owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-previewWithdraw-uint256-"><code>previewWithdraw(assets)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-withdraw-uint256-address-address-"><code>withdraw(assets, receiver, owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-maxRedeem-address-"><code>maxRedeem(owner)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-previewRedeem-uint256-"><code>previewRedeem(shares)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-redeem-uint256-address-address-"><code>redeem(shares, receiver, owner)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20Metadata</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20Metadata-name--" class="xref page"><code>name()</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20Metadata-symbol--" class="xref page"><code>symbol()</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20Metadata-decimals--" class="xref page"><code>decimals()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-totalSupply--" class="xref page"><code>totalSupply()</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-balanceOf-address-" class="xref page"><code>balanceOf(account)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transfer-address-uint256-" class="xref page"><code>transfer(to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-allowance-address-address-" class="xref page"><code>allowance(owner, spender)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-approve-address-uint256-" class="xref page"><code>approve(spender, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transferFrom-address-address-uint256-" class="xref page"><code>transferFrom(from, to, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC4626-Deposit-address-address-uint256-uint256-"><code>Deposit(sender, owner, assets, shares)</code></a></p>
+</li>
+<li>
+<p><a href="#IERC4626-Withdraw-address-address-address-uint256-uint256-"><code>Withdraw(sender, receiver, owner, assets, shares)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-Transfer-address-address-uint256-" class="xref page"><code>Transfer(from, to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-Approval-address-address-uint256-" class="xref page"><code>Approval(owner, spender, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-asset--"><a class="anchor" href="#IERC4626-asset--"></a><code><span class="contract-item-name">asset</span>() → address assetTokenAddress</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the address of the underlying token used for the Vault for accounting, depositing, and withdrawing.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST be an ERC-20 token contract.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-totalAssets--"><a class="anchor" href="#IERC4626-totalAssets--"></a><code><span class="contract-item-name">totalAssets</span>() → uint256 totalManagedAssets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the total amount of the underlying asset that is “managed” by Vault.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>SHOULD include any compounding that occurs from yield.</p>
+</li>
+<li>
+<p>MUST be inclusive of any fees that are charged against assets in the Vault.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-convertToShares-uint256-"><a class="anchor" href="#IERC4626-convertToShares-uint256-"></a><code><span class="contract-item-name">convertToShares</span>(uint256 assets) → uint256 shares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the amount of shares that the Vault would exchange for the amount of assets provided, in an ideal
+scenario where all the conditions are met.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST NOT be inclusive of any fees that are charged against assets in the Vault.</p>
+</li>
+<li>
+<p>MUST NOT show any variations depending on the caller.</p>
+</li>
+<li>
+<p>MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
+“average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+from.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-convertToAssets-uint256-"><a class="anchor" href="#IERC4626-convertToAssets-uint256-"></a><code><span class="contract-item-name">convertToAssets</span>(uint256 shares) → uint256 assets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the amount of assets that the Vault would exchange for the amount of shares provided, in an ideal
+scenario where all the conditions are met.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST NOT be inclusive of any fees that are charged against assets in the Vault.</p>
+</li>
+<li>
+<p>MUST NOT show any variations depending on the caller.</p>
+</li>
+<li>
+<p>MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
+“average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+from.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-maxDeposit-address-"><a class="anchor" href="#IERC4626-maxDeposit-address-"></a><code><span class="contract-item-name">maxDeposit</span>(address receiver) → uint256 maxAssets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the maximum amount of the underlying asset that can be deposited into the Vault for the receiver,
+through a deposit call.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return a limited value if receiver is subject to some deposit limit.</p>
+</li>
+<li>
+<p>MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be deposited.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-previewDeposit-uint256-"><a class="anchor" href="#IERC4626-previewDeposit-uint256-"></a><code><span class="contract-item-name">previewDeposit</span>(uint256 assets) → uint256 shares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Allows an on-chain or off-chain user to simulate the effects of their deposit at the current block, given
+current on-chain conditions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return as close to and no more than the exact amount of Vault shares that would be minted in a deposit
+call in the same transaction. I.e. deposit should return the same or more shares as previewDeposit if called
+in the same transaction.</p>
+</li>
+<li>
+<p>MUST NOT account for deposit limits like those returned from maxDeposit and should always act as though the
+deposit would be accepted, regardless if the user has enough tokens approved, etc.</p>
+</li>
+<li>
+<p>MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+any unfavorable discrepancy between convertToShares and previewDeposit SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by depositing.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-deposit-uint256-address-"><a class="anchor" href="#IERC4626-deposit-uint256-address-"></a><code><span class="contract-item-name">deposit</span>(uint256 assets, address receiver) → uint256 shares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST emit the Deposit event.</p>
+</li>
+<li>
+<p>MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+deposit execution, and are accounted for during deposit.</p>
+</li>
+<li>
+<p>MUST revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not
+approving enough underlying tokens to the Vault contract, etc).</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-maxMint-address-"><a class="anchor" href="#IERC4626-maxMint-address-"></a><code><span class="contract-item-name">maxMint</span>(address receiver) → uint256 maxShares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the maximum amount of the Vault shares that can be minted for the receiver, through a mint call.
+- MUST return a limited value if receiver is subject to some mint limit.
+- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of shares that may be minted.
+- MUST NOT revert.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-previewMint-uint256-"><a class="anchor" href="#IERC4626-previewMint-uint256-"></a><code><span class="contract-item-name">previewMint</span>(uint256 shares) → uint256 assets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Allows an on-chain or off-chain user to simulate the effects of their mint at the current block, given
+current on-chain conditions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return as close to and no fewer than the exact amount of assets that would be deposited in a mint call
+in the same transaction. I.e. mint should return the same or fewer assets as previewMint if called in the
+same transaction.</p>
+</li>
+<li>
+<p>MUST NOT account for mint limits like those returned from maxMint and should always act as though the mint
+would be accepted, regardless if the user has enough tokens approved, etc.</p>
+</li>
+<li>
+<p>MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+any unfavorable discrepancy between convertToAssets and previewMint SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by minting.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-mint-uint256-address-"><a class="anchor" href="#IERC4626-mint-uint256-address-"></a><code><span class="contract-item-name">mint</span>(uint256 shares, address receiver) → uint256 assets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST emit the Deposit event.</p>
+</li>
+<li>
+<p>MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint
+execution, and are accounted for during mint.</p>
+</li>
+<li>
+<p>MUST revert if all of shares cannot be minted (due to deposit limit being reached, slippage, the user not
+approving enough underlying tokens to the Vault contract, etc).</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-maxWithdraw-address-"><a class="anchor" href="#IERC4626-maxWithdraw-address-"></a><code><span class="contract-item-name">maxWithdraw</span>(address owner) → uint256 maxAssets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the
+Vault, through a withdraw call.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return a limited value if owner is subject to some withdrawal limit or timelock.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-previewWithdraw-uint256-"><a class="anchor" href="#IERC4626-previewWithdraw-uint256-"></a><code><span class="contract-item-name">previewWithdraw</span>(uint256 assets) → uint256 shares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the current block,
+given current on-chain conditions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return as close to and no fewer than the exact amount of Vault shares that would be burned in a withdraw
+call in the same transaction. I.e. withdraw should return the same or fewer shares as previewWithdraw if
+called
+in the same transaction.</p>
+</li>
+<li>
+<p>MUST NOT account for withdrawal limits like those returned from maxWithdraw and should always act as though
+the withdrawal would be accepted, regardless if the user has enough shares, etc.</p>
+</li>
+<li>
+<p>MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+any unfavorable discrepancy between convertToShares and previewWithdraw SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by depositing.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-withdraw-uint256-address-address-"><a class="anchor" href="#IERC4626-withdraw-uint256-address-address-"></a><code><span class="contract-item-name">withdraw</span>(uint256 assets, address receiver, address owner) → uint256 shares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Burns shares from owner and sends exactly assets of underlying tokens to receiver.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST emit the Withdraw event.</p>
+</li>
+<li>
+<p>MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+withdraw execution, and are accounted for during withdraw.</p>
+</li>
+<li>
+<p>MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached, slippage, the owner
+not having enough shares, etc).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note that some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
+Those methods should be performed separately.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-maxRedeem-address-"><a class="anchor" href="#IERC4626-maxRedeem-address-"></a><code><span class="contract-item-name">maxRedeem</span>(address owner) → uint256 maxShares</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Returns the maximum amount of Vault shares that can be redeemed from the owner balance in the Vault,
+through a redeem call.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return a limited value if owner is subject to some withdrawal limit or timelock.</p>
+</li>
+<li>
+<p>MUST return balanceOf(owner) if owner is not subject to any withdrawal limit or timelock.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-previewRedeem-uint256-"><a class="anchor" href="#IERC4626-previewRedeem-uint256-"></a><code><span class="contract-item-name">previewRedeem</span>(uint256 shares) → uint256 assets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,
+given current on-chain conditions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST return as close to and no more than the exact amount of assets that would be withdrawn in a redeem call
+in the same transaction. I.e. redeem should return the same or more assets as previewRedeem if called in the
+same transaction.</p>
+</li>
+<li>
+<p>MUST NOT account for redemption limits like those returned from maxRedeem and should always act as though the
+redemption would be accepted, regardless if the user has enough shares, etc.</p>
+</li>
+<li>
+<p>MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.</p>
+</li>
+<li>
+<p>MUST NOT revert.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+any unfavorable discrepancy between convertToAssets and previewRedeem SHOULD be considered slippage in
+share price or some other type of condition, meaning the depositor will lose assets by redeeming.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-redeem-uint256-address-address-"><a class="anchor" href="#IERC4626-redeem-uint256-address-address-"></a><code><span class="contract-item-name">redeem</span>(uint256 shares, address receiver, address owner) → uint256 assets</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Burns exactly shares from owner and sends assets of underlying tokens to receiver.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MUST emit the Withdraw event.</p>
+</li>
+<li>
+<p>MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
+redeem execution, and are accounted for during redeem.</p>
+</li>
+<li>
+<p>MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached, slippage, the owner
+not having enough shares, etc).</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
+Those methods should be performed separately.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-Deposit-address-address-uint256-uint256-"><a class="anchor" href="#IERC4626-Deposit-address-address-uint256-uint256-"></a><code><span class="contract-item-name">Deposit</span>(address indexed sender, address indexed owner, uint256 assets, uint256 shares)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC4626-Withdraw-address-address-address-uint256-uint256-"><a class="anchor" href="#IERC4626-Withdraw-address-address-address-uint256-uint256-"></a><code><span class="contract-item-name">Withdraw</span>(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)</code> <span class="item-kind">event</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC5313"><a class="anchor" href="#IERC5313"></a><code>IERC5313</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC5313.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC5313.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interface for the Light Contract Ownership Standard.</p>
+</div>
+<div class="paragraph">
+<p>A standardized minimal interface required to identify an account that controls a contract</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC5313-owner--"><code>owner()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC5313-owner--"><a class="anchor" href="#IERC5313-owner--"></a><code><span class="contract-item-name">owner</span>() → address</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Gets the address of the owner.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC5267"><a class="anchor" href="#IERC5267"></a><code>IERC5267</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC5267.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC5267.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC5267-eip712Domain--"><code>eip712Domain()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC5267-EIP712DomainChanged--"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC5267-eip712Domain--"><a class="anchor" href="#IERC5267-eip712Domain--"></a><code><span class="contract-item-name">eip712Domain</span>() → bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>returns the fields and values that describe the domain separator used by this contract for EIP-712
+signature.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC5267-EIP712DomainChanged--"><a class="anchor" href="#IERC5267-EIP712DomainChanged--"></a><code><span class="contract-item-name">EIP712DomainChanged</span>()</code> <span class="item-kind">event</span></h4>
+<div class="paragraph">
+<p>MAY be emitted to signal that the domain could have changed.</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC5805"><a class="anchor" href="#IERC5805"></a><code>IERC5805</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC5805.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC5805.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">IVotes</div>
+<ul>
+<li>
+<p><a href="governance.html#IVotes-getVotes-address-" class="xref page"><code>getVotes(account)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-getPastVotes-address-uint256-" class="xref page"><code>getPastVotes(account, timepoint)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-getPastTotalSupply-uint256-" class="xref page"><code>getPastTotalSupply(timepoint)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-delegates-address-" class="xref page"><code>delegates(account)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-delegate-address-" class="xref page"><code>delegate(delegatee)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-" class="xref page"><code>delegateBySig(delegatee, nonce, expiry, v, r, s)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC6372</div>
+<ul>
+<li>
+<p><a href="#IERC6372-clock--"><code>clock()</code></a></p>
+</li>
+<li>
+<p><a href="#IERC6372-CLOCK_MODE--"><code>CLOCK_MODE()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">IVotes</div>
+<ul>
+<li>
+<p><a href="governance.html#IVotes-DelegateChanged-address-address-address-" class="xref page"><code>DelegateChanged(delegator, fromDelegate, toDelegate)</code></a></p>
+</li>
+<li>
+<p><a href="governance.html#IVotes-DelegateVotesChanged-address-uint256-uint256-" class="xref page"><code>DelegateVotesChanged(delegate, previousVotes, newVotes)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">IVotes</div>
+<ul>
+<li>
+<p><a href="governance.html#IVotes-VotesExpiredSignature-uint256-" class="xref page"><code>VotesExpiredSignature(expiry)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC6372"><a class="anchor" href="#IERC6372"></a><code>IERC6372</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/IERC6372.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/IERC6372.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC6372-clock--"><code>clock()</code></a></p>
+</li>
+<li>
+<p><a href="#IERC6372-CLOCK_MODE--"><code>CLOCK_MODE()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC6372-clock--"><a class="anchor" href="#IERC6372-clock--"></a><code><span class="contract-item-name">clock</span>() → uint48</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC6372-CLOCK_MODE--"><a class="anchor" href="#IERC6372-CLOCK_MODE--"></a><code><span class="contract-item-name">CLOCK_MODE</span>() → string</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Description of the clock</p>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="IERC7674"><a class="anchor" href="#IERC7674"></a><code>IERC7674</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/interfaces/draft-IERC7674.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/interfaces/draft-IERC7674.sol";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Temporary Approval Extension for ERC-20 (<a href="https://github.com/ethereum/ERCs/pull/358">ERC-7674</a>)</p>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#IERC7674-temporaryApprove-address-uint256-"><code>temporaryApprove(spender, value)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-totalSupply--" class="xref page"><code>totalSupply()</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-balanceOf-address-" class="xref page"><code>balanceOf(account)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transfer-address-uint256-" class="xref page"><code>transfer(to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-allowance-address-address-" class="xref page"><code>allowance(owner, spender)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-approve-address-uint256-" class="xref page"><code>approve(spender, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-transferFrom-address-address-uint256-" class="xref page"><code>transferFrom(from, to, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">IERC20</div>
+<ul>
+<li>
+<p><a href="token/ERC20.html#IERC20-Transfer-address-address-uint256-" class="xref page"><code>Transfer(from, to, value)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC20.html#IERC20-Approval-address-address-uint256-" class="xref page"><code>Approval(owner, spender, value)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="IERC7674-temporaryApprove-address-uint256-"><a class="anchor" href="#IERC7674-temporaryApprove-address-uint256-"></a><code><span class="contract-item-name">temporaryApprove</span>(address spender, uint256 value) → bool success</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Set the temporary allowance, allowing <code>spender</code> to withdraw (within the same transaction) assets
+held by the caller.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/api/governance.html">&larr; Governance</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/api/metatx.html">Meta Transactions &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+	</main>
+</div>
+    <script src="../../../_/js/vendor/lunr.js"></script>
+<script src="../../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../../.." data-snippet-length="100" data-stylesheet="../../../_/css/search.css"></script>
+<script async src="../../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>

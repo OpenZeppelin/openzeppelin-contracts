@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/api/account">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>Account - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="Account - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li nav-li-active">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>Account</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note readme-notice">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This document is better viewed at <a href="https://docs.openzeppelin.com/contracts/api/account" class="bare">https://docs.openzeppelin.com/contracts/api/account</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This directory includes contracts to build accounts for ERC-4337.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="core"><a class="anchor" href="#core"></a>Core</h2>
+<div class="sectionbody">
+<div class="sect2 contract">
+<h3 id="AccountBase"><a class="anchor" href="#AccountBase"></a><code>AccountBase</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/AccountBase.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/AccountBase.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Modifiers</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountBase-onlyEntryPointOrSelf--"><code>onlyEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-onlyEntryPoint--"><code>onlyEntryPoint()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-onlyEntryPointOrSelf--"><a class="anchor" href="#AccountBase-onlyEntryPointOrSelf--"></a><code><span class="contract-item-name">onlyEntryPointOrSelf</span>()</code> <span class="item-kind">modifier</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-onlyEntryPoint--"><a class="anchor" href="#AccountBase-onlyEntryPoint--"></a><code><span class="contract-item-name">onlyEntryPoint</span>()</code> <span class="item-kind">modifier</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-entryPoint--"><a class="anchor" href="#AccountBase-entryPoint--"></a><code><span class="contract-item-name">entryPoint</span>() → contract IEntryPoint</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-getNonce--"><a class="anchor" href="#AccountBase-getNonce--"></a><code><span class="contract-item-name">getNonce</span>() → uint256</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Return the account nonce for the canonical sequence.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-getNonce-uint192-"><a class="anchor" href="#AccountBase-getNonce-uint192-"></a><code><span class="contract-item-name">getNonce</span>(uint192 key) → uint256</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Return the account nonce for a given sequence (key).</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><a class="anchor" href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"></a><code><span class="contract-item-name">validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash, uint256 missingAccountFunds) → uint256</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">executeUserOp</span>(struct PackedUserOperation userOp, bytes32)</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-_validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountBase-_validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">_validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-_payPrefund-uint256-"><a class="anchor" href="#AccountBase-_payPrefund-uint256-"></a><code><span class="contract-item-name">_payPrefund</span>(uint256 missingAccountFunds)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-_checkEntryPoint--"><a class="anchor" href="#AccountBase-_checkEntryPoint--"></a><code><span class="contract-item-name">_checkEntryPoint</span>()</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-_checkEntryPointOrSelf--"><a class="anchor" href="#AccountBase-_checkEntryPointOrSelf--"></a><code><span class="contract-item-name">_checkEntryPointOrSelf</span>()</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-receive--"><a class="anchor" href="#AccountBase-receive--"></a><code><span class="contract-item-name">receive</span>()</code> <span class="item-kind">external</span></h4>
+<div class="paragraph">
+<p>Receive Ether.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountBase-AccountEntryPointRestricted--"><a class="anchor" href="#AccountBase-AccountEntryPointRestricted--"></a><code><span class="contract-item-name">AccountEntryPointRestricted</span>()</code> <span class="item-kind">error</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="AccountERC7579"><a class="anchor" href="#AccountERC7579"></a><code>AccountERC7579</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/ERC7579/AccountERC7579.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/ERC7579/AccountERC7579.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountERC7579-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-accountId--"><code>accountId()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-supportsExecutionMode-bytes32-"><code>supportsExecutionMode(encodedMode)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-supportsModule-uint256-"><code>supportsModule(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-execute-bytes32-bytes-"><code>execute(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-executeFromExecutor-bytes32-bytes-"><code>executeFromExecutor(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_supportsExecutionMode-bytes32-"><code>_supportsExecutionMode(encodedMode)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_execute-Mode-bytes-"><code>_execute(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-installModule-uint256-address-bytes-"><code>installModule(moduleTypeId, module, initData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-uninstallModule-uint256-address-bytes-"><code>uninstallModule(moduleTypeId, module, deInitData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-fallback--"><code>fallback()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC7579ModuleConfig</div>
+<ul>
+<li>
+<p><a href="#ERC7579ModuleConfig-_supportsModule-uint256-"><code>_supportsModule(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_fallbackHandler-bytes4-"><code>_fallbackHandler(selector)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_installModule-uint256-address-bytes-"><code>_installModule(moduleTypeId, module, initData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_uninstallModule-uint256-address-bytes-"><code>_uninstallModule(moduleTypeId, module, deInitData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-"><code>isModuleInstalled(moduleTypeId, module, additionalContext)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_isModuleInstalled-uint256-address-bytes-"><code>_isModuleInstalled(moduleTypeId, module, additionalContext)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_installFallback-address-bytes4-"><code>_installFallback(module, selector)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_uninstallFallback-address-bytes4-"><code>_uninstallFallback(module, selector)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-_checkModule-uint256-"><code>_checkModule(moduleTypeId)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC7579ModuleConfig</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC7579ModuleConfig-ModuleInstalled-uint256-address-" class="xref page"><code>ModuleInstalled(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="interfaces.html#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-" class="xref page"><code>ModuleUninstalled(moduleTypeId, module)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC7579ModuleConfig</div>
+<ul>
+<li>
+<p><a href="#ERC7579ModuleConfig-ERC7579MismatchedModuleTypeId-uint256-address-"><code>ERC7579MismatchedModuleTypeId(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-ERC7579UninstalledModule-uint256-address-"><code>ERC7579UninstalledModule(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-ERC7579AlreadyInstalledModule-uint256-address-"><code>ERC7579AlreadyInstalledModule(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579ModuleConfig-ERC7579UnsupportedModuleType-uint256-"><code>ERC7579UnsupportedModuleType(moduleTypeId)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-isValidSignature-bytes32-bytes-"><a class="anchor" href="#AccountERC7579-isValidSignature-bytes32-bytes-"></a><code><span class="contract-item-name">isValidSignature</span>(bytes32 hash, bytes signature) → bytes4</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Should return whether the signature provided is valid for the provided data</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">_validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → address signer, uint256 validationData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-accountId--"><a class="anchor" href="#AccountERC7579-accountId--"></a><code><span class="contract-item-name">accountId</span>() → string</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Returns the account id of the smart account</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-supportsExecutionMode-bytes32-"><a class="anchor" href="#AccountERC7579-supportsExecutionMode-bytes32-"></a><code><span class="contract-item-name">supportsExecutionMode</span>(bytes32 encodedMode) → bool</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Function to check if the account supports a certain execution mode (see above)</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-supportsModule-uint256-"><a class="anchor" href="#AccountERC7579-supportsModule-uint256-"></a><code><span class="contract-item-name">supportsModule</span>(uint256 moduleTypeId) → bool</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Function to check if the account supports a certain module typeId</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-execute-bytes32-bytes-"><a class="anchor" href="#AccountERC7579-execute-bytes32-bytes-"></a><code><span class="contract-item-name">execute</span>(bytes32 mode, bytes executionCalldata)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Executes a transaction on behalf of the account.</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-executeFromExecutor-bytes32-bytes-"><a class="anchor" href="#AccountERC7579-executeFromExecutor-bytes32-bytes-"></a><code><span class="contract-item-name">executeFromExecutor</span>(bytes32 mode, bytes executionCalldata) → bytes[]</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Executes a transaction on behalf of the account.
+        This function is intended to be called by Executor Modules</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-_supportsExecutionMode-bytes32-"><a class="anchor" href="#AccountERC7579-_supportsExecutionMode-bytes32-"></a><code><span class="contract-item-name">_supportsExecutionMode</span>(bytes32 encodedMode) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-_execute-Mode-bytes-"><a class="anchor" href="#AccountERC7579-_execute-Mode-bytes-"></a><code><span class="contract-item-name">_execute</span>(Mode mode, bytes executionCalldata) → bytes[] returnData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-installModule-uint256-address-bytes-"><a class="anchor" href="#AccountERC7579-installModule-uint256-address-bytes-"></a><code><span class="contract-item-name">installModule</span>(uint256 moduleTypeId, address module, bytes initData)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Installs a Module of a certain type on the smart account</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-uninstallModule-uint256-address-bytes-"><a class="anchor" href="#AccountERC7579-uninstallModule-uint256-address-bytes-"></a><code><span class="contract-item-name">uninstallModule</span>(uint256 moduleTypeId, address module, bytes deInitData)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Uninstalls a Module of a certain type on the smart account</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579-fallback--"><a class="anchor" href="#AccountERC7579-fallback--"></a><code><span class="contract-item-name">fallback</span>()</code> <span class="item-kind">external</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="AccountECDSA"><a class="anchor" href="#AccountECDSA"></a><code>AccountECDSA</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/AccountECDSA.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/AccountECDSA.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountECDSA-constructor-address-"><code>constructor(signerAddr)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountECDSA-signer--"><code>signer()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountECDSA-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountECDSA-_validateSignature-bytes32-bytes-"><code>_validateSignature(hash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1271TypedSigner</div>
+<ul>
+<li>
+<p><a href="#ERC1271TypedSigner-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC1271TypedSigner-_isValidSignature-bytes32-bytes-"><code>_isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidTypedDataEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidTypedDataEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidPersonalSigEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidPersonalSigEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_typedDataEnvelopeHash-bytes-" class="xref page"><code>_typedDataEnvelopeHash(signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_personalSigEnvelopeHash-bytes32-" class="xref page"><code>_personalSigEnvelopeHash(hash)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">EIP712</div>
+<ul>
+<li>
+<p><a href="utils.html#EIP712-_domainSeparatorV4--" class="xref page"><code>_domainSeparatorV4()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_hashTypedDataV4-bytes32-" class="xref page"><code>_hashTypedDataV4(structHash)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-eip712Domain--" class="xref page"><code>eip712Domain()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Name--" class="xref page"><code>_EIP712Name()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Version--" class="xref page"><code>_EIP712Version()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC5267</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC5267-EIP712DomainChanged--" class="xref page"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountECDSA-constructor-address-"><a class="anchor" href="#AccountECDSA-constructor-address-"></a><code><span class="contract-item-name">constructor</span>(address signerAddr)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountECDSA-signer--"><a class="anchor" href="#AccountECDSA-signer--"></a><code><span class="contract-item-name">signer</span>() → address</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountECDSA-_validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountECDSA-_validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">_validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountECDSA-_validateSignature-bytes32-bytes-"><a class="anchor" href="#AccountECDSA-_validateSignature-bytes32-bytes-"></a><code><span class="contract-item-name">_validateSignature</span>(bytes32 hash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+<div class="paragraph">
+<p>Signature validation algorithm.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (<a href="utils.html#ECDSA" class="xref page"><code>ECDSA</code></a>, <a href="utils.html#P256" class="xref page"><code>P256</code></a> or <a href="utils.html#RSA" class="xref page"><code>RSA</code></a>).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="AccountEIP7702"><a class="anchor" href="#AccountEIP7702"></a><code>AccountEIP7702</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/AccountEIP7702.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/AccountEIP7702.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountEIP7702-constructor-string-string-"><code>constructor(name, version)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountECDSA</div>
+<ul>
+<li>
+<p><a href="#AccountECDSA-signer--"><code>signer()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountECDSA-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountECDSA-_validateSignature-bytes32-bytes-"><code>_validateSignature(hash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1271TypedSigner</div>
+<ul>
+<li>
+<p><a href="#ERC1271TypedSigner-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC1271TypedSigner-_isValidSignature-bytes32-bytes-"><code>_isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidTypedDataEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidTypedDataEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidPersonalSigEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidPersonalSigEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_typedDataEnvelopeHash-bytes-" class="xref page"><code>_typedDataEnvelopeHash(signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_personalSigEnvelopeHash-bytes32-" class="xref page"><code>_personalSigEnvelopeHash(hash)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">EIP712</div>
+<ul>
+<li>
+<p><a href="utils.html#EIP712-_domainSeparatorV4--" class="xref page"><code>_domainSeparatorV4()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_hashTypedDataV4-bytes32-" class="xref page"><code>_hashTypedDataV4(structHash)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-eip712Domain--" class="xref page"><code>eip712Domain()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Name--" class="xref page"><code>_EIP712Name()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Version--" class="xref page"><code>_EIP712Version()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC5267</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC5267-EIP712DomainChanged--" class="xref page"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountEIP7702-constructor-string-string-"><a class="anchor" href="#AccountEIP7702-constructor-string-string-"></a><code><span class="contract-item-name">constructor</span>(string name, string version)</code> <span class="item-kind">public</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="AccountP256"><a class="anchor" href="#AccountP256"></a><code>AccountP256</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/AccountP256.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/AccountP256.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountP256-constructor-bytes32-bytes32-"><code>constructor(qx, qy)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountP256-signer--"><code>signer()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountP256-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountP256-_validateSignature-bytes32-bytes-"><code>_validateSignature(hash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1271TypedSigner</div>
+<ul>
+<li>
+<p><a href="#ERC1271TypedSigner-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC1271TypedSigner-_isValidSignature-bytes32-bytes-"><code>_isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidTypedDataEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidTypedDataEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidPersonalSigEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidPersonalSigEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_typedDataEnvelopeHash-bytes-" class="xref page"><code>_typedDataEnvelopeHash(signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_personalSigEnvelopeHash-bytes32-" class="xref page"><code>_personalSigEnvelopeHash(hash)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">EIP712</div>
+<ul>
+<li>
+<p><a href="utils.html#EIP712-_domainSeparatorV4--" class="xref page"><code>_domainSeparatorV4()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_hashTypedDataV4-bytes32-" class="xref page"><code>_hashTypedDataV4(structHash)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-eip712Domain--" class="xref page"><code>eip712Domain()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Name--" class="xref page"><code>_EIP712Name()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Version--" class="xref page"><code>_EIP712Version()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC5267</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC5267-EIP712DomainChanged--" class="xref page"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountP256-constructor-bytes32-bytes32-"><a class="anchor" href="#AccountP256-constructor-bytes32-bytes32-"></a><code><span class="contract-item-name">constructor</span>(bytes32 qx, bytes32 qy)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountP256-signer--"><a class="anchor" href="#AccountP256-signer--"></a><code><span class="contract-item-name">signer</span>() → bytes32 qx, bytes32 qy</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountP256-_validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountP256-_validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">_validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountP256-_validateSignature-bytes32-bytes-"><a class="anchor" href="#AccountP256-_validateSignature-bytes32-bytes-"></a><code><span class="contract-item-name">_validateSignature</span>(bytes32 hash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+<div class="paragraph">
+<p>Signature validation algorithm.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (<a href="utils.html#ECDSA" class="xref page"><code>ECDSA</code></a>, <a href="utils.html#P256" class="xref page"><code>P256</code></a> or <a href="utils.html#RSA" class="xref page"><code>RSA</code></a>).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="AccountRSA"><a class="anchor" href="#AccountRSA"></a><code>AccountRSA</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/AccountRSA.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/AccountRSA.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountRSA-constructor-bytes-bytes-"><code>constructor(e, n)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountRSA-signer--"><code>signer()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountRSA-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountRSA-_validateSignature-bytes32-bytes-"><code>_validateSignature(hash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1271TypedSigner</div>
+<ul>
+<li>
+<p><a href="#ERC1271TypedSigner-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC1271TypedSigner-_isValidSignature-bytes32-bytes-"><code>_isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidTypedDataEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidTypedDataEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_isValidPersonalSigEnvelopeSignature-bytes32-bytes-" class="xref page"><code>_isValidPersonalSigEnvelopeSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_typedDataEnvelopeHash-bytes-" class="xref page"><code>_typedDataEnvelopeHash(signature)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#ERC1271TypedSigner-_personalSigEnvelopeHash-bytes32-" class="xref page"><code>_personalSigEnvelopeHash(hash)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">EIP712</div>
+<ul>
+<li>
+<p><a href="utils.html#EIP712-_domainSeparatorV4--" class="xref page"><code>_domainSeparatorV4()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_hashTypedDataV4-bytes32-" class="xref page"><code>_hashTypedDataV4(structHash)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-eip712Domain--" class="xref page"><code>eip712Domain()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Name--" class="xref page"><code>_EIP712Name()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Version--" class="xref page"><code>_EIP712Version()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC5267</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC5267-EIP712DomainChanged--" class="xref page"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountRSA-constructor-bytes-bytes-"><a class="anchor" href="#AccountRSA-constructor-bytes-bytes-"></a><code><span class="contract-item-name">constructor</span>(bytes e, bytes n)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountRSA-signer--"><a class="anchor" href="#AccountRSA-signer--"></a><code><span class="contract-item-name">signer</span>() → bytes e, bytes n</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountRSA-_validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#AccountRSA-_validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">_validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountRSA-_validateSignature-bytes32-bytes-"><a class="anchor" href="#AccountRSA-_validateSignature-bytes32-bytes-"></a><code><span class="contract-item-name">_validateSignature</span>(bytes32 hash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+<div class="paragraph">
+<p>Signature validation algorithm.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (<a href="utils.html#ECDSA" class="xref page"><code>ECDSA</code></a>, <a href="utils.html#P256" class="xref page"><code>P256</code></a> or <a href="utils.html#RSA" class="xref page"><code>RSA</code></a>).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extensions"><a class="anchor" href="#extensions"></a>Extensions</h2>
+<div class="sectionbody">
+<div class="sect2 contract">
+<h3 id="AccountERC7579Hooked"><a class="anchor" href="#AccountERC7579Hooked"></a><code>AccountERC7579Hooked</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/extensions/AccountERC7579Hooked.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/extensions/AccountERC7579Hooked.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Modifiers</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountERC7579Hooked-withHook--"><code>withHook()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#AccountERC7579Hooked-_isModuleInstalled-uint256-address-bytes-"><code>_isModuleInstalled(moduleTypeId, module, data)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_execute-Mode-bytes-"><code>_execute(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_installModule-uint256-address-bytes-"><code>_installModule(moduleTypeId, module, initData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_uninstallModule-uint256-address-bytes-"><code>_uninstallModule(moduleTypeId, module, deInitData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_supportsModule-uint256-"><code>_supportsModule(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_isHookInstalled-address-"><code>_isHookInstalled(module)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579Hooked-_fallback--"><code>_fallback()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">AccountERC7579</div>
+<ul>
+<li>
+<p><a href="#AccountERC7579-isValidSignature-bytes32-bytes-"><code>isValidSignature(hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-accountId--"><code>accountId()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-supportsExecutionMode-bytes32-"><code>supportsExecutionMode(encodedMode)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-supportsModule-uint256-"><code>supportsModule(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-execute-bytes32-bytes-"><code>execute(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-executeFromExecutor-bytes32-bytes-"><code>executeFromExecutor(mode, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-isModuleInstalled-uint256-address-bytes-"><code>isModuleInstalled(moduleTypeId, module, additionalContext)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-installModule-uint256-address-bytes-"><code>installModule(moduleTypeId, module, initData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-uninstallModule-uint256-address-bytes-"><code>uninstallModule(moduleTypeId, module, deInitData)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-executeUserOp-struct-PackedUserOperation-bytes32-"><code>executeUserOp(userOp, )</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-"><code>_validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_supportsExecutionMode-bytes32-"><code>_supportsExecutionMode(encodedMode)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_installFallback-address-bytes4-"><code>_installFallback(module, selector)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_uninstallFallback-address-bytes4-"><code>_uninstallFallback(module, selector)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_checkModule-uint256-address-"><code>_checkModule(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-_fallbackHandler-bytes4-"><code>_fallbackHandler(selector)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountERC7579-fallback--"><code>fallback()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-entryPoint--"><code>entryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce--"><code>getNonce()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-getNonce-uint192-"><code>getNonce(key)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-validateUserOp-struct-PackedUserOperation-bytes32-uint256-"><code>validateUserOp(userOp, userOpHash, missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_payPrefund-uint256-"><code>_payPrefund(missingAccountFunds)</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPoint--"><code>_checkEntryPoint()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-_checkEntryPointOrSelf--"><code>_checkEntryPointOrSelf()</code></a></p>
+</li>
+<li>
+<p><a href="#AccountBase-receive--"><code>receive()</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC1155Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-supportsInterface-bytes4-" class="xref page"><code>supportsInterface(interfaceId)</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-" class="xref page"><code>onERC1155Received(, , , , )</code></a></p>
+</li>
+<li>
+<p><a href="token/ERC1155.html#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-" class="xref page"><code>onERC1155BatchReceived(, , , , )</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">ERC721Holder</div>
+<ul>
+<li>
+<p><a href="token/ERC721.html#ERC721Holder-onERC721Received-address-address-uint256-bytes-" class="xref page"><code>onERC721Received(, , , )</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC7579ModuleConfig</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC7579ModuleConfig-ModuleInstalled-uint256-address-" class="xref page"><code>ModuleInstalled(moduleTypeId, module)</code></a></p>
+</li>
+<li>
+<p><a href="interfaces.html#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-" class="xref page"><code>ModuleUninstalled(moduleTypeId, module)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">AccountBase</div>
+<ul>
+<li>
+<p><a href="#AccountBase-AccountEntryPointRestricted--"><code>AccountEntryPointRestricted()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-withHook--"><a class="anchor" href="#AccountERC7579Hooked-withHook--"></a><code><span class="contract-item-name">withHook</span>()</code> <span class="item-kind">modifier</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_isModuleInstalled-uint256-address-bytes-"><a class="anchor" href="#AccountERC7579Hooked-_isModuleInstalled-uint256-address-bytes-"></a><code><span class="contract-item-name">_isModuleInstalled</span>(uint256 moduleTypeId, address module, bytes data) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_execute-Mode-bytes-"><a class="anchor" href="#AccountERC7579Hooked-_execute-Mode-bytes-"></a><code><span class="contract-item-name">_execute</span>(Mode mode, bytes executionCalldata) → bytes[]</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_installModule-uint256-address-bytes-"><a class="anchor" href="#AccountERC7579Hooked-_installModule-uint256-address-bytes-"></a><code><span class="contract-item-name">_installModule</span>(uint256 moduleTypeId, address module, bytes initData)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_uninstallModule-uint256-address-bytes-"><a class="anchor" href="#AccountERC7579Hooked-_uninstallModule-uint256-address-bytes-"></a><code><span class="contract-item-name">_uninstallModule</span>(uint256 moduleTypeId, address module, bytes deInitData)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_supportsModule-uint256-"><a class="anchor" href="#AccountERC7579Hooked-_supportsModule-uint256-"></a><code><span class="contract-item-name">_supportsModule</span>(uint256 moduleTypeId) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_isHookInstalled-address-"><a class="anchor" href="#AccountERC7579Hooked-_isHookInstalled-address-"></a><code><span class="contract-item-name">_isHookInstalled</span>(address module) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="AccountERC7579Hooked-_fallback--"><a class="anchor" href="#AccountERC7579Hooked-_fallback--"></a><code><span class="contract-item-name">_fallback</span>()</code> <span class="item-kind">internal</span></h4>
+
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="modules"><a class="anchor" href="#modules"></a>Modules</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="validators"><a class="anchor" href="#validators"></a>Validators</h3>
+
+</div>
+<div class="sect2 contract">
+<h3 id="ECDSAValidator"><a class="anchor" href="#ECDSAValidator"></a><code>ECDSAValidator</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/ECDSAValidator.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/ECDSAValidator.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ECDSAValidator-signer-address-"><code>signer(account)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-onInstall-bytes-"><code>onInstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-onUninstall-bytes-"><code>onUninstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-_onInstall-address-address-"><code>_onInstall(account, signerAddr)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-_onUninstall-address-"><code>_onUninstall(account)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><code>_isValidSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">SignatureValidator</div>
+<ul>
+<li>
+<p><a href="#SignatureValidator-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><code>validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><code>isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><code>_unwrapTypedDataEnvelopeForSender(sender, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><code>_validateSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ECDSAValidator-ECDSASignerAssociated-address-address-"><code>ECDSASignerAssociated(account, signer)</code></a></p>
+</li>
+<li>
+<p><a href="#ECDSAValidator-ECDSASignerDisassociated-address-"><code>ECDSASignerDisassociated(account)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-signer-address-"><a class="anchor" href="#ECDSAValidator-signer-address-"></a><code><span class="contract-item-name">signer</span>(address account) → address</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-onInstall-bytes-"><a class="anchor" href="#ECDSAValidator-onInstall-bytes-"></a><code><span class="contract-item-name">onInstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during installation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-onUninstall-bytes-"><a class="anchor" href="#ECDSAValidator-onUninstall-bytes-"></a><code><span class="contract-item-name">onUninstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during uninstallation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-_onInstall-address-address-"><a class="anchor" href="#ECDSAValidator-_onInstall-address-address-"></a><code><span class="contract-item-name">_onInstall</span>(address account, address signerAddr)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-_onUninstall-address-"><a class="anchor" href="#ECDSAValidator-_onUninstall-address-"></a><code><span class="contract-item-name">_onUninstall</span>(address account)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#ECDSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_isValidSignatureWithSender</span>(address sender, bytes32 envelopeHash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-ECDSASignerAssociated-address-address-"><a class="anchor" href="#ECDSAValidator-ECDSASignerAssociated-address-address-"></a><code><span class="contract-item-name">ECDSASignerAssociated</span>(address indexed account, address indexed signer)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ECDSAValidator-ECDSASignerDisassociated-address-"><a class="anchor" href="#ECDSAValidator-ECDSASignerDisassociated-address-"></a><code><span class="contract-item-name">ECDSASignerDisassociated</span>(address indexed account)</code> <span class="item-kind">event</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="P256Validator"><a class="anchor" href="#P256Validator"></a><code>P256Validator</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/P256Validator.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/P256Validator.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#P256Validator-signer-address-"><code>signer(account)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-onInstall-bytes-"><code>onInstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-onUninstall-bytes-"><code>onUninstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-_onInstall-address-bytes32-bytes32-"><code>_onInstall(account, qx, qy)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-_onUninstall-address-"><code>_onUninstall(account)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-_isValidSignatureWithSender-address-bytes32-bytes-"><code>_isValidSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">SignatureValidator</div>
+<ul>
+<li>
+<p><a href="#SignatureValidator-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><code>validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><code>isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><code>_unwrapTypedDataEnvelopeForSender(sender, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><code>_validateSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#P256Validator-P256SignerAssociated-address-bytes32-bytes32-"><code>P256SignerAssociated(account, qx, qy)</code></a></p>
+</li>
+<li>
+<p><a href="#P256Validator-P256SignerDisassociated-address-"><code>P256SignerDisassociated(account)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-signer-address-"><a class="anchor" href="#P256Validator-signer-address-"></a><code><span class="contract-item-name">signer</span>(address account) → bytes32, bytes32</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-onInstall-bytes-"><a class="anchor" href="#P256Validator-onInstall-bytes-"></a><code><span class="contract-item-name">onInstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during installation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-onUninstall-bytes-"><a class="anchor" href="#P256Validator-onUninstall-bytes-"></a><code><span class="contract-item-name">onUninstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during uninstallation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-_onInstall-address-bytes32-bytes32-"><a class="anchor" href="#P256Validator-_onInstall-address-bytes32-bytes32-"></a><code><span class="contract-item-name">_onInstall</span>(address account, bytes32 qx, bytes32 qy)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-_onUninstall-address-"><a class="anchor" href="#P256Validator-_onUninstall-address-"></a><code><span class="contract-item-name">_onUninstall</span>(address account)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-_isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#P256Validator-_isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_isValidSignatureWithSender</span>(address sender, bytes32 envelopeHash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-P256SignerAssociated-address-bytes32-bytes32-"><a class="anchor" href="#P256Validator-P256SignerAssociated-address-bytes32-bytes32-"></a><code><span class="contract-item-name">P256SignerAssociated</span>(address indexed account, bytes32 qx, bytes32 qy)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="P256Validator-P256SignerDisassociated-address-"><a class="anchor" href="#P256Validator-P256SignerDisassociated-address-"></a><code><span class="contract-item-name">P256SignerDisassociated</span>(address indexed account)</code> <span class="item-kind">event</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="RSAValidator"><a class="anchor" href="#RSAValidator"></a><code>RSAValidator</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/RSAValidator.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/RSAValidator.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#RSAValidator-signer-address-"><code>signer(account)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-onInstall-bytes-"><code>onInstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-onUninstall-bytes-"><code>onUninstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-_onInstall-address-bytes-bytes-"><code>_onInstall(account, e, n)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-_onUninstall-address-"><code>_onUninstall(account)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><code>_isValidSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">SignatureValidator</div>
+<ul>
+<li>
+<p><a href="#SignatureValidator-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><code>validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><code>isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><code>_unwrapTypedDataEnvelopeForSender(sender, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><code>_validateSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#RSAValidator-RSASignerAssociated-address-bytes-bytes-"><code>RSASignerAssociated(account, e, n)</code></a></p>
+</li>
+<li>
+<p><a href="#RSAValidator-RSASignerDisassociated-address-"><code>RSASignerDisassociated(account)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-signer-address-"><a class="anchor" href="#RSAValidator-signer-address-"></a><code><span class="contract-item-name">signer</span>(address account) → bytes e, bytes n</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-onInstall-bytes-"><a class="anchor" href="#RSAValidator-onInstall-bytes-"></a><code><span class="contract-item-name">onInstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during installation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-onUninstall-bytes-"><a class="anchor" href="#RSAValidator-onUninstall-bytes-"></a><code><span class="contract-item-name">onUninstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during uninstallation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-_onInstall-address-bytes-bytes-"><a class="anchor" href="#RSAValidator-_onInstall-address-bytes-bytes-"></a><code><span class="contract-item-name">_onInstall</span>(address account, bytes e, bytes n)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-_onUninstall-address-"><a class="anchor" href="#RSAValidator-_onUninstall-address-"></a><code><span class="contract-item-name">_onUninstall</span>(address account)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#RSAValidator-_isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_isValidSignatureWithSender</span>(address sender, bytes32 envelopeHash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-RSASignerAssociated-address-bytes-bytes-"><a class="anchor" href="#RSAValidator-RSASignerAssociated-address-bytes-bytes-"></a><code><span class="contract-item-name">RSASignerAssociated</span>(address indexed account, bytes e, bytes n)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="RSAValidator-RSASignerDisassociated-address-"><a class="anchor" href="#RSAValidator-RSASignerDisassociated-address-"></a><code><span class="contract-item-name">RSASignerDisassociated</span>(address indexed account)</code> <span class="item-kind">event</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="MultiERC1271Validator"><a class="anchor" href="#MultiERC1271Validator"></a><code>MultiERC1271Validator</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/MultiERC1271Validator.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/MultiERC1271Validator.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#MultiERC1271Validator-threshold-address-"><code>threshold(account)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-isSigner-address-address-"><code>isSigner(account, signer)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-addSigners-address---"><code>addSigners(signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-removeSigners-address---"><code>removeSigners(signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-setThreshold-uint256-"><code>setThreshold(threshold_)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-onInstall-bytes-"><code>onInstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-onUninstall-bytes-"><code>onUninstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_addERC1271Signers-address-address---"><code>_addERC1271Signers(account, signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_removeSigners-address-address---"><code>_removeSigners(account, signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_setThreshold-address-uint256-"><code>_setThreshold(account, threshold_)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_validateThreshold-address-"><code>_validateThreshold(account)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_isValidSignatureWithSender-address-bytes32-bytes-"><code>_isValidSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-_decodePackedSignatures-bytes-"><code>_decodePackedSignatures(signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited">
+<div class="title">SignatureValidator</div>
+<ul>
+<li>
+<p><a href="#SignatureValidator-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><code>validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><code>isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><code>_unwrapTypedDataEnvelopeForSender(sender, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><code>_validateSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#MultiERC1271Validator-ERC1271SignersAdded-address-address---"><code>ERC1271SignersAdded(account, signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-ERC1271SignersRemoved-address-address---"><code>ERC1271SignersRemoved(account, signers)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-ThresholdChanged-address-uint256-"><code>ThresholdChanged(account, threshold)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#MultiERC1271Validator-MultiERC1271SignerAlreadyExists-address-address-"><code>MultiERC1271SignerAlreadyExists(account, signer)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-MultiERC1271SignerDoesNotExist-address-address-"><code>MultiERC1271SignerDoesNotExist(account, signer)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-MultiERC1271UnreachableThreshold-address-uint256-uint256-"><code>MultiERC1271UnreachableThreshold(account, signers, threshold)</code></a></p>
+</li>
+<li>
+<p><a href="#MultiERC1271Validator-MultiERC1271RemainingSigners-address-uint256-"><code>MultiERC1271RemainingSigners(account, remaining)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-threshold-address-"><a class="anchor" href="#MultiERC1271Validator-threshold-address-"></a><code><span class="contract-item-name">threshold</span>(address account) → uint256</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-isSigner-address-address-"><a class="anchor" href="#MultiERC1271Validator-isSigner-address-address-"></a><code><span class="contract-item-name">isSigner</span>(address account, address signer) → bool</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-addSigners-address---"><a class="anchor" href="#MultiERC1271Validator-addSigners-address---"></a><code><span class="contract-item-name">addSigners</span>(address[] signers)</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-removeSigners-address---"><a class="anchor" href="#MultiERC1271Validator-removeSigners-address---"></a><code><span class="contract-item-name">removeSigners</span>(address[] signers)</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-setThreshold-uint256-"><a class="anchor" href="#MultiERC1271Validator-setThreshold-uint256-"></a><code><span class="contract-item-name">setThreshold</span>(uint256 threshold_)</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-onInstall-bytes-"><a class="anchor" href="#MultiERC1271Validator-onInstall-bytes-"></a><code><span class="contract-item-name">onInstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during installation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-onUninstall-bytes-"><a class="anchor" href="#MultiERC1271Validator-onUninstall-bytes-"></a><code><span class="contract-item-name">onUninstall</span>(bytes data)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during uninstallation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_addERC1271Signers-address-address---"><a class="anchor" href="#MultiERC1271Validator-_addERC1271Signers-address-address---"></a><code><span class="contract-item-name">_addERC1271Signers</span>(address account, address[] signers)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_removeSigners-address-address---"><a class="anchor" href="#MultiERC1271Validator-_removeSigners-address-address---"></a><code><span class="contract-item-name">_removeSigners</span>(address account, address[] signers)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_setThreshold-address-uint256-"><a class="anchor" href="#MultiERC1271Validator-_setThreshold-address-uint256-"></a><code><span class="contract-item-name">_setThreshold</span>(address account, uint256 threshold_)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_validateThreshold-address-"><a class="anchor" href="#MultiERC1271Validator-_validateThreshold-address-"></a><code><span class="contract-item-name">_validateThreshold</span>(address account)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#MultiERC1271Validator-_isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_isValidSignatureWithSender</span>(address sender, bytes32 envelopeHash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-_decodePackedSignatures-bytes-"><a class="anchor" href="#MultiERC1271Validator-_decodePackedSignatures-bytes-"></a><code><span class="contract-item-name">_decodePackedSignatures</span>(bytes signature) → address[] signers, bytes[] signatures</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-ERC1271SignersAdded-address-address---"><a class="anchor" href="#MultiERC1271Validator-ERC1271SignersAdded-address-address---"></a><code><span class="contract-item-name">ERC1271SignersAdded</span>(address indexed account, address[] indexed signers)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-ERC1271SignersRemoved-address-address---"><a class="anchor" href="#MultiERC1271Validator-ERC1271SignersRemoved-address-address---"></a><code><span class="contract-item-name">ERC1271SignersRemoved</span>(address indexed account, address[] indexed signers)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-ThresholdChanged-address-uint256-"><a class="anchor" href="#MultiERC1271Validator-ThresholdChanged-address-uint256-"></a><code><span class="contract-item-name">ThresholdChanged</span>(address indexed account, uint256 threshold)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-MultiERC1271SignerAlreadyExists-address-address-"><a class="anchor" href="#MultiERC1271Validator-MultiERC1271SignerAlreadyExists-address-address-"></a><code><span class="contract-item-name">MultiERC1271SignerAlreadyExists</span>(address account, address signer)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-MultiERC1271SignerDoesNotExist-address-address-"><a class="anchor" href="#MultiERC1271Validator-MultiERC1271SignerDoesNotExist-address-address-"></a><code><span class="contract-item-name">MultiERC1271SignerDoesNotExist</span>(address account, address signer)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-MultiERC1271UnreachableThreshold-address-uint256-uint256-"><a class="anchor" href="#MultiERC1271Validator-MultiERC1271UnreachableThreshold-address-uint256-uint256-"></a><code><span class="contract-item-name">MultiERC1271UnreachableThreshold</span>(address account, uint256 signers, uint256 threshold)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="MultiERC1271Validator-MultiERC1271RemainingSigners-address-uint256-"><a class="anchor" href="#MultiERC1271Validator-MultiERC1271RemainingSigners-address-uint256-"></a><code><span class="contract-item-name">MultiERC1271RemainingSigners</span>(address account, uint256 remaining)</code> <span class="item-kind">error</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="SignatureValidator"><a class="anchor" href="#SignatureValidator"></a><code>SignatureValidator</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/SignatureValidator.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/SignatureValidator.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#SignatureValidator-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><code>validateUserOp(userOp, userOpHash)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><code>isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><code>_isValidSignatureWithSender(sender, hash, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><code>_unwrapTypedDataEnvelopeForSender(sender, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><code>_validateSignatureWithSender(sender, envelopeHash, signature)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC7579Module</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC7579Module-onInstall-bytes-" class="xref page"><code>onInstall(data)</code></a></p>
+</li>
+<li>
+<p><a href="interfaces.html#IERC7579Module-onUninstall-bytes-" class="xref page"><code>onUninstall(data)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-isModuleType-uint256-"><a class="anchor" href="#SignatureValidator-isModuleType-uint256-"></a><code><span class="contract-item-name">isModuleType</span>(uint256 moduleTypeId) → bool</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Returns boolean value if module is a certain type</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"><a class="anchor" href="#SignatureValidator-validateUserOp-struct-PackedUserOperation-bytes32-"></a><code><span class="contract-item-name">validateUserOp</span>(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Validates a UserOperation</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#SignatureValidator-isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">isValidSignatureWithSender</span>(address sender, bytes32 hash, bytes signature) → bytes4</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Validates a signature using ERC-1271</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-_isValidSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#SignatureValidator-_isValidSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_isValidSignatureWithSender</span>(address sender, bytes32 hash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"><a class="anchor" href="#SignatureValidator-_unwrapTypedDataEnvelopeForSender-address-bytes-"></a><code><span class="contract-item-name">_unwrapTypedDataEnvelopeForSender</span>(address sender, bytes signature) → bytes32 senderSeparator, bytes32 appSeparator, bytes32 envelopeHash, bytes originalSig</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"><a class="anchor" href="#SignatureValidator-_validateSignatureWithSender-address-bytes32-bytes-"></a><code><span class="contract-item-name">_validateSignatureWithSender</span>(address sender, bytes32 envelopeHash, bytes signature) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="executors"><a class="anchor" href="#executors"></a>Executors</h3>
+
+</div>
+<div class="sect2 contract">
+<h3 id="TypedERC1271Executor"><a class="anchor" href="#TypedERC1271Executor"></a><code>TypedERC1271Executor</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/modules/TypedERC1271Executor.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/modules/TypedERC1271Executor.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#TypedERC1271Executor-isModuleType-uint256-"><code>isModuleType(moduleTypeId)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-onInstall-bytes-"><code>onInstall()</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-onUninstall-bytes-"><code>onUninstall()</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-execute-address-Mode-bytes-bytes-"><code>execute(account, mode, request, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_single-Mode-address-bytes-bytes-"><code>_single(mode, account, request, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_batch-Mode-address-bytes-bytes-"><code>_batch(mode, account, request, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_delegate-Mode-address-bytes-bytes-"><code>_delegate(mode, account, request, signature)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_isValidExecuteRequest-address-bytes32-bytes-bytes-"><code>_isValidExecuteRequest(account, requestHash, signature, contentsType)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_singleStructHash-address-address-uint256-bytes-"><code>_singleStructHash(account, target, value, data)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_batchStructHash-address-address---uint256---bytes---"><code>_batchStructHash(account, targets, values, calldatas)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_delegateStructHash-address-address-bytes-"><code>_delegateStructHash(account, target, data)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited">
+<div class="title">EIP712</div>
+<ul>
+<li>
+<p><a href="utils.html#EIP712-_domainSeparatorV4--" class="xref page"><code>_domainSeparatorV4()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_hashTypedDataV4-bytes32-" class="xref page"><code>_hashTypedDataV4(structHash)</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-eip712Domain--" class="xref page"><code>eip712Domain()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Name--" class="xref page"><code>_EIP712Name()</code></a></p>
+</li>
+<li>
+<p><a href="utils.html#EIP712-_EIP712Version--" class="xref page"><code>_EIP712Version()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#TypedERC1271Executor-ERC7579TypedExecutorInstalled-address-"><code>ERC7579TypedExecutorInstalled(account)</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-ERC7579TypedExecutorUninstalled-address-"><code>ERC7579TypedExecutorUninstalled(account)</code></a></p>
+</li>
+</ul>
+</div>
+<div class="ulist contract-subindex-inherited contract-subindex-inherited contract-subindex-inherited">
+<div class="title">IERC5267</div>
+<ul>
+<li>
+<p><a href="interfaces.html#IERC5267-EIP712DomainChanged--" class="xref page"><code>EIP712DomainChanged()</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#TypedERC1271Executor-UnauthorizedTypedExecution-CallType-address-address-"><code>UnauthorizedTypedExecution(callType, account, sender)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Internal Variables</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPENAME-bytes"><code>bytes constant _EXECUTE_REQUEST_SINGLE_TYPENAME</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPENAME-bytes"><code>bytes constant _EXECUTE_REQUEST_BATCH_TYPENAME</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPENAME-bytes"><code>bytes constant _EXECUTE_REQUEST_DELEGATECALL_TYPENAME</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPEHASH-bytes32"><code>bytes32 constant _EXECUTE_REQUEST_SINGLE_TYPEHASH</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPEHASH-bytes32"><code>bytes32 constant _EXECUTE_REQUEST_BATCH_TYPEHASH</code></a></p>
+</li>
+<li>
+<p><a href="#TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPEHASH-bytes32"><code>bytes32 constant _EXECUTE_REQUEST_DELEGATECALL_TYPEHASH</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-isModuleType-uint256-"><a class="anchor" href="#TypedERC1271Executor-isModuleType-uint256-"></a><code><span class="contract-item-name">isModuleType</span>(uint256 moduleTypeId) → bool</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>Returns boolean value if module is a certain type</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-onInstall-bytes-"><a class="anchor" href="#TypedERC1271Executor-onInstall-bytes-"></a><code><span class="contract-item-name">onInstall</span>(bytes)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during installation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-onUninstall-bytes-"><a class="anchor" href="#TypedERC1271Executor-onUninstall-bytes-"></a><code><span class="contract-item-name">onUninstall</span>(bytes)</code> <span class="item-kind">public</span></h4>
+<div class="paragraph">
+<p>This function is called by the smart account during uninstallation of the module</p>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-execute-address-Mode-bytes-bytes-"><a class="anchor" href="#TypedERC1271Executor-execute-address-Mode-bytes-bytes-"></a><code><span class="contract-item-name">execute</span>(address account, Mode mode, bytes request, bytes signature)</code> <span class="item-kind">public</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_single-Mode-address-bytes-bytes-"><a class="anchor" href="#TypedERC1271Executor-_single-Mode-address-bytes-bytes-"></a><code><span class="contract-item-name">_single</span>(Mode mode, address account, bytes request, bytes signature)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_batch-Mode-address-bytes-bytes-"><a class="anchor" href="#TypedERC1271Executor-_batch-Mode-address-bytes-bytes-"></a><code><span class="contract-item-name">_batch</span>(Mode mode, address account, bytes request, bytes signature)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_delegate-Mode-address-bytes-bytes-"><a class="anchor" href="#TypedERC1271Executor-_delegate-Mode-address-bytes-bytes-"></a><code><span class="contract-item-name">_delegate</span>(Mode mode, address account, bytes request, bytes signature)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_isValidExecuteRequest-address-bytes32-bytes-bytes-"><a class="anchor" href="#TypedERC1271Executor-_isValidExecuteRequest-address-bytes32-bytes-bytes-"></a><code><span class="contract-item-name">_isValidExecuteRequest</span>(address account, bytes32 requestHash, bytes signature, bytes contentsType) → bool</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_singleStructHash-address-address-uint256-bytes-"><a class="anchor" href="#TypedERC1271Executor-_singleStructHash-address-address-uint256-bytes-"></a><code><span class="contract-item-name">_singleStructHash</span>(address account, address target, uint256 value, bytes data) → bytes32</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_batchStructHash-address-address---uint256---bytes---"><a class="anchor" href="#TypedERC1271Executor-_batchStructHash-address-address---uint256---bytes---"></a><code><span class="contract-item-name">_batchStructHash</span>(address account, address[] targets, uint256[] values, bytes[] calldatas) → bytes32</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_delegateStructHash-address-address-bytes-"><a class="anchor" href="#TypedERC1271Executor-_delegateStructHash-address-address-bytes-"></a><code><span class="contract-item-name">_delegateStructHash</span>(address account, address target, bytes data) → bytes32</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-ERC7579TypedExecutorInstalled-address-"><a class="anchor" href="#TypedERC1271Executor-ERC7579TypedExecutorInstalled-address-"></a><code><span class="contract-item-name">ERC7579TypedExecutorInstalled</span>(address indexed account)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-ERC7579TypedExecutorUninstalled-address-"><a class="anchor" href="#TypedERC1271Executor-ERC7579TypedExecutorUninstalled-address-"></a><code><span class="contract-item-name">ERC7579TypedExecutorUninstalled</span>(address indexed account)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-UnauthorizedTypedExecution-CallType-address-address-"><a class="anchor" href="#TypedERC1271Executor-UnauthorizedTypedExecution-CallType-address-address-"></a><code><span class="contract-item-name">UnauthorizedTypedExecution</span>(CallType callType, address account, address sender)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPENAME-bytes"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPENAME-bytes"></a><code>bytes <span class="contract-item-name">_EXECUTE_REQUEST_SINGLE_TYPENAME</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPENAME-bytes"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPENAME-bytes"></a><code>bytes <span class="contract-item-name">_EXECUTE_REQUEST_BATCH_TYPENAME</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPENAME-bytes"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPENAME-bytes"></a><code>bytes <span class="contract-item-name">_EXECUTE_REQUEST_DELEGATECALL_TYPENAME</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPEHASH-bytes32"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_SINGLE_TYPEHASH-bytes32"></a><code>bytes32 <span class="contract-item-name">_EXECUTE_REQUEST_SINGLE_TYPEHASH</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPEHASH-bytes32"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_BATCH_TYPEHASH-bytes32"></a><code>bytes32 <span class="contract-item-name">_EXECUTE_REQUEST_BATCH_TYPEHASH</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPEHASH-bytes32"><a class="anchor" href="#TypedERC1271Executor-_EXECUTE_REQUEST_DELEGATECALL_TYPEHASH-bytes32"></a><code>bytes32 <span class="contract-item-name">_EXECUTE_REQUEST_DELEGATECALL_TYPEHASH</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="utilities"><a class="anchor" href="#utilities"></a>Utilities</h2>
+<div class="sectionbody">
+<div class="sect2 contract">
+<h3 id="ERC4337Utils"><a class="anchor" href="#ERC4337Utils"></a><code>ERC4337Utils</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/utils/ERC4337Utils.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC4337Utils-parseValidationData-uint256-"><code>parseValidationData(validationData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-packValidationData-address-uint48-uint48-"><code>packValidationData(aggregator, validAfter, validUntil)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-packValidationData-bool-uint48-uint48-"><code>packValidationData(sigSuccess, validAfter, validUntil)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-combineValidationData-uint256-uint256-"><code>combineValidationData(validationData1, validationData2)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-getValidationData-uint256-"><code>getValidationData(validationData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-hash-struct-PackedUserOperation-"><code>hash(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-"><code>hash(self, entrypoint, chainid)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-"><code>verificationGasLimit(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-callGasLimit-struct-PackedUserOperation-"><code>callGasLimit(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-"><code>maxPriorityFeePerGas(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-"><code>maxFeePerGas(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-gasPrice-struct-PackedUserOperation-"><code>gasPrice(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-paymaster-struct-PackedUserOperation-"><code>paymaster(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-"><code>paymasterVerificationGasLimit(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-"><code>paymasterPostOpGasLimit(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-load-struct-ERC4337Utils-UserOpInfo-struct-PackedUserOperation-"><code>load(self, source)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-requiredPrefund-struct-ERC4337Utils-UserOpInfo-"><code>requiredPrefund(self)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-gasPrice-struct-ERC4337Utils-UserOpInfo-"><code>gasPrice(self)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Internal Variables</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256"><code>uint256 constant SIG_VALIDATION_SUCCESS</code></a></p>
+</li>
+<li>
+<p><a href="#ERC4337Utils-SIG_VALIDATION_FAILED-uint256"><code>uint256 constant SIG_VALIDATION_FAILED</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-parseValidationData-uint256-"><a class="anchor" href="#ERC4337Utils-parseValidationData-uint256-"></a><code><span class="contract-item-name">parseValidationData</span>(uint256 validationData) → address aggregator, uint48 validAfter, uint48 validUntil</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-packValidationData-address-uint48-uint48-"><a class="anchor" href="#ERC4337Utils-packValidationData-address-uint48-uint48-"></a><code><span class="contract-item-name">packValidationData</span>(address aggregator, uint48 validAfter, uint48 validUntil) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-packValidationData-bool-uint48-uint48-"><a class="anchor" href="#ERC4337Utils-packValidationData-bool-uint48-uint48-"></a><code><span class="contract-item-name">packValidationData</span>(bool sigSuccess, uint48 validAfter, uint48 validUntil) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-combineValidationData-uint256-uint256-"><a class="anchor" href="#ERC4337Utils-combineValidationData-uint256-uint256-"></a><code><span class="contract-item-name">combineValidationData</span>(uint256 validationData1, uint256 validationData2) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-getValidationData-uint256-"><a class="anchor" href="#ERC4337Utils-getValidationData-uint256-"></a><code><span class="contract-item-name">getValidationData</span>(uint256 validationData) → address aggregator, bool outOfTimeRange</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-hash-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-hash-struct-PackedUserOperation-"></a><code><span class="contract-item-name">hash</span>(struct PackedUserOperation self) → bytes32</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-"><a class="anchor" href="#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-"></a><code><span class="contract-item-name">hash</span>(struct PackedUserOperation self, address entrypoint, uint256 chainid) → bytes32</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-"></a><code><span class="contract-item-name">verificationGasLimit</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-callGasLimit-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-callGasLimit-struct-PackedUserOperation-"></a><code><span class="contract-item-name">callGasLimit</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-"></a><code><span class="contract-item-name">maxPriorityFeePerGas</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-"></a><code><span class="contract-item-name">maxFeePerGas</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-gasPrice-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-gasPrice-struct-PackedUserOperation-"></a><code><span class="contract-item-name">gasPrice</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-paymaster-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-paymaster-struct-PackedUserOperation-"></a><code><span class="contract-item-name">paymaster</span>(struct PackedUserOperation self) → address</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-"></a><code><span class="contract-item-name">paymasterVerificationGasLimit</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-"></a><code><span class="contract-item-name">paymasterPostOpGasLimit</span>(struct PackedUserOperation self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-load-struct-ERC4337Utils-UserOpInfo-struct-PackedUserOperation-"><a class="anchor" href="#ERC4337Utils-load-struct-ERC4337Utils-UserOpInfo-struct-PackedUserOperation-"></a><code><span class="contract-item-name">load</span>(struct ERC4337Utils.UserOpInfo self, struct PackedUserOperation source)</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-requiredPrefund-struct-ERC4337Utils-UserOpInfo-"><a class="anchor" href="#ERC4337Utils-requiredPrefund-struct-ERC4337Utils-UserOpInfo-"></a><code><span class="contract-item-name">requiredPrefund</span>(struct ERC4337Utils.UserOpInfo self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-gasPrice-struct-ERC4337Utils-UserOpInfo-"><a class="anchor" href="#ERC4337Utils-gasPrice-struct-ERC4337Utils-UserOpInfo-"></a><code><span class="contract-item-name">gasPrice</span>(struct ERC4337Utils.UserOpInfo self) → uint256</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256"><a class="anchor" href="#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256"></a><code>uint256 <span class="contract-item-name">SIG_VALIDATION_SUCCESS</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC4337Utils-SIG_VALIDATION_FAILED-uint256"><a class="anchor" href="#ERC4337Utils-SIG_VALIDATION_FAILED-uint256"></a><code>uint256 <span class="contract-item-name">SIG_VALIDATION_FAILED</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+</div>
+<div class="sect2 contract">
+<h3 id="ERC7579Utils"><a class="anchor" href="#ERC7579Utils"></a><code>ERC7579Utils</code> <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/account/ERC7579/utils/ERC7579Utils.sol" class="heading-link"><svg class="icon"><use href="#github-icon"/></svg></a></h3>
+<div class="listingblock hljs-theme-light nopadding">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">import "@openzeppelin/contracts/account/ERC7579/utils/ERC7579Utils.sol";</code></pre>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Functions</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC7579Utils-execSingle-ExecType-bytes-"><code>execSingle(execType, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-execBatch-ExecType-bytes-"><code>execBatch(execType, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-execDelegateCall-ExecType-bytes-"><code>execDelegateCall(execType, executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-"><code>encodeMode(callType, execType, selector, payload)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-decodeMode-Mode-"><code>decodeMode(mode)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-encodeSingle-address-uint256-bytes-"><code>encodeSingle(target, value, callData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-decodeSingle-bytes-"><code>decodeSingle(executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-encodeDelegate-address-bytes-"><code>encodeDelegate(target, callData)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-decodeDelegate-bytes-"><code>decodeDelegate(executionCalldata)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-encodeBatch-struct-Execution---"><code>encodeBatch(executionBatch)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-decodeBatch-bytes-"><code>decodeBatch(executionCalldata)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Events</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-"><code>ERC7579TryExecuteFail(batchExecutionIndex, result)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Errors</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC7579Utils-ERC7579UnsupportedCallType-CallType-"><code>ERC7579UnsupportedCallType(callType)</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-ERC7579UnsupportedExecType-ExecType-"><code>ERC7579UnsupportedExecType(execType)</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock contract-index">
+<div class="title">Internal Variables</div>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ERC7579Utils-CALLTYPE_SINGLE-CallType"><code>CallType constant CALLTYPE_SINGLE</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-CALLTYPE_BATCH-CallType"><code>CallType constant CALLTYPE_BATCH</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-CALLTYPE_DELEGATECALL-CallType"><code>CallType constant CALLTYPE_DELEGATECALL</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-EXECTYPE_DEFAULT-ExecType"><code>ExecType constant EXECTYPE_DEFAULT</code></a></p>
+</li>
+<li>
+<p><a href="#ERC7579Utils-EXECTYPE_TRY-ExecType"><code>ExecType constant EXECTYPE_TRY</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-execSingle-ExecType-bytes-"><a class="anchor" href="#ERC7579Utils-execSingle-ExecType-bytes-"></a><code><span class="contract-item-name">execSingle</span>(ExecType execType, bytes executionCalldata) → bytes[] returnData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-execBatch-ExecType-bytes-"><a class="anchor" href="#ERC7579Utils-execBatch-ExecType-bytes-"></a><code><span class="contract-item-name">execBatch</span>(ExecType execType, bytes executionCalldata) → bytes[] returnData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-execDelegateCall-ExecType-bytes-"><a class="anchor" href="#ERC7579Utils-execDelegateCall-ExecType-bytes-"></a><code><span class="contract-item-name">execDelegateCall</span>(ExecType execType, bytes executionCalldata) → bytes[] returnData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-"><a class="anchor" href="#ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-"></a><code><span class="contract-item-name">encodeMode</span>(CallType callType, ExecType execType, ModeSelector selector, ModePayload payload) → Mode mode</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-decodeMode-Mode-"><a class="anchor" href="#ERC7579Utils-decodeMode-Mode-"></a><code><span class="contract-item-name">decodeMode</span>(Mode mode) → CallType callType, ExecType execType, ModeSelector selector, ModePayload payload</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-encodeSingle-address-uint256-bytes-"><a class="anchor" href="#ERC7579Utils-encodeSingle-address-uint256-bytes-"></a><code><span class="contract-item-name">encodeSingle</span>(address target, uint256 value, bytes callData) → bytes executionCalldata</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-decodeSingle-bytes-"><a class="anchor" href="#ERC7579Utils-decodeSingle-bytes-"></a><code><span class="contract-item-name">decodeSingle</span>(bytes executionCalldata) → address target, uint256 value, bytes callData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-encodeDelegate-address-bytes-"><a class="anchor" href="#ERC7579Utils-encodeDelegate-address-bytes-"></a><code><span class="contract-item-name">encodeDelegate</span>(address target, bytes callData) → bytes executionCalldata</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-decodeDelegate-bytes-"><a class="anchor" href="#ERC7579Utils-decodeDelegate-bytes-"></a><code><span class="contract-item-name">decodeDelegate</span>(bytes executionCalldata) → address target, bytes callData</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-encodeBatch-struct-Execution---"><a class="anchor" href="#ERC7579Utils-encodeBatch-struct-Execution---"></a><code><span class="contract-item-name">encodeBatch</span>(struct Execution[] executionBatch) → bytes executionCalldata</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-decodeBatch-bytes-"><a class="anchor" href="#ERC7579Utils-decodeBatch-bytes-"></a><code><span class="contract-item-name">decodeBatch</span>(bytes executionCalldata) → struct Execution[] executionBatch</code> <span class="item-kind">internal</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-"><a class="anchor" href="#ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-"></a><code><span class="contract-item-name">ERC7579TryExecuteFail</span>(uint256 batchExecutionIndex, bytes result)</code> <span class="item-kind">event</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-ERC7579UnsupportedCallType-CallType-"><a class="anchor" href="#ERC7579Utils-ERC7579UnsupportedCallType-CallType-"></a><code><span class="contract-item-name">ERC7579UnsupportedCallType</span>(CallType callType)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-ERC7579UnsupportedExecType-ExecType-"><a class="anchor" href="#ERC7579Utils-ERC7579UnsupportedExecType-ExecType-"></a><code><span class="contract-item-name">ERC7579UnsupportedExecType</span>(ExecType execType)</code> <span class="item-kind">error</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-CALLTYPE_SINGLE-CallType"><a class="anchor" href="#ERC7579Utils-CALLTYPE_SINGLE-CallType"></a><code>CallType <span class="contract-item-name">CALLTYPE_SINGLE</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-CALLTYPE_BATCH-CallType"><a class="anchor" href="#ERC7579Utils-CALLTYPE_BATCH-CallType"></a><code>CallType <span class="contract-item-name">CALLTYPE_BATCH</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-CALLTYPE_DELEGATECALL-CallType"><a class="anchor" href="#ERC7579Utils-CALLTYPE_DELEGATECALL-CallType"></a><code>CallType <span class="contract-item-name">CALLTYPE_DELEGATECALL</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-EXECTYPE_DEFAULT-ExecType"><a class="anchor" href="#ERC7579Utils-EXECTYPE_DEFAULT-ExecType"></a><code>ExecType <span class="contract-item-name">EXECTYPE_DEFAULT</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+<div class="sect3 contract-item">
+<h4 id="ERC7579Utils-EXECTYPE_TRY-ExecType"><a class="anchor" href="#ERC7579Utils-EXECTYPE_TRY-ExecType"></a><code>ExecType <span class="contract-item-name">EXECTYPE_TRY</span></code> <span class="item-kind">internal constant</span></h4>
+
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/api/access.html">&larr; Access</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/api/token/common.html">Common (Tokens) &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+	</main>
+</div>
+    <script src="../../../_/js/vendor/lunr.js"></script>
+<script src="../../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../../.." data-snippet-length="100" data-stylesheet="../../../_/css/search.css"></script>
+<script async src="../../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>

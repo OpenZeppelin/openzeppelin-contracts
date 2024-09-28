@@ -19,7 +19,7 @@ Considering accounts should be deployed by a factory, setting up a modular ERC-7
 pragma solidity ^0.8.20;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {AccountERC7579} from "@openzeppelin/contracts/account/AccountERC7579.sol";
+import {AccountERC7579} from "@openzeppelin/contracts/account/draft-AccountERC7579.sol";
 
 contract MyModularAccount is AccountERC7579 {
     // Make the account initializable and install a validator module

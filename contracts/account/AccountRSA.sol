@@ -8,13 +8,26 @@ import {ERC1271TypedSigner} from "../utils/cryptography/ERC1271TypedSigner.sol";
 import {RSA} from "../utils/cryptography/RSA.sol";
 import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 
+// NOTE: Storing `_e` and `_e` in regular violate ERC-7562 validation rules.
+// Consider deploying this contract through a factory that sets `_e` and `_n`
+// as immutable arguments (see {Clones-cloneDeterministicWithImmutableArgs}).
 abstract contract AccountRSA is ERC1271TypedSigner, AccountBase {
-    function signer() public view virtual returns (bytes memory e, bytes memory n);
+    bytes private _e;
+    bytes private _n;
+
+    constructor(bytes memory e, bytes memory n) {
+        _e = e;
+        _n = n;
+    }
+
+    function signer() public view virtual returns (bytes memory e, bytes memory n) {
+        return (_e, _n);
+    }
 
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal view virtual override returns (uint256) {
+    ) internal virtual override returns (uint256) {
         return
             _isValidSignature(userOpHash, userOp.signature)
                 ? ERC4337Utils.SIG_VALIDATION_SUCCESS

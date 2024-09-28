@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="/contracts/5.x/access-control">
+    <data id="ga-key" value="UA-85043059-1"></data>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85043059-1"></script>
+<script src="/_/vendor/google-analytics.js"></script>
+<!-- Google Tag Manager -->
+<data id="gtm-key" value="GTM-W9X5Q6F" ></data>
+<script src="/_/vendor/gtm.js"></script>
+<!-- End Google Tag Manager -->
+    <link rel="stylesheet" href="/_/dist/index.css">
+    <title>Access Control - OpenZeppelin Docs</title>
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="Access Control - OpenZeppelin Docs">
+    <meta property="og:image" content="https://docs.openzeppelin.com/_/images/social.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/_/images/favicon-16x16.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/_/images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="96x96" href="/_/images/favicon-96x96.png"/>
+    <link rel="icon" type="image/png" sizes="192x192"  href="/_/images/favicon-192x192.png"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700&display=swap"/>
+  </head>
+  <body class="">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9X5Q6F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol overflow="visible" id="copy-icon" viewBox="0 0 24 24">
+  <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+  </symbol>
+
+  <symbol overflow="visible" id="github-icon" viewBox="0 0 24 24">
+  <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+  </symbol>
+</svg>
+    <div class="root">
+	<nav id="sidr" class="nav nav-collapse-preinit" data-component="contracts" data-is-home=""
+  data-is-site-aspect="" data-version="" role="navigation">
+  <button class="close-menu-btn">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+    </svg>
+  </button>
+
+  <div class="nav-component-active">
+    <a class="btn-back" href="/">Home</a>
+    <div class="flex justify-justified nav-heading">
+      <span class="">Contracts</span>
+      <div class="component-version">
+      </div>
+    </div>
+    <ol class="nav-list">
+      <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/index.html">
+    Overview
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/wizard.html">
+    Wizard
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/extending-contracts.html">
+    Extending Contracts
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/upgradeable.html">
+    Using with Upgrades
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/backwards-compatibility.html">
+    Backwards Compatibility
+  </a>
+</li>
+<li class="nav-li nav-li-active">
+  <a class="link nav-link" href="/contracts/5.x/access-control.html">
+    Access Control
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/account-abstraction.html">
+    Account Abstraction
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc7579.html">
+    ERC-7579
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/tokens.html">
+    Tokens
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <a class="link nav-link" href="/contracts/5.x/erc20.html">
+    ERC-20
+  </a>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc20-supply.html">
+    Creating Supply
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc721.html">
+    ERC-721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc1155.html">
+    ERC-1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/erc4626.html">
+    ERC-4626
+  </a>
+</li>
+  </ol>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/utilities.html">
+    Utilities
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="#subgraphs::index.adoc">
+    Subgraphs
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/faq.html">
+    FAQ
+  </a>
+</li>
+<li class="nav-li ">
+  <button class="collapse-toggle ">
+    <img src="/_/images/icons/arrow.svg">
+  </button>
+  <span class="nav-link">API</span>
+  <ol class="nav-list collapsible-content">
+  <li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/access.html">
+    Access
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/account.html">
+    Account
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/common.html">
+    Common (Tokens)
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC20.html">
+    ERC 20
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC721.html">
+    ERC 721
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/token/ERC1155.html">
+    ERC 1155
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/finance.html">
+    Finance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/governance.html">
+    Governance
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/interfaces.html">
+    Interfaces
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/metatx.html">
+    Meta Transactions
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/proxy.html">
+    Proxy
+  </a>
+</li>
+<li class="nav-li ">
+  <a class="link nav-link" href="/contracts/5.x/api/utils.html">
+    Utils
+  </a>
+</li>
+  </ol>
+</li>
+    </ol>
+  </div>
+
+
+</nav>	<main role="main" class="main">
+		<header class="header">
+  <nav class="navbar">
+    <button class="navbar-burger sidr-toggle">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+      </svg>
+    </button>
+    <div class="navbar-logo">
+      <a href="https://docs.openzeppelin.com">
+        <svg width="209px" height="24px" viewBox="0 0 209 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="home-[TBD]" transform="translate(-360.000000, -26.000000)">
+              <g id="navbar" transform="translate(299.000000, 0.000000)">
+                <g id="Group-5" transform="translate(61.000000, 26.000000)">
+                  <g id="Group-7-Copy-4" transform="translate(-0.000000,
+                    -0.000000)">
+                    <path d="M21.4663663,23.9300128 L21.4663663,17.7061037
+                      L14.7279539,17.7061037 C12.895474,17.7061037
+                      11.1980311,18.6736822 10.2594904,20.2533582
+                      L8.07492852,23.9300128 L21.4663663,23.9300128 Z" id="Stroke-1" fill="#63D2F9"></path>
+                    <polygon id="Stroke-3" fill="#4E5EE4" points="0.019867965
+                      0.0199524162 0.019867965 6.24386149 17.7682654 6.24386149
+                      21.4663782 0.0199524162"></polygon>
+                    <path d="M8.51406302,9.74697276 L0.0394099651,23.9300247
+                      L7.2596145,23.9300247 L17.3937872,6.96201283
+                      L13.4067581,6.96201283 C11.401318,6.96201283
+                      9.54339693,8.01955871 8.51406302,9.74697276 Z" id="Stroke-5" fill="#63B0F9"></path>
+                  </g>
+                  <path d="M172.76828,17.9512764 C170.154155,17.9512764
+                    168.343063,16.0160804 168.343063,13.2931055
+                    C168.343063,10.553005 170.154155,8.60068342
+                    172.665765,8.60068342 C174.528115,8.60068342
+                    175.51909,9.79947739 175.792463,10.2618693
+                    L175.894978,10.2618693 L175.894978,4.88442211
+                    L177.244754,4.88442211 L177.244754,17.7286432
+                    L175.946235,17.7286432 L175.946235,16.3243417
+                    L175.84372,16.3243417 C175.621605,16.6497286
+                    174.698973,17.9512764 172.76828,17.9512764 Z
+                    M172.853709,16.7353568 C174.784402,16.7353568
+                    175.946235,15.159799 175.946235,13.2931055
+                    C175.946235,11.1010251 174.579372,9.83372864
+                    172.819537,9.83372864 C170.991359,9.83372864
+                    169.727011,11.2722814 169.727011,13.2931055
+                    C169.727011,15.3824322 170.991359,16.7353568
+                    172.853709,16.7353568 Z M184.412555,17.9512764
+                    C181.747174,17.9512764 179.782309,15.9818291
+                    179.782309,13.2759799 C179.782309,10.5872563
+                    181.781345,8.60068342 184.429641,8.60068342
+                    C187.112109,8.60068342 189.059888,10.6043819
+                    189.059888,13.2759799 C189.059888,15.9475779
+                    187.077937,17.9512764 184.412555,17.9512764 Z
+                    M184.412555,16.7182312 C186.326163,16.7182312
+                    187.675939,15.2625528 187.675939,13.2759799
+                    C187.675939,11.3065327 186.326163,9.83372864
+                    184.412555,9.83372864 C182.498948,9.83372864
+                    181.166257,11.3236583 181.166257,13.2759799
+                    C181.166257,15.2796784 182.516034,16.7182312
+                    184.412555,16.7182312 Z M195.646772,17.9512764
+                    C192.964305,17.9512764 191.084869,15.9133266
+                    191.084869,13.2759799 C191.084869,10.6386332
+                    193.015562,8.60068342 195.629686,8.60068342
+                    C197.56038,8.60068342 199.354386,9.76522613
+                    199.832788,11.751799 L198.431754,11.751799
+                    C198.072953,10.5872563 196.945292,9.83372864
+                    195.663858,9.83372864 C193.767336,9.83372864
+                    192.485903,11.3407839 192.485903,13.2759799
+                    C192.485903,15.2796784 193.83568,16.7182312
+                    195.69803,16.7182312 C196.979463,16.7182312
+                    198.12421,15.9647035 198.465926,14.8001608
+                    L199.849874,14.8001608 C199.388558,16.7867337
+                    197.577465,17.9512764 195.646772,17.9512764 Z
+                    M205.497041,17.9512764 C203.39549,17.9512764
+                    202.199485,16.8038593 202.045713,15.1426734
+                    L203.361318,15.1426734 C203.51509,16.2044623
+                    204.266865,16.769608 205.565384,16.769608
+                    C206.898075,16.769608 207.632763,16.1188342
+                    207.632763,15.2111759 C207.632763,12.7108342
+                    202.319086,14.6117789 202.319086,11.0838995
+                    C202.319086,9.57684422 203.668862,8.60068342
+                    205.531212,8.60068342 C207.171447,8.60068342
+                    208.53831,9.55971859 208.674996,11.1695276
+                    L207.376477,11.1695276 C207.256876,10.3303719
+                    206.624702,9.76522613 205.445784,9.76522613
+                    C204.335208,9.76522613 203.617605,10.3132462
+                    203.617605,11.0838995 C203.617605,13.3444824
+                    208.948368,11.4606633 208.948368,15.1426734
+                    C208.948368,16.8209849 207.56442,17.9512764
+                    205.497041,17.9512764 Z" id="docs" fill="#282846" fill-rule="nonzero" opacity="0.9"></path>
+                  <path d="M36.8275779,17.9512764 C33.1969447,17.9512764
+                    30.5253467,15.296804 30.5253467,11.7346734
+                    C30.5253467,8.20679397 33.2140704,5.51807035
+                    36.8447035,5.51807035 C40.4753367,5.51807035
+                    43.1640603,8.24104523 43.1640603,11.7346734
+                    C43.1640603,15.2625528 40.4582111,17.9512764
+                    36.8275779,17.9512764 Z M36.8447035,15.7763216
+                    C39.1395377,15.7763216 40.783598,14.0637588
+                    40.783598,11.7346734 C40.783598,9.4398392
+                    39.1395377,7.69302513 36.8447035,7.69302513
+                    C34.5327437,7.69302513 32.8886834,9.4398392
+                    32.8886834,11.7346734 C32.8886834,14.0637588
+                    34.5327437,15.7763216 36.8447035,15.7763216 Z
+                    M45.5952668,21.6675377 L45.5952668,8.72056281
+                    L47.7873472,8.72056281 L47.7873472,9.8679799
+                    L47.9072266,9.8679799 C48.1469854,9.49121608
+                    48.9690156,8.49792965 50.6130759,8.49792965
+                    C53.1305432,8.49792965 54.8602316,10.3817487
+                    54.8602316,13.1903518 C54.8602316,15.9989548
+                    53.1476688,17.9512764 50.6815784,17.9512764
+                    C49.088895,17.9512764 48.2326136,17.0607437
+                    47.9414779,16.5641005 L47.8215985,16.5641005
+                    L47.8215985,21.6675377 L45.5952668,21.6675377 Z
+                    M50.1849352,15.9304523 C51.6234879,15.9304523
+                    52.5996487,14.8172864 52.5996487,13.224603
+                    C52.5996487,11.5805427 51.6234879,10.5187538
+                    50.1678095,10.5187538 C48.6950055,10.5187538
+                    47.7702216,11.7004221 47.7702216,13.224603
+                    C47.7702216,14.9029146 48.7977593,15.9304523
+                    50.1849352,15.9304523 Z M61.2303326,17.9512764
+                    C58.5758603,17.9512764 56.6920412,15.9647035
+                    56.6920412,13.2759799 C56.6920412,10.4331256
+                    58.5929859,8.49792965 61.2303326,8.49792965
+                    C64.1245638,8.49792965 65.7001216,10.6386332
+                    65.7001216,13.1732261 L65.7001216,13.8753769
+                    L58.8498703,13.8753769 C58.9183728,15.2454271
+                    59.8602824,16.1702111 61.2988351,16.1702111
+                    C62.3948753,16.1702111 63.2340311,15.6564422
+                    63.5422924,14.9200402 L65.6144934,14.9200402
+                    C65.1692271,16.7524824 63.5594181,17.9512764
+                    61.2303326,17.9512764 Z M58.8841216,12.2998191
+                    L63.5765437,12.2998191 C63.4737899,11.0838995
+                    62.5318804,10.278995 61.2303326,10.278995
+                    C59.9801618,10.278995 59.0211266,11.1695276
+                    58.8841216,12.2998191 Z M68.0970768,17.7286432
+                    L68.0970768,8.72056281 L70.2206547,8.72056281
+                    L70.2206547,9.81660302 L70.3405341,9.81660302
+                    C70.7001723,9.14870352 71.590705,8.49792965
+                    72.8751271,8.49792965 C74.8959512,8.49792965
+                    76.1289964,9.91935678 76.1289964,11.8374271
+                    L76.1289964,17.7286432 L73.9026648,17.7286432
+                    L73.9026648,12.4196985 C73.9026648,11.3236583
+                    73.200514,10.5872563 72.1729763,10.5872563
+                    C71.0940618,10.5872563 70.3234085,11.4435377
+                    70.3234085,12.5738291 L70.3234085,17.7286432
+                    L68.0970768,17.7286432 Z M78.3375698,17.7286432
+                    L78.3375698,15.6906935 L84.5712984,7.83003015
+                    L84.5712984,7.71015075 L78.5602029,7.71015075
+                    L78.5602029,5.74070352 L87.4141527,5.74070352
+                    L87.4141527,7.76152764 L81.1804241,15.622191
+                    L81.1804241,15.759196 L87.448404,15.759196
+                    L87.448404,17.7286432 L78.3375698,17.7286432 Z
+                    M93.4759924,17.9512764 C90.82152,17.9512764
+                    88.9377009,15.9647035 88.9377009,13.2759799
+                    C88.9377009,10.4331256 90.8386456,8.49792965
+                    93.4759924,8.49792965 C96.3702235,8.49792965
+                    97.9457813,10.6386332 97.9457813,13.1732261
+                    L97.9457813,13.8753769 L91.0955301,13.8753769
+                    C91.1640326,15.2454271 92.1059421,16.1702111
+                    93.5444949,16.1702111 C94.6405351,16.1702111
+                    95.4796909,15.6564422 95.7879522,14.9200402
+                    L97.8601532,14.9200402 C97.4148869,16.7524824
+                    95.8050778,17.9512764 93.4759924,17.9512764 Z
+                    M91.1297813,12.2998191 L95.8222034,12.2998191
+                    C95.7194497,11.0838995 94.7775401,10.278995
+                    93.4759924,10.278995 C92.2258215,10.278995
+                    91.2667863,11.1695276 91.1297813,12.2998191 Z
+                    M100.342737,21.6675377 L100.342737,8.72056281
+                    L102.534817,8.72056281 L102.534817,9.8679799
+                    L102.654696,9.8679799 C102.894455,9.49121608
+                    103.716485,8.49792965 105.360546,8.49792965
+                    C107.878013,8.49792965 109.607701,10.3817487
+                    109.607701,13.1903518 C109.607701,15.9989548
+                    107.895139,17.9512764 105.429048,17.9512764
+                    C103.836365,17.9512764 102.980083,17.0607437
+                    102.688948,16.5641005 L102.569068,16.5641005
+                    L102.569068,21.6675377 L100.342737,21.6675377 Z
+                    M104.932405,15.9304523 C106.370958,15.9304523
+                    107.347118,14.8172864 107.347118,13.224603
+                    C107.347118,11.5805427 106.370958,10.5187538
+                    104.915279,10.5187538 C103.442475,10.5187538
+                    102.517691,11.7004221 102.517691,13.224603
+                    C102.517691,14.9029146 103.545229,15.9304523
+                    104.932405,15.9304523 Z M112.004657,21.6675377
+                    L112.004657,8.72056281 L114.196737,8.72056281
+                    L114.196737,9.8679799 L114.316616,9.8679799
+                    C114.556375,9.49121608 115.378405,8.49792965
+                    117.022466,8.49792965 C119.539933,8.49792965
+                    121.269621,10.3817487 121.269621,13.1903518
+                    C121.269621,15.9989548 119.557059,17.9512764
+                    117.090968,17.9512764 C115.498285,17.9512764
+                    114.642003,17.0607437 114.350868,16.5641005
+                    L114.230988,16.5641005 L114.230988,21.6675377
+                    L112.004657,21.6675377 Z M116.594325,15.9304523
+                    C118.032878,15.9304523 119.009039,14.8172864
+                    119.009039,13.224603 C119.009039,11.5805427
+                    118.032878,10.5187538 116.577199,10.5187538
+                    C115.104395,10.5187538 114.179611,11.7004221
+                    114.179611,13.224603 C114.179611,14.9029146
+                    115.207149,15.9304523 116.594325,15.9304523 Z
+                    M127.639722,17.9512764 C124.98525,17.9512764
+                    123.101431,15.9647035 123.101431,13.2759799
+                    C123.101431,10.4331256 125.002376,8.49792965
+                    127.639722,8.49792965 C130.533954,8.49792965
+                    132.109511,10.6386332 132.109511,13.1732261
+                    L132.109511,13.8753769 L125.25926,13.8753769
+                    C125.327763,15.2454271 126.269672,16.1702111
+                    127.708225,16.1702111 C128.804265,16.1702111
+                    129.643421,15.6564422 129.951682,14.9200402
+                    L132.023883,14.9200402 C131.578617,16.7524824
+                    129.968808,17.9512764 127.639722,17.9512764 Z
+                    M125.293511,12.2998191 L129.985934,12.2998191
+                    C129.88318,11.0838995 128.94127,10.278995
+                    127.639722,10.278995 C126.389552,10.278995
+                    125.430516,11.1695276 125.293511,12.2998191 Z
+                    M136.698547,17.7286432 C135.122989,17.7286432
+                    134.232457,16.7867337 134.232457,15.1940503
+                    L134.232457,4.88442211 L136.458788,4.88442211
+                    L136.458788,14.9885427 C136.458788,15.5023116
+                    136.715673,15.7763216 137.178065,15.7763216
+                    L137.537703,15.7763216 L137.537703,17.7286432
+                    L136.698547,17.7286432 Z M140.79094,7.52176884
+                    C139.986035,7.52176884 139.420889,7.02512563
+                    139.420889,6.22022111 C139.420889,5.44956784
+                    139.986035,4.93579899 140.79094,4.93579899
+                    C141.595844,4.93579899 142.16099,5.44956784
+                    142.16099,6.22022111 C142.16099,7.02512563
+                    141.595844,7.52176884 140.79094,7.52176884 Z
+                    M139.677774,17.7286432 L139.677774,8.72056281
+                    L141.904105,8.72056281 L141.904105,17.7286432
+                    L139.677774,17.7286432 Z M144.609322,17.7286432
+                    L144.609322,8.72056281 L146.7329,8.72056281
+                    L146.7329,9.81660302 L146.852779,9.81660302
+                    C147.212417,9.14870352 148.10295,8.49792965
+                    149.387372,8.49792965 C151.408196,8.49792965
+                    152.641242,9.91935678 152.641242,11.8374271
+                    L152.641242,17.7286432 L150.41491,17.7286432
+                    L150.41491,12.4196985 C150.41491,11.3236583
+                    149.712759,10.5872563 148.685221,10.5872563
+                    C147.606307,10.5872563 146.835654,11.4435377
+                    146.835654,12.5738291 L146.835654,17.7286432
+                    L144.609322,17.7286432 Z" id="OpenZeppelin" fill="#282846" fill-rule="nonzero"></path>
+                  <polygon id="|-copy-5" fill="#282846" fill-rule="nonzero" opacity="0.9" points="161.433483 18.0904523 160.27506
+                    18.0904523 160.27506 5.7127744 161.433483 5.7127744"></polygon>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </a>
+    </div>
+
+    <div id="search-field" class="navbar-search">
+      <input class="navbar-search-input" id="search-input" type="text" placeholder="Search Contracts">
+      <input class="navbar-search-filter" type="checkbox" data-facet-filter="component:contracts" checked>
+    </div>
+
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://github.com/OpenZeppelin">GitHub</a>
+      <a class="navbar-item" href="https://forum.openzeppelin.com">Forum</a>
+      <a class="navbar-item" href="https://blog.openzeppelin.com">Blog</a>
+      <a class="navbar-item" href="https://openzeppelin.com">Website</a>
+      <a class="navbar-button" href="https://defender.openzeppelin.com/v2/#/auth/sign-up">Defender Free Trial</a>
+    </div>
+  </nav>
+</header>
+		<div class="article-wrapper">
+	<article class="article doc">
+          <h1>Access Control</h1>
+		<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things. It is therefore <strong>critical</strong> to understand how you implement it, lest someone else <a href="https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7">steals your whole system</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ownership-and-ownable"><a class="anchor" href="#ownership-and-ownable"></a>Ownership and <code>Ownable</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The most common and basic form of access control is the concept of <em>ownership</em>: there&#8217;s an account that is the <code>owner</code> of a contract and can do administrative tasks on it. This approach is perfectly reasonable for contracts that have a single administrative user.</p>
+</div>
+<div class="paragraph">
+<p>OpenZeppelin Contracts provides <a href="api/access.html#Ownable" class="xref page"><code>Ownable</code></a> for implementing ownership in your contracts.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyContract is Ownable {
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
+    function normalThing() public {
+        // anyone can call this normalThing()
+    }
+
+    function specialThing() public onlyOwner {
+        // only the owner can call specialThing()!
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At deployment, the <a href="api/access.html#Ownable-owner--" class="xref page"><code>owner</code></a> of an <code>Ownable</code> contract is set to the provided <code>initialOwner</code> parameter.</p>
+</div>
+<div class="paragraph">
+<p>Ownable also lets you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="api/access.html#Ownable-transferOwnership-address-" class="xref page"><code>transferOwnership</code></a> from the owner account to a new one, and</p>
+</li>
+<li>
+<p><a href="api/access.html#Ownable-renounceOwnership--" class="xref page"><code>renounceOwnership</code></a> for the owner to relinquish this administrative privilege, a common pattern after an initial stage with centralized administration is over.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Removing the owner altogether will mean that administrative tasks that are protected by <code>onlyOwner</code> will no longer be callable!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Ownable is a simple and effective way to implement access control, but you should be mindful of the dangers associated with transferring the ownership to an incorrect account that can&#8217;t interact with this contract anymore. An alternative to this problem is using <a href="api/access.html#Ownable2Step" class="xref page"><code>Ownable2Step</code></a>; a variant of Ownable that requires the new owner to explicitly accept the ownership transfer by calling <a href="api/access.html#Ownable2Step-acceptOwnership--" class="xref page"><code>acceptOwnership</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>Note that <strong>a contract can also be the owner of another one</strong>! This opens the door to using, for example, a <a href="https://gnosis-safe.io">Gnosis Safe</a>, an <a href="https://aragon.org">Aragon DAO</a>, or a totally custom contract that <em>you</em> create.</p>
+</div>
+<div class="paragraph">
+<p>In this way, you can use <em>composability</em> to add additional layers of access control complexity to your contracts. Instead of having a single regular Ethereum account (Externally Owned Account, or EOA) as the owner, you could use a 2-of-3 multisig run by your project leads, for example. Prominent projects in the space, such as <a href="https://makerdao.com">MakerDAO</a>, use systems similar to this one.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="role-based-access-control"><a class="anchor" href="#role-based-access-control"></a>Role-Based Access Control</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While the simplicity of <em>ownership</em> can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want for an account to have permission to ban users from a system, but not create new tokens. <a href="https://en.wikipedia.org/wiki/Role-based_access_control"><em>Role-Based Access Control (RBAC)</em></a> offers flexibility in this regard.</p>
+</div>
+<div class="paragraph">
+<p>In essence, we will be defining multiple <em>roles</em>, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <code>onlyOwner</code>. This check can be enforced through the <code>onlyRole</code> modifier. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.</p>
+</div>
+<div class="paragraph">
+<p>Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.</p>
+</div>
+<div class="sect2">
+<h3 id="using-access-control"><a class="anchor" href="#using-access-control"></a>Using <code>AccessControl</code></h3>
+<div class="paragraph">
+<p>OpenZeppelin Contracts provides <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
+you will create a new <em>role identifier</em> that is used to grant, revoke, and check if an account has that role.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a simple example of using <code>AccessControl</code> in an <a href="erc20.html" class="xref page">ERC-20 token</a> to define a 'minter' role, which allows accounts that have it create new tokens:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract AccessControlERC20MintBase is ERC20, AccessControl {
+    // Create a new role identifier for the minter role
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    error CallerNotMinter(address caller);
+
+    constructor(address minter) ERC20("MyToken", "TKN") {
+        // Grant the minter role to a specified account
+        _grantRole(MINTER_ROLE, minter);
+    }
+
+    function mint(address to, uint256 amount) public {
+        // Check that the calling account has the minter role
+        if (!hasRole(MINTER_ROLE, msg.sender)) {
+            revert CallerNotMinter(msg.sender);
+        }
+        _mint(to, amount);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Make sure you fully understand how <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> works before using it on your system, or copy-pasting the examples from this guide.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>While clear and explicit, this isn&#8217;t anything we wouldn&#8217;t have been able to achieve with <code>Ownable</code>. Indeed, where <code>AccessControl</code> shines is in scenarios where granular permissions are required, which can be implemented by defining <em>multiple</em> roles.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s augment our ERC-20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using the <code>onlyRole</code> modifier:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract AccessControlERC20Mint is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
+
+    constructor(address minter, address burner) ERC20("MyToken", "TKN") {
+        _grantRole(MINTER_ROLE, minter);
+        _grantRole(BURNER_ROLE, burner);
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) public onlyRole(BURNER_ROLE) {
+        _burn(from, amount);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So clean! By splitting concerns this way, more granular levels of permission may be implemented than were possible with the simpler <em>ownership</em> approach to access control. Limiting what each component of a system is able to do is known as the <a href="https://en.wikipedia.org/wiki/Principle_of_least_privilege">principle of least privilege</a>, and is a good security practice. Note that each account may still have more than one role, if so desired.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="granting-and-revoking"><a class="anchor" href="#granting-and-revoking"></a>Granting and Revoking Roles</h3>
+<div class="paragraph">
+<p>The ERC-20 token example above uses <code>_grantRole</code>, an <code>internal</code> function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?</p>
+</div>
+<div class="paragraph">
+<p>By default, <strong>accounts with a role cannot grant it or revoke it from other accounts</strong>: all having a role does is making the <code>hasRole</code> check pass. To grant and revoke roles dynamically, you will need help from the <em>role&#8217;s admin</em>.</p>
+</div>
+<div class="paragraph">
+<p>Every role has an associated admin role, which grants permission to call the <code>grantRole</code> and <code>revokeRole</code> functions. A role can be granted or revoked by using these if the calling account has the corresponding admin role. Multiple roles may have the same admin role to make management easier. A role&#8217;s admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.</p>
+</div>
+<div class="paragraph">
+<p>This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications. <code>AccessControl</code> includes a special role, called <code>DEFAULT_ADMIN_ROLE</code>, which acts as the <strong>default admin role for all roles</strong>. An account with this role will be able to manage any other role, unless <code>_setRoleAdmin</code> is used to select a new admin role.</p>
+</div>
+<div class="paragraph">
+<p>Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide <a href="api/access.html#AccessControlDefaultAdminRules" class="xref page"><code>AccessControlDefaultAdminRules</code></a>, a recommended extension of <code>AccessControl</code> that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay in between steps.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take a look at the ERC-20 token example, this time taking advantage of the default admin role:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract AccessControlERC20MintMissing is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
+
+    constructor() ERC20("MyToken", "TKN") {
+        // Grant the contract deployer the default admin role: it will be able
+        // to grant and revoke any roles
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) public onlyRole(BURNER_ROLE) {
+        _burn(from, amount);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles. However, because those roles' admin role is the default admin role, and <em>that</em> role was granted to <code>msg.sender</code>, that same account can call <code>grantRole</code> to give minting or burning permission, and <code>revokeRole</code> to remove it.</p>
+</div>
+<div class="paragraph">
+<p>Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as <a href="https://en.wikipedia.org/wiki/Know_your_customer">KYC</a>, where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="querying-privileged-accounts"><a class="anchor" href="#querying-privileged-accounts"></a>Querying Privileged Accounts</h3>
+<div class="paragraph">
+<p>Because accounts might <a href="#granting-and-revoking">grant and revoke roles</a> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.</p>
+</div>
+<div class="paragraph">
+<p>Under the hood, <code>AccessControl</code> uses <code>EnumerableSet</code>, a more powerful variant of Solidity&#8217;s <code>mapping</code> type, which allows for key enumeration. <code>getRoleMemberCount</code> can be used to retrieve the number of accounts that have a particular role, and <code>getRoleMember</code> can then be called to get the address of each of these accounts.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const minterCount = await myToken.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i &lt; minterCount; ++i) {
+    members.push(await myToken.getRoleMember(MINTER_ROLE, i));
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="delayed_operation"><a class="anchor" href="#delayed_operation"></a>Delayed operation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Access control is essential to prevent unauthorized access to critical functions. These functions may be used to mint tokens, freeze transfers or perform an upgrade that completely changes the smart contract logic. While <a href="api/access.html#Ownable" class="xref page"><code>Ownable</code></a> and <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> can prevent unauthorized access, they do not address the issue of a misbehaving administrator attacking their own system to the prejudice of their users.</p>
+</div>
+<div class="paragraph">
+<p>This is the issue the <a href="api/governance.html#TimelockController" class="xref page"><code>TimelockController</code></a> is addressing.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="api/governance.html#TimelockController" class="xref page"><code>TimelockController</code></a> is a proxy that is governed by proposers and executors. When set as the owner/admin/controller of a smart contract, it ensures that whichever maintenance operation is ordered by the proposers is subject to a delay. This delay protects the users of the smart contract by giving them time to review the maintenance operation and exit the system if they consider it is in their best interest to do so.</p>
+</div>
+<div class="sect2">
+<h3 id="using_timelockcontroller"><a class="anchor" href="#using_timelockcontroller"></a>Using <code>TimelockController</code></h3>
+<div class="paragraph">
+<p>By default, the address that deployed the <a href="api/governance.html#TimelockController" class="xref page"><code>TimelockController</code></a> gets administration privileges over the timelock. This role grants the right to assign proposers, executors, and other administrators.</p>
+</div>
+<div class="paragraph">
+<p>The first step in configuring the <a href="api/governance.html#TimelockController" class="xref page"><code>TimelockController</code></a> is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.</p>
+</div>
+<div class="paragraph">
+<p>Roles are managed using the <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> interface and the <code>bytes32</code> values for each role are accessible through the <code>ADMIN_ROLE</code>, <code>PROPOSER_ROLE</code> and <code>EXECUTOR_ROLE</code> constants.</p>
+</div>
+<div class="paragraph">
+<p>There is an additional feature built on top of <code>AccessControl</code>: giving the executor role to <code>address(0)</code> opens access to anyone to execute a proposal once the timelock has expired. This feature, while useful, should be used with caution.</p>
+</div>
+<div class="paragraph">
+<p>At this point, with both a proposer and an executor assigned, the timelock can perform operations.</p>
+</div>
+<div class="paragraph">
+<p>An optional next step is for the deployer to renounce its administrative privileges and leave the timelock self-administered. If the deployer decides to do so, all further maintenance, including assigning new proposers/schedulers or changing the timelock duration will have to follow the timelock workflow. This links the governance of the timelock to the governance of contracts attached to the timelock, and enforce a delay on timelock maintenance operations.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If the deployer renounces administrative rights in favour of timelock itself, assigning new proposers or executors will require a timelocked operation. This means that if the accounts in charge of any of these two roles become unavailable, then the entire contract (and any contract it controls) becomes locked indefinitely.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>With both the proposer and executor roles assigned and the timelock in charge of its own administration, you can now transfer the ownership/control of any contract to the timelock.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+A recommended configuration is to grant both roles to a secure governance contract such as a DAO or a multisig, and to additionally grant the executor role to a few EOAs held by people in charge of helping with the maintenance operations. These wallets cannot take over control of the timelock but they can help smoothen the workflow.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="minimum_delay"><a class="anchor" href="#minimum_delay"></a>Minimum delay</h3>
+<div class="paragraph">
+<p>Operations executed by the <a href="api/governance.html#TimelockController" class="xref page"><code>TimelockController</code></a> are not subject to a fixed delay but rather a minimum delay. Some major updates might call for a longer delay. For example, if a delay of just a few days might be sufficient for users to audit a minting operation, it makes sense to use a delay of a few weeks, or even a few months, when scheduling a smart contract upgrade.</p>
+</div>
+<div class="paragraph">
+<p>The minimum delay (accessible through the <a href="api/governance.html#TimelockController-getMinDelay--" class="xref page"><code>getMinDelay</code></a> method) can be updated by calling the <a href="api/governance.html#TimelockController-updateDelay-uint256-" class="xref page"><code>updateDelay</code></a> function. Bear in mind that access to this function is only accessible by the timelock itself, meaning this maintenance operation has to go through the timelock itself.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="access-management"><a class="anchor" href="#access-management"></a>Access Management</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For a system of contracts, better integrated role management can be achieved with an <a href="api/access.html#AccessManager" class="xref page"><code>AccessManager</code></a> instance. Instead of managing each contract&#8217;s permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.</p>
+</div>
+<div class="paragraph">
+<p>Although <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/access-control-multiple.svg" alt="Access Control multiple">
+</div>
+</div>
+<div class="paragraph">
+<p>Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple <code>AccessControl</code> instances.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/access-manager.svg" alt="AccessManager">
+</div>
+</div>
+<div class="paragraph">
+<p>The AccessManager is designed around the concept of role and target functions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.</p>
+</li>
+<li>
+<p>Access to a restricted target function is limited to one role. A target function is defined by one <a href="https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector">function selector</a> on one contract (called target).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/access-manager-functions.svg" alt="AccessManager functions">
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_accessmanager"><a class="anchor" href="#using_accessmanager"></a>Using <code>AccessManager</code></h3>
+<div class="paragraph">
+<p>OpenZeppelin Contracts provides <a href="api/access.html#AccessManager" class="xref page"><code>AccessManager</code></a> for managing roles across any number of contracts. The <code>AccessManager</code> itself is a contract that can be deployed and used out of the box. It sets an initial admin in the constructor who will be allowed to perform management operations.</p>
+</div>
+<div class="paragraph">
+<p>In order to restrict access to some functions of your contract, you should inherit from the <a href="api/access.html#AccessManaged" class="xref page"><code>AccessManaged</code></a> contract provided along with the manager. This provides the <code>restricted</code> modifier that can be used to protect any externally facing function. Note that you will have to specify the address of the AccessManager instance (<a href="api/access.html#AccessManaged-constructor-address-" class="xref page"><code>initialAuthority</code></a>) in the constructor so the <code>restricted</code> modifier knows which manager to use for checking permissions.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a simple example of an <a href="tokens.html#ERC20" class="xref page">ERC-20 token</a> that defines a <code>mint</code> function that is restricted by an <a href="api/access.html#AccessManager" class="xref page"><code>AccessManager</code></a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-solidity hljs" data-lang="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {AccessManaged} from "@openzeppelin/contracts/access/manager/AccessManaged.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract AccessManagedERC20Mint is ERC20, AccessManaged {
+    constructor(address manager) ERC20("MyToken", "TKN") AccessManaged(manager) {}
+
+    // Minting is restricted according to the manager rules for this function.
+    // The function is identified by its selector: 0x40c10f19.
+    // Calculated with bytes4(keccak256('mint(address,uint256)'))
+    function mint(address to, uint256 amount) public restricted {
+        _mint(to, amount);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Make sure you fully understand how <a href="api/access.html#AccessManager" class="xref page"><code>AccessManager</code></a> works before using it or copy-pasting the examples from this guide.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once the managed contract has been deployed, it is now under the manager&#8217;s control. The initial admin can then assign the minter role to an address and also allow the role to call the <code>mint</code> function. For example, this is demonstrated in the following Javascript code using Ethers.js:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">// const target = ...;
+// const user = ...;
+const MINTER = 42n; // Roles are uint64 (0 is reserved for the ADMIN_ROLE)
+
+// Grant the minter role with no execution delay
+await manager.grantRole(MINTER, user, 0);
+
+// Allow the minter role to call the function selector
+// corresponding to the mint function
+await manager.setTargetFunctionRole(
+    target,
+    ['0x40c10f19'], // bytes4(keccak256('mint(address,uint256)'))
+    MINTER
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Even though each role has its own list of function permissions, each role member (<code>address</code>) has an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the <a href="api/access.html#AccessManager-schedule-address-bytes-uint48-" class="xref page"><code>schedule</code></a> function called on them first in the AccessManager before they can be executed, either by calling to the target function or using the AccessManager&#8217;s <a href="api/access.html#AccessManager-execute-address-bytes-" class="xref page"><code>execute</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, roles can have a granting delay that prevents adding members immediately. The AccessManager admins can set this grant delay as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const HOUR = 60 * 60;
+
+const GRANT_DELAY = 24 * HOUR;
+const EXECUTION_DELAY = 5 * HOUR;
+const ACCOUNT = "0x...";
+
+await manager.connect(initialAdmin).setGrantDelay(MINTER, GRANT_DELAY);
+
+// The role will go into effect after the GRANT_DELAY passes
+await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that roles do not define a name. As opposed to the <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a> case, roles are identified as numeric values instead of being hardcoded in the contract as <code>bytes32</code> values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the <a href="api/access.html#AccessManager-labelRole-uint64-string-" class="xref page"><code>labelRole</code></a> function.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">await manager.labelRole(MINTER, "MINTER");</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Given the admins of the <code>AccessManaged</code> can modify all of its permissions, it&#8217;s recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets, and functions, assign a new admin, and finally renounce its admin role.</p>
+</div>
+<div class="paragraph">
+<p>For improved incident response coordination, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to restricted target functions in a target contract will revert.</p>
+</div>
+<div class="paragraph">
+<p>Closing and opening contracts don&#8217;t alter any of their settings, neither permissions nor delays. Particularly, the roles required for calling specific target functions are not modified.</p>
+</div>
+<div class="paragraph">
+<p>This mode is useful for incident response operations that require temporarily shutting down a contract in order to evaluate emergencies and reconfigure permissions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const target = await myToken.getAddress();
+
+// Token's `restricted` functions closed
+await manager.setTargetClosed(target, true);
+
+// Token's `restricted` functions open
+await manager.setTargetClosed(target, false);</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Even if an <code>AccessManager</code> defines permissions for a target function, these won&#8217;t be applied if the managed contract instance is not using the <a href="api/access.html#AccessManaged-restricted--" class="xref page"><code>restricted</code></a> modifier for that function, or if its manager is a different one.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="role_admins_and_guardians"><a class="anchor" href="#role_admins_and_guardians"></a>Role Admins and Guardians</h3>
+<div class="paragraph">
+<p>An important aspect of the AccessControl contract is that roles aren&#8217;t granted nor revoked by role members. Instead, it relies on the concept of a role admin for granting and revoking.</p>
+</div>
+<div class="paragraph">
+<p>In the case of the <code>AccessManager</code>, the same rule applies and only the role&#8217;s admins are able to call <a href="api/access.html#AccessManager-grantRole-uint64-address-uint32-" class="xref page">grant</a> and <a href="api/access.html#AccessManager-revokeRole-uint64-address-" class="xref page">revoke</a> functions. Note that calling these functions will be subject to the execution delay that the executing role admin has.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, the <code>AccessManager</code> stores a <em>guardian</em> as an extra protection for each role. This guardian has the ability to cancel operations that have been scheduled by any role member with an execution delay. Consider that a role will have its initial admin and guardian default to the <code>ADMIN_ROLE</code> (<code>0</code>).</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Be careful with the members of <code>ADMIN_ROLE</code>, since it acts as the default admin and guardian for every role. A misbehaved guardian can cancel operations at will, affecting the AccessManager&#8217;s operation.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manager_configuration"><a class="anchor" href="#manager_configuration"></a>Manager configuration</h3>
+<div class="paragraph">
+<p>The <code>AccessManager</code> provides a built-in interface for configuring permission settings that can be accessed by its <code>ADMIN_ROLE</code> members.</p>
+</div>
+<div class="paragraph">
+<p>This configuration interface includes the following functions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add a label to a role using the <a href="api/access.html#AccessManager-labelRole-uint64-string-" class="xref page"><code>labelRole</code></a> function.</p>
+</li>
+<li>
+<p>Assign the admin and guardian of a role with <a href="api/access.html#AccessManager-setRoleAdmin-uint64-uint64-" class="xref page"><code>setRoleAdmin</code></a> and <a href="api/access.html#AccessManager-setRoleGuardian-uint64-uint64-" class="xref page"><code>setRoleGuardian</code></a>.</p>
+</li>
+<li>
+<p>Set each role&#8217;s grant delay via <a href="api/access.html#AccessManager-setGrantDelay-uint64-uint32-" class="xref page"><code>setGrantDelay</code></a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As an admin, some actions will require a delay. Similar to each member&#8217;s execution delay, some admin operations require waiting for execution and should follow the <a href="api/access.html#AccessManager-schedule-address-bytes-uint48-" class="xref page"><code>schedule</code></a> and <a href="api/access.html#AccessManager-execute-address-bytes-" class="xref page"><code>execute</code></a> workflow.</p>
+</div>
+<div class="paragraph">
+<p>More specifically, these delayed functions are those for configuring the settings of a specific target contract. The delay applied to these functions can be adjusted by the manager admins with <a href="api/access.html#AccessManager-setTargetAdminDelay-address-uint32-" class="xref page"><code>setTargetAdminDelay</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>The delayed admin actions are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Updating an <code>AccessManaged</code> contract <a href="api/access.html#AccessManaged-authority--" class="xref page">authority</a> using <a href="api/access.html#AccessManager-updateAuthority-address-address-" class="xref page"><code>updateAuthority</code></a>.</p>
+</li>
+<li>
+<p>Closing or opening a target via <a href="api/access.html#AccessManager-setTargetClosed-address-bool-" class="xref page"><code>setTargetClosed</code></a>.</p>
+</li>
+<li>
+<p>Changing permissions of whether a role can call a target function with <a href="api/access.html#AccessManager-setTargetFunctionRole-address-bytes4---uint64-" class="xref page"><code>setTargetFunctionRole</code></a>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_with_ownable"><a class="anchor" href="#using_with_ownable"></a>Using with Ownable</h3>
+<div class="paragraph">
+<p>Contracts already inheriting from <a href="api/access.html#Ownable" class="xref page"><code>Ownable</code></a> can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the <code>onlyOwner</code> modifier should be called through the manager&#8217;s <a href="api/access.html#AccessManager-execute-address-bytes-" class="xref page"><code>execute</code></a> function, even if the caller doesn&#8217;t require a delay.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">await ownable.connect(owner).transferOwnership(accessManager);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using_with_accesscontrol"><a class="anchor" href="#using_with_accesscontrol"></a>Using with AccessControl</h3>
+<div class="paragraph">
+<p>For systems already using <a href="api/access.html#AccessControl" class="xref page"><code>AccessControl</code></a>, the <code>DEFAULT_ADMIN_ROLE</code> can be granted to the <code>AccessManager</code> after revoking every other role. Subsequent calls should be made through the manager&#8217;s <a href="api/access.html#AccessManager-execute-address-bytes-" class="xref page"><code>execute</code></a> method, similar to the Ownable case.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">// Revoke old roles
+await accessControl.connect(admin).revokeRole(MINTER_ROLE, account);
+
+// Grant the admin role to the access manager
+await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
+
+await accessControl.connect(admin).renounceRole(DEFAULT_ADMIN_ROLE, admin);</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+                <div class="article-navigation">
+                 	<div class="btn-previous"><a href="/contracts/5.x/backwards-compatibility.html">&larr; Backwards Compatibility</a></div>
+                	<div class="btn-next"><a href="/contracts/5.x/account-abstraction.html">Account Abstraction &rarr;</a></div>
+                </div>
+	</article>
+	<div class="toc toc-sidebar">
+	<nav class="toc-menu"></nav>
+</div>
+</div>
+		<footer class="footer">
+	<div class="rights">
+		<span>© OpenZeppelin 2017-<span id="copyright-date"></span></span>
+		<a class="terms" href="https://openzeppelin.com/privacy">Privacy</a>
+		<a class="terms" href="https://openzeppelin.com/tos">Terms of Use</a>
+	</div>
+</footer>
+<script src="/_/dist/index.js"></script>
+	</main>
+</div>
+    <script src="../../_/js/vendor/lunr.js"></script>
+<script src="../../_/js/search-ui.js" id="search-ui-script" data-site-root-path="../.." data-snippet-length="100" data-stylesheet="../../_/css/search.css"></script>
+<script async src="../../search-index.js"></script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/7795250.js"></script>
+  </body>
+</html>
