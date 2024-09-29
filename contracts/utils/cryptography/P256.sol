@@ -297,11 +297,11 @@ library P256 {
                     (x, y, z) = _jDouble(x, y, z);
                     (x, y, z) = _jDouble(x, y, z);
                 }
-                // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
+                // Read 2 bits of u1, and 2 bits of u2. Combining the two gives the lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
                 // Points that have z = 0 are points at infinity. They are the additive 0 of the group
                 // - if the lookup point is a 0, we can skip it
-                // - otherwize
+                // - otherwise:
                 //   - if the current point (x, y, z) is 0, we use the lookup point as our new value (0+P=P)
                 //   - if the current point (x, y, z) is not 0, both points are valid and we can use `_jAdd`
                 if (points[pos].z != 0) {
