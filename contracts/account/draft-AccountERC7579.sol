@@ -11,11 +11,13 @@ import {IERC7579Validator, IERC7579Module, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EX
 import {ERC7579Utils, Mode, CallType, ExecType} from "./utils/ERC7579Utils.sol";
 import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 import {EnumerableSet} from "../utils/structs/EnumerableSet.sol";
+import {EIP712} from "../utils/cryptography/EIP712.sol";
 
 abstract contract AccountERC7579 is
     IERC7579ModuleConfig,
     IERC7579Execution,
     IERC7579AccountConfig,
+    EIP712,
     IERC1271,
     AccountBase
 {
