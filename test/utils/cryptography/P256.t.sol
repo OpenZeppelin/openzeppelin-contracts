@@ -9,8 +9,8 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512
-    function testVerify(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+    function testVerify(bytes32 digest, uint256 seed) public {
+        uint256 privateKey = _asPrivateKey(seed);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -20,8 +20,8 @@ contract P256Test is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testRecover(uint256 seed, bytes32 digest) public {
-        uint256 privateKey = bound(uint256(keccak256(abi.encode(seed))), 1, P256.N - 1);
+    function testRecover(bytes32 digest, uint256 seed) public {
+        uint256 privateKey = _asPrivateKey(seed);
 
         (bytes32 x, bytes32 y) = P256PublicKey.getPublicKey(privateKey);
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
@@ -29,6 +29,10 @@ contract P256Test is Test {
         (bytes32 qx0, bytes32 qy0) = P256.recovery(digest, 0, r, s);
         (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == x && qy0 == y) || (qx1 == x && qy1 == y));
+    }
+
+    function _asPrivateKey(uint256 seed) private pure returns (uint256) {
+        return bound(seed, 1, P256.N - 1);
     }
 
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
