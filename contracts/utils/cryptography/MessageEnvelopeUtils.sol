@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.20;
 
+import {console} from "hardhat/console.sol";
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 
@@ -37,6 +38,15 @@ library MessageEnvelopeUtils {
 
     /**
      * @dev Parses a nested signature into its components. See {nest}.
+     *
+     * Constructed as follows:
+     *
+     * `signature ‖ DOMAIN_SEPARATOR ‖ contents ‖ contentsType ‖ uint16(contentsType.length)`
+     *
+     * - `signature` is the original signature for the envelope including the `contents` hash
+     * - `DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the smart contract verifying the signature
+     * - `contents` is the hash of the underlying data structure or message
+     * - `contentsType` is the EIP-712 type of the envelope (e.g. {TYPED_DATA_ENVELOPE_TYPEHASH} or {_PERSONAL_SIGN_ENVELOPE_TYPEHASH})
      */
     function unwrapTypedDataEnvelope(
         bytes calldata signature
@@ -60,15 +70,6 @@ library MessageEnvelopeUtils {
     /**
      * @dev Nest a signature for a given EIP-712 type into an envelope for the domain `separator`.
      *
-     * Constructed as follows:
-     *
-     * `signature ‖ DOMAIN_SEPARATOR ‖ contents ‖ contentsType ‖ uint16(contentsType.length)`
-     *
-     * - `signature` is the original signature for the envelope including the `contents` hash
-     * - `DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the smart contract verifying the signature
-     * - `contents` is the hash of the underlying data structure or message
-     * - `contentsType` is the EIP-712 type of the envelope (e.g. {TYPED_DATA_ENVELOPE_TYPEHASH} or {_PERSONAL_SIGN_ENVELOPE_TYPEHASH})
-     *
      * Counterpart of {unwrapTypedDataEnvelope} to extract the original signature and the nested components.
      */
     function wrapTypedDataEnvelope(
@@ -90,11 +91,16 @@ library MessageEnvelopeUtils {
      * To produce a signature for this envelope, the signer must sign a wrapped message hash:
      *
      * ```solidity
-     * bytes32 hash = abi.encodePacked(
+     * bytes32 hash = keccak256(abi.encodePacked(
      *      \x19\x01,
      *      CURRENT_DOMAIN_SEPARATOR,
-     *      keccak256(abi.encode("PersonalSign(bytes prefixed)"),\x19Ethereum Signed Message:\n32,contents)
-     * );
+     *      keccak256(
+     *          abi.encode(
+     *              keccak256("PersonalSign(bytes prefixed)"),
+     *              keccak256(abi.encode("\x19Ethereum Signed Message:\n32",contents))
+     *          )
+     *      )
+     * ));
      * ```
      */
     function toPersonalSignEnvelopeHash(bytes32 separator, bytes32 contents) internal pure returns (bytes32) {
@@ -166,6 +172,7 @@ library MessageEnvelopeUtils {
      */
     // solhint-disable-next-line func-name-mixedcase
     function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32 result) {
+        console.log(string(contentsType));
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
 
@@ -202,20 +209,23 @@ library MessageEnvelopeUtils {
 
         // Does not start with a-z or (
         bytes1 high = contentsType[0];
-        if ((high < 0x61 || high > 0x7a) && high != 0x28) return (false, contentsType[0:0]); // a-z or (
+        if ((high >= 0x61 && high <= 0x7a) || high == 0x28) return (false, contentsType[0:0]); // a-z or (
 
         // Find the start of the arguments
         uint256 argsStart = _indexOf(contentsType, bytes1("("));
         if (argsStart == contentsTypeLength) return (false, contentsType[0:0]);
 
+        contentsType = contentsType[0:argsStart];
+
         // Forbidden characters
-        for (uint256 i = 0; i < contentsTypeLength; i++) {
+        for (uint256 i = 0; i < argsStart; i++) {
             // Look for any of the following bytes: , )\x00
             bytes1 current = contentsType[i];
-            if (current == 0x2c || current == 0x29 || current == 0x00) return (false, contentsType[0:0]);
+            if (current == 0x2c || current == 0x29 || current == 0x32 || current == 0x00)
+                return (false, contentsType[0:0]);
         }
 
-        return (true, contentsType[0:argsStart - 1]);
+        return (true, contentsType);
     }
 
     /**

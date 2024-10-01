@@ -46,6 +46,9 @@ module.exports = mapValues(
       deadline: 'uint48',
       data: 'bytes',
     },
+    PersonalSign: {
+      prefixed: 'bytes',
+    },
   },
   formatType,
 );
