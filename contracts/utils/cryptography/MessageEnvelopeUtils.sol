@@ -128,7 +128,7 @@ library MessageEnvelopeUtils {
      * bytes32 hash = keccak256(
      *  abi.encodePacked(
      *      \x19\x01,
-     *      separator, // The domain separator of the applicaton contract
+     *      separator, // The domain separator of the application contract
      *      keccak256(
      *          abi.encode(
      *              TYPED_DATA_ENVELOPE_TYPEHASH(contentsType), // See {TYPED_DATA_ENVELOPE_TYPEHASH}
