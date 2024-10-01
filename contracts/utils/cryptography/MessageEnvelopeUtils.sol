@@ -172,7 +172,6 @@ library MessageEnvelopeUtils {
      */
     // solhint-disable-next-line func-name-mixedcase
     function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32 result) {
-        console.log(string(contentsType));
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
 

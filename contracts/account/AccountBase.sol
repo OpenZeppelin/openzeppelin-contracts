@@ -4,10 +4,8 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation, IAccount, IEntryPoint, IAccountExecute} from "../interfaces/IERC4337.sol";
 import {Address} from "../utils/Address.sol";
-import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
-import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 
-abstract contract AccountBase is ERC721Holder, ERC1155Holder, IAccount, IAccountExecute {
+abstract contract AccountBase is IAccount, IAccountExecute {
     error AccountEntryPointRestricted();
 
     modifier onlyEntryPointOrSelf() {
@@ -57,7 +55,7 @@ abstract contract AccountBase is ERC721Holder, ERC1155Holder, IAccount, IAccount
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal virtual returns (uint256);
+    ) internal virtual returns (uint256 validationData);
 
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {
