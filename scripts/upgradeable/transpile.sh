@@ -44,6 +44,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -p 'contracts/metatx/ERC2771Forwarder.sol' \
   -n \
   -N 'contracts/mocks/**/*' \
+  -N 'contracts/vendor/erc4337-entrypoint/**/*' \
   -q '@openzeppelin/'
 
 # delete compilation artifacts of vanilla code
