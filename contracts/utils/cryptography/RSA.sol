@@ -36,8 +36,12 @@ library RSA {
      * 2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
      * WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
-     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce or
-     * unique identifier in the message to prevent replay attacks.
+     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce
+     * or unique identifier in the message to prevent replay attacks.
+     *
+     * WARNING: This verification algorithm support any exponent. NIST recommendation are to use `65537` (or higher).
+     * That is the default value used by many libraries, such as openssl. Developpers may choose to reject public keys
+     * using a low exponent out of security concerns.
      *
      * @param digest the digest to verify
      * @param s is a buffer containing the signature
