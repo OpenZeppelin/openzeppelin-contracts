@@ -40,7 +40,7 @@ library RSA {
      * or unique identifier in the message to prevent replay attacks.
      *
      * WARNING: This verification algorithm support any exponent. NIST recommendation are to use `65537` (or higher).
-     * That is the default value used by many libraries, such as openssl. Developpers may choose to reject public keys
+     * That is the default value many libraries use, such as OpenSSL. Developers may choose to reject public keys
      * using a low exponent out of security concerns.
      *
      * @param digest the digest to verify
