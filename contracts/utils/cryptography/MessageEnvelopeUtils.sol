@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.20;
 
-import {console} from "hardhat/console.sol";
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 
