@@ -7,7 +7,7 @@ import {IERC7579ModuleConfig} from "../../interfaces/IERC7579Account.sol";
 import {ERC7579Utils, Mode} from "../utils/ERC7579Utils.sol";
 import {AccountERC7579} from "../draft-AccountERC7579.sol";
 
-contract AccountERC7579Hooked is AccountERC7579 {
+abstract contract AccountERC7579Hooked is AccountERC7579 {
     address private _hook;
 
     modifier withHook() {

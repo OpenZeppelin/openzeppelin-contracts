@@ -12,7 +12,7 @@ Aside from the xref:api:account.adoc#AccountBase[`AccountBase`], the library inc
 
 === Setting up an account
 
-To setup an account, you can either bring your own validation logic and start with xref:api:account.adoc#AccountBase[`AccountBase`], or import any of the predefined accounts that OpenZeppelin provides and are controlled by a signing key. For example, to setup a contract controlled by a regular EVM private key, you can leverage xref:api:account.adoc#AccountECDSA[`AccountECDSA`] on its upgradeable version.
+To setup an account, you can either bring your own validation logic and start with xref:api:account.adoc#AccountBase[`AccountBase`], or import any of the predefined accounts we provide and are controlled by a signing key. For example, to setup a contract controlled by a regular EVM private key, you can leverage xref:api:account.adoc#AccountECDSA[`AccountECDSA`] on its upgradeable version.
 
 Since smart accounts are deployed by a factory, the best practice is to create xref:api:utils.adoc#Clones[minimal clones] of initializable contracts. For this reason, the examples use the upgradeable version of the account contracts because they do not rely on a constructor and use an xref:api:utils.adoc#Initializer[initializer] instead. This way the implementation can be cloned and initialized by the factory right after.
 
@@ -85,9 +85,9 @@ contract MyAccountRSAClonable is AccountRSAUpgradeable {
 
 Modules are a way to extend functionality of an smart account. Given the variety of smart account implementations, a common approach has been to enable a system of modules to which accounts can delegate logic. As a result, the community has proposed xref:erc7579.adoc#ERC7579[ERC-7579] as a minimal generalized approach to smart account modules.
 
-OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-7579 compliant implementation that works without validating signatures in-place, and instead, uses a validator module installed on the account. This module might be any of the https://erc7579.com/modules[validators developed by the community] or one of the xref:api:account.adoc#validators[validator modules we provide].
+OpenZeppelin's xref:api:account.adoc#AccountERC7579[`AccountERC7579`] is an ERC-7579 compliant implementation that works without validating signatures in-place, and instead, uses a validator module installed on the account. This module might be any of the https://erc7579.com/modules[validators developed by the community] or one of the xref:api:account.adoc#Validators[validator modules we provide].
 
-To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`] and make sure to install a module on its initialization.
+To setup a modular Account, start by importing xref:api:account.adoc#AccountERC7579[`AccountERC7579`] and make sure to install a module during its initialization.
 
 ```solidity
 // SPDX-License-Identifier: MIT
