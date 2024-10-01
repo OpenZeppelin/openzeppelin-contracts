@@ -38,13 +38,13 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \
   -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
+  -x '!contracts/vendor/erc4337-entrypoint/**/*' \
   -p 'contracts/access/manager/AccessManager.sol' \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
   -p 'contracts/metatx/ERC2771Forwarder.sol' \
   -n \
   -N 'contracts/mocks/**/*' \
-  -N 'contracts/vendor/erc4337-entrypoint/**/*' \
   -q '@openzeppelin/'
 
 # delete compilation artifacts of vanilla code
