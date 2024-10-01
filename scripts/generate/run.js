@@ -37,7 +37,6 @@ for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'utils/structs/Heap.sol': './templates/Heap.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
   'utils/Arrays.sol': './templates/Arrays.js',
@@ -50,7 +49,6 @@ for (const [file, template] of Object.entries({
 // Tests
 for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.t.sol': './templates/Checkpoints.t.js',
-  'utils/structs/Heap.t.sol': './templates/Heap.t.js',
   'utils/Packing.t.sol': './templates/Packing.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
 })) {
