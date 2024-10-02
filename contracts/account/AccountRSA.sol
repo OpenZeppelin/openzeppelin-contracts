@@ -15,7 +15,7 @@ import {IERC165} from "../utils/introspection/IERC165.sol";
 // NOTE: Storing `_e` and `_e` in regular violate ERC-7562 validation rules.
 // Consider deploying this contract through a factory that sets `_e` and `_n`
 // as immutable arguments (see {Clones-cloneDeterministicWithImmutableArgs}).
-abstract contract AccountRSA is ERC165, ERC1271TypedSigner, AccountBase, ERC721Holder, ERC1155HolderLean {
+abstract contract AccountRSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
     bytes private _e;
     bytes private _n;
 

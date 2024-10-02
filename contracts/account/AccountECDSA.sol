@@ -12,7 +12,7 @@ import {ERC1155HolderLean, IERC1155Receiver} from "../token/ERC1155/utils/ERC115
 import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
-abstract contract AccountECDSA is ERC165, ERC1271TypedSigner, AccountBase, ERC721Holder, ERC1155HolderLean {
+abstract contract AccountECDSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
     address private immutable _signer;
 
     constructor(address signerAddr) {
