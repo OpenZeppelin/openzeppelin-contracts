@@ -44,6 +44,6 @@ abstract contract RSAValidator is SignatureValidator {
         bytes calldata signature
     ) internal view virtual override returns (bool) {
         (bytes memory e, bytes memory n) = signer(sender);
-        return RSA.pkcs1(sha256(abi.encodePacked(envelopeHash)), signature, e, n);
+        return RSA.pkcs1(envelopeHash, signature, e, n);
     }
 }
