@@ -11,7 +11,7 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     address private _hook;
 
     modifier withHook() {
-        address hook_= hook();
+        address hook_ = hook();
         if (hook_ == address(0)) {
             _;
         } else {
