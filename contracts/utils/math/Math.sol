@@ -23,9 +23,9 @@ library Math {
      * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
      */
     function addFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
-        unchecked {
-            low = a + b;
-            high = SafeCast.toUint(low < a);
+        assembly ("memory-safe") {
+            low: = add(a, b)
+            high: = lt(low, a)
         }
     }
 
@@ -37,12 +37,10 @@ library Math {
     function mulFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
         // Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use use the Chinese Remainder Theorem to reconstruct
         // the 512 bit result.
-        unchecked {
-            low = a * b;
-            assembly {
-                let mm := mulmod(a, b, not(0))
-                high := sub(sub(mm, low), lt(mm, low))
-            }
+        assembly ("memory-safe") {
+            let mm := mulmod(a, b, not(0))
+            low := mul(a, b)
+            high := sub(sub(mm, low), lt(mm, low))
         }
     }
 
