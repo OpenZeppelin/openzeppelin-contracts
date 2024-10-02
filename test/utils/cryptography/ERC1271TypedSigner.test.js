@@ -98,6 +98,7 @@ describe('ERC1271TypedSigner', function () {
         const sign = createSign('SHA256');
         sign.update(ethers.toUtf8Bytes(contents));
         sign.end();
+        // SHA256 OID = 608648016503040201 (9 bytes) | NULL = 0500 (2 bytes) (explicit) | OCTET_STRING length (0x20) = 0420 (2 bytes)
         const dataToSign = ethers.concat(['0x3031300d060960864801650304020105000420', contents]);
         return '0x' + privateEncrypt(this.RSASigner.privateKey, ethers.getBytes(dataToSign)).toString('hex');
       };

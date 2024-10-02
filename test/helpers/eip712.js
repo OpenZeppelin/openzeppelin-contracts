@@ -36,7 +36,7 @@ function hashTypedData(domain, structHash) {
   );
 }
 
-function hashTypedDataEnvelope(contentsTypeName, contentsType) {
+function hashTypedDataEnvelopeType(contentsTypeName, contentsType) {
   return ethers.solidityPackedKeccak256(
     ['string'],
     [
@@ -45,11 +45,37 @@ function hashTypedDataEnvelope(contentsTypeName, contentsType) {
   );
 }
 
+function hashTypedDataEnvelopeStruct(
+  domain,
+  contents,
+  contentsTypeName,
+  contentsType,
+  salt = ethers.ZeroHash,
+  extensions = [],
+) {
+  return ethers.keccak256(
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ['bytes32', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32', 'bytes32'],
+      [
+        hashTypedDataEnvelopeType(contentsTypeName, contentsType),
+        contents,
+        ethers.solidityPackedKeccak256(['string'], [domain.name]),
+        ethers.solidityPackedKeccak256(['string'], [domain.version]),
+        domain.chainId,
+        domain.verifyingContract,
+        salt,
+        ethers.solidityPackedKeccak256(['uint256[]'], [extensions]),
+      ],
+    ),
+  );
+}
+
 module.exports = {
   getDomain,
   domainType,
   domainSeparator: ethers.TypedDataEncoder.hashDomain,
   hashTypedData,
-  hashTypedDataEnvelope,
+  hashTypedDataEnvelopeType,
+  hashTypedDataEnvelopeStruct,
   ...types,
 };

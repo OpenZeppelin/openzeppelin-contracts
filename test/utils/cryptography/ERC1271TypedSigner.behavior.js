@@ -1,8 +1,10 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { hashTypedDataEnvelope, hashTypedData, domainSeparator } = require('../../helpers/eip712');
+const { hashTypedData, domainSeparator, hashTypedDataEnvelopeStruct } = require('../../helpers/eip712');
 
 function shouldBehaveLikeERC1271TypedSigner() {
+  const MAGIC_VALUE = '0x1626ba7e';
+
   describe('isValidSignature', function () {
     it('returns true for a valid personal signature', async function () {
       const contents = ethers.randomBytes(32);
@@ -15,26 +17,18 @@ function shouldBehaveLikeERC1271TypedSigner() {
       );
       const signature = await this.signRaw(hashTypedData(this.domain, personalSignStructHash));
 
-      expect(await this.mock.isValidSignature(contents, signature)).to.equal('0x1626ba7e');
+      expect(await this.mock.isValidSignature(contents, signature)).to.equal(MAGIC_VALUE);
     });
 
     it('returns true for a valid typed data signature', async function () {
       const contents = ethers.randomBytes(32);
       const contentsTypeName = 'SomeType';
-      const contentsType = ethers.toUtf8Bytes(`${contentsTypeName}(address foo,uint256 bar)`);
-      const typedDataEnvelopeTypeHash = hashTypedDataEnvelope(contentsTypeName, contentsType);
-      const typedDataEnvelopeStructHash = ethers.solidityPackedKeccak256(
-        ['bytes32', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32', 'bytes32'],
-        [
-          typedDataEnvelopeTypeHash,
-          contents,
-          ethers.solidityPackedKeccak256(['string'], [this.domain.name]),
-          ethers.solidityPackedKeccak256(['string'], [this.domain.version]),
-          this.domain.chainId,
-          this.domain.verifyingContract,
-          ethers.ZeroHash,
-          ethers.keccak256('0x'), // extensions = []
-        ],
+      const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
+      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(
+        this.domain,
+        contents,
+        contentsTypeName,
+        contentsType,
       );
       const appDomain = {
         name: 'SomeApp',
@@ -50,11 +44,11 @@ function shouldBehaveLikeERC1271TypedSigner() {
             await this.signRaw(hash),
             domainSeparator(appDomain),
             contents,
-            contentsType,
-            ethers.toBeHex(ethers.dataLength(contentsType), 2),
+            ethers.toUtf8Bytes(contentsType),
+            ethers.toBeHex(ethers.dataLength(ethers.toUtf8Bytes(contentsType)), 2),
           ]),
         ),
-      ).to.equal(true);
+      ).to.equal(MAGIC_VALUE);
     });
   });
 }

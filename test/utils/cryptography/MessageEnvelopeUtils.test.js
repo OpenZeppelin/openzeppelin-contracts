@@ -1,12 +1,17 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { hashTypedData, domainSeparator, hashTypedDataEnvelope } = require('../../helpers/eip712');
+const {
+  hashTypedData,
+  domainSeparator,
+  hashTypedDataEnvelopeType,
+  hashTypedDataEnvelopeStruct,
+} = require('../../helpers/eip712');
 
 const fixture = async () => {
   const mock = await ethers.deployContract('$MessageEnvelopeUtils');
   const domain = {
-    name: 'SomeType',
+    name: 'SomeDomain',
     version: '1',
     chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
     verifyingContract: await mock.getAddress(),
@@ -76,20 +81,12 @@ describe('MessageEnvelopeUtils', function () {
     it('should produce a typed data EIP712 envelope', async function () {
       const contents = ethers.randomBytes(32);
       const contentsTypeName = 'SomeType';
-      const contentsType = ethers.toUtf8Bytes(`${contentsTypeName}()`);
-      const typedDataEnvelopeTypeHash = hashTypedDataEnvelope(contentsTypeName, contentsType);
-      const typedDataEnvelopeStructHash = ethers.solidityPackedKeccak256(
-        ['bytes32', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32', 'bytes32'],
-        [
-          typedDataEnvelopeTypeHash,
-          contents,
-          ethers.solidityPackedKeccak256(['string'], [this.domain.name]),
-          ethers.solidityPackedKeccak256(['string'], [this.domain.version]),
-          this.domain.chainId,
-          this.domain.verifyingContract,
-          ethers.ZeroHash,
-          ethers.keccak256('0x'), // extensions = []
-        ],
+      const contentsType = `${contentsTypeName}()`;
+      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(
+        this.domain,
+        contents,
+        contentsTypeName,
+        contentsType,
       );
       const expected = hashTypedData(this.domain, typedDataEnvelopeStructHash);
       expect(
@@ -106,7 +103,7 @@ describe('MessageEnvelopeUtils', function () {
       const contentsTypeName = 'FooType';
       const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
       expect(await this.mock.getFunction('$TYPED_DATA_ENVELOPE_TYPEHASH')(ethers.toUtf8Bytes(contentsType))).to.equal(
-        hashTypedDataEnvelope(contentsTypeName, contentsType),
+        hashTypedDataEnvelopeType(contentsTypeName, contentsType),
       );
     });
   });
@@ -153,21 +150,11 @@ describe('MessageEnvelopeUtils', function () {
       const contents = ethers.randomBytes(32);
       const contentsTypeName = 'SomeType';
       const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
-      const typedDataEnvelopeTypeHash = hashTypedDataEnvelope(contentsTypeName, contentsType);
-      const typedDataEnvelopeStructHash = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ['bytes32', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32', 'bytes32'],
-          [
-            typedDataEnvelopeTypeHash,
-            contents,
-            ethers.solidityPackedKeccak256(['string'], [this.domain.name]),
-            ethers.solidityPackedKeccak256(['string'], [this.domain.version]),
-            this.domain.chainId,
-            this.domain.verifyingContract,
-            ethers.ZeroHash,
-            ethers.solidityPackedKeccak256(['uint256[]'], [[]]),
-          ],
-        ),
+      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(
+        this.domain,
+        contents,
+        contentsTypeName,
+        contentsType,
       );
       expect(
         await this.mock.getFunction('$typedDataEnvelopeStructHash')(
