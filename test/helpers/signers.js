@@ -12,7 +12,7 @@ const ensureLowerOrderS = (N, { s, recovery, ...rest }) => {
 };
 
 class ECDSASigner {
-  N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
+  N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
 
   constructor() {
     this._privateKey = secp256k1.utils.randomPrivateKey();
@@ -38,7 +38,7 @@ class ECDSASigner {
 }
 
 class P256Signer {
-  N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+  N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
 
   constructor() {
     this._privateKey = secp256r1.utils.randomPrivateKey();

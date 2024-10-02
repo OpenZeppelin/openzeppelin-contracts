@@ -1,9 +1,13 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { hashTypedData, domainSeparator, hashTypedDataEnvelopeStruct } = require('../../helpers/eip712');
+const { hashTypedData, domainSeparator, hashTypedDataEnvelopeStruct, getDomain } = require('../../helpers/eip712');
 
 function shouldBehaveLikeERC1271TypedSigner() {
   const MAGIC_VALUE = '0x1626ba7e';
+
+  beforeEach(async function () {
+    this.domain = await getDomain(this.signer.mock);
+  });
 
   describe('isValidSignature', function () {
     it('returns true for a valid personal signature', async function () {
@@ -17,7 +21,7 @@ function shouldBehaveLikeERC1271TypedSigner() {
       );
       const signature = await this.signer.signRaw(hashTypedData(this.domain, personalSignStructHash));
 
-      expect(await this.mock.isValidSignature(contents, signature)).to.equal(MAGIC_VALUE);
+      expect(await this.signer.mock.isValidSignature(contents, signature)).to.equal(MAGIC_VALUE);
     });
 
     it('returns true for a valid typed data signature', async function () {
@@ -38,7 +42,7 @@ function shouldBehaveLikeERC1271TypedSigner() {
       };
       const hash = hashTypedData(appDomain, typedDataEnvelopeStructHash);
       expect(
-        await this.mock.isValidSignature(
+        await this.signer.mock.isValidSignature(
           hash,
           ethers.concat([
             await this.signer.signRaw(hash),
