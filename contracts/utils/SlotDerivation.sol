@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0-rc.0) (utils/SlotDerivation.sol)
 // This file was procedurally generated from scripts/generate/templates/SlotDerivation.js.
 
 pragma solidity ^0.8.20;
