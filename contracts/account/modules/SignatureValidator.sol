@@ -100,9 +100,7 @@ abstract contract SignatureValidator is IERC7579Validator {
 
         bytes32 contents;
         bytes calldata contentsType;
-        (originalSig, senderSeparator, contents, contentsType) = MessageEnvelopeUtils.unwrapTypedDataSig(
-            signature
-        );
+        (originalSig, senderSeparator, contents, contentsType) = MessageEnvelopeUtils.unwrapTypedDataSig(signature);
         envelopeStructHash = MessageEnvelopeUtils.typedDataEnvelopeStructHash(
             contentsType,
             contents,
