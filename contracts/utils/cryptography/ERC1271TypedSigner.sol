@@ -29,7 +29,7 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
      *
      * A nested EIP-712 envelope might be presented in 2 different ways:
      *
-     * - As an nested EIP-712 typed data
+     * - As a nested EIP-712 typed data
      * - As a _personal_ signature (an EIP-712 mimic of the `eth_personalSign` for a smart contract)
      */
     function isValidSignature(bytes32 hash, bytes calldata signature) public view virtual returns (bytes4 result) {
@@ -41,8 +41,8 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
      */
     function _isValidSignature(bytes32 hash, bytes calldata signature) internal view virtual returns (bool) {
         return
-            _isValidTypedDataEnvelopeSignature(hash, signature) ||
-            _isValidPersonalSigEnvelopeSignature(hash, signature);
+            _isValidPersonalSigEnvelopeSignature(hash, signature) ||
+            _isValidTypedDataEnvelopeSignature(hash, signature);
     }
 
     /**
@@ -78,13 +78,13 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
         bytes32 appSeparator;
         bytes32 contents;
         bytes calldata contentsType;
-        (originalSignature, appSeparator, contents, contentsType) = signature.unwrapTypedDataEnvelope();
+        (originalSignature, appSeparator, contents, contentsType) = signature.unwrapTypedDataSig();
 
         (
             ,
             string memory name,
             string memory version,
-            uint256 chainId,
+            ,
             address verifyingContract,
             bytes32 salt,
             uint256[] memory extensions
@@ -97,7 +97,6 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
                 contents,
                 name,
                 version,
-                chainId,
                 verifyingContract,
                 salt,
                 extensions

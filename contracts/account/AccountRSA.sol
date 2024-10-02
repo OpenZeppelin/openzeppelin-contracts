@@ -40,7 +40,7 @@ abstract contract AccountRSA is ERC165, ERC1271TypedSigner, AccountBase, ERC721H
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
         (bytes memory e, bytes memory n) = signer();
-        return RSA.pkcs1(sha256(abi.encodePacked(hash)), signature, e, n);
+        return RSA.pkcs1(hash, signature, e, n);
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {

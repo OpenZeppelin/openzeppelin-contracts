@@ -49,6 +49,6 @@ abstract contract P256Validator is SignatureValidator {
 
         // fetch and decode immutable public key for the clone
         (bytes32 qx, bytes32 qy) = signer(sender);
-        return P256.verify(sha256(abi.encodePacked(envelopeHash)), r, s, qx, qy);
+        return P256.verify(envelopeHash, r, s, qx, qy);
     }
 }
