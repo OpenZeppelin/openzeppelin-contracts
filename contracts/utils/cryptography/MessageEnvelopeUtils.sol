@@ -47,7 +47,7 @@ library MessageEnvelopeUtils {
      * - `contents` is the hash of the underlying data structure or message
      * - `contentsType` is the EIP-712 type of the envelope (e.g. {TYPED_DATA_ENVELOPE_TYPEHASH} or {_PERSONAL_SIGN_ENVELOPE_TYPEHASH})
      */
-    function unwrapTypedDataEnvelope(
+    function unwrapTypedDataSig(
         bytes calldata signature
     )
         internal
@@ -69,9 +69,9 @@ library MessageEnvelopeUtils {
     /**
      * @dev Nest a signature for a given EIP-712 type into an envelope for the domain `separator`.
      *
-     * Counterpart of {unwrapTypedDataEnvelope} to extract the original signature and the nested components.
+     * Counterpart of {unwrapTypedDataSig} to extract the original signature and the nested components.
      */
-    function wrapTypedDataEnvelope(
+    function wrapTypedDataSig(
         bytes memory signature,
         bytes32 separator,
         bytes32 contents,
@@ -234,18 +234,17 @@ library MessageEnvelopeUtils {
         bytes32 contents,
         string memory name,
         string memory version,
-        uint256 chainId,
         address verifyingContract,
         bytes32 salt,
         uint256[] memory extensions
-    ) internal pure returns (bytes32 result) {
+    ) internal view returns (bytes32 result) {
         result = keccak256(
             abi.encode(
                 TYPED_DATA_ENVELOPE_TYPEHASH(contentsType),
                 contents,
                 keccak256(bytes(name)),
                 keccak256(bytes(version)),
-                chainId,
+                block.chainid,
                 verifyingContract,
                 salt,
                 keccak256(abi.encodePacked(extensions))

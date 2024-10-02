@@ -87,7 +87,7 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         bytes calldata signature,
         bytes memory contentsType
     ) internal view virtual returns (bool) {
-        bytes memory _signature = MessageEnvelopeUtils.wrapTypedDataEnvelope(
+        bytes memory _signature = MessageEnvelopeUtils.wrapTypedDataSig(
             signature,
             _domainSeparatorV4(),
             requestHash,

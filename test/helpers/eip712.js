@@ -36,10 +36,20 @@ function hashTypedData(domain, structHash) {
   );
 }
 
+function hashTypedDataEnvelope(contentsTypeName, contentsType) {
+  return ethers.solidityPackedKeccak256(
+    ['string'],
+    [
+      `TypedDataSign(${contentsTypeName}bytes1 fields,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt,uint256[] extensions)${contentsType}`,
+    ],
+  );
+}
+
 module.exports = {
   getDomain,
   domainType,
   domainSeparator: ethers.TypedDataEncoder.hashDomain,
   hashTypedData,
+  hashTypedDataEnvelope,
   ...types,
 };

@@ -50,7 +50,7 @@ abstract contract SignatureValidator is IERC7579Validator {
             bytes32 appSeparator,
             bytes32 envelopeHash,
             bytes calldata sig
-        ) = _unwrapTypedDataEnvelopeForSender(sender, signature);
+        ) = _unwrapTypedDataSigForSender(sender, signature);
         if (
             envelopeHash != hash || // Hash mismatch
             appSeparator != senderSeparator // App separator mismatch
@@ -59,7 +59,7 @@ abstract contract SignatureValidator is IERC7579Validator {
         return _validateSignatureWithSender(sender, envelopeHash, sig);
     }
 
-    function _unwrapTypedDataEnvelopeForSender(
+    function _unwrapTypedDataSigForSender(
         address sender,
         bytes calldata signature
     )
@@ -88,7 +88,7 @@ abstract contract SignatureValidator is IERC7579Validator {
             ,
             string memory name,
             string memory version,
-            uint256 chainId,
+            ,
             address verifyingContract,
             bytes32 salt,
             uint256[] memory extensions
@@ -100,7 +100,7 @@ abstract contract SignatureValidator is IERC7579Validator {
 
         bytes32 contents;
         bytes calldata contentsType;
-        (originalSig, senderSeparator, contents, contentsType) = MessageEnvelopeUtils.unwrapTypedDataEnvelope(
+        (originalSig, senderSeparator, contents, contentsType) = MessageEnvelopeUtils.unwrapTypedDataSig(
             signature
         );
         envelopeStructHash = MessageEnvelopeUtils.typedDataEnvelopeStructHash(
@@ -108,7 +108,6 @@ abstract contract SignatureValidator is IERC7579Validator {
             contents,
             name,
             version,
-            chainId,
             verifyingContract,
             salt,
             extensions
