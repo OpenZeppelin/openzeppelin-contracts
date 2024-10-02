@@ -15,7 +15,7 @@ function shouldBehaveLikeERC1271TypedSigner() {
           ethers.solidityPackedKeccak256(['string', 'bytes32'], ['\x19Ethereum Signed Message:\n32', contents]),
         ],
       );
-      const signature = await this.signRaw(hashTypedData(this.domain, personalSignStructHash));
+      const signature = await this.signer.signRaw(hashTypedData(this.domain, personalSignStructHash));
 
       expect(await this.mock.isValidSignature(contents, signature)).to.equal(MAGIC_VALUE);
     });
@@ -41,7 +41,7 @@ function shouldBehaveLikeERC1271TypedSigner() {
         await this.mock.isValidSignature(
           hash,
           ethers.concat([
-            await this.signRaw(hash),
+            await this.signer.signRaw(hash),
             domainSeparator(appDomain),
             contents,
             ethers.toUtf8Bytes(contentsType),
