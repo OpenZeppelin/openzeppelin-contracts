@@ -549,7 +549,7 @@ library Math {
         //      - lemma: log2(x) == log2(x / n) + log2(n)
         //    this specific `n` allows a very efficient lookup table to be used to calculate both `log2(x / n)` and `log2(n)`.
         //
-        // 3. Compute `prod0 = log2(n)`, once `x` is a power of two, there are only 8 possible values for `n`, so `log(n)`
+        // 3. Compute `prod0 = log2(n)`, once `x` is a power of two, there are only 8 possible values for `n`, so `log2(n)`
         //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 256bit word.
         //
         // 4. Compute `prod1 = log2(x / 2**prod0)`, the divisor `2**prod0` guarantees the resulting value is always multiple
@@ -579,7 +579,7 @@ library Math {
                 // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
                 let n := mod(x, 255)
 
-                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 256-bit word, which we us as table. Notice the
+                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 256-bit word, which we use as table. Notice the
                 // maximum size of our table is 32, but their values can be greater than 32, so first we map `n` into an unique
                 // index between 0~31 by computing `n % 11`, this maps all `n` values to an unique index, as demonstrated below.
 
