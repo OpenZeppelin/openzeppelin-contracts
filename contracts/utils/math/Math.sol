@@ -538,7 +538,7 @@ library Math {
      * Returns 0 if given 0.
      */
     function log2(uint256 x) internal pure returns (uint256) {
-        // Efficient branchless algorithm to compute floor(log2(x)), the algorithm works as follow::
+        // Efficient branchless algorithm for compute floor(log2(x)), the algorithm works as follow:
         //
         // 1. First round down `x` to the closest power of 2 using an modified version of the Seander's `Round up
         //    to the next power of 2` algorithm, the version used here is modified to round down instead of up.
@@ -553,11 +553,11 @@ library Math {
         //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 256bit word.
         //
         // 4. Compute `prod1 = log2(x / 2**prod0)`, the divisor `2**prod0` guarantees the resulting value is always multiple
-        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. 248. This allow an efficient
+        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. , 248. This allow an efficient
         //    lookup table to be created using a single word, and multiplication and shift extract the value.
         //
         // 5. The final result is simply the sum of `prod0` and `prod1` calculated previously:
-        // floor(log2(x)) = prod0 + prod1
+        //    floor(log2(x)) = prod0 + prod1
         //
         // @author Lohann Ferreira <developer@lohann.dev>
         unchecked {
