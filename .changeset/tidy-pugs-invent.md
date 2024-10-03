@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-new log2 implementantion that uses 23% less gas
+new log2 implementation that uses 23% less gas
