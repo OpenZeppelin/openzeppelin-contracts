@@ -1,7 +1,7 @@
 # Changelog
 
 
-## 5.1.0-rc.0 (2024-10-02)
+## 5.1.0-rc.0 (2024-10-03)
 
 ### Breaking changes
 
