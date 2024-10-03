@@ -537,41 +537,82 @@ library Math {
      * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
-    function log2(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        uint256 exp;
+    function log2(uint256 x) internal pure returns (uint256) {
+        // Efficient branchless algorithm to compute floor(log2(x)), the algorithm works as follow::
+        //
+        // 1. First round down `x` to the closest power of 2 using an modified version of the Seander's `Round up
+        //    to the next power of 2` algorithm, the version used here is modified to round down instead of up.
+        //    ref: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+        //
+        // 2. Compute `n ≡ x mod 255`, we use this `n` value to split the equation in two parts that can be more
+        //    efficiently computed using the `Logarithm's Product Rule`:
+        //      - lemma: log2(x) == log2(x / n) + log2(n)
+        //    this specific `n` allows a very efficient lookup table to be used to calculate both `log2(x / n)` and `log2(n)`.
+        //
+        // 3. Compute `prod0 = log2(n)`, once `x` is a power of two, there are only 8 possible values for `n`, so `log(n)`
+        //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 256bit word.
+        //
+        // 4. Compute `prod1 = log2(x / 2**prod0)`, the divisor `2**prod0` guarantees the resulting value is always multiple
+        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. 248. This allow an efficient
+        //    lookup table to be created using a single word, and multiplication and shift extract the value.
+        //
+        // 5. The final result is simply the sum of `prod0` and `prod1` calculated previously:
+        // floor(log2(x)) = prod0 + prod1
+        //
+        // @author Lohann Ferreira <developer@lohann.dev>
         unchecked {
-            exp = 128 * SafeCast.toUint(value > (1 << 128) - 1);
-            value >>= exp;
-            result += exp;
+            // Round `x` down to the closest power of 2 using the Seander's algorithm.
+            // Reference: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+            x |= x >> 1;
+            x |= x >> 2;
+            x |= x >> 4;
+            x |= x >> 8;
+            x |= x >> 16;
+            x |= x >> 32;
+            x |= x >> 64;
+            x |= x >> 128;
+            x = (x >> 1) + 1;
 
-            exp = 64 * SafeCast.toUint(value > (1 << 64) - 1);
-            value >>= exp;
-            result += exp;
+            uint256 prod0;
+            assembly {
+                // 1. Compute `n ≡ x mod 255`, because `x` is power of two, the resulting `n` can only be one of the
+                // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
+                let n := mod(x, 255)
 
-            exp = 32 * SafeCast.toUint(value > (1 << 32) - 1);
-            value >>= exp;
-            result += exp;
+                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 256-bit word, which we us as table. Notice the
+                // maximum size of our table is 32, but their values can be greater than 32, so first we map `n` into an unique
+                // index between 0~31 by computing `n % 11`, this maps all `n` values to an unique index, as demonstrated below.
 
-            exp = 16 * SafeCast.toUint(value > (1 << 16) - 1);
-            value >>= exp;
-            result += exp;
+                // | n ≡ x mod 255 | index ≡ n mod 11 |    prod0 = log2(n)   |
+                // +-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+
+                // |        1      |    1 % 11 == 1   |     log2(1) == 0     |
+                // |        2      |    2 % 11 == 2   |     log2(2) == 1     |
+                // |        4      |    4 % 11 == 4   |     log2(4) == 2     |
+                // |        8      |    4 % 11 == 8   |     log2(8) == 3     |
+                // |       16      |   16 % 11 == 5   |    log2(16) == 4     |
+                // |       32      |   32 % 11 == 10  |    log2(32) == 5     |
+                // |       64      |   64 % 11 == 9   |    log2(64) == 6     |
+                // |      128      |  128 % 11 == 7   |   log2(128) == 7     |
+                let index := mod(n, 11)
 
-            exp = 8 * SafeCast.toUint(value > (1 << 8) - 1);
-            value >>= exp;
-            result += exp;
+                // Below we perform the table lookup, the table stores the result of `log2(n)`
+                // in the corresponding byte at `index`.
+                prod0 := byte(index, 0x0000010002040007030605000000000000000000000000000000000000000000)
+            }
 
-            exp = 4 * SafeCast.toUint(value > (1 << 4) - 1);
-            value >>= exp;
-            result += exp;
+            // 4. Compute `prod1 = log2(x / n)`, once `prod1` is always multiple of 8, computing `prod1 * value` is
+            // equivalent to shift bytes to the left, we use this property to create a very efficient lookup table using
+            // one multiplication and two bit shifting.
+            uint256 prod1 = x >> prod0;
+            prod1 *= 0x0008101820283038404850586068707880889098a0a8b0b8c0c8d0d8e0e8f0f8;
+            prod1 >>= 248;
 
-            exp = 2 * SafeCast.toUint(value > (1 << 2) - 1);
-            value >>= exp;
-            result += exp;
-
-            result += SafeCast.toUint(value > 1);
+            // 5. Sum both values to get the final result, where:
+            // - n ≡ x mod 255
+            // - prod0 = log2(x / n)
+            // - prod1 = log2(n)
+            return prod0 + prod1;
         }
-        return result;
     }
 
     /**
