@@ -573,7 +573,7 @@ library Math {
             x |= x >> 128;
             // Notice `x = 0` is correctly rounded to 1, which indeed is the closest power of two `2**0`.
             x = (x >> 1) + 1;
-    
+
             uint256 prod0;
             {
                 // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
@@ -583,7 +583,7 @@ library Math {
                 // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table. Notice the
                 // maximum size of our table is 32, but `n` values can be greater than 32, so first we map `n` into an unique
                 // index between 0~31 by computing `n % 11`, this maps all `n` values to an unique index, as demonstrated below.
-                
+
                 // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
                 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                 // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
