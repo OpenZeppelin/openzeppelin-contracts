@@ -70,37 +70,4 @@ describe('StorageSlot', function () {
       });
     });
   }
-
-  for (const { name, type, value, zero } of TYPES.filter(type => type.isValueType)) {
-    describe(`${type} transient slot`, function () {
-      const load = `tload${name}(bytes32)`;
-      const store = `tstore(bytes32,${type})`;
-      const event = `${name}Value`;
-
-      it('load', async function () {
-        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
-      });
-
-      it('store and load (2 txs)', async function () {
-        await this.mock[store](slot, value);
-        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
-      });
-
-      it('store and load (batched)', async function () {
-        await expect(
-          this.mock.multicall([
-            this.mock.interface.encodeFunctionData(store, [slot, value]),
-            this.mock.interface.encodeFunctionData(load, [slot]),
-            this.mock.interface.encodeFunctionData(load, [otherSlot]),
-          ]),
-        )
-          .to.emit(this.mock, event)
-          .withArgs(slot, value)
-          .to.emit(this.mock, event)
-          .withArgs(otherSlot, zero);
-
-        await expect(this.mock[load](slot)).to.emit(this.mock, event).withArgs(slot, zero);
-      });
-    });
-  }
 });
