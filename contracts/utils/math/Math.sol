@@ -544,24 +544,24 @@ library Math {
         //    to the next power of 2` algorithm, the version used here is modified to round down instead of up.
         //    ref: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
         //
-        // 2. Compute `n ≡ x mod 255`, we use this `n` value to split the equation in two parts that can be more
-        //    efficiently computed using the `Logarithm's Product Rule`:
+        // 2. Compute `n = x mod 255`, the `n` is used to split the equation in two parts that can be more efficiently
+        //    computed using the `Logarithm's Product Rule`:
         //      - lemma: log2(x) == log2(x / n) + log2(n)
-        //    this specific `n` allows a very efficient lookup table to be used to calculate both `log2(x / n)` and `log2(n)`.
+        //    this specific `n` allows a very efficient lookup table to calculate both `log2(x / n)` and `log2(n)`.
         //
-        // 3. Compute `prod0 = log2(n)`, once `x` is a power of two, there are only 8 possible values for `n`, so `log2(n)`
-        //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 256bit word.
+        // 3. Compute `prod0 = log2(n)`, given `x` is a power of two, there are only 8 possible values for `n`, so `log2(n)`
+        //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 32-byte word.
         //
         // 4. Compute `prod1 = log2(x / 2**prod0)`, the divisor `2**prod0` guarantees the resulting value is always multiple
-        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. , 248. This allow an efficient
-        //    lookup table to be created using a single word, and multiplication and shift extract the value.
+        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. 248. This allow an efficient
+        //    lookup table to be created using a single 32-byte word, then use multiplication and shift to extract the value.
         //
         // 5. The final result is simply the sum of `prod0` and `prod1` calculated previously:
-        //    floor(log2(x)) = prod0 + prod1
+        //    log2(x) = log2(x / n) + log2(n) = prod0 + prod1
         //
         // @author Lohann Ferreira <developer@lohann.dev>
         unchecked {
-            // Round `x` down to the closest power of 2 using the Seander's algorithm.
+            // Round `x` down to the closest power of 2 using an modified version of Seander's algorithm.
             // Reference: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
             x |= x >> 1;
             x |= x >> 2;
@@ -571,33 +571,36 @@ library Math {
             x |= x >> 32;
             x |= x >> 64;
             x |= x >> 128;
+            // Notice `x = 0` is correctly rounded to 1, which indeed is the closest power of two `2**0`.
             x = (x >> 1) + 1;
-
+    
             uint256 prod0;
-            assembly {
-                // 1. Compute `n ≡ x mod 255`, because `x` is power of two, the resulting `n` can only be one of the
+            {
+                // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
                 // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
-                let n := mod(x, 255)
+                uint256 n = x % 255;
 
-                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 256-bit word, which we use as table. Notice the
-                // maximum size of our table is 32, but their values can be greater than 32, so first we map `n` into an unique
+                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table. Notice the
+                // maximum size of our table is 32, but `n` values can be greater than 32, so first we map `n` into an unique
                 // index between 0~31 by computing `n % 11`, this maps all `n` values to an unique index, as demonstrated below.
-
-                // | n ≡ x mod 255 | index ≡ n mod 11 |    prod0 = log2(n)   |
-                // +-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+
-                // |        1      |    1 % 11 == 1   |     log2(1) == 0     |
-                // |        2      |    2 % 11 == 2   |     log2(2) == 1     |
-                // |        4      |    4 % 11 == 4   |     log2(4) == 2     |
-                // |        8      |    4 % 11 == 8   |     log2(8) == 3     |
-                // |       16      |   16 % 11 == 5   |    log2(16) == 4     |
-                // |       32      |   32 % 11 == 10  |    log2(32) == 5     |
-                // |       64      |   64 % 11 == 9   |    log2(64) == 6     |
-                // |      128      |  128 % 11 == 7   |   log2(128) == 7     |
-                let index := mod(n, 11)
+                
+                // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
+                // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
+                // |       2     |   2 % 11 == 2  |   table[2] = log2(2)   |
+                // |       4     |   4 % 11 == 4  |   table[4] = log2(4)   |
+                // |       8     |   4 % 11 == 8  |   table[8] = log2(8)   |
+                // |      16     |  16 % 11 == 5  |   table[5] = log2(16)  |
+                // |      32     |  32 % 11 == 10 |  table[10] = log2(32)  |
+                // |      64     |  64 % 11 == 9  |   table[8] = log2(64)  |
+                // |     128     | 128 % 11 == 7  |   table[7] = log2(128) |
+                uint256 index = n % 11;
 
                 // Below we perform the table lookup, the table stores the result of `log2(n)`
                 // in the corresponding byte at `index`.
-                prod0 := byte(index, 0x0000010002040007030605000000000000000000000000000000000000000000)
+                assembly {
+                    prod0 := byte(index, 0x0000010002040007030605000000000000000000000000000000000000000000)
+                }
             }
 
             // 4. Compute `prod1 = log2(x / n)`, once `prod1` is always multiple of 8, computing `prod1 * value` is
@@ -607,10 +610,8 @@ library Math {
             prod1 *= 0x0008101820283038404850586068707880889098a0a8b0b8c0c8d0d8e0e8f0f8;
             prod1 >>= 248;
 
-            // 5. Sum both values to get the final result, where:
-            // - n ≡ x mod 255
-            // - prod0 = log2(x / n)
-            // - prod1 = log2(n)
+            // 5. Sum both values to get the final result:
+            // log2(x) = log2(x / n) + log2(n) = prod0 + prod1
             return prod0 + prod1;
         }
     }
