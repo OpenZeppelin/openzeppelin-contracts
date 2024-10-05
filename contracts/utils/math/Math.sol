@@ -547,14 +547,16 @@ library Math {
         // 2. Compute `n = x mod 255`, the `n` is used to split the equation in two parts that can be more efficiently
         //    computed using the `Logarithm's Product Rule`:
         //      - lemma: log2(x) == log2(x / n) + log2(n)
-        //    this specific `n` allows a very efficient lookup table to calculate both `log2(x / n)` and `log2(n)`.
+        //    this `n` guarantees that `x / n` is a power of two multiple of 256, we use this fact to build a lookup table
+        //    that calculates `log2(x / n)` and `log2(n)` very efficiently.
         //
-        // 3. Compute `prod0 = log2(n)`, given `x` is a power of two, there are only 8 possible values for `n`, so `log2(n)`
-        //    can be trivially computed using a lookup table, here we use the opcode `BYTE` to lookup a 32-byte word.
+        // 3. Compute `prod0 = log2(n)`, given `x % 255` is a power of two, there are only 8 possible values for `n`, so
+        //    `log2(n)` can be easily computed using a lookup table, here we use the opcode `BYTE` to lookup a 32-byte word.
         //
-        // 4. Compute `prod1 = log2(x / 2**prod0)`, the divisor `2**prod0` guarantees the resulting value is always multiple
-        //    of 8, there's exactly 32 distinct values for `prod1`, respectively: 0, 8, 16, .. 248. This allow an efficient
-        //    lookup table to be created using a single 32-byte word, then use multiplication and shift to extract the value.
+        // 4. Compute `prod1 = log2(x / n)`, we use the fact that `x / n` is a power of two multiple of 256, so there's exactly
+        //    32 possible distinct values for `prod1`, respectively: 0, 8, 16, .. 240, 248. This allow an efficient lookup
+        //    table to be created using a single 32-byte word, we extract `log2(x/n)` from the table by compute:
+        //    prod1 = log2(x / n) = (x / n * table) >> 248
         //
         // 5. The final result is simply the sum of `prod0` and `prod1` calculated previously:
         //    log2(x) = log2(x / n) + log2(n) = prod0 + prod1
@@ -580,10 +582,11 @@ library Math {
                 // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
                 uint256 n = x % 255;
 
-                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table. Notice the
-                // maximum size of our table is 32, but `n` values can be greater than 32, so first we map `n` into an unique
-                // index between 0~31 by computing `n % 11`, this maps all `n` values to an unique index, as demonstrated below.
+                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table.
+                // Notice the last index in our table is 31, but `n` can be greater than 31, so first we map `n`
+                // into an unique index between 0~31 by computing `n % 11`, as demonstrated below.
 
+                //                   log2(n) Lookup Table
                 // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
                 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                 // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
@@ -603,9 +606,26 @@ library Math {
                 }
             }
 
-            // 4. Compute `prod1 = log2(x / n)`, once `prod1` is always multiple of 8, computing `prod1 * value` is
-            // equivalent to shift bytes to the left, we use this property to create a very efficient lookup table using
-            // one multiplication and two bit shifting.
+            // 4. Compute `prod1 = log2(x / n)`, notice `x / n` is a power of two multiple of 256, we use this
+            // fact to build a very efficient lookup table using a single 32-byte word, described below:
+
+            //                        log2(x/n) Lookup Table
+            // |         x        | x / n | prod1 = log2(x/n) | index = log2(x/n) / 8 |
+            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+            // |  1   =< x < 2⁸   |  1    |    log2(1) == 0   |      0 / 8 == 0       |
+            // |  2⁸  =< x < 2¹⁶  |  2⁸   |   log2(2⁸) == 8   |      8 / 8 == 1       |
+            // |  2¹⁶ =< x < 2²⁴  |  2¹⁶  |  log2(2¹⁶) == 16  |     16 / 8 == 2       |
+            // |  2²⁴ =< x < 2³²  |  2²⁴  |  log2(2¹⁶) == 24  |     24 / 8 == 3       |
+            // |        ...       |  ...  |    ...            |          ...          |
+            // | 2²³² =< x < 2²⁴⁰ |  2²³² | log2(2²³²) == 232 |    232 / 8 == 29      |
+            // | 2²⁴⁰ =< x < 2²⁴⁸ |  2²⁴⁰ | log2(2²³²) == 240 |    240 / 8 == 30      |
+            // | 2²⁴⁸ =< x < 2²⁵⁶ |  2²⁴⁸ | log2(2²⁴⁸) == 248 |    248 / 8 == 31      |
+            //
+            // Notice compute `(x / n) * value` is equivalent to `value << (index * 8)`, we use this fact to build
+            // a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n` moves the
+            // result to the most significant byte, finally extract `log2(x/n) by shift right the table.
+            //
+            // prod1 = log2(x / n) = (x / n * table) >> 248
             uint256 prod1 = x >> prod0;
             prod1 *= 0x0008101820283038404850586068707880889098a0a8b0b8c0c8d0d8e0e8f0f8;
             prod1 >>= 248;
