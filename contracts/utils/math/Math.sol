@@ -573,9 +573,9 @@ library Math {
             x |= x >> 32;
             x |= x >> 64;
             x |= x >> 128;
-            // Obs: notice `x = 0` wrongly results in 1 here, when the closest power of two is actually zero given
-            // `2**-infinity == 0` we could do `(x >> 1) + toUint(x > 0)` to fix this, but this not necessary since
-            // floor(log2(0)) == floor(log2(1)) anyway.
+            // Obs: notice `x = 0` results in 1 here, when the closest power of two of zero is actually `-infinity`
+            // given `2**-infinity == 0`, we could argue that zero is closest to -infinity than 1, then we should do
+            // `(x >> 1) + toUint(x > 0)` instead, but this not necessary given floor(log2(0)) == floor(log2(1)) anyway.
             x = (x >> 1) + 1;
 
             uint256 prod0;
