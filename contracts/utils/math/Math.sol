@@ -573,7 +573,9 @@ library Math {
             x |= x >> 32;
             x |= x >> 64;
             x |= x >> 128;
-            // Notice `x = 0` is correctly rounded to 1, which indeed is the closest power of two `2**0`.
+            // Obs: notice `x = 0` wrongly results in 1 here, when the closest power of two is actually zero given
+            // `2**-infinity == 0` we could do `(x >> 1) + toUint(x > 0)` to fix this, but this not necessary since
+            // floor(log2(0)) == floor(log2(1)) anyway.
             x = (x >> 1) + 1;
 
             uint256 prod0;
