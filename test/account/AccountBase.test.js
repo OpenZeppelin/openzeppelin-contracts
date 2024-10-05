@@ -12,7 +12,7 @@ class BooleanSigner {
 async function fixture() {
   const [other] = await ethers.getSigners();
   const target = await ethers.deployContract('CallReceiverMock');
-  const helper = new ERC4337Helper('AccountBaseMock');
+  const helper = new ERC4337Helper('$AccountBaseMock');
   await helper.wait();
   const smartAccount = await helper.newAccount();
   const signer = new BooleanSigner();

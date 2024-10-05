@@ -12,7 +12,7 @@ function pack(left, right) {
 /// Global ERC-4337 environment helper.
 class ERC4337Helper {
   constructor(account, params = {}) {
-    this.entrypointAsPromise = ethers.getContractFactory('EntryPoint');
+    this.entrypointAsPromise = ethers.deployContract('EntryPoint');
     this.factoryAsPromise = ethers.deployContract('$Create2');
     this.accountContractAsPromise = ethers.getContractFactory(account);
     this.chainIdAsPromise = ethers.provider.getNetwork().then(({ chainId }) => chainId);
@@ -21,9 +21,11 @@ class ERC4337Helper {
   }
 
   async wait() {
-    this.entrypoint = await this.entrypointAsPromise;
-    await setCode(CANONICAL_ENTRYPOINT, this.entrypoint.bytecode);
-    this.entrypoint = await this.entrypoint.attach(CANONICAL_ENTRYPOINT);
+    const entrypoint = await this.entrypointAsPromise;
+    await entrypoint.getDeployedCode().then(code => setCode(CANONICAL_ENTRYPOINT, code));
+    this.entrypoint = entrypoint.attach(CANONICAL_ENTRYPOINT);
+    this.entrypointAsPromise = Promise.resolve(this.entrypoint);
+
     this.factory = await this.factoryAsPromise;
     this.accountContract = await this.accountContractAsPromise;
     this.chainId = await this.chainIdAsPromise;
