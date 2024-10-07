@@ -5,9 +5,9 @@ const header = `\
 pragma solidity ^0.8.24;
 
 /**
- * @dev Library for reading and writing primitive types to specific storage slots.
+ * @dev Library for reading and writing primitive types to specific transient storage slots.
  *
- * Storage slots are often used to avoid storage conflict when dealing with upgradeable contracts.
+ * Transient slots are often used to store temporary values that are removed after the current transaction.
  * This library helps with reading and writing to such slots without the need for inline assembly.
  *
  *  * Example reading and writing values using transient storage:
