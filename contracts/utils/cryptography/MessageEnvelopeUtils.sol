@@ -180,10 +180,11 @@ library MessageEnvelopeUtils {
     function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
-        return _TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName);
+        return TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName);
     }
 
-    function _TYPED_DATA_ENVELOPE_TYPEHASH(
+    // solhint-disable-next-line func-name-mixedcase
+    function TYPED_DATA_ENVELOPE_TYPEHASH(
         bytes calldata contentsType,
         bytes calldata contentsTypeName
     ) internal pure returns (bytes32) {
@@ -255,7 +256,7 @@ library MessageEnvelopeUtils {
         (, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         result = keccak256(
             abi.encode(
-                _TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName),
+                TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName),
                 contents,
                 keccak256(bytes(name)),
                 keccak256(bytes(version)),
