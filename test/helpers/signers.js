@@ -12,6 +12,16 @@ const ensureLowerOrderS = (N, { s, recovery, ...rest }) => {
   return { s, recovery, ...rest };
 };
 
+class BooleanSigner {
+  signPersonal() {
+    return '0x01';
+  }
+
+  signTypedDataEnvelope() {
+    return '0x01';
+  }
+}
+
 class TypedSigner {
   signPersonal(domain, contents) {
     return this._signRaw(
@@ -115,6 +125,7 @@ class RSASigner extends TypedSigner {
 }
 
 module.exports = {
+  BooleanSigner,
   ECDSASigner,
   P256Signer,
   RSASigner,

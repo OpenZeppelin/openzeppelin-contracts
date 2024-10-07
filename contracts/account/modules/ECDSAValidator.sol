@@ -16,13 +16,12 @@ abstract contract ECDSAValidator is SignatureValidator {
     }
 
     function onInstall(bytes calldata data) public virtual {
-        (address account, address signerAddr) = abi.decode(data, (address, address));
-        _onInstall(account, signerAddr);
+        address signerAddr = abi.decode(data, (address));
+        _onInstall(msg.sender, signerAddr);
     }
 
-    function onUninstall(bytes calldata data) public virtual {
-        address account = abi.decode(data, (address));
-        _onUninstall(account);
+    function onUninstall(bytes calldata) public virtual {
+        _onUninstall(msg.sender);
     }
 
     function _onInstall(address account, address signerAddr) internal virtual {
@@ -35,7 +34,7 @@ abstract contract ECDSAValidator is SignatureValidator {
         emit ECDSASignerDisassociated(account);
     }
 
-    function _isValidSignatureWithSender(
+    function _validateSignatureWithSender(
         address sender,
         bytes32 envelopeHash,
         bytes calldata signature

@@ -12,19 +12,31 @@ import {ERC1155HolderLean, IERC1155Receiver} from "../token/ERC1155/utils/ERC115
 import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
+/**
+ * @dev Account implementation using {P256} signatures and {ERC1271TypedSigner} for replay protection.
+ */
 abstract contract AccountP256 is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
     bytes32 private immutable _qx;
     bytes32 private immutable _qy;
 
+    /**
+     * @dev Initializes the account with the P256 public key.
+     */
     constructor(bytes32 qx, bytes32 qy) {
         _qx = qx;
         _qy = qy;
     }
 
+    /**
+     * @dev Return the account's signer P256 public key.
+     */
     function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
         return (_qx, _qy);
     }
 
+    /**
+     * @dev Internal version of {validateUserOp} that relies on {_isValidSignature}.
+     */
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
@@ -35,6 +47,9 @@ abstract contract AccountP256 is ERC165, ERC1271TypedSigner, ERC721Holder, ERC11
                 : ERC4337Utils.SIG_VALIDATION_FAILED;
     }
 
+    /**
+     * @dev Validates the signature using the account's signer.
+     */
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
         if (signature.length < 0x40) return false;
         bytes32 r = bytes32(signature[0x00:0x20]);
@@ -43,6 +58,7 @@ abstract contract AccountP256 is ERC165, ERC1271TypedSigner, ERC721Holder, ERC11
         return P256.verify(hash, r, s, qx, qy);
     }
 
+    /// @inheritdoc ERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
     }

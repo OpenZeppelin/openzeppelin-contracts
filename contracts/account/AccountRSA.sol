@@ -12,22 +12,36 @@ import {ERC1155HolderLean, IERC1155Receiver} from "../token/ERC1155/utils/ERC115
 import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
-// NOTE: Storing `_e` and `_e` in regular violate ERC-7562 validation rules.
-// Consider deploying this contract through a factory that sets `_e` and `_n`
-// as immutable arguments (see {Clones-cloneDeterministicWithImmutableArgs}).
+/**
+ * @dev Account implementation using {RSA} signatures and {ERC1271TypedSigner} for replay protection.
+ *
+ * NOTE: Storing `_e` and `_n` in regular storage violate ERC-7562 validation rules if the contract
+ * is used as an ERC-1271 signer during the validation phase of a different account contract.
+ * Consider deploying this contract through a factory that sets `_e` and `_n` as immutable arguments
+ * (see {Clones-cloneDeterministicWithImmutableArgs}).
+ */
 abstract contract AccountRSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
     bytes private _e;
     bytes private _n;
 
+    /**
+     * @dev Initializes the account with the RSA public key.
+     */
     constructor(bytes memory e, bytes memory n) {
         _e = e;
         _n = n;
     }
 
+    /**
+     * @dev Return the account's signer RSA public key.
+     */
     function signer() public view virtual returns (bytes memory e, bytes memory n) {
         return (_e, _n);
     }
 
+    /**
+     * @dev Internal version of {validateUserOp} that relies on {_isValidSignature}.
+     */
     function _validateUserOp(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
@@ -38,11 +52,15 @@ abstract contract AccountRSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC115
                 : ERC4337Utils.SIG_VALIDATION_FAILED;
     }
 
+    /**
+     * @dev Validates the signature using the account's signer.
+     */
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
         (bytes memory e, bytes memory n) = signer();
         return RSA.pkcs1(hash, signature, e, n);
     }
 
+    /// @inheritdoc ERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
     }

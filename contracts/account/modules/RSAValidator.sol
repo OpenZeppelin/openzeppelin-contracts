@@ -17,13 +17,12 @@ abstract contract RSAValidator is SignatureValidator {
     }
 
     function onInstall(bytes calldata data) public virtual {
-        (address account, bytes memory e, bytes memory n) = abi.decode(data, (address, bytes, bytes));
-        _onInstall(account, e, n);
+        (bytes memory e, bytes memory n) = abi.decode(data, (bytes, bytes));
+        _onInstall(msg.sender, e, n);
     }
 
-    function onUninstall(bytes calldata data) public virtual {
-        address account = abi.decode(data, (address));
-        _onUninstall(account);
+    function onUninstall(bytes calldata) public virtual {
+        _onUninstall(msg.sender);
     }
 
     function _onInstall(address account, bytes memory e, bytes memory n) internal virtual {
@@ -38,7 +37,7 @@ abstract contract RSAValidator is SignatureValidator {
         emit RSASignerDisassociated(account);
     }
 
-    function _isValidSignatureWithSender(
+    function _validateSignatureWithSender(
         address sender,
         bytes32 envelopeHash,
         bytes calldata signature

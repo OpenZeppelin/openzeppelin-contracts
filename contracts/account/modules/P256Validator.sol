@@ -17,13 +17,12 @@ abstract contract P256Validator is SignatureValidator {
     }
 
     function onInstall(bytes calldata data) public virtual {
-        (address account, bytes32 qx, bytes32 qy) = abi.decode(data, (address, bytes32, bytes32));
-        _onInstall(account, qx, qy);
+        (bytes32 qx, bytes32 qy) = abi.decode(data, (bytes32, bytes32));
+        _onInstall(msg.sender, qx, qy);
     }
 
-    function onUninstall(bytes calldata data) public virtual {
-        address account = abi.decode(data, (address));
-        _onUninstall(account);
+    function onUninstall(bytes calldata) public virtual {
+        _onUninstall(msg.sender);
     }
 
     function _onInstall(address account, bytes32 qx, bytes32 qy) internal virtual {
@@ -38,11 +37,13 @@ abstract contract P256Validator is SignatureValidator {
         emit P256SignerDisassociated(account);
     }
 
-    function _isValidSignatureWithSender(
+    function _validateSignatureWithSender(
         address sender,
         bytes32 envelopeHash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
+        if (signature.length < 0x40) return false;
+
         // parse signature
         bytes32 r = bytes32(signature[0x00:0x20]);
         bytes32 s = bytes32(signature[0x20:0x40]);
