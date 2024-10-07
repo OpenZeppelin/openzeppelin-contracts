@@ -36,6 +36,7 @@ abstract contract AccountP256 is ERC165, ERC1271TypedSigner, ERC721Holder, ERC11
     }
 
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
+        if (signature.length < 0x40) return false;
         bytes32 r = bytes32(signature[0x00:0x20]);
         bytes32 s = bytes32(signature[0x20:0x40]);
         (bytes32 qx, bytes32 qy) = signer();

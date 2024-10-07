@@ -82,12 +82,7 @@ describe('MessageEnvelopeUtils', function () {
       const contents = ethers.randomBytes(32);
       const contentsTypeName = 'SomeType';
       const contentsType = `${contentsTypeName}()`;
-      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(
-        this.domain,
-        contents,
-        contentsTypeName,
-        contentsType,
-      );
+      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(this.domain, contents, contentsType);
       const expected = hashTypedData(this.domain, typedDataEnvelopeStructHash);
       expect(
         await this.mock.getFunction('$toTypedDataEnvelopeHash')(
@@ -150,12 +145,7 @@ describe('MessageEnvelopeUtils', function () {
       const contents = ethers.randomBytes(32);
       const contentsTypeName = 'SomeType';
       const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
-      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(
-        this.domain,
-        contents,
-        contentsTypeName,
-        contentsType,
-      );
+      const typedDataEnvelopeStructHash = hashTypedDataEnvelopeStruct(this.domain, contents, contentsType);
       expect(
         await this.mock.getFunction('$typedDataEnvelopeStructHash')(
           ethers.toUtf8Bytes(contentsType),

@@ -1,23 +1,22 @@
 const { ethers } = require('hardhat');
-const { shouldBehaveLikeAnAccount } = require('./Account.behavior');
+const { shouldBehaveLikeAnAccountBase, shouldBehaveLikeAnAccountBaseExecutor } = require('./Account.behavior');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ERC4337Helper } = require('../helpers/erc4337');
 
 class BooleanSigner {
-  signRaw() {
+  signPersonal() {
     return '0x01';
   }
 }
 
 async function fixture() {
-  const [other] = await ethers.getSigners();
+  const [beneficiary, other] = await ethers.getSigners();
   const target = await ethers.deployContract('CallReceiverMock');
-  const helper = new ERC4337Helper('$AccountBaseMock');
-  await helper.wait();
-  const smartAccount = await helper.newAccount();
   const signer = new BooleanSigner();
+  const helper = new ERC4337Helper('$AccountBaseMock');
+  const smartAccount = await helper.newAccount();
 
-  return { ...helper, smartAccount, signer, target, other };
+  return { ...helper, smartAccount, signer, target, beneficiary, other };
 }
 
 describe('AccountBase', function () {
@@ -25,5 +24,6 @@ describe('AccountBase', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeAnAccount();
+  shouldBehaveLikeAnAccountBase();
+  shouldBehaveLikeAnAccountBaseExecutor();
 });

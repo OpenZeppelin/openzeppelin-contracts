@@ -55,8 +55,15 @@ library MessageEnvelopeUtils {
         returns (bytes calldata originalSig, bytes32 appSeparator, bytes32 contents, bytes calldata contentsType)
     {
         uint256 sigLength = signature.length;
+        if (sigLength < 66) return (signature[0:0], 0, 0, signature[0:0]);
+
         uint256 contentsTypeEnd = sigLength - 2; // Last 2 bytes
-        uint256 contentsEnd = contentsTypeEnd - uint16(bytes2(signature[contentsTypeEnd:sigLength]));
+        uint256 contentsTypeLength = uint16(bytes2(signature[contentsTypeEnd:sigLength]));
+        if (contentsTypeLength > contentsTypeEnd) return (signature[0:0], 0, 0, signature[0:0]);
+
+        uint256 contentsEnd = contentsTypeEnd - contentsTypeLength;
+        if (contentsEnd < 64) return (signature[0:0], 0, 0, signature[0:0]);
+
         uint256 appSeparatorEnd = contentsEnd - 32;
         uint256 originalSigEnd = appSeparatorEnd - 32;
 
@@ -170,25 +177,32 @@ library MessageEnvelopeUtils {
      *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
      */
     // solhint-disable-next-line func-name-mixedcase
-    function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32 result) {
+    function TYPED_DATA_ENVELOPE_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
         (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
+        return _TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName);
+    }
 
-        result = keccak256(
-            abi.encodePacked(
-                "TypedDataSign(",
-                contentsTypeName,
-                "bytes1 fields,",
-                "string name,",
-                "string version,",
-                "uint256 chainId,",
-                "address verifyingContract,",
-                "bytes32 salt,",
-                "uint256[] extensions",
-                ")",
-                contentsType
-            )
-        );
+    function _TYPED_DATA_ENVELOPE_TYPEHASH(
+        bytes calldata contentsType,
+        bytes calldata contentsTypeName
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "TypedDataSign(",
+                    contentsTypeName,
+                    "bytes1 fields,",
+                    "string name,",
+                    "string version,",
+                    "uint256 chainId,",
+                    "address verifyingContract,",
+                    "bytes32 salt,",
+                    "uint256[] extensions",
+                    ")",
+                    contentsType
+                )
+            );
     }
 
     /**
@@ -238,9 +252,10 @@ library MessageEnvelopeUtils {
         bytes32 salt,
         uint256[] memory extensions
     ) internal view returns (bytes32 result) {
+        (, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
         result = keccak256(
             abi.encode(
-                TYPED_DATA_ENVELOPE_TYPEHASH(contentsType),
+                _TYPED_DATA_ENVELOPE_TYPEHASH(contentsType, contentsTypeName),
                 contents,
                 keccak256(bytes(name)),
                 keccak256(bytes(version)),

@@ -36,7 +36,7 @@ class ERC4337Helper {
   async newAccount(extraArgs = [], salt = ethers.randomBytes(32)) {
     await this.wait();
     const initCode = await this.accountContract
-      .getDeployTransaction(this.entrypoint, ...extraArgs)
+      .getDeployTransaction(...extraArgs)
       .then(tx => this.factory.interface.encodeFunctionData('$deploy', [0, salt, tx.data]))
       .then(deployCode => ethers.concat([this.factory.target, deployCode]));
     const instance = await this.senderCreator.createSender
@@ -143,9 +143,8 @@ class UserOperation {
     return this;
   }
 
-  async sign(signer) {
-    const signature = await signer.signRaw(this.hash);
-    this.signature = signature;
+  async sign(domain, signer) {
+    this.signature = await signer.signPersonal(domain, this.hash);
     return this;
   }
 }

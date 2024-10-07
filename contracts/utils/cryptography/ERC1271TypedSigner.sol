@@ -63,8 +63,7 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual returns (bool) {
-        bytes32 envelopeHash = _personalSigEnvelopeHash(hash);
-        return _validateSignature(envelopeHash, signature);
+        return _validateSignature(_personalSigEnvelopeHash(hash), signature);
     }
 
     /**

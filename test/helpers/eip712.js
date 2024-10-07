@@ -45,14 +45,8 @@ function hashTypedDataEnvelopeType(contentsTypeName, contentsType) {
   );
 }
 
-function hashTypedDataEnvelopeStruct(
-  domain,
-  contents,
-  contentsTypeName,
-  contentsType,
-  salt = ethers.ZeroHash,
-  extensions = [],
-) {
+function hashTypedDataEnvelopeStruct(domain, contents, contentsType, salt = ethers.ZeroHash, extensions = []) {
+  const [contentsTypeName] = contentsType.split('(');
   return ethers.keccak256(
     ethers.AbiCoder.defaultAbiCoder().encode(
       ['bytes32', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32', 'bytes32'],
