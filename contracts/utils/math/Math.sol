@@ -578,34 +578,30 @@ library Math {
             // `(x >> 1) + toUint(x > 0)` instead, but this not necessary given floor(log2(0)) == floor(log2(1)) anyway.
             x = (x >> 1) + 1;
 
+            // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
+            // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
+            uint256 n = x % 255;
+
+            // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table.
+            // Notice the last index in our table is 31, but `n` can be greater than 31, so first we map `n`
+            // into an unique index between 0~31 by computing `n % 11`, as demonstrated below.
+
+            //                   log2(n) Lookup Table
+            // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
+            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
+            // |       2     |   2 % 11 == 2  |   table[2] = log2(2)   |
+            // |       4     |   4 % 11 == 4  |   table[4] = log2(4)   |
+            // |       8     |   8 % 11 == 8  |   table[8] = log2(8)   |
+            // |      16     |  16 % 11 == 5  |   table[5] = log2(16)  |
+            // |      32     |  32 % 11 == 10 |  table[10] = log2(32)  |
+            // |      64     |  64 % 11 == 9  |   table[9] = log2(64)  |
+            // |     128     | 128 % 11 == 7  |   table[7] = log2(128) |
+            // Below we perform the table lookup, the table stores the result of `log2(n)`
+            // in the corresponding byte at `index`.
             uint256 prod0;
-            {
-                // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
-                // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
-                uint256 n = x % 255;
-
-                // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table.
-                // Notice the last index in our table is 31, but `n` can be greater than 31, so first we map `n`
-                // into an unique index between 0~31 by computing `n % 11`, as demonstrated below.
-
-                //                   log2(n) Lookup Table
-                // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
-                // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
-                // |       2     |   2 % 11 == 2  |   table[2] = log2(2)   |
-                // |       4     |   4 % 11 == 4  |   table[4] = log2(4)   |
-                // |       8     |   8 % 11 == 8  |   table[8] = log2(8)   |
-                // |      16     |  16 % 11 == 5  |   table[5] = log2(16)  |
-                // |      32     |  32 % 11 == 10 |  table[10] = log2(32)  |
-                // |      64     |  64 % 11 == 9  |   table[9] = log2(64)  |
-                // |     128     | 128 % 11 == 7  |   table[7] = log2(128) |
-                uint256 index = n % 11;
-
-                // Below we perform the table lookup, the table stores the result of `log2(n)`
-                // in the corresponding byte at `index`.
-                assembly {
-                    prod0 := byte(index, 0x0000010002040007030605000000000000000000000000000000000000000000)
-                }
+            assembly ("memory-safe") {
+                prod0 := byte(mod(index, 11), 0x0000010002040007030605000000000000000000000000000000000000000000)
             }
 
             // 4. Compute `prod1 = log2(x / n)`, notice `x / n` is a power of two multiple of 256, we use this
