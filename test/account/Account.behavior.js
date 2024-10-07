@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { impersonate } = require('../helpers/account');
 const { SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILURE } = require('../helpers/erc4337');
 const { setBalance } = require('@nomicfoundation/hardhat-network-helpers');
+const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
 function shouldBehaveLikeAnAccountBase() {
   describe('entryPoint', function () {
@@ -116,6 +117,82 @@ function shouldBehaveLikeAnAccountBase() {
       });
     });
   });
+
+  describe('fallback', function () {
+    it('should receive ether', async function () {
+      await this.smartAccount.deploy();
+      await setBalance(this.other.address, ethers.parseEther('1'));
+
+      const prevBalance = await ethers.provider.getBalance(this.smartAccount.target);
+      const amount = ethers.parseEther('0.1');
+      await this.other.sendTransaction({ to: this.smartAccount.target, value: amount });
+
+      expect(await ethers.provider.getBalance(this.smartAccount.target)).to.equal(prevBalance + amount);
+    });
+  });
+}
+
+function shouldBehaveLikeAccountHolder() {
+  describe('onReceived', function () {
+    beforeEach(async function () {
+      await this.smartAccount.deploy();
+    });
+
+    shouldSupportInterfaces(['ERC1155Receiver']);
+
+    describe('onERC1155Received', function () {
+      const ids = [1n, 2n, 3n];
+      const values = [1000n, 2000n, 3000n];
+      const data = '0x12345678';
+
+      beforeEach(async function () {
+        [this.owner] = await ethers.getSigners();
+        this.token = await ethers.deployContract('$ERC1155', ['https://somedomain.com/{id}.json']);
+        await this.token.$_mintBatch(this.owner, ids, values, '0x');
+      });
+
+      it('receives ERC1155 tokens from a single ID', async function () {
+        await this.token.connect(this.owner).safeTransferFrom(this.owner, this.smartAccount, ids[0], values[0], data);
+        expect(await this.token.balanceOf(this.smartAccount, ids[0])).to.equal(values[0]);
+        for (let i = 1; i < ids.length; i++) {
+          expect(await this.token.balanceOf(this.smartAccount, ids[i])).to.equal(0n);
+        }
+      });
+
+      it('receives ERC1155 tokens from a multiple IDs', async function () {
+        expect(
+          await this.token.balanceOfBatch(
+            ids.map(() => this.smartAccount),
+            ids,
+          ),
+        ).to.deep.equal(ids.map(() => 0n));
+        await this.token.connect(this.owner).safeBatchTransferFrom(this.owner, this.smartAccount, ids, values, data);
+        expect(
+          await this.token.balanceOfBatch(
+            ids.map(() => this.smartAccount),
+            ids,
+          ),
+        ).to.deep.equal(values);
+      });
+    });
+
+    describe('onERC721Received', function () {
+      it('receives an ERC721 token', async function () {
+        const name = 'Some NFT';
+        const symbol = 'SNFT';
+        const tokenId = 1n;
+
+        const [owner] = await ethers.getSigners();
+
+        const token = await ethers.deployContract('$ERC721', [name, symbol]);
+        await token.$_mint(owner, tokenId);
+
+        await token.connect(owner).safeTransferFrom(owner, this.smartAccount, tokenId);
+
+        expect(await token.ownerOf(tokenId)).to.equal(this.smartAccount.target);
+      });
+    });
+  });
 }
 
 function shouldBehaveLikeAnAccountBaseExecutor() {
@@ -200,4 +277,8 @@ function shouldBehaveLikeAnAccountBaseExecutor() {
   });
 }
 
-module.exports = { shouldBehaveLikeAnAccountBase, shouldBehaveLikeAnAccountBaseExecutor };
+module.exports = {
+  shouldBehaveLikeAnAccountBase,
+  shouldBehaveLikeAccountHolder,
+  shouldBehaveLikeAnAccountBaseExecutor,
+};

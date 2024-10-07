@@ -5,18 +5,21 @@ const { ECDSASigner, P256Signer, RSASigner } = require('../../helpers/signers');
 
 async function fixture() {
   const ECDSA = new ECDSASigner();
-  ECDSA.mock = await ethers.deployContract('ERC1271TypedSignerECDSA', [ECDSA.EOA.address]);
+  const ECDSAMock = await ethers.deployContract('ERC1271TypedSignerECDSA', [ECDSA.EOA.address]);
 
   const P256 = new P256Signer();
-  P256.mock = await ethers.deployContract('ERC1271TypedSignerP256', [P256.publicKey.qx, P256.publicKey.qy]);
+  const P256Mock = await ethers.deployContract('ERC1271TypedSignerP256', [P256.publicKey.qx, P256.publicKey.qy]);
 
   const RSA = new RSASigner();
-  RSA.mock = await ethers.deployContract('ERC1271TypedSignerRSA', [RSA.publicKey.e, RSA.publicKey.n]);
+  const RSAMock = await ethers.deployContract('ERC1271TypedSignerRSA', [RSA.publicKey.e, RSA.publicKey.n]);
 
   return {
     ECDSA,
+    ECDSAMock,
     P256,
+    P256Mock,
     RSA,
+    RSAMock,
   };
 }
 
@@ -28,6 +31,7 @@ describe('ERC1271TypedSigner', function () {
   describe('for an ECDSA signer', function () {
     beforeEach(function () {
       this.signer = this.ECDSA;
+      this.mock = this.ECDSAMock;
     });
 
     shouldBehaveLikeERC1271TypedSigner();
@@ -36,6 +40,7 @@ describe('ERC1271TypedSigner', function () {
   describe('for a P256 signer', function () {
     beforeEach(function () {
       this.signer = this.P256;
+      this.mock = this.P256Mock;
     });
 
     shouldBehaveLikeERC1271TypedSigner();
@@ -44,6 +49,7 @@ describe('ERC1271TypedSigner', function () {
   describe('for an RSA signer', function () {
     beforeEach(function () {
       this.signer = this.RSA;
+      this.mock = this.RSAMock;
     });
 
     shouldBehaveLikeERC1271TypedSigner();

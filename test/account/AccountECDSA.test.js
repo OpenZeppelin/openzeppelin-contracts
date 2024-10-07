@@ -1,5 +1,9 @@
 const { ethers } = require('hardhat');
-const { shouldBehaveLikeAnAccountBase, shouldBehaveLikeAnAccountBaseExecutor } = require('./Account.behavior');
+const {
+  shouldBehaveLikeAnAccountBase,
+  shouldBehaveLikeAnAccountBaseExecutor,
+  shouldBehaveLikeAccountHolder,
+} = require('./Account.behavior');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { ECDSASigner } = require('../helpers/signers');
@@ -28,10 +32,11 @@ describe('AccountECDSA', function () {
 
   shouldBehaveLikeAnAccountBase();
   shouldBehaveLikeAnAccountBaseExecutor();
+  shouldBehaveLikeAccountHolder();
 
   describe('ERC1271TypedSigner', function () {
     beforeEach(async function () {
-      this.signer.mock = await this.smartAccount.deploy();
+      this.mock = await this.smartAccount.deploy();
     });
 
     shouldBehaveLikeERC1271TypedSigner();
