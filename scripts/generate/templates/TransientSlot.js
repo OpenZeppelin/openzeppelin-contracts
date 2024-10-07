@@ -13,7 +13,7 @@ pragma solidity ^0.8.24;
  *  * Example reading and writing values using transient storage:
  * \`\`\`solidity
  * contract Lock {
- *     using StorageSlotTransient for *;
+ *     using TransientSlot for *;
  *
  *     // Define the slot. Alternatively, use the SlotDerivation library to derive the slot.
  *     bytes32 internal constant _LOCK_SLOT = 0xf4678858b2b588224636b8522b729e7722d32fc491da849ed75b3fdf3c84f542;
@@ -69,7 +69,7 @@ function tstore(${name}SlotType slot, ${type} value) internal {
 // GENERATE
 module.exports = format(
   header.trimEnd(),
-  'library StorageSlotTransient {',
+  'library TransientSlot {',
   format(
     [].concat(
       TYPES.filter(type => type.isValueType).map(type => udvt(type)),

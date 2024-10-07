@@ -5,7 +5,7 @@ const header = `\
 pragma solidity ^0.8.24;
 
 import {Multicall} from "../utils/Multicall.sol";
-import {StorageSlotTransient} from "../utils/StorageSlotTransient.sol";
+import {TransientSlot} from "../utils/TransientSlot.sol";
 `;
 
 const transient = ({ type, name }) => `\
@@ -23,10 +23,10 @@ function tstore(bytes32 slot, ${type} value) public {
 // GENERATE
 module.exports = format(
   header,
-  'contract StorageSlotTransientMock is Multicall {',
+  'contract TransientSlotMock is Multicall {',
   format(
     [].concat(
-      'using StorageSlotTransient for *;',
+      'using TransientSlot for *;',
       '',
       TYPES.filter(type => type.isValueType).map(type => transient(type)),
     ),

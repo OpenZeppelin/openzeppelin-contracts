@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {StorageSlotTransient} from "./StorageSlotTransient.sol";
+import {TransientSlot} from "./TransientSlot.sol";
 
 /**
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
@@ -12,7 +12,7 @@ import {StorageSlotTransient} from "./StorageSlotTransient.sol";
  * _Available since v5.1._
  */
 abstract contract ReentrancyGuardTransient {
-    using StorageSlotTransient for *;
+    using TransientSlot for *;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant REENTRANCY_GUARD_STORAGE =

@@ -17,10 +17,10 @@ const TYPES = [
 ];
 
 async function fixture() {
-  return { mock: await ethers.deployContract('StorageSlotTransientMock') };
+  return { mock: await ethers.deployContract('TransientSlotMock') };
 }
 
-describe('StorageSlotTransient', function () {
+describe('TransientSlot', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
