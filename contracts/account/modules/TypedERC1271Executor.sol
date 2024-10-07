@@ -9,22 +9,35 @@ import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {MessageEnvelopeUtils} from "../../utils/cryptography/MessageEnvelopeUtils.sol";
 
+/**
+ * @dev An ERC7579 module that allows to execute an account's operations using {IERC1271}
+ * to validate typed execution requests.
+ */
 abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
-    bytes internal constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
+    bytes private constant _EXECUTE_REQUEST_SINGLE_TYPENAME =
         bytes("ExecuteSingle(address account,address target,uint256 value,bytes data)");
-    bytes internal constant _EXECUTE_REQUEST_BATCH_TYPENAME =
+    bytes private constant _EXECUTE_REQUEST_BATCH_TYPENAME =
         bytes("ExecuteBatch(address account,address[] targets,uint256[] values,bytes[] calldatas)");
-    bytes internal constant _EXECUTE_REQUEST_DELEGATECALL_TYPENAME =
+    bytes private constant _EXECUTE_REQUEST_DELEGATECALL_TYPENAME =
         bytes("ExecuteDelegate(address account,address target,bytes data)");
 
-    bytes32 internal constant _EXECUTE_REQUEST_SINGLE_TYPEHASH = keccak256(_EXECUTE_REQUEST_SINGLE_TYPENAME);
-    bytes32 internal constant _EXECUTE_REQUEST_BATCH_TYPEHASH = keccak256(_EXECUTE_REQUEST_BATCH_TYPENAME);
-    bytes32 internal constant _EXECUTE_REQUEST_DELEGATECALL_TYPEHASH =
-        keccak256(_EXECUTE_REQUEST_DELEGATECALL_TYPENAME);
+    bytes32 private constant _EXECUTE_REQUEST_SINGLE_TYPEHASH = keccak256(_EXECUTE_REQUEST_SINGLE_TYPENAME);
+    bytes32 private constant _EXECUTE_REQUEST_BATCH_TYPEHASH = keccak256(_EXECUTE_REQUEST_BATCH_TYPENAME);
+    bytes32 private constant _EXECUTE_REQUEST_DELEGATECALL_TYPEHASH = keccak256(_EXECUTE_REQUEST_DELEGATECALL_TYPENAME);
 
+    /**
+     * @dev The execution request is unauthorized.
+     */
     error UnauthorizedTypedExecution(CallType callType, address account, address sender);
 
+    /**
+     * @dev The `account` installed this module.
+     */
     event ERC7579TypedExecutorInstalled(address indexed account);
+
+    /**
+     * @dev The `account` uninstalled this module.
+     */
     event ERC7579TypedExecutorUninstalled(address indexed account);
 
     /// @inheritdoc IERC7579Module
@@ -42,6 +55,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         emit ERC7579TypedExecutorUninstalled(msg.sender);
     }
 
+    /**
+     * @dev Executes an account's operation following ERC7579's execution mode with support for single, batch, and delegate calls.
+     */
     function execute(address account, Mode mode, bytes calldata request, bytes calldata signature) public virtual {
         (CallType callType, , , ) = ERC7579Utils.decodeMode(mode);
         if (callType == ERC7579Utils.CALLTYPE_SINGLE) return _single(mode, account, request, signature);
@@ -50,6 +66,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         revert ERC7579Utils.ERC7579UnsupportedCallType(callType);
     }
 
+    /**
+     * @dev Calls {AccountERC7579-executeFromExecutor} with a single call operation.
+     */
     function _single(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
         (address target, uint256 value, bytes calldata data) = ERC7579Utils.decodeSingle(request);
         bytes32 requestHash = _hashTypedDataV4(_singleStructHash(account, target, value, data));
@@ -61,6 +80,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         );
     }
 
+    /**
+     * @dev Calls {AccountERC7579-executeFromExecutor} with batched calls.
+     */
     function _batch(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = abi.decode(
             request,
@@ -73,6 +95,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         IERC7579Execution(account).executeFromExecutor(Mode.unwrap(mode), ERC7579Utils.encodeBatch(executions));
     }
 
+    /**
+     * @dev Calls {AccountERC7579-executeFromExecutor} with a delegate call operation.
+     */
     function _delegate(Mode mode, address account, bytes calldata request, bytes calldata signature) internal virtual {
         (address target, bytes calldata data) = ERC7579Utils.decodeDelegate(request);
         bytes32 requestHash = _hashTypedDataV4(_delegateStructHash(account, target, data));
@@ -81,6 +106,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         IERC7579Execution(account).executeFromExecutor(Mode.unwrap(mode), ERC7579Utils.encodeDelegate(target, data));
     }
 
+    /**
+     * @dev Checks whether the execution request was signed by the `account`.
+     */
     function _isValidExecuteRequest(
         address account,
         bytes32 requestHash,
@@ -96,6 +124,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         return SignatureChecker.isValidSignatureNow(account, requestHash, _signature);
     }
 
+    /**
+     * @dev Calculates the hash of a single execution request.
+     */
     function _singleStructHash(
         address account,
         address target,
@@ -105,6 +136,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         return keccak256(abi.encode(_EXECUTE_REQUEST_SINGLE_TYPEHASH, account, target, value, keccak256(data)));
     }
 
+    /**
+     * @dev Calculates the hash of a batched execution request.
+     */
     function _batchStructHash(
         address account,
         address[] memory targets,
@@ -126,6 +160,9 @@ abstract contract TypedERC1271Executor is EIP712, IERC7579Module {
         return keccak256(content);
     }
 
+    /**
+     * @dev Calculates the hash of a delegate call execution request.
+     */
     function _delegateStructHash(
         address account,
         address target,
