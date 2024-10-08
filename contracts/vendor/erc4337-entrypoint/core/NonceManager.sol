@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.23;
 
-import "../interfaces/INonceManager.sol";
+import {INonceManager} from "../interfaces/INonceManager.sol"; // OZ edit
 
 /**
  * nonce management functionality
