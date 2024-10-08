@@ -319,7 +319,7 @@ function _setImplementation(address newImplementation) internal {
 }
 ----
 
-The xref:api:utils.adoc#StorageSlot[`StorageSlot`] library also supports transient storage through user defined value types (https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types[UDVTs]), which enables the same value types as in Solidity.
+The xref:api:utils.adoc#TransientSlot[`TransientSlot`] library supports transient storage through user defined value types (https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types[UDVTs]), which enables the same value types as in Solidity.
 
 [source,solidity]
 ----
