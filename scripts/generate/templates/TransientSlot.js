@@ -36,13 +36,13 @@ const udvt = ({ type, name }) => `\
 /**
  * @dev UDVT that represent a slot holding a ${type}.
  */
-type ${name}SlotType is bytes32;
+type ${name}Slot is bytes32;
 
 /**
- * @dev Cast an arbitrary slot to a ${name}SlotType.
+ * @dev Cast an arbitrary slot to a ${name}Slot.
  */
-function as${name}(bytes32 slot) internal pure returns (${name}SlotType) {
-    return ${name}SlotType.wrap(slot);
+function as${name}(bytes32 slot) internal pure returns (${name}Slot) {
+    return ${name}Slot.wrap(slot);
 }
 `;
 
@@ -50,7 +50,7 @@ const transient = ({ type, name }) => `\
 /**
  * @dev Load the value held at location \`slot\` in transient storage.
  */
-function tload(${name}SlotType slot) internal view returns (${type} value) {
+function tload(${name}Slot slot) internal view returns (${type} value) {
     assembly ("memory-safe") {
         value := tload(slot)
     }
@@ -59,7 +59,7 @@ function tload(${name}SlotType slot) internal view returns (${type} value) {
 /**
  * @dev Store \`value\` at location \`slot\` in transient storage.
  */
-function tstore(${name}SlotType slot, ${type} value) internal {
+function tstore(${name}Slot slot, ${type} value) internal {
     assembly ("memory-safe") {
         tstore(slot, value)
     }
