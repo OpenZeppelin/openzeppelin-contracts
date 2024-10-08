@@ -573,9 +573,9 @@ library Math {
             x |= x >> 32;
             x |= x >> 64;
             x |= x >> 128;
-            // Obs: notice `x = 0` results in 1 here, when the closest power of two of zero is actually `-infinity`
-            // given `2**-infinity == 0`, we could argue that zero is closest to -infinity than 1, then we should do
-            // `(x >> 1) + toUint(x > 0)` instead, but this not necessary given floor(log2(0)) == floor(log2(1)) anyway.
+            // Obs: notice `x = 0` results in 1 here, when the closest power of two is actually zero given
+            // `2**-infinity == 0` then we should do `(x >> 1) + toUint(x > 0)` instead, but this not necessary
+            // given `floor(log2(0)) == floor(log2(1))` anyway.
             x = (x >> 1) + 1;
 
             // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
@@ -601,7 +601,7 @@ library Math {
             // in the corresponding byte at `index`.
             uint256 prod0;
             assembly ("memory-safe") {
-                prod0 := byte(mod(index, 11), 0x0000010002040007030605000000000000000000000000000000000000000000)
+                prod0 := byte(mod(n, 11), 0x0000010002040007030605000000000000000000000000000000000000000000)
             }
 
             // 4. Compute `prod1 = log2(x / n)`, notice `x / n` is a power of two multiple of 256, we use this
@@ -619,9 +619,9 @@ library Math {
             // | 2²⁴⁰ =< x < 2²⁴⁸ |  2²⁴⁰ | log2(2²³²) == 240 |    240 / 8 == 30      |
             // | 2²⁴⁸ =< x < 2²⁵⁶ |  2²⁴⁸ | log2(2²⁴⁸) == 248 |    248 / 8 == 31      |
             //
-            // Notice compute `(x / n) * value` is equivalent to `value << (index * 8)`, we use this fact to build
-            // a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n` moves the
-            // result to the most significant byte, finally extract `log2(x/n) by shift right the table.
+            // Notice compute `(x / n) * value` is equivalent to compute `value << (index * 8)`, we use this fact
+            // to build a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n`
+            // moves the result to the most significant byte, finally extract `log2(x/n) by shift right the table.
             //
             // prod1 = log2(x / n) = (x / n * table) >> 248
             uint256 prod1 = x >> prod0;
