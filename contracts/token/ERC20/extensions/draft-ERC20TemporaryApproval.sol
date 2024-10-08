@@ -112,10 +112,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         }
     }
 
-    function _temporaryAllowanceSlot(
-        address owner,
-        address spender
-    ) private pure returns (TransientSlot.Uint256Slot) {
+    function _temporaryAllowanceSlot(address owner, address spender) private pure returns (TransientSlot.Uint256Slot) {
         return ERC20_TEMPORARY_APPROVAL_STORAGE.deriveMapping(owner).deriveMapping(spender).asUint256();
     }
 }
