@@ -13,6 +13,7 @@ library UserOperationLib {
     uint256 public constant PAYMASTER_VALIDATION_GAS_OFFSET = 20;
     uint256 public constant PAYMASTER_POSTOP_GAS_OFFSET = 36;
     uint256 public constant PAYMASTER_DATA_OFFSET = 52;
+
     /**
      * Get sender from user operation data.
      * @param userOp - The user operation data.
