@@ -7,7 +7,7 @@ import {IERC20, ERC20} from "../ERC20.sol";
 import {IERC7674} from "../../../interfaces/draft-IERC7674.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {SlotDerivation} from "../../../utils/SlotDerivation.sol";
-import {StorageSlot} from "../../../utils/StorageSlot.sol";
+import {TransientSlot} from "../../../utils/TransientSlot.sol";
 
 /**
  * @dev Extension of {ERC20} that adds support for temporary allowances following ERC-7674.
@@ -18,8 +18,8 @@ import {StorageSlot} from "../../../utils/StorageSlot.sol";
  */
 abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     using SlotDerivation for bytes32;
-    using StorageSlot for bytes32;
-    using StorageSlot for StorageSlot.Uint256SlotType;
+    using TransientSlot for bytes32;
+    using TransientSlot for TransientSlot.Uint256Slot;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20_TEMPORARY_APPROVAL_STORAGE")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant ERC20_TEMPORARY_APPROVAL_STORAGE =
@@ -113,10 +113,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
         }
     }
 
-    function _temporaryAllowanceSlot(
-        address owner,
-        address spender
-    ) private pure returns (StorageSlot.Uint256SlotType) {
+    function _temporaryAllowanceSlot(address owner, address spender) private pure returns (TransientSlot.Uint256Slot) {
         return ERC20_TEMPORARY_APPROVAL_STORAGE.deriveMapping(owner).deriveMapping(spender).asUint256();
     }
 }
