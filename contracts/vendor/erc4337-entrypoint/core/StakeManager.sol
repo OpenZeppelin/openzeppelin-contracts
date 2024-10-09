@@ -16,8 +16,9 @@ abstract contract StakeManager is IStakeManager {
     mapping(address => DepositInfo) private _deposits; // OZ edit
 
     // OZ edit
-    function deposits(address account) public view returns (DepositInfo storage) {
-        return _deposits[account];
+    function deposits(address account) internal view returns (DepositInfo storage d) {
+        DepositInfo storage depositInfo = _deposits[account];
+        return depositInfo;
     }
 
     /// @inheritdoc IStakeManager
