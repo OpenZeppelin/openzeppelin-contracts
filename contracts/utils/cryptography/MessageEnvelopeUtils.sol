@@ -114,10 +114,7 @@ library MessageEnvelopeUtils {
             MessageHashUtils.toTypedDataHash(
                 separator,
                 keccak256(
-                    abi.encode(
-                        MessageEnvelopeUtils._PERSONAL_SIGN_ENVELOPE_TYPEHASH,
-                        MessageHashUtils.toEthSignedMessageHash(contents)
-                    )
+                    abi.encode(_PERSONAL_SIGN_ENVELOPE_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(contents))
                 )
             );
     }
