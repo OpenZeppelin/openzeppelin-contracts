@@ -17,7 +17,7 @@ import {UserOperationLib, PackedUserOperation} from "./UserOperationLib.sol"; //
 
 import {IAggregator} from "../interfaces/IAggregator.sol"; // OZ edit
 
-import {ERC165} from "../../../utils/introspection/ERC165.sol"; // OZ edit
+import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol"; // OZ edit
 import {ReentrancyGuard} from "../../../utils/ReentrancyGuard.sol"; // OZ edit
 
 /*
