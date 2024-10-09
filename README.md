@@ -40,6 +40,22 @@ $ npm install @openzeppelin/contracts
 ```
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
+If you get this error: 
+```
+The target directory is a part of or on its own an already initialized git repository,
+and it requires clean working and staging areas, including no untracked files.
+
+Check the current git repository's status with `git status`.
+Then, you can track files with `git add ...` and then commit them with `git commit`,
+ignore them in the `.gitignore` file, or run this command again with the `--no-commit` flag.
+
+If none of the previous steps worked, please open an issue at:
+https://github.com/foundry-rs/foundry/issues/new/choose
+```
+Then run it again with `--no-commit` this way:
+```
+forge install OpenZeppelin/openzeppelin-contracts --no-commit
+```
 
 Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
 
