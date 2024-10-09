@@ -9,10 +9,10 @@ pragma solidity >=0.7.5;
 /* solhint-disable no-inline-assembly */
 /* solhint-disable reason-string */
 
-import "./PackedUserOperation.sol";
-import "./IStakeManager.sol";
-import "./IAggregator.sol";
-import "./INonceManager.sol";
+import {PackedUserOperation} from "./PackedUserOperation.sol"; // OZ Edit
+import {IStakeManager} from "./IStakeManager.sol"; // OZ Edit
+import {IAggregator} from "./IAggregator.sol"; // OZ Edit
+import {INonceManager} from "./INonceManager.sol"; // OZ Edit
 
 interface IEntryPoint is IStakeManager, INonceManager {
     /***

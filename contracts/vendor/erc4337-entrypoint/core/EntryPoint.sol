@@ -3,22 +3,22 @@ pragma solidity ^0.8.23;
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable no-inline-assembly */
 
-import "../interfaces/IAccount.sol";
-import "../interfaces/IAccountExecute.sol";
-import "../interfaces/IPaymaster.sol";
-import "../interfaces/IEntryPoint.sol";
+import {IAccount} from "../interfaces/IAccount.sol"; // OZ edit
+import {IAccountExecute} from "../interfaces/IAccountExecute.sol"; // OZ edit
+import {IPaymaster} from "../interfaces/IPaymaster.sol"; // OZ edit
+import {IEntryPoint} from "../interfaces/IEntryPoint.sol"; // OZ edit
 
-import "../utils/Exec.sol";
-import "./StakeManager.sol";
-import "./SenderCreator.sol";
-import "./Helpers.sol";
-import "./NonceManager.sol";
-import "./UserOperationLib.sol";
+import {Exec} from "../utils/Exec.sol"; // OZ edit
+import {IStakeManager, StakeManager} from "./StakeManager.sol"; // OZ edit
+import {SenderCreator} from "./SenderCreator.sol"; // OZ edit
+import {ValidationData, _parseValidationData, min} from "./Helpers.sol"; // OZ edit
+import {INonceManager, NonceManager} from "./NonceManager.sol"; // OZ edit
+import {UserOperationLib, PackedUserOperation} from "./UserOperationLib.sol"; // OZ edit
 
-// import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-// import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "../../../utils/introspection/ERC165.sol"; // OZ edit
-import "../../../utils/ReentrancyGuard.sol"; // OZ edit
+import {IAggregator} from "../interfaces/IAggregator.sol"; // OZ edit
+
+import {ERC165} from "../../../utils/introspection/ERC165.sol"; // OZ edit
+import {ReentrancyGuard} from "../../../utils/ReentrancyGuard.sol"; // OZ edit
 
 /*
  * Account-Abstraction (EIP-4337) singleton EntryPoint implementation.

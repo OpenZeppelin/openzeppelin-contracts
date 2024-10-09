@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 /* solhint-disable no-inline-assembly */
 
-import "../interfaces/PackedUserOperation.sol";
+import {PackedUserOperation} from "../interfaces/PackedUserOperation.sol"; // OZ edit
 import {calldataKeccak, min} from "./Helpers.sol";
 
 /**
