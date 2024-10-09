@@ -573,9 +573,9 @@ library Math {
             x |= x >> 32;
             x |= x >> 64;
             x |= x >> 128;
-            // Obs: notice `x = 0` results in 1 here, when the closest power of two is actually zero given
-            // `2**-infinity == 0` then we should do `(x >> 1) + toUint(x > 0)` instead, but this not necessary
-            // given `floor(log2(0)) == floor(log2(1))` anyway.
+            // note `x = 0` results in 1 here, when the closest power of two is actually zero given
+            // `2**-infinity == 0` then we should do `(x >> 1) + toUint(x > 0)` instead, but this is not
+            // necessary given `floor(log2(0)) == floor(log2(1))` anyway.
             x = (x >> 1) + 1;
 
             // 1. Compute `n = x mod 255`, given `x` is power of two the resulting `n` can only be one of the
