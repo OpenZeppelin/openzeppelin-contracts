@@ -79,6 +79,14 @@ describe('ERC7579Utils', function () {
           ),
         );
     });
+
+    it('reverts with an invalid exec type', async function () {
+      const value = 0x012;
+      const data = encodeSingle(this.target, value, this.target.interface.encodeFunctionData('mockFunction'));
+      await expect(this.utils.$execSingle('0x03', data))
+        .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
+        .withArgs('0x03');
+    });
   });
 
   describe('execBatch', function () {
@@ -146,6 +154,18 @@ describe('ERC7579Utils', function () {
       expect(await ethers.provider.getBalance(this.target)).to.equal(value1);
       expect(await ethers.provider.getBalance(this.anotherTarget)).to.equal(0);
     });
+
+    it('reverts with an invalid exec type', async function () {
+      const value1 = 0x012;
+      const value2 = 0x234;
+      const data = encodeBatch(
+        [this.target, value1, this.target.interface.encodeFunctionData('mockFunction')],
+        [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunction')],
+      );
+      await expect(this.utils.$execBatch('0x03', data))
+        .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
+        .withArgs('0x03');
+    });
   });
 
   describe('execDelegateCall', function () {
@@ -181,6 +201,13 @@ describe('ERC7579Utils', function () {
             [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
           ),
         );
+    });
+
+    it('reverts with an invalid exec type', async function () {
+      const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunction'));
+      await expect(this.utils.$execDelegateCall('0x03', data))
+        .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
+        .withArgs('0x03');
     });
   });
 

@@ -120,6 +120,10 @@ describe('ERC4337Utils', function () {
       const result = await this.utils.$getValidationData(packValidationData(validAfter, validUntil, aggregator));
       expect(result).to.deep.equal([aggregator, true]);
     });
+
+    it('returns address(0) and false for validationData = 0', function () {
+      return expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ZeroAddress, false]);
+    });
   });
 
   describe('hash', function () {
