@@ -5,7 +5,8 @@
   "private": true,
   "files": [
     "/contracts/**/*.sol",
-    "!/contracts/mocks/**/*"
+    "!/contracts/mocks/**/*",
+    "!/contracts/vendor/erc4337-entrypoint"
   ],
   "scripts": {
     "compile": "hardhat compile",
