@@ -23,26 +23,31 @@ library ERC7579Utils {
     /**
      * @dev A single `call` execution.
      */
+    // slither-disable-next-line unused-state-variable
     CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 
     /**
      * @dev A batch of `call` executions.
      */
+    // slither-disable-next-line unused-state-variable
     CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 
     /**
      * @dev A `delegatecall` execution.
      */
+    // slither-disable-next-line unused-state-variable
     CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
     /**
      * @dev Default execution type that reverts on failure.
      */
+    // slither-disable-next-line unused-state-variable
     ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 
     /**
      * @dev Execution type that does not revert on failure.
      */
+    // slither-disable-next-line unused-state-variable
     ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
     /**
