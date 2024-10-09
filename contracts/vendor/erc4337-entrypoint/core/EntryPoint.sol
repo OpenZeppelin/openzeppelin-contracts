@@ -438,7 +438,7 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
                 revert FailedOpWithRevert(opIndex, "AA23 reverted", Exec.getReturnData(REVERT_REASON_MAX_LEN));
             }
             if (paymaster == address(0)) {
-                DepositInfo storage senderInfo = deposits[sender];
+                DepositInfo storage senderInfo = deposits(sender);
                 uint256 deposit = senderInfo.deposit;
                 if (requiredPrefund > deposit) {
                     revert FailedOp(opIndex, "AA21 didn't pay prefund");
@@ -469,7 +469,7 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
             uint256 preGas = gasleft();
             MemoryUserOp memory mUserOp = opInfo.mUserOp;
             address paymaster = mUserOp.paymaster;
-            DepositInfo storage paymasterInfo = deposits[paymaster];
+            DepositInfo storage paymasterInfo = deposits(paymaster);
             uint256 deposit = paymasterInfo.deposit;
             if (deposit < requiredPreFund) {
                 revert FailedOp(opIndex, "AA31 paymaster deposit too low");
