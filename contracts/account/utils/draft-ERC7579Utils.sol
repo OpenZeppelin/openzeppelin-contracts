@@ -177,8 +177,10 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        target = abi.decode(executionCalldata[0:20], (address));
-        value = abi.decode(executionCalldata[20:52], (uint256));
+        assembly ("memory-safe") {
+            target := shr(96, calldataload(executionCalldata.offset))
+            value := calldataload(add(executionCalldata.offset, 20))
+        }
         callData = executionCalldata[52:];
     }
 
@@ -198,7 +200,9 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        target = abi.decode(executionCalldata[0:20], (address));
+        assembly ("memory-safe") {
+            target := shr(96, calldataload(executionCalldata.offset))
+        }
         callData = executionCalldata[20:];
     }
 
