@@ -32,10 +32,6 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
 
     SenderCreator private immutable _senderCreator = new SenderCreator();
 
-    function senderCreator() internal view virtual returns (SenderCreator) {
-        return _senderCreator;
-    }
-
     //compensate for innerHandleOps' emit message and deposit refund.
     // allow some slack for future gas price changes.
     uint256 private constant INNER_GAS_OVERHEAD = 10000;
@@ -46,6 +42,11 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
 
     uint256 private constant REVERT_REASON_MAX_LEN = 2048;
     uint256 private constant PENALTY_PERCENT = 10;
+
+    // OZ edit: reorder
+    function senderCreator() internal view virtual returns (SenderCreator) {
+        return _senderCreator;
+    }
 
     /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
