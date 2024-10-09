@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.5;
 
-import {PackedUserOperation} from "./PackedUserOperation.sol"; // OZ Edit
+import "./PackedUserOperation.sol";
 
 /**
  * Aggregated Signatures validator.
@@ -13,7 +13,10 @@ interface IAggregator {
      * @param userOps   - Array of UserOperations to validate the signature for.
      * @param signature - The aggregated signature.
      */
-    function validateSignatures(PackedUserOperation[] calldata userOps, bytes calldata signature) external view;
+    function validateSignatures(
+        PackedUserOperation[] calldata userOps,
+        bytes calldata signature
+    ) external view;
 
     /**
      * Validate signature of a single userOp.

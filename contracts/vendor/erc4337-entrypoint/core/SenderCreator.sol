@@ -12,13 +12,23 @@ contract SenderCreator {
      *                   followed by calldata.
      * @return sender  - The returned address of the created account, or zero address on failure.
      */
-    function createSender(bytes calldata initCode) external returns (address sender) {
+    function createSender(
+        bytes calldata initCode
+    ) external returns (address sender) {
         address factory = address(bytes20(initCode[0:20]));
         bytes memory initCallData = initCode[20:];
         bool success;
         /* solhint-disable no-inline-assembly */
         assembly ("memory-safe") {
-            success := call(gas(), factory, 0, add(initCallData, 0x20), mload(initCallData), 0, 32)
+            success := call(
+                gas(),
+                factory,
+                0,
+                add(initCallData, 0x20),
+                mload(initCallData),
+                0,
+                32
+            )
             sender := mload(0)
         }
         if (!success) {

@@ -9,10 +9,10 @@ pragma solidity >=0.7.5;
 /* solhint-disable no-inline-assembly */
 /* solhint-disable reason-string */
 
-import {PackedUserOperation} from "./PackedUserOperation.sol"; // OZ Edit
-import {IStakeManager} from "./IStakeManager.sol"; // OZ Edit
-import {IAggregator} from "./IAggregator.sol"; // OZ Edit
-import {INonceManager} from "./INonceManager.sol"; // OZ Edit
+import "./PackedUserOperation.sol";
+import "./IStakeManager.sol";
+import "./IAggregator.sol";
+import "./INonceManager.sol";
 
 interface IEntryPoint is IStakeManager, INonceManager {
     /***
@@ -43,7 +43,12 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * @param factory    - The factory used to deploy this account (in the initCode)
      * @param paymaster  - The paymaster used by this UserOp
      */
-    event AccountDeployed(bytes32 indexed userOpHash, address indexed sender, address factory, address paymaster);
+    event AccountDeployed(
+        bytes32 indexed userOpHash,
+        address indexed sender,
+        address factory,
+        address paymaster
+    );
 
     /**
      * An event emitted if the UserOperation "callData" reverted with non-zero length.
@@ -66,7 +71,12 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * @param nonce        - The nonce used in the request.
      * @param revertReason - The return bytes from the (reverted) call to "callData".
      */
-    event PostOpRevertReason(bytes32 indexed userOpHash, address indexed sender, uint256 nonce, bytes revertReason);
+    event PostOpRevertReason(
+        bytes32 indexed userOpHash,
+        address indexed sender,
+        uint256 nonce,
+        bytes revertReason
+    );
 
     /**
      * UserOp consumed more than prefund. The UserOperation is reverted, and no refund is made.
@@ -74,7 +84,11 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * @param sender       - The sender of this request.
      * @param nonce        - The nonce used in the request.
      */
-    event UserOperationPrefundTooLow(bytes32 indexed userOpHash, address indexed sender, uint256 nonce);
+    event UserOperationPrefundTooLow(
+        bytes32 indexed userOpHash,
+        address indexed sender,
+        uint256 nonce
+    );
 
     /**
      * An event emitted by handleOps(), before starting the execution loop.
@@ -104,7 +118,7 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * A custom revert error of handleOps, to report a revert by account or paymaster.
      * @param opIndex - Index into the array of ops to the failed one (in simulateValidation, this is always zero).
      * @param reason  - Revert reason. see FailedOp(uint256,string), above
-     * @param inner   - data from inner caught revert reason
+     * @param inner   - data from inner cought revert reason
      * @dev note that inner is truncated to 2048 bytes
      */
     error FailedOpWithRevert(uint256 opIndex, string reason, bytes inner);
@@ -137,7 +151,10 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * @param ops         - The operations to execute.
      * @param beneficiary - The address to receive the fees.
      */
-    function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) external;
+    function handleOps(
+        PackedUserOperation[] calldata ops,
+        address payable beneficiary
+    ) external;
 
     /**
      * Execute a batch of UserOperation with Aggregators
@@ -155,7 +172,9 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * @param userOp - The user operation to generate the request ID for.
      * @return hash the hash of this UserOperation
      */
-    function getUserOpHash(PackedUserOperation calldata userOp) external view returns (bytes32);
+    function getUserOpHash(
+        PackedUserOperation calldata userOp
+    ) external view returns (bytes32);
 
     /**
      * Gas and return values during simulation.
