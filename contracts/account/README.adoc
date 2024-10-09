@@ -5,6 +5,16 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory includes contracts to build accounts for ERC-4337.
 
+== Core
+
+{{AccountBase}}
+
+{{AccountECDSA}}
+
+{{AccountP256}}
+
+{{AccountRSA}}
+
 == Utilities
 
 {{ERC4337Utils}}
