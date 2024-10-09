@@ -13,7 +13,7 @@ import {IStakeManager} from "../interfaces/IStakeManager.sol"; // OZ edit
  */
 abstract contract StakeManager is IStakeManager {
     /// maps paymaster to their deposits and stakes
-    mapping(address => DepositInfo) public deposits;
+    mapping(address => DepositInfo) private deposits; // OZ edit
 
     /// @inheritdoc IStakeManager
     function getDepositInfo(address account) public view returns (DepositInfo memory info) {
