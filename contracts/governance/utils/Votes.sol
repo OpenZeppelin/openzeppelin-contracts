@@ -232,7 +232,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         Checkpoints.Trace208 storage store,
         function(uint208, uint208) view returns (uint208) op,
         uint208 delta
-    ) private returns (uint208, uint208) {
+    ) private returns (uint208 oldValue, uint208 newValue) {
         return store.push(clock(), op(store.latest(), delta));
     }
 

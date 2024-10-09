@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
  * @dev Library of standard hash functions.
+ *
+ * _Available since v5.1._
  */
 library Hashes {
     /**

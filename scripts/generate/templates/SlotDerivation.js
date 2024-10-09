@@ -1,4 +1,5 @@
 const format = require('../format-lines');
+const sanitize = require('../helpers/sanitize');
 const { TYPES } = require('./Slot.opts');
 
 const header = `\
@@ -35,6 +36,8 @@ pragma solidity ^0.8.20;
  *
  * NOTE: This library provides a way to manipulate storage locations in a non-standard way. Tooling for checking
  * upgrade safety will ignore the slots accessed through this library.
+ *
+ * _Available since v5.1._
  */
 `;
 
@@ -77,7 +80,7 @@ const mapping = ({ type }) => `\
  */
 function deriveMapping(bytes32 slot, ${type} key) internal pure returns (bytes32 result) {
     assembly ("memory-safe") {
-        mstore(0x00, key)
+        mstore(0x00, ${(sanitize[type] ?? (x => x))('key')})
         mstore(0x20, slot)
         result := keccak256(0x00, 0x40)
     }
