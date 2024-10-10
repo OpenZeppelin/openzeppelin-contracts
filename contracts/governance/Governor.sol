@@ -259,6 +259,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params
     ) internal virtual returns (uint256);
 
+    function _tallyUpdated(uint256 proposalId) internal virtual {}
+
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
      *
@@ -731,7 +733,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      *
      * If requirements are not met, reverts with a {GovernorUnexpectedProposalState} error.
      */
-    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) private view returns (ProposalState) {
+    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) internal view returns (ProposalState) {
         ProposalState currentState = state(proposalId);
         if (_encodeStateBitmap(currentState) & allowedStates == bytes32(0)) {
             revert GovernorUnexpectedProposalState(proposalId, currentState, allowedStates);
