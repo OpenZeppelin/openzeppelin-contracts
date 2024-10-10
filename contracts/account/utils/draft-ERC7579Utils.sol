@@ -216,27 +216,27 @@ library ERC7579Utils {
 }
 
 // Operators
-using {_eqCallTypeGlobal as ==} for CallType global;
-using {_eqExecTypeGlobal as ==} for ExecType global;
-using {_eqModeSelectorGlobal as ==} for ModeSelector global;
-using {_eqModePayloadGlobal as ==} for ModePayload global;
+using {eqCallType as ==} for CallType global;
+using {eqExecType as ==} for ExecType global;
+using {eqModeSelector as ==} for ModeSelector global;
+using {eqModePayload as ==} for ModePayload global;
 
 /// @dev Compares two `CallType` values for equality.
-function _eqCallTypeGlobal(CallType a, CallType b) pure returns (bool) {
+function eqCallType(CallType a, CallType b) pure returns (bool) {
     return CallType.unwrap(a) == CallType.unwrap(b);
 }
 
 /// @dev Compares two `ExecType` values for equality.
-function _eqExecTypeGlobal(ExecType a, ExecType b) pure returns (bool) {
+function eqExecType(ExecType a, ExecType b) pure returns (bool) {
     return ExecType.unwrap(a) == ExecType.unwrap(b);
 }
 
 /// @dev Compares two `ModeSelector` values for equality.
-function _eqModeSelectorGlobal(ModeSelector a, ModeSelector b) pure returns (bool) {
+function eqModeSelector(ModeSelector a, ModeSelector b) pure returns (bool) {
     return ModeSelector.unwrap(a) == ModeSelector.unwrap(b);
 }
 
 /// @dev Compares two `ModePayload` values for equality.
-function _eqModePayloadGlobal(ModePayload a, ModePayload b) pure returns (bool) {
+function eqModePayload(ModePayload a, ModePayload b) pure returns (bool) {
     return ModePayload.unwrap(a) == ModePayload.unwrap(b);
 }
