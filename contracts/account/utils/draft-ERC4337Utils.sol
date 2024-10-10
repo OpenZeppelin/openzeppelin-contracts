@@ -42,10 +42,10 @@ library ERC4337Utils {
     /// @dev Same as {packValidationData}, but with a boolean signature success flag.
     function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
         return
-            uint256(
-                bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(
-                    bytes20(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED)))
-                )
+            packValidationData(
+                address(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED))),
+                validAfter,
+                validUntil
             );
     }
 
