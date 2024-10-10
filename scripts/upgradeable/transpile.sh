@@ -23,7 +23,7 @@ fi
 # -D: delete original and excluded files
 # -b: use this build info file
 # -i: use included Initializable
-# -x: exclude proxy-related contracts with a few exceptions
+# -x: exclude vendored and proxy-related contracts with a few exceptions
 # -p: emit public initializer
 # -n: use namespaces
 # -N: exclude from namespaces transformation
@@ -31,6 +31,8 @@ fi
 npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
+  -x 'contracts/vendor/**/*' \
+  -x '!contracts/vendor/compound/ICompoundTimelock.sol' \
   -x 'contracts-exposed/**/*' \
   -x 'contracts/proxy/**/*' \
   -x '!contracts/proxy/Clones.sol' \
@@ -44,7 +46,6 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -p 'contracts/metatx/ERC2771Forwarder.sol' \
   -n \
   -N 'contracts/mocks/**/*' \
-  -N 'contracts/vendor/**/*' \
   -q '@openzeppelin/'
 
 # delete compilation artifacts of vanilla code

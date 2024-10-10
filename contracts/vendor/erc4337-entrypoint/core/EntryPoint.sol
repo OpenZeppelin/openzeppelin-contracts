@@ -3,22 +3,22 @@ pragma solidity ^0.8.23;
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable no-inline-assembly */
 
-import {IAccount} from "../interfaces/IAccount.sol"; // OZ edit
-import {IAccountExecute} from "../interfaces/IAccountExecute.sol"; // OZ edit
-import {IPaymaster} from "../interfaces/IPaymaster.sol"; // OZ edit
-import {IEntryPoint} from "../interfaces/IEntryPoint.sol"; // OZ edit
+import "../interfaces/IAccount.sol";
+import "../interfaces/IAccountExecute.sol";
+import "../interfaces/IPaymaster.sol";
+import "../interfaces/IEntryPoint.sol";
 
-import {Exec} from "../utils/Exec.sol"; // OZ edit
-import {IStakeManager, StakeManager} from "./StakeManager.sol"; // OZ edit
-import {SenderCreator} from "./SenderCreator.sol"; // OZ edit
-import {ValidationData, _parseValidationData, min} from "./Helpers.sol"; // OZ edit
-import {INonceManager, NonceManager} from "./NonceManager.sol"; // OZ edit
-import {UserOperationLib, PackedUserOperation} from "./UserOperationLib.sol"; // OZ edit
+import "../utils/Exec.sol";
+import "./StakeManager.sol";
+import "./SenderCreator.sol";
+import "./Helpers.sol";
+import "./NonceManager.sol";
+import "./UserOperationLib.sol";
 
-import {IAggregator} from "../interfaces/IAggregator.sol"; // OZ edit
-
-import {IERC165, ERC165} from "../../../utils/introspection/ERC165.sol"; // OZ edit
-import {ReentrancyGuard} from "../../../utils/ReentrancyGuard.sol"; // OZ edit
+// import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+// import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "../../../utils/introspection/ERC165.sol"; // OZ edit
+import "../../../utils/ReentrancyGuard.sol"; // OZ edit
 
 /*
  * Account-Abstraction (EIP-4337) singleton EntryPoint implementation.
@@ -32,6 +32,10 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
 
     SenderCreator private immutable _senderCreator = new SenderCreator();
 
+    function senderCreator() internal view virtual returns (SenderCreator) {
+        return _senderCreator;
+    }
+
     //compensate for innerHandleOps' emit message and deposit refund.
     // allow some slack for future gas price changes.
     uint256 private constant INNER_GAS_OVERHEAD = 10000;
@@ -42,11 +46,6 @@ contract EntryPoint is IEntryPoint, StakeManager, NonceManager, ReentrancyGuard,
 
     uint256 private constant REVERT_REASON_MAX_LEN = 2048;
     uint256 private constant PENALTY_PERCENT = 10;
-
-    // OZ edit: reorder
-    function senderCreator() internal view virtual returns (SenderCreator) {
-        return _senderCreator;
-    }
 
     /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {

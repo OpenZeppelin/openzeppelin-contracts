@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.23;
 
-import {IStakeManager} from "../interfaces/IStakeManager.sol"; // OZ edit
+import "../interfaces/IStakeManager.sol";
 
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable not-rely-on-time */

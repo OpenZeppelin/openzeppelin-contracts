@@ -9,10 +9,10 @@ pragma solidity >=0.7.5;
 /* solhint-disable no-inline-assembly */
 /* solhint-disable reason-string */
 
-import {PackedUserOperation} from "./PackedUserOperation.sol"; // OZ Edit
-import {IStakeManager} from "./IStakeManager.sol"; // OZ Edit
-import {IAggregator} from "./IAggregator.sol"; // OZ Edit
-import {INonceManager} from "./INonceManager.sol"; // OZ Edit
+import "./PackedUserOperation.sol";
+import "./IStakeManager.sol";
+import "./IAggregator.sol";
+import "./INonceManager.sol";
 
 interface IEntryPoint is IStakeManager, INonceManager {
     /***
@@ -118,7 +118,7 @@ interface IEntryPoint is IStakeManager, INonceManager {
      * A custom revert error of handleOps, to report a revert by account or paymaster.
      * @param opIndex - Index into the array of ops to the failed one (in simulateValidation, this is always zero).
      * @param reason  - Revert reason. see FailedOp(uint256,string), above
-     * @param inner   - data from inner caught revert reason
+     * @param inner   - data from inner cought revert reason
      * @dev note that inner is truncated to 2048 bytes
      */
     error FailedOpWithRevert(uint256 opIndex, string reason, bytes inner);
