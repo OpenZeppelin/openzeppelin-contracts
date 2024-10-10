@@ -5,13 +5,16 @@ set -euo pipefail -x
 VERSION="$(jq -r .version contracts/package.json)"
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
 
+# Apply patch to contracts that are transpiled
 bash "$DIRNAME/patch-apply.sh"
 sed -i'' -e "s/<package-version>/$VERSION/g" "contracts/package.json"
 git add contracts/package.json
 
+# Build artifacts
 npm run clean
 npm run compile
 
+# Check artifacts are correctly built
 build_info=($(jq -r '.input.sources | keys | if any(test("^contracts/mocks/.*\\bunreachable\\b")) then empty else input_filename end' artifacts/build-info/*))
 build_info_num=${#build_info[@]}
 
@@ -19,6 +22,9 @@ if [ $build_info_num -ne 1 ]; then
   echo "found $build_info_num relevant build info files but expected just 1"
   exit 1
 fi
+
+# Apply changes to the excluded contracts (these don't need to in the artifact and may prevent compilation)
+git apply -3 "$DIRNAME/upgradeable.excluded.patch"
 
 # -D: delete original and excluded files
 # -b: use this build info file
@@ -31,8 +37,6 @@ fi
 npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
-  -x 'contracts/vendor/**/*' \
-  -x '!contracts/vendor/compound/ICompoundTimelock.sol' \
   -x 'contracts-exposed/**/*' \
   -x 'contracts/proxy/**/*' \
   -x '!contracts/proxy/Clones.sol' \
@@ -40,6 +44,8 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \
   -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -x '!contracts/proxy/beacon/IBeacon.sol' \
+  -x 'contracts/vendor/**/*' \
+  -x '!contracts/vendor/compound/ICompoundTimelock.sol' \
   -p 'contracts/access/manager/AccessManager.sol' \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \

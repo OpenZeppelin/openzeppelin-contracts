@@ -3,7 +3,7 @@
 set -euo pipefail
 
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
-PATCH="$DIRNAME/upgradeable.patch"
+PATCH="$DIRNAME/${1:-upgradeable.patch}"
 
 error() {
   echo Error: "$*" >&2
