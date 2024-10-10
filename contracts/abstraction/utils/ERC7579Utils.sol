@@ -11,7 +11,7 @@ type ExecType is bytes1;
 type ModeSelector is bytes4;
 type ModePayload is bytes22;
 
-// slither-disable-next-line unused-state-variable
+// slither-disable-next-line unused-state
 library ERC7579Utils {
     using Packing for *;
 
