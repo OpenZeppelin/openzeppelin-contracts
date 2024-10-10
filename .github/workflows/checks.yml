@@ -6,6 +6,7 @@ on:
       - master
       - next-v*
       - release-v*
+      - account-abstraction
   pull_request: {}
   workflow_dispatch: {}
 
@@ -129,4 +130,4 @@ jobs:
         with:
           check_hidden: true
           check_filenames: true
-          skip: package-lock.json,*.pdf
+          skip: package-lock.json,*.pdf,vendor
