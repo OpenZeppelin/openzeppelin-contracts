@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { hashTypedData, domainSeparator, hashTypedDataEnvelopeStruct, getDomain } = require('../../helpers/eip712');
+const { hashTypedData, domainSeparator, hashNestedTypedDataStruct, getDomain } = require('../../helpers/eip712');
 
-function shouldBehaveLikeERC1271TypedSigner() {
+function shouldBehaveLikeERC7739Signer() {
   const MAGIC_VALUE = '0x1626ba7e';
 
   beforeEach(async function () {
@@ -27,9 +27,9 @@ function shouldBehaveLikeERC1271TypedSigner() {
       };
       expect(
         await this.mock.isValidSignature(
-          hashTypedData(appDomain, hashTypedDataEnvelopeStruct(this.domain, contents, contentsType)),
+          hashTypedData(appDomain, hashNestedTypedDataStruct(this.domain, contents, contentsType)),
           ethers.concat([
-            await this.signer.signTypedDataEnvelope(this.domain, appDomain, contents, contentsType),
+            await this.signer.signNestedTypedData(this.domain, appDomain, contents, contentsType),
             domainSeparator(appDomain),
             contents,
             ethers.toUtf8Bytes(contentsType),
@@ -42,5 +42,5 @@ function shouldBehaveLikeERC1271TypedSigner() {
 }
 
 module.exports = {
-  shouldBehaveLikeERC1271TypedSigner,
+  shouldBehaveLikeERC7739Signer,
 };

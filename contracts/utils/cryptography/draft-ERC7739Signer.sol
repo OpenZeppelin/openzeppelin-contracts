@@ -5,11 +5,11 @@ pragma solidity ^0.8.20;
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {EIP712} from "./EIP712.sol";
 import {MessageHashUtils} from "./MessageHashUtils.sol";
-import {MessageEnvelopeUtils} from "./MessageEnvelopeUtils.sol";
+import {ERC7739Utils} from "./draft-ERC7739Utils.sol";
 import {ShortStrings} from "../ShortStrings.sol";
 
 /**
- * @dev Validates signatures wrapping the message hash in an EIP712 envelope. See {MessageEnvelopeUtils}.
+ * @dev Validates signatures wrapping the message hash in an EIP712 envelope. See {ERC7739Utils}.
  *
  * Linking the signature to the EIP-712 domain separator is a security measure to prevent signature replay across different
  * EIP-712 domains (e.g. a single offchain owner of multiple contracts).
@@ -21,8 +21,8 @@ import {ShortStrings} from "../ShortStrings.sol";
  * Consider that strings longer than that will use storage, which may limit the ability of the signer to
  * be used within the ERC-4337 validation phase (due to ERC-7562 storage access rules).
  */
-abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
-    using MessageEnvelopeUtils for *;
+abstract contract ERC7739Signer is EIP712, IERC1271 {
+    using ERC7739Utils for *;
 
     /**
      * @dev Attempts validating the signature in an nested EIP-712 envelope.
@@ -69,7 +69,7 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
     /**
      * @dev EIP-712 typed data envelope verification.
      *
-     * See {MessageEnvelopeUtils-toTypedDataEnvelopeHash} for the envelope structure.
+     * See {ERC7739Utils-toNestedTypedDataHash} for the envelope structure.
      */
     function _typedDataEnvelopeHash(
         bytes calldata signature
@@ -89,9 +89,9 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
             uint256[] memory extensions
         ) = eip712Domain();
 
-        result = MessageEnvelopeUtils.toTypedDataEnvelopeHash(
+        result = ERC7739Utils.toNestedTypedDataHash(
             appSeparator,
-            MessageEnvelopeUtils.typedDataEnvelopeStructHash(
+            ERC7739Utils.typedDataNestedStructHash(
                 contentsType,
                 contents,
                 name,
@@ -104,10 +104,10 @@ abstract contract ERC1271TypedSigner is EIP712, IERC1271 {
     }
 
     /**
-     * @dev See {MessageEnvelopeUtils-toPersonalSignEnvelopeHash}.
+     * @dev See {ERC7739Utils-toNestedPersonalSignHash}.
      */
     function _personalSigEnvelopeHash(bytes32 hash) internal view virtual returns (bytes32) {
-        return _domainSeparatorV4().toPersonalSignEnvelopeHash(hash);
+        return _domainSeparatorV4().toNestedPersonalSignHash(hash);
     }
 
     /**
