@@ -259,6 +259,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params
     ) internal virtual returns (uint256);
 
+    function _tallyUpdated(uint256 proposalId) internal virtual {}
+
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
      *

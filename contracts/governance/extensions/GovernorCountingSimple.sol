@@ -97,6 +97,8 @@ abstract contract GovernorCountingSimple is Governor {
             revert GovernorInvalidVoteType();
         }
 
+        _tallyUpdated(proposalId);
+
         return totalWeight;
     }
 }

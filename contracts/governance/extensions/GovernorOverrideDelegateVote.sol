@@ -117,6 +117,8 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
         proposalVote.votes[support] += totalWeight;
         proposalVote.voteReceipt[account].casted = support + 1;
 
+        _tallyUpdated(proposalId);
+
         return totalWeight;
     }
 
@@ -146,6 +148,8 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
             proposalVote.votes[delegateSupport] -= overridenWeight;
             emit VoteReduced(delegate, proposalId, delegateSupport, overridenWeight);
         }
+
+        _tallyUpdated(proposalId);
 
         return overridenWeight;
     }
