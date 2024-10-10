@@ -36,6 +36,7 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
     }
 
     event VoteReduced(address indexed voter, uint256 proposalId, uint8 support, uint256 weight);
+    event OverrideVoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
     error GovernorAlreadyCastVoteOverride(address account);
 
@@ -160,7 +161,7 @@ abstract contract GovernorOverrideDelegateVote is GovernorVotes {
 
         uint256 overridenWeight = _countOverride(proposalId, account, support);
 
-        emit VoteCast(account, proposalId, support, overridenWeight, reason);
+        emit OverrideVoteCast(account, proposalId, support, overridenWeight, reason);
 
         return overridenWeight;
     }

@@ -130,7 +130,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
           const reason = "disagree with user 2's decision";
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
             .to.emit(this.mock, 'VoteReduced')
             .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('10'));
@@ -156,7 +156,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
           const reason = 'voter 2 is not voting';
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
             .to.not.emit(this.mock, 'VoteReduced');
 
@@ -193,7 +193,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
           const reason = 'voter 2 is not voting';
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, reason))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), reason)
             .to.not.emit(this.mock, 'VoteReduced');
 
@@ -219,7 +219,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
           const reason2 = "disagree with user 2's decision";
           await expect(this.mock.connect(this.voter4).castOverrideVote(this.helper.id, VoteType.Abstain, reason2))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter4, this.helper.id, VoteType.Abstain, ethers.parseEther('2'), reason2)
             .to.emit(this.mock, 'VoteReduced')
             .withArgs(this.voter2, this.helper.id, VoteType.For, ethers.parseEther('2'));
@@ -245,7 +245,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
           // user 1 cast an override vote with its own balance (delegated to user 2)
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, ''))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), '');
 
           expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
@@ -257,7 +257,7 @@ describe('GovernorOverrideDelegateVote', function () {
 
         it('can not override vote twice', async function () {
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Against, ''))
-            .to.emit(this.mock, 'VoteCast')
+            .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), '');
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Abstain, ''))
             .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVoteOverride')
