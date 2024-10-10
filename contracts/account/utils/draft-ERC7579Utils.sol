@@ -17,77 +17,47 @@ type ModePayload is bytes22;
  *
  * See https://eips.ethereum.org/EIPS/eip-7579[ERC-7579].
  */
+// slither-disable-next-line unused-state
 library ERC7579Utils {
     using Packing for *;
 
-    /**
-     * @dev A single `call` execution.
-     */
-    // slither-disable-next-line unused-state
+    /// @dev A single `call` execution.
     CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 
-    /**
-     * @dev A batch of `call` executions.
-     */
-    // slither-disable-next-line unused-state
+    /// @dev A batch of `call` executions.
     CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 
-    /**
-     * @dev A `delegatecall` execution.
-     */
-    // slither-disable-next-line unused-state
+    /// @dev A `delegatecall` execution.
     CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
-    /**
-     * @dev Default execution type that reverts on failure.
-     */
-    // slither-disable-next-line unused-state
+    /// @dev Default execution type that reverts on failure.
     ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 
-    /**
-     * @dev Execution type that does not revert on failure.
-     */
-    // slither-disable-next-line unused-state
+    /// @dev Execution type that does not revert on failure.
     ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
-    /**
-     * @dev Emits when an {EXECTYPE_TRY} execution fails.
-     */
+    /// @dev Emits when an {EXECTYPE_TRY} execution fails.
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
 
-    /**
-     * @dev The provided {CallType} is not supported.
-     */
+    /// @dev The provided {CallType} is not supported.
     error ERC7579UnsupportedCallType(CallType callType);
 
-    /**
-     * @dev The provided {ExecType} is not supported.
-     */
+    /// @dev The provided {ExecType} is not supported.
     error ERC7579UnsupportedExecType(ExecType execType);
 
-    /**
-     * @dev The provided module doesn't match the provided module type.
-     */
+    /// @dev The provided module doesn't match the provided module type.
     error ERC7579MismatchedModuleTypeId(uint256 moduleTypeId, address module);
 
-    /**
-     * @dev The module is not installed.
-     */
+    /// @dev The module is not installed.
     error ERC7579UninstalledModule(uint256 moduleTypeId, address module);
 
-    /**
-     * @dev The module is already installed.
-     */
+    /// @dev The module is already installed.
     error ERC7579AlreadyInstalledModule(uint256 moduleTypeId, address module);
 
-    /**
-     * @dev The module type is not supported.
-     */
+    /// @dev The module type is not supported.
     error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
-    /**
-     * @dev Executes a single call.
-     */
+    /// @dev Executes a single call.
     function execSingle(
         ExecType execType,
         bytes calldata executionCalldata
@@ -97,9 +67,7 @@ library ERC7579Utils {
         returnData[0] = _call(0, execType, target, value, callData);
     }
 
-    /**
-     * @dev Executes a batch of calls.
-     */
+    /// @dev Executes a batch of calls.
     function execBatch(
         ExecType execType,
         bytes calldata executionCalldata
@@ -117,9 +85,7 @@ library ERC7579Utils {
         }
     }
 
-    /**
-     * @dev Executes a delegate call.
-     */
+    /// @dev Executes a delegate call.
     function execDelegateCall(
         ExecType execType,
         bytes calldata executionCalldata
@@ -131,9 +97,7 @@ library ERC7579Utils {
         _validateExecutionMode(0, execType, success, returndata);
     }
 
-    /**
-     * @dev Encodes the mode with the provided parameters. See {decodeMode}.
-     */
+    /// @dev Encodes the mode with the provided parameters. See {decodeMode}.
     function encodeMode(
         CallType callType,
         ExecType execType,
@@ -151,9 +115,7 @@ library ERC7579Utils {
             );
     }
 
-    /**
-     * @dev Decodes the mode into its parameters. See {encodeMode}.
-     */
+    /// @dev Decodes the mode into its parameters. See {encodeMode}.
     function decodeMode(
         Mode mode
     ) internal pure returns (CallType callType, ExecType execType, ModeSelector selector, ModePayload payload) {
@@ -165,9 +127,7 @@ library ERC7579Utils {
         );
     }
 
-    /**
-     * @dev Encodes a single call execution. See {decodeSingle}.
-     */
+    /// @dev Encodes a single call execution. See {decodeSingle}.
     function encodeSingle(
         address target,
         uint256 value,
@@ -176,22 +136,16 @@ library ERC7579Utils {
         return abi.encodePacked(target, value, callData);
     }
 
-    /**
-     * @dev Decodes a single call execution. See {encodeSingle}.
-     */
+    /// @dev Decodes a single call execution. See {encodeSingle}.
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        assembly ("memory-safe") {
-            target := shr(96, calldataload(executionCalldata.offset))
-            value := calldataload(add(executionCalldata.offset, 20))
-        }
+        target = address(bytes20(executionCalldata[0:20]));
+        value = uint256(bytes32(executionCalldata[20:52]));
         callData = executionCalldata[52:];
     }
 
-    /**
-     * @dev Encodes a delegate call execution. See {decodeDelegate}.
-     */
+    /// @dev Encodes a delegate call execution. See {decodeDelegate}.
     function encodeDelegate(
         address target,
         bytes calldata callData
@@ -199,28 +153,20 @@ library ERC7579Utils {
         return abi.encodePacked(target, callData);
     }
 
-    /**
-     * @dev Decodes a delegate call execution. See {encodeDelegate}.
-     */
+    /// @dev Decodes a delegate call execution. See {encodeDelegate}.
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        assembly ("memory-safe") {
-            target := shr(96, calldataload(executionCalldata.offset))
-        }
+        target = address(bytes20(executionCalldata[0:20]));
         callData = executionCalldata[20:];
     }
 
-    /**
-     * @dev Encodes a batch of executions. See {decodeBatch}.
-     */
+    /// @dev Encodes a batch of executions. See {decodeBatch}.
     function encodeBatch(Execution[] memory executionBatch) internal pure returns (bytes memory executionCalldata) {
         return abi.encode(executionBatch);
     }
 
-    /**
-     * @dev Decodes a batch of executions. See {encodeBatch}.
-     */
+    /// @dev Decodes a batch of executions. See {encodeBatch}.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         assembly ("memory-safe") {
             let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
@@ -230,9 +176,7 @@ library ERC7579Utils {
         }
     }
 
-    /**
-     * @dev Executes a `call` to the target with the provided {ExecType}.
-     */
+    /// @dev Executes a `call` to the target with the provided {ExecType}.
     function _call(
         uint256 index,
         ExecType execType,
@@ -244,21 +188,21 @@ library ERC7579Utils {
         return _validateExecutionMode(index, execType, success, returndata);
     }
 
-    /**
-     * @dev Validates the execution mode and returns the returndata.
-     */
+    /// @dev Validates the execution mode and returns the returndata.
     function _validateExecutionMode(
         uint256 index,
         ExecType execType,
         bool success,
         bytes memory returndata
     ) private returns (bytes memory) {
-        if (execType == ERC7579Utils.EXECTYPE_DEFAULT) return Address.verifyCallResult(success, returndata);
-        if (execType == ERC7579Utils.EXECTYPE_TRY) {
+        if (execType == ERC7579Utils.EXECTYPE_DEFAULT) {
+            Address.verifyCallResult(success, returndata);
+        } else if (execType == ERC7579Utils.EXECTYPE_TRY) {
             if (!success) emit ERC7579TryExecuteFail(index, returndata);
-            return returndata;
+        } else {
+            revert ERC7579UnsupportedExecType(execType);
         }
-        revert ERC7579UnsupportedExecType(execType);
+        return returndata;
     }
 }
 
