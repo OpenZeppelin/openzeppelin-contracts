@@ -92,9 +92,7 @@ library ERC7579Utils {
     ) internal returns (bytes[] memory returnData) {
         (address target, bytes calldata callData) = decodeDelegate(executionCalldata);
         returnData = new bytes[](1);
-        (bool success, bytes memory returndata) = target.delegatecall(callData);
-        returnData[0] = returndata;
-        _validateExecutionMode(0, execType, success, returndata);
+        returnData[0] = _delegatecall(0, execType, target, callData);
     }
 
     /// @dev Encodes the mode with the provided parameters. See {decodeMode}.
@@ -185,6 +183,17 @@ library ERC7579Utils {
         bytes calldata data
     ) private returns (bytes memory) {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
+        return _validateExecutionMode(index, execType, success, returndata);
+    }
+
+    /// @dev Executes a `delegatecall` to the target with the provided {ExecType}.
+    function _delegatecall(
+        uint256 index,
+        ExecType execType,
+        address target,
+        bytes calldata data
+    ) private returns (bytes memory) {
+        (bool success, bytes memory returndata) = target.delegatecall(data);
         return _validateExecutionMode(index, execType, success, returndata);
     }
 
