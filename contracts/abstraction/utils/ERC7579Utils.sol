@@ -11,14 +11,15 @@ type ExecType is bytes1;
 type ModeSelector is bytes4;
 type ModePayload is bytes22;
 
+// slither-disable-next-line unused-state
 library ERC7579Utils {
     using Packing for *;
 
-    CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
-    CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
-    CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
-    ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
-    ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
+    CallType internal constant CALLTYPE_SINGLE = CallType.wrap(0x00);
+    CallType internal constant CALLTYPE_BATCH = CallType.wrap(0x01);
+    CallType internal constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+    ExecType internal constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
+    ExecType internal constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
     function encodeMode(
         CallType callType,
