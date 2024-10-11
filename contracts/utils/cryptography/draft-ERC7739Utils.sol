@@ -234,7 +234,7 @@ library ERC7739Utils {
         for (uint256 i = 0; i < argsStart; i++) {
             // Look for any of the following bytes: , )\x00
             bytes1 current = contentsType[i];
-            if (current == 0x2c || current == 0x29 || current == 0x32 || current == 0x00)
+            if (current == 0x2c || current == 0x20 || current == 0x29 || current == 0x00)
                 return (false, contentsType[0:0]);
         }
 
