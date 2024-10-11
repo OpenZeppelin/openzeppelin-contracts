@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
-import {CAIP2} from "./CAIP-2.sol";
+import {CAIP2} from "./CAIP2.sol";
 import {Strings} from "./Strings.sol";
 
 /**
