@@ -92,8 +92,8 @@ describe('Strings', function () {
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.$parseHexUint(string)).to.equal(value);
       expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
-      expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
-      expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string)).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
 
     it('converts a positive number', async function () {
@@ -103,8 +103,8 @@ describe('Strings', function () {
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.$parseHexUint(string)).to.equal(value);
       expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
-      expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
-      expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string)).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
 
     it('converts MAX_UINT256', async function () {
@@ -114,8 +114,8 @@ describe('Strings', function () {
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
       expect(await this.mock.$parseHexUint(string)).to.equal(value);
       expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
-      expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
-      expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string)).to.deep.equal([true, value]);
+      expect(await this.mock.$tryParseHexUint(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
   });
 
@@ -280,7 +280,7 @@ describe('Strings', function () {
       await expect(this.mock.$parseHexUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
-      await expect(this.mock.$tryParseHex((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
+      await expect(this.mock.$tryParseHexUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
     });
@@ -295,12 +295,12 @@ describe('Strings', function () {
       await expect(this.mock.$parseHexUint('-0xf')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       await expect(this.mock.$parseHexUint('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       await expect(this.mock.$parseHexUint('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      expect(await this.mock.$tryParseHex('0123456789abcdefg')).to.deep.equal([false, 0n]);
-      expect(await this.mock.$tryParseHex('-1')).to.deep.equal([false, 0n]);
-      expect(await this.mock.$tryParseHex('-f')).to.deep.equal([false, 0n]);
-      expect(await this.mock.$tryParseHex('-0xf')).to.deep.equal([false, 0n]);
-      expect(await this.mock.$tryParseHex('1.0')).to.deep.equal([false, 0n]);
-      expect(await this.mock.$tryParseHex('1 000')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('0123456789abcdefg')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('-1')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('-f')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('-0xf')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('1.0')).to.deep.equal([false, 0n]);
+      expect(await this.mock.$tryParseHexUint('1 000')).to.deep.equal([false, 0n]);
     });
 
     it('parseAddress invalid format', async function () {
