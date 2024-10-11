@@ -154,8 +154,8 @@ library ERC7739Utils {
     function toNestedTypedDataHash(
         bytes32 separator,
         bytes32 hashedTypedDataNestedStruct
-    ) internal pure returns (bytes32 result) {
-        result = MessageHashUtils.toTypedDataHash(separator, hashedTypedDataNestedStruct);
+    ) internal pure returns (bytes32) {
+        return MessageHashUtils.toTypedDataHash(separator, hashedTypedDataNestedStruct);
     }
 
     /**

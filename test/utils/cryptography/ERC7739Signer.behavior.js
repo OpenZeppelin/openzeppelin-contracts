@@ -38,6 +38,12 @@ function shouldBehaveLikeERC7739Signer() {
         ),
       ).to.equal(MAGIC_VALUE);
     });
+
+    it('returns false for an invalid signature', async function () {
+      const contents = ethers.randomBytes(32);
+      const signature = await this.signer.signPersonal(this.domain, contents);
+      expect(await this.mock.isValidSignature(ethers.randomBytes(32), signature)).to.not.equal(MAGIC_VALUE);
+    });
   });
 }
 

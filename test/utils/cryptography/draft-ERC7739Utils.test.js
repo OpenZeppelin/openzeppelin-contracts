@@ -38,6 +38,18 @@ describe('ERC7739Utils', function () {
 
       expect(unwrapped).to.deep.eq([ethers.hexlify(originalSig), appSeparator, contents, ethers.hexlify(contentsType)]);
     });
+
+    it('returns default empty values if the signature is too short', async function () {
+      const signature = ethers.randomBytes(65); // DOMAIN_SEPARATOR (32 bytes) + CONTENTS (32 bytes) + CONTENTS_TYPE_LENGTH (2 bytes) - 1
+      const unwrapped = await this.mock.getFunction('$unwrapTypedDataSig')(signature);
+      expect(unwrapped).to.deep.eq(['0x', ethers.ZeroHash, ethers.ZeroHash, '0x']);
+    });
+
+    it('returns default empty values if the length is invalid', async function () {
+      const signature = ethers.concat([ethers.randomBytes(64), '0x3f']); // Can't be less than 64 bytes
+      const unwrapped = await this.mock.getFunction('$unwrapTypedDataSig')(signature);
+      expect(unwrapped).to.deep.eq(['0x', ethers.ZeroHash, ethers.ZeroHash, '0x']);
+    });
   });
 
   describe('wrapTypedDataSig', function () {
@@ -91,11 +103,26 @@ describe('ERC7739Utils', function () {
   });
 
   describe('NESTED_TYPED_DATA_TYPEHASH', function () {
-    it('should match the hardcoded value', async function () {
+    it('should match without validation', async function () {
       const contentsTypeName = 'FooType';
       const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
       expect(await this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH')(ethers.toUtf8Bytes(contentsType))).to.equal(
         hashNestedTypedDataType(contentsTypeName, contentsType),
+      );
+    });
+
+    it('should match with validation', async function () {
+      const contentsTypeName = 'FooType';
+      const contentsType = `${contentsTypeName}(address foo,uint256 bar)`;
+      expect(await this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH')(ethers.toUtf8Bytes(contentsType))).to.equal(
+        hashNestedTypedDataType(contentsTypeName, contentsType),
+      );
+    });
+
+    it('should revert with InvalidContentsType if the type is invalid', async function () {
+      await expect(this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH')('0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'InvalidContentsType',
       );
     });
   });
@@ -114,9 +141,9 @@ describe('ERC7739Utils', function () {
       expect(type).to.equal('0x');
     });
 
-    const invalidInitialCharacters = new Array('abcdefghijklmnopqrstuvwxyz(');
+    const invalidInitialCharacters = Array.from('abcdefghijklmnopqrstuvwxyz(');
     for (const char of invalidInitialCharacters) {
-      it(`should return false if starting with ${char}`, async function () {
+      it(`should return false if starting with [${char}]`, async function () {
         const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')(
           ethers.toUtf8Bytes(`${char}SomeType()`),
         );
