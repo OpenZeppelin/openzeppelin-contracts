@@ -1,5 +1,5 @@
 // NOTE: this file defines some examples of CAIP-2 and CAIP-10 identifiers.
-// The following listing does not pretend to be exaustive or even accurate. It SHOULD NOT be used in production.
+// The following listing does not pretend to be exhaustive or even accurate. It SHOULD NOT be used in production.
 
 const { ethers } = require('hardhat');
 

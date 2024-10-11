@@ -27,7 +27,7 @@ library CAIP2 {
     /**
      * @dev Return the CAIP-2 identifier for a given namespace and reference.
      *
-     * NOTE: This function does not verify that the inputs are properly formated.
+     * NOTE: This function does not verify that the inputs are properly formatted.
      */
     function format(string memory namespace, string memory ref) internal pure returns (string memory) {
         return string.concat(namespace, ":", ref);
@@ -36,7 +36,7 @@ library CAIP2 {
     /**
      * @dev Parse a CAIP-2 identifier into its components.
      *
-     * NOTE: This function does not verify that the CAIP-2 input is properly formated.
+     * NOTE: This function does not verify that the CAIP-2 input is properly formatted.
      */
     function parse(string memory caip2) internal pure returns (string memory namespace, string memory ref) {
         bytes memory buffer = bytes(caip2);

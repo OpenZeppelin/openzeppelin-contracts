@@ -28,7 +28,7 @@ library CAIP10 {
     /**
      * @dev Return the CAIP-10 identifier for a given caip2 chain and account.
      *
-     * NOTE: This function does not verify that the inputs are properly formated.
+     * NOTE: This function does not verify that the inputs are properly formatted.
      */
     function format(string memory caip2, string memory account) internal pure returns (string memory) {
         return string.concat(caip2, ":", account);
@@ -37,7 +37,7 @@ library CAIP10 {
     /**
      * @dev Parse a CAIP-10 identifier into its components.
      *
-     * NOTE: This function does not verify that the CAIP-10 input is properly formated. The `caip2` return can be
+     * NOTE: This function does not verify that the CAIP-10 input is properly formatted. The `caip2` return can be
      * parsed using the {CAIP2} library.
      */
     function parse(string memory caip10) internal pure returns (string memory caip2, string memory account) {
