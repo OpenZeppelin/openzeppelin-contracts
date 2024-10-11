@@ -236,9 +236,10 @@ library Strings {
     ) internal pure returns (bool success, int256 value) {
         bytes memory buffer = bytes(input);
 
-        // check presence of a negative sign.
-        bool positiveSign = bytes1(buffer.unsafeReadBytesOffset(begin)) == bytes1("+");
-        bool negativeSign = bytes1(buffer.unsafeReadBytesOffset(begin)) == bytes1("-");
+        // Check presence of a negative sign.
+        bytes1 sign = bytes1(buffer.unsafeReadBytesOffset(begin));
+        bool positiveSign =  sign == bytes1("+");
+        bool negativeSign = sign == bytes1("-");
         uint256 offset = (positiveSign || negativeSign).toUint();
 
         (bool absSuccess, uint256 absValue) = tryParseUint(input, begin + offset, end);
