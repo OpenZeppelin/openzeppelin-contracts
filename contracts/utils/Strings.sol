@@ -6,13 +6,11 @@ pragma solidity ^0.8.20;
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
-import {Bytes} from "./Bytes.sol";
 
 /**
  * @dev String operations.
  */
 library Strings {
-    using Bytes for bytes;
     using SafeCast for *;
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
@@ -237,8 +235,8 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // Check presence of a negative sign.
-        bytes1 sign = bytes1(buffer.unsafeReadBytesOffset(begin));
-        bool positiveSign =  sign == bytes1("+");
+        bytes1 sign = bytes1(_unsafeReadBytesOffset(buffer, begin));
+        bool positiveSign = sign == bytes1("+");
         bool negativeSign = sign == bytes1("-");
         uint256 offset = (positiveSign || negativeSign).toUint();
 
@@ -299,7 +297,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        bool hasPrefix = bytes2(buffer.unsafeReadBytesOffset(begin)) == bytes2("0x");
+        bool hasPrefix = bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x");
         uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
@@ -357,7 +355,7 @@ library Strings {
         uint256 end
     ) internal pure returns (bool success, address value) {
         // check that input is the correct length
-        bool hasPrefix = bytes2(bytes(input).unsafeReadBytesOffset(begin)) == bytes2("0x");
+        bool hasPrefix = bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x");
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
         if (end - begin == expectedLength) {
@@ -385,5 +383,18 @@ library Strings {
         }
 
         return value;
+    }
+
+    /**
+     * @dev Reads a bytes32 from a bytes array without bounds checking.
+     *
+     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
+     * assembly block as such would prevent some optimizations.
+     */
+    function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
+            value := mload(add(buffer, add(0x20, offset)))
+        }
     }
 }

@@ -11,7 +11,6 @@ import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
-import {Bytes} from "../utils/Bytes.sol";
 import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
@@ -770,7 +769,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
 
         // Extract what would be the `#proposer=` marker beginning the suffix
-        bytes10 marker = bytes10(Bytes.unsafeReadBytesOffset(bytes(description), length - 52));
+        bytes10 marker = bytes10(_unsafeReadBytesOffset(bytes(description), length - 52));
 
         // If the marker is not found, there is no proposer suffix to check
         if (marker != bytes10("#proposer=")) {
@@ -807,4 +806,17 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @inheritdoc IGovernor
      */
     function quorum(uint256 timepoint) public view virtual returns (uint256);
+
+    /**
+     * @dev Reads a bytes32 from a bytes array without bounds checking.
+     *
+     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
+     * assembly block as such would prevent some optimizations.
+     */
+    function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
+            value := mload(add(buffer, add(0x20, offset)))
+        }
+    }
 }
