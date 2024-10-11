@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation} from "../interfaces/draft-IERC4337.sol";
 import {AccountBase} from "./draft-AccountBase.sol";
 import {ERC7739Signer} from "../utils/cryptography/draft-ERC7739Signer.sol";
-import {RSA} from "../utils/cryptography/RSA.sol";
+import {P256} from "../utils/cryptography/P256.sol";
 import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155HolderLean, IERC1155Receiver} from "../token/ERC1155/utils/ERC1155HolderLean.sol";
@@ -13,30 +13,25 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
- * @dev Account implementation using {RSA} signatures and {ERC7739Signer} for replay protection.
- *
- * NOTE: Storing `_e` and `_n` in regular storage violate ERC-7562 validation rules if the contract
- * is used as an ERC-1271 signer during the validation phase of a different account contract.
- * Consider deploying this contract through a factory that sets `_e` and `_n` as immutable arguments
- * (see {Clones-cloneDeterministicWithImmutableArgs}).
+ * @dev Account implementation using {P256} signatures and {ERC7739Signer} for replay protection.
  */
-abstract contract AccountRSA is ERC165, ERC7739Signer, ERC721Holder, ERC1155HolderLean, AccountBase {
-    bytes private _e;
-    bytes private _n;
+abstract contract AccountP256 is ERC165, ERC7739Signer, ERC721Holder, ERC1155HolderLean, AccountBase {
+    bytes32 private immutable _qx;
+    bytes32 private immutable _qy;
 
     /**
-     * @dev Initializes the account with the RSA public key.
+     * @dev Initializes the account with the P256 public key.
      */
-    constructor(bytes memory e, bytes memory n) {
-        _e = e;
-        _n = n;
+    constructor(bytes32 qx, bytes32 qy) {
+        _qx = qx;
+        _qy = qy;
     }
 
     /**
-     * @dev Return the account's signer RSA public key.
+     * @dev Return the account's signer P256 public key.
      */
-    function signer() public view virtual returns (bytes memory e, bytes memory n) {
-        return (_e, _n);
+    function signer() public view virtual returns (bytes32 qx, bytes32 qy) {
+        return (_qx, _qy);
     }
 
     /**
@@ -56,8 +51,11 @@ abstract contract AccountRSA is ERC165, ERC7739Signer, ERC721Holder, ERC1155Hold
      * @dev Validates the signature using the account's signer.
      */
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
-        (bytes memory e, bytes memory n) = signer();
-        return RSA.pkcs1Sha256(hash, signature, e, n);
+        if (signature.length < 0x40) return false;
+        bytes32 r = bytes32(signature[0x00:0x20]);
+        bytes32 s = bytes32(signature[0x20:0x40]);
+        (bytes32 qx, bytes32 qy) = signer();
+        return P256.verify(hash, r, s, qx, qy);
     }
 
     /// @inheritdoc ERC165
