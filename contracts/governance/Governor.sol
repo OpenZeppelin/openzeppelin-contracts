@@ -11,6 +11,7 @@ import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
+import {Bytes} from "../utils/Bytes.sol";
 import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
@@ -769,7 +770,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
 
         // Extract what would be the `#proposer=` marker beginning the suffix
-        bytes10 marker = bytes10(Strings.unsafeReadBytesOffset(bytes(description), length - 52));
+        bytes10 marker = bytes10(Bytes.unsafeReadBytesOffset(bytes(description), length - 52));
 
         // If the marker is not found, there is no proposer suffix to check
         if (marker != bytes10("#proposer=")) {
