@@ -1,17 +1,17 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ethers } = require('hardhat');
-const { shouldBehaveLikeERC1271TypedSigner } = require('./ERC1271TypedSigner.behavior');
+const { shouldBehaveLikeERC7739Signer } = require('./ERC7739Signer.behavior');
 const { ECDSASigner, P256Signer, RSASigner } = require('../../helpers/signers');
 
 async function fixture() {
   const ECDSA = new ECDSASigner();
-  const ECDSAMock = await ethers.deployContract('ERC1271TypedSignerECDSA', [ECDSA.EOA.address]);
+  const ECDSAMock = await ethers.deployContract('ERC7739SignerECDSA', [ECDSA.EOA.address]);
 
   const P256 = new P256Signer();
-  const P256Mock = await ethers.deployContract('ERC1271TypedSignerP256', [P256.publicKey.qx, P256.publicKey.qy]);
+  const P256Mock = await ethers.deployContract('ERC7739SignerP256', [P256.publicKey.qx, P256.publicKey.qy]);
 
   const RSA = new RSASigner();
-  const RSAMock = await ethers.deployContract('ERC1271TypedSignerRSA', [RSA.publicKey.e, RSA.publicKey.n]);
+  const RSAMock = await ethers.deployContract('ERC7739SignerRSA', [RSA.publicKey.e, RSA.publicKey.n]);
 
   return {
     ECDSA,
@@ -23,7 +23,7 @@ async function fixture() {
   };
 }
 
-describe('ERC1271TypedSigner', function () {
+describe('ERC7739Signer', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -34,7 +34,7 @@ describe('ERC1271TypedSigner', function () {
       this.mock = this.ECDSAMock;
     });
 
-    shouldBehaveLikeERC1271TypedSigner();
+    shouldBehaveLikeERC7739Signer();
   });
 
   describe('for a P256 signer', function () {
@@ -43,7 +43,7 @@ describe('ERC1271TypedSigner', function () {
       this.mock = this.P256Mock;
     });
 
-    shouldBehaveLikeERC1271TypedSigner();
+    shouldBehaveLikeERC7739Signer();
   });
 
   describe('for an RSA signer', function () {
@@ -52,6 +52,6 @@ describe('ERC1271TypedSigner', function () {
       this.mock = this.RSAMock;
     });
 
-    shouldBehaveLikeERC1271TypedSigner();
+    shouldBehaveLikeERC7739Signer();
   });
 });

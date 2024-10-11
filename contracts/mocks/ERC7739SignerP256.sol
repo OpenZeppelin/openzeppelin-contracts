@@ -3,14 +3,14 @@
 pragma solidity ^0.8.20;
 
 import {P256} from "../utils/cryptography/P256.sol";
-import {ERC1271TypedSigner} from "../utils/cryptography/ERC1271TypedSigner.sol";
+import {ERC7739Signer} from "../utils/cryptography/draft-ERC7739Signer.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 
-contract ERC1271TypedSignerP256 is ERC1271TypedSigner {
+contract ERC7739SignerP256 is ERC7739Signer {
     bytes32 private immutable _qx;
     bytes32 private immutable _qy;
 
-    constructor(bytes32 qx, bytes32 qy) EIP712("ERC1271TypedSignerP256", "1") {
+    constructor(bytes32 qx, bytes32 qy) EIP712("ERC7739SignerP256", "1") {
         _qx = qx;
         _qy = qy;
     }

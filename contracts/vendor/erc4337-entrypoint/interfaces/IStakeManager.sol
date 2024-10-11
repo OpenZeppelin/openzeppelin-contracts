@@ -9,15 +9,27 @@ pragma solidity >=0.7.5;
 interface IStakeManager {
     event Deposited(address indexed account, uint256 totalDeposit);
 
-    event Withdrawn(address indexed account, address withdrawAddress, uint256 amount);
+    event Withdrawn(
+        address indexed account,
+        address withdrawAddress,
+        uint256 amount
+    );
 
     // Emitted when stake or unstake delay are modified.
-    event StakeLocked(address indexed account, uint256 totalStaked, uint256 unstakeDelaySec);
+    event StakeLocked(
+        address indexed account,
+        uint256 totalStaked,
+        uint256 unstakeDelaySec
+    );
 
     // Emitted once a stake is scheduled for withdrawal.
     event StakeUnlocked(address indexed account, uint256 withdrawTime);
 
-    event StakeWithdrawn(address indexed account, address withdrawAddress, uint256 amount);
+    event StakeWithdrawn(
+        address indexed account,
+        address withdrawAddress,
+        uint256 amount
+    );
 
     /**
      * @param deposit         - The entity's deposit.
@@ -50,7 +62,9 @@ interface IStakeManager {
      * @param account - The account to query.
      * @return info   - Full deposit information of given account.
      */
-    function getDepositInfo(address account) external view returns (DepositInfo memory info);
+    function getDepositInfo(
+        address account
+    ) external view returns (DepositInfo memory info);
 
     /**
      * Get account balance.
@@ -90,5 +104,8 @@ interface IStakeManager {
      * @param withdrawAddress - The address to send withdrawn value.
      * @param withdrawAmount  - The amount to withdraw.
      */
-    function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
+    function withdrawTo(
+        address payable withdrawAddress,
+        uint256 withdrawAmount
+    ) external;
 }

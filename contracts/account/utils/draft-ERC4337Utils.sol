@@ -14,21 +14,13 @@ import {Packing} from "../../utils/Packing.sol";
 library ERC4337Utils {
     using Packing for *;
 
-    /**
-     * @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp)
-     * return this value on success.
-     */
+    /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
 
-    /**
-     * @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp)
-     * must return this value in case of signature failure, instead of revert.
-     */
+    /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) must return this value in case of signature failure, instead of revert.
     uint256 internal constant SIG_VALIDATION_FAILED = 1;
 
-    /**
-     * @dev Parses the validation data into its components. See {packValidationData}.
-     */
+    /// @dev Parses the validation data into its components. See {packValidationData}.
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil) {
@@ -38,9 +30,7 @@ library ERC4337Utils {
         if (validUntil == 0) validUntil = type(uint48).max;
     }
 
-    /**
-     * @dev Packs the validation data into a single uint256. See {parseValidationData}.
-     */
+    /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
     function packValidationData(
         address aggregator,
         uint48 validAfter,
@@ -49,15 +39,13 @@ library ERC4337Utils {
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
 
-    /**
-     * @dev Same as {packValidationData}, but with a boolean signature success flag.
-     */
+    /// @dev Same as {packValidationData}, but with a boolean signature success flag.
     function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
         return
-            uint256(
-                bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(
-                    bytes20(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED)))
-                )
+            packValidationData(
+                address(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED))),
+                validAfter,
+                validUntil
             );
     }
 
@@ -77,9 +65,7 @@ library ERC4337Utils {
         return packValidationData(success, validAfter, validUntil);
     }
 
-    /**
-     * @dev Returns the aggregator of the `validationData` and whether it is out of time range.
-     */
+    /// @dev Returns the aggregator of the `validationData` and whether it is out of time range.
     function getValidationData(uint256 validationData) internal view returns (address aggregator, bool outOfTimeRange) {
         if (validationData == 0) {
             return (address(0), false);
@@ -89,16 +75,12 @@ library ERC4337Utils {
         }
     }
 
-    /**
-     * @dev Computes the hash of a user operation with the current entrypoint and chainid.
-     */
+    /// @dev Computes the hash of a user operation with the current entrypoint and chainid.
     function hash(PackedUserOperation calldata self) internal view returns (bytes32) {
         return hash(self, address(this), block.chainid);
     }
 
-    /**
-     * @dev Sames as {hash}, but with a custom entrypoint and chainid.
-     */
+    /// @dev Sames as {hash}, but with a custom entrypoint and chainid.
     function hash(
         PackedUserOperation calldata self,
         address entrypoint,
@@ -125,38 +107,27 @@ library ERC4337Utils {
         return result;
     }
 
-    /**
-     * @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
-     */
+    /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.accountGasLimits.extract_32_16(0x00));
     }
 
-    /**
-     * @dev Returns `accountGasLimits` from the {PackedUserOperation}.
-     */
+    /// @dev Returns `accountGasLimits` from the {PackedUserOperation}.
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.accountGasLimits.extract_32_16(0x10));
     }
 
-    /**
-     * @dev Returns the first section of `gasFees` from the {PackedUserOperation}.
-     */
+    /// @dev Returns the first section of `gasFees` from the {PackedUserOperation}.
     function maxPriorityFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.gasFees.extract_32_16(0x00));
     }
 
-    /**
-     * @dev Returns the second section of `gasFees` from the {PackedUserOperation}.
-     */
+    /// @dev Returns the second section of `gasFees` from the {PackedUserOperation}.
     function maxFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.gasFees.extract_32_16(0x10));
     }
 
-    /**
-     * @dev Returns the total gas price for the {PackedUserOperation}
-     * (ie. `maxFeePerGas` or `maxPriorityFeePerGas + basefee`).
-     */
+    /// @dev Returns the total gas price for the {PackedUserOperation} (ie. `maxFeePerGas` or `maxPriorityFeePerGas + basefee`).
     function gasPrice(PackedUserOperation calldata self) internal view returns (uint256) {
         unchecked {
             // Following values are "per gas"
@@ -166,23 +137,17 @@ library ERC4337Utils {
         }
     }
 
-    /**
-     * @dev Returns the first section of `paymasterAndData` from the {PackedUserOperation}.
-     */
+    /// @dev Returns the first section of `paymasterAndData` from the {PackedUserOperation}.
     function paymaster(PackedUserOperation calldata self) internal pure returns (address) {
         return address(bytes20(self.paymasterAndData[0:20]));
     }
 
-    /**
-     * @dev Returns the second section of `paymasterAndData` from the {PackedUserOperation}.
-     */
+    /// @dev Returns the second section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterVerificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(bytes16(self.paymasterAndData[20:36]));
     }
 
-    /**
-     * @dev Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
-     */
+    /// @dev Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterPostOpGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(bytes16(self.paymasterAndData[36:52]));
     }

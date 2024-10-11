@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { secp256k1 } = require('@noble/curves/secp256k1');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
-const { hashTypedData, hashTypedDataEnvelopeStruct } = require('./eip712');
+const { hashTypedData, hashNestedTypedDataStruct } = require('./eip712');
 
 const ensureLowerOrderS = (N, { s, recovery, ...rest }) => {
   if (s > N / 2n) {
@@ -17,12 +17,12 @@ class BooleanSigner {
     return '0x01';
   }
 
-  signTypedDataEnvelope() {
+  signNestedTypedData() {
     return '0x01';
   }
 }
 
-class TypedSigner {
+class ERC7739Signer {
   signPersonal(domain, contents) {
     return this._signRaw(
       hashTypedData(
@@ -38,8 +38,8 @@ class TypedSigner {
     );
   }
 
-  signTypedDataEnvelope(localDomain, appDomain, contents, contentsType) {
-    return this._signRaw(hashTypedData(appDomain, hashTypedDataEnvelopeStruct(localDomain, contents, contentsType)));
+  signNestedTypedData(localDomain, appDomain, contents, contentsType) {
+    return this._signRaw(hashTypedData(appDomain, hashNestedTypedDataStruct(localDomain, contents, contentsType)));
   }
 
   wrapTypedDataSig(originalSig, appSeparator, contents, contentsType) {
@@ -48,7 +48,7 @@ class TypedSigner {
   }
 }
 
-class ECDSASigner extends TypedSigner {
+class ECDSASigner extends ERC7739Signer {
   N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
 
   constructor() {
@@ -75,7 +75,7 @@ class ECDSASigner extends TypedSigner {
   }
 }
 
-class P256Signer extends TypedSigner {
+class P256Signer extends ERC7739Signer {
   N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
 
   constructor() {
@@ -105,7 +105,7 @@ class P256Signer extends TypedSigner {
   }
 }
 
-class RSASigner extends TypedSigner {
+class RSASigner extends ERC7739Signer {
   constructor() {
     super();
     const keyPair = generateKeyPairSync('rsa', {

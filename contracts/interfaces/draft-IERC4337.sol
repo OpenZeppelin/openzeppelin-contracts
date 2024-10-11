@@ -3,17 +3,33 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev An user operation that can be executed by an account on its packed version.
+ * @dev A https://github.com/ethereum/ercs/blob/master/ERCS/erc-4337.md#useroperation[user operation] is composed of the following elements:
+ * - `sender` (`address`): The account making the operation
+ * - `nonce` (`uint256`): Anti-replay parameter (see “Semi-abstracted Nonce Support” )
+ * - `factory` (`address`): account factory, only for new accounts
+ * - `factoryData` (`bytes`): data for account factory (only if account factory exists)
+ * - `callData` (`bytes`): The data to pass to the sender during the main execution call
+ * - `callGasLimit` (`uint256`): The amount of gas to allocate the main execution call
+ * - `verificationGasLimit` (`uint256`): The amount of gas to allocate for the verification step
+ * - `preVerificationGas` (`uint256`): Extra gas to pay the bunder
+ * - `maxFeePerGas` (`uint256`): Maximum fee per gas (similar to EIP-1559 max_fee_per_gas)
+ * - `maxPriorityFeePerGas` (`uint256`): Maximum priority fee per gas (similar to EIP-1559 max_priority_fee_per_gas)
+ * - `paymaster` (`address`): Address of paymaster contract, (or empty, if account pays for itself)
+ * - `paymasterVerificationGasLimit` (`uint256`): The amount of gas to allocate for the paymaster validation code
+ * - `paymasterPostOpGasLimit` (`uint256`): The amount of gas to allocate for the paymaster post-operation code
+ * - `paymasterData` (`bytes`): Data for paymaster (only if paymaster exists)
+ * - `signature` (`bytes`): Data passed into the account to verify authorization
  *
- * - `sender`: The account making the operation (might not be deployed yet).
- * - `nonce`: Anti-replay parameter handled by the entrypoint.
- * - `initCode`: Concatenation of the address of the factory and the factory calldata.
- * - `callData`: The `data` the sender will be called with.
- * - `accountGasLimits`: Concatenation of the verification step gas limit and the main call gas limit.
- * - `preVerificationGas`: Extra gas to pay the bundler before the verification step.
- * - `gasFees`: Maximum fee and priority fee the sender is willing to pay.
- * - `paymasterAndData`: Address of paymaster contract and calldata, (or empty, if account pays for itself).
- * - `signature`: Data passed into the account to verify authorization.
+ * When passed to on-chain contacts, the following packed version is used.
+ * - `sender` (`address`)
+ * - `nonce` (`uint256`)
+ * - `initCode` (`bytes`): concatenation of factory address and factoryData (or empty)
+ * - `callData` (`bytes`)
+ * - `accountGasLimits` (`bytes32`): concatenation of verificationGas (16 bytes) and callGas (16 bytes)
+ * - `preVerificationGas` (`uint256`)
+ * - `gasFees` (`bytes32`): concatenation of maxPriorityFee (16 bytes) and maxFeePerGas (16 bytes)
+ * - `paymasterAndData` (`bytes`): concatenation of paymaster fields (or empty)
+ * - `signature` (`bytes`)
  */
 struct PackedUserOperation {
     address sender;
@@ -137,75 +153,6 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
         UserOpsPerAggregator[] calldata opsPerAggregator,
         address payable beneficiary
     ) external;
-}
-
-/**
- * @dev Handle the simulation of user operations.
- */
-interface IEntryPointSimulation {
-    /**
-     * @dev Result of executing a user operation.
-     */
-    struct ExecutionResult {
-        uint256 preOpGas;
-        uint256 paid;
-        uint256 accountValidationData;
-        uint256 paymasterValidationData;
-        bool targetSuccess;
-        bytes targetResult;
-    }
-
-    /**
-     * @dev Result of validating a user operation.
-     */
-    struct ReturnInfo {
-        uint256 preOpGas;
-        uint256 prefund;
-        uint256 accountValidationData;
-        uint256 paymasterValidationData;
-        bytes paymasterContext;
-    }
-
-    /**
-     * @dev Information about the stake of an account.
-     */
-    struct StakeInfo {
-        uint256 stake;
-        uint256 unstakeDelaySec;
-    }
-
-    /**
-     * @dev Information about the stake of an aggregator.
-     */
-    struct AggregatorStakeInfo {
-        address aggregator;
-        StakeInfo stakeInfo;
-    }
-
-    /**
-     * @dev Result of simulating the validation of a user operation.
-     */
-    struct ValidationResult {
-        ReturnInfo returnInfo;
-        StakeInfo senderInfo;
-        StakeInfo factoryInfo;
-        StakeInfo paymasterInfo;
-        AggregatorStakeInfo aggregatorInfo;
-    }
-
-    /**
-     * @dev Simulates the validation of a user operation (i.e. {IAccount-validateUserOp} and {IPaymaster-validatePaymasterUserOp}).
-     */
-    function simulateValidation(PackedUserOperation calldata userOp) external returns (ValidationResult memory);
-
-    /**
-     * @dev Simulates the full execution of a user operation.
-     */
-    function simulateHandleOp(
-        PackedUserOperation calldata op,
-        address target,
-        bytes calldata targetCallData
-    ) external returns (ExecutionResult memory);
 }
 
 /**

@@ -3,13 +3,13 @@
 pragma solidity ^0.8.20;
 
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
-import {ERC1271TypedSigner} from "../utils/cryptography/ERC1271TypedSigner.sol";
+import {ERC7739Signer} from "../utils/cryptography/draft-ERC7739Signer.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 
-contract ERC1271TypedSignerECDSA is ERC1271TypedSigner {
+contract ERC7739SignerECDSA is ERC7739Signer {
     address private immutable _signer;
 
-    constructor(address signerAddr) EIP712("ERC1271TypedSignerECDSA", "1") {
+    constructor(address signerAddr) EIP712("ERC7739SignerECDSA", "1") {
         _signer = signerAddr;
     }
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.5;
 
-import {PackedUserOperation} from "./PackedUserOperation.sol"; // OZ Edit
+import "./PackedUserOperation.sol";
 
 interface IAccountExecute {
     /**
@@ -13,5 +13,8 @@ interface IAccountExecute {
      * @param userOp              - The operation that was just validated.
      * @param userOpHash          - Hash of the user's request data.
      */
-    function executeUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external;
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) external;
 }
