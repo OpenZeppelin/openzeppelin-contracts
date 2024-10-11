@@ -309,8 +309,10 @@ library Strings {
         for (uint256 i = begin + offset; i < end; ++i) {
             uint8 chr = _tryParseChr(buffer[i]);
             if (chr > 15) return (false, 0);
-            result *= 16;
-            result += chr;
+            result <<= 4;
+            unchecked {
+                result += chr;
+            }
         }
         return (true, result);
     }
