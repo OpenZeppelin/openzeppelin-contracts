@@ -183,6 +183,7 @@ library ERC7739Utils {
      *
      * See {tryValidateContentsType}.
      */
+    // solhint-disable-next-line func-name-mixedcase
     function NESTED_TYPED_DATA_TYPEHASH(
         bytes calldata contentsType,
         bytes calldata contentsTypeName
