@@ -309,8 +309,10 @@ library Strings {
         for (uint256 i = begin + offset; i < end; ++i) {
             uint8 chr = _tryParseChr(buffer[i]);
             if (chr > 15) return (false, 0);
-            result <<= 4;
+            result *= 16;
             unchecked {
+                // Multiplying by 16 is equivalent to a shift of 4 bits (with additional overflow check).
+                // This guaratees that adding a value < 16 will not cause an overflow, hence the unchecked.
                 result += chr;
             }
         }
