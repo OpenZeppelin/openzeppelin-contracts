@@ -360,7 +360,7 @@ library Strings {
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
         if (end - begin == expectedLength) {
-            // length garantees that this does not overflow, and value2 is at most type(uint160).max
+            // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = tryParseHex(input, begin, end);
             return (s, address(uint160(v)));
         } else {
