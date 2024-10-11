@@ -776,7 +776,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             return true;
         }
 
-        // Check that the last 42 characters (after the marker) is a properly formatted address.
+        // Check that the last 42 characters (after the marker) are a properly formatted address.
         (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
         return !success || recovered == proposer;
     }
