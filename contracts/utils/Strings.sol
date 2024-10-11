@@ -356,7 +356,7 @@ library Strings {
         uint256 end
     ) internal pure returns (bool success, address value) {
         // check that input is the correct length
-        bool hasPrefix = bytes2(bytes(input).unsafeReadBytesOffset(begin)) == 0x3078;
+        bool hasPrefix = bytes2(bytes(input).unsafeReadBytesOffset(begin)) == bytes2("0x");
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
         if (end - begin == expectedLength) {
