@@ -15,7 +15,29 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountRSA}}
 
-{{FactoryBase}
+{{AccountERC7579}}
+
+== Extensions
+
+{{AccountERC7579Hooked}}
+
+== Modules
+
+=== Validators
+
+{{ECDSAValidator}}
+
+{{P256Validator}}
+
+{{RSAValidator}}
+
+{{MultiERC1271Validator}}
+
+{{SignatureValidator}}
+
+=== Executors
+
+{{TypedERC1271Executor}}
 
 == Utilities
 

@@ -1,0 +1,38 @@
+= ERC-7579
+
+The https://eips.ethereum.org/EIPS/eip-7579[ERC-7579] is a proposal for standardizing smart accounts and modules to ensure interoperability across implementations. The standard defines a set of interfaces for smart accounts that enable developers to delegate logic to third-party smart contracts (or modules). Modules are categorized in the following 4 types:
+
+- **Validators**: Modules to which the smart account delegates the validation of an `UserOperation`.
+- **Executors**: Contracts that are allowed to execute calls on behalf of the smart account.
+- **Fallback Handler**: A module that extends the https://docs.soliditylang.org/en/latest/contracts.html#fallback-function[fallback function] of a smart account.
+- **Hooks**: Contracts that receive a call before and after the execution of a smart account.
+
+OpenZeppelin provides an implementation of an xref:api:account.adoc#AccountERC7579[`AccountERC7579`] that extends from our xref:api:account.adoc#AccountBase[`AccountBase`] contract and is compliant with this standard. The account includes support for single or batched calls as well as `delegatecall`. As for modules, it supports installing _Validators_, _Executors_ and _Fallback Handlers_, whereas _Hooks_ can be added as an extension with xref:api:account.adoc#AccountERC7579Hooked[`AccountERC7579Hooked`] 
+
+== Setting up an ERC-7579 Account
+
+Considering accounts should be deployed by a factory, setting up a modular ERC-7579 account requires an initializer (e.g. `setUp`) function. This function should be called by the factory when the account is deployed and should install a module:
+
+```solidity
+// contracts/MyModularAccount.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {AccountERC7579} from "@openzeppelin/contracts/account/draft-AccountERC7579.sol";
+
+contract MyModularAccount is AccountERC7579 {
+    // Make the account initializable and install a validator module
+    function setUp(uint256 moduleTypeId, address module, bytes memory moduleInitData) public initializer {
+        _installModule(moduleTypeId, module, moduleInitData);
+    }
+}
+```
+
+The account developers must make sure the validator installed is enough to operate the account. Otherwise, the account might be unusable after deployment.
+
+== Installing modules
+
+The xref:api:account.adoc#AccountERC7579[`AccountERC7579`] comes with built-in support for _Validators_, _Executors_ and _Fallback Handlers_. They can be installed right away into the account
+
+=== Supporting hooks
