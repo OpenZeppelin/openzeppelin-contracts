@@ -156,7 +156,7 @@ describe('ERC7739Utils', function () {
     for (const char of forbidenChars) {
       it(`should return false if it has [${char}] char`, async function () {
         const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')(
-          ethers.toUtf8Bytes(`SomeType${char}`),
+          ethers.toUtf8Bytes(`SomeType${char}(address foo,uint256 bar)`),
         );
         expect(valid).to.be.false;
         expect(type).to.equal('0x');
