@@ -18,6 +18,8 @@ pragma solidity ^0.8.20;
  * ```
  *
  * Follows the list from https://github.com/ethereum/solidity/blob/v0.8.24/libsolutil/ErrorCodes.h[libsolutil].
+ *
+ * _Available since v5.1._
  */
 // slither-disable-next-line unused-state
 library Panic {
