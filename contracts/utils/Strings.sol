@@ -176,7 +176,7 @@ library Strings {
 
         uint256 result = 0;
         for (uint256 i = begin; i < end; ++i) {
-            uint8 chr = _tryParseChr(buffer[i]);
+            uint8 chr = _tryParseChr(bytes1(_unsafeReadBytesOffset(buffer, i)));
             if (chr > 9) return (false, 0);
             result *= 10;
             result += chr;
@@ -302,7 +302,7 @@ library Strings {
 
         uint256 result = 0;
         for (uint256 i = begin + offset; i < end; ++i) {
-            uint8 chr = _tryParseChr(buffer[i]);
+            uint8 chr = _tryParseChr(bytes1(_unsafeReadBytesOffset(buffer, i)));
             if (chr > 15) return (false, 0);
             result *= 16;
             unchecked {
