@@ -256,40 +256,40 @@ library Strings {
      * - The string must be formatted as `(0x)?[0-9a-fA-F]*`
      * - The result must fit in an `uint256` type.
      */
-    function parseHex(string memory input) internal pure returns (uint256) {
-        return parseHex(input, 0, bytes(input).length);
+    function parseHexUint(string memory input) internal pure returns (uint256) {
+        return parseHexUint(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {parseHex} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHexUint} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
      * - The substring must be formatted as `(0x)?[0-9a-fA-F]*`
      * - The result must fit in an `uint256` type.
      */
-    function parseHex(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
-        (bool success, uint256 value) = tryParseHex(input, begin, end);
+    function parseHexUint(string memory input, uint256 begin, uint256 end) internal pure returns (uint256) {
+        (bool success, uint256 value) = tryParseHexUint(input, begin, end);
         if (!success) revert StringsInvalidChar();
         return value;
     }
 
     /**
-     * @dev Variant of {parseHex-string} that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseHexUint-string} that returns false if the parsing fails because of an invalid character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
-    function tryParseHex(string memory input) internal pure returns (bool success, uint256 value) {
-        return tryParseHex(input, 0, bytes(input).length);
+    function tryParseHexUint(string memory input) internal pure returns (bool success, uint256 value) {
+        return tryParseHexUint(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {parseHex-string-uint256-uint256} that returns false if the parsing fails because of an
+     * @dev Variant of {parseHexUint-string-uint256-uint256} that returns false if the parsing fails because of an
      * invalid character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
-    function tryParseHex(
+    function tryParseHexUint(
         string memory input,
         uint256 begin,
         uint256 end
@@ -360,7 +360,7 @@ library Strings {
 
         if (end - begin == expectedLength) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
-            (bool s, uint256 v) = tryParseHex(input, begin, end);
+            (bool s, uint256 v) = tryParseHexUint(input, begin, end);
             return (s, address(uint160(v)));
         } else {
             return (false, address(0));

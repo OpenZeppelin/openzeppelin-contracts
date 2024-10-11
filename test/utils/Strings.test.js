@@ -90,8 +90,8 @@ describe('Strings', function () {
       const string = ethers.toBeHex(value); // 0x00
 
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
-      expect(await this.mock.$parseHex(string)).to.equal(value);
-      expect(await this.mock.$parseHex(string.replace(/0x/, ''))).to.equal(value);
+      expect(await this.mock.$parseHexUint(string)).to.equal(value);
+      expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
       expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
       expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
@@ -101,8 +101,8 @@ describe('Strings', function () {
       const string = ethers.toBeHex(value);
 
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
-      expect(await this.mock.$parseHex(string)).to.equal(value);
-      expect(await this.mock.$parseHex(string.replace(/0x/, ''))).to.equal(value);
+      expect(await this.mock.$parseHexUint(string)).to.equal(value);
+      expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
       expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
       expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
@@ -112,8 +112,8 @@ describe('Strings', function () {
       const string = ethers.toBeHex(value);
 
       expect(await this.mock.getFunction('$toHexString(uint256)')(value)).to.equal(string);
-      expect(await this.mock.$parseHex(string)).to.equal(value);
-      expect(await this.mock.$parseHex(string.replace(/0x/, ''))).to.equal(value);
+      expect(await this.mock.$parseHexUint(string)).to.equal(value);
+      expect(await this.mock.$parseHexUint(string.replace(/0x/, ''))).to.equal(value);
       expect(await this.mock.$tryParseHex(string)).to.deep.equal([true, value]);
       expect(await this.mock.$tryParseHex(string.replace(/0x/, ''))).to.deep.equal([true, value]);
     });
@@ -276,8 +276,8 @@ describe('Strings', function () {
       expect(await this.mock.$tryParseInt('1 000')).to.deep.equal([false, 0n]);
     });
 
-    it('parseHex overflow', async function () {
-      await expect(this.mock.$parseHex((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
+    it('parseHexUint overflow', async function () {
+      await expect(this.mock.$parseHexUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
       await expect(this.mock.$tryParseHex((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
@@ -285,16 +285,16 @@ describe('Strings', function () {
       );
     });
 
-    it('parseHex invalid character', async function () {
-      await expect(this.mock.$parseHex('0123456789abcdefg')).to.be.revertedWithCustomError(
+    it('parseHexUint invalid character', async function () {
+      await expect(this.mock.$parseHexUint('0123456789abcdefg')).to.be.revertedWithCustomError(
         this.mock,
         'StringsInvalidChar',
       );
-      await expect(this.mock.$parseHex('-1')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      await expect(this.mock.$parseHex('-f')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      await expect(this.mock.$parseHex('-0xf')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      await expect(this.mock.$parseHex('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      await expect(this.mock.$parseHex('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('-1')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('-f')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('-0xf')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('1.0')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseHexUint('1 000')).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
       expect(await this.mock.$tryParseHex('0123456789abcdefg')).to.deep.equal([false, 0n]);
       expect(await this.mock.$tryParseHex('-1')).to.deep.equal([false, 0n]);
       expect(await this.mock.$tryParseHex('-f')).to.deep.equal([false, 0n]);

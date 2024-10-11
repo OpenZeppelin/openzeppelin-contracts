@@ -18,7 +18,7 @@ contract StringsTest is Test {
     }
 
     function testParseHex(uint256 value) external {
-        assertEq(value, value.toHexString().parseHex());
+        assertEq(value, value.toHexString().parseHexUint());
     }
 
     function testParseChecksumHex(address value) external {
