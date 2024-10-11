@@ -46,7 +46,7 @@ library Bytes {
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
      */
     function lastIndexOf(bytes memory buffer, bytes1 s) internal pure returns (uint256) {
-        return lastIndexOf(buffer, s, buffer.length - 1);
+        return lastIndexOf(buffer, s, type(uint256).max);
     }
 
     /**
@@ -58,7 +58,9 @@ library Bytes {
      */
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
-            for (uint256 i = pos + 1; i > 0; --i) {
+            uint256 length = buffer.length;
+            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
+            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
                 if (buffer[i - 1] == s) {
                     return i - 1;
                 }
@@ -86,8 +88,8 @@ library Bytes {
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
         uint256 length = buffer.length;
-        start = Math.min(start, length);
         end = Math.min(end, length);
+        start = Math.min(start, end);
 
         // allocate and copy
         bytes memory result = new bytes(end - start);
