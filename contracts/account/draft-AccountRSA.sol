@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "../interfaces/draft-IERC4337.sol";
 import {AccountBase} from "./draft-AccountBase.sol";
-import {ERC1271TypedSigner} from "../utils/cryptography/ERC1271TypedSigner.sol";
+import {ERC7739Signer} from "../utils/cryptography/ERC7739Signer.sol";
 import {RSA} from "../utils/cryptography/RSA.sol";
 import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
@@ -13,14 +13,14 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
- * @dev Account implementation using {RSA} signatures and {ERC1271TypedSigner} for replay protection.
+ * @dev Account implementation using {RSA} signatures and {ERC7739Signer} for replay protection.
  *
  * NOTE: Storing `_e` and `_n` in regular storage violate ERC-7562 validation rules if the contract
  * is used as an ERC-1271 signer during the validation phase of a different account contract.
  * Consider deploying this contract through a factory that sets `_e` and `_n` as immutable arguments
  * (see {Clones-cloneDeterministicWithImmutableArgs}).
  */
-abstract contract AccountRSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
+abstract contract AccountRSA is ERC165, ERC7739Signer, ERC721Holder, ERC1155HolderLean, AccountBase {
     bytes private _e;
     bytes private _n;
 

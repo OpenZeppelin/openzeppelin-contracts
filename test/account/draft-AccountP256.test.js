@@ -7,7 +7,7 @@ const {
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { P256Signer } = require('../helpers/signers');
-const { shouldBehaveLikeERC1271TypedSigner } = require('../utils/cryptography/ERC1271TypedSigner.behavior');
+const { shouldBehaveLikeERC7739Signer } = require('../utils/cryptography/ERC7739Signer.behavior');
 
 async function fixture() {
   const [beneficiary, other] = await ethers.getSigners();
@@ -34,11 +34,11 @@ describe('AccountP256', function () {
   shouldBehaveLikeAnAccountBaseExecutor();
   shouldBehaveLikeAccountHolder();
 
-  describe('ERC1271TypedSigner', function () {
+  describe('ERC7739Signer', function () {
     beforeEach(async function () {
       this.mock = await this.smartAccount.deploy();
     });
 
-    shouldBehaveLikeERC1271TypedSigner();
+    shouldBehaveLikeERC7739Signer();
   });
 });

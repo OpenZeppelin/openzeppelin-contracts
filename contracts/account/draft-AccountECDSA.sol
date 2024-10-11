@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "../interfaces/draft-IERC4337.sol";
 import {AccountBase} from "./draft-AccountBase.sol";
-import {ERC1271TypedSigner} from "../utils/cryptography/ERC1271TypedSigner.sol";
+import {ERC7739Signer} from "../utils/cryptography/ERC7739Signer.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
@@ -13,9 +13,9 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
 import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
- * @dev Account implementation using {ECDSA} signatures and {ERC1271TypedSigner} for replay protection.
+ * @dev Account implementation using {ECDSA} signatures and {ERC7739Signer} for replay protection.
  */
-abstract contract AccountECDSA is ERC165, ERC1271TypedSigner, ERC721Holder, ERC1155HolderLean, AccountBase {
+abstract contract AccountECDSA is ERC165, ERC7739Signer, ERC721Holder, ERC1155HolderLean, AccountBase {
     address private immutable _signer;
 
     /**
