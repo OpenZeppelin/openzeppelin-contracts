@@ -11,11 +11,15 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountECDSA}}
 
+{{AccountEIP7702}}
+
 {{AccountP256}}
 
 {{AccountRSA}}
 
 {{AccountERC7579}}
+
+{{FactoryBase}}
 
 == Extensions
 
