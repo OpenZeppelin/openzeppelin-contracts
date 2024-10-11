@@ -253,8 +253,14 @@ describe('Strings', function () {
       await expect(this.mock.$tryParseInt((-ethers.MaxUint256 - 1n).toString(10))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
       );
-      await expect(this.mock.$parseInt((ethers.MaxInt256 + 1n).toString(10))).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
-      await expect(this.mock.$parseInt((ethers.MinInt256 - 1n).toString(10))).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      await expect(this.mock.$parseInt((ethers.MaxInt256 + 1n).toString(10))).to.be.revertedWithCustomError(
+        this.mock,
+        'StringsInvalidChar',
+      );
+      await expect(this.mock.$parseInt((ethers.MinInt256 - 1n).toString(10))).to.be.revertedWithCustomError(
+        this.mock,
+        'StringsInvalidChar',
+      );
       expect(await this.mock.$tryParseInt((ethers.MaxInt256 + 1n).toString(10))).to.deep.equal([false, 0n]);
       expect(await this.mock.$tryParseInt((ethers.MinInt256 - 1n).toString(10))).to.deep.equal([false, 0n]);
     });

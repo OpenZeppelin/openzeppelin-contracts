@@ -157,8 +157,7 @@ library Strings {
     /**
      * @dev Variant of {parseUint-string} that returns false if the parsing fails because of an invalid character.
      *
-     * Requirements:
-     * - The result must fit into an `uint256` type.
+     * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseUint(string memory input) internal pure returns (bool success, uint256 value) {
         return tryParseUint(input, 0, bytes(input).length);
@@ -168,8 +167,7 @@ library Strings {
      * @dev Variant of {parseUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character.
      *
-     * Requirements:
-     * - The result must fit into an `uint256` type.
+     * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseUint(
         string memory input,
@@ -214,10 +212,10 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character or if
+     * the result does not fit in a `int256`.
      *
-     * Requirements:
-     * - The result must fit into an `int256` type.
+     * NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
      */
     function tryParseInt(string memory input) internal pure returns (bool success, int256 value) {
         return tryParseInt(input, 0, bytes(input).length);
@@ -227,9 +225,9 @@ library Strings {
 
     /**
      * @dev Variant of {parseInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
-     * character.
+     * character or if the result does not fit in a `int256`.
      *
-     * This function will still revert if the result does not fit in a `int256`
+     * NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
      */
     function tryParseInt(
         string memory input,
@@ -280,8 +278,7 @@ library Strings {
     /**
      * @dev Variant of {parseHex-string} that returns false if the parsing fails because of an invalid character.
      *
-     * Requirements:
-     * - The result must fit into an `uint256` type.
+     * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseHex(string memory input) internal pure returns (bool success, uint256 value) {
         return tryParseHex(input, 0, bytes(input).length);
@@ -291,8 +288,7 @@ library Strings {
      * @dev Variant of {parseHex-string-uint256-uint256} that returns false if the parsing fails because of an
      * invalid character.
      *
-     * Requirements:
-     * - The result must fit into an `uint256` type.
+     * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseHex(
         string memory input,
