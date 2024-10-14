@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../../helpers/governance');
+const { getDomain, OverrideBallot } = require('../../helpers/eip712');
 const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
@@ -18,6 +19,9 @@ const tokenSupply = ethers.parseEther('100');
 const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
+
+const signBallot = account => (contract, message) =>
+  getDomain(contract).then(domain => account.signTypedData(domain, { OverrideBallot }, message));
 
 describe('GovernorCountingOverridable', function () {
   for (const { Token, mode } of TOKENS) {
@@ -231,7 +235,7 @@ describe('GovernorCountingOverridable', function () {
           expect(await this.mock.hasVotedOverride(this.helper.id, this.voter4)).to.be.true;
         });
 
-        it('vote (with delegated balance) and override (with self balance) are independant', async function () {
+        it('vote (with delegated balance) and override (with self balance) are independent', async function () {
           expect(await this.mock.proposalVotes(this.helper.id)).to.deep.eq(
             [0, 0, 0].map(x => ethers.parseEther(x.toString())),
           );
@@ -262,6 +266,23 @@ describe('GovernorCountingOverridable', function () {
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Abstain, ''))
             .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVoteOverride')
             .withArgs(this.voter1.address);
+        });
+
+        it('override vote with EOA sig', async function () {
+          const nonce = await this.mock.nonces(this.voter1);
+
+          await expect(
+            this.helper.overrideVote({
+              support: VoteType.For,
+              voter: this.voter1.address,
+              nonce,
+              signature: signBallot(this.voter1),
+            }),
+          )
+            .to.emit(this.mock, 'OverrideVoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.For, ethers.parseEther('10'), '');
+
+          expect(await this.mock.hasVotedOverride(this.proposal.id, this.voter1)).to.be.true;
         });
       });
     });
