@@ -113,7 +113,7 @@ library ERC165Checker {
         bool success;
         uint256 returnSize;
         uint256 returnValue;
-        assembly {
+        assembly ("memory-safe") {
             success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
             returnSize := returndatasize()
             returnValue := mload(0x00)

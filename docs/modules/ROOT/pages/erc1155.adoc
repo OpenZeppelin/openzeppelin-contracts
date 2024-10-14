@@ -108,7 +108,7 @@ ERC1155InvalidReceiver("<ADDRESS>")
 
 This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC-1155 protocol, so transfers to it are disabled to *prevent tokens from being locked forever*. As an example, https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d[the Golem contract currently holds over 350k `GNT` tokens], worth multiple tens of thousands of dollars, and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
 
-In order for our contract to receive ERC-1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us. Though we need to remember to implement functionality to allow tokens to be transferred out of our contract:
+In order for our contract to receive ERC-1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us. However, we need to remember to implement functionality to allow tokens to be transferred out of our contract:
 
 [source,solidity]
 ----
