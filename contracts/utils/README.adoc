@@ -34,7 +34,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
- * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types. 
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: A utility for abstracting the sender and calldata in the current execution context.
