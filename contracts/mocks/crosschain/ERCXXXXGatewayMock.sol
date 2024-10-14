@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.25;
 
 import {IERCXXXXGatewaySource, IERCXXXXGatewayDestinationPassive, IERCXXXXReceiver} from "../../interfaces/draft-IERCXXXX.sol";
 import {BitMaps} from "../../utils/structs/BitMaps.sol";

@@ -35,7 +35,7 @@ interface IERCXXXXGatewaySource {
 
     /**
      * @dev Endpoint for creating a new message. If the message requires further (gateway specific) processing before
-     * it can be sent to the destination chain, then a non-zero `outboxId` must be returned. Otherwize, this the
+     * it can be sent to the destination chain, then a non-zero `outboxId` must be returned. Otherwise, this the
      * message MUST be sent and this function must return 0.
      *
      * * MUST emit a {MessageCreated} event.
