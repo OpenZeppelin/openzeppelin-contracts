@@ -761,24 +761,26 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address proposer,
         string memory description
     ) internal view virtual returns (bool) {
-        uint256 length = bytes(description).length;
+        unchecked {
+            uint256 length = bytes(description).length;
 
-        // Length is too short to contain a valid proposer suffix
-        if (length < 52) {
-            return true;
+            // Length is too short to contain a valid proposer suffix
+            if (length < 52) {
+                return true;
+            }
+
+            // Extract what would be the `#proposer=` marker beginning the suffix
+            bytes10 marker = bytes10(_unsafeReadBytesOffset(bytes(description), length - 52));
+
+            // If the marker is not found, there is no proposer suffix to check
+            if (marker != bytes10("#proposer=")) {
+                return true;
+            }
+
+            // Check that the last 42 characters (after the marker) are a properly formatted address.
+            (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
+            return !success || recovered == proposer;
         }
-
-        // Extract what would be the `#proposer=` marker beginning the suffix
-        bytes10 marker = bytes10(_unsafeReadBytesOffset(bytes(description), length - 52));
-
-        // If the marker is not found, there is no proposer suffix to check
-        if (marker != bytes10("#proposer=")) {
-            return true;
-        }
-
-        // Check that the last 42 characters (after the marker) are a properly formatted address.
-        (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
-        return !success || recovered == proposer;
     }
 
     /**
