@@ -35,7 +35,7 @@ contract ERCXXXXGatewayMock is IERCXXXXGatewaySource, IERCXXXXGatewayDestination
         require(destination.equal(source), "This mock only supports local messages");
         for (uint256 i = 0; i < attributes.length; ++i) {
             bytes4 selector = bytes4(attributes[i][0:4]);
-            require(supportsAttribute(selector), UnsuportedAttribute(selector));
+            if (!supportsAttribute(selector)) revert UnsuportedAttribute(selector);
         }
 
         if (_activeMode) {
