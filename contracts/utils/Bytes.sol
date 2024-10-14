@@ -30,7 +30,7 @@ library Bytes {
         unchecked {
             uint256 length = buffer.length;
             for (uint256 i = pos; i < length; ++i) {
-                if (buffer[i] == s) {
+                if (bytes1(_unsafeReadBytesOffset(buffer, i)) == s) {
                     return i;
                 }
             }
@@ -61,7 +61,7 @@ library Bytes {
             uint256 length = buffer.length;
             // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
             for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
-                if (buffer[i - 1] == s) {
+                if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
             }
@@ -100,10 +100,15 @@ library Bytes {
         return result;
     }
 
-    /// @dev Reads a bytes32 from a bytes array without bounds checking.
-    function unsafeReadBytesOffset(bytes memory buffer, uint256 offset) internal pure returns (bytes32 value) {
-        // This is not memory safe in the general case
-        assembly {
+    /**
+     * @dev Reads a bytes32 from a bytes array without bounds checking.
+     *
+     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
+     * assembly block as such would prevent some optimizations.
+     */
+    function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
             value := mload(add(buffer, add(0x20, offset)))
         }
     }
