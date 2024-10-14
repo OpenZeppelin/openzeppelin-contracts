@@ -6,10 +6,9 @@ import {Votes} from "./Votes.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
- * @dev Extension of {Votes} that adds support for checkpointed delegations and balances. This is required
- * to use the `GovernorOverrideDelegateVote` extension.
+ * @dev Extension of {Votes} that adds exposes checkpoints for delegations and balances.
  */
-abstract contract VotesOverridable is Votes {
+abstract contract VotesAdditionalCheckpoints is Votes {
     using SafeCast for uint256;
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;

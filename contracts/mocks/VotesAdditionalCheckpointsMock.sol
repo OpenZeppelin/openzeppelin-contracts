@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import {VotesOverridable} from "../governance/utils/VotesOverridable.sol";
+import {VotesAdditionalCheckpoints} from "../governance/utils/VotesAdditionalCheckpoints.sol";
 
-abstract contract VotesOverridableMock is VotesOverridable {
+abstract contract VotesAdditionalCheckpointsMock is VotesAdditionalCheckpoints {
     mapping(address voter => uint256) private _votingUnits;
 
     function getTotalSupply() public view returns (uint256) {
@@ -30,7 +30,7 @@ abstract contract VotesOverridableMock is VotesOverridable {
     }
 }
 
-abstract contract VotesOverridableTimestampMock is VotesOverridableMock {
+abstract contract VotesAdditionalCheckpointsTimestampMock is VotesAdditionalCheckpointsMock {
     function clock() public view override returns (uint48) {
         return uint48(block.timestamp);
     }

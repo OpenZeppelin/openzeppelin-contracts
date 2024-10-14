@@ -259,6 +259,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params
     ) internal virtual returns (uint256);
 
+    /**
+     * @dev Hook that should be called every time the tally for a proposal is updated.
+     */
     function _tallyUpdated(uint256 proposalId) internal virtual {}
 
     /**
